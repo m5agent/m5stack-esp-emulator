@@ -200,3 +200,37 @@ compare callback functions with ASan/UBSan. They preserve old-implementation
 negative controls, counter and deadline wrap, due/latched/unarmed timer cases,
 initial unclocked state, unchanged reset behavior, CPU isolation, and the
 MTTCG boundary. Host controls do not replace the original Device Service runs.
+
+
+## Fresh native layers 0194–0198
+
+[`final-0194-0198-summary.json`](final-0194-0198-summary.json) binds a fresh
+146-patch build to canonical QEMU `40edccac...`, all 147 modified source files
+and native runtime `35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26`.
+No QEMU objects were reused; reuse of pinned static dependencies is recorded.
+This is **virtual-device validation**, separate from every earlier failure and
+incremental candidate above.
+
+Five original Device Service paths pass their bounded application checks:
+Lite, Matrix and Matrix v1.1 each run for 130 seconds; Core2 UIFlow1 and HamRadio
+each run for 180 seconds. Original application bytes are preserved. Both Matrix
+profiles show nonblack LEDs, actual button edges and DHCP/DNS/TCP traffic; the
+original factory server still returns HTTP 404, so factory-service success
+remains **PARTIAL**. UIFlow1 naturally advances from its App/Flow/Setup homepage
+to Wi-Fi Config without input. Its initial admitted image and machine settings
+match the earlier runs; Wi-Fi provisioning and cloud pairing were not tested.
+HamRadio reads the supplied SD configuration through actual B/C/B selection and
+reaches its IC-705 USB gauge with `CHECK WIFI`; radio/CI-V operation is not claimed.
+
+The same frozen runtime passes the checked-in `core2-sd` and `cardputer-adv-imu`
+regressions, once each without retries. The SD sector matches the independent
+512-byte oracle, and the IMU's complete before/after frames and UART markers
+show the expected six-axis values. DPORT and BLE clock snapshot qtests also pass.
+A first HamRadio harness attempt lacked the host Pillow import path; its
+**INFRA_FAILED** evidence and cleanup are retained separately from the corrected
+run. All original sessions captured ZIPs before stop; owned guests, service,
+leases and mutable Flash were released.
+
+These bounded results do not grant the full high-load matrix, resident deployment,
+browser-WASM, physical hardware or original JIGGLER readiness. In particular,
+BR/EDR low-power behavior remains a separate issue 225 investigation.

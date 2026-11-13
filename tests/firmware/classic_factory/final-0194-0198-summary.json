@@ -1,0 +1,789 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "kind": "native-0194-0198-original-firmware-regression",
+  "validation": "virtual-device validation",
+  "source_commit": "2a44c4106bb378a8551b21700ba3c09023bcba4e",
+  "build_time_source_commit": "2a44c4106bb378a8551b21700ba3c09023bcba4e",
+  "build_time_source_commit_is_clean_snapshot": false,
+  "canonical_qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+  "build_manifest_sha256": "ec856e22aca24e23be8d78858412b9a2bc866fad300d2dcc166a914c3f117ae4",
+  "source_receipt_sha256": "b2301714f63e4ddfeaed25289902e216359c6d824e5e2a5c7c5cd949740605c4",
+  "committed_source_binding_sha256": "a767636eb897fd01359b43b720a6ee6d9d6312d1b222aff8fa91b1286236df1d",
+  "all_committed_patch_bytes_equal_build": true,
+  "all_native_source_bytes_equal_receipt": true,
+  "patches": {
+    "patches/qemu-m5stack-peripherals/0194-xtensa-restored-irq-level.patch": "dfef8de6bad89b97100dd77742a880558d8936237064beefe5d75f18bb412faf",
+    "patches/qemu-m5stack-peripherals/0195-classic-dport-bt-lp-clock.patch": "277dae637a1a818ac0bfaef3f469af64627695b7d44f81c12359bf44153324b1",
+    "patches/qemu-m5stack-peripherals/0196-classic-dport-wifi-clock-enable.patch": "db2749ce78672583db50aeda071cf2a0ca619fb7ab60907ec9e75ed0b30c2ad1",
+    "patches/qemu-m5stack-peripherals/0197-xtensa-clock-switch-cycle-continuity.patch": "13dc0c6d62fef9342805157860b24837a083e8838769fed054bf1b39b9b8cd08",
+    "patches/qemu-m5stack-peripherals/0198-classic-ble-clock-snapshot.patch": "338757816a981b085e2d584ee382aeb89958ee247bb8c0c0b48181f1f9bbfa06"
+  },
+  "patch_count": 146,
+  "source_file_count": 147,
+  "qemu_objects_reused": false,
+  "dependency_reuse": "Pinned existing static libraries, archives and venv; all QEMU objects freshly built.",
+  "rom_sha256": {
+    "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+    "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+    "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442"
+  },
+  "host_controls": {
+    "status": "NOT RUN in this fresh-build pass",
+    "scope": "Root owns full host suite; actual frozen-runtime qtest recorded separately."
+  },
+  "cases": [
+    {
+      "case": "lite",
+      "device": "atom-lite",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "observed_seconds": 130.133,
+      "original_app_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "original_app_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "serial": {
+        "bytes": 15594203,
+        "sha256": "d267d548ac09d8ab6f6f348dd6f228c66275b1906ad2954b1361a377b3a29a69",
+        "rom_boot_markers": 1,
+        "guru_markers": 0,
+        "interrupt_watchdog_markers": 0,
+        "abort_markers": 0
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.194,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.302,
+          "accepted": true
+        }
+      ],
+      "evidence_zip_sha256": "ddac761eb94b8d5ffc40808dbcb46aeae69ed3b61916f7f292b483a68d5646ab",
+      "observation_sha256": "5b2bd6418268c0c754878b650dcca01a414995652de7a7009dd3b2a5ae2c2937",
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3828208,
+        "/machine/rmt-classic/tx-threshold-events": 57955,
+        "/machine/rmt-classic/tx-completions": 8062,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 8062,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 1310720,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 63,
+        "distinct_states": 2
+      },
+      "status": "PASS for original startup, 130-second observation, GPIO and LED output",
+      "initialization_marker": "M5Atom initializing...OK"
+    },
+    {
+      "case": "matrix",
+      "device": "atom-matrix",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "observed_seconds": 130.256,
+      "original_app_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "original_app_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "serial": {
+        "bytes": 468,
+        "sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+        "rom_boot_markers": 1,
+        "guru_markers": 0,
+        "interrupt_watchdog_markers": 0,
+        "abort_markers": 0
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.146,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.256,
+          "accepted": true
+        }
+      ],
+      "evidence_zip_sha256": "a8c227869d63bfc96b23c9cd83d31210808a80e4f851cc7c193b90e3e22d109d",
+      "observation_sha256": "4ff1b9861386d2a88f9cb17ae6d4bedc6c3dfdb2c518e4a5a08efb6a4a06e917",
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 4900081,
+        "/machine/rmt-classic/tx-threshold-events": 73506,
+        "/machine/rmt-classic/tx-completions": 8214,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 8154,
+        "/machine/onboard_io/incomplete-frames": 61,
+        "/machine/onboard_io/led-rgb": [
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 64,
+        "distinct_states": 58
+      },
+      "network": {
+        "validation": "virtual-device validation",
+        "packet_counts": {
+          "ethernet_packets": 28,
+          "udp_packets": 6,
+          "dhcp_packets": 4,
+          "arp_packets": 11,
+          "dns_packets": 2,
+          "tcp_packets": 10,
+          "tcp_syn_packets": 2,
+          "http_requests": 1
+        },
+        "http_response_statuses": [
+          404
+        ],
+        "fixture": false,
+        "raw_pcap_sha256": "222a511e8168b7b0cb9e078a3714ab128f59cbf58981b4a10a3cae6f55f34445",
+        "identifiers_redacted": true
+      },
+      "status": "PASS for original boot, LED/GPIO and network transport; PARTIAL for factory HTTP",
+      "limits": [
+        "Original server returns HTTP 404; no HTTP fixture or fabricated factory success."
+      ]
+    },
+    {
+      "case": "matrix-v11",
+      "device": "atom-matrix-v11",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "observed_seconds": 130.284,
+      "original_app_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "original_app_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "serial": {
+        "bytes": 468,
+        "sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+        "rom_boot_markers": 1,
+        "guru_markers": 0,
+        "interrupt_watchdog_markers": 0,
+        "abort_markers": 0
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.175,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.284,
+          "accepted": true
+        }
+      ],
+      "evidence_zip_sha256": "c60805b9819d4271588d375b4a726fe3abfff8ac754dc05f2be3abcbc6366917",
+      "observation_sha256": "a9e598b122568b4b2d7b11c5fa4bee3c7fb010f5e81b9dea41a95cd08d2256d8",
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 5904392,
+        "/machine/rmt-classic/tx-threshold-events": 88571,
+        "/machine/rmt-classic/tx-completions": 9891,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 9827,
+        "/machine/onboard_io/incomplete-frames": 64,
+        "/machine/onboard_io/led-rgb": [
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          655360,
+          655360,
+          655360
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 64,
+        "distinct_states": 58
+      },
+      "network": {
+        "validation": "virtual-device validation",
+        "packet_counts": {
+          "ethernet_packets": 29,
+          "udp_packets": 6,
+          "dhcp_packets": 4,
+          "arp_packets": 13,
+          "dns_packets": 2,
+          "tcp_packets": 10,
+          "tcp_syn_packets": 2,
+          "http_requests": 1
+        },
+        "http_response_statuses": [
+          404
+        ],
+        "fixture": false,
+        "raw_pcap_sha256": "31aad5d8a7c4aff10c0bcfea903dd089ce6d00cdea72b3d368a683ca985593c4",
+        "identifiers_redacted": true
+      },
+      "status": "PASS for original boot, LED/GPIO and network transport; PARTIAL for factory HTTP",
+      "limits": [
+        "Original server returns HTTP 404; no HTTP fixture or fabricated factory success."
+      ]
+    },
+    {
+      "case": "uiflow1",
+      "device": "core2",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "observed_seconds": 180.154,
+      "original_app_before": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "bytes": 5373952,
+          "equal": true,
+          "sha256": "c23adacab57df0f97b809fad52ab24f290be47cd5c2222974ff0af5a0359e603"
+        }
+      ],
+      "original_app_after": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "bytes": 5373952,
+          "equal": true,
+          "sha256": "c23adacab57df0f97b809fad52ab24f290be47cd5c2222974ff0af5a0359e603"
+        }
+      ],
+      "serial": {
+        "bytes": 552,
+        "sha256": "f9cd864332461578d0cf2ef060a4c052bcade165c22f8835ce33ccf42ba51b48",
+        "rom_boot_markers": 1,
+        "guru_markers": 0,
+        "interrupt_watchdog_markers": 0,
+        "abort_markers": 0
+      },
+      "inputs": [],
+      "evidence_zip_sha256": "3d822e4a5161dc5d96c285c349fe9e943e0f40b7eced1d7a54826be2f17b8549",
+      "observation_sha256": "3a60a0ae712fef46fde6d06873daef5b1a1b75dbd85225044410beb385373095",
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "frame_review": {
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "frame_sha256": "2cd944d72ee20e430c0abc3bf84463b03d9734db3ab4679b7051ef4e001f8417",
+        "observation": "At 90 seconds the original official App/Flow/Setup homepage is visible; by 180 seconds the firmware naturally advances to Wi-Fi Config without injected input.",
+        "limits": [
+          "No Wi-Fi provisioning, cloud pairing or physical hardware claim."
+        ],
+        "raw_frame_public": false
+      },
+      "frames": [
+        {
+          "name": "frame-final.png",
+          "sha256": "2cd944d72ee20e430c0abc3bf84463b03d9734db3ab4679b7051ef4e001f8417",
+          "bytes": 14260
+        }
+      ],
+      "status": "PASS for original Wi-Fi Config page at 180 seconds",
+      "limits": [
+        "Cloud pairing and network provisioning NOT RUN."
+      ]
+    },
+    {
+      "case": "ham",
+      "device": "core2",
+      "original_firmware_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "normalized_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "observed_seconds": 180.141,
+      "original_app_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "original_app_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "serial": {
+        "bytes": 22712,
+        "sha256": "07e48d91fccbfa797e2cde5d49b76324d836e5232623e244c636db5189c42962",
+        "rom_boot_markers": 1,
+        "guru_markers": 0,
+        "interrupt_watchdog_markers": 0,
+        "abort_markers": 0
+      },
+      "inputs": [
+        {
+          "key": "b",
+          "action": "tap",
+          "elapsed_seconds": 10.968,
+          "accepted": true,
+          "readiness_trigger": "blue Ini Loader progress in actual frame"
+        },
+        {
+          "key": "c",
+          "action": "tap",
+          "accepted": true,
+          "readiness_trigger": "actual menu/selection frame review"
+        },
+        {
+          "key": "b",
+          "action": "tap",
+          "accepted": true,
+          "readiness_trigger": "actual menu/selection frame review"
+        }
+      ],
+      "evidence_zip_sha256": "3f9c92c5b3bc9f46df48bd3e362e0fd8869d6686cb397bf9e64a3a17bcebf1a1",
+      "observation_sha256": "ec02ee9dbe47b74f843591da5ca02446ad06975d77f87a21673e30be94a1ddcc",
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "frame_review": {
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "frame_sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+        "observation": "Actual B during blue Ini Loader progress opened SD list; C selected IC705USB.ini; B saved configuration; final 180-second frame shows 705 USB analog gauge and CHECK WIFI.",
+        "limits": [
+          "No personal Wi-Fi credentials or transceiver supplied; CI-V transport, RF and physical hardware NOT RUN."
+        ],
+        "raw_frame_public": false
+      },
+      "frames": [
+        {
+          "name": "frame-final.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-ini-ready.png",
+          "sha256": "7e6229fb755c85ea271a2a36f4c2fe822abc3e284e47083e01cb57ef38de86d0",
+          "bytes": 1699
+        },
+        {
+          "name": "manual-b-frame.png",
+          "sha256": "057fd0b6c61d706ab2104862bc69f32f21b17184a0867ec9a82bc59d0a884200",
+          "bytes": 2475
+        },
+        {
+          "name": "manual-c-frame.png",
+          "sha256": "9e37713d012d75a8f6f2f4b3afc2aa11487ecb96cde77afeab545f698b5d1198",
+          "bytes": 2502
+        }
+      ],
+      "status": "PASS for original SD enumeration and actual B/C/B configuration selection",
+      "sd_image_sha256": "4700f8d0d81fc702faa096517f2fdb29b420473f4f8188efa4b6f2b81b21ff6e",
+      "configuration_source": "https://github.com/armel/M5HamRadio/tree/f10b8924bcfd990f970947dbff9144ce88566799/ini",
+      "configuration_sha256": {
+        "DXTracker.ini": "0fa92d2e139a3bb071eff1408aa87d1bb098cafc65e4b30d31a3aae62dd0ffa8",
+        "IC705USB.ini": "9c8443d2c48eb5521b5d3e96b45eab3c62ec1fb0832cc9cb1472a7a397b03b18"
+      },
+      "sd_files_enumerated_in_guest": true,
+      "limits": [
+        "No personal WiFi credentials or radio supplied; CI-V and RF NOT RUN."
+      ]
+    }
+  ],
+  "limits": [
+    "Matrix HTTP 404 remains PARTIAL.",
+    "Original e529, dfb, MEMW control failures, bounded clock observers and earlier candidates remain retained separately.",
+    "Shared full matrix, resident deployment and browser-WASM are separate gates.",
+    "No physical hardware, RF, electrical timing or mechanical claim.",
+    "0198 does not claim original JIGGLER readiness or BR/EDR low-power behavior; separate issue225 work remains."
+  ],
+  "burner_submitted": false,
+  "raw_evidence_published": false,
+  "targeted_regressions": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "core2-sd",
+        "status": "PASS",
+        "lane": "checked-in native peripheral regression",
+        "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "composed_initial_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+        "retained_final_flash_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+        "source_sha256": "eff7cb3d86c6b6f8c8aa24e580cb2c1271ab9bcd2d70764f34c371dc8e04c7c1",
+        "effective_source_sha256": "6bc811df535448acb671b1e0a34a1f7aecbb925ceaf4d20222bb7b761c113608",
+        "composition_preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "exit_code": 0,
+        "attempts": 1,
+        "retry_used": false,
+        "checks": [
+          {
+            "name": "sdspi_init",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "disk",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "sdspi_write_block",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "disk",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "sdspi_readback",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "disk",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "sd_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "disk",
+              "frame-marker"
+            ]
+          }
+        ],
+        "serial_sha256": "0fb8ce7639d923ffe2b7fcc9c8bb7b2a36ce6186f7be3dbd0e04d8c02ecfbffd",
+        "frames": {
+          "before.png": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f",
+          "after.png": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+        },
+        "visual_review": "PASS",
+        "observed_markers": [
+          "CORE2_SD_MAIN",
+          "CORE2_SD_READY",
+          "CORE2_SD_RW_PASS",
+          "CORE2_SD_DRAW_COMPLETE"
+        ],
+        "disk": {
+          "sector": 100,
+          "bytes": 512,
+          "sha256": "d22f283a006ac29d8a7e01aed730427af33d2c33daab0cf878a3887294d72bee",
+          "independent_pattern_match": true
+        },
+        "visual_detail": "Green successful frame marker and Core2 SPI SD title."
+      },
+      {
+        "case": "cardputer-adv-imu",
+        "status": "PASS",
+        "lane": "checked-in native peripheral regression",
+        "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+        "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "composed_initial_sha256": "991bf741c69c8b9e65e71fb4f9aa62d781f8004cfa373c73e693ecc1feccbf1f",
+        "retained_final_flash_sha256": "991bf741c69c8b9e65e71fb4f9aa62d781f8004cfa373c73e693ecc1feccbf1f",
+        "source_sha256": "b70e03bee023f1ce0f06dd41b596639c84a09cee7edbb3c7144b0b5cd2cdd85e",
+        "effective_source_sha256": "b70e03bee023f1ce0f06dd41b596639c84a09cee7edbb3c7144b0b5cd2cdd85e",
+        "composition_preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "exit_code": 0,
+        "attempts": 1,
+        "retry_used": false,
+        "checks": [
+          {
+            "name": "cardputer_bmi270_init",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "cardputer_bmi270_accel",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "cardputer_bmi270_gyro",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "cardputer_imu_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "frame-marker"
+            ]
+          }
+        ],
+        "serial_sha256": "c43a48d7ebbc6b40c6a62261cc31e55e7d35f47a396ca82969672298c721cacd",
+        "frames": {
+          "before.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+          "after.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72"
+        },
+        "visual_review": "PASS",
+        "observed_markers": [
+          "CARDPUTER_ADV_IMU_ACCEL 0.25000 -0.50000 0.75000",
+          "CARDPUTER_ADV_IMU_GYRO 10.00977 -20.01953 30.02930",
+          "CARDPUTER_ADV_IMU_DRAW_COMPLETE"
+        ],
+        "visual_detail": "Before and after show complete BMI270 accel/gyro PASS text with green marker; no partial-draw frame accepted."
+      }
+    ],
+    "raw_matrix_summary_sha256": "c31ef7bd1daadca0d24448d8dd9ece32d17b21f344eca7c97fcf0cf76f1ef86d",
+    "checker_source_sha256": {
+      "tests/uiflow2/run_peripheral_matrix.py": "982009ea01d67f8c693ba02a0d3f62d718496ed7dfdca2520246512df7c33979",
+      "tests/uiflow2/run_profile_ui_test.py": "6c002f1a6b4e7e14c5956d6af743d0da6415bbd7adc5f262e7886ac0cb91199a",
+      "tests/uiflow2/check_disk_sector.py": "380e3f7a7e8a68d7623f44245f7c4a0147b2404ed6cb7aa5b0ed1dd7267edb30"
+    }
+  },
+  "qtest": {
+    "status": "PASS",
+    "summary_sha256": "ac1056d0459335eeaed92c7840371c4353ebd61c4f93644e2ae161450a022080",
+    "scope": "DPORT BT LP/WiFi clock registers and sampled BLE clock; no JIGGLER ready claim"
+  },
+  "retained_infrastructure_failure": {
+    "case": "ham-initial-harness",
+    "status": "INFRA_FAILED",
+    "reason": "Host runner lacked Pillow import path at first frame; no input sent. Existing pinned dependency path supplied for a new independent run.",
+    "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+    "observation_sha256": "11b04a51bc8e845c557fe93516fe0b65c14ed6f2220f3bb0624c48fd4d74e996",
+    "evidence_zip_sha256": "7a887d2c343319b41881060e7c5092e0724cb9f7ca4bc267980a0224c8d11d8f",
+    "zip_before_stop": true,
+    "state": "stopped",
+    "inputs": 0,
+    "firmware_failure_claim": false
+  },
+  "uiflow1_startup_context": {
+    "comparison_sha256": "8e75f88fa72a3b3e7f44e0ab5eb1df67ca54d0a7503bdda5a66c314a7441adb8",
+    "same_raw_normalized_and_app_as_e529_and_a2": true,
+    "no_nvs_override_requested": true,
+    "observation": "Main App/Flow/Setup menu at 90s, naturally Wi-Fi Config at 180s, without injected input."
+  },
+  "cleanup": {
+    "status": "PASS",
+    "dedicated_service_stopped": true,
+    "accepted_original_sessions_stopped": 5,
+    "harness_failure_session_stopped": 1,
+    "all_recorded_guest_and_service_pids_not_live": true,
+    "targeted_runner_or_qemu_processes_live": 0,
+    "active_leases": 0,
+    "mutable_flash_retained": 0,
+    "history_retained": true,
+    "private_receipt_sha256": "a9ea710233749b44b797b0a72fc82973800279916c3389ffd3527031ec6066ae"
+  }
+}
