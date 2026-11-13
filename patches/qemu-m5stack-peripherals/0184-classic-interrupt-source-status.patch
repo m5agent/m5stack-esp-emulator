@@ -1,0 +1,78 @@
+From: m5agent <m5agent@m5stack.com>
+Subject: [PATCH] esp32: expose pending peripheral interrupt source status
+
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -468,6 +468,9 @@
+     }
+     qdev_realize(DEVICE(&s->intmatrix), &s->periph_bus, &error_fatal);
+     DeviceState* intmatrix_dev = DEVICE(&s->intmatrix);
++    memory_region_add_subregion_overlap(
++        dport_mem, 0xec,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->intmatrix), 1), -1);
+     memory_region_add_subregion_overlap(dport_mem, ESP32_DPORT_PRO_INTMATRIX_BASE, sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->intmatrix), 0), -1);
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         qdev_connect_gpio_out_named(
+diff --git a/hw/xtensa/esp32_intc.c b/hw/xtensa/esp32_intc.c
+--- a/hw/xtensa/esp32_intc.c
++++ b/hw/xtensa/esp32_intc.c
+@@ -109,6 +109,37 @@
+     }
+ }
+ 
++/* DPORT exposes the live peripheral source lines before CPU routing. */
++static uint64_t esp32_intmatrix_status_read(void *opaque, hwaddr addr,
++                                           unsigned int size)
++{
++    Esp32IntMatrixState *s = ESP32_INTMATRIX(opaque);
++    unsigned bank = (addr / sizeof(uint32_t)) % 3;
++    uint32_t value = 0;
++
++    for (unsigned bit = 0; bit < 32; ++bit) {
++        unsigned source = bank * 32 + bit;
++        if (source < ESP32_INT_MATRIX_INPUTS && s->irq_level[source]) {
++            value |= 1U << bit;
++        }
++    }
++    return value;
++}
++
++static void esp32_intmatrix_status_write(void *opaque, hwaddr addr,
++                                         uint64_t value, unsigned int size)
++{
++    /* Read-only: source devices own interrupt acknowledgement. */
++}
++
++static const MemoryRegionOps esp_intmatrix_status_ops = {
++    .read = esp32_intmatrix_status_read,
++    .write = esp32_intmatrix_status_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
+ static const MemoryRegionOps esp_intmatrix_ops = {
+     .read =  esp32_intmatrix_read,
+     .write = esp32_intmatrix_write,
+@@ -152,6 +183,9 @@
+     memory_region_init_io(&s->iomem, obj, &esp_intmatrix_ops, s,
+                           TYPE_ESP32_INTMATRIX, ESP32_INT_MATRIX_INPUTS * ESP32_CPU_COUNT * sizeof(uint32_t));
+     sysbus_init_mmio(sbd, &s->iomem);
++    memory_region_init_io(&s->status_iomem, obj, &esp_intmatrix_status_ops, s,
++                          TYPE_ESP32_INTMATRIX ".status", 6 * sizeof(uint32_t));
++    sysbus_init_mmio(sbd, &s->status_iomem);
+ 
+     qdev_init_gpio_in(DEVICE(s), esp32_intmatrix_irq_handler, ESP32_INT_MATRIX_INPUTS);
+     qdev_init_gpio_in_named(
+diff --git a/include/hw/xtensa/esp32_intc.h b/include/hw/xtensa/esp32_intc.h
+--- a/include/hw/xtensa/esp32_intc.h
++++ b/include/hw/xtensa/esp32_intc.h
+@@ -32,6 +32,7 @@
+     SysBusDevice parent_obj;
+ 
+     MemoryRegion iomem;
++    MemoryRegion status_iomem;
+     qemu_irq *outputs[ESP32_CPU_COUNT];
+     uint8_t irq_map[ESP32_CPU_COUNT][ESP32_INT_MATRIX_INPUTS];
+     uint8_t irq_level[ESP32_INT_MATRIX_INPUTS];

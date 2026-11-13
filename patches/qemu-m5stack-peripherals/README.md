@@ -1384,3 +1384,13 @@ atomic permission assertion remains intact. The
 [S3 cache/atomic fixture](../../tests/firmware/s3_cache_atomic/README.md) provides
 a guest-level race regression; its result does not establish StackChan firmware
 stability or browser-WASM support.
+
+`0184-classic-interrupt-source-status.patch` supplies the six read-only classic
+ESP32 DPORT interrupt-source status registers at `0x3ff000ec..0x3ff00100`.
+Both core banks observe the real interrupt-matrix source levels; source
+controllers retain acknowledgement ownership. The original Atom-Lite IDF
+4.4.2 high-priority handler uses source bit 20 to distinguish TG1 watchdog
+from cache errors. Previously the missing status window returned zero, so
+both cores entered the non-offending-cache-panic loop. The same BIN now
+prints the actual interrupt-watchdog diagnostic; this change alone does not
+fix the separate scheduler wait. See the classic factory bounded summary.
