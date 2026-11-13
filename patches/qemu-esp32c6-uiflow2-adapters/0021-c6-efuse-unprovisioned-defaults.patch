@@ -1,0 +1,59 @@
+diff --git a/hw/nvram/esp32c6_efuse.c b/hw/nvram/esp32c6_efuse.c
+index ea2210c..ddb9622 100644
+--- a/hw/nvram/esp32c6_efuse.c
++++ b/hw/nvram/esp32c6_efuse.c
+@@ -11,6 +11,35 @@
+ #include "qemu/module.h"
+ #include "hw/nvram/esp32c6_efuse.h"
+ 
++static void esp32c6_efuse_realize(DeviceState *dev, Error **errp)
++{
++    ESP32C6EfuseClass *klass = ESP32C6_EFUSE_GET_CLASS(dev);
++    ESPEfuseState *s = ESP_EFUSE(dev);
++
++    klass->parent_realize(dev, errp);
++    if (s->blk == NULL && s->mirror != NULL) {
++        /*
++         * The C3 parent supplies C3 revision/block-version defaults. In the
++         * C6 layout those bits also select a different package and calibration
++         * data. An unprovisioned C6 has an empty mirror, not C3 factory data.
++         * An explicitly supplied C6 backing remains entirely authoritative.
++         */
++        s->efuses.blocks.rd_mac_spi_sys_3 = 0;
++        s->efuses.blocks.rd_sys_part1_data4 = 0;
++        memcpy(s->mirror, &s->efuses.blocks, sizeof(ESPEfuseBlocks));
++    }
++}
++
++static void esp32c6_efuse_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    ESP32C6EfuseClass *efuse_class = ESP32C6_EFUSE_CLASS(klass);
++
++    /* Keep a distinct slot; overwriting the C3 slot would recurse. */
++    device_class_set_parent_realize(dc, esp32c6_efuse_realize,
++                                    &efuse_class->parent_realize);
++}
++
+ static void esp32c6_efuse_init(Object *obj)
+ {
+ }
+@@ -20,6 +49,8 @@ static const TypeInfo esp32c6_efuse_info = {
+     .parent = TYPE_ESP32C3_EFUSE,
+     .instance_size = sizeof(ESP32C6EfuseState),
+     .instance_init = esp32c6_efuse_init,
++    .class_init = esp32c6_efuse_class_init,
++    .class_size = sizeof(ESP32C6EfuseClass),
+ };
+ 
+ static void esp32c6_efuse_register_types(void)
+diff --git a/include/hw/nvram/esp32c6_efuse.h b/include/hw/nvram/esp32c6_efuse.h
+index 99434d5..f981cf1 100644
+--- a/include/hw/nvram/esp32c6_efuse.h
++++ b/include/hw/nvram/esp32c6_efuse.h
+@@ -22,4 +22,5 @@ typedef struct ESP32C6EfuseState {
+ 
+ typedef struct ESP32C6EfuseClass {
+     ESP32C3EfuseClass parent_class;
++    DeviceRealize parent_realize;
+ } ESP32C6EfuseClass;

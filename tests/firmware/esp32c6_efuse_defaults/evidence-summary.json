@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "status": "CANDIDATE",
+  "validation": "virtual-device validation for causal controls; host actual-C validation for proposed correction",
+  "same_original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+  "canonical_qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+  "patch_sha256": "482687f2de803c1e2d079916e9c9487cd75307a0a3d3284028074eeaea7898bc",
+  "root_cause": "Raising the real C6 eFuse subregion above the LP fallback exposed inherited C3-only defaults when no backing was attached. C3 block-version bits decode as C6 package 3. The attached NanoC6 identity fixture had bypassed that parent default branch and did not exercise this path.",
+  "runs": [
+    {
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "runtime_sha256": "17ac31429bd80c11f525c3f89dd3d59b5d84f7298d05ff526e74d84da29bd634",
+      "service_source_commit": "671a2de1fe39273d69aaf4c17d1d98ce5fa66c6e",
+      "observed_seconds": 30.031255333917215,
+      "serial_sha256": "6bcc64e1169507b51261a6fd0e714d8806d67991195a982b57c7e2606d1cacb3",
+      "boot_banners": 1,
+      "fatal_markers": [],
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "f8e07cdc18d32b6ac19a9c7e5f3f610c349fbfb3bac385b53b24bd0f25833790",
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "case": "17ac",
+      "device": "nesso-n1",
+      "input": "No input; bounded boot/display and passive CPU/MMIO observations",
+      "frames": [
+        {
+          "at_seconds": 0,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "4002088e"
+        },
+        {
+          "at_seconds": 2,
+          "png_sha256": "deb37959f6eaeaaa2f02eebfd1dd4f8eb1827e2d5ea6429d863c44f244f3477d",
+          "pixel_sha256": "cccae7d9b5b78e61016b05c0f75caa4fb4ca5cfea82d1613290b462c71c9ae65",
+          "nonblack_pixels": 1397,
+          "pc": "408146ae"
+        },
+        {
+          "at_seconds": 5,
+          "png_sha256": "58f2036c03a67b4c1c6f59bfc1ad04478921fd2ef2ef24bcae2ea57d2e38d099",
+          "pixel_sha256": "48adc9656ddce9dee5c83980e99c6c9869a7119af11f29a808b3da22d46a6af7",
+          "nonblack_pixels": 4162,
+          "pc": "42041ff0"
+        },
+        {
+          "at_seconds": 10,
+          "png_sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "pc": "408146d2"
+        },
+        {
+          "at_seconds": 20,
+          "png_sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "pc": "4080e726"
+        },
+        {
+          "at_seconds": 30,
+          "png_sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "pc": "4080024e"
+        }
+      ],
+      "display_observation": "Nonblack boot/UI frames",
+      "raw_efuse_words": {
+        "0x600b0850": "0x00000000",
+        "0x600b086c": "0x00000000"
+      }
+    },
+    {
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "service_source_commit": "671a2de1fe39273d69aaf4c17d1d98ce5fa66c6e",
+      "observed_seconds": 30.00503733404912,
+      "serial_sha256": "d5d1481e2c58410fe9101bb11319fed5f244e1011dc0bda82a9a0ec3e1b4a9d5",
+      "boot_banners": 1,
+      "fatal_markers": [],
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "918c7d08f5e56c899a6e5323b5b2ecbd331fd328a8f402950bd54b89454127cc",
+      "same_session_zip_verified": true,
+      "actual_native_sha_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "case": "bfd4",
+      "device": "nesso-n1",
+      "input": "No input; bounded boot/display and passive CPU/MMIO observations",
+      "frames": [
+        {
+          "at_seconds": 0,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "4222ade6"
+        },
+        {
+          "at_seconds": 2,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "4002088c"
+        },
+        {
+          "at_seconds": 5,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "400208c2"
+        },
+        {
+          "at_seconds": 10,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "40814204"
+        },
+        {
+          "at_seconds": 20,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "4080e726"
+        },
+        {
+          "at_seconds": 30,
+          "png_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "pc": "4080e726"
+        }
+      ],
+      "display_observation": "All six frames black",
+      "raw_efuse_words": {
+        "0x600b0850": "0x030c0000",
+        "0x600b086c": "0x00000001"
+      }
+    }
+  ],
+  "causal_boundary": "The two runtimes share the TSF patch; bfd4 additionally has the eFuse mapping correction. USB 0020 is absent from both. The observed display difference therefore precedes USB 0020.",
+  "host_controls": {
+    "status": "PASS",
+    "cases_per_version": 6,
+    "before_expected_failures": 2,
+    "before_unchanged_controls": 4,
+    "after_passes": 6,
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "coverage": [
+      "C3 defaults unchanged",
+      "C6 empty mirror has no C3 defaults",
+      "provided C3 backing unchanged",
+      "provided C6 backing unchanged",
+      "corrected C6 mirror survives reload",
+      "other mirror fields and distinct parent-realize slots preserved"
+    ]
+  },
+  "candidate_guest_validation": "NOT RUN: correction is committed for independent review before the next combined candidate build. No fixed-runtime Bruce PASS is claimed.",
+  "limits": [
+    "No factory calibration or manufactured eFuse values are invented: the absent backing remains an unprovisioned mirror.",
+    "An explicitly supplied eFuse backing is unchanged, including its revision, package, security and identity data.",
+    "Physical hardware and browser-WASM NOT RUN.",
+    "Earlier runtime failures and the inaccurate private observer frame_scope string are retained; a separate metadata correction identifies the actual Nesso frames."
+  ]
+}
