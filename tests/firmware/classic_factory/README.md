@@ -13,3 +13,11 @@ request `/evidence` before deleting with `purge=0&retain_flash=0`.
 The classic accelerator policy supplies `M5SW_ICOUNT_MAX_PERCPU_NS=10000`.
 `M5_CORE2_ICOUNT_MAX_PERCPU_NS=0` is the existing host-policy opt-out. A zero
 setting is a diagnostic negative control, not the accepted factory profile.
+
+The final integrated-main retest includes classic eFuse provisioning and a
+fresh runtime. Two original Atom-Lite cold starts each ran for over 121 seconds
+and produced button-driven RMT output. The complete serial streams were read
+with API pagination, rather than checking only the first 262 KiB. Original
+Atom-Matrix still triggers a WiFi watchdog, so issue #221 remains open.
+Earlier-service failures and the unmerged offline-MAC experiment remain in the
+summary; later passing runs do not erase them.

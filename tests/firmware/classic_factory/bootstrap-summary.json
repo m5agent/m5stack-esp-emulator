@@ -73,7 +73,8 @@
       1,
       9,
       21
-    ]
+    ],
+    "scope": "One preserved positive run on the earlier service; repeated cold-start failures and final main-service results are recorded separately below."
   },
   "atom_matrix": {
     "result": "PARTIAL",
@@ -85,5 +86,259 @@
     "browser WASM",
     "physical hardware",
     "complete native peripheral matrix for this candidate"
-  ]
+  ],
+  "additional_controls": [
+    {
+      "runtime_sha256": "ac93f4b9830ba3ac02ff1b26f5bf80b8a29006ef16f51d0ead924dbc8fe2f45f",
+      "service": "earlier isolated service before classic eFuse provisioning",
+      "configuration": "fairness and source status plus unmerged Atom offline MAC candidate",
+      "atom_lite": "FAIL: two interrupt-watchdog panic markers before initialization",
+      "atom_matrix_v11": "PARTIAL: more than 120 seconds without watchdog, stopped at Wifi scan start; no LED frames"
+    },
+    {
+      "runtime_sha256": "078f79cd11a268510f1f1e12dc96f87bc230830c44845e6cd9b2010094d5155e",
+      "service": "earlier isolated service before classic eFuse provisioning",
+      "configuration": "offline MAC restricted to Matrix; two parallel Lite cold starts",
+      "atom_lite": [
+        "PASS startup, no panic for 136 seconds",
+        "FAIL: interrupt-watchdog panic before initialization"
+      ]
+    },
+    {
+      "runtime_sha256": "ac93f4b9830ba3ac02ff1b26f5bf80b8a29006ef16f51d0ead924dbc8fe2f45f",
+      "configuration": "Matrix offline MAC, then explicit radio-enabled=true after stable offline observation",
+      "result": "PARTIAL: radio property accepted; still Wifi scan start and no LED output; no scan-complete claim"
+    }
+  ],
+  "final_main_retest": {
+    "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+    "service_source_commit": "f10569c83544ff23491e32cdf73441d1311d1071",
+    "rom_source": "same fresh canonical source pc-bios",
+    "configuration": "default native qemu; no network; classic eFuse fixture provisioned; existing policy M5SW_ICOUNT_MAX_PERCPU_NS=10000; no wrapper override",
+    "cases": [
+      {
+        "device": "atom-lite",
+        "observation_seconds": 121.90173975005746,
+        "source_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+        "virtual_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+        "efuse_fixture_status": "provisioned",
+        "serial_bytes_examined": 13359236,
+        "serial_sha256": "af337cda0152bdfe65eabf98fbbe596d4af17c03528afc9bd712859a85817fd6",
+        "watchdog_markers": 0,
+        "guru_markers": 0,
+        "boot_markers": 1,
+        "initialization_marker": "M5Atom initializing...OK",
+        "inputs": [
+          "key:a down",
+          "key:a up"
+        ],
+        "input_states": [
+          {
+            "led-rgb": 1310720,
+            "led-frames": 16,
+            "pressed": true,
+            "input-level": false
+          },
+          {
+            "led-rgb": 1310720,
+            "led-frames": 34,
+            "pressed": false,
+            "input-level": true
+          }
+        ],
+        "final_output": {
+          "led-rgb": 1310720,
+          "led-frames": 7154,
+          "pressed": false,
+          "input-level": true
+        },
+        "result": "PASS",
+        "evidence_zip_sha256": "516a5259c065d6946a98d7f63ead3b944a4507b14bea32bd58bbf43fd4e5b7c8",
+        "cleanup": {
+          "state": "stopped",
+          "flash_retained": false
+        }
+      },
+      {
+        "device": "atom-matrix",
+        "observation_seconds": 121.87700499990024,
+        "source_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+        "virtual_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+        "efuse_fixture_status": "provisioned",
+        "serial_bytes_examined": 4818,
+        "serial_sha256": "ec1047a3f5fec82875fa8a7afa322ed9f9392124d31c3548b4af38c2960af4ed",
+        "watchdog_markers": 9,
+        "guru_markers": 1,
+        "boot_markers": 5,
+        "initialization_marker": "Atom Matrix Factory test",
+        "inputs": [
+          "key:a down",
+          "key:a up"
+        ],
+        "input_states": [
+          {
+            "led-rgb": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "led-frames": 0,
+            "pressed": true,
+            "input-level": false
+          },
+          {
+            "led-rgb": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "led-frames": 0,
+            "pressed": false,
+            "input-level": true
+          }
+        ],
+        "final_output": {
+          "led-rgb": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "led-frames": 0,
+          "pressed": false,
+          "input-level": true
+        },
+        "result": "FAIL",
+        "evidence_zip_sha256": "30a7201c98305e122d9ff85e6a47ab5df9a66a83e514538af78ea3ef3ed0cbfb",
+        "cleanup": {
+          "state": "stopped",
+          "flash_retained": false
+        }
+      },
+      {
+        "device": "atom-lite",
+        "observation_seconds": 121.85086887516081,
+        "source_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+        "virtual_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+        "efuse_fixture_status": "provisioned",
+        "serial_bytes_examined": 14382772,
+        "serial_sha256": "f24a43b78b6d3fb0b1f3ccc1273a792ad9d23718a0598b714fc1d402f56d436d",
+        "watchdog_markers": 0,
+        "guru_markers": 0,
+        "boot_markers": 1,
+        "initialization_marker": "M5Atom initializing...OK",
+        "inputs": [
+          "key:a down",
+          "key:a up"
+        ],
+        "input_states": [
+          {
+            "led-rgb": 1310720,
+            "led-frames": 15,
+            "pressed": true,
+            "input-level": false
+          },
+          {
+            "led-rgb": 1310720,
+            "led-frames": 33,
+            "pressed": false,
+            "input-level": true
+          }
+        ],
+        "final_output": {
+          "led-rgb": 1310720,
+          "led-frames": 7108,
+          "pressed": false,
+          "input-level": true
+        },
+        "result": "PASS",
+        "evidence_zip_sha256": "0aab73a8fd7fabe78d0cf10575fdc0e1070db8c25964e0fc42e96571f4f7f210",
+        "cleanup": {
+          "state": "stopped",
+          "flash_retained": false
+        }
+      }
+    ]
+  },
+  "closure": {
+    "issue_221": "PARTIAL; keep open",
+    "implemented": [
+      "0021: restore omitted native implementation of existing per-vCPU fairness policy",
+      "0184: report live peripheral interrupt-source status to the original IDF level-5 handler"
+    ],
+    "not_merged": [
+      "0187 offline Atom MAC candidate"
+    ],
+    "remaining": [
+      "Current main original Matrix still task-watchdogs in CPU0 wifi, with no LED output.",
+      "Unmerged Matrix-only offline MAC progresses to Wifi scan start but never produces a scan result or LED frames in the bounded run.",
+      "Earlier-service Lite cold-start failures remain evidence; two current-main cold starts are bounded passes, not proof of all startup interleavings."
+    ],
+    "next_step": "Trace original Matrix IDF4.4.3 WiFi DMA descriptor completion, MAC interrupt status and scan timer transitions with the Matrix-only offline-controller candidate; require guest scan completion and actual LED/button behavior before merging it or closing issue221."
+  }
 }
