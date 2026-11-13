@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "machine": "m5core2",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "core2-sd",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "0f6efda8184604ab4b1ed92c1e7ca02f77dcf71d6f24ae5d61e7320e5368622b",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+      "source_sha256": "eff7cb3d86c6b6f8c8aa24e580cb2c1271ab9bcd2d70764f34c371dc8e04c7c1",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "disk",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 0,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "0735514c5f5bdc7243f01bea9432dbb47943f87f71ede0cf6f181d4b5777e7e3",
+        "serial.log": "0fb8ce7639d923ffe2b7fcc9c8bb7b2a36ce6186f7be3dbd0e04d8c02ecfbffd",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f",
+        "after.png": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+      },
+      "stdout_sha256": "36efefd4396c99c8cfb2cddcae57ac6513093b351ab76e153ac06b5f86a5206a",
+      "stderr_sha256": "6dfdb51dd7b05dc52a0844f516c47c49c12d433b2681fabba6f4fae394e7b469",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20"
+    },
+    {
+      "case": "core2-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "17dab82bb1dbd62890dd600d18c90cd075541568fb039d338698538acd3d70a7",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "46018cd652921212fc358cbaf5fee105a71b46a1cbfe1f9bec82a55cab780129",
+      "source_sha256": "919efa86467507fb0aadafca266b27f75ff64ca9fe23d549ca89aded3ede4e08",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 2,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "e0eb575029e68ac8f2514b1ee82253d5b3cb54745146c1db9eb5d3ac26b46aee",
+        "serial.log": "2aca3356cba7c89423aaf1e7bd6c64553c923782653c0f950fb59eb537aa3545",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "03133a43ca7b406d4311d2e6a69936238ea7776080f75df7b4075428038f8be1",
+        "after.png": "feb3c871b808ed5100a74291b4f43ece159449865630081c1d2478ab986e620c"
+      },
+      "stdout_sha256": "110bd3b8eb2152c57919ad5499240db1e99bd4bf1f5a7e5444a0982ba9be5445",
+      "stderr_sha256": "0bc8e05169cfbacd0d30efa06087f9fd726a1c5aceee22db0c18ec805e973ed9",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "46018cd652921212fc358cbaf5fee105a71b46a1cbfe1f9bec82a55cab780129"
+    },
+    {
+      "case": "core2-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "2aafef6ebd09dcda278d6ce9b4b1d2232246b5fdf8047cb26e3192f89b1c7b15",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+      "source_sha256": "4e0d9203adf1f5339a8d0f90fc04231af7edc67ec17f763c7401dd7df93d9661",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "33f026bd35f9c92c7a5a933f5074e3b7a147767e119b4feb8de429a0dec3fb47",
+        "serial.log": "f3ccf5360ef3f7ee54a0c005572e676768d0510e61b884a029df25690a363d6f",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0",
+        "after.png": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0"
+      },
+      "stdout_sha256": "e2623fa280a647a4bb7f95f62fb54c09668c6024131d2976dcdc4e9b8281e5ca",
+      "stderr_sha256": "682e286e0523ba69f304331402488710d02095235cee4e2772f0ed6dc5e5dc39",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2"
+    },
+    {
+      "case": "core2-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "eddb112984b1ab69a15d02f9db2dee6699849256f990bf74cc2182f15e363146",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "ba5d09e311ed8b4653398e3ebbc3174f79958a1f041786a5648929dd8e26aa85",
+      "source_sha256": "6544556560757900cdf5eb0e3b7e352fdaf47db0ed0281422481fc32a4137359",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 0,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "48e09e7b6c2ba47721e01ccde8bec994775afe07ab17a4b3231130358d31e7bd",
+        "serial.log": "2a80a2f70de5284970ba5e3b9f17582c2445829c9f1795709fe943e3ae1d9b68",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a",
+        "after.png": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a"
+      },
+      "stdout_sha256": "df325ce720232c1411c5a369338cb66be3b9ae883af928236be71c0ebd6af99f",
+      "stderr_sha256": "9c89b09db9256aa5d892a3a2d909f9622b289048653fa71ad8ba96699c0e22c9",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "ba5d09e311ed8b4653398e3ebbc3174f79958a1f041786a5648929dd8e26aa85"
+    },
+    {
+      "case": "core2-power-monitor",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "149312cf73ffcec286d66e8915674458cfc250d62e8421893ecb0ec5b93de79a",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "0cf7d295f10767e1f52bd172aa5c7255e7de23425740fb5ddd25a459599cce27",
+      "source_sha256": "bf8e8188408550a210242269536047715112e707c8b50184631dd01d8ffb60bf",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "f66815be6faaa49e88b9b6d0eb7b97d1648ffda3cbbea3401b85bf4a6131aca0",
+        "serial.log": "8ff48bcf8e4764113bdddd7b5aa45e648d2a14e7b8f744071997c72475cea76a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae",
+        "after.png": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae"
+      },
+      "stdout_sha256": "ae11e0a57b905fcf16fc1250e86be0f65fd9ff830e09e7bf308abfcf430c0991",
+      "stderr_sha256": "36f66c18f341cfdfdbb0a00a06915e1fe2a39a97c5ccd58246274e2f166630f2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "0cf7d295f10767e1f52bd172aa5c7255e7de23425740fb5ddd25a459599cce27"
+    },
+    {
+      "case": "core2-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "0414d0d56362ef010c72de347547c75648d4c9f9a4c808819ae3999a5000cabd",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "f5cb7dda74b272595e8df7a251ff732a390ce35dbda3cd461fb7a20714291f4d",
+      "source_sha256": "e04441c5f35ff390ed2bea5d1eff7a57496f3db9f12e3910dbe111e17e4be4bb",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "84badbe68abadbf6bdcb7fa7bfc7df3d77a886ebabc01f5388fd570cf37562b0",
+        "serial.log": "ecebe34e53acd4a79a1769ace871405c4dd5d65d0f46f625a2f8b7c16ed6330c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "030d9eb834555041e55f75fa5fc71efff50f9f51b39027e7ec12b8d66ca1cbd5",
+        "after.png": "d6ac4c38057b23822ef19cf0e0c2b3a9cde0dcffe80e6faee31519fa66993277"
+      },
+      "stdout_sha256": "729a7c1435b43272a1f6d5db3762b13703d33e08a78651382548b68c8337f8ad",
+      "stderr_sha256": "e2890743a206e43d55f0139c43829a33ceddb6547a2d02c5bfb8e59459575fc2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "f5cb7dda74b272595e8df7a251ff732a390ce35dbda3cd461fb7a20714291f4d"
+    },
+    {
+      "case": "core2-axp192",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "runtime": "xtensa",
+      "case_spec_sha256": "e40ee6bd88d6cdc1a9976801f0e97b5987777bb299ce0b7cd2caf15b62236fe8",
+      "original_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_firmware_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+      "source_sha256": "3aac9037f19397af75d09d1c0ad0e873c5efe4ea58616e6b09df6e4edffb604f",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 5,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "f5bb41808c4feaeb2e889abd4146d58794ca7ebd3a5d03c14bbb8fc7f43cd37f",
+        "serial.log": "0574d4a5c5bf39580ddd6d305ca521eec40627edf7093d4b18b57ba0d004b966",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83",
+        "after.png": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807"
+      },
+      "stdout_sha256": "c73f5039a8a06dab13f2090811e2e146476923a3e4a87fcf20c9df8ab26a2db3",
+      "stderr_sha256": "80871c0f3375f67daa8b6802174cb65578c42b825c87d1a13483514f1811f559",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8"
+    }
+  ]
+}

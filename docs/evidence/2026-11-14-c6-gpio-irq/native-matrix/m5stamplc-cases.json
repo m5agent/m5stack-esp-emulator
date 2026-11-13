@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "machine": "m5stamplc",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "stamplc-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "5a304a0945f987ca50346b7df5eb905753b6099f3827a0afbc4eb0d9876fcac4",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "a3b15940556fef1c3c97a3d2d4a8f392ec096988aa530182a9f3afdb79a0deb7",
+      "source_sha256": "bd767acf6331e7b1d65a3fabe036056de45f65a45ed02bd249b5fa83b1a19ff0",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "qom"
+      ],
+      "checks": 8,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 2,
+      "artifacts_sha256": {
+        "composition.json": "1d00d189a9b082fad56c9dea2c9459a0bca91374be6aaa736854a1b9c19e2da5",
+        "serial.log": "59a580db2864ef39f6a868552d94a07d65307eb0da7128cd00995f7d01d1797b",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "049e0b3a66c69d296e20675686747649acef3ef9a9ed36395e17e23f2ec9b619",
+        "after.png": "bb1800dc1b2126d78747a583c10737f1b841df6f6e4d0530089bfb802b1dea8f"
+      },
+      "stdout_sha256": "78f5677e676d0c914478e18e8eafdfbdcaefa30ef8384b7a72f35f0a037eef19",
+      "stderr_sha256": "2eb5b82bb9087f0773a41930306a33ab9c7e7e47cbe0c72b4306e232324309e2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "a3b15940556fef1c3c97a3d2d4a8f392ec096988aa530182a9f3afdb79a0deb7"
+    },
+    {
+      "case": "stamplc-can",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "7cde341b3ae494923f23f1370b35510907a8d10ece4c3591d2a7d2bbc082019c",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "a2e9b8a20f3349b2ab05d197948b87d8e2eae019885964bb649d82cd6a28ef28",
+      "source_sha256": "f645dd2865781d081952acca7dae8ac7cdca7a828e8883b21bc68a6307630cc6",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "28a39281cdc9999cdee384ec70bdebdbb0ca140e3736b8cb3c205bbfddddfc3d",
+        "serial.log": "64225fb591aa2d4df9c2274d0599b5c09fe5371ac124861c91b18be56082a98d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493",
+        "after.png": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493"
+      },
+      "stdout_sha256": "d08be7c42316980c1abfb286c4b4aa36d8d33c4317f0a8024aae70dd62025235",
+      "stderr_sha256": "40f0acecc75cc727d470019adecac90fdf644ab2487b23ae624372fa4028316f",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "a2e9b8a20f3349b2ab05d197948b87d8e2eae019885964bb649d82cd6a28ef28"
+    },
+    {
+      "case": "stamplc-rs485",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "3ee3cd6949e8ede571a201e9d9d62aa2d5f1079e49087b9ef3ff836ff5ef9c0f",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "9268fb92c086db61f7aaae3fb9cce4a31b25a0c20dd7f065ee04f1a9a4566712",
+      "source_sha256": "22404e1b41a20000a5cb8307093b14dcc65a9ab72512aede5486156a7b7d808d",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "0c88df39aa15708afb8d0706122d6b811a34e3ca2c30f8b99082ff6395da76f0",
+        "serial.log": "a665261f73a24ac5ae86cac58f0558886ecbe91e55315350edef30f170455b3a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "9cc4141ec21b714e522134b802ce9387874227cf0ea70315f4aea7199cd452bf",
+        "after.png": "9cc4141ec21b714e522134b802ce9387874227cf0ea70315f4aea7199cd452bf"
+      },
+      "stdout_sha256": "61da0704d5c5159d1d9c4d1cd717cc326d3a058cbeae42737fd9ff0d68894c77",
+      "stderr_sha256": "2e5a3d73b8d157bf8f1fba986f34161646a50f22acb0c46817974848be8dc307",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "9268fb92c086db61f7aaae3fb9cce4a31b25a0c20dd7f065ee04f1a9a4566712"
+    },
+    {
+      "case": "stamplc-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "d4cfa9c7a6f9072aca380f69ff45964210b6c4f828c5650419e906d08d4d739d",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "cf533537c2703634cabbd33dfba25e6f01c8948ffccbbd9af799d57bafc19a4b",
+      "source_sha256": "85d71bc2478077603f4502bbecd3b68cfe0a7caa9bf315959c82f1bd724f5fbb",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "716a02347aa25170f866a95d44e30150830bb469d83a3349e2edc31dfd1487f2",
+        "serial.log": "48447b750912db863896bcfbbfc486bff84574b202c549535b22a485e8993dd4",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392",
+        "after.png": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392"
+      },
+      "stdout_sha256": "d33cfd161167befd28c79780db26a00d48adbe5d85a0f01d1383c458f64871ca",
+      "stderr_sha256": "d121484bab8981e881a4830cd8fa34673194b6b9e30e9c513954e0cdea39cf70",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "cf533537c2703634cabbd33dfba25e6f01c8948ffccbbd9af799d57bafc19a4b"
+    },
+    {
+      "case": "stamplc-lm75",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "f1a303d8e1229436b25f44d82f9ebb3946249b2128d2a19cc3d837f89727fd7a",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "224820eeb6e7996b242338f17ba1a9c0244f2dcde92cb80714f0f5827ddab3f2",
+      "source_sha256": "60a5a123c13e9868e4d1d7741c521e6a026b09ee313a8269a7045a983201d989",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "e24df28af2b4d8dabf1ee615eba9023aec87e5b71e3df7ffdc635381e4643e88",
+        "serial.log": "12258972d3d9a96ddcf3ce28a47a8134effadf01de97bf0ef01911ef7f1c43a8",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03",
+        "after.png": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03"
+      },
+      "stdout_sha256": "bf0dcb6bd614c74bfcc3f701d6f2192b9dc1f4c761980e121a688c7ccffa9a5a",
+      "stderr_sha256": "c36660cc56e47fab5f1fc072b47cfce11339ba62e4f2958b7122f19c296c2560",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "224820eeb6e7996b242338f17ba1a9c0244f2dcde92cb80714f0f5827ddab3f2"
+    },
+    {
+      "case": "stamplc-onboard-io",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "runtime": "xtensa",
+      "case_spec_sha256": "d346ed250edffdb66429e86db7cef40bb207a1b42728b13885b3a0c745f65a7a",
+      "original_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "composed_firmware_sha256": "c4364e7432a39cecf65e498715c75ed46f7c48384eb26da51538730d1dcd5f4f",
+      "source_sha256": "88139b15e09b428b54dbd2d4499eb1076743c62e382283ca325e7327965844b1",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "856ae3d77c130f2e67bfa7d1e82e6c46246624ed8d4d23a126158f39b7cd9fd5",
+        "serial.log": "443304e53677261db775d6586620746eb53c1e349ad9a9104e69d77297c848e3",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "0eab761572f86af4cbb5365e5bf3e0a0d47907e48859a2f080a8811157a56d08",
+        "after.png": "0eab761572f86af4cbb5365e5bf3e0a0d47907e48859a2f080a8811157a56d08"
+      },
+      "stdout_sha256": "e86a6e80db9c912346cd05d2326791fe8d26bb3386baec8862690c5bea46fa79",
+      "stderr_sha256": "27ab998ab142b3d200bc224086034fe27147f0be212d461dc4b19586bae2ca90",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "c4364e7432a39cecf65e498715c75ed46f7c48384eb26da51538730d1dcd5f4f"
+    }
+  ]
+}

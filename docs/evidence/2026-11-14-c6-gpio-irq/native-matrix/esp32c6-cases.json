@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "machine": "esp32c6",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "nesso-gpio-irq",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "7458c1ced614a33677e3863c51226f53bf3a1010a158f5825af3f02b70908bcf",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "623a45423230352e354eb2f6c2f5c2bc1f7bec8472c9f9149ade3e4f4981ad42",
+      "source_sha256": "e4ffa3e9dc7b73db97cce09fe9e1fde6cbc1a06a76509fdf60c4bff1f8498c13",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 0,
+      "marker_input_steps": 11,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "bf34dc9604879598543ca6c7dd53a5c6247e859e033138fddb5afea763755637",
+        "serial.log": "8385751430b2a0b815705bef275da243df5a4dde6c7887e8fa1442256c1fcb3a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uart0.log": "1b45f70a0f943deeab5bb9db290076dfb1132af4f25ba4e37f91cb1fee194203",
+        "input-steps.jsonl": "19503af875116a01032afa02a43fb8d9c546ad51b75c312358dceebf1fab3a21",
+        "console-capture.json": "97ca1f7c29a691fb23d2ecb26257e93dd1c1392fbffed50f2ad1d72ce150a61a",
+        "before.png": "e065f6ad86323ad934c39abae3aef0d9a2f02d546b47b0fb397a3f95620c195b",
+        "after.png": "cc7e2e57bc53ecc1930dfd93cb2807d3c798a2582bec9ed2a9c90f9012e2b043"
+      },
+      "stdout_sha256": "b076b000cb015f52b67c4f50f94eb1b3930d63789a5ee97ac4d9fe93f67a671e",
+      "stderr_sha256": "45c50ed83093a02044d26455e333a17a08e5b5d93684ccc3296646653adc4dac",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "623a45423230352e354eb2f6c2f5c2bc1f7bec8472c9f9149ade3e4f4981ad42"
+    },
+    {
+      "case": "nesso-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "cf0312e8d82b7434d8f9fec46a18027680e34400f8a0a19417160f2ffc470525",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050",
+      "source_sha256": "87cf1ecb164091ad6aaf9b2915d9c9e4c47854d92f6fd1753b2383c094fdca86",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "qom",
+        "frame-marker"
+      ],
+      "checks": 8,
+      "input_count": 2,
+      "marker_input_steps": 0,
+      "qom_step_count": 6,
+      "artifacts_sha256": {
+        "composition.json": "968225aca43f214fb7c9e794c9304f9556b126a347739d7cbdf3eff6e7024e50",
+        "serial.log": "55b122dc688c851d40089e52659b0e448af6ab727a7440cd645adaa9303e28e7",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "b9ab4bf6b6a6bc134e683af8a342542b73f705a327d4006ba49159b5e56a665b",
+        "after.png": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4"
+      },
+      "stdout_sha256": "790294270e32efd9eef8d13c96e8d56a3f7619493eff9442359ac7f6735421ec",
+      "stderr_sha256": "363123dd26b129266ad34e8be0128f13a46967e953654fcb778952249ccfbd46",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050"
+    },
+    {
+      "case": "nesso-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "43e999dae10115716ef992d6f5b6b5c0ccd929745f1e97b014693aa96a63a91b",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "f02cf3044ab20904cd66cc65e3de38cb5478e2fed739851635ff9d46f33db409",
+      "source_sha256": "44e7d4cfc151af92a2a8d0530502a7bc0d1313b44f42f307082d4cb7654f82b5",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "724edfdb3f9ae9d9f2ff3abe44828c44fa90ded16c1626f0fcd226ccbc50b58b",
+        "serial.log": "5c987589afced4781e6fc89ad288d8e882761fb79def1311acaf61b6faf51ffe",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c",
+        "after.png": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c"
+      },
+      "stdout_sha256": "6eef5c935dcd84bebaef53ac7a037d03fc78ba9be942827089bd0bbe768276ed",
+      "stderr_sha256": "b34097b97f32f5d5acb37381d8f318e4d4d4855be64a5537e38cb84e01f4a8f1",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "f02cf3044ab20904cd66cc65e3de38cb5478e2fed739851635ff9d46f33db409"
+    },
+    {
+      "case": "nesso-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "efed6ecc5643a6f004e256796b3ad887ca34c4b52a15fea36650fb85d4d7e90d",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "773661e654abe13d71e5e3e08a5c480728f2d50e1c205e7fbb0b92871bb9b18a",
+      "source_sha256": "c7304a0892a4d38bd335685fc4393b9646a32051cb020511d652698261ea57a1",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "rmt-nec",
+        "frame-marker"
+      ],
+      "checks": 2,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "876d2a0071ea26ac0ff2df9b3fc51203d66e9b4dfe7f07e896ea36af09e4c662",
+        "serial.log": "55b122dc688c851d40089e52659b0e448af6ab727a7440cd645adaa9303e28e7",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "d4f2f0c4b90600be8975be6071380b2587c0fcc4a4563e5001c096a63a961518",
+        "after.png": "d4f2f0c4b90600be8975be6071380b2587c0fcc4a4563e5001c096a63a961518"
+      },
+      "stdout_sha256": "a195a1b47b013de43914c23e944e211bf9003d01d9caa351c1770875960e5d4c",
+      "stderr_sha256": "2470ded9f7c6d6dc672a104e3e3a3bfdaf88ce525962263ede07a255aad068e7",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "773661e654abe13d71e5e3e08a5c480728f2d50e1c205e7fbb0b92871bb9b18a"
+    },
+    {
+      "case": "nesso-lora",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "791b3d830a28b81baa73499b689ab31a9adef981c81771bd74c30afe8dcc32f0",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb",
+      "source_sha256": "99b69b6548ed12a062b56a22ef808aa75844a022ead50f9480df8c19b4fe7d8e",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "febf4f28ae5bfb479dc8e81aefd0591a2fb341ac3250ca5dc6829a98db0dd240",
+        "serial.log": "940026e8df807ec05f7cc74d5701d31decfbbbb9ba2a5506f27ce8eb0fc657dc",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+        "after.png": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354"
+      },
+      "stdout_sha256": "2a73b03a93be97e03e4772912699bc1ac4bd9572ca142afb880fb8229e072392",
+      "stderr_sha256": "8f086e03b1212d9512dc6053cabfea0e4c3b1b4c9693905f9949c0491b2dc9d0",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb"
+    },
+    {
+      "case": "nesso-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "runtime": "c6",
+      "case_spec_sha256": "7f59272d5abd389e3dbad19965337f0fc99a2676292cabd7b294ea0903248306",
+      "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "composed_firmware_sha256": "f4fd8dab2f0cf5fb14bc990e5d968613b57acc7a7d6c1894d85b3327cae5fd6d",
+      "source_sha256": "b8cd441a42ec26c1ca8369f77a6e53ddfd40699b87debec43858e2019fa42a95",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 5,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "0f6912248c0b1db9cf87c1b61880420f4619e45b160a8f5a9d8f424b95751663",
+        "serial.log": "62420da26380b7300d4e0153de9c9c55a5c1dbf2229b78ac63ae59ced19bd542",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89",
+        "after.png": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89"
+      },
+      "stdout_sha256": "436b79504014e6054ae1e2a175629237a8409e99ae7b153cb26d73de5ac440d6",
+      "stderr_sha256": "738ebbe681c64be72c59362034a27e54e328738610bbf474e7c6ba7f6998672c",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "f4fd8dab2f0cf5fb14bc990e5d968613b57acc7a7d6c1894d85b3327cae5fd6d"
+    }
+  ]
+}

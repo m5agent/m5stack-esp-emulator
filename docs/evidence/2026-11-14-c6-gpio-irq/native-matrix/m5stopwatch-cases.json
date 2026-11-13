@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "machine": "m5stopwatch",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "stopwatch-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "4b705e578ecbe212ea8448186c44a959d9c374c812774bf451c5bae789a349f4",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "23cca24239800cc442d16814f7e9d511e523e97d3ada89b884aad7780a77a1d0",
+      "source_sha256": "4193f97f0dd596dba76c2ff98dff7e475c98eb0e6446e816ae3d6d1e834cd20c",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "checks": 6,
+      "input_count": 4,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "b71bd0674170da213a1851e72c57142c74f29af4ba2d308d8e5ee86af4e609aa",
+        "serial.log": "352a6622b05a61873c010c42350058918bbc0d1abca6952078194551360e7d2c",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "634573dd331a332f8daf6516fd351281e9ed333f40d11a5ccd9ff91cf58bddca",
+        "after.png": "9a38b86d284b2a08f32942c4a3b67d4bea74e3d4a6237c2008dcc2ff3027416f"
+      },
+      "stdout_sha256": "cafd789c5b643493c4eb37e01e5ff3447c21e233e9b514dfac05facf6bc10dc8",
+      "stderr_sha256": "9e7889876031eb21e5714767c728411c31e10cb0c8f25f646c29b307b15b33ff",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "23cca24239800cc442d16814f7e9d511e523e97d3ada89b884aad7780a77a1d0"
+    },
+    {
+      "case": "stopwatch-vibration",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "875e9d8cbf4cf040eea365db6cd9f5056a0983b8c89108940eb7daa8cc022477",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "8a43781722ac3df77fc1ce032da072a2045938c41b124361a78e1af777ec7903",
+      "source_sha256": "43c45a8d13e9c0c6aac11ceebb5aa11626fc78f67ba805ad31b7af2ef2247e8f",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "be479c31e7261f21f637676d17a3ced289b230b6b26b548a2f5d9ade34aaf9e4",
+        "serial.log": "c3e0da83c9ebc8dc1a423707a06ab5b64a10cd45b8bb546daf467a7b83f41bd2",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e",
+        "after.png": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e"
+      },
+      "stdout_sha256": "7b98203c3e244462178e995492ab86754e8b8ffd0f31940bdd55cea75b89905e",
+      "stderr_sha256": "891b0f80eb9749b6a9b686da0faa296d6b87b68465ff1bed01e16661653537e0",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "8a43781722ac3df77fc1ce032da072a2045938c41b124361a78e1af777ec7903"
+    },
+    {
+      "case": "stopwatch-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "a168dafc5e905a03041c770574547e1e5ee1a4793fe4823dab768bf0097f5192",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "61062089ddac3f8d70208398ee00c6433328d0e9a2ba71c54adf48728ba55e56",
+      "source_sha256": "cb5b541c55ea13a2c2892e91e3146e1bfb957f969e81d07c9d6c6665a78bb175",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "045b133cd64e44f6be18dfef8ee9ea4e1294d91ebdd46c7b70de8f5163405c87",
+        "serial.log": "426e40d08e277760dc769a821dd71d11a1881665597ab9686bda28a454ae1084",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+        "after.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+      },
+      "stdout_sha256": "824d0254420c5e45c8e21f2610ca03632df74876820ca90f054cfce18741c196",
+      "stderr_sha256": "2a90434b3a9fc1646a608ddbabb14a5c942a779adea7721f5ef4428622dd45b8",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "61062089ddac3f8d70208398ee00c6433328d0e9a2ba71c54adf48728ba55e56"
+    },
+    {
+      "case": "stopwatch-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "48cb4dd10c651cf5d78da67e8d1726e4a13d291d97ad685736d47f1236b4685f",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "0e27bc0c68567c6fa7f80cfaaf21803c7f5998bf1d6b30d5c7c5fc0e0deffc21",
+      "source_sha256": "6260b39607ede99d5780cd07c13775982f5577d7829b4350eea86a052925c659",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "a7de968a902b69c14766f2d56cdad1fc22221b8c8f0aec303900ffcf231bd04a",
+        "serial.log": "d8a416f099ce609b03cce60f81a22f9ad4d2209624dfea91c0d16aacfd2d733f",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+        "after.png": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+      },
+      "stdout_sha256": "bbf271ea369a8fbae0badc04c930c28fdef185101bd48b272214312aa3216936",
+      "stderr_sha256": "ac8dfd9201de3bb8978b9d687cb6a2a0e26bed6257ac38ed045b96e2aa0abbc2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "0e27bc0c68567c6fa7f80cfaaf21803c7f5998bf1d6b30d5c7c5fc0e0deffc21"
+    },
+    {
+      "case": "stopwatch-m5ioe1-full",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "34f19c43d0417623c5caf4e3000406b8632226b868238c5520f4026f58abc708",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "b67f6b06308599e5eba392c7db69a2c18793b627afeceea8e61287dabcbcc631",
+      "source_sha256": "f9247f27cce7f962dc13bcbb51e3398cee46ce4405270f551cce02138f50473b",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 5,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "eaef6800dd9f24482226bd5a1f1a6a366da6746e5c922f9565e5ed0b3a51ea6c",
+        "serial.log": "a69572e1f5c9ed832a63f39b4e0d088ff10c330e507133ee31e83e022034ef70",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "5418707dff0a9adfb564022601cbbb494902f975ddff3e0169523f873e466b51",
+        "after.png": "86e68bd52cddb2854c0eefb04bc44a0428bc75c177d8618fdb085806d4a9515f"
+      },
+      "stdout_sha256": "eb6f090c2e1b50a0f9aabbdcde39788a3fb4026e0a9da7f5437ae60e1eab55d3",
+      "stderr_sha256": "3d6e210e693568d9c69a551304957375818e1417977425afa8f70284d775e11d",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "b67f6b06308599e5eba392c7db69a2c18793b627afeceea8e61287dabcbcc631"
+    },
+    {
+      "case": "stopwatch-m5pm1-full",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "runtime": "xtensa",
+      "case_spec_sha256": "2e0b5af32f1e0be85543690838f07537a5235d2cb2afd35e2dfe83c90b2f44f7",
+      "original_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "composed_firmware_sha256": "6ab410510ee403d5ed70a021d6d152077338ecf2f8a8801e5efb41ab5686a411",
+      "source_sha256": "a1a2e66a2d01e925757add2ab6c5505d0301398b9c2525186a8209bcbfd8b804",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "frame-marker"
+      ],
+      "checks": 9,
+      "input_count": 2,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "13742f06d840cfb6e05d51b1fc72e338ccb7df3629e64eb01bbcad267df2471a",
+        "serial.log": "cdde093333a9f082ea8299a41b7fffe500813b59ba74297ef8a373d93a22869a",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "9da40d7895a76403af013897b56ee70224dc12ce57543834e226c389cf5fc7af",
+        "after.png": "4726a228d5fe1712b427250615b9f1e1bfc0dd861505171f236859d509ba7cf3"
+      },
+      "stdout_sha256": "98a2dd8d17cb4ef2947fb41bab9b9398b698eb0d7d3e5f799f0010017fede464",
+      "stderr_sha256": "66ed57746f0353cdfe2fd54c8e1cb100bca651558471d166ba002c275df45399",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "6ab410510ee403d5ed70a021d6d152077338ecf2f8a8801e5efb41ab5686a411"
+    }
+  ]
+}

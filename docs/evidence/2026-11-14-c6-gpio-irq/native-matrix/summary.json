@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "lane": "checked-in full native peripheral matrix",
+  "source_commit": "0e00cdcbc99a8210af6485df1bcfd04a514bc8a1",
+  "status": "PASS",
+  "counts": {
+    "PASS": 70
+  },
+  "runtime_sha256": {
+    "c6": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+    "xtensa": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c"
+  },
+  "rom_sha256": {
+    "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+    "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+    "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+    "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713"
+  },
+  "retries_allowed": false,
+  "source_bytes_unchanged_after_execution": true,
+  "runtime_bytes_unchanged_after_execution": true,
+  "firmware_bytes_unchanged_after_execution": true,
+  "owned_guests_remaining": 0,
+  "original_summary_sha256": "86e6654904be9b63ac0198db2861620d9bea7e1f3a0266ca6fef59a14ed8de4b",
+  "preflight_sha256": "c3c11248be984ce0a5212c08888ca54aef6096b551f7e3b47b77345137f06335",
+  "completion_sha256": "78789612a9f8db837c60baf5a605db7cb007e0681451ecdca1b10703e47e36d6",
+  "original_app_nonregression": "NOT RUN in this matrix; separate service cases required",
+  "browser_wasm": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "case_files": [
+    {
+      "file": "esp32c6-cases.json",
+      "cases": 6,
+      "bytes": 12284,
+      "sha256": "049031995a814beb3763a497bcb296fe3db776f4e2ff0b2596087fe00ab4764a"
+    },
+    {
+      "file": "m5atoms3r-cases.json",
+      "cases": 3,
+      "bytes": 6090,
+      "sha256": "d4e3fb6517f973df60c3bfcf094b7cac0f3491e67a2161b2a039cebacd055d1c"
+    },
+    {
+      "file": "m5cardputeradv-cases.json",
+      "cases": 8,
+      "bytes": 16191,
+      "sha256": "2b3af32dc91b226679339eefa09ca01435dc3fa57b40cc05171d28dbc44adc5d"
+    },
+    {
+      "file": "m5core2-cases.json",
+      "cases": 7,
+      "bytes": 14177,
+      "sha256": "0d654097f67524c2ad5b2160ece851b8cadcddf29ed5d4173746ddf6651a81b3"
+    },
+    {
+      "file": "m5cores3-cases.json",
+      "cases": 8,
+      "bytes": 16140,
+      "sha256": "1b191497fe78d71379205b945e65c2574231908bd89b6f2ecfb6325dc48a71af"
+    },
+    {
+      "file": "m5papercolor-cases.json",
+      "cases": 7,
+      "bytes": 14167,
+      "sha256": "1311e007851fff5fc1e138cc61f7b85230f205dd89df29bc21d09ccb3a7dab04"
+    },
+    {
+      "file": "m5papermono-cases.json",
+      "cases": 6,
+      "bytes": 12137,
+      "sha256": "f7888840a2922885723818896dbfedeb035f0d0f99eba18252f1c2bb7df01841"
+    },
+    {
+      "file": "m5stackchan-cases.json",
+      "cases": 8,
+      "bytes": 16185,
+      "sha256": "1f0eff383aabdbb56110495c31b900789f0ab8b7fbf27db9e8ae69566ee9473c"
+    },
+    {
+      "file": "m5stamplc-cases.json",
+      "cases": 6,
+      "bytes": 12109,
+      "sha256": "6c0106a4518388a10056d0d43961f6d4ded491b728f39a6fa81df6ddd3598ee8"
+    },
+    {
+      "file": "m5sticks3-cases.json",
+      "cases": 5,
+      "bytes": 10103,
+      "sha256": "ebdd2cec910eb4d4375dc40c35fb2a7b9ca303c9a65a4dae5df8e01a9a6bb6ad"
+    },
+    {
+      "file": "m5stopwatch-cases.json",
+      "cases": 6,
+      "bytes": 12152,
+      "sha256": "6380e200fb12717b46bf95eb990787d587976e95055a2dbe5f62f97ffbeac334"
+    }
+  ],
+  "full_private_aggregate_sha256": "86720bcd58037e70b71b22a296d25ab308e80889696b4f7b079cdeb14967c42f",
+  "source_comparison": {
+    "schema_version": 1,
+    "executed_source_commit": "0e00cdcbc99a8210af6485df1bcfd04a514bc8a1",
+    "final_integration_commit": "014841a8fe082cf8aaaa57de898e0ac0f665aedf",
+    "status": "PASS",
+    "comparison": "Git blob identity plus executed source SHA256; different source HEADs retained",
+    "excluded_non_execution_change": "tests/uiflow2/api_sweep/inventory_api.source.json",
+    "service_files_differ": [
+      "platform/tools/device_service.py",
+      "platform/tools/device_service_identity.py"
+    ],
+    "service_claim_boundary": "The native matrix does not execute Device Service. Original app service runs use the frozen actual source commit; final service has a separate postdeployment gate.",
+    "identical_execution_files": 523,
+    "full_comparison_sha256": "425f0df8cea31bbdb8add9cfcc1bcf2642e53489ed5749a7205a2a83e0169c7e"
+  }
+}

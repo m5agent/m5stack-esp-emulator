@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "machine": "m5cardputeradv",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "cardputer-adv-sd",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "a9eeffe0938f07d977133ac231f598cbac77e3894c93b6a7006d38d2610cb447",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "b1276cb61e890bac06d98939ad8a7f5a102aeeee7270d09a66a920eb10fdec29",
+      "source_sha256": "5c0df2c3eb7ae41e385feb3a8e4c200ad42f95780d8cfd5eacf6b5d98c191dfa",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "86c23ae5f69afd086b5379a0a9e9ab73e2d6057616b453379a5fd020c88c1205",
+        "serial.log": "82f1cbd5e0dc70c478ac5df1e7137298c8e3dbfbaaef6f64e0f97cb5fd219d5e",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+        "after.png": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083"
+      },
+      "stdout_sha256": "8a96d3cb853de3239b988281c0fb81d4ab2f5f225c45a36672648ddee405aa6c",
+      "stderr_sha256": "3e8c890ae93015756735f69d95611ea9e34dc33d6c84ea36e3272dc2947007d2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "b1276cb61e890bac06d98939ad8a7f5a102aeeee7270d09a66a920eb10fdec29"
+    },
+    {
+      "case": "cardputer-adv-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "accc847eba603b1a1dd194ba02b5d7f6c2914f4eaeaef12e3bacc97253b779dd",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "991bf741c69c8b9e65e71fb4f9aa62d781f8004cfa373c73e693ecc1feccbf1f",
+      "source_sha256": "b70e03bee023f1ce0f06dd41b596639c84a09cee7edbb3c7144b0b5cd2cdd85e",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "166ac7cab15ee8284562138848541df1237ef4d7e3e0effbbddeafaaed7764ae",
+        "serial.log": "d8e1ae65781c40f946fe0722867358c8967be349055acd78359356f93ae1bd2b",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+        "after.png": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72"
+      },
+      "stdout_sha256": "dc8576aef2280b74125faa9f5d64fda90dcafc70da2c64fb7f7b6a2c01cca828",
+      "stderr_sha256": "ec3f4e455a64b612f2e3cbfdec6b61cf709a63e08dbfe06261e916f6586d9e98",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "991bf741c69c8b9e65e71fb4f9aa62d781f8004cfa373c73e693ecc1feccbf1f"
+    },
+    {
+      "case": "cardputer-adv-keyboard",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "3938b8cfbd138e6170fbf69819a983c86c6d96891f45853d32f1dc27019b5b75",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "61ea11c211c2c7d6ca54c6e3ddf2d5106ca9454a4d4a4bac23528d4ee4112665",
+      "source_sha256": "5ee17f7ed9287cec7e632ddb0d71fe21dfecebc9a10c7134359c7e33b9abaadf",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "6ee46cca3b3b82cfe5cad14c2848ca43c9a938bb8b6664240857c40d8048f9d6",
+        "serial.log": "ec145fff50023b4b8b9bf4f5429597c993a9128f134d358a81bdd83e794b27a5",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "1fd94bd998b8916099f5af89d6dbcdebd52bd0d32f7360de838310ebbb526859",
+        "after.png": "b9323721391b39d341570db53baa11bae2ff8bbc477414264459c1869cd7685b"
+      },
+      "stdout_sha256": "27b0b8339219b12eb32b8463ada8be83f858ca065893a9ca673295511e485f69",
+      "stderr_sha256": "5e0f9864b7ea07d1b5e7f266e403d09318d9cff4f7010d72d2a40b3372f1f8d6",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "61ea11c211c2c7d6ca54c6e3ddf2d5106ca9454a4d4a4bac23528d4ee4112665"
+    },
+    {
+      "case": "cardputer-adv-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "a8118e454827e5f4eb7cc9d1ff959e5ce0648484eb14caa480a82bab850c8199",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "9dc898068f8f0ed09e47c8e58c108b10935308211c53cf658e1e0d49ae30f03c",
+      "source_sha256": "6c7c599c7a6399f15eab784e010958d17d122e1cf0e6443aa1d8d271bb7041ec",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "f32d665983e6d8401123fa20d965457b70472107eaf2fa1bbb1103c77f511687",
+        "serial.log": "d87e23981f10eff5b506134a61d0e650673db7b1d9ac87b1e97d3f4acb9c84a1",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1",
+        "after.png": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1"
+      },
+      "stdout_sha256": "4f164f6ad017be480ea688c71fd8c541156372c93602cc42188b1699af157810",
+      "stderr_sha256": "d20aa7963ce262b7c5ee118c62378f33a128ae63d34362fe138d1e9deca00a20",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "9dc898068f8f0ed09e47c8e58c108b10935308211c53cf658e1e0d49ae30f03c"
+    },
+    {
+      "case": "cardputer-adv-cc1101",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "00880a90afc8b856624eb0be093e0012f708ec4f23c97496fa3f739966fd37d6",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "e50eee32d024534d92feed5771e71a6b22082121e7fe480445d57bde8ad9020e",
+      "source_sha256": "e6cde5823fba99cfea1d497134cac68b796941bbd05bff2149930ad017f75a9b",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "3271c02d193be6b7e019c5899a4fda29e4050c946ffa3800607243e0d5b21814",
+        "serial.log": "96eb189033166e36eb700da51ffc1e0c1ededcdb8157b9b920fb28dc87cd302d",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae",
+        "after.png": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae"
+      },
+      "stdout_sha256": "7ae40dfa9bd239fd5daf458eb438340724c027ae875f963d94f758ab208c0b05",
+      "stderr_sha256": "00ba4e89289a7d32208658f7ea9d5d1563d4ec0b0b1e79d6f05d6a1408843abc",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "e50eee32d024534d92feed5771e71a6b22082121e7fe480445d57bde8ad9020e"
+    },
+    {
+      "case": "cardputer-adv-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "8ed50771e20bef9af800514a9f840bf9d69ddc3a39e1b9c118058effebd9a27e",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "70ae1cc7cac045843997d2b49716337705138cd0c7e4b8808ab1090c88b3bed8",
+      "source_sha256": "b0c7585962f2d828fe6800b0a3e78aea071fae3790b67277d3c0e6d61dcb9c49",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "0e305dfbb4f1065c43ab8399d239d4b0bdf0bbb1b2325ca567161d98d39147f3",
+        "serial.log": "f7bea6a5038ddbd42464349af7de3e02dde0bab933e504b1ece03ce3c493cf58",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256",
+        "after.png": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256"
+      },
+      "stdout_sha256": "31c89e4d3ca8b14340a6dab96f1358e4d71614c71d3f425fb7e4822ce59c3a57",
+      "stderr_sha256": "67f3feadb3efb50615012f9d3d59d9c260dd2221904b0cc583e4b8364fa178ac",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "70ae1cc7cac045843997d2b49716337705138cd0c7e4b8808ab1090c88b3bed8"
+    },
+    {
+      "case": "cardputer-adv-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "bc1e80330c761fcd27d6e3daa50059e4797eea4dc113a8ea69d199d1737a3675",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "3b9265cfd660474f7dd358e54fa15eb4730708744136c4074361aba7f7df014c",
+      "source_sha256": "47abdb15c3547519116c5dadf3cf430552fedb9f16da553f2b5fa25eb6964aa0",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "5468b6ac89234eb6c5efa6739c9e652084f6e8f50be6f8d699bc4697cd8cf544",
+        "serial.log": "5deea470c5f98e731e12d39f6b04d2e1ffe1089819e6679c1b4e10bb4f0288c1",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e",
+        "after.png": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e"
+      },
+      "stdout_sha256": "eb96b1443bbb5baae80c2dca03445f345d9fddb413cb86cf92bd59c2e93c9c79",
+      "stderr_sha256": "fa79434310e91fad704168ff8f494b15486d520036ab32decc8666f80f59c6ac",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "3b9265cfd660474f7dd358e54fa15eb4730708744136c4074361aba7f7df014c"
+    },
+    {
+      "case": "cardputer-adv-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "runtime": "xtensa",
+      "case_spec_sha256": "f7ce24b56ffe785bcdba40dc89c81ad7fbc73af216affdd1d14dbc64e711c0c9",
+      "original_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "composed_firmware_sha256": "0820c289c3ee7cb19f2f4bde49a9b28fe517d5f3d0e65f83eb06986f6eda506e",
+      "source_sha256": "f5f70492ffe94faa5025e705385f14d81b2dddf48cb0b92fd295f2071c7ba297",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "checks": 1,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "d2fcd6d6aca79a735b989ca47cad1e704235370279d2eda1db306a707f508ac8",
+        "serial.log": "8b24d87012991d35c4e32588dbd1c0ac96d1e806585ceb7f2f862b305eac5691",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8",
+        "after.png": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8"
+      },
+      "stdout_sha256": "98452ecef212b5f1854836d0a430b8699edc2e9cbbcddbd14d8c7570eb89ad1f",
+      "stderr_sha256": "1bbefb89ab5419f14304f41b0cfc7cbdb06135a7e2f3a46189ddd310cddc06e4",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "061376c4a2f0d8e1a8dbe4a0cc4fe36814a09d3b4a5a6195632ac7f1c29759b7"
+    }
+  ]
+}

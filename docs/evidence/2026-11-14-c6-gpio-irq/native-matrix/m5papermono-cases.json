@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "machine": "m5papermono",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "papermono-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "7aa8ee41a34f76f81af1db48c50fb2a18212fd566f73f194ff53dee088e2c046",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "0c6177a744a8f1da68810dc8b83d9ef6fd4d54cdafe64c6daa1bbc6695e9aa82",
+      "source_sha256": "28168f4260a46e2e6940175cf7ef469883311848f6d8eb6afffbf5616765feb7",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "checks": 8,
+      "input_count": 3,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "adf206e319267d58fa5671aa4b86398457f3af3615e5be88a8ebf7f57ee4a861",
+        "serial.log": "e17cb6d953a386b39bb4334fe8179c7652d1f01681b2f874d4f27b1c1bcb164b",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "3f7b8a790913ab44c70bda55d0f43427134684fb16ec0cde1b7b43eb30f4a4ac",
+        "after.png": "2ce9e5f9ec35d22dcec4b4ac7904a8e7c32e66ef762978400b7dfc2fb5388fc4"
+      },
+      "stdout_sha256": "43b1dbc8fd0d60eea4649ecc5f6150450910860c96f913320055e23e16558311",
+      "stderr_sha256": "200991e7ef60af2c2e86118c9def475dd6b4c19dd824558f4db3983235ddcfe2",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "0c6177a744a8f1da68810dc8b83d9ef6fd4d54cdafe64c6daa1bbc6695e9aa82"
+    },
+    {
+      "case": "papermono-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "0e12e7210e5f627197267d645c7d11e17e90298d0c84838364e39ee31f22b6b9",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "3f3e5303635ebc2c5319d0d36dfb727c32c6798f37c81f4342ff99de90ea31e4",
+      "source_sha256": "6893cf2bb6ef007a00e5e01c3d9b24b40ae6cf51a4c4bb74205c93f0078c96f2",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "serial.log",
+        "pcm",
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 0,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "7157debead2f298a0d865fcdd6b3fcffe417a7cbb7d2aefb142658deefdfc065",
+        "serial.log": "cbed984fca5fcf64277764e3541ee521de541e92082f58706c89741fd5688bb2",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e",
+        "after.png": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e"
+      },
+      "stdout_sha256": "03d6011a95374ebcb56e2d916bea0596ebb86d052ecd1b539964aa69e3100681",
+      "stderr_sha256": "be09bd97b19f06f70d7b02b2c79394dbab02d6920a56f3fae26fd79017335e10",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "3f3e5303635ebc2c5319d0d36dfb727c32c6798f37c81f4342ff99de90ea31e4"
+    },
+    {
+      "case": "papermono-pdm-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "48b937ccd1cd8a4f4f438671da08f3c2f8247ff0b89f271c40d399dc7d5b83fc",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "f5da4e556dde8223556697848e18d9e155eff27e6497f68a2dd3dbead205113b",
+      "source_sha256": "275e5bb2e3a8bc07b3f63065e3cc7f4a91d092eca4ce2e122b482daec4888032",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "1f96918d41e4c09c064678b093029e3da0ea5f097c1c735eafa8186cc1b52b1e",
+        "serial.log": "f74208375c955136e0e0c64ed38f9d82e4292757bda1ed26e5717db3ee09e19e",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac",
+        "after.png": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac"
+      },
+      "stdout_sha256": "da09b485651f6a727f02558c2b39d8e87b2f5f7e7fe0e254c418b37266f08fcf",
+      "stderr_sha256": "ac5456cb89515c8a48ca99bc06318d331cfe94efbf950abf534af9cd90bcf765",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "f5da4e556dde8223556697848e18d9e155eff27e6497f68a2dd3dbead205113b"
+    },
+    {
+      "case": "papermono-rgb",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "98e74cdef081cc55d3c5f7b61d81d8f173262b3b3d5ddcd9ae8d4aad7baebb87",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "db4a7758fec3616d0e13b76cb1426c0f406c21ab2b3f82c60a670a5a6d225609",
+      "source_sha256": "f3688121d740dd8d6309c4c8ee1104fe5cb7eca344ee47b3030700b06cf6022d",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 3,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "7581d3a94ccce2040eb1fa02c1455a6ed22de361cbff9b3c679e7674eb3c377d",
+        "serial.log": "2c837c0f59d0276b07ee600148e98861e6869cf64e103c0867053ef07eb7aa3e",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05",
+        "after.png": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05"
+      },
+      "stdout_sha256": "2bc2a6a9fb440f9d9c1a7ca7a99d24aedf8f0cab55123b9f31e98643f6a41d7e",
+      "stderr_sha256": "2e63eef03b6ad831c1a8642523916a34b1c68efc57f918fd663600b2637de831",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "db4a7758fec3616d0e13b76cb1426c0f406c21ab2b3f82c60a670a5a6d225609"
+    },
+    {
+      "case": "papermono-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "ce286d81c01add30b9920ce29c885ab4b7270a5f71cb7db36e8bc3a60557815a",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "636cbe3215690960ec4d2daa1c2ec145f10c96290cb52ab1b1809e5ad2e41f72",
+      "source_sha256": "ad610007c2ff0cca1e3c5871c98bebfb844ef68f93cadf33a4531c5c61849026",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "799f54ca74f9c71afc096c14ff74343cd3c26f374ee2bd5a7e857493834c996a",
+        "serial.log": "2abf20c0930685f44c2c4d983de6fe16e8dd007c908a883a1fe48d522e83a53e",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d",
+        "after.png": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d"
+      },
+      "stdout_sha256": "3fe7bf7b3a3b4418a58068d9d68850ebdc67058c21210599a0fff949a76c2162",
+      "stderr_sha256": "10820e78851e761bd66ba5df85237c5d8e7671a0fe4a5d9d679913a635407175",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "636cbe3215690960ec4d2daa1c2ec145f10c96290cb52ab1b1809e5ad2e41f72"
+    },
+    {
+      "case": "papermono-lora",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "runtime": "xtensa",
+      "case_spec_sha256": "3f14e872a030917c22ce59694a91950180acfc6d3e0196c317c4c6ba53a928e3",
+      "original_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "composed_firmware_sha256": "2c0a970c902dfc6964f6f98e3346006cbe47b1e77614bbecc85f9d549030b6ff",
+      "source_sha256": "cddc3093b2c743a21e031e84ca0950c805dfc9818fd70b05fd1886e91e50488d",
+      "preserved_existing_vfs": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "checks": 4,
+      "input_count": 1,
+      "marker_input_steps": 0,
+      "qom_step_count": 0,
+      "artifacts_sha256": {
+        "composition.json": "43fa95c8a130f07cbab7d0f4094b6614dc43f38a372ecbc6c2d3f22877b65209",
+        "serial.log": "7bb16267ccd773b59207a8f3c50767607494677c9ce81e1232719d9cb3d42234",
+        "serial1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "console-capture.json": "cef02a44c9448081ba559ee77517d375fc1e5b19a36634e17d3cf35d8d974916",
+        "before.png": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da",
+        "after.png": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da"
+      },
+      "stdout_sha256": "24817c745ddb9880e210fc46b346eb816bfd9d0ea0c4704de1bf50c444d2e3a8",
+      "stderr_sha256": "4ab45dd17e6b74088206eabd979cd294e7d1d177f342f9211ff3ba4db3e26879",
+      "application_partitions_unchanged": true,
+      "final_mutable_flash_sha256": "2c0a970c902dfc6964f6f98e3346006cbe47b1e77614bbecc85f9d549030b6ff"
+    }
+  ]
+}
