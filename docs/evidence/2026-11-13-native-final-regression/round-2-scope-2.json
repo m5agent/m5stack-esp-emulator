@@ -1,0 +1,1761 @@
+{
+  "schema_version": 1,
+  "round": 2,
+  "scope": 2,
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "sticks3-audio",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 6.338,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "d9bbc4d7a8ed1b530e94ae4ed2e6e10587055c3a28f8e336dc4b2ee7e7853058",
+      "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "source_sha256": "1ab22d1d15f82b2f79fa8f3620422afff0b1a90dba0e5849d899f74bc16149db",
+      "load": {
+        "sample_count": 12,
+        "minimum_1m": 13.10107421875,
+        "maximum_1m": 13.2841796875,
+        "median_1m": 13.2841796875,
+        "samples_at_least_10": 12,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "d9c4a45ad7954d4447369e4dd915a0b6021b76fd83a81a399ed94f8994420a46"
+        },
+        "before.png": {
+          "bytes": 940,
+          "sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7"
+        },
+        "after.png": {
+          "bytes": 940,
+          "sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "14f2ddb5ab72a046b63729d9d63ce71e95394dcb66b8df6439badc95ee414179"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cores3-sd",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 22.561,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "121a8d625d66c83e55e272ed0b8629d734d599ef1eebb0b019b463861527e206",
+      "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "source_sha256": "fc2f70a34bc70a05394208467df31587fa296d79651ba4c997ed9731ffd35e99",
+      "load": {
+        "sample_count": 40,
+        "minimum_1m": 12.9326171875,
+        "maximum_1m": 13.3955078125,
+        "median_1m": 13.10107421875,
+        "samples_at_least_10": 40,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 456,
+          "sha256": "a8867430f7e4d8667b7a3693cf458d8df8101747fc196e7cdc65d279a408389c"
+        },
+        "before.png": {
+          "bytes": 828,
+          "sha256": "286e34be22f6f839a8e3bf6d1866698efcc317e5e56931a03aaf28a64dec718c"
+        },
+        "after.png": {
+          "bytes": 828,
+          "sha256": "286e34be22f6f839a8e3bf6d1866698efcc317e5e56931a03aaf28a64dec718c"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "76ec0e410e8cf26c08c98eaa86104632c4b4354c989ce23a4ec6860389452fa3"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cardputer-adv-keyboard",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 13.355,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "61ea11c211c2c7d6ca54c6e3ddf2d5106ca9454a4d4a4bac23528d4ee4112665",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "source_sha256": "5ee17f7ed9287cec7e632ddb0d71fe21dfecebc9a10c7134359c7e33b9abaadf",
+      "load": {
+        "sample_count": 25,
+        "minimum_1m": 13.3955078125,
+        "maximum_1m": 14.60595703125,
+        "median_1m": 14.48486328125,
+        "samples_at_least_10": 25,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "2566ca85e7d1d67d0e64a51c576e932f8afe260bc1ba8fd97a13ff3c0b5197b6"
+        },
+        "before.png": {
+          "bytes": 2319,
+          "sha256": "1fd94bd998b8916099f5af89d6dbcdebd52bd0d32f7360de838310ebbb526859"
+        },
+        "after.png": {
+          "bytes": 2297,
+          "sha256": "b9323721391b39d341570db53baa11bae2ff8bbc477414264459c1869cd7685b"
+        },
+        "composition.json": {
+          "bytes": 2657,
+          "sha256": "6ee46cca3b3b82cfe5cad14c2848ca43c9a938bb8b6664240857c40d8048f9d6"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cardputer-adv-audio",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.361,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "70ae1cc7cac045843997d2b49716337705138cd0c7e4b8808ab1090c88b3bed8",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "source_sha256": "b0c7585962f2d828fe6800b0a3e78aea071fae3790b67277d3c0e6d61dcb9c49",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 13.37451171875,
+        "maximum_1m": 13.91650390625,
+        "median_1m": 13.8427734375,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "f5e88b55ab2c81de10b7a8d0a8a84de0d77b79c5d8dab69a544a5338a6c04aa3"
+        },
+        "before.png": {
+          "bytes": 1175,
+          "sha256": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256"
+        },
+        "after.png": {
+          "bytes": 1175,
+          "sha256": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "0e305dfbb4f1065c43ab8399d239d4b0bdf0bbb1b2325ca567161d98d39147f3"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "sticks3-ir",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.284,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "04539ab8a04507dba8d6d42feda3626cd2e652b3e7e99d8fb8f234ebff89dbfd",
+      "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "source_sha256": "f5f70492ffe94faa5025e705385f14d81b2dddf48cb0b92fd295f2071c7ba297",
+      "load": {
+        "sample_count": 19,
+        "minimum_1m": 13.31005859375,
+        "maximum_1m": 13.42431640625,
+        "median_1m": 13.37451171875,
+        "samples_at_least_10": 19,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 333,
+          "sha256": "0b420ad74bae36126e886e132941e15e2d0d3fe0377959801e68f2af52eaed4a"
+        },
+        "before.png": {
+          "bytes": 1550,
+          "sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545"
+        },
+        "after.png": {
+          "bytes": 1550,
+          "sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "44615b0a3f37b2bbce35d4f1346471fb1219dad9bdcd3e45f917c3922a0fbb97"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cores3-power-transitions",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 9.347,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "22a5bae3534fdc77cf296f4ad3a015f609187786c81ddbab9fdf1d88962decac",
+      "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "source_sha256": "832692aac8dd2419c08d26ce30895c429d3d8be1cb7ddd2c05ec5ad6fc86a2b2",
+      "load": {
+        "sample_count": 16,
+        "minimum_1m": 13.31005859375,
+        "maximum_1m": 13.64306640625,
+        "median_1m": 13.525390625,
+        "samples_at_least_10": 16,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 426,
+          "sha256": "a8ba19981d096d2c0b6f9e9462abf6c8af6c4b8704acbf03f01e92634b59e0e6"
+        },
+        "before.png": {
+          "bytes": 2419,
+          "sha256": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572"
+        },
+        "after.png": {
+          "bytes": 2419,
+          "sha256": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "8877bc193599b5921377991109893b8d2b1d37ff1d59919a6e2019b45f0dad41"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "axp2101_initial_power_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_discharge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_charge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_runtime_sequence_complete",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-camera",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 11.853,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "8c505f5f4a760fd5c4b3bb92c7be3502e79e77ec173d1dca32b9d2b2df734207",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "15de3455d18a1ed7c7c5922f3b78a15cc15961b456c3b5ab1b79c4b0890dffb2",
+      "load": {
+        "sample_count": 22,
+        "minimum_1m": 13.2041015625,
+        "maximum_1m": 13.83154296875,
+        "median_1m": 13.64306640625,
+        "samples_at_least_10": 22,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 350,
+          "sha256": "90782140eabc1a96a9653c2bd17a5665e778c5d59a9bd276d0c39cbc56c7bac9"
+        },
+        "before.png": {
+          "bytes": 2362,
+          "sha256": "2b97bb64a06c9d70e8e995fce592d32ebaabadc9324514746d80a504bf86e023"
+        },
+        "after.png": {
+          "bytes": 2362,
+          "sha256": "2b97bb64a06c9d70e8e995fce592d32ebaabadc9324514746d80a504bf86e023"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "39f67789ca0d34cf2a96a7bd3cfdea10ab2baad7c593a6ea88dfb894a0ec6074"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "stackchan_camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stamplc-peripherals",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.436,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "a3b15940556fef1c3c97a3d2d4a8f392ec096988aa530182a9f3afdb79a0deb7",
+      "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "source_sha256": "bd767acf6331e7b1d65a3fabe036056de45f65a45ed02bd249b5fa83b1a19ff0",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 12.85205078125,
+        "maximum_1m": 13.1875,
+        "median_1m": 13.019775390625,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 683,
+          "sha256": "60dd2ee1ed5e0e411117d9b37eac5a76e43b9b6036348333b2e036eae195e6b8"
+        },
+        "before.png": {
+          "bytes": 2399,
+          "sha256": "049e0b3a66c69d296e20675686747649acef3ef9a9ed36395e17e23f2ec9b619"
+        },
+        "after.png": {
+          "bytes": 2383,
+          "sha256": "bb1800dc1b2126d78747a583c10737f1b841df6f6e4d0530089bfb802b1dea8f"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "1d00d189a9b082fad56c9dea2c9459a0bca91374be6aaa736854a1b9c19e2da5"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "relay",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "digital_inputs",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rgb",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_current",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papermono-buzzer",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 6.474,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "3f3e5303635ebc2c5319d0d36dfb727c32c6798f37c81f4342ff99de90ea31e4",
+      "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "source_sha256": "6893cf2bb6ef007a00e5e01c3d9b24b40ae6cf51a4c4bb74205c93f0078c96f2",
+      "load": {
+        "sample_count": 11,
+        "minimum_1m": 11.9521484375,
+        "maximum_1m": 12.38330078125,
+        "median_1m": 12.38330078125,
+        "samples_at_least_10": 11,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 337,
+          "sha256": "36a8f50d4936b48dabbda57737e27a48dab772103d8fa5f2ff7724eedddfde26"
+        },
+        "before.png": {
+          "bytes": 3504,
+          "sha256": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e"
+        },
+        "after.png": {
+          "bytes": 3504,
+          "sha256": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "7157debead2f298a0d865fcdd6b3fcffe417a7cbb7d2aefb142658deefdfc065"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "gpio42_i2s_tx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papercolor-peripherals",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 37.252,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "a3cc5e6b40aca66412a4924748c8cd8f116cdbc657533a649f2c8f79eccabf2c",
+      "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "source_sha256": "75fa29aa350a8a91c4534c0c69fa1bce143139fa6e4c66efb5ce0e75ffe80cda",
+      "load": {
+        "sample_count": 67,
+        "minimum_1m": 11.9521484375,
+        "maximum_1m": 12.80029296875,
+        "median_1m": 12.37548828125,
+        "samples_at_least_10": 67,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 619,
+          "sha256": "f4b50975eb60e9a1f980a2ef2d472369fb7416a632b2d7c81555a893ca16422a"
+        },
+        "before.png": {
+          "bytes": 1535,
+          "sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91"
+        },
+        "after.png": {
+          "bytes": 1535,
+          "sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "20697ae2cfb95e686c6ca43047c874c20a4d0a516ed893a56d1b9ec201199457"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5pm1_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "m5pm1_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "papercolor_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papercolor-sht4x",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.511,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "f3b02e00dc586f010599d0ad765daa0817a8ab9b341d0e12387c6b782a2c64d5",
+      "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "source_sha256": "8bb1909c18348cfd8a74c467679de68150db5d391f5cf5ecba77da8622a87200",
+      "load": {
+        "sample_count": 19,
+        "minimum_1m": 12.30517578125,
+        "maximum_1m": 12.72412109375,
+        "median_1m": 12.505859375,
+        "samples_at_least_10": 19,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 309,
+          "sha256": "ca4cae8c533a8f7ad1934e841c730e0de04cabb68873a6d3b3ebe353ac00714d"
+        },
+        "before.png": {
+          "bytes": 5278,
+          "sha256": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2"
+        },
+        "after.png": {
+          "bytes": 5278,
+          "sha256": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "a9fa263798ddf65816833702a3a88de68b1eeb58bbd3014bd41b371ea802156d"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sht4x_measure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_crc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papermono-lora",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 27.414,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "2c0a970c902dfc6964f6f98e3346006cbe47b1e77614bbecc85f9d549030b6ff",
+      "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "source_sha256": "cddc3093b2c743a21e031e84ca0950c805dfc9818fd70b05fd1886e91e50488d",
+      "load": {
+        "sample_count": 49,
+        "minimum_1m": 11.5693359375,
+        "maximum_1m": 13.4013671875,
+        "median_1m": 12.49072265625,
+        "samples_at_least_10": 49,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "5a78023cc0603e591039243550d0c7687b7a66ee1979f6be4269b67d6baa6ef4"
+        },
+        "before.png": {
+          "bytes": 3157,
+          "sha256": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da"
+        },
+        "after.png": {
+          "bytes": 3157,
+          "sha256": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "43fa95c8a130f07cbab7d0f4094b6614dc43f38a372ecbc6c2d3f22877b65209"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "lora_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-rgb",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 14.36,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "7542f1f83873c693725d6c4859afb410134d0ea1fb2aac0a58d821c1a132d3f9",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "5f9b2579a1a0715b68dc45276d4f57003edc2848414815236596dc5ea1a1f45d",
+      "load": {
+        "sample_count": 25,
+        "minimum_1m": 11.509765625,
+        "maximum_1m": 11.6416015625,
+        "median_1m": 11.5693359375,
+        "samples_at_least_10": 25,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "5fa8295830e50e837ea8e950a7ee937fef1d35891c5bf595673f4204931c66a0"
+        },
+        "before.png": {
+          "bytes": 1780,
+          "sha256": "178c4570bd68cc337ed895c77803b4fa563df663de39d59e79cab64e0d3b86ab"
+        },
+        "after.png": {
+          "bytes": 1780,
+          "sha256": "178c4570bd68cc337ed895c77803b4fa563df663de39d59e79cab64e0d3b86ab"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "57d403a5ffc5ed65b0056731afc8c13c7609103b6a8c4a35a759eb8f0fb31315"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5ioe1_led_cfg",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-peripherals",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 15.968,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "0d4d70466863a4ac944b7bc23ccc9673ab4261e9e1b68c89a5531d8cc7df5320",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "85d548f5827fc53a6637bec60772b0eb710920b27b16fbe1d1c1af1ff673cee7",
+      "load": {
+        "sample_count": 28,
+        "minimum_1m": 11.31640625,
+        "maximum_1m": 11.548828125,
+        "median_1m": 11.509765625,
+        "samples_at_least_10": 28,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 871,
+          "sha256": "ed19a2e8fb0f10470552421ed11ad3d647be7f290d76452e55daf1a52aa75004"
+        },
+        "before.png": {
+          "bytes": 1000,
+          "sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2"
+        },
+        "after.png": {
+          "bytes": 1769,
+          "sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "b04833c65dcfa14735e5932ffb577ab11e67c38888e697d50fe0d8a25f439d82"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "stackchan_imu",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_axp2101_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_display_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_aw9523",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ina226",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ltr553_als",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_rtc_bm8563",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ir_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stopwatch-audio",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 12.545,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "61062089ddac3f8d70208398ee00c6433328d0e9a2ba71c54adf48728ba55e56",
+      "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "source_sha256": "cb5b541c55ea13a2c2892e91e3146e1bfb957f969e81d07c9d6c6665a78bb175",
+      "load": {
+        "sample_count": 23,
+        "minimum_1m": 10.72607421875,
+        "maximum_1m": 11.31640625,
+        "median_1m": 11.05078125,
+        "samples_at_least_10": 23,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "7a1c52a4df7768103bf1d29eb80cbb2d1473a611725ec471b26fb609f3b60201"
+        },
+        "before.png": {
+          "bytes": 739,
+          "sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+        },
+        "after.png": {
+          "bytes": 739,
+          "sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "045b133cd64e44f6be18dfef8ee9ea4e1294d91ebdd46c7b70de8f5163405c87"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "atoms3r-ir",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.286,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "00d6f0f3c91d575423ee30a23076d62d7c30f9555317aed72d1686af0e900f3b",
+      "base_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+      "source_sha256": "f5f70492ffe94faa5025e705385f14d81b2dddf48cb0b92fd295f2071c7ba297",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 10.37353515625,
+        "maximum_1m": 10.66748046875,
+        "median_1m": 10.5205078125,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 333,
+          "sha256": "7f2951f113690cf4c60db49e840e661109e380e3fd9bced33814958a7a21958f"
+        },
+        "before.png": {
+          "bytes": 1430,
+          "sha256": "07e408ce2bff67ca672823f8279c8ee9eb318afd7e6e57e9bad314bb111a1402"
+        },
+        "after.png": {
+          "bytes": 1430,
+          "sha256": "07e408ce2bff67ca672823f8279c8ee9eb318afd7e6e57e9bad314bb111a1402"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "1e99d7486e20647637291d4ea5932b9457d8f9db8b21518d8950daf5e69da253"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "atoms3r_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "core2-peripherals",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 26.954,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "46018cd652921212fc358cbaf5fee105a71b46a1cbfe1f9bec82a55cab780129",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "source_sha256": "919efa86467507fb0aadafca266b27f75ff64ca9fe23d549ca89aded3ede4e08",
+      "load": {
+        "sample_count": 48,
+        "minimum_1m": 11.14404296875,
+        "maximum_1m": 11.84228515625,
+        "median_1m": 11.48046875,
+        "samples_at_least_10": 48,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 789,
+          "sha256": "2aca3356cba7c89423aaf1e7bd6c64553c923782653c0f950fb59eb537aa3545"
+        },
+        "before.png": {
+          "bytes": 2687,
+          "sha256": "03133a43ca7b406d4311d2e6a69936238ea7776080f75df7b4075428038f8be1"
+        },
+        "after.png": {
+          "bytes": 2662,
+          "sha256": "feb3c871b808ed5100a74291b4f43ece159449865630081c1d2478ab986e620c"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "e0eb575029e68ac8f2514b1ee82253d5b3cb54745146c1db9eb5d3ac26b46aee"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "core2-power-monitor",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 20.397,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "0cf7d295f10767e1f52bd172aa5c7255e7de23425740fb5ddd25a459599cce27",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "source_sha256": "bf8e8188408550a210242269536047715112e707c8b50184631dd01d8ffb60bf",
+      "load": {
+        "sample_count": 37,
+        "minimum_1m": 11.84228515625,
+        "maximum_1m": 13.88623046875,
+        "median_1m": 13.5283203125,
+        "samples_at_least_10": 37,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 639,
+          "sha256": "8ff48bcf8e4764113bdddd7b5aa45e648d2a14e7b8f744071997c72475cea76a"
+        },
+        "before.png": {
+          "bytes": 1528,
+          "sha256": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae"
+        },
+        "after.png": {
+          "bytes": 1528,
+          "sha256": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "f66815be6faaa49e88b9b6d0eb7b97d1648ffda3cbbea3401b85bf4a6131aca0"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stamplc-buzzer",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.568,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "cf533537c2703634cabbd33dfba25e6f01c8948ffccbbd9af799d57bafc19a4b",
+      "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "source_sha256": "85d71bc2478077603f4502bbecd3b68cfe0a7caa9bf315959c82f1bd724f5fbb",
+      "load": {
+        "sample_count": 19,
+        "minimum_1m": 13.375,
+        "maximum_1m": 13.755859375,
+        "median_1m": 13.73486328125,
+        "samples_at_least_10": 19,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "c67ac9e6229b3b2759658693b9b543f2b06cbb3d436278b22fab75463b5f6ee4"
+        },
+        "before.png": {
+          "bytes": 1070,
+          "sha256": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392"
+        },
+        "after.png": {
+          "bytes": 1070,
+          "sha256": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "716a02347aa25170f866a95d44e30150830bb469d83a3349e2edc31dfd1487f2"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_buzzer_init",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_delta_sigma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stamplc-lm75",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 10.991,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "224820eeb6e7996b242338f17ba1a9c0244f2dcde92cb80714f0f5827ddab3f2",
+      "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "source_sha256": "60a5a123c13e9868e4d1d7741c521e6a026b09ee313a8269a7045a983201d989",
+      "load": {
+        "sample_count": 20,
+        "minimum_1m": 13.375,
+        "maximum_1m": 14.4658203125,
+        "median_1m": 13.78759765625,
+        "samples_at_least_10": 20,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 395,
+          "sha256": "36842ba97cfd1b9ff29712a27d9e457218031e1cf487f5a127f51560e2b023fc"
+        },
+        "before.png": {
+          "bytes": 1308,
+          "sha256": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03"
+        },
+        "after.png": {
+          "bytes": 1308,
+          "sha256": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "e24df28af2b4d8dabf1ee615eba9023aec87e5b71e3df7ffdc635381e4643e88"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "lm75_i2c_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_temperature_encoding",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cores3-aw9523-full",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 12.532,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "28b03421c9ebac30ec009d091b02e1e9ce4a3ca97eeb820cb5fbacf847491e02",
+      "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "source_sha256": "daa783bb8c59b48ba3555f03aa44e030a477811a2147e44d43f7a21023107656",
+      "load": {
+        "sample_count": 22,
+        "minimum_1m": 12.33837890625,
+        "maximum_1m": 13.78759765625,
+        "median_1m": 12.890625,
+        "samples_at_least_10": 22,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "43fb3d07a00dfd110a371196f4acbe3df23e89b42ca4881e59ae306d8d34fa95"
+        },
+        "before.png": {
+          "bytes": 1067,
+          "sha256": "e8ec9c57516da7f89415d3206f3a3b72fa103f6b47624f5de8174a0b55b39506"
+        },
+        "after.png": {
+          "bytes": 1613,
+          "sha256": "48e5a99ad6cc4dbb2e01930a8365883fb73bcd598db5f3d02795f5957b3766f2"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "6792b0699f28ffa9c0a3207f48dc3df7535fe81aa0cd0567ddafad2994c1a997"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw9523_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "nesso-peripherals",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 23.556,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "df026ab3bd24bbbf3e276fb57ebd3ecd66ad3a800651db514e7f41231e9b1050",
+      "base_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "source_sha256": "87cf1ecb164091ad6aaf9b2915d9c9e4c47854d92f6fd1753b2383c094fdca86",
+      "load": {
+        "sample_count": 43,
+        "minimum_1m": 10.99462890625,
+        "maximum_1m": 12.33837890625,
+        "median_1m": 11.74462890625,
+        "samples_at_least_10": 43,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 7,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 315,
+          "sha256": "8cc53ae07bafad6dbddc7af471015cfdbc2e4c100997d2e68a0acaa4c7b42f56"
+        },
+        "before.png": {
+          "bytes": 757,
+          "sha256": "b9ab4bf6b6a6bc134e683af8a342542b73f705a327d4006ba49159b5e56a665b"
+        },
+        "after.png": {
+          "bytes": 1854,
+          "sha256": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "968225aca43f214fb7c9e794c9304f9556b126a347739d7cbdf3eff6e7024e50"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "nesso-lora",
+      "scope": 2,
+      "status": "PASS",
+      "duration_seconds": 16.861,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "c63dda61e301515ce02ff8182c072886ebe1f6fb10bcfbe7420da19cce5c45fb",
+      "base_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "source_sha256": "99b69b6548ed12a062b56a22ef808aa75844a022ead50f9480df8c19b4fe7d8e",
+      "load": {
+        "sample_count": 30,
+        "minimum_1m": 10.6875,
+        "maximum_1m": 10.99462890625,
+        "median_1m": 10.83447265625,
+        "samples_at_least_10": 30,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 1,
+        "maximum_compute_workers": 8,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 315,
+          "sha256": "85067f8b834ed625f9a0ccd16da133efd868b6479b6727e87b4f768cc9e6d776"
+        },
+        "before.png": {
+          "bytes": 1750,
+          "sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354"
+        },
+        "after.png": {
+          "bytes": 1750,
+          "sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "febf4f28ae5bfb479dc8e81aefd0591a2fb341ac3250ca5dc6829a98db0dd240"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    }
+  ]
+}

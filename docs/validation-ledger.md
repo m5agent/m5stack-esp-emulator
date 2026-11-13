@@ -22,6 +22,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| 最终原生高负载矩阵 / virtual-device validation | 执行源码 `890acf8f…`、Xtensa `35c35ef2…`、C6 `3679e74e…`：两轮各 69/69，3×23 scopes，单 attempt、零 retry；1,269 个正式采样全部 ≥10，最低 10.3735。进程/套接字清场且前后 pins 一致；历史失败保留，main/常驻交付另验 | [两轮、六 scope 与逐例 SHA](evidence/2026-11-13-native-final-regression/README.md) |
 | 146 补丁 fresh 原版复验 / virtual-device validation | Xtensa `35c35ef2…` 上原 Lite/Matrix/Matrix v1.1 各 130 秒，原 UIFlow1/HamRadio 各 180 秒；应用字节不变，真实输入/帧/网络/SD 子路径通过，Matrix HTTP 404 保留。SD/IMU 两项定向 case 单 attempt 通过；Pillow harness 错误另记 INFRA_FAILED；完整高负载和发布未由此授予 | [精确 SHA、阶段帧和清场](../tests/firmware/classic_factory/final-0194-0198-summary.json) |
 | C6 PCR/MWDT 计时对照 / virtual-device validation | 原 `e4c9bb8d…` 六控只过 80 MHz；增量 `d7a6f11d…` 六控通过，原 RFID 5 秒首超时恢复为 5002 guest ticks，但 IDLE 未喂狗导致重启仍 FAIL。全 OFF 阶段 host 边界另发现零时循环，最终修复另验，不授整组发布 | [controller 与原 BIN 两类原因](../tests/firmware/esp32c6_mwdt_clock/README.md) |
 | 19 补丁 fresh C6 / virtual-device validation | `3679e74e…` 上六项 PCR 时钟和三项 OFF 阶段控制通过，Nesso 外设/LoRa 单 attempt 通过；原 Mesh/Bruce 各超过 150 秒，按键/触摸/唤醒/请求 reset 后重挂载通过。原 RFID 仍一次非请求重启；五个 Device Service 会话均取证后停止，Flash/租约及进程清场 | [新 SHA、原 BIN 与失败历史](../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json) |

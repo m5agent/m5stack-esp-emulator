@@ -1,0 +1,1671 @@
+{
+  "schema_version": 1,
+  "round": 1,
+  "scope": 3,
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "sticks3-mic",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 7.483,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "b461b4b63595f42668db7e4b124ba9cc967f3a230db61b7bbef6848be459edb7",
+      "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "source_sha256": "278fd76e9cca9735a89e0c90da8be7c4e2df891d7267c5ae0059f87544eefb53",
+      "load": {
+        "sample_count": 14,
+        "minimum_1m": 13.40869140625,
+        "maximum_1m": 13.79296875,
+        "median_1m": 13.79296875,
+        "samples_at_least_10": 14,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "a57f60d4bf35abe8c4aa7981a76085d4e45f001bfbc4547dd99d482e95dbcefb"
+        },
+        "before.png": {
+          "bytes": 915,
+          "sha256": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46"
+        },
+        "after.png": {
+          "bytes": 915,
+          "sha256": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "9c7c1aed9519bd5bea367ba0585ab0c9a727933e857531308aed4b989f9d1abc"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "core2-sd",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 22.679,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "source_sha256": "6bc811df535448acb671b1e0a34a1f7aecbb925ceaf4d20222bb7b761c113608",
+      "load": {
+        "sample_count": 41,
+        "minimum_1m": 13.40869140625,
+        "maximum_1m": 16.92431640625,
+        "median_1m": 14.74169921875,
+        "samples_at_least_10": 41,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 627,
+          "sha256": "0fb8ce7639d923ffe2b7fcc9c8bb7b2a36ce6186f7be3dbd0e04d8c02ecfbffd"
+        },
+        "before.png": {
+          "bytes": 817,
+          "sha256": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+        },
+        "after.png": {
+          "bytes": 817,
+          "sha256": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+        },
+        "composition.json": {
+          "bytes": 2505,
+          "sha256": "0735514c5f5bdc7243f01bea9432dbb47943f87f71ede0cf6f181d4b5777e7e3"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cardputer-adv-nfc",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 14.497,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "9dc898068f8f0ed09e47c8e58c108b10935308211c53cf658e1e0d49ae30f03c",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "source_sha256": "6c7c599c7a6399f15eab784e010958d17d122e1cf0e6443aa1d8d271bb7041ec",
+      "load": {
+        "sample_count": 26,
+        "minimum_1m": 14.90380859375,
+        "maximum_1m": 15.9267578125,
+        "median_1m": 15.7724609375,
+        "samples_at_least_10": 26,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 4,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "727303b295d74b5244072e2148483b920cf860b481864a2dfdef9638efa0decd"
+        },
+        "before.png": {
+          "bytes": 2096,
+          "sha256": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1"
+        },
+        "after.png": {
+          "bytes": 2096,
+          "sha256": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "f32d665983e6d8401123fa20d965457b70472107eaf2fa1bbb1103c77f511687"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cardputer-adv-mic",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 11.251,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "3b9265cfd660474f7dd358e54fa15eb4730708744136c4074361aba7f7df014c",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "source_sha256": "47abdb15c3547519116c5dadf3cf430552fedb9f16da553f2b5fa25eb6964aa0",
+      "load": {
+        "sample_count": 21,
+        "minimum_1m": 14.06298828125,
+        "maximum_1m": 14.90380859375,
+        "median_1m": 14.5908203125,
+        "samples_at_least_10": 21,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 4,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "b38241b36864dfa0b11ac5589e682c9e00c8307e6627b45558180195d5c0b757"
+        },
+        "before.png": {
+          "bytes": 1176,
+          "sha256": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e"
+        },
+        "after.png": {
+          "bytes": 1176,
+          "sha256": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "5468b6ac89234eb6c5efa6739c9e652084f6e8f50be6f8d699bc4697cd8cf544"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "sticks3-ir-rx",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 10.279,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "daeed97bf3f06e58256094b27111a32f96ffe6d8636bcbbe0732583ed6506ecd",
+      "base_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "source_sha256": "dce2c81803316cbd31dad6199b79b2cd0dbe2253381855d55ceb324399f36d7b",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 13.1240234375,
+        "maximum_1m": 14.06298828125,
+        "median_1m": 13.6572265625,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 4,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 348,
+          "sha256": "01cd288984844a259c496c1128dab1ca8cdd9e9599cc95cb49e8391a421c9702"
+        },
+        "before.png": {
+          "bytes": 1789,
+          "sha256": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804"
+        },
+        "after.png": {
+          "bytes": 1789,
+          "sha256": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "a7fe50ab88df0c7bdfc11d90e89abb42d314d75af95e2a5a9f9c97f7483d9354"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cores3-usb-hid",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 16.253,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "93ebca97ba100a26ba8d43a5437bde0d598f4464b2681ce171836643bf1deb48",
+      "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "source_sha256": "ff9c6ecd2e22bfaa25119635378437b7ee6b9a498ea65e94c7877c2fd129382f",
+      "load": {
+        "sample_count": 29,
+        "minimum_1m": 12.5693359375,
+        "maximum_1m": 13.1240234375,
+        "median_1m": 12.603515625,
+        "samples_at_least_10": 29,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 4,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 379,
+          "sha256": "d0d92eab92b6372e42b91d6cce9a1925f9da977483e6c90fe54471c5589f99d6"
+        },
+        "before.png": {
+          "bytes": 1683,
+          "sha256": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7"
+        },
+        "after.png": {
+          "bytes": 1683,
+          "sha256": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7"
+        },
+        "composition.json": {
+          "bytes": 2489,
+          "sha256": "4a527c4f4ea416f81c041763c280d9908759f32f199a4b36b669c11134a3e11c"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "max3421e_config",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_chapter9_enumeration",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_report_descriptor",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_interrupt_in_report",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cores3-audio",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 7.36,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "2eadd5e3338858854dc172f2f45a78b673c39687690db07a01eabe628f04dc65",
+      "base_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "source_sha256": "c47f3fa218c985071a452fabdf9cc3ac7477406c0baa9a3016e62cfbbbb19f8f",
+      "load": {
+        "sample_count": 13,
+        "minimum_1m": 11.9755859375,
+        "maximum_1m": 12.603515625,
+        "median_1m": 12.23486328125,
+        "samples_at_least_10": 13,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 4,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 340,
+          "sha256": "7dbfc4599ada942eaec989c8b4b10d20d4ba23415b407a8ae0e39ba211283b08"
+        },
+        "before.png": {
+          "bytes": 1086,
+          "sha256": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a"
+        },
+        "after.png": {
+          "bytes": 1086,
+          "sha256": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a"
+        },
+        "composition.json": {
+          "bytes": 2487,
+          "sha256": "723f1ca7639d69750ac1f9c205455e1dfbca771c7c4dc9d4df02306fad9d5b6e"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stopwatch-peripherals",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 17.302,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "23cca24239800cc442d16814f7e9d511e523e97d3ada89b884aad7780a77a1d0",
+      "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "source_sha256": "4193f97f0dd596dba76c2ff98dff7e475c98eb0e6446e816ae3d6d1e834cd20c",
+      "load": {
+        "sample_count": 31,
+        "minimum_1m": 11.13037109375,
+        "maximum_1m": 11.9755859375,
+        "median_1m": 11.5771484375,
+        "samples_at_least_10": 31,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 842,
+          "sha256": "8d150148a42ccdc914cf29232ee601a4c0cf57bc71dec22e80a02ca986f21e60"
+        },
+        "before.png": {
+          "bytes": 5558,
+          "sha256": "634573dd331a332f8daf6516fd351281e9ed333f40d11a5ccd9ff91cf58bddca"
+        },
+        "after.png": {
+          "bytes": 5503,
+          "sha256": "9a38b86d284b2a08f32942c4a3b67d4bea74e3d4a6237c2008dcc2ff3027416f"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "b71bd0674170da213a1851e72c57142c74f29af4ba2d308d8e5ee86af4e609aa"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papermono-pdm-mic",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 8.62,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "f5da4e556dde8223556697848e18d9e155eff27e6497f68a2dd3dbead205113b",
+      "base_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972",
+      "source_sha256": "275e5bb2e3a8bc07b3f63065e3cc7f4a91d092eca4ce2e122b482daec4888032",
+      "load": {
+        "sample_count": 15,
+        "minimum_1m": 11.19970703125,
+        "maximum_1m": 11.50390625,
+        "median_1m": 11.50390625,
+        "samples_at_least_10": 15,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "561fc10c0953402c491c60011ec496dd7178d60fcd4c7f209721cd792c9cd9aa"
+        },
+        "before.png": {
+          "bytes": 4501,
+          "sha256": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac"
+        },
+        "after.png": {
+          "bytes": 4501,
+          "sha256": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "1f96918d41e4c09c064678b093029e3da0ea5f097c1c735eafa8186cc1b52b1e"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "pdm_mic_begin",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_i2s_rx_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papercolor-sd",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 24.484,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "4cdcdd58aded253e6d64f5f4b712cb043d7edeaf4899e6028515ce755af0108b",
+      "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "source_sha256": "3e4350bf6b6234cee697a6ef2ab47269d3cf19e17a3fcedcdfa49aeacf8a9766",
+      "load": {
+        "sample_count": 44,
+        "minimum_1m": 11.19384765625,
+        "maximum_1m": 12.93994140625,
+        "median_1m": 11.32421875,
+        "samples_at_least_10": 44,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "76cf5abdfccc27f207b7ef6c0888b56151ceef5bcbdf8d417457101a2ec23676"
+        },
+        "before.png": {
+          "bytes": 4869,
+          "sha256": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f"
+        },
+        "after.png": {
+          "bytes": 4869,
+          "sha256": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "502ca5426cdf113259b2f6362635867abcb56427a2abd9d5c57596faf2eb2273"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papercolor-mic",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 13.619,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "8b493f35f7fa80ed1ef7ce9ada9dbbd0ca793cd04b40933a92312e0824ce0cd7",
+      "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "source_sha256": "03b84b29eb35a5a865776bb099e01c4087bdc6a63108f3ac51b4e87f2556f527",
+      "load": {
+        "sample_count": 25,
+        "minimum_1m": 12.70166015625,
+        "maximum_1m": 13.0244140625,
+        "median_1m": 12.93994140625,
+        "samples_at_least_10": 25,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "0a819f5c8d96d4a440df36c4627384f28e086e074736d9b5dfbf2a00042c96b6"
+        },
+        "before.png": {
+          "bytes": 4842,
+          "sha256": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe"
+        },
+        "after.png": {
+          "bytes": 4842,
+          "sha256": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "a9f0cc3f201d6d75c57665326cdf71b9da0f470a7c91539c53a2e8d57697a148"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-nfc",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 27.518,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "33be29367c6a89066ba75d00667e4125c8c905d912e4f62a0ca2ab66ff4659aa",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "ebaa78b598140edc993d00e60d73b12e15ef3d2929c8729044cf80c1667bfa49",
+      "load": {
+        "sample_count": 50,
+        "minimum_1m": 11.82666015625,
+        "maximum_1m": 12.48486328125,
+        "median_1m": 12.2470703125,
+        "samples_at_least_10": 50,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "bb8ecb54ae5a03abecb686430dd074309913f420fc97c9eca601cb8b8be5f574"
+        },
+        "before.png": {
+          "bytes": 1605,
+          "sha256": "45704eaf36bd1d72d2b145f91f22dbbc1713748748d19bc2554be5270c85fe81"
+        },
+        "after.png": {
+          "bytes": 1605,
+          "sha256": "45704eaf36bd1d72d2b145f91f22dbbc1713748748d19bc2554be5270c85fe81"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "43f96b45f4fbc3c274e1a3dbeb85615ab22a1489fa15b6e1ae1f7e122a11a214"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-audio",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 7.722,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "fa1b503716c511ba7463d1d474a9023c158bcd315ca8223141743f94876c66cd",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "0b0ad0102b3ad38b5c9aa2e109d216d34f10aa8819d89c03ca10fb9a887e1af9",
+      "load": {
+        "sample_count": 14,
+        "minimum_1m": 11.6728515625,
+        "maximum_1m": 12.080078125,
+        "median_1m": 12.080078125,
+        "samples_at_least_10": 14,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 364,
+          "sha256": "0dd1b77339467434344413b15894b207fda364a069f01f2ec3401413277286a0"
+        },
+        "before.png": {
+          "bytes": 1140,
+          "sha256": "41f874533f249bac7f39fdd15f18124a4103e51e848f40284daff37cbccaee12"
+        },
+        "after.png": {
+          "bytes": 1140,
+          "sha256": "41f874533f249bac7f39fdd15f18124a4103e51e848f40284daff37cbccaee12"
+        },
+        "composition.json": {
+          "bytes": 2487,
+          "sha256": "8353577598a7afa58492705ede75dc55f3d5f0544bd1ccbde41c867e8859012d"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stackchan-servo",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 14.412,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "780ac4a0d2743f2ecf133cffc19a25d741bfdbbc6ca4ec64472abf14547120ac",
+      "base_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "source_sha256": "02d558c7e227056a407441356bfb8326045cac4e21c45b5fd0aca87818b09d62",
+      "load": {
+        "sample_count": 26,
+        "minimum_1m": 11.6728515625,
+        "maximum_1m": 11.95654296875,
+        "median_1m": 11.77880859375,
+        "samples_at_least_10": 26,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "8dac22c8f3116cc5b5817fcdb8cb1a83a20e65e79fdbfce3cdc087001483d033"
+        },
+        "before.png": {
+          "bytes": 1169,
+          "sha256": "49e73a0fe2f249052f32fb5b5b6617b0f0142612089687926ed1afb301b8a518"
+        },
+        "after.png": {
+          "bytes": 1169,
+          "sha256": "49e73a0fe2f249052f32fb5b5b6617b0f0142612089687926ed1afb301b8a518"
+        },
+        "composition.json": {
+          "bytes": 2488,
+          "sha256": "e1b7e9afed5f69493f960aaad9807647a2dff1b80c55ffaf9b15e5b573192423"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "servo_ping",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_torque",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_write",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stopwatch-mic",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 12.364,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "0e27bc0c68567c6fa7f80cfaaf21803c7f5998bf1d6b30d5c7c5fc0e0deffc21",
+      "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "source_sha256": "6260b39607ede99d5780cd07c13775982f5577d7829b4350eea86a052925c659",
+      "load": {
+        "sample_count": 22,
+        "minimum_1m": 11.52197265625,
+        "maximum_1m": 11.82861328125,
+        "median_1m": 11.6396484375,
+        "samples_at_least_10": 22,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "fa933369ee8384b5d7dc5489b1227e472c56b4981211c6d9bb76169e8039412d"
+        },
+        "before.png": {
+          "bytes": 739,
+          "sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+        },
+        "after.png": {
+          "bytes": 739,
+          "sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "a7de968a902b69c14766f2d56cdad1fc22221b8c8f0aec303900ffcf231bd04a"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cardputer-adv-ir",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 10.219,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "0820c289c3ee7cb19f2f4bde49a9b28fe517d5f3d0e65f83eb06986f6eda506e",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "source_sha256": "f5f70492ffe94faa5025e705385f14d81b2dddf48cb0b92fd295f2071c7ba297",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 11.52197265625,
+        "maximum_1m": 12.60107421875,
+        "median_1m": 12.496826171875,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 333,
+          "sha256": "093be872603837feaf6647a3a94428db03783c5f6e78bd10d911759e0a57275b"
+        },
+        "before.png": {
+          "bytes": 1564,
+          "sha256": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8"
+        },
+        "after.png": {
+          "bytes": 1564,
+          "sha256": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8"
+        },
+        "composition.json": {
+          "bytes": 2483,
+          "sha256": "d2fcd6d6aca79a735b989ca47cad1e704235370279d2eda1db306a707f508ac8"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "core2-audio",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 11.988,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "source_sha256": "4e0d9203adf1f5339a8d0f90fc04231af7edc67ec17f763c7401dd7df93d9661",
+      "load": {
+        "sample_count": 21,
+        "minimum_1m": 12.392578125,
+        "maximum_1m": 12.68115234375,
+        "median_1m": 12.54638671875,
+        "samples_at_least_10": 21,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 602,
+          "sha256": "f3ccf5360ef3f7ee54a0c005572e676768d0510e61b884a029df25690a363d6f"
+        },
+        "before.png": {
+          "bytes": 1038,
+          "sha256": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0"
+        },
+        "after.png": {
+          "bytes": 1038,
+          "sha256": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "33f026bd35f9c92c7a5a933f5074e3b7a147767e119b4feb8de429a0dec3fb47"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stamplc-can",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 10.261,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "a2e9b8a20f3349b2ab05d197948b87d8e2eae019885964bb649d82cd6a28ef28",
+      "base_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0",
+      "source_sha256": "f645dd2865781d081952acca7dae8ac7cdca7a828e8883b21bc68a6307630cc6",
+      "load": {
+        "sample_count": 18,
+        "minimum_1m": 12.44921875,
+        "maximum_1m": 12.66259765625,
+        "median_1m": 12.6044921875,
+        "samples_at_least_10": 18,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "0393d7e61da6b8c426ce176188eb52b9062b7b5fc0be65cf87fdb77d513088d5"
+        },
+        "before.png": {
+          "bytes": 1371,
+          "sha256": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493"
+        },
+        "after.png": {
+          "bytes": 1371,
+          "sha256": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493"
+        },
+        "composition.json": {
+          "bytes": 2484,
+          "sha256": "28a39281cdc9999cdee384ec70bdebdbb0ca140e3736b8cb3c205bbfddddfc3d"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "twai_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "core2-imu",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 15.394,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "f5cb7dda74b272595e8df7a251ff732a390ce35dbda3cd461fb7a20714291f4d",
+      "base_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "source_sha256": "e04441c5f35ff390ed2bea5d1eff7a57496f3db9f12e3910dbe111e17e4be4bb",
+      "load": {
+        "sample_count": 27,
+        "minimum_1m": 12.3330078125,
+        "maximum_1m": 13.6298828125,
+        "median_1m": 12.46630859375,
+        "samples_at_least_10": 27,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 735,
+          "sha256": "ecebe34e53acd4a79a1769ace871405c4dd5d65d0f46f625a2f8b7c16ed6330c"
+        },
+        "before.png": {
+          "bytes": 1310,
+          "sha256": "768dce6582ee41559d89fa27d5eb2dfc4a9c2c7cee9fbafc09598fb27b11ecf7"
+        },
+        "after.png": {
+          "bytes": 1440,
+          "sha256": "d6ac4c38057b23822ef19cf0e0c2b3a9cde0dcffe80e6faee31519fa66993277"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "84badbe68abadbf6bdcb7fa7bfc7df3d77a886ebabc01f5388fd570cf37562b0"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "papercolor-rgb",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 12.577,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "b70395e64868108b21b18fc1f263b0d1e32031afbcfca51985b9c345ca52e72d",
+      "base_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d",
+      "source_sha256": "f4c5e03ed3f207819de2e6866c3101de7370fa30fa0681af7fc326988e422447",
+      "load": {
+        "sample_count": 23,
+        "minimum_1m": 13.662109375,
+        "maximum_1m": 13.98095703125,
+        "median_1m": 13.9794921875,
+        "samples_at_least_10": 23,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "b98080ea0d6b4f3c040c4b971883a394af8936eaf511d31c7cc64d493eb39d07"
+        },
+        "before.png": {
+          "bytes": 4288,
+          "sha256": "aedb1fe5365257fc303b28864df3f1c737dc6b1d604e97ce74554d664e167c44"
+        },
+        "after.png": {
+          "bytes": 4288,
+          "sha256": "aedb1fe5365257fc303b28864df3f1c737dc6b1d604e97ce74554d664e167c44"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "3d0d147f83d78df3d8a2f8012329dcfef4770f84a6db13230007577651d05548"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_led_init",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ws2812_wire_decode",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "stopwatch-m5ioe1-full",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 12.948,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "b67f6b06308599e5eba392c7db69a2c18793b627afeceea8e61287dabcbcc631",
+      "base_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "source_sha256": "f9247f27cce7f962dc13bcbb51e3398cee46ce4405270f551cce02138f50473b",
+      "load": {
+        "sample_count": 23,
+        "minimum_1m": 13.2265625,
+        "maximum_1m": 14.0888671875,
+        "median_1m": 13.662109375,
+        "samples_at_least_10": 23,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 6,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 310,
+          "sha256": "cf641d3465e617b3caaabaf85978a9f67aeec4dff4c0da2d0ea686fef961558e"
+        },
+        "before.png": {
+          "bytes": 1349,
+          "sha256": "5418707dff0a9adfb564022601cbbb494902f975ddff3e0169523f873e466b51"
+        },
+        "after.png": {
+          "bytes": 2459,
+          "sha256": "86e68bd52cddb2854c0eefb04bc44a0428bc75c177d8618fdb085806d4a9515f"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "eaef6800dd9f24482226bd5a1f1a6a366da6746e5c922f9565e5ed0b3a51ea6c"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5ioe1_gpio_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_adc_conversion",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "nesso-imu",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 17.496,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "f02cf3044ab20904cd66cc65e3de38cb5478e2fed739851635ff9d46f33db409",
+      "base_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "source_sha256": "44e7d4cfc151af92a2a8d0530502a7bc0d1313b44f42f307082d4cb7654f82b5",
+      "load": {
+        "sample_count": 32,
+        "minimum_1m": 12.94287109375,
+        "maximum_1m": 14.0888671875,
+        "median_1m": 13.84130859375,
+        "samples_at_least_10": 32,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 315,
+          "sha256": "91c187943f710cc4ee739c11c2744462d122c8167b520e3756863fe24385ab8e"
+        },
+        "before.png": {
+          "bytes": 1830,
+          "sha256": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c"
+        },
+        "after.png": {
+          "bytes": 1830,
+          "sha256": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c"
+        },
+        "composition.json": {
+          "bytes": 2486,
+          "sha256": "724edfdb3f9ae9d9f2ff3abe44828c44fa90ded16c1626f0fcd226ccbc50b58b"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "nesso-buzzer",
+      "scope": 3,
+      "status": "PASS",
+      "duration_seconds": 11.965,
+      "attempts": 1,
+      "returncode": 0,
+      "firmware_sha256": "f4fd8dab2f0cf5fb14bc990e5d968613b57acc7a7d6c1894d85b3327cae5fd6d",
+      "base_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+      "source_sha256": "b8cd441a42ec26c1ca8369f77a6e53ddfd40699b87debec43858e2019fa42a95",
+      "load": {
+        "sample_count": 21,
+        "minimum_1m": 12.09619140625,
+        "maximum_1m": 12.94287109375,
+        "median_1m": 12.626953125,
+        "samples_at_least_10": 21,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 5,
+        "maximum_memory_pressure": 1
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 315,
+          "sha256": "accf0c3f7df300350065afba836e960a5a47392e67e227747d26ee573ff2aac5"
+        },
+        "before.png": {
+          "bytes": 1599,
+          "sha256": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89"
+        },
+        "after.png": {
+          "bytes": 1599,
+          "sha256": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89"
+        },
+        "composition.json": {
+          "bytes": 2485,
+          "sha256": "0f6912248c0b1db9cf87c1b61880420f4619e45b160a8f5a9d8f424b95751663"
+        }
+      },
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_is_playing",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_i2s_gdma_out_eof",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    }
+  ]
+}

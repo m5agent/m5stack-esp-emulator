@@ -23,10 +23,10 @@
 
 - [#205](https://github.com/m5agent/m5stack-esp-emulator/issues/205)：真实控制器方向元数据与显式 display 取帧已完成原版限定验证；剩余完整 native 回归、整合检查、main 与常驻发布及发布后复验。
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界已通过定向回归；剩余最终组合回归与发布。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。Meshtastic RFID 原版另有 IDLE 订阅未喂狗问题，Zigbee 无对应数据面，整项不关闭。
-- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：IRQ 调度状态与 CPU 变频连续性修复已完成 fresh 运行时的原 Lite/Matrix/Matrix v1.1 复验；剩余完整高负载回归、主线与常驻发布验收。远端厂测 HTTP 404 保留。
+- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：IRQ 调度状态与 CPU 变频连续性修复已完成 fresh 运行时的原 Lite/Matrix/Matrix v1.1 复验；完整高负载回归已通过；剩余主线与常驻发布验收。远端厂测 HTTP 404 保留。
 - [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：最终组合运行时上的原 UIFlow 1.15.5 已显示 Wi-Fi 配置页，原 HamRadio 从 SD 选择配置进入仪表页并运行 180 秒；剩余主线和常驻服务验收。远程无线电功能仍未验证。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。官方其它发布版本是否已集成该补丁仍未验证；需以对应原版包重新验收，不通过模拟器延时或修改本轮原 BIN 隐藏 SDK 竞态。
-- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：DPORT 读写/reset、变频计数器与 BLE coarse/fine 采样已通过控制及原 BIN 初始化子路径；原 BIN 尚未完成 C 长按手动唤醒验收，自动启动的设计熄屏不能单独判定未就绪。需核对 BR/EDR 低功耗与事件定时器路径并按真实输入复验，BLE HID 数据面独立验收。
+- [#225](https://github.com/m5agent/m5stack-esp-emulator/issues/225)：DPORT 读写/reset、变频计数器与 BLE coarse/fine 采样已通过控制及原 BIN 初始化子路径；原 BIN 的 C 长按对照仍未出现欢迎页，自动启动的设计熄屏不能单独判错。需继续核对 BR/EDR/BLE 事件控制及 guest 输入处理路径，应用就绪和 BLE HID 数据面独立验收。
 - [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并按实际运行时元数据归为模型缺口；仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 eFuse 身份接线：服务已经明示 `unprovisioned`，后续如要提供非零身份，必须接通真实 controller/drive 并验证 guest API；不通过报告字段伪造读值。Core2 子项已由独立 controller/IDF API 证据移出待办。
@@ -83,7 +83,7 @@ eFuse 或生产 key。
 
 - [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：完整 Flash/ELF 身份与诊断首触摸已修；仍需上游修复旧 P4 CLIC CSR 和 DSI PHY 状态机，再用未改应用字节证明 Python/UI/touch。旧参考应用的 GDB mailbox 不替代最新应用或 controller touch 验收。
 - [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
-- [#192](https://github.com/m5agent/m5stack-esp-emulator/issues/192) StackChan 与 Core2 AXP192 已按实际探针进度采样。完整验收仍需按报告条件完成两轮包含新增 Core2 SD case 的完整高负载矩阵。
+- [#192](https://github.com/m5agent/m5stack-esp-emulator/issues/192) StackChan 与 Core2 AXP192 已按实际探针进度采样，含 Core2 SD 的两轮完整高负载矩阵已通过；剩余主线交付和 issue 回执。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
 
 ## 优先级总览

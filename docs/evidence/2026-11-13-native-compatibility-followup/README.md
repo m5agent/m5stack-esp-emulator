@@ -17,15 +17,11 @@
 | #216 | SX1262 实际硬件/软件 SPI 共用寄存器和 FIFO；Meshtastic 越过旧 radio 初始化失败，原 140 秒黑帧保留为较晚采样，后续主循环、显示与休眠另有独立证据 | [SX1262](../../../tests/firmware/esp32c6_sx1262_spi/README.md) |
 | #216 | 无 host backend 仍有 PHY 计时器，但没有虚构 AP/RX；BLE 独立 AES 控制器执行真实单块 DMA 加密，LPPERI RNG 经真实 MMIO 接入 guest-random | [射频控制器](../../../tests/firmware/esp32c6_radio_controllers/README.md) |
 | #216 | Nesso MADCTL 与 SPI2 18 位长度修复后，同原 Meshtastic 显示完整欢迎页、响应按键、自然休眠后按键唤醒；实际 C 正反对照覆盖 DMA 无通道与 FIFO 混合路径；GPIO matrix 硬件片选与未选中/无线电隔离另有 16 项 guest、24 项 actual-C 对照 | [显示与 DMA](../../../tests/firmware/esp32c6_panel_madctl/README.md) |
-| #216 | Launcher 原版发生 mutex owner/current task 不匹配；RFID 原版寄存器转储、重启与黑帧仍未解决。缺少 PN532Killer 外设不能单独证明崩溃原因，均未授予整应用 PASS | [原版边界](../../../tests/firmware/esp32c6_radio_controllers/remaining-originals-2026-11-13.json) |
+| #216 | Launcher 原版发生 mutex owner/current task 不匹配；RFID 初轮寄存器转储、重启与黑帧失败保留，fresh C6 后欢迎页可见但原固件仍重启。缺少 PN532Killer 外设不能单独证明崩溃原因，均未授予整应用 PASS | [原版边界](../../../tests/firmware/esp32c6_radio_controllers/remaining-originals-2026-11-13.json) |
 | #223 | 两份原 BIN 和 UserDemo 的未修 SDK 公开源码重建均崩溃；GPT 没有独立未修源码重建负控。仅加入官方 I2C 补丁的两款重建版各 360 秒、真实动画/触摸/UART 协议通过 | [源码与控制实验](../../../tests/firmware/s3_i2c_lifetime/rebuild-applications.md) |
 | 服务输入 | QOM 错误清空 QMP 连接后，下一次原生输入通过统一重连路径进入同一 guest | [输入恢复](../../../tests/firmware/service_input_reconnect/README.md) |
 
-当前整合交付：`NOT RUN`。此前全量平台 2,128 项通过、8 项按依赖可用性
-跳过；新增 C6 显示、DMA 和片选修复后的最终完整矩阵、平台复验、main/常驻
-更新及发布后复验尚未完成。本页不会把中间候选二进制描述为已部署版本。#192 的早期
-完整 68 case 基线通过，但高负载覆盖不足；新增 Core2 SD 后须按现有完整
-case 集合重新执行两轮，不能复用旧计数。
+当前整合交付：`NOT RUN`。最终 fresh 组合运行时已通过[两轮完整高负载回归](../2026-11-13-native-final-regression/README.md)：含新增 Core2 SD 的每轮 69 项均通过、零重试，所有正式采样达标。平台 2,147 项中 2,139 通过、8 项因可选本地源码/编译器不可用跳过；Node 契约和四项验证器通过。main/常驻更新及发布后复验仍单独验收，不把候选二进制描述为已部署版本；早期失败和负载不足记录保留。
 
 硬件、RF、物理熵、机械运动、声学、电气和安全属性均不由这些模型结果
 推导。所有原始失败、观察器/夹具错误、源代码与二进制身份、输入及清场

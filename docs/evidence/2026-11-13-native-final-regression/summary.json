@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "kind": "issue192-native-matrix-execution",
+  "execution": "execution-09",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "source_commit": "890acf8fd4f51af400cdfa96100d5dcac7903338",
+  "runtime": {
+    "xtensa": {
+      "sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "bytes": 22490952,
+      "roms": [
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "bytes": 455722
+        },
+        {
+          "name": "esp32-v3-rom.bin",
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "bytes": 455722
+        },
+        {
+          "name": "esp32c3-rom.bin",
+          "sha256": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+          "bytes": 393216
+        },
+        {
+          "name": "esp32s3_rev0_rom.bin",
+          "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "bytes": 393216
+        }
+      ]
+    },
+    "riscv32": {
+      "sha256": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4",
+      "bytes": 18479056,
+      "roms": [
+        {
+          "name": "esp32c6-rom.bin",
+          "sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+          "bytes": 327680
+        }
+      ]
+    }
+  },
+  "cases_per_round": 69,
+  "rounds": 2,
+  "scope_counts": [
+    23,
+    23,
+    23
+  ],
+  "backend_counts": {
+    "qemu-esp32s3": 64,
+    "qemu-esp32c6": 5
+  },
+  "attempts_per_case": 1,
+  "retries_allowed": false,
+  "load_1m_minimum_required": 10,
+  "load_guard_ceiling_1m": 19,
+  "compute_support_maximum": 12,
+  "compute_support_nice": 10,
+  "compute_support_warmup_load_1m_range": [
+    12,
+    14
+  ],
+  "controller_policy": {
+    "worker_nice": 10,
+    "worker_maximum": 12,
+    "initial_warmup_workers": 8,
+    "live_base_workers": 6,
+    "completed_scope_compensation": 1,
+    "soft_decrease_at_load": 14,
+    "soft_decrease_floor": "base-1",
+    "soft_decrease_interval_seconds": 10,
+    "emergency_decrease_at_load": 16,
+    "emergency_decrease_interval_seconds": 5,
+    "hard_abort_above_load": 19,
+    "restore_below_load": 12,
+    "restore_only_falling": true,
+    "restoration_per_new_load": 1,
+    "warmup_load_range": [
+      12,
+      14
+    ],
+    "warmup_sustained_seconds": 15,
+    "warmup_maximum_abs_trend": 0.04,
+    "independent_prewarm_each_round": true,
+    "warmup_ordinary_adjustment_settle_seconds": 90,
+    "warmup_maximum_seconds": 600,
+    "warmup_increase_maximum_trend": 0.02,
+    "round_start_workers": 6
+  },
+  "disk_guard_minimum_bytes": 8589934592,
+  "minimum_disk_available_bytes": 305751973888,
+  "source_files_verified": 236,
+  "reference_images_verified": 11,
+  "pin_files_verified_before": 254,
+  "pin_files_verified_after": 254,
+  "preflight_sha256": "ca7bb0d2270beaa84a493f753e8dee66af645f61572d54323d5e0ae1807cfeef",
+  "supervisor_sha256": "ab5c23eb9fa23fa829d579393a53d6e3b6f7dbca62c8d6f0df3da542d7250270",
+  "analysis_sha256": "db0ec8c5a8812063b73c309642f881434b404d54383df52fac4ef512784d3fde",
+  "raw_final_sha256": "dfa269a030d1bbdb1fd91d68f686fdfe26d2bd5697553f1eceadc652900d901a",
+  "sample_series_sha256": "adac73d3ac1eacf223f8b24cf3623386afae2be56997f0c61054ea849b859a63",
+  "cleanup": {
+    "owned_processes_clear": true,
+    "owned_sockets_clear": true,
+    "cleanup_errors_absent": true,
+    "aborted": false
+  },
+  "round_summaries": [
+    {
+      "round": 1,
+      "guest_result": "PASS",
+      "load_qualification": "PASS",
+      "scope_integrity": true,
+      "counts": {
+        "PASS": 69
+      },
+      "load": {
+        "sample_count": 636,
+        "minimum_1m": 11.13037109375,
+        "maximum_1m": 16.92431640625,
+        "median_1m": 12.48486328125,
+        "samples_at_least_10": 636,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 8,
+        "maximum_memory_pressure": 1
+      },
+      "scopes": [
+        {
+          "file": "round-1-scope-1.json",
+          "sha256": "730cc526d5af7fb54d33f2765bc4ab9e53564a3a870b053e8589c8eebfb0952b",
+          "bytes": 48653
+        },
+        {
+          "file": "round-1-scope-2.json",
+          "sha256": "9af6d85b2815d966104a4e69a858c539501fc054bbd48e92351f2ea60043bf1e",
+          "bytes": 50059
+        },
+        {
+          "file": "round-1-scope-3.json",
+          "sha256": "f07d90e4fd77f8e8dac49c85906a09dd2fda25753f88eaf5c9ea62dd31906fe5",
+          "bytes": 47903
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "guest_result": "PASS",
+      "load_qualification": "PASS",
+      "scope_integrity": true,
+      "counts": {
+        "PASS": 69
+      },
+      "load": {
+        "sample_count": 633,
+        "minimum_1m": 10.37353515625,
+        "maximum_1m": 14.60595703125,
+        "median_1m": 12.38330078125,
+        "samples_at_least_10": 633,
+        "threshold_fraction": 1.0,
+        "maximum_owned_guests": 3,
+        "maximum_compute_workers": 8,
+        "maximum_memory_pressure": 1
+      },
+      "scopes": [
+        {
+          "file": "round-2-scope-1.json",
+          "sha256": "f1e63490a81c0c93501b4d3d1820ce0aa080932de9aca409230048585b55ad48",
+          "bytes": 48607
+        },
+        {
+          "file": "round-2-scope-2.json",
+          "sha256": "768dcb67298a81d702e15e7f3c42564eed79fef39cf16d45fb66274d1b0e78c4",
+          "bytes": 50037
+        },
+        {
+          "file": "round-2-scope-3.json",
+          "sha256": "dabf4a573f20d211e8bdd44baa6acbe2837c480e3e1ea20b8c911df88110333f",
+          "bytes": 47883
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Native QEMU regression fixtures; not arbitrary application approval.",
+    "Compute support is recorded separately from actual QEMU processes.",
+    "No browser-WASM, physical RF, electrical, power, or mechanical claim.",
+    "Earlier partial or failed executions are retained independently."
+  ]
+}
