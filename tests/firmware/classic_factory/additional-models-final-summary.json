@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "runtime_sha256": "33c0ec98b7576c22526deddf81519d8f0719efbfc5fb2221267e4d6bb83ffc58",
+  "service_source_commit": "e8d527e48e2b471e03666fa913029df27c132886",
+  "source_profile_sha256": "e9b678e2ebd6d3a8268c1c9054aa6888caef02f896eb8acd646b439573f097cc",
+  "firmware_modified": false,
+  "watchdogs_disabled": false,
+  "results": [
+    {
+      "device": "atom-lite",
+      "firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "observed_seconds": 130.003,
+      "watchdog_count": 0,
+      "guru_count": 0,
+      "abort_count": 0,
+      "initialization_marker_observed": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "inputs": [
+        {
+          "seconds": 3.115,
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "seconds": 3.224,
+          "action": "up",
+          "accepted": true
+        }
+      ],
+      "nonblack_samples": 66,
+      "final_properties": {
+        "led-rgb": 1310720,
+        "led-frames": 7311,
+        "pressed": false,
+        "input-level": true
+      },
+      "stop_state": "stopped",
+      "flash_retained": false,
+      "profile": "m5atomlite / qemu / no network",
+      "result": "PASS for declared boot/LED/GPIO paths",
+      "all_rom_boot_marker_count": 1,
+      "sample_count": 68,
+      "distinct_sampled_led_states": 2,
+      "serial_bytes_examined": 14004219,
+      "serial_sha256": "fcc93c9c830f4bacaff42d82455ca5c7d1f52e9bc43dc2a5e8ec7b53033f68d5",
+      "evidence_zip_sha256": "5e184c3db1ba1afefeaa7bc1e99ba000faf49aa0db58222dd045d933b4e9c1d8",
+      "evidence_zip_bytes": 48323,
+      "raw_observations_sha256": "eaa18224aec75b56c022e53131ec80fb3332158d41bff2c1f754f689c3c9c191",
+      "controller_snapshot": {
+        "rmt-classic": {
+          "tx-completions": 7312,
+          "tx-errors": 0,
+          "tx-last-tick-hz": 40000000,
+          "tx-symbols": 3805502,
+          "tx-threshold-events": 57410
+        },
+        "onboard_io": {
+          "incomplete-frames": 0,
+          "input-level": true,
+          "led-frames": 7312,
+          "led-rgb": 1310720,
+          "pressed": false
+        }
+      },
+      "network": null,
+      "evidence_before_stop": true,
+      "purge": 0
+    },
+    {
+      "device": "atom-matrix-v11",
+      "firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "observed_seconds": 130.24,
+      "watchdog_count": 0,
+      "guru_count": 0,
+      "abort_count": 0,
+      "initialization_marker_observed": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "inputs": [
+        {
+          "seconds": 130.128,
+          "action": "down",
+          "accepted": true
+        },
+        {
+          "seconds": 130.24,
+          "action": "up",
+          "accepted": true
+        }
+      ],
+      "nonblack_samples": 67,
+      "final_properties": {
+        "led-rgb": [
+          655360,
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360
+        ],
+        "led-frames": 8409,
+        "pressed": false,
+        "input-level": true
+      },
+      "stop_state": "stopped",
+      "flash_retained": false,
+      "profile": "m5atommatrixv11 / qemu-wifi / generic-observe / WPA2-PSK",
+      "result": "PASS for declared boot/LED/GPIO paths; PASS network transport; PARTIAL factory HTTP",
+      "all_rom_boot_marker_count": 1,
+      "sample_count": 69,
+      "distinct_sampled_led_states": 60,
+      "serial_bytes_examined": 468,
+      "serial_sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+      "evidence_zip_sha256": "c6fc9d4d5bc4e34504973f14fb0f48b26d5ae86e3f6860dc8d9fb17d125928fb",
+      "evidence_zip_bytes": 11041,
+      "raw_observations_sha256": "e2425bf117244745c8482a3aac909e28886c9f549bd44715a61698bf54341b1d",
+      "controller_snapshot": {
+        "rmt-classic": {
+          "tx-completions": 8481,
+          "tx-errors": 0,
+          "tx-last-tick-hz": 40000000,
+          "tx-symbols": 5057358,
+          "tx-threshold-events": 75867
+        },
+        "onboard_io": {
+          "incomplete-frames": 70,
+          "input-level": true,
+          "led-frames": 8410,
+          "led-rgb": [
+            655360,
+            655360,
+            655360,
+            655360,
+            655360,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            655360,
+            655360,
+            655360,
+            655360,
+            655360,
+            655360,
+            655360
+          ],
+          "pressed": false
+        }
+      },
+      "network": {
+        "packets": 28,
+        "udp_dhcp": 4,
+        "udp_dns": 2,
+        "tcp": 10,
+        "http_status_lines": [
+          "HTTP/1.1 404 Not Found"
+        ],
+        "sha256": "f380e5f4dc13395d0f43b41fae192da5d6fde6845d83e6c2c1fa5f85ed77620f",
+        "bytes": 4778
+      },
+      "evidence_before_stop": true,
+      "purge": 0
+    }
+  ],
+  "reproduction_steps": [
+    "Upload exact original BIN through POST artifacts, compose kind=merged for each named device profile.",
+    "Create an isolated Device Service session; wait for running, then begin the 130-second observation.",
+    "Atom Lite: runtime=qemu, no network; at 3s send key a down/up through input with 0.3s settle, continue sampling onboard-io every 2s.",
+    "Matrix v1.1: runtime=qemu-wifi, generic-observe, explicit original factory WPA2 test AP, no HTTP fixture, PCAP enabled; after 130s send key a down/up with 0.3s settle.",
+    "Get full evidence ZIP before DELETE purge=0&retain_flash=0; inspect full ZIP serial.log for every ROM boot and panic marker, actual QOM RMT/LED values and button levels."
+  ],
+  "limits": [
+    "Atom Matrix v1.1 is an independent profile/m5atommatrixv11 with BMI270; this same-BIN result validates the boot/WiFi/RMT/button paths, not IMU compatibility or board-axis correctness.",
+    "Original factory HTTP 404 remains a real remote response and does not count as a passing factory HTTP assertion.",
+    "LED evidence is digital controller output; physical RF, optical brightness, signal timing, electrical behavior and browser-WASM NOT RUN.",
+    "No Burner submission."
+  ]
+}

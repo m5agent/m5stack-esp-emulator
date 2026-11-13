@@ -108,3 +108,26 @@ Incomplete LED frames remain counted; they are not concealed by changing the
 guest's refill guard. Both ZIPs were captured before `purge=0` stop and mutable
 Flash was released. These original-firmware sessions do not replace the
 separate shared-runtime matrix or imply physical-hardware validation.
+
+## Final Atom Lite and Matrix v1.1 profiles
+
+`additional-models-final-summary.json` adds the remaining device-specific
+controls on the same `33c0ec98...` runtime with Device Service source
+`e8d527e48e2b471e03666fa913029df27c132886`. The earlier Atom Lite results above
+used a different runtime and remain separate historical evidence.
+
+The unchanged Atom Lite factory BIN runs for 130 seconds in plain `qemu`.
+At three seconds, actual down/up input produces GPIO button edges and red LED
+output; the output remains observable through the final sample. The complete
+14,004,219-byte serial capture has one ROM boot and no watchdog/Guru/abort
+markers. Matrix v1.1 is the independent `atom-matrix-v11` / `m5atommatrixv11`
+profile. The same original Matrix BIN completes its own 130-second `qemu-wifi`
+run with real DHCP/DNS/TCP/HTTP 404, nonblack animation and button edges. Its
+BMI270 differs from the original Matrix's MPU6886, so these results do not
+grant IMU compatibility or board-axis correctness.
+
+The bounded summary includes exact input timing, firmware and padded-Flash
+hashes, sampled state, controller counters, full-serial and ZIP hashes, and
+reproduction steps. Both sessions collected ZIPs before `purge=0` stop and
+released mutable Flash. Factory HTTP, physical properties, browser execution
+and the separate complete high-load matrix retain their stated limits.
