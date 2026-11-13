@@ -1,0 +1,284 @@
+{
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "case": "ham-original-monitor-progress",
+      "input_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "runtime_sha256": "fb90044af572c80c488a7767dcd04195cd531ca8047c753c521398e21dd815f5",
+      "observed_seconds": 240.00019712513313,
+      "serial_sha256": "25e64da4b3c78c265776510718a33c51dbe9f8c4c593507906f2698f3fbf321e",
+      "frames": [
+        {
+          "seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 60,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 90,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 120,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 150,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 180,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 210,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 240,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        }
+      ],
+      "evidence_zip_sha256": "be04248843b0c5c4da95caa62611b6c2bf4c3931df4c0bf150a7caa11b8fc69e",
+      "cleanup": "stopped"
+    },
+    {
+      "case": "ham-original-clean0190",
+      "input_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "runtime_sha256": "b32a4afa8535a514623a4a9199a5aba41782e52b2572b6840791d1255dd508a7",
+      "observed_seconds": 90.01001612492837,
+      "serial_sha256": "25e64da4b3c78c265776510718a33c51dbe9f8c4c593507906f2698f3fbf321e",
+      "frames": [
+        {
+          "seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 60,
+          "sha256": "0d31a8297d2b0e24fb3e2eefd990a50240306ba826a5b6fd136e8c9623a6348c",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 2,
+          "nonblack_pixels": 1109
+        },
+        {
+          "seconds": 90,
+          "sha256": "86cf33de0e09cedddd5c7ea50a24cc186b2c2fc928a919561e49eabc2291d803",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 2,
+          "nonblack_pixels": 1182
+        }
+      ],
+      "evidence_zip_sha256": "aca355efdaa9c818ee26af4cf2632bb7275e2526adb0af21d87272e31ca218d8",
+      "cleanup": "stopped"
+    },
+    {
+      "case": "aws-clean-cs-control",
+      "input_sha256": "22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a",
+      "runtime_sha256": "b32a4afa8535a514623a4a9199a5aba41782e52b2572b6840791d1255dd508a7",
+      "observed_seconds": 90.01001187507063,
+      "serial_sha256": "5095987f5ae591bf23c7d27aac3cd1bc8501183f15211e032fed71b0d6c29add",
+      "frames": [
+        {
+          "seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 30,
+          "sha256": "6f1aa83fc13c75a5d993c7a8b52a374e4cf8b399799ad252d973e37b6989d14a",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 74,
+          "nonblack_pixels": 76294
+        },
+        {
+          "seconds": 60,
+          "sha256": "d707f29a6ebee391d1819d34eb7a29317429bc2fa94dead735f1ce367091cd16",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 74,
+          "nonblack_pixels": 76294
+        },
+        {
+          "seconds": 90,
+          "sha256": "6b743de00826a7eb6259845ffa4939ec09d94e2aba069bedeee0123d936d9aa5",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 74,
+          "nonblack_pixels": 76294
+        }
+      ],
+      "evidence_zip_sha256": "c27e99882d21a8ce18827fa1c446cf678ce475dbae37b9086d5571f8f553c18f",
+      "cleanup": "stopped"
+    },
+    {
+      "case": "uiflow1155-clean-cs",
+      "input_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "runtime_sha256": "b32a4afa8535a514623a4a9199a5aba41782e52b2572b6840791d1255dd508a7",
+      "observed_seconds": 120.00374854193069,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "frames": [
+        {
+          "seconds": 0,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 30,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 60,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 90,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        },
+        {
+          "seconds": 120,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack_pixels": 0
+        }
+      ],
+      "evidence_zip_sha256": "85824241b2b300e2103e7598e1ea293e4d1cb547808d75f458b427839d9b455a",
+      "cleanup": "stopped"
+    }
+  ],
+  "host_controls": {
+    "cases": 8,
+    "old_expected_failures": 7,
+    "new_pass": 8,
+    "sanitizers": [
+      "AddressSanitizer",
+      "UndefinedBehaviorSanitizer"
+    ]
+  },
+  "limits": [
+    "HamRadio now displays its missing SD configuration error; radio/network behavior is not validated by that frame.",
+    "Original UIFlow 1.15.5 remains black after120 seconds; issue222 stays open.",
+    "Physical hardware and browser-WASM NOT RUN.",
+    "Earlier observer and diagnostic-only attempts are retained separately, not app verdicts."
+  ]
+}
