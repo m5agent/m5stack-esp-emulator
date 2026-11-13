@@ -37,3 +37,39 @@ under both the default and auto icount policies with the watchdog enabled.
 PHY clock timing, RF behavior, and BLE HID pairing require separate validation.
 See [issue #225](https://github.com/m5agent/m5stack-esp-emulator/issues/225) for
 the original image identity and failing UART markers.
+
+## BLE clock sampling
+
+Run the paired qtest with two otherwise equivalent binaries to exercise the
+ESP32 BLE time registers before and after patch 0198.
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_ble_clock_snapshot.py \
+  --rom-dir "$XTENSA_ROM_DIR" \
+  --baseline "$PRE_0198_XTENSA_QEMU" \
+  --candidate "$XTENSA_QEMU_WITH_0198"
+```
+
+A qtest-controlled virtual clock drives guest-address-space reads and writes.
+The check covers an atomic coarse/fine sample, both sides of the ESP32 ROM
+wake-up predicate, stable reads without a new sample, slot and 27-bit coarse
+rollover, read-only latch access, and reset. It also checks that `0x3ff7101c`
+continues to use the existing BR/EDR register behavior. The qtest accelerator
+executes no guest instructions.
+
+The ESP32 register offsets and widths come from the [ESP32 BTDM register map](https://github.com/esp-rs/esp-pacs/blob/e6d898ec67556b8d08b2fc6f6265da930954404f/esp32/svd/patches/btdm.yml#L336-L357).
+The [Renesas DA14535 manual, Tables 69 and 70](https://www.renesas.com/en/document/dst/da14535-datasheet#page=166)
+describes the same-IP 625 µs coarse clock, microsecond fine count, and
+read-only snapshots. The descending fine phase is inferred from the [Dialog SDK reference calculation for a hardware-captured BLE phase](https://github.com/yangchengxcy/da14580/blob/4e1c3006a1cfa4697ed76889b95d754ab0ab54ef/xcy_gump/src/modules/app/src/app_project/prod_test/custom_lld_evt.c#L1961-L1972).
+That calculation covers a packet timing capture from the same controller
+family. The [ESP32 ROM wake-up check symbol](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_rom/esp32/ld/esp32.rom.ld#L1278)
+identifies the separate ESP32 consumer observed polling sample completion and
+comparing the fine count with 467. Sample completion is synchronous in the
+model. Physical timing of the sample request and the fine counter phase on
+ESP32 remain unmeasured.
+
+The [virtual-device evidence summary](ble-clock-evidence-summary.json) records
+both qtest binaries and the unchanged original BIN in Device Service. After
+the original BLE time wait clears, the application remains black and the
+controller reaches a separate BR/EDR sleep and wake path. BLE HID pairing and
+physical hardware remain unverified.
