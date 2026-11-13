@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-13",
+  "validation_class": "virtual-device validation",
+  "source_commit": "f10569c8",
+  "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+  "new_layers_since_first_integration": [
+    "0021-native-icount-fairness-context",
+    "0184-classic-interrupt-source-status"
+  ],
+  "results": {
+    "snake": {
+      "status": "PASS",
+      "case": "snake",
+      "source_sha256": "3e4fcd924596035d0240d5b15e53cffa7538151a0ac1ff04d32bd113f3c6b7af",
+      "stable_seconds": 120.01502891699784,
+      "frames": [
+        {
+          "sha256": "0fa91cc85983f8507c7d314b2d1120532684ccd621c0028fc7f06d25a57f2b62",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1574
+        },
+        {
+          "sha256": "4b1d6b6f7662bfc9b2ed92b6a42aff6af89ec04d35722b3b5ec64b3c74d864e9",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "234018faaee9ded70645c044022a57dfb06bda754b590e7adf04e231e893aa52",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "f371ab737c42c054cdc843b8041b3117f6067000b2678bf208876e97a66abe2b",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1855
+        },
+        {
+          "sha256": "42f421cd4750bc2c053cd486c71730adc072c5f6388e1c6fdc53d5bc755c910a",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1793
+        }
+      ],
+      "inputs": [
+        {
+          "axis": "accel-y",
+          "value": 0.8,
+          "frame": {
+            "sha256": "8a395bf3a3dbabd82b6ff7fe45eb0969333b38ae8ab8e6e01ac8c6ac657aec3e",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1818
+          },
+          "observation_seconds": 0.060409334022551775,
+          "samples": 1
+        },
+        {
+          "axis": "accel-x",
+          "value": -0.8,
+          "frame": {
+            "sha256": "d3d278a30a6c4778c3e7788cdd255855da02126bf99820cd7ef18b83fcda1d76",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1710
+          },
+          "observation_seconds": 0.061623499961569905,
+          "samples": 1
+        },
+        {
+          "axis": "accel-y",
+          "value": -0.8,
+          "frame": {
+            "sha256": "58ac3e39895f5025939274212c5eeac7e82038509dcb02a2c30b610ba791d0d8",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1621
+          },
+          "observation_seconds": 0.062008167151361704,
+          "samples": 1
+        },
+        {
+          "axis": "accel-x",
+          "value": 0.8,
+          "frame": {
+            "sha256": "a19dcd8589e4077bbfece0dfebdf1135f9b57e46b247c1205f4881456cab9d45",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1864
+          },
+          "observation_seconds": 0.06310520810075104,
+          "samples": 1
+        }
+      ],
+      "evidence_zip_sha256": "b10ac8a76c8da1005eb793432fc5694f352aef4f75d4144770a647135cebb5b2",
+      "raw_result_sha256": "f9db7e745b44e27a4c738ef9d6a7fe9763748482763d89330a096e3e2bb6be70",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "atoms3-userdemo": {
+      "status": "PASS",
+      "case": "userdemo",
+      "source_sha256": "2d78c3d8874eee0f6d91eb9c8fe6ad482488dad05e5a42adc1dde09977800b06",
+      "stable_seconds": 120.0162700000219,
+      "frames": [
+        {
+          "sha256": "40cc81c24bf16dd46121748b15526e6bba71a48f99a961d891d1c92eafa8e53c",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 3,
+          "nonblack": 1696
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        }
+      ],
+      "inputs": [],
+      "evidence_zip_sha256": "704a05af6988041968641dd1b403c5da61944219cb7b7a6ec9c2e5237147a854",
+      "raw_result_sha256": "c5876ba8624edc13431104c4b365c2ce3bb6e82569122552612b935689d878b2",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "atomic": {
+      "status": "PASS",
+      "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+      "evidence_zip_sha256": "1f69d7efc0bea3a8bcbb06a3397a7b402e3466f0e45174136e5dbdd3bc5a73ea",
+      "raw_result_sha256": "30e5505a98c5eee7f10eb5f5927350c236b66445d1a959cdc23c860bb8ba8aed",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "papercolor-usb": {
+      "status": "PASS",
+      "source_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+      "device": "12010002ef0201403a300240000101020301",
+      "configuration": "09022000010100a0320904000002080650000705010240000007058102400000",
+      "get_configuration": "01",
+      "get_max_lun": "00",
+      "reset_epochs": 1,
+      "evidence_zip_sha256": "aaaca5bb1bfd8175e1b218b35fcc48ddb6731dd0a5993940237343eee4738819",
+      "raw_result_sha256": "c08c099e8d29857215a44508e80f8cc54adf0ac145cbd79df916e651d1a63a5e",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "papercolor-fresh": {
+      "device_id": "papercolor",
+      "artifact_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "firmware_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "error": null,
+      "last_frame_available": true,
+      "evidence_zip_sha256": "e5bf30381a70a530eb5b23427e8c9460a68e737f555e93371da840fb3fea4e9d",
+      "frame_sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+      "serial_json_sha256": "eec29c6022fced954789fee3980fe0f45f2c0db352096e08a1399e158130d752"
+    },
+    "paperdiy-fresh": {
+      "device_id": "paperdiy",
+      "artifact_sha256": "d7de13e62342c1ab7115897a4a731abb054efda8ecb01d711aeb66c8bc6baa37",
+      "firmware_sha256": "472574f62609b4eddfe6d810c1876f8fb42ecbf43a29d75c1f228a75bdbe680d",
+      "state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "error": null,
+      "last_frame_available": true,
+      "evidence_zip_sha256": "d99b7592349d86c75e4bd28cb5b088501d6911b4a0a433265866f6e0aebf165c",
+      "frame_sha256": "cd240d5c1c279972babe1038d17cb43484e3377eb3af7b942a0c5b180c2289db",
+      "serial_json_sha256": "26dd66432bc303b4a717fbad59af002f24c89c5762f61c2e0ef1f053c14c52ac"
+    }
+  }
+}

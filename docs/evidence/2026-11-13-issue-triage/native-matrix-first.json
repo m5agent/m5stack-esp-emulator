@@ -1,0 +1,2652 @@
+{
+  "date": "2026-11-13",
+  "validation_class": "virtual-device validation",
+  "runtime_sha256": "d0c0054ae85aafd0eeb271045e81e258899d0f6d2422392d6834cb66c98a784d",
+  "c6_runtime_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+  "raw_summary_sha256": "aed82f2d60e2ddd586c5088853cecdcebe18d6fc88e0ace96bbec8ebaa2e74e0",
+  "status_counts": {
+    "PASS": 66,
+    "FAIL": 2
+  },
+  "results": {
+    "sticks3-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "sticks3-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "sticks3-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "cardputer-adv-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cores3-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "cardputer-adv-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cardputer-adv-keyboard": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cardputer-adv-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cardputer-adv-cc1101": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_cc1101_spi_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cardputer-adv-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "cardputer-adv-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "atoms3r-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "button",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+    },
+    "sticks3-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "sticks3-ir-rx": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7"
+    },
+    "cores3-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "ambient_light",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "proximity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "btn_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "cores3-power-transitions": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "axp2101_initial_power_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_discharge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_charge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_runtime_sequence_complete",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "cores3-usb-hid": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "max3421e_config",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_chapter9_enumeration",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_report_descriptor",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_interrupt_in_report",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "cores3-camera": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_change",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_stream",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "stackchan-camera": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "stackchan_camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "cores3-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "cores3-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "stamplc-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "relay",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "digital_inputs",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rgb",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_current",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "stopwatch-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "papermono-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "sd_block_read_write",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "papermono-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "gpio42_i2s_tx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "papermono-pdm-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "pdm_mic_begin",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_i2s_rx_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "papermono-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "papermono_rgb_set",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "papercolor-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5pm1_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "m5pm1_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "papercolor_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "papercolor-sd": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "papercolor-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "papercolor-sht4x": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sht4x_measure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_crc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "papercolor-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "papermono-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "papermono-lora": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "lora_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "f30eda56dc33b90cf54d8452d1cae194d93c32c1725924d1171197689c9cf972"
+    },
+    "stackchan-nfc": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-touch": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "si12t_config",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_touch",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5ioe1_led_cfg",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-audio": {
+      "status": "FAIL",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "stackchan_imu",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_axp2101_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_display_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_aw9523",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ina226",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ltr553_als",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_rtc_bm8563",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ir_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stackchan-servo": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "servo_ping",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_torque",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_write",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778"
+    },
+    "stopwatch-vibration": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "vibration_pwm_on",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_pwm_off",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "stopwatch-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "stopwatch-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "atoms3r-lp5562": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "lp5562_enable",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+    },
+    "atoms3r-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "atoms3r_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e"
+    },
+    "cardputer-adv-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62"
+    },
+    "papercolor-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "papercolor_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "core2-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "core2-audio": {
+      "status": "FAIL",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "stamplc-can": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "twai_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "stamplc-rs485": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "uart2_rs485_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "stamplc-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_buzzer_init",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_delta_sigma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "core2_axp192_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_current",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_charging",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae"
+    },
+    "stamplc-lm75": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "lm75_i2c_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_temperature_encoding",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "papercolor-rgb": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_led_init",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ws2812_wire_decode",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "ccffe79f9703c7c88da0ac9a1dd6ca0d9ced9c2aef1b5bb34ebdd2ddf8ed9a4d"
+    },
+    "stamplc-onboard-io": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw9523_relay_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pi4ioe_rgb_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "onboard_io_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "cade08fdfbf04214a046e752335fa0ba125250f50cf45eb82c9bcb6c622106f0"
+    },
+    "cores3-aw9523-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw9523_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded"
+    },
+    "stopwatch-m5ioe1-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5ioe1_gpio_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_adc_conversion",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "stopwatch-m5pm1-full": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "m5pm1_device_info_uid",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_power_and_hold",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_gpio_input_irq",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_adc_and_temperature",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_pwm",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_wake_watchdog_timer_rtc",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_button_irq",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b"
+    },
+    "nesso-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    },
+    "nesso-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    },
+    "nesso-ir": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_c6_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ir_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    },
+    "nesso-lora": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    },
+    "nesso-buzzer": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_is_playing",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_i2s_gdma_out_eof",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "base_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a"
+    }
+  }
+}

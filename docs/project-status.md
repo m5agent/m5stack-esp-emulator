@@ -1,7 +1,5 @@
 # 项目当前状态
 
-2026-11-13 [主动关机语义](evidence/2026-11-13-issue-triage/README.md)已在原版 PaperColor／PaperDIY UserDemo 验证：QMP 主动下电记录为 `stopped/guest_poweroff`，保留串口与末帧；矩阵保持 PARTIAL，不将关机误报为启动失败或应用就绪。
-
 2026-11-06 [本地虚拟设备实验室](evidence/2026-11-06-local-observatory/README.md)新增 `/observatory` 无输入展示入口：共享 3D 阵列、自动巡展与日志跟随，新活动优先全景；短黑屏任务清理后仍保留结束痕迹。原生同会话屏幕/Relay/串口、容量、只读与清场已有验证；逻辑压力测试与真实 guest 分开。页面不进入静态托管导出，其它服务实例、浏览器本地 WASM 与物理硬件未在本轮验证，早期失败保留。
 
 2026-11-05 [最新固件问题修复与回归](evidence/2026-11-05-latest-firmware-issues/README.md)补齐实际 VFS/stock 保留、eFuse/console、runtime 身份、精确应用绑定与原生 PMIC/EPD/AtomS3 面板变体。Basic 按键与 Core2 Mic 的观察使用真实 guest 绘制完成围栏，保留首次失败和独立后续。功能证据只授予对应原生固件/runtime；Tab5 最新官方应用的 Python/UI/touch 仍为 PARTIAL，旧 merged image 不代替最新应用验收。最新 P4 应用已定位到 DSI PHY lock 等待，后端控制器修复仍开放；主机检查和交付见证据与工作记录；物理硬件和 browser-WASM 未在本轮复验。
@@ -14,7 +12,7 @@
 
 日期：`2026-11-06`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
-本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。 2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的官方 UIFlow2 v2.5.4 黑屏已修复，原镜像在独立原生入口和 C61 浏览器 WASM 上验证离线启动、点阵、USB REPL 和 PM1 按键。四款均通过限定浏览器客体测试，源码默认公开配置包含这四款。默认 Device Service 仍仅提供 CoreMatrix 模型预览。8 MiB Quad PSRAM、Wi-Fi 实际收发及物理设备仍待验收。
+本文是当前能力和边界的权威说明。 2026-11-13 [社区固件复测](evidence/2026-11-13-issue-triage/README.md)已验证异核 TLB flush、AtomS3 显示探测、PaperColor USB/主动关机、C6 AES 和 Classic 身份子路径；正常下电保留末帧并记 stopped/guest_poweroff，不能据此判应用就绪。StackChan I2C、Matrix、Core2 和部分 C6 原版应用仍开放，原生结果不转授浏览器或物理硬件。 当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。 2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的官方 UIFlow2 v2.5.4 黑屏已修复，原镜像在独立原生入口和 C61 浏览器 WASM 上验证离线启动、点阵、USB REPL 和 PM1 按键。四款均通过限定浏览器客体测试，源码默认公开配置包含这四款。默认 Device Service 仍仅提供 CoreMatrix 模型预览。8 MiB Quad PSRAM、Wi-Fi 实际收发及物理设备仍待验收。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。2026-11-06 的基线为 33 台运行登记，视觉主机 38 款中有 5 款仅视觉；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 

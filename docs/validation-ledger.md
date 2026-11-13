@@ -19,6 +19,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
 | #218 主动关机 / virtual-device validation | 原版 PaperColor `0f9c9c0f…`、PaperDIY `d7de13e6…` 在干净 0181 runtime `481228b0…` 上均于启动就绪等待期间通过 QMP 识别下电、保存末帧和串口并清场。矩阵为 PARTIAL/guest_poweroff，应用就绪未授予；PaperDIY 首次短观察窗口另保留 | [事件、双 SHA 与证据摘要](evidence/2026-11-13-issue-triage/poweroff-summary.json) |
+| #217 / #219 / #220 首轮整合 | 固定 native `d0c0054a…`：原 PaperColor factory 300.74 秒无宿主退出（guest assert/reboot 仍在）；原版两款 AtomS3 120 秒显示，USB MSC EP0 和 cache/atomic PASS。Snake 固定 200ms 输入 FAIL 与 bounded 观察 PASS 分别保留 | [整合摘要](evidence/2026-11-13-issue-triage/integration-summary.json) |
+| #216 C6 AES | 固定 C6 `1c5aead3…`，Nesso/NanoC6 同 IDF probe CBC/DMA/IRQ PASS，原 Bruce 越过 AES 等待到 LittleFS 错误页；Launcher/Meshtastic/RFID 整应用仍失败 | [AES 身份与对照](../tests/firmware/esp32c6_aes/evidence-2026-11-13.json) |
+| #224 eFuse | Classic 倒序与 ROM CRC 纠正；四板主线集成含真实 guest API、Core2/C6 显式 unprovisioned、证据/停止/服务重启历史保持 | [主线集成](evidence/2026-11-13-issue-triage/efuse-integration.json) |
+| #223 I2C buffer lifetime | 原 BIN 仍 FAIL；双核 SDK 探针两次成功返回后被写，诊断 SDK 移动 DONE 通知后 30,000 次 PASS，不作为模拟器修复 | [完整边界](../tests/firmware/s3_i2c_lifetime/evidence-summary.json) |
+| #221 / #222 | Classic 时间片实现遗漏与真实 IRQ status 已补；冷启不稳定、Matrix scan、Core2 原 UIFlow/HamRadio 黑屏仍保留，未用原厂 API/UIFlow2 回归代替这些应用 | [逐 issue 记录](evidence/2026-11-13-issue-triage/README.md) |
+| 完整原生回归首轮 | `d0c0054a…` + C6 `1c5aead3…` 共 68 项：66 PASS、StackChan/Core2 audio 2 FAIL（固定观察窗口，继续分析）；每例 attempt 1，没有以重试覆盖失败 | [逐项摘要](evidence/2026-11-13-issue-triage/native-matrix-first.json) |
+
+| 最终定向回归 | 最终 native `dcb5c9f3…`：原版 AtomS3两例120秒、PaperColor USB、PM1关机、cache/atomic均PASS；音频真实marker修正后StackChan audio+Core2六例7PASS，保持旧失败与所有原oracle | [最终原版复测](evidence/2026-11-13-issue-triage/final-runtime-summary.json) · [音频对照](evidence/2026-11-13-issue-triage/audio-readiness.json) |
+
 
 ## 2026-11-10
 

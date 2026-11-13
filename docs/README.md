@@ -319,6 +319,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [本轮新增模拟器问题](evidence/2026-11-13-issue-triage/README.md) | 日期化原生证据 | `2026-11-13` | 原版固件、控制器修复与保留失败边界 |
 | [开放问题修复证据](evidence/2026-11-09-issue-fixes/README.md) | 日期化证据 | `2026-11-09` | 目录资料、Classic 烧录重试、基线帧与 Unit 执行身份，保留高负载门禁 |
 | [本地无输入展示验收](evidence/2026-11-06-local-observatory/README.md) | 证据 | `2026-11-06` | 自动巡展、真实会话与独立 64 逻辑设备布局；保留先前失败，不授硬件或性能结论 |
 

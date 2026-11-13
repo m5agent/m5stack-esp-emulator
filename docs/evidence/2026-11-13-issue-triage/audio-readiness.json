@@ -1,0 +1,1316 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "fix_commit": "8f54a42fbf6713fac5f659be24e195ea8e906586",
+  "root_cause": "The host captured the before frame at fixed wall-clock deadlines before the fixture completed startup; the PCM/frame oracles were not the cause. Core2 original fixture fails on both baseline and d0 runtimes.",
+  "change": "Wait for explicit guest audio-completion marker using existing bounded 30-second wait. Require status=ok; keep all PCM, framebuffer and PMIC requirements and original settle durations. StackChan emits through hardware UART0; Core2 uses its existing console.",
+  "runtime_sha256": {
+    "baseline": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+    "d0": "d0c0054ae85aafd0eeb271045e81e258899d0f6d2422392d6834cb66c98a784d",
+    "final": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1"
+  },
+  "original_matrix_failures": [
+    {
+      "case": "stackchan-audio",
+      "status": "FAIL",
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "composed_image_sha256": "055c7cdc4a1be5a26bccf5fc56006e0466ec1fe0c6c1375d1efde2636f538b38",
+      "serial_sha256": "b1428ea2bddd4f76e496111fe276df38936dd1773c437c3131463e7e0e38431a",
+      "command_inputs": "key:a",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "FAIL",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 0,
+        "colors": 0,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3313,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+      },
+      "pcm": {
+        "bytes": 18432,
+        "nonzero_samples": 9200,
+        "peak_to_peak": 11523,
+        "sha256": "9ec8b0680942ac18be6ed4e207001f1c37334741e68de143185a7dbd9f737605"
+      }
+    },
+    {
+      "case": "core2-audio",
+      "status": "FAIL",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "97562e5b1df89b591028c070c3695d6b9a7f9885056e0f4816bf4f226e366af5",
+      "serial_sha256": "d403abedc037cedbffd3d7b0b2f9c748508aae65faf3365489efb8a880af0a61",
+      "command_inputs": "touch:160,183",
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "FAIL",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 0,
+        "colors": 0,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 0,
+        "colors": 0,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+      }
+    }
+  ],
+  "original_fixture_ab": {
+    "baseline": [
+      {
+        "case": "stackchan-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "composed_image_sha256": "055c7cdc4a1be5a26bccf5fc56006e0466ec1fe0c6c1375d1efde2636f538b38",
+        "serial_sha256": "956757556f0a494949b6fee1f697a9face7e3388832ffe5b28b9aaab302880cb",
+        "command_inputs": "key:a",
+        "checks": [
+          {
+            "name": "aw88298_configure",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "pcm": {
+          "bytes": 81920,
+          "nonzero_samples": 40891,
+          "peak_to_peak": 11523,
+          "sha256": "7bcb2b9ba11c3e97cc3e90c41b6a6087adea6bfeb5443a7c7f78321a7048845c"
+        },
+        "validation": [
+          "PCM bytes=81920 samples=40960 nonzero=40891 peak_to_peak=11523",
+          "PASS StackChan audio marker rgb=(0,255,0)"
+        ]
+      },
+      {
+        "case": "core2-audio",
+        "status": "FAIL",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "composed_image_sha256": "97562e5b1df89b591028c070c3695d6b9a7f9885056e0f4816bf4f226e366af5",
+        "serial_sha256": "d403abedc037cedbffd3d7b0b2f9c748508aae65faf3365489efb8a880af0a61",
+        "command_inputs": "touch:160,183",
+        "checks": [
+          {
+            "name": "speaker_tone",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "esp32_i2s_dma_capture",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "axp2101_ns4168_enable",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 0,
+          "colors": 0,
+          "marker_4_4_rgb": [
+            0,
+            0,
+            0
+          ],
+          "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 0,
+          "colors": 0,
+          "marker_4_4_rgb": [
+            0,
+            0,
+            0
+          ],
+          "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+        }
+      }
+    ],
+    "d0": [
+      {
+        "case": "stackchan-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "composed_image_sha256": "055c7cdc4a1be5a26bccf5fc56006e0466ec1fe0c6c1375d1efde2636f538b38",
+        "serial_sha256": "5646472843bbe12d98a2a7e893d4793662ac7723ba958e647411e61c364a962d",
+        "command_inputs": "key:a",
+        "checks": [
+          {
+            "name": "aw88298_configure",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "pcm": {
+          "bytes": 40960,
+          "nonzero_samples": 20445,
+          "peak_to_peak": 11523,
+          "sha256": "c3ec17a7a6dccb55965ab1f7fb0f231025b2c95f8bd1f49526cd90af22dc4a1c"
+        },
+        "validation": [
+          "PCM bytes=40960 samples=20480 nonzero=20445 peak_to_peak=11523",
+          "PASS StackChan audio marker rgb=(0,255,0)"
+        ]
+      },
+      {
+        "case": "core2-audio",
+        "status": "FAIL",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "composed_image_sha256": "97562e5b1df89b591028c070c3695d6b9a7f9885056e0f4816bf4f226e366af5",
+        "serial_sha256": "d403abedc037cedbffd3d7b0b2f9c748508aae65faf3365489efb8a880af0a61",
+        "command_inputs": "touch:160,183",
+        "checks": [
+          {
+            "name": "speaker_tone",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "esp32_i2s_dma_capture",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "axp2101_ns4168_enable",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "FAIL",
+            "evidence": [
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 0,
+          "colors": 0,
+          "marker_4_4_rgb": [
+            0,
+            0,
+            0
+          ],
+          "sha256": "12c810bd25efe1a7484387cd3d5a8503ce7cc341d61768b99a85c39a0ecca884"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3170,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+        },
+        "pcm": {
+          "bytes": 196096,
+          "nonzero_samples": 47920,
+          "peak_to_peak": 46091,
+          "sha256": "0e4f29ce42d81ec4eed6502a3e317f16a19f2567fb836eadd52d0e07b4605561"
+        }
+      }
+    ]
+  },
+  "ready_fixture_ab": {
+    "baseline": [
+      {
+        "case": "stackchan-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "composed_image_sha256": "fa1b503716c511ba7463d1d474a9023c158bcd315ca8223141743f94876c66cd",
+        "serial_sha256": "961e0ef65ddccec5ba63d206cde94d67f2e930d096781b41e859c0499e9ee608",
+        "command_inputs": "key:a",
+        "checks": [
+          {
+            "name": "aw88298_configure",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "pcm": {
+          "bytes": 40448,
+          "nonzero_samples": 20190,
+          "peak_to_peak": 11523,
+          "sha256": "5b945a116594164d45158e4e97aa8ea4de08fb44deff4cbe09427fde984405a8"
+        },
+        "validation": [
+          "PASS serial markers: STACKCHAN_AUDIO_READY status=ok",
+          "PCM bytes=40448 samples=20224 nonzero=20190 peak_to_peak=11523",
+          "PASS StackChan audio marker rgb=(0,255,0)"
+        ]
+      },
+      {
+        "case": "core2-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "composed_image_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+        "serial_sha256": "7988bf07f8c5042ee69d72308624e4656e3509dd0a5d70db54ea3462f32e0c69",
+        "command_inputs": "touch:160,183",
+        "checks": [
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "esp32_i2s_dma_capture",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "axp2101_ns4168_enable",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3170,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3170,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+        },
+        "pcm": {
+          "bytes": 327680,
+          "nonzero_samples": 47920,
+          "peak_to_peak": 46091,
+          "sha256": "368d995b35e03642e07a38ae014815597a61978c5e13656d16da3c0f752af9e0"
+        },
+        "validation": [
+          "PASS serial markers: CORE2_AUDIO_READY status=ok",
+          "PCM bytes=327680 samples=163840 nonzero=47920 peak_to_peak=46091",
+          "PASS Core2 audio marker rgb=(0,255,0)"
+        ]
+      }
+    ],
+    "d0": [
+      {
+        "case": "stackchan-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+        "composed_image_sha256": "fa1b503716c511ba7463d1d474a9023c158bcd315ca8223141743f94876c66cd",
+        "serial_sha256": "ad69e3f541ed172b25ad4dfddb4af1185f614ba4f329837573fe00d6a23cd343",
+        "command_inputs": "key:a",
+        "checks": [
+          {
+            "name": "aw88298_configure",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "i2s_gdma_capture",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3313,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+        },
+        "pcm": {
+          "bytes": 79872,
+          "nonzero_samples": 39869,
+          "peak_to_peak": 11523,
+          "sha256": "fc786f860253f8d609e17909c3c57b0efa6397ba03d76a3d76b7389a3296201d"
+        },
+        "validation": [
+          "PASS serial markers: STACKCHAN_AUDIO_READY status=ok",
+          "PCM bytes=79872 samples=39936 nonzero=39869 peak_to_peak=11523",
+          "PASS StackChan audio marker rgb=(0,255,0)"
+        ]
+      },
+      {
+        "case": "core2-audio",
+        "status": "PASS",
+        "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "composed_image_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+        "serial_sha256": "7988bf07f8c5042ee69d72308624e4656e3509dd0a5d70db54ea3462f32e0c69",
+        "command_inputs": "touch:160,183",
+        "checks": [
+          {
+            "name": "speaker_tone",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "esp32_i2s_dma_capture",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "axp2101_ns4168_enable",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "speaker_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "serial.log",
+              "qom",
+              "pcm",
+              "frame-marker"
+            ]
+          }
+        ],
+        "before_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3170,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+        },
+        "after_frame": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 3170,
+          "colors": 16,
+          "marker_4_4_rgb": [
+            0,
+            255,
+            0
+          ],
+          "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+        },
+        "pcm": {
+          "bytes": 682496,
+          "nonzero_samples": 47920,
+          "peak_to_peak": 46091,
+          "sha256": "81687f834e519104f90b312ca7a83452676df69cf768a50b455aedddb67ba0be"
+        },
+        "validation": [
+          "PASS serial markers: CORE2_AUDIO_READY status=ok",
+          "PCM bytes=682496 samples=341248 nonzero=47920 peak_to_peak=46091",
+          "PASS Core2 audio marker rgb=(0,255,0)"
+        ]
+      }
+    ]
+  },
+  "final_runtime_cases": [
+    {
+      "case": "stackchan-audio",
+      "status": "PASS",
+      "base_firmware_sha256": "d87f2d50ddc366b4c90eeabe462dbf258e34f6aea8b05c2176396038d2c51778",
+      "composed_image_sha256": "fa1b503716c511ba7463d1d474a9023c158bcd315ca8223141743f94876c66cd",
+      "serial_sha256": "ca30a482472c22560549e1aaf94b1fb26d7d0133c4d4bb7ff5a75f344455ce75",
+      "command_inputs": "key:a",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3313,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3313,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "89cbc2b5346ff4f857ca8225f95afd5defd5237a51019c1f184301233ab241ac"
+      },
+      "pcm": {
+        "bytes": 43008,
+        "nonzero_samples": 21468,
+        "peak_to_peak": 11523,
+        "sha256": "4112365427a802178784f4698ca4bac20ec5a8479c767b8804dc431719235d46"
+      },
+      "validation": [
+        "PASS serial markers: STACKCHAN_AUDIO_READY status=ok",
+        "PCM bytes=43008 samples=21504 nonzero=21468 peak_to_peak=11523",
+        "PASS StackChan audio marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-peripherals",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "46018cd652921212fc358cbaf5fee105a71b46a1cbfe1f9bec82a55cab780129",
+      "serial_sha256": "cc96441a8c14ef51e6237fb2d8b5ffbb4411a6721ec0e3994ce05408beca67e0",
+      "command_inputs": "longpress:220,190,1.5",
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 6678,
+        "colors": 17,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "7c8f1558dac23e55c0f561f55e8e0459711d53b2aa9474d1a397619969fde9e3"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 6612,
+        "colors": 17,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "8e922e8a340c842462be037fafef6c17502a4cd7ec0d3b19b9d81ff19f3bae06"
+      },
+      "validation": [
+        "PASS serial markers: CORE2_PERIPHERAL_MAIN, CORE2_RTC 2026-10-22 06:07:08, CORE2_TOUCH, CORE2_PWR",
+        "PASS Core2 peripherals marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-audio",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "6d739a7258f53f948e3a58882f3738ec39211c3d2d9ec158ea5c4d2287e19ad2",
+      "serial_sha256": "8d4148c4be94351093c07f1d8d6b605ad048210fa076e8577ff84e55c3692bb3",
+      "command_inputs": "touch:160,183",
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3170,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3170,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "f474f9be41b78775fbb8072c8fc7f6ab11e10a02bfb73cf83194ac0811918dda"
+      },
+      "pcm": {
+        "bytes": 578560,
+        "nonzero_samples": 47920,
+        "peak_to_peak": 46091,
+        "sha256": "30747169496057d79be3d227d3dd62b98e7093904d6ad1578ffffc0d20891e72"
+      },
+      "validation": [
+        "PASS serial markers: CORE2_AUDIO_READY status=ok",
+        "PCM bytes=578560 samples=289280 nonzero=47920 peak_to_peak=46091",
+        "PASS Core2 audio marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-mic",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "ba5d09e311ed8b4653398e3ebbc3174f79958a1f041786a5648929dd8e26aa85",
+      "serial_sha256": "f3060bbb7b04b8c9628b7874581bd4d102b91739d07be93af277a93225ca499e",
+      "command_inputs": null,
+      "checks": [
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3096,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "825d9c2a19f8866167cca643abd6844254a8deb4c92e996a87d01742bedd8915"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3096,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "825d9c2a19f8866167cca643abd6844254a8deb4c92e996a87d01742bedd8915"
+      },
+      "validation": [
+        "PASS serial markers: CORE2_MIC_RESULT ok, CORE2_MIC_DRAW_COMPLETE ok",
+        "PASS Core2 mic marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-power-monitor",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "0cf7d295f10767e1f52bd172aa5c7255e7de23425740fb5ddd25a459599cce27",
+      "serial_sha256": "48e7f9b70ae0c545ef8bea414f7be607b1c8a3ed25930a1f155ff2f72bdb7863",
+      "command_inputs": "touch:160,183",
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3840,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "ff81692bea52c8860500f7c69047f37f998934508f412dffe2c19b7ebf279896"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3840,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "ff81692bea52c8860500f7c69047f37f998934508f412dffe2c19b7ebf279896"
+      },
+      "validation": [
+        "PASS Core2 INA3221 marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-imu",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "f5cb7dda74b272595e8df7a251ff732a390ce35dbda3cd461fb7a20714291f4d",
+      "serial_sha256": "2197cd86c40751dcf4a057067044298c92425c07cb7cf7bf423a4054279ca879",
+      "command_inputs": "touch:160,183",
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3754,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "fd08aaa7fb61f32acd60d54ca025d1764cbdc5530b09abaf56fbcb1025641aae"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3766,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "a4992fb54642fb64c4a84ba0bc2a2eaafc6ad456b3b0ae1998407d2737cad066"
+      },
+      "validation": [
+        "PASS Core2 IMU marker rgb=(0,255,0)"
+      ]
+    },
+    {
+      "case": "core2-axp192",
+      "status": "PASS",
+      "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "composed_image_sha256": "3f99b18c8fe9ce483093c3e4a1ef9572ba2cfd8486cff1a2a5a3e9ebaca9e0c8",
+      "serial_sha256": "122d375d4e81ed5752be3471dd8e5a43104bc3db23f7b8f732a3834fead1a5b5",
+      "command_inputs": "touch:160,183",
+      "checks": [
+        {
+          "name": "core2_axp192_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_current",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_charging",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "before_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 395,
+        "colors": 15,
+        "marker_4_4_rgb": [
+          0,
+          0,
+          0
+        ],
+        "sha256": "5a689f438546d365661808cd673b73c75717697fab5913c8faceb5b8a81be21e"
+      },
+      "after_frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 3917,
+        "colors": 16,
+        "marker_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "sha256": "01f431e5bfcd0d6d1fe668cb99be72b21e02205669417f5292196e77f44563d1"
+      },
+      "validation": [
+        "PASS Core2 AXP192 marker rgb=(0,255,0)"
+      ]
+    }
+  ],
+  "diagnostic_failures_retained": [
+    "StackChan print-only marker was not routed to UART0: timed out despite PCM; replaced with explicit guest hardware UART0.",
+    "Reconfiguring already-owned Core2 UART0 raised ESP_FAIL; fixture retains its existing print console."
+  ],
+  "tests": {
+    "affected_platform_tests": 17,
+    "status": "PASS",
+    "diff_check": "PASS",
+    "scope": "PASS"
+  },
+  "cleanup": "All checked-in regression QEMU processes exited through runner cleanup; no service or guest left running.",
+  "limits": [
+    "Native virtual devices only; physical hardware and acoustic measurements NOT RUN.",
+    "Original 66 PASS / 2 FAIL full-matrix record is retained. Final-runtime validation here covers these seven cases, not a fresh full 68-case run."
+  ],
+  "same_ready_fixture_image_across_all_three_runtimes": true
+}

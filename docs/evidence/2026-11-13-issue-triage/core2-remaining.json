@@ -1,0 +1,230 @@
+{
+  "date": "2026-11-13",
+  "issue": 222,
+  "validation_class": "virtual-device validation",
+  "runs": [
+    {
+      "case": "core2-1897200000000001395",
+      "runtime_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+      "runtime": "qemu",
+      "runtime_env": {},
+      "source_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "effective_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 491,
+      "serial_sha256": "495711459448b857081e8455381d8fbba0d281f475bda94c08054d4c18bab0b6",
+      "markers": {
+        "LittleFS/DXTracker.gz": true,
+        "Loading config file...": false,
+        "Ini file does not exist.": false,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 1,
+        "nonblack": 0
+      },
+      "evidence_zip_sha256": "5c4424f0fad64bba8194f48f1289cb7cb0df3012496fdebbe4f969274e0bc12e"
+    },
+    {
+      "case": "core2-1897200000000002280",
+      "runtime_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+      "runtime": "qemu",
+      "runtime_env": {},
+      "source_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "effective_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "markers": {
+        "LittleFS/DXTracker.gz": false,
+        "Loading config file...": false,
+        "Ini file does not exist.": false,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 1,
+        "nonblack": 0
+      },
+      "evidence_zip_sha256": "79b12846813aca3aba0057188be74188d875f1151e55929eab8a421327f35db7"
+    },
+    {
+      "case": "core2-1897200000000001395-wifi",
+      "runtime_sha256": "d0c0054ae85aafd0eeb271045e81e258899d0f6d2422392d6834cb66c98a784d",
+      "runtime": "qemu-wifi",
+      "runtime_env": {},
+      "source_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "effective_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 617,
+      "serial_sha256": "25e64da4b3c78c265776510718a33c51dbe9f8c4c593507906f2698f3fbf321e",
+      "markers": {
+        "LittleFS/DXTracker.gz": true,
+        "Loading config file...": true,
+        "Ini file does not exist.": true,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 1,
+        "nonblack": 0
+      },
+      "evidence_zip_sha256": "fa4329c233aa917dabad69fee1bbff61d8d9b974ac4dc2a2e68164fb0bbdc33d"
+    },
+    {
+      "case": "core2-1897200000000002280-wifi",
+      "runtime_sha256": "d0c0054ae85aafd0eeb271045e81e258899d0f6d2422392d6834cb66c98a784d",
+      "runtime": "qemu-wifi",
+      "runtime_env": {},
+      "source_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "effective_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "markers": {
+        "LittleFS/DXTracker.gz": false,
+        "Loading config file...": false,
+        "Ini file does not exist.": false,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 80,
+        "nonblack": 4883
+      },
+      "evidence_zip_sha256": "88ac0efadb00fe7af268a616e9c7e9dd4f1fe1190629a27b5727ab58f5f44c40",
+      "visual_observation": "UIFLOW startup logo; not the application menu"
+    },
+    {
+      "case": "core2-1897200000000001395-fairness",
+      "runtime_sha256": "6a0a1e5efc08086e278e48e5270896278385282b84511ecae190be15ae09eb66",
+      "runtime": "qemu-wifi",
+      "runtime_env": {},
+      "source_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "effective_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 617,
+      "serial_sha256": "25e64da4b3c78c265776510718a33c51dbe9f8c4c593507906f2698f3fbf321e",
+      "markers": {
+        "LittleFS/DXTracker.gz": true,
+        "Loading config file...": true,
+        "Ini file does not exist.": true,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 1,
+        "nonblack": 0
+      },
+      "evidence_zip_sha256": "1336839b06abb00b3f866d1722df21cccf753990e9af4db4295ef6d4cb98ec0f"
+    },
+    {
+      "case": "core2-1897200000000002280-fairness",
+      "runtime_sha256": "6a0a1e5efc08086e278e48e5270896278385282b84511ecae190be15ae09eb66",
+      "runtime": "qemu-wifi",
+      "runtime_env": {},
+      "source_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "effective_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "markers": {
+        "LittleFS/DXTracker.gz": false,
+        "Loading config file...": false,
+        "Ini file does not exist.": false,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 80,
+        "nonblack": 4883
+      },
+      "evidence_zip_sha256": "70010f3ef64404394789dcb2f4df1b8787c5e4277900bd2e463c6c5b08f3caea",
+      "visual_observation": "UIFLOW startup logo; not the application menu"
+    },
+    {
+      "case": "core2-1897200000000002280-axp192",
+      "runtime_sha256": "6a0a1e5efc08086e278e48e5270896278385282b84511ecae190be15ae09eb66",
+      "runtime": "qemu-wifi",
+      "runtime_env": {
+        "M5SW_CORE2_PMIC": "axp192"
+      },
+      "source_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "effective_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "status": "FAIL: application readiness not reached",
+      "observed_state": "running",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "markers": {
+        "LittleFS/DXTracker.gz": false,
+        "Loading config file...": false,
+        "Ini file does not exist.": false,
+        "BOARD NAME": false,
+        "APIKEY": false,
+        "Task watchdog": false,
+        "Guru Meditation": false
+      },
+      "frame": {
+        "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+        "size": [
+          320,
+          240
+        ],
+        "colors": 80,
+        "nonblack": 4883
+      },
+      "evidence_zip_sha256": "8e9bbd20d6a0f1d43699e82513caf365ae18dd7ddb82e92a9150f2a1dd3f31e3",
+      "visual_observation": "UIFLOW startup logo; not the application menu"
+    }
+  ],
+  "interpretation": "Original UIFlow 1.15.5 and HamRadio 0.1.5 remain unready. UIFlow qemu-wifi reaches its startup logo, not its application menu. Fairness and PMIC controls do not establish a fix; matching ELF for exact attribution is unavailable."
+}

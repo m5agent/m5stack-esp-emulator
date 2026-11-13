@@ -85,9 +85,19 @@ def run(args):
                 for prop in ('accel-x', 'accel-y'):
                     client.call(route + '/qom', {'path': '/machine/mpu6886', 'property': prop,
                                                'value': value if prop == axis else 0})
-                time.sleep(.2)
-                sample = frame(client, sid, out, 'tilt-' + str(len(report['inputs'])))
-                report['inputs'].append({'axis': axis, 'value': value, 'frame': sample})
+                # A fixed wall-clock sleep is not a guest frame deadline, in
+                # particular while other virtual devices are being exercised.
+                # Keep the input held and record the bounded observation window.
+                input_started = time.monotonic()
+                samples = 0
+                while True:
+                    time.sleep(.05)
+                    sample = frame(client, sid, out, 'tilt-' + str(len(report['inputs'])))
+                    samples += 1
+                    if sample['sha256'] != previous or time.monotonic() - input_started >= 2:
+                        break
+                report['inputs'].append({'axis': axis, 'value': value, 'frame': sample,
+                    'observation_seconds': time.monotonic() - input_started, 'samples': samples})
                 assert sample['sha256'] != previous, 'no visible input response'
                 previous = sample['sha256']
             for prop in ('accel-x', 'accel-y'):

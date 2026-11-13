@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-13",
+  "issue": 216,
+  "validation_class": "virtual-device validation",
+  "c6_runtime_sha256": "1c5aead3a5fef487e2043e0709bb2ec03f4dc3006f03d8bb37a39f94b5666279",
+  "status": "PARTIAL",
+  "launcher_2_6_6": {
+    "source_sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+    "observed_assertion": "xTaskPriorityDisinherit: mutex given by non-owner",
+    "owner_task": "loopTask",
+    "current_task": "InputHandler",
+    "guest_owner_tcb": "0x4087f0c0",
+    "guest_current_tcb": "0x40826a24",
+    "bin_call_chain": [
+      "0x42014bde",
+      "0x42017a9e",
+      "0x40808e98",
+      "0x4080bc60"
+    ],
+    "source_reference_commit": "36b15570af6a17d5aceba334face18e500a1d8fa",
+    "source_limit": "M5GFX inspected copy is compatible, not an original BIN build manifest. Firmware shared-bus race is consistent with observations; emulator scheduling/corruption contribution is not excluded.",
+    "icount_shift3_control": "FAIL: assertion persists",
+    "evidence_zip_sha256": "8a298ea7bae4e47813aa7ac9ec7a90c1e0218af6d58dad84b7790747d33d15f2",
+    "gdb_log_sha256": "253a1840ce5a4c12c8035f97749f63ce0faf5a59599950cf8f0f8e184d701ec6"
+  },
+  "meshtastic": {
+    "source_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+    "observed_exception_cause": 1,
+    "pc": "0x0",
+    "return_address": "0x4202b98e",
+    "bin_callsite": "0x4202b98c: jalr a5",
+    "observation": "Indirect call target from object vtable offset 80 is zero. Root cause of null slot remains unproven.",
+    "evidence_zip_sha256": "6efae7f3109e6d93b2d088b52880653c06766f15fe75070878d1bde6659d3de8",
+    "gdb_log_sha256": "06298243c12b706b5ecc5dd5e5dc1ce3e816a56a2a2bbb290a088665c3fd3136"
+  },
+  "rfid": {
+    "source_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+    "status": "FAIL: independent cause not established; do not inherit Meshtastic attribution"
+  },
+  "hardware": "NOT RUN",
+  "next": "Obtain matching original ELF/build metadata and watch object/transaction ownership initialization before changing SoC behavior."
+}

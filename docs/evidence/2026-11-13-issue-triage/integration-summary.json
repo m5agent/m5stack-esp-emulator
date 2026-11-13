@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation_class": "virtual-device validation",
+  "runtime_sha256": "d0c0054ae85aafd0eeb271045e81e258899d0f6d2422392d6834cb66c98a784d",
+  "runtime_source": "fresh pinned recipe source; reused dependency artifacts only",
+  "source_commit": "1e3b30f8",
+  "results": {
+    "snake": {
+      "status": "FAIL",
+      "case": "snake",
+      "source_sha256": "3e4fcd924596035d0240d5b15e53cffa7538151a0ac1ff04d32bd113f3c6b7af",
+      "stable_seconds": 120.01289633312263,
+      "frames": [
+        {
+          "sha256": "ec8c57211f227b18bd7d0cd8a75fd08c5afcd86db15a762728a0a1ff8b07ff66",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1696
+        },
+        {
+          "sha256": "7ff5f88b1651ad86717d61d7ee170459631aad2d85e934521864ecbf4e6ff046",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "c7aa0bd96e453fdcfcbac7148036a6b51a786d2b27f1592db2ab81853965dd5f",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "f3d3967661add09f49df8b8fd0c0e27cdb2635c0b43947d14bb2f1cd0d01ed15",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1875
+        },
+        {
+          "sha256": "f371ab737c42c054cdc843b8041b3117f6067000b2678bf208876e97a66abe2b",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1855
+        }
+      ],
+      "inputs": [
+        {
+          "axis": "accel-y",
+          "value": 0.8,
+          "frame": {
+            "sha256": "0647e9b61daabdb4a5585f5643061625e2617d3e8ada7db6e2af52e3460589d1",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1852
+          }
+        },
+        {
+          "axis": "accel-x",
+          "value": -0.8,
+          "frame": {
+            "sha256": "c16765c4b143785553d397a65f83352b752db4b6fe142d0375c79b1295d53160",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1603
+          }
+        },
+        {
+          "axis": "accel-y",
+          "value": -0.8,
+          "frame": {
+            "sha256": "07a71fc5061948adaefcee858e5e8dbe295a0af0b6691d523b6d100118892cbe",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 6,
+            "nonblack": 3158
+          }
+        },
+        {
+          "axis": "accel-x",
+          "value": 0.8,
+          "frame": {
+            "sha256": "07a71fc5061948adaefcee858e5e8dbe295a0af0b6691d523b6d100118892cbe",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 6,
+            "nonblack": 3158
+          }
+        }
+      ],
+      "raw_result_sha256": "ca4fa449f9da9a0e4a1c942a8440c6d72989d37cb43e623987a2368bc4035dd1",
+      "evidence_zip_sha256": "8cda6f4a35ef374c1db25e6c671689b9c1a9ca68b111ec823af3694bc58e0a29",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      },
+      "reason": "Fixed 200 ms observation returned the same frame on fourth input; first failure retained."
+    },
+    "snake-bounded-input": {
+      "status": "PASS",
+      "case": "snake",
+      "source_sha256": "3e4fcd924596035d0240d5b15e53cffa7538151a0ac1ff04d32bd113f3c6b7af",
+      "stable_seconds": 120.0042034171056,
+      "frames": [
+        {
+          "sha256": "12542aefa45023f057d13e44f73e8d92bdfb2958fc9c4c2a9fe898267a181b66",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1571
+        },
+        {
+          "sha256": "632d424034bd287b79fd7d510e6b0bf36497ab98e9170105ff0a3a0b67f22dd8",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "2475902cf13b7efc2a17b88ea582a82b6d7538e51c902403963b1e75175bef28",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1875
+        },
+        {
+          "sha256": "bc9d4a43849616b37e938f4a7d61f1ff5bb65dd2c5418c9e3f4df6f18a55ce0f",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        },
+        {
+          "sha256": "54944d376ebda1aef796e1bbf9563d902a80014caa3d768c9d08ea3869479b24",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 7,
+          "nonblack": 1876
+        }
+      ],
+      "inputs": [
+        {
+          "axis": "accel-y",
+          "value": 0.8,
+          "frame": {
+            "sha256": "0b113fc495cc92805188e90533e89c6ee9f1929c4da1f86dff6305b3574901b7",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          },
+          "observation_seconds": 0.05488662514835596,
+          "samples": 1
+        },
+        {
+          "axis": "accel-x",
+          "value": -0.8,
+          "frame": {
+            "sha256": "defc05cbf64f537f848d3fc49d8b4984d32f5399909ee16df495193235acf689",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1875
+          },
+          "observation_seconds": 0.05919508286751807,
+          "samples": 1
+        },
+        {
+          "axis": "accel-y",
+          "value": -0.8,
+          "frame": {
+            "sha256": "c550c3c1ecc519953efbb5cd8b534d5a859894db5a3da07d484d1c112ab6dd20",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          },
+          "observation_seconds": 0.05752745806239545,
+          "samples": 1
+        },
+        {
+          "axis": "accel-x",
+          "value": 0.8,
+          "frame": {
+            "sha256": "ea32f50e25e7b80519cd84ae36cb19ec021242b935a0cb0b2288c7a1c05f9e9f",
+            "size": [
+              128,
+              128
+            ],
+            "colors": 7,
+            "nonblack": 1876
+          },
+          "observation_seconds": 0.05670570791698992,
+          "samples": 1
+        }
+      ],
+      "raw_result_sha256": "b57d71409d0abe0cfd18b4aa00799dec6903b81f5ba287dd154830e2e2700334",
+      "evidence_zip_sha256": "af979db621d5d60d5111a531c2ab309029f9c588d5f98ce5efa3e9472e4e8432",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      },
+      "scope": "Held sensor input, observe a changed frame within 2 seconds; does not prove four directional gameplay semantics."
+    },
+    "atoms3-userdemo": {
+      "status": "PASS",
+      "case": "userdemo",
+      "source_sha256": "2d78c3d8874eee0f6d91eb9c8fe6ad482488dad05e5a42adc1dde09977800b06",
+      "stable_seconds": 120.01788325002417,
+      "frames": [
+        {
+          "sha256": "40cc81c24bf16dd46121748b15526e6bba71a48f99a961d891d1c92eafa8e53c",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 3,
+          "nonblack": 1696
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        },
+        {
+          "sha256": "594b80fba6b4ee28358e4da6fcc2d7d21d9c498e2188cb5b721f762863979a34",
+          "size": [
+            128,
+            128
+          ],
+          "colors": 95,
+          "nonblack": 4993
+        }
+      ],
+      "inputs": [],
+      "raw_result_sha256": "5a23f820efdfee2f32602f32e7062ffea31b1168bb00eaccb796b732c04103a3",
+      "evidence_zip_sha256": "4c143e844fd8b19a0ceceb85878b7fddb04e23429f2424c059e836c10922a398",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "papercolor-usb": {
+      "status": "PASS",
+      "source_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+      "device": "12010002ef0201403a300240000101020301",
+      "configuration": "09022000010100a0320904000002080650000705010240000007058102400000",
+      "get_configuration": "01",
+      "get_max_lun": "00",
+      "reset_epochs": 1,
+      "transactions": [
+        [
+          "reset",
+          "ACK"
+        ],
+        [
+          "setup 8006000100001200",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:12010002ef0201403a300240000101020301"
+        ],
+        [
+          "out 0",
+          "ACK"
+        ],
+        [
+          "setup 0005070000000000",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:"
+        ],
+        [
+          "setup 8006000200000900",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:09022000010100a032"
+        ],
+        [
+          "out 0",
+          "ACK"
+        ],
+        [
+          "setup 8006000200002000",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:09022000010100a0320904000002080650000705010240000007058102400000"
+        ],
+        [
+          "out 0",
+          "ACK"
+        ],
+        [
+          "setup 0009010000000000",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "NAK"
+        ],
+        [
+          "in 0",
+          "DATA:"
+        ],
+        [
+          "setup 8008000000000100",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:01"
+        ],
+        [
+          "out 0",
+          "ACK"
+        ],
+        [
+          "setup a1fe000000000100",
+          "ACK"
+        ],
+        [
+          "in 0",
+          "DATA:00"
+        ],
+        [
+          "out 0",
+          "ACK"
+        ]
+      ],
+      "raw_result_sha256": "9f9a3920b29455d1f3a2fae9146f450b87cf4c43348d917610a2fd7cc1f4069d",
+      "evidence_zip_sha256": "4be7047f41692b0b289ef62da7624411835c19439fda3c8a53ed635d483c67fa",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "atomic": {
+      "status": "PASS",
+      "firmware_sha256": "a9babadb6a58d8e4fb4c663e71a20c3d93cf16857331d90d05f6f6d522dfabf9",
+      "raw_result_sha256": "37e54fdc1b21312c344f71e2a3c6ac9a37c23d53f089d5b4664039fbf160d86f",
+      "evidence_zip_sha256": "ed137acf65268d22ef92076dc9aa288b34404688ad221cf4dbe6ab06ab6c338c",
+      "cleanup": {
+        "state": "stopped",
+        "lease_active": false
+      }
+    },
+    "papercolor-fresh": {
+      "device": "papercolor",
+      "source_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "effective_flash_sha256": "0f9c9c0f429cfae2c4ab39ca842bbddf7b1e6f8eb29bbfd2826cb9903f7ee37e",
+      "observed_state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "evidence_zip_sha256": "75a6536bb8d3db813545248085d15266666e951d992f6134d316a7fa0f535d73",
+      "serial_json_sha256": "bcbe0b60acadf666cc7d3b83840184a46e47b3b67b734821fbd3b46747d30ca1",
+      "frame": {
+        "sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+        "size": [
+          400,
+          600
+        ],
+        "colors": 1,
+        "nonblack": 240000
+      }
+    },
+    "paperdiy-fresh": {
+      "device": "paperdiy",
+      "source_sha256": "d7de13e62342c1ab7115897a4a731abb054efda8ecb01d711aeb66c8bc6baa37",
+      "effective_flash_sha256": "472574f62609b4eddfe6d810c1876f8fb42ecbf43a29d75c1f228a75bdbe680d",
+      "observed_state": "stopped",
+      "stop_reason": "guest_poweroff",
+      "evidence_zip_sha256": "ad418974f60b64622fce7141459561898cb39a8b69aa8499fd1e023996bbc285",
+      "serial_json_sha256": "5e94d89bc2d79cb2f7286c7e0c51a1d0efd5d7a033b152713933a814471525c6",
+      "frame": {
+        "sha256": "cd240d5c1c279972babe1038d17cb43484e3377eb3af7b942a0c5b180c2289db",
+        "size": [
+          540,
+          960
+        ],
+        "colors": 2,
+        "nonblack": 508284
+      }
+    },
+    "papercolor-host-300s": {
+      "status": "PASS at host survival scope; guest application PARTIAL",
+      "source_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+      "observed_state": "running",
+      "observed_seconds": 300.74,
+      "guest_assertions": 1,
+      "guest_reboots": 2,
+      "serial_json_sha256": "ff7ad85e4501680b66a25a02a9db0d57d60c8fd5dea054707567734c337a41dd",
+      "evidence_zip_sha256": "457a0352da8daa4e335f289749f07e6638fd40ae0ebf70c919753490c274d33a",
+      "frame_sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+      "frame_colors": 1
+    }
+  }
+}

@@ -21,13 +21,12 @@
 
 ## 社区固件测试新增问题
 
-- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：逐份定位 Nesso C6 的互斥量、AES 与访问异常，原版 Launcher/M5Launcher 稳定 120 秒、Meshtastic 不再访问异常并回归 NanoC6。
-- [#217](https://github.com/m5agent/m5stack-esp-emulator/issues/217) 与 [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：区分 host atomic 断言和 StackChan guest 上下文损坏；同固件并发复现、修复并完成 300 秒稳定性及受影响控制器回归。
-- [#219](https://github.com/m5agent/m5stack-esp-emulator/issues/219)：分别验收 AtomS3 面板变体和 Snake 的 LCD_CAM 探测路径，两原版镜像均需稳定首帧与 120 秒运行。
-- [#220](https://github.com/m5agent/m5stack-esp-emulator/issues/220)：PaperColor USB 初始化后还需同固件端点枚举、类控制传输和 StickS3 回归；后续 guest 崩溃单独保留。
-- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：Atom Lite/Matrix 厂测的 watchdog 与 Wi-Fi 控制器路径，需稳定运行和 LED/按钮行为。
-- [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：Core2 SPI DMA link 修复需覆盖 AWS、UIFlow、HamRadio 原版样本，不能由单一首帧代替全部兼容。
-- [#224](https://github.com/m5agent/m5stack-esp-emulator/issues/224)：补齐各 SoC 的非零 eFuse MAC 来源并定位原版 Evil-Parasite 的 PHY 回退等待；不改写原 BIN 的旧校准数据来消除正常失配日志。
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：AES/GDMA/IRQ 已修，继续定位 Launcher 的 mutex owner/current-task 不一致、Meshtastic 间接调用目标为零及 RFID 异常；原版整应用仍 PARTIAL，取得匹配 ELF/构建元数据后做写入生命周期对照。
+- [#221](https://github.com/m5agent/m5stack-esp-emulator/issues/221)：已补实际中断源状态读回和构建遗漏的双核时间片限制；Atom Lite 在最终服务/运行时两轮冷启及按键→RMT 通过，先前配置的 IWDT 负控保留；Matrix 的 Wi-Fi scan/灯阵未通过。保持原 BIN、正常 watchdog，继续定位其 DMA/IRQ/scan timer，完成可重复冷启、120 秒及 GPIO/LED 验收。
+- [#222](https://github.com/m5agent/m5stack-esp-emulator/issues/222)：0179 只关闭 AWS 的 SPI DMA link 子路径；原 UIFlow 1.15.5/HamRadio 0.1.5 在 plain/qemu-wifi、时间片限制和 AXP192 板型控制中仍未有应用就绪帧（UIFlow 的 Wi-Fi 路径已显示启动 logo）。继续定位固件初始化阶段，不能把黑帧或单个 PC 采样直接判为固件缺陷。
+- [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 StackChan UserDemo/GPT 仍 FAIL。最小双核 I2C 探针已证明 SDK 同步读返回后 ISR 仍写 buffer，诊断 SDK 正控通过；需检查 timeout 分支、匹配固件构建和正常驱动生命周期，未经证明的模拟器调度/延时规避不合入。
+- PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
+- Core2/C6 eFuse 身份接线：服务已经明示 `unprovisioned`，后续如要提供非零身份，必须接通真实 controller/drive 并验证 guest API；不通过报告字段伪造读值。
 
 ## 新增主机剩余工作
 

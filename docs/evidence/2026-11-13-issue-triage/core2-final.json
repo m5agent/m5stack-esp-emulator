@@ -1,0 +1,237 @@
+{
+  "validation": "virtual-device validation",
+  "issue": 222,
+  "status": "PARTIAL",
+  "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+  "runtime_layers": "final integrated native runtime: 0182 asynchronous IOMMU flush plus 0021 fairness context and 0184 interrupt-source status, with other current canonical layers",
+  "runtime": "qemu",
+  "device": "core2",
+  "configuration": {
+    "accelerator": "tcg,thread=single,tb-size=128",
+    "icount": "shift=5,align=off,sleep=off",
+    "max_percpu_ns": 10000,
+    "network": null,
+    "psram_mib": 8,
+    "input_validation": "NOT RUN; requested boot/display observation only"
+  },
+  "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "cases": [
+    {
+      "firmware_id": "1897200000000002280",
+      "source_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "source_bytes": 12574720,
+      "virtual_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+      "observation_seconds": 120.02808491699398,
+      "frames": [
+        {
+          "elapsed_seconds": 0.015415458008646965,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 30.021103708073497,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 60.0216258331202,
+          "sha256": "0e60fce316ff339c524c1e20fc2d5068ca1b7948a9fcb4a40dd3358c98d94868",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 69,
+          "nonblack": 4567
+        },
+        {
+          "elapsed_seconds": 90.02343170810491,
+          "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 80,
+          "nonblack": 4883
+        },
+        {
+          "elapsed_seconds": 120.02554700011387,
+          "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 80,
+          "nonblack": 4883
+        }
+      ],
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "boot_markers": 1,
+      "panic_markers": {
+        "guru meditation": 0,
+        "watchdog": 0,
+        "assert failed": 0,
+        "rebooting": 0
+      },
+      "evidence_zip_sha256": "3658aa88dd52da3006fb4b7e93a56bab4cd6bbddd030305f3164265ab848f7df",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      },
+      "firmware": "UIFlow_Core2 v1.15.5",
+      "status": "PARTIAL",
+      "screen": "UIFlow boot splash visible at 60 seconds, unchanged between 90 and 120 seconds; no application page observed.",
+      "serial_summary": [
+        "ROM boot and ASCII UIFlow banner only."
+      ]
+    },
+    {
+      "firmware_id": "1897200000000001395",
+      "source_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "source_bytes": 16777216,
+      "virtual_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+      "observation_seconds": 120.02134887501597,
+      "frames": [
+        {
+          "elapsed_seconds": 0.020554917166009545,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 30.015083292033523,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 60.010882542002946,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 90.01759283314459,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 120.0191287919879,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        }
+      ],
+      "serial_bytes": 617,
+      "serial_sha256": "25e64da4b3c78c265776510718a33c51dbe9f8c4c593507906f2698f3fbf321e",
+      "boot_markers": 1,
+      "panic_markers": {
+        "guru meditation": 0,
+        "watchdog": 0,
+        "assert failed": 0,
+        "rebooting": 0
+      },
+      "evidence_zip_sha256": "fca2a78702bc199574f223ab9be79b4565e50a15edbe781fd9f951bd0336c18f",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      },
+      "firmware": "M5HamRadio Core2 v0.1.5",
+      "status": "FAIL",
+      "screen": "All five samples through 120 seconds are entirely black.",
+      "serial_summary": [
+        "LittleFS/DXTracker.gz",
+        "LittleFS/ICKeyer.gz",
+        "LittleFS/ICMultiMeter.gz",
+        "LittleFS/ICSMeter.gz",
+        "Test 40 Mhz",
+        "Test 10 Mhz"
+      ]
+    },
+    {
+      "firmware_id": "1897200000000000568",
+      "source_sha256": "22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a",
+      "source_bytes": 1342672,
+      "virtual_flash_sha256": "104062aa0e6f52470f0c7f409d202af5d2dad5c3e5ee8f7e65815508a512ef3c",
+      "runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+      "observation_seconds": 30.02862904104404,
+      "frames": [
+        {
+          "elapsed_seconds": 0.006414208095520735,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 1,
+          "nonblack": 0
+        },
+        {
+          "elapsed_seconds": 30.02640908304602,
+          "sha256": "f85b9510fd284d5e880e18e5f50dbe0214321c0e0f6c61017b61fb5d144962e3",
+          "size": [
+            320,
+            240
+          ],
+          "colors": 74,
+          "nonblack": 76294
+        }
+      ],
+      "serial_bytes": 5348,
+      "serial_sha256": "5095987f5ae591bf23c7d27aac3cd1bc8501183f15211e032fed71b0d6c29add",
+      "boot_markers": 1,
+      "panic_markers": {
+        "guru meditation": 0,
+        "watchdog": 0,
+        "assert failed": 0,
+        "rebooting": 0
+      },
+      "evidence_zip_sha256": "37462436023dbaf0c30c09ea477eb0d62e48516659ff4d1979c93a236ddcbd44",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false
+      },
+      "firmware": "Core2_For_AWS v1.1",
+      "status": "PASS display control",
+      "screen": "Original application screen rendered by 30 seconds.",
+      "serial_summary": [
+        "ROM boot; 5348 captured serial bytes; no panic, watchdog, assertion or reboot markers."
+      ]
+    }
+  ],
+  "conclusion": "Keep issue222 open. The combined final runtime does not resolve the original HamRadio black screen. UIFlow now renders its boot splash but application readiness was not observed within 120 seconds. AWS is a same-runtime display control only.",
+  "cleanup": "All three sessions requested their evidence ZIP before stop, purge=0, retain_flash=0; all stopped and released mutable flash. The parent-owned Device Service was not restarted or stopped."
+}

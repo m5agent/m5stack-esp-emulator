@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation_class": "virtual-device validation",
+  "issue": 224,
+  "runtime_sha256": "481228b0bd06ffbd9edd281a0631542559e3efc8cc0a17c0c53e2757d5e1ffa3",
+  "source": "https://github.com/7h30th3r0n3/Evil-M5Project/blob/0a11715f223ec2c6289a5dec3764397ddb3eb511/README.md",
+  "original_bin_unchanged": true,
+  "runs": [
+    {
+      "device": "atoms3r",
+      "source_sha256": "765d26d0dfcc98a09a0f19bcc62fbc95f5cffe4c55f45ce478e0a91da500538d",
+      "effective_flash_sha256": "765d26d0dfcc98a09a0f19bcc62fbc95f5cffe4c55f45ce478e0a91da500538d",
+      "observed_state": "running",
+      "stop_reason": null,
+      "evidence_zip_sha256": "4a0d56cd80102225137f6ef609cae4f577c304c106d5017c0a51bb053cc506dd",
+      "serial_json_sha256": "8af4eaf3f561e68a74ac5cca8a0067546ed662ef6d0d9234c3e9729bfcc9e37b",
+      "frame": {
+        "sha256": "7659100791b0b0d9d5707576f6d04cdae4e769ae4ba3034169540fe3990efae5",
+        "size": [
+          128,
+          128
+        ],
+        "colors": 1,
+        "nonblack": 0
+      },
+      "display_override": null
+    },
+    {
+      "device": "atoms3",
+      "source_sha256": "765d26d0dfcc98a09a0f19bcc62fbc95f5cffe4c55f45ce478e0a91da500538d",
+      "effective_flash_sha256": "765d26d0dfcc98a09a0f19bcc62fbc95f5cffe4c55f45ce478e0a91da500538d",
+      "observed_state": "running",
+      "stop_reason": null,
+      "evidence_zip_sha256": "06d06662e019b5bcf3b7571b495a5da5318e171317c8390585a1527a7543452b",
+      "serial_json_sha256": "0cf0b7bb2fceac9701cd0d4f6b9d7a740be9f28ec2b4b774b1a2bab3eb8bda86",
+      "frame": {
+        "sha256": "f15e87ee5141a01a44265ecc7ad6f0bcf27eab0aad4090b192e3626f9c9f67d2",
+        "size": [
+          128,
+          128
+        ],
+        "colors": 2,
+        "nonblack": 209
+      },
+      "display_override": "GC9107"
+    }
+  ],
+  "scope": "Frame-only board comparison, no offensive mode input, no RF/physical hardware or full application claim.",
+  "interpretation": "Historical source targets AtomS3. AtomS3R black frame and normal WAITI at 0x42092762 do not establish a PHY calibration spin; same BIN shows avatar pixels on original AtomS3."
+}
