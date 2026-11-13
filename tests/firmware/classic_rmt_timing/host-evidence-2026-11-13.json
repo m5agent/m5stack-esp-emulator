@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 221,
+  "validation_kind": "host C regression",
+  "status": "PASS",
+  "base_commit": "f864b7826e55ac6f6d9b77582f725b766ee24616",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0189-classic-rmt-symbol-timing.patch",
+    "sha256": "0adcf4bc2a48c7c4cf809737912f2d4b72ebf1544df84be7b6d2f267895ba2b4"
+  },
+  "source": {
+    "path": "hw/m5stopwatch/m5_rmt_classic.c",
+    "before_sha256": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
+    "after_sha256": "1faa7529e5ed29fb7b880a24f5b81ff71b1841a9353a3ab15ea50f1ded5e8b66"
+  },
+  "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+  "pre_fix_virtual_device": {
+    "evidence_zip_sha256": "fce42fa039297a1ab1cce8bd30cdc0fd6abd09287010dbf98becea706e948273",
+    "tx_completions": 8396,
+    "tx_symbols": 1074688,
+    "tx_threshold_events": 16792,
+    "tx_last_tick_hz": 40000000,
+    "result": "FAIL: every completed transfer has 128 symbols"
+  },
+  "firmware_timing": {
+    "compiled_cpu_hz": 240000000,
+    "source_hz": 80000000,
+    "divider": 2,
+    "symbol_ticks": 48,
+    "symbol_ns": 1200,
+    "threshold_symbols": 64,
+    "threshold_ns": 76800,
+    "max_refill_cycles": 27648,
+    "max_refill_ns": 115200
+  },
+  "positive_controls": [
+    "original-CCOUNT-guard-600-symbols-720us PASS",
+    "APB-REF-divider-zero-half-ns-zero-terminators PASS",
+    "76.8us-threshold-no-ACK-stall-live-wrap-refill PASS",
+    "late-callback-keeps-absolute-symbol-deadlines PASS",
+    "late-guest-ISR-still-truncates-negative PASS",
+    "nonwrapping-capacity-and-4096-capture-bound PASS",
+    "independent-channel-deadlines-and-reset-cancellation PASS"
+  ],
+  "original_model_negative_control": [
+    "original-CCOUNT-guard-1ms-negative-128-symbols PASS"
+  ],
+  "replay_forward_and_reverse": "PASS",
+  "affected_test_modules": {
+    "result": "PASS",
+    "tests": 12,
+    "modules": [
+      "test_classic_rmt_timing_patch",
+      "test_classic_atom_rmt_patch",
+      "test_bootstrap_unit_runtime_recipe",
+      "test_esp32_classic_rmt_patch"
+    ]
+  },
+  "post_fix_native_build": "NOT RUN in this host record; integration owner builds 0187 + 0188 + 0189",
+  "post_fix_same_bin_guest": "NOT RUN in this host record; requires dedicated Device Service original firmware run",
+  "full_platform_and_native_matrix": "NOT RUN in this host record; required integration gates",
+  "browser_wasm": "NOT RUN; pinned browser source is unchanged",
+  "physical_hardware": "NOT RUN",
+  "cleanup": "No guest or service created, stopped or modified by these host controls"
+}

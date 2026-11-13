@@ -1,0 +1,214 @@
+diff --git a/hw/m5stopwatch/m5_rmt_classic.c b/hw/m5stopwatch/m5_rmt_classic.c
+--- a/hw/m5stopwatch/m5_rmt_classic.c
++++ b/hw/m5stopwatch/m5_rmt_classic.c
+@@ -3,7 +3,8 @@
+  *
+  * This models the legacy IDF RMT driver data path used by UIFlow1 Neopixel
+  * initialization: memory-mode writes, TX threshold refill, TX completion IRQ
+- * and bounded symbol capture. It does not model GPIO waveform timing.
++ * and bounded symbol capture. Symbol deadlines follow the selected RMT clock;
++ * individual GPIO edges and electrical waveform behavior are not modeled.
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+@@ -52,8 +53,10 @@
+     uint32_t int_ena;
+     uint32_t int_raw;
+     uint32_t active_mask;
+-    uint32_t tx_wait_mask;
+     uint32_t tx_cursor[8], tx_count[8], tx_since_threshold[8];
++    uint32_t tx_current[8];
++    int64_t tx_deadline_ns[8];
++    uint8_t tx_half_ns[8];
+     uint32_t tx_frame[8][RMT_CLASSIC_MAX_TX_SYMBOLS];
+     uint64_t tx_symbols, tx_thresholds, tx_completions, tx_errors;
+     uint64_t tx_last_tick_hz;
+@@ -105,7 +108,6 @@
+     double tick_hz = classic_rmt_tick_hz(s, channel);
+ 
+     s->active_mask &= ~BIT(channel);
+-    s->tx_wait_mask &= ~BIT(channel);
+     s->regs[(RMT_CLASSIC_STATUS_CH0 + channel * 4) / 4] =
+         RMT_CLASSIC_STATUS_EMPTY;
+     if (error) {
+@@ -131,50 +133,94 @@
+     s->int_raw |= BIT(channel * 3);
+ }
+ 
+-static void classic_rmt_progress_tx(M5ClassicRmtState *s, unsigned channel)
++static int64_t classic_rmt_deadline(M5ClassicRmtState *s, unsigned channel)
++{
++    /* APB ticks are 12.5 ns. Retain the half nanosecond between symbols and
++     * round only the timer deadline, so repeated odd durations do not drift. */
++    return s->tx_deadline_ns[channel] + s->tx_half_ns[channel];
++}
++
++static void classic_rmt_load_symbol(M5ClassicRmtState *s, unsigned channel)
+ {
+     unsigned base = channel * RMT_CLASSIC_SYMBOLS_CH;
+     unsigned capacity = MIN(MAX((classic_rmt_conf0(s, channel) >> 24) & 0xf, 1U)
+         * RMT_CLASSIC_SYMBOLS_CH, ARRAY_SIZE(s->symbols) - base);
++    unsigned divider = classic_rmt_conf0(s, channel) & 0xff;
++    uint64_t half_ns;
++    uint32_t symbol;
++    unsigned first, second;
++
++    if (s->tx_cursor[channel] >= capacity) {
++        if (s->regs[RMT_CLASSIC_APB_CONF / 4] & BIT(1)) {
++            s->tx_cursor[channel] = 0;
++        } else {
++            classic_rmt_complete_tx(s, channel, false);
++            return;
++        }
++    }
++    symbol = s->symbols[base + s->tx_cursor[channel]++];
++    first = symbol & 0x7fff;
++    second = (symbol >> 16) & 0x7fff;
++    if (!first) { classic_rmt_complete_tx(s, channel, false); return; }
++    if (s->tx_count[channel] == RMT_CLASSIC_MAX_TX_SYMBOLS) {
++        classic_rmt_complete_tx(s, channel, true);
++        return;
++    }
++    s->tx_current[channel] = symbol;
++    half_ns = (uint64_t)(first + second) * (divider ? divider : 256U)
++        * ((classic_rmt_conf1(s, channel) & BIT(17)) ? 25U : 2000U)
++        + s->tx_half_ns[channel];
++    s->tx_deadline_ns[channel] += half_ns / 2;
++    s->tx_half_ns[channel] = half_ns & 1;
++}
++
++static void classic_rmt_progress_tx(M5ClassicRmtState *s, unsigned channel,
++                                    int64_t now)
++{
+     unsigned threshold = s->regs[(RMT_CLASSIC_TX_LIM_CH0 + channel * 4) / 4] & 0x1ff;
+     uint32_t event = BIT(RMT_CLASSIC_TX_THRESHOLD_BIT(channel));
+ 
+-    /* Pause at each enabled threshold until the guest ISR has acknowledged
+-     * it and refilled the consumed half of RMTMEM. Accumulate the entire
+-     * transaction so 25 RGB LEDs are not truncated to one 64-word block. */
+-    if (s->tx_wait_mask & BIT(channel)) {
+-        if (s->int_raw & event) { return; }
+-        s->tx_wait_mask &= ~BIT(channel);
+-    }
+-    while (s->active_mask & BIT(channel)) {
+-        if (s->tx_cursor[channel] >= capacity) {
+-            if (s->regs[RMT_CLASSIC_APB_CONF / 4] & BIT(1)) {
+-                s->tx_cursor[channel] = 0;
+-            } else {
+-                classic_rmt_complete_tx(s, channel, false);
+-                return;
+-            }
+-        }
+-        uint32_t symbol = s->symbols[base + s->tx_cursor[channel]++];
+-        unsigned first = symbol & 0x7fff, second = (symbol >> 16) & 0x7fff;
+-
+-        if (!first) { classic_rmt_complete_tx(s, channel, false); return; }
+-        if (s->tx_count[channel] == RMT_CLASSIC_MAX_TX_SYMBOLS) {
+-            classic_rmt_complete_tx(s, channel, true);
++    /* RMT continues transmitting while the threshold interrupt is pending.
++     * Read each next symbol only after the previous one has elapsed, so an
++     * ISR can refill consumed memory before hardware wraps around to it. */
++    while ((s->active_mask & BIT(channel))
++           && classic_rmt_deadline(s, channel) <= now) {
++        uint32_t symbol = s->tx_current[channel];
++
++        s->tx_frame[channel][s->tx_count[channel]++] = symbol;
++        s->tx_symbols++;
++        if (!((symbol >> 16) & 0x7fff)) {
++            classic_rmt_complete_tx(s, channel, false);
+             return;
+         }
+-        s->tx_frame[channel][s->tx_count[channel]++] = symbol;
+-        s->tx_symbols++;
+-        if (!second) { classic_rmt_complete_tx(s, channel, false); return; }
+         if (threshold && ++s->tx_since_threshold[channel] >= threshold) {
+             s->tx_since_threshold[channel] = 0;
+             s->tx_thresholds++;
+             s->int_raw |= event;
+-            if (s->int_ena & event) {
+-                s->tx_wait_mask |= BIT(channel);
+-                return;
++            if (s->trace) {
++                fprintf(stderr, "[rmt-classic] threshold channel=%u symbols=%u "
++                        "deadline_ns=%" PRId64 " now_ns=%" PRId64 "\n",
++                        channel, s->tx_count[channel],
++                        classic_rmt_deadline(s, channel), now);
+             }
+         }
++        classic_rmt_load_symbol(s, channel);
++    }
++}
++
++static void classic_rmt_schedule(M5ClassicRmtState *s)
++{
++    int64_t deadline = INT64_MAX;
++
++    for (unsigned channel = 0; channel < RMT_CLASSIC_CHANNELS; channel++) {
++        if (s->active_mask & BIT(channel)) {
++            deadline = MIN(deadline, classic_rmt_deadline(s, channel));
++        }
++    }
++    if (deadline != INT64_MAX) {
++        timer_mod(s->tx_timer, deadline);
++    } else {
++        timer_del(s->tx_timer);
+     }
+ }
+ 
+@@ -182,14 +228,13 @@
+ {
+     M5ClassicRmtState *s = opaque;
+     uint32_t active = s->active_mask;
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+ 
+     for (unsigned channel = 0; channel < RMT_CLASSIC_CHANNELS; channel++) {
+-        if (active & BIT(channel)) { classic_rmt_progress_tx(s, channel); }
++        if (active & BIT(channel)) { classic_rmt_progress_tx(s, channel, now); }
+     }
+     classic_rmt_update_irq(s);
+-    if (s->active_mask) {
+-        timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
+-    }
++    classic_rmt_schedule(s);
+ }
+ 
+ static uint64_t classic_rmt_read(void *opaque, hwaddr addr, unsigned size)
+@@ -250,10 +295,12 @@
+             s->tx_cursor[channel] = 0;
+             s->tx_count[channel] = 0;
+             s->tx_since_threshold[channel] = 0;
+-            s->tx_wait_mask &= ~BIT(channel);
++            s->tx_deadline_ns[channel] = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++            s->tx_half_ns[channel] = 0;
+             s->active_mask |= BIT(channel);
+-            timer_mod(s->tx_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++            classic_rmt_load_symbol(s, channel);
++            classic_rmt_schedule(s);
++            classic_rmt_update_irq(s);
+         }
+         return;
+     }
+@@ -281,10 +328,12 @@
+     s->int_ena = 0;
+     s->int_raw = 0;
+     s->active_mask = 0;
+-    s->tx_wait_mask = 0;
+     memset(s->tx_cursor, 0, sizeof(s->tx_cursor));
+     memset(s->tx_count, 0, sizeof(s->tx_count));
+     memset(s->tx_since_threshold, 0, sizeof(s->tx_since_threshold));
++    memset(s->tx_current, 0, sizeof(s->tx_current));
++    memset(s->tx_deadline_ns, 0, sizeof(s->tx_deadline_ns));
++    memset(s->tx_half_ns, 0, sizeof(s->tx_half_ns));
+     s->tx_symbols = s->tx_thresholds = s->tx_completions = s->tx_errors = 0;
+     s->tx_last_tick_hz = 0;
+     timer_del(s->tx_timer);
+@@ -321,7 +370,7 @@
+     object_property_add(obj, "tx-completions", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_completions);
+     object_property_add(obj, "tx-errors", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_errors);
+     object_property_add(obj, "tx-last-tick-hz", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_last_tick_hz);
+-    s->tx_timer = timer_new_ms(
++    s->tx_timer = timer_new_ns(
+         QEMU_CLOCK_VIRTUAL, classic_rmt_tx_timer, s
+     );
+ }

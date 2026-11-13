@@ -165,6 +165,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0186-spi-panel-read-cursor.patch",
     "patches/qemu-m5stack-peripherals/0187-spi-panel-frame-presentation.patch",
     "patches/qemu-m5stack-peripherals/0188-classic-wifi-rx-cursors.patch",
+    "patches/qemu-m5stack-peripherals/0189-classic-rmt-symbol-timing.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",
