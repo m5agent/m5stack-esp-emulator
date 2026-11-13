@@ -1560,3 +1560,19 @@ SPI attachments continue to carry the normal display data path.
 The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
 executes real classic GPIO and SPI MMIO controls. The original image's GPIO
 display probe and initial animation are covered in the same fixture's README.
+
+## Classic BR/EDR sleep and native timer interrupts (0200)
+
+`0200-classic-rwbt-sleep-clock-and-timers.patch` uses the ESP32 DPORT-selected
+low-power clock and virtual time for the BR/EDR sleep counter, wake and clock
+correction. Coherent native clock snapshots and the slot, fine and gross
+compare events share the corrected clock. Pending events use RWBT source 6
+through the interrupt mask and write-one-to-clear registers. Digital reset
+cancels pending timers and clears the clock and IRQ state.
+
+The [RWBT regression](../../tests/firmware/stickc_plus2_bt_lp_clock/README.md#bredr-sleep-native-clock-and-timer-interrupts)
+covers baseline and candidate MMIO, sleep clock selection and changes, timer
+wrap, mask, acknowledgement and source-6 delivery. The unchanged original
+reaches home with the default profile. Its separate `icount=auto` trial
+still has an IDLE0 task-watchdog reset. Pairing, HID report delivery and
+physical timing remain unverified.
