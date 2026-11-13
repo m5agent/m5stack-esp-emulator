@@ -13,7 +13,9 @@ def validate_serial(serial, mode):
  if mode == 'before':
   assert 'assert failed: xTaskPriorityDisinherit' in serial and 'touch_bus_shared=1' in serial, 'Negative control missed expected ownership assert'
  else:
-  assert 'assert failed:' not in serial, 'Patched probe asserted'
+  fatal_markers = ('assert failed:', 'guru meditation', 'abort() was called',
+                   'task watchdog got triggered', 'interrupt wdt timeout')
+  assert not any(marker in serial.casefold() for marker in fatal_markers), 'Patched probe reported a fatal guest error'
   assert serial.count('ESP-ROM:esp32c6') == 1, 'Unexpected guest reboot'
   assert 'touch_bus_shared=0' in serial and 'OWNER_RELEASE_OK' in serial
   for x,y in [(20,30),(100,180),(60,100)]:
