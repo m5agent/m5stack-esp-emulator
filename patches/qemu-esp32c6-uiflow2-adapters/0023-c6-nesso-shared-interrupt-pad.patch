@@ -1,0 +1,78 @@
+diff --git a/hw/misc/esp32c6_board_i2c.c b/hw/misc/esp32c6_board_i2c.c
+index 434fc03..4c67073 100644
+--- a/hw/misc/esp32c6_board_i2c.c
++++ b/hw/misc/esp32c6_board_i2c.c
+@@ -62,10 +62,23 @@ static uint8_t nesso_pi4ioe_input(C6BoardI2CDev *s)
+     return external & ~s->regs[0x03];
+ }
+ 
++static void nesso_shared_irq_update(void)
++{
++    C6BoardI2CDev *buttons = g_nesso_pi4ioe[0];
++    uint8_t pending = buttons ? buttons->regs[0x13] &
++                               ~buttons->regs[0x11] &
++                               ~buttons->regs[0x03] : 0;
++
++    /* SYS_IRQ is an active-low, shared open-drain pad. The board's 0x44
++     * expander is not wired here. BMI270 interrupt generation is unmodeled;
++     * combine only the touch and button sources that actually exist. */
++    esp32_gpio_force_line(3, !(g_touch_pressed || pending));
++}
++
+ static void nesso_pi4ioe_update_irq(C6BoardI2CDev *s)
+ {
+     if (s == g_nesso_pi4ioe[0]) {
+-        esp32_gpio_force_line(3, s->regs[0x13] == 0);
++        nesso_shared_irq_update();
+     }
+ }
+ 
+@@ -81,7 +94,7 @@ void esp32c6_ft_touch_set(int pressed, int x, int y)
+         g_ft->regs[0x05] = (y >> 8) & 0x0f;
+         g_ft->regs[0x06] = y & 0xff;
+     }
+-    esp32_gpio_force_line(3, !pressed);
++    nesso_shared_irq_update();
+ }
+ 
+ void esp32c6_pi4ioe_button_set(int button, bool pressed)
+@@ -98,7 +111,14 @@ void esp32c6_pi4ioe_button_set(int button, bool pressed)
+         g_buttons |= 1u << button;
+     }
+     if (g_nesso_pi4ioe[0] && old != g_buttons) {
+-        g_nesso_pi4ioe[0]->regs[0x13] |= old ^ g_buttons;
++        C6BoardI2CDev *s = g_nesso_pi4ioe[0];
++        /* DS40583: only an input's default-to-opposite transition latches
++         * status. A read clears it; a held pin does not immediately relatch.
++         * Masking suppresses the INT pad, not the status latch. */
++        uint8_t edge = (old ^ g_buttons) & (g_buttons ^ s->regs[0x09]) &
++                       ~s->regs[0x03];
++        s->regs[0x13] |= edge;
++        nesso_pi4ioe_update_irq(s);
+     }
+ }
+ 
+@@ -267,7 +287,15 @@ static int c6_i2c_send(I2CSlave *i2c, uint8_t data)
+         s->ptr++;
+         return 0;
+     }
++    uint8_t reg = s->ptr;
+     s->regs[s->ptr++] = data;
++    if (s->model == C6_DEV_PI4IOE &&
++        (reg == 0x03 || reg == 0x09 || reg == 0x11)) {
++        /* Configuration writes do not invent external input edges. Keep an
++         * existing status latched until read/reset; direction and mask gate
++         * the shared pad independently of that latch. */
++        nesso_pi4ioe_update_irq(s);
++    }
+     return 0;
+ }
+ 
+@@ -335,6 +363,7 @@ static void c6_i2c_realize(DeviceState *dev, Error **errp)
+         s->regs[0x0b] = 0xff;
+         if (s->parent_obj.address == 0x43) {
+             g_nesso_pi4ioe[0] = s;
++            nesso_shared_irq_update();
+         } else if (s->parent_obj.address == 0x44) {
+             g_nesso_pi4ioe[1] = s;
+         }
