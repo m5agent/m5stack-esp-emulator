@@ -32,6 +32,15 @@ compiled runtime have separate hashes in the summary. This validates the local
 configuration screen; it is not the final full-0192 runtime, configured Internet
 access, a cloud pairing result, or proof of every UI interaction.
 
+The final reviewed 0192 + 0193 runtime, SHA-256
+`33c0ec98b7576c22526deddf81519d8f0719efbfc5fb2221267e4d6bb83ffc58`,
+repeated the unchanged BIN through the checked-in runner. It reached the board
+marker at 65 seconds and the complete Wi-Fi configuration screen at the
+120-second sample. The same frame remained at 180 seconds, with one boot and
+zero watchdog/Guru markers. The ZIP was collected before `purge=0` stop and
+mutable Flash was released. The summary keeps the intermediate full-0192 run
+separate; it is not substituted for this final runtime result.
+
 Read-only LittleFS inspection of the original BIN found a valid filesystem
 with 35 files. Actual SPI Flash reads during initialization map to the original
 705,644-byte `/res/ding.wav` and UI resources. The audio/file was neither

@@ -93,3 +93,18 @@ orders, short frames, wrong routes and invalid symbols. This is host C evidence;
 same-BIN Device Service evidence is recorded separately in `rmt-led-summary.json`.
 The relative-duration decoder does not establish absolute electrical pulse
 tolerance, reset timing, physical LED brightness or RF behavior.
+
+## Combined native runtime regression
+
+`final-runtime-summary.json` records two further 130-second runs of the same
+original Atom Matrix BIN on the combined native runtime through reviewed 0192
+and 0193, SHA-256
+`33c0ec98b7576c22526deddf81519d8f0719efbfc5fb2221267e4d6bb83ffc58`.
+Both runs have one cold boot, no watchdog/Guru/abort markers, nonblack LED
+animation in all 65 samples, complete RMT-decoded frames, and modeled GPIO
+button edges from down/up input. Packet captures contain DHCP, DNS, TCP and
+the original HTTP 404 response. The factory HTTP assertion remains PARTIAL.
+Incomplete LED frames remain counted; they are not concealed by changing the
+guest's refill guard. Both ZIPs were captured before `purge=0` stop and mutable
+Flash was released. These original-firmware sessions do not replace the
+separate shared-runtime matrix or imply physical-hardware validation.
