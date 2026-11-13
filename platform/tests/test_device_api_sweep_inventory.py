@@ -36,6 +36,9 @@ class DeviceApiSweepInventoryTests(unittest.TestCase):
         self.assertEqual(actual, expected)
         self.assertEqual(len(actual), len(inventory["operations"]))
         self.assertEqual(inventory["contract_sha256"], hashlib.sha256(contract.read_bytes()).hexdigest())
+        version = re.search(r"^  version: ([0-9]+\.[0-9]+\.[0-9]+)$", contract.read_text(), re.MULTILINE)
+        self.assertIsNotNone(version)
+        self.assertEqual(inventory["contract_version"], version.group(1))
         cases = {row["case_id"]: row for row in inventory["safe_cases"]}
         self.assertEqual(len(cases), len(inventory["safe_cases"]))
         for operation in inventory["operations"]:

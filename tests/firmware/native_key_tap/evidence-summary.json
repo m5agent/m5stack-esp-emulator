@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "status": "PASS",
+  "validation_kind": "virtual-device validation",
+  "scope": "Independent Device Service automatic key taps on the original JIGGLER image, native default icount only",
+  "source": {
+    "base_commit": "f855a744277e6644d8d0bf2917a149eb95cc1a68",
+    "working_tree_changes": true,
+    "executed_source_sha256": {
+      "platform/tools/device_service.py": "1810a5001623a982129af1b6947b23b3c34deeb66671a1f400071977c5453c80",
+      "platform/tools/serve.py": "ae4de559a1b16028843866064215cfd041832382a3d20931f222351f194fe41b",
+      "tests/uiflow2/run_profile_ui_test.py": "6c002f1a6b4e7e14c5956d6af743d0da6415bbd7adc5f262e7886ac0cb91199a"
+    },
+    "source_hashes_unchanged_after_run": true
+  },
+  "runtime": {
+    "sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+    "profile": "m5stickcplus2",
+    "icount": "shift=5,align=off,sleep=off",
+    "thread": "single",
+    "percpu_budget_ns": 10000,
+    "observers_enabled": false,
+    "canonical_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "patches": 148,
+    "postimage_files": 147,
+    "source_receipt_sha256": "5f2beab349aa16bf2f538ae10deffb5dac27951e8e945dc7bf7ed6dfcb632fe1",
+    "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b"
+  },
+  "firmware": {
+    "original_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+    "initial_normalized_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+    "app_partitions": [
+      {
+        "offset": 65536,
+        "bytes": 3342336,
+        "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+        "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+        "unchanged": true
+      },
+      {
+        "offset": 3407872,
+        "bytes": 3342336,
+        "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+        "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+        "unchanged": true
+      }
+    ]
+  },
+  "observation": {
+    "host_seconds": 100.05615120893344,
+    "home_seen_host_seconds": 47.542,
+    "inputs": [
+      {
+        "host_seconds": 0.335223,
+        "input": "keydown:c",
+        "action": "down"
+      },
+      {
+        "host_seconds": 2.030829,
+        "input": "keyup:c",
+        "action": "up"
+      },
+      {
+        "host_seconds": 47.542408,
+        "input": "key:b",
+        "action": "tap",
+        "timing": {
+          "clock": "virtual",
+          "hold_seconds": 0.1,
+          "hold_time_ms": 100,
+          "completion": "queued"
+        }
+      },
+      {
+        "host_seconds": 62.595177,
+        "input": "key:a",
+        "action": "tap",
+        "timing": {
+          "clock": "virtual",
+          "hold_seconds": 0.1,
+          "hold_time_ms": 100,
+          "completion": "queued"
+        }
+      },
+      {
+        "host_seconds": 77.601235,
+        "input": "key:b",
+        "action": "tap",
+        "timing": {
+          "clock": "virtual",
+          "hold_seconds": 2.0,
+          "hold_time_ms": 2000,
+          "completion": "queued"
+        }
+      }
+    ],
+    "frames": [
+      {
+        "observed_host_seconds": 47.542,
+        "frame_sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+        "frame_size": [
+          135,
+          240
+        ],
+        "visual_review": "PASS",
+        "visible_state": "Original home screen"
+      },
+      {
+        "observed_host_seconds": 55.053,
+        "frame_sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c",
+        "frame_size": [
+          135,
+          240
+        ],
+        "visual_review": "PASS",
+        "visible_state": "B short tap: mouse-not-ready message"
+      },
+      {
+        "observed_host_seconds": 70.082,
+        "frame_sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695",
+        "frame_size": [
+          135,
+          240
+        ],
+        "visual_review": "PASS",
+        "visible_state": "A short tap: paused state"
+      },
+      {
+        "observed_host_seconds": 95.101,
+        "frame_sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39",
+        "frame_size": [
+          135,
+          240
+        ],
+        "visual_review": "PASS",
+        "visible_state": "B long tap: settings menu"
+      }
+    ],
+    "watchdog_panics": 0,
+    "task_watchdog_panics": 0,
+    "reboots": 0,
+    "fatal_signatures_in_final_zip_serial": false,
+    "watchdog_disabled": [
+      false,
+      false
+    ]
+  },
+  "evidence": {
+    "zip_sha256": "48df736f9b2ad49106ca81cf89e886de4d64f5a39d2b7bf0b85f9f60b393a632",
+    "zip_before_stop": true,
+    "zip_manifest_guest_state": "running",
+    "final_zip_serial_sha256": "0e4014e65d1172b8abbda38ef47b4130bc24abdebd741bcdc07a321ca09e5239",
+    "raw_summary_sha256": "45031aa6f61e92598c336b0f02bfc8ccbe91f2cde555497fb013880627c44c16",
+    "cleanup_review_sha256": "add1ff6ef98fe3e0e3b7bca3e5cb90711b9e0c3f380031d206cc707c738ad986",
+    "independent_visual_review_sha256": "a64addcaf3f7715e95f8bd924c8372f982d799db04cb001eaf491b61670af168"
+  },
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "lease_active": false,
+    "active_sessions": 0,
+    "active_leases": 0,
+    "owned_guest_pid_gone": true,
+    "owned_service_stopped": true
+  },
+  "retained_observation_limits": [
+    "Initial local runner import failed before any guest because its Pillow dependency path was omitted; the log is retained.",
+    "The private summary initially inspected absent top-level lease_active. An additive review binds terminal worker.lease_active=false and capacity active_lease_count=0; the raw summary is unchanged.",
+    "QMP timing is submitted in guest milliseconds. This uninstrumented run verifies application effects, not separate cycle-level hold measurements.",
+    "Queued means submitted, not completed. Explicit key edges and system_reset do not cancel queued taps; stopping the owned VM destroys its queue.",
+    "Managed Preview default taps retain synchronous host timing and reject explicit key hold_seconds. NanoC6 GPIO taps retain their legacy host timing.",
+    "Pointer/touch/drag timing, browser-WASM input, physical button timing, Bluetooth HID delivery and RF were not validated by this run.",
+    "The separate original JIGGLER icount=auto watchdog failure remains unresolved by this key-tap change."
+  ]
+}
