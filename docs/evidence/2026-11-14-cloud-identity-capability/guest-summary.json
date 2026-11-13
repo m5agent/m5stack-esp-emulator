@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "kind": "redacted-device-service-capability-followup",
+  "validation": "virtual-device validation",
+  "overall": "PARTIAL",
+  "source_commit": "3a4408e4a1f26c0c8ad3ff07dae1ac8149a50384",
+  "site_manifest_sha256": "c9a3b79f45fdfeac7a4a8eb1eda1b521bea7a35a9da5538b1e35f52199cb0ca8",
+  "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+  "execution_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+  "device": "cores3",
+  "authorized_identity": {
+    "ui_acceptance": "PASS",
+    "long_connection_stability": "FAIL",
+    "observation_seconds": 195,
+    "checks": {
+      "candidate_service_identity_verified": true,
+      "candidate_source_bytes_verified": true,
+      "live_identity_capability_verified": true,
+      "original_idempotent_request_bound": true,
+      "explicit_ui_mac_matches_authorized": true,
+      "identity_not_saved_in_browser": true,
+      "observed_requested_interval": true,
+      "original_bin_bytes_verified": true,
+      "efuse_matches_authorized": true,
+      "session_identity_matches_authorized": true,
+      "explicit_mac_receipt_source": true,
+      "evidence_zip_manifest_valid": true,
+      "no_error_banner_at_capture": true,
+      "runtime_status_matches_live_guest": true,
+      "real_conditional_frame_path_exercised": true,
+      "no_api_network_failures": true,
+      "no_api_http_errors": true,
+      "no_error_banner_during_run": true,
+      "no_runtime_error_events": true,
+      "real_pairing_code_received": true,
+      "cloud_device_registered": true,
+      "websocket_queries_match_authorized": true,
+      "business_identity_rejection_zero": true,
+      "independent_pairing_and_webrepl_dom": true,
+      "heartbeat_dom_keeps_execution_unverified": true,
+      "no_page_errors": true,
+      "registered_disconnect_reconnect_observed": true,
+      "stopped_page_shows_last_observation": true,
+      "owned_guest_stopped_and_flash_released": true,
+      "evidence_before_stop": true,
+      "no_active_guests_after_cleanup": true,
+      "prior_history_preserved": true,
+      "owned_history_retained": true,
+      "same_worker_and_no_active_leases": true,
+      "owned_guest_process_reaped": true,
+      "browser_closed": true
+    },
+    "network_phases": {
+      "phases": {
+        "setup": {
+          "api_http_errors": 1,
+          "api_network_failures": 0,
+          "http_401": 1,
+          "http_409": 0
+        },
+        "runtime": {
+          "api_http_errors": 0,
+          "api_network_failures": 0,
+          "http_401": 0,
+          "http_409": 0
+        },
+        "cleanup": {
+          "api_http_errors": 0,
+          "api_network_failures": 0,
+          "http_401": 0,
+          "http_409": 0
+        }
+      },
+      "runtime_api_http_errors": 0,
+      "runtime_api_network_failures": 0,
+      "runtime_frame_304": 5847,
+      "setup_auth_401": 1,
+      "cleanup_owned_stop_frame_409": 0,
+      "cross_phase_responses": 0
+    },
+    "evidence": {
+      "evidence_manifest_valid": true,
+      "evidence_manifest_files": 10,
+      "evidence_zip_sha256": "0db58cd3ce7e454d783d5072407510a21d090d8a0081873d8a1dc9841c2aa6a9",
+      "frame_sha256": "473119ece13e87896cf054a63525e1003aeb811236398e83d3a33fc07d9f362d",
+      "frame_dimensions": [
+        320,
+        240
+      ],
+      "evidence_session_running": true,
+      "original_firmware_matches": true,
+      "normalized_firmware_matches": true,
+      "no_pong_count": 1
+    }
+  },
+  "default_identity": {
+    "default_identity_ui_acceptance": "PASS",
+    "observation_seconds": 45,
+    "cloud_binding": "NOT BOUND (cloud business rejection observed)",
+    "cloud_sustained": "NOT RUN (short unbound-identity observation)",
+    "checks": {
+      "candidate_source_and_service_pins": true,
+      "exact_default_key_post_and_persistent_receipt": true,
+      "observed_45_seconds": true,
+      "efuse_receipt_matches_resolved": true,
+      "actual_guest_runtime_matches": true,
+      "original_firmware_bytes_and_execution_match": true,
+      "actual_nic_efuse_packet_and_websocket_identity_match": true,
+      "real_pairing_code_received": true,
+      "unbound_cloud_identity_reported_truthfully": true,
+      "separate_pairing_and_unbound_ui": true,
+      "no_browser_identity_persistence": true,
+      "ui_running_and_no_error": true,
+      "no_page_errors": true,
+      "original_running_zip_valid": true,
+      "no_runtime_network_errors": true,
+      "frame_conditional_path_exercised": true,
+      "stopped_ui_marks_last_observation": true,
+      "owned_stopped_flash_released": true,
+      "evidence_before_stop": true,
+      "prior_history_preserved": true,
+      "owned_history_retained": true,
+      "worker_unchanged_and_idle": true,
+      "owned_guest_process_reaped": true,
+      "browser_identity_unchanged": true,
+      "browser_closed": true,
+      "owned_browser_processes_reaped": true,
+      "runtime_network_final_check_no_late_errors": true
+    },
+    "network_phases": {
+      "phases": {
+        "setup": {
+          "api_http_errors": 1,
+          "api_network_failures": 0,
+          "http_401": 1,
+          "http_409": 0
+        },
+        "runtime": {
+          "api_http_errors": 0,
+          "api_network_failures": 0,
+          "http_401": 0,
+          "http_409": 0
+        },
+        "cleanup": {
+          "api_http_errors": 0,
+          "api_network_failures": 0,
+          "http_401": 0,
+          "http_409": 0
+        }
+      },
+      "runtime_api_http_errors": 0,
+      "runtime_api_network_failures": 0,
+      "runtime_frame_304": 1176,
+      "setup_auth_401": 1,
+      "cleanup_owned_stop_frame_409": 0,
+      "cross_phase_responses": 0
+    },
+    "evidence": {
+      "evidence_manifest_valid": true,
+      "evidence_manifest_files": 10,
+      "evidence_zip_sha256": "49fcb155c100c01e1c1fd94cdc8a2d1a98864949948544db3bd919578db750a0",
+      "frame_sha256": "001aaa05df75c48f96356a474f0439778d71114669d6fc64569ffcce22f7939a",
+      "frame_dimensions": [
+        320,
+        240
+      ],
+      "evidence_session_running": true,
+      "original_firmware_matches": true,
+      "normalized_firmware_matches": true,
+      "no_pong_count": 0
+    },
+    "browser_before": {
+      "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+      "version": "157.0.8103.52"
+    },
+    "browser_after": {
+      "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+      "version": "157.0.8103.52"
+    }
+  },
+  "authorized_protocol": {
+    "identity_rejections": 0,
+    "registered_then_disconnect_then_reconnect": true,
+    "protocol_ping_sent_total": 6,
+    "protocol_pong_received_total": 0,
+    "heartbeat_roundtrips_total": 7
+  },
+  "default_protocol": {
+    "pairing": {
+      "state": "code_received"
+    },
+    "webrepl": {
+      "state": "identity_rejected",
+      "reason": "mac_not_bound",
+      "handshakes": 13,
+      "disconnects": 13,
+      "device_registered": false,
+      "heartbeat_roundtrips": 0,
+      "protocol_ping_sent": 0,
+      "protocol_pong_received": 0,
+      "protocol_ping_without_pong_count": 0
+    },
+    "same_identity_in_actual_nic_efuse_ethernet_and_websocket": true
+  },
+  "authorized_browser_provenance": {
+    "desktop_chrome_selected": true,
+    "version": "NOT CAPTURED",
+    "executable_sha256": "NOT CAPTURED"
+  },
+  "source_files": {
+    "platform/tools/device_service.py": "a8bae36f406bda32fa93b9115aa69ddab757dca23f5c5a83f53d5f6e0de918cb",
+    "platform/tools/device_service_identity.py": "7c0716b3ea0acf70bc9c79673c58a7e12ebcd7a0550786bb0e6c2e8e2fa9f68b",
+    "platform/tools/uiflow_cloud_status.py": "c4fa57f403fb4750fbceddb1027fe0fbedba55ebb7a831f9c6e04079630926f1",
+    "platform/web/public-service.js": "e9b25d59933ed9556f3ee15e98a33b75e7638bb8a2af34ce1da8941a3dac4102",
+    "platform/web/public-session-controller.js": "46ae95b5ea867dd073d7b25fe79668aba3ba767a7c36acbfc35a0edbe43bc07a",
+    "platform/web/public.js": "6cf375b5e648f0f6ed468c845b2d27bacf922ce271f116942c59301b2aee6d7b",
+    "platform/web/public-coi-serviceworker.js": "3edac3f984d6a099d3737d7ff37d39a1465a5651c9184004eb66ae90409e3d3d",
+    "platform/web/uiflow-cloud-status.js": "f973f71023d4cf9f61310a26cf1f9d356bf5ed0d86ba7cbb66af297e50f70604",
+    "platform/tools/serve.py": "1692b33e9626c73e71e69ae343d4d84bdd9615d1d973f77f7284515399297942"
+  },
+  "raw_sha256": {
+    "authorized_summary": "b3c2d53ffd8bd6db8050049c9b8f1dffd24996585bb0927c69277a32f3bd7696",
+    "authorized_independent_audit": "774b5d703cc5c0694dce3b781de31d4f3f5313b9996e06320038ae0d12a4ef4b",
+    "default_summary": "af8076c3f79ffba0b1e58506fe1c438eb8ba6272d59e8838e4b2949c224c05a7",
+    "default_independent_audit": "c4444424281f6133e412e3f2758f249af37143c6a0332ce24f5c4a5dcc88a468"
+  },
+  "raw_artifacts": "Private; identity values, pairing codes, credentials, endpoints and session IDs excluded",
+  "hardware": "NOT RUN",
+  "browser_wasm_cloud": "NOT RUN",
+  "remote_code_execution": "NOT VERIFIED",
+  "resident_deployment": "NOT RUN for this source",
+  "pages_publication": "NOT RUN for this source",
+  "burner_submitted": false
+}

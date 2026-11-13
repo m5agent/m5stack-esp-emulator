@@ -13,6 +13,8 @@
 
 [2026-11-14 UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md)分开记录真实配对码、云端身份拒绝、授权身份及协议 PONG 超时；稳定身份不替代云端绑定。
 
+[2026-11-14 云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md)记录旧服务兼容性、真实网页默认身份与授权身份、观察器失败及独立复测。
+
 [2026-11-14 Tab5 稳定后端原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)保留两份原 BIN 在 v1.0.0 的旧 P4 CSR 故障；Maker Fighter 未到 USB 阶段，不据断言消失判修复。
 
 [2026-11-14 C6 普通 GPIO 中断设计](plans/2026-11-14-c6-gpio-irq-design.md)限定 source 30、共享 pad 与实际 ISR 验证路径；设计和 host 控制不代表 guest 已通过。
@@ -359,6 +361,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md) | 日期化协议诊断与身份验证 | `2026-11-14` | 区分配对码、身份拒绝、持久身份及云端 control Pong 缺失；不授长期连接通过 |
+| [云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md) | 日期化兼容性与网页验收 | `2026-11-14` | 默认与授权身份路径、真实旧服务控制及观察器失败；云端长连接仍 FAIL |
 | [UIFlow2 原版启动与云端配对](plans/2026-11-13-uiflow-cloud-startup.md) | 实施计划 | `2026-11-13` | 官方启动与本地编程分流；真实网络、NVS 与配对屏幕独立验收，保留浏览器网络边界 |
 | [C6 普通 GPIO 中断设计](plans/2026-11-14-c6-gpio-irq-design.md) | 实施计划 | `2026-11-14` | source 30、raw pending/CPU mask 与共享 pad；host 控制已完成，独立 IDF/UIFlow guest 验收待执行 |
 | [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |

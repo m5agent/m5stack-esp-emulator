@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "host-only HTTP and exact Service Worker; guest NOT RUN",
+  "worker_sha256": "3edac3f984d6a099d3737d7ff37d39a1465a5651c9184004eb66ae90409e3d3d",
+  "raw_summary_sha256": "009cb32146e19f635e36df878d330a34ae6472f232c05b792e7b53fe806bdaad",
+  "combinations_per_browser": 8,
+  "fetches_per_combination": 12,
+  "results": {
+    "bundled": {
+      "version": "156.0.8078.4",
+      "executable_sha256": "c8509aee32abd6977968e9999769980b7a420dea05402d90042d9e5b41db15ef",
+      "js_304_success": 96,
+      "js_failures": 0,
+      "request_failed": 96
+    },
+    "chrome": {
+      "version": "157.0.8103.52",
+      "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+      "js_304_success": 96,
+      "js_failures": 0,
+      "request_failed": 0
+    }
+  },
+  "browser_closed": true,
+  "fixture_server_closed": true,
+  "earlier_default_run": {
+    "overall": "FAIL (observer result preserved)",
+    "summary_sha256": "02c007e7b04870dc8127840e84fb23f86222fd18a550a61c41171a49e349d416",
+    "runtime_request_failed": 1172,
+    "runtime_frame_304": 1172,
+    "ui_and_identity_checks_passed": true
+  },
+  "authorized_attempts": [
+    {
+      "result": "FAIL before guest",
+      "reason": "COI reload occurred before authentication form entry; fixed document readiness wait",
+      "guest_started": false
+    },
+    {
+      "result": "FAIL (original harness result preserved)",
+      "reason": "pre-authentication setup 401 incorrectly counted as runtime HTTP error",
+      "summary_sha256": "7af8a49a5bc201a8fa70babf7361bb76d4fc83ca2c19425b79fff1a3972266ab"
+    },
+    {
+      "result": "PARTIAL; UI and identity PASS, cloud sustained FAIL",
+      "summary_sha256": "b3c2d53ffd8bd6db8050049c9b8f1dffd24996585bb0927c69277a32f3bd7696"
+    }
+  ]
+}
