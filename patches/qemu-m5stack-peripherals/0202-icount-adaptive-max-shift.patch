@@ -444,7 +444,75 @@ diff --git a/qemu-options.hx b/qemu-options.hx
 diff --git a/system/cpu-timers.c b/system/cpu-timers.c
 --- a/system/cpu-timers.c
 +++ b/system/cpu-timers.c
-@@ -146,85 +146,99 @@
+@@ -1,66 +1,67 @@
+ /*
+  * QEMU System Emulator
+  *
+  * Copyright (c) 2003-2008 Fabrice Bellard
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in
+  * all copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  * THE SOFTWARE.
+  */
+ 
+ #include "qemu/osdep.h"
+ #include "qemu/cutils.h"
++#include "migration/qemu-file-types.h"
+ #include "migration/vmstate.h"
+ #include "qapi/error.h"
+ #include "qemu/error-report.h"
+ #include "sysemu/cpus.h"
+ #include "qemu/main-loop.h"
+ #include "qemu/option.h"
+ #include "qemu/seqlock.h"
+ #include "sysemu/replay.h"
+ #include "sysemu/runstate.h"
+ #include "hw/core/cpu.h"
+ #include "sysemu/cpu-timers.h"
+ #include "sysemu/cpu-timers-internal.h"
+ 
+ /* clock and ticks */
+ 
+ static int64_t cpu_get_ticks_locked(void)
+ {
+     int64_t ticks = timers_state.cpu_ticks_offset;
+     if (timers_state.cpu_ticks_enabled) {
+         ticks += cpu_get_host_ticks();
+     }
+ 
+     if (timers_state.cpu_ticks_prev > ticks) {
+         /* Non increasing ticks may happen if the host uses software suspend. */
+         timers_state.cpu_ticks_offset += timers_state.cpu_ticks_prev - ticks;
+         ticks = timers_state.cpu_ticks_prev;
+     }
+ 
+     timers_state.cpu_ticks_prev = ticks;
+     return ticks;
+ }
+ 
+ /*
+  * return the time elapsed in VM between vm_start and vm_stop.
+  * cpu_get_ticks() uses units of the host CPU cycle counter.
+  */
+ int64_t cpu_get_ticks(void)
+ {
+     int64_t ticks;
+ 
+@@ -146,87 +147,124 @@
  }
  
  static bool adjust_timers_state_needed(void *opaque)
@@ -485,27 +553,51 @@ diff --git a/system/cpu-timers.c b/system/cpu-timers.c
      }
  };
  
-+static int icount_shift_post_load(void *opaque, int version_id)
++static int icount_shift_get(QEMUFile *f, void *pv, size_t size,
++                            const VMStateField *field)
 +{
-+    TimersState *s = opaque;
++    int16_t *value = pv;
++    TimersState *s = container_of(value, TimersState, icount_time_shift);
++    int16_t shift;
++    int ret = vmstate_info_int16.get(f, &shift, size, field);
 +
-+    if (s->icount_shift_limited &&
-+        (s->icount_time_shift < 0 || s->icount_time_shift > s->icount_max_shift)) {
++    if (ret < 0) {
++        return ret;
++    }
++    ret = qemu_file_get_error(f);
++    if (ret < 0) {
++        return ret;
++    }
++    if (s->icount_shift_limited && (shift < 0 || shift > s->icount_max_shift)) {
 +        error_report("incoming icount shift %d is outside local max-shift 0..%d",
-+                     s->icount_time_shift, s->icount_max_shift);
++                     shift, s->icount_max_shift);
 +        return -EINVAL;
 +    }
++    *value = shift;
 +    return 0;
 +}
++
++static int icount_shift_put(QEMUFile *f, void *pv, size_t size,
++                            const VMStateField *field, JSONWriter *vmdesc)
++{
++    return vmstate_info_int16.put(f, pv, size, field, vmdesc);
++}
++
++static const VMStateInfo vmstate_info_icount_shift = {
++    .name = "int16",
++    .get = icount_shift_get,
++    .put = icount_shift_put,
++};
 +
  static const VMStateDescription icount_vmstate_shift = {
      .name = "timer/icount/shift",
      .version_id = 2,
      .minimum_version_id = 2,
      .needed = icount_shift_state_needed,
-+    .post_load = icount_shift_post_load,
      .fields = (const VMStateField[]) {
-         VMSTATE_INT16(icount_time_shift, TimersState),
+-        VMSTATE_INT16(icount_time_shift, TimersState),
++        VMSTATE_SINGLE(icount_time_shift, TimersState, 0,
++                       vmstate_info_icount_shift, int16_t),
          VMSTATE_INT64(last_delta, TimersState),
          VMSTATE_END_OF_LIST()
      }
@@ -544,6 +636,8 @@ diff --git a/system/cpu-timers.c b/system/cpu-timers.c
      },
      .subsections = (const VMStateDescription * const []) {
          &icount_vmstate_timers,
+         NULL
+     }
 diff --git a/system/vl.c b/system/vl.c
 --- a/system/vl.c
 +++ b/system/vl.c

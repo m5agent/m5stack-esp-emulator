@@ -16,6 +16,7 @@ PREAMBLE = r"""
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +26,7 @@ PREAMBLE = r"""
 #define MAX_ICOUNT_SHIFT 10
 #define QEMU_CLOCK_VIRTUAL 1
 #define QEMU_CLOCK_VIRTUAL_RT 2
+#define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define qatomic_set(target, value) (*(target) = (value))
 #define qatomic_set_i64(target, value) qatomic_set(target, value)
@@ -32,6 +34,40 @@ PREAMBLE = r"""
 
 typedef struct { int unused; } Error;
 typedef struct { int unused; } QEMUTimer;
+typedef struct { uint8_t bytes[2]; size_t size; int error; } QEMUFile;
+typedef struct { int unused; } VMStateField;
+typedef struct { int unused; } JSONWriter;
+typedef struct {
+    const char *name;
+    int (*get)(QEMUFile *, void *, size_t, const VMStateField *);
+    int (*put)(QEMUFile *, void *, size_t, const VMStateField *, JSONWriter *);
+} VMStateInfo;
+
+static int get_int16(QEMUFile *f, void *pv, size_t size, const VMStateField *field)
+{
+    if (f->size != 2) {
+        f->error = -EIO;
+        *(int16_t *)pv = 0;
+        return 0;
+    }
+    *(int16_t *)pv = (uint16_t)((f->bytes[0] << 8) | f->bytes[1]);
+    return 0;
+}
+
+static int put_int16(QEMUFile *f, void *pv, size_t size,
+                     const VMStateField *field, JSONWriter *vmdesc)
+{
+    uint16_t value = *(int16_t *)pv;
+    f->bytes[0] = value >> 8;
+    f->bytes[1] = value;
+    f->size = 2;
+    return 0;
+}
+
+static const VMStateInfo vmstate_info_int16 = {
+    .name = "int16", .get = get_int16, .put = put_int16,
+};
+static int qemu_file_get_error(QEMUFile *f) { return f->error; }
 typedef struct {
     const char *shift, *max_shift, *rr;
     bool align, sleep;
@@ -133,6 +169,15 @@ static void adjust(bool behind)
     assert(icount_get_locked() == previous);
 }
 
+static void load_shift(uint8_t high, uint8_t low, size_t bytes, int expected,
+                       int16_t expected_current)
+{
+    QEMUFile input = {.bytes = {high, low}, .size = bytes};
+    assert(icount_shift_get(&input, &timers_state.icount_time_shift,
+                            sizeof(timers_state.icount_time_shift), NULL) == expected);
+    assert(timers_state.icount_time_shift == expected_current);
+}
+
 int main(void)
 {
     configure("5", NULL, false, false, NULL, true);
@@ -159,7 +204,7 @@ int main(void)
         adjust(true);
     }
     assert(timers_state.icount_time_shift == 10);
-    assert(icount_shift_post_load(&timers_state, 2) == 0);
+    load_shift(0, 8, 2, 0, 8);
 
     configure("auto", "5", false, true, NULL, true);
     assert(timers_state.icount_shift_limited && timers_state.icount_max_shift == 5);
@@ -170,15 +215,19 @@ int main(void)
     adjust(true);
     adjust(true);
     assert(timers_state.icount_time_shift == 5);
-    assert(icount_shift_post_load(&timers_state, 2) == 0);
+    load_shift(0, 5, 2, 0, 5);
     adjust(false);
     assert(timers_state.icount_time_shift == 4);
-    timers_state.icount_time_shift = 6;
-    assert(icount_shift_post_load(&timers_state, 2) == -EINVAL);
-    timers_state.icount_time_shift = -1;
-    assert(icount_shift_post_load(&timers_state, 2) == -EINVAL);
-    timers_state.icount_time_shift = 0;
-    assert(icount_shift_post_load(&timers_state, 2) == 0);
+    load_shift(0, 6, 2, -EINVAL, 4);
+    load_shift(0, 11, 2, -EINVAL, 4);
+    load_shift(0xff, 0xff, 2, -EINVAL, 4);
+    load_shift(0, 0, 1, -EIO, 4);
+    load_shift(0, 0, 0, -EIO, 4);
+    QEMUFile output = {0};
+    assert(icount_shift_put(&output, &timers_state.icount_time_shift,
+                            sizeof(timers_state.icount_time_shift), NULL, NULL) == 0);
+    assert(output.size == 2 && output.bytes[0] == 0 && output.bytes[1] == 4);
+    load_shift(0, 0, 2, 0, 0);
 
     configure("auto", "0", false, true, NULL, true);
     assert(timers_state.icount_time_shift == 0);
@@ -195,7 +244,7 @@ int main(void)
 
 
 class AdaptiveMaxShiftPatchTests(unittest.TestCase):
-    def test_actual_configuration_adjustment_and_post_load(self):
+    def test_actual_configuration_adjustment_and_shift_wire_codec(self):
         compiler = shutil.which("cc")
         if not compiler:
             self.skipTest("host C compiler unavailable")
@@ -205,7 +254,8 @@ class AdaptiveMaxShiftPatchTests(unittest.TestCase):
             "#define ICOUNT_WOBBLE (NANOSECONDS_PER_SECOND / 10)",
             extract_function(icount, "static void icount_adjust(void)"),
             extract_function(icount, "bool icount_configure("),
-            extract_function(state, "static int icount_shift_post_load("),
+            extract_function(state, "static int icount_shift_get("),
+            extract_function(state, "static int icount_shift_put("),
         ]
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary) / "icount.c"
@@ -225,6 +275,7 @@ class AdaptiveMaxShiftPatchTests(unittest.TestCase):
         self.assertIn('qemu_opt_get(icount_opts, "rr")', cli[replay_guard:replay_config])
         self.assertIn("exit(1);", cli[replay_guard:replay_config])
         state = fragment(PATCH, "system/cpu-timers.c")
-        self.assertIn(".post_load = icount_shift_post_load,", state)
-        self.assertIn("VMSTATE_INT16(icount_time_shift, TimersState)", state)
-        self.assertNotIn("VMSTATE_INT16(icount_max_shift", state)
+        self.assertIn('    .name = "int16",', state)
+        self.assertIn("VMSTATE_SINGLE(icount_time_shift, TimersState, 0,", state)
+        self.assertIn("vmstate_info_icount_shift, int16_t)", state)
+        self.assertNotIn("VMSTATE_SINGLE(icount_max_shift", state)
