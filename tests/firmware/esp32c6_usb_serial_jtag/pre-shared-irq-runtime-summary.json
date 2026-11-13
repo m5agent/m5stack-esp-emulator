@@ -1,0 +1,1030 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "observation_time_basis": "Host monotonic seconds; not a guest-clock speed or physical performance measurement",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "scope": "Final native C6 controller controls and selected original firmware on the production Device Service launch path; not resident deployment, complete radio support, or physical hardware",
+  "runtime": {
+    "sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+    "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+    "native_recipe_commit": "3dcc0dad339b7d453bc81996dbdff6737229d33a",
+    "canonical_qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+    "patch_count": 24,
+    "patch_order": [
+      "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0002-nanoc6-board-isolation-gpio.patch",
+      "patches/qemu-m5stack-peripherals/0016-gigadevice-status2-qio.patch",
+      "patches/qemu-m5stack-peripherals/0017-issi-status2-qio.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0003-modem-syscon-clock-bits.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0004-user-firmware-hot-samples.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0005-c6-uart-timeout-registers.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0010-c6-sx1262-hardware-spi.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0011-c6-isolated-wifi-presence.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0012-c6-ble-aes-dma.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0013-c6-lpperi-rng.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0014-c6-nesso-panel-madctl.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0015-c6-spi2-data-length.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0017-c6-mwdt-pcr-clock.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0018-c6-wifi-tsf-counter.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0019-c6-efuse-lp-subregion.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0020-c6-usb-serial-jtag-endpoints.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0021-c6-efuse-unprovisioned-defaults.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0022-c6-usb-serial-jtag-host-timing.patch"
+    ],
+    "patches": {
+      "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch": "3e1e0468d183c9aac066676875df2d693cf4dfebdf7898e36c75d5d7a772613b",
+      "patches/qemu-esp32c6-uiflow2-adapters/0002-nanoc6-board-isolation-gpio.patch": "e2a3d74ecf58cb77e69a0f4175b64372fe474abe2921fcba2ffbcf9406ebafcc",
+      "patches/qemu-m5stack-peripherals/0016-gigadevice-status2-qio.patch": "4b87d2bbff5a9f9a5591d20d8156163006ca6de9747198f6db66dc2b8b6cc38f",
+      "patches/qemu-m5stack-peripherals/0017-issi-status2-qio.patch": "d425608c5c000899e11a1a42e67deec86d03578f3b6fb310baf233f0b4770ff3",
+      "patches/qemu-esp32c6-uiflow2-adapters/0003-modem-syscon-clock-bits.patch": "3babbc51fea5bf08e996a613bad4ebc6f6c9a4fe42c5b25964da4a5eebd72b63",
+      "patches/qemu-esp32c6-uiflow2-adapters/0004-user-firmware-hot-samples.patch": "f61ef69c255391239298cd78eefb73cd6e2922cd78d595f79e552ec98c1abc49",
+      "patches/qemu-esp32c6-uiflow2-adapters/0005-c6-uart-timeout-registers.patch": "f52c023b07abc14b81694b2db328a650aa2ab8c754590378de967f06cbc71624",
+      "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch": "bd40fedbd604e11ebd081002a03d2d4f141b252cb881932519f54efbb4520a53",
+      "patches/qemu-esp32c6-uiflow2-adapters/0007-wifi-context.patch": "91b93e7876809258a55aa193b7fcde314de32be7c77234770f2b124cea51631b",
+      "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch": "6b6b352c3f18e3bac0e0e246a514008c0a03df34864d8234f3ed6cd133053e4d",
+      "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch": "4223de1bc528b682eeb7c5c50d284ec3d85be34ea2dfcbbfb42917e10e5e3345",
+      "patches/qemu-esp32c6-uiflow2-adapters/0010-c6-sx1262-hardware-spi.patch": "a5af6e7e846c44a7e3f406b6dbb8dc167ea88d67c0a061bc7bd41ab66ef965a1",
+      "patches/qemu-esp32c6-uiflow2-adapters/0011-c6-isolated-wifi-presence.patch": "625a89ac455c02a9b871536a5d4915e7849fa96f73f82e65a960ea5ceb8c823e",
+      "patches/qemu-esp32c6-uiflow2-adapters/0012-c6-ble-aes-dma.patch": "f942bec891bb64423a61e4230ddf7e40a2df6172fba7b4e600e881774f0a8f98",
+      "patches/qemu-esp32c6-uiflow2-adapters/0013-c6-lpperi-rng.patch": "8421f6572048b9e139504fce641fbf25479e775a24c13f64affa9e29600846ac",
+      "patches/qemu-esp32c6-uiflow2-adapters/0014-c6-nesso-panel-madctl.patch": "fb60c5e74b05b05de34379bcd1ef988f8a831419185fc8cf039d9c6bff6acecc",
+      "patches/qemu-esp32c6-uiflow2-adapters/0015-c6-spi2-data-length.patch": "559c7dd083e6eae5247762cbdbd3a531e11774f475e400acd60a08595e638cc8",
+      "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch": "7a0173bc469263d2d8be333465544f7b463710eaebf26b7ffaf8a4738919cfe9",
+      "patches/qemu-esp32c6-uiflow2-adapters/0017-c6-mwdt-pcr-clock.patch": "5f2749c7d2e4d7c36ccd3b0a073f149a8ccda7d64df1683d9aa78e640e3c5988",
+      "patches/qemu-esp32c6-uiflow2-adapters/0018-c6-wifi-tsf-counter.patch": "73389de5294a49fd531e142e219cf4be1c25665979de2553753caa775766329b",
+      "patches/qemu-esp32c6-uiflow2-adapters/0019-c6-efuse-lp-subregion.patch": "00fc46dd5ab41b0da2a497189f0d2f87f5d275b27192a4338a7484aadbea3df8",
+      "patches/qemu-esp32c6-uiflow2-adapters/0020-c6-usb-serial-jtag-endpoints.patch": "27fa22de9151d9654c159dfe2bc2d9968e7bd2f7f4f539794a35e18f6ccb5bc5",
+      "patches/qemu-esp32c6-uiflow2-adapters/0021-c6-efuse-unprovisioned-defaults.patch": "482687f2de803c1e2d079916e9c9487cd75307a0a3d3284028074eeaea7898bc",
+      "patches/qemu-esp32c6-uiflow2-adapters/0022-c6-usb-serial-jtag-host-timing.patch": "e87042e6e33dcb6451dcc928d4ceba3e3729838630b3ff387774508347983ab3"
+    },
+    "source_file_count": 52,
+    "source_postimage_sha256": {
+      "hw/block/m25p80.c": "33bed9708bfa93366b954aa289eda965166afbbae0ffa24d139b96eea63361a2",
+      "hw/char/esp32c6_uart.c": "95ef0adc2251a9efebfb209792e55f0ba3105ac46e0f4f68d5a033ddfca00d66",
+      "hw/dma/esp32c3_gdma.c": "a571fa3ccd2da4af3f09ee7a8de2da7c0ce3f14861fa47a271a8f7989fdd1d59",
+      "hw/dma/esp32c6_gdma.c": "6bfbac43618a13967c509794b853bbaa07fc6b1b4cbe61d2eedb9213abc89b1c",
+      "hw/dma/esp_gdma.c": "95f45d03ccca85f6ca1290dde78de75bdb37569418a5f1542b4dcc1ebb9a21d4",
+      "hw/gpio/esp32_gpio.c": "e162b0940354e1509a88a77572feaf9cbac851a8fbd2f882f5b353f10b03048c",
+      "hw/i2c/esp32_i2c.c": "feb17232853429795f491f44a301c4c5e315be9eb6aa330fb6bf4e8b179ff3a1",
+      "hw/i2c/meson.build": "4b7e240268a94a43162b8f7c2a8c74ceb68a87ce35481c64d1e342f90b755e6a",
+      "hw/misc/esp32_ledc.c": "4605fb617ec3708f9a343cc6b8460ee7a8ee235f94ccf653b1d96305e03dd4ee",
+      "hw/misc/esp32c6_aes.c": "138b4747a7eebbc6d378cc86f4490ae37fbb525db7a9a8486d5c7d78ad882d4a",
+      "hw/misc/esp32c6_ble_aes.c": "270ea8605da5f366b68c3de00eebac7a98adda54d87dd1884f83a0df2cbc25f1",
+      "hw/misc/esp32c6_board_i2c.c": "08740faca19fa0dd08ecf5731d1203047edce88c1b9caed1eec83ac78261ac6e",
+      "hw/misc/esp32c6_i2s.c": "2736644014b6f5bd496ef777c7e4565b035843ef0a2020dd4c21502085dd0419",
+      "hw/misc/esp32c6_jtag.c": "53ed99947326e3bc444f6e323e0aa356c20a3225126f9b4e7832d2d8ed83129c",
+      "hw/misc/esp32c6_modem.c": "6cb2d85a38bc22dc3a844bad70f382e93d6a5afe329b6dc207e89591ffd57ff8",
+      "hw/misc/esp32c6_nesso_panel.c": "06d43f65cf5e6618cd15dc69f20f04c447bbef2de8b5cd2816b0c759aebfe64b",
+      "hw/misc/esp32c6_pcr.c": "bceb7b0286b119f5f532453ba38e5bb81a173bb0ad4abd9264a533614ab75648",
+      "hw/misc/esp32c6_rmt.c": "5038f5c138d435fb31cab12ce50288a7811abd7de3633f537dcc092693e48034",
+      "hw/misc/esp32c6_rng.c": "f29d5957a04e320a5e3677a8edd82f5e995185aad0caa6b544da1c1a2b09426b",
+      "hw/misc/esp32c6_soft_i2c.c": "82b55f3fc523b382ca25ec25a2e2c104c662b7232a71912b1871b5eeb942140b",
+      "hw/misc/esp32c6_sx1262.c": "ed71ba9326fedf3e7f0ebf093d231e381401455ed0c355c529e3336991074d74",
+      "hw/misc/esp32c6_wifi.c": "3e1d5469c4f8c871b0749320ed0b98179c78b4da06684a09be4056a1ddb919cb",
+      "hw/misc/meson.build": "28cda4bde49655869d991ad511bcfe892b372b5295839fca3aa0e5bb006bb34e",
+      "hw/nvram/esp32c6_efuse.c": "8877feb2f43dc5d04545363d6e2b79ed38e6a564e00ea7df46e90afe76096564",
+      "hw/riscv/esp32c6.c": "009e0238bd8b5a79351c844e315b426ef76c451b5b68666d6fa6cff280ae30ab",
+      "hw/riscv/esp32c6_intmatrix.c": "19910ba0a37bd6e5f998554ad84d8d5fe947c4917d4c043d73ce6181843403c8",
+      "hw/ssi/esp32c3_spi.c": "09e07a26e13ccf078e1fce4fe7f53fb750d03c0e8d75d87382666b866d111fa2",
+      "hw/timer/esp32c6_timg.c": "18e7483be97b136855b692810319a5a33ec8eda2759ba1e2095b53ad0071eaf8",
+      "hw/timer/esp_timg.c": "54b8a0b4992bb5d8b1c1c2b75977de7c97393b6bd596e4715efe4504bd02c9c9",
+      "include/hw/char/esp32c6_uart.h": "35a8397508fa6460e4d1ae2adedfb5b53d94b0571240ae4ed519806ce83f2135",
+      "include/hw/dma/esp_gdma.h": "7f671a059bd1491ca6d1d5e864b942955647ce39b9f5c4dbbeb06b04ccc1d05b",
+      "include/hw/gpio/esp32_gpio.h": "5eb916a5e2c911256d0b40b9455c43b30240f40872281b3ad4b11bc607a62784",
+      "include/hw/i2c/esp32_i2c.h": "5739df7a590a4fe0fc832dc475a6f44c7a2850bcbb488b39954e67140f18d07a",
+      "include/hw/misc/esp32_ledc.h": "174f57a7bf18af40470b2c6e47b41f153b87a891ecb4ba88cf1679915b50cbab",
+      "include/hw/misc/esp32c6_aes.h": "ef7102407e12ea8e3f63c1d10f8a8f13785efc59ca6d51a9024a503c46b5bf7d",
+      "include/hw/misc/esp32c6_board_i2c.h": "8b7564b59d206142b62d84f7d81d93312cc7f51ec215876c43cc16ff0b64ca74",
+      "include/hw/misc/esp32c6_i2s.h": "9abe156f31f0dcee0caa29f2e2aa2939a7bf1ec5c9e6313f2e3b201ecf221221",
+      "include/hw/misc/esp32c6_jtag.h": "7e68eae2cabce750d0911adec7b40d049f637bbff00f5748d26b9ae3ab0b7ec5",
+      "include/hw/misc/esp32c6_modem.h": "a04f50503725dc4ee50106aff3ee70db64c849a79770a04788a6d38c5f8336bb",
+      "include/hw/misc/esp32c6_nesso_panel.h": "7941ff7f24f5f6286b51f479f631e8a9df9751e570d29ffc65212f0b636fcbb2",
+      "include/hw/misc/esp32c6_pcr.h": "12c87c35305a2aa5cf7f6adaef1e700c84716c7224628e4be99164d0f00e3131",
+      "include/hw/misc/esp32c6_reg.h": "05896e476ebc377709a5c14a96a37c9778bcbf04dd8c9b14316d1015faa7e607",
+      "include/hw/misc/esp32c6_rmt.h": "403963a9854b73719793ecc36e3d8fa8f8e289d8533c1561555c045eb89faa9e",
+      "include/hw/misc/esp32c6_soft_i2c.h": "c99c78390ae2682eccb107afeeffbf045e6ea3a2990b973e11ad63fbda855d91",
+      "include/hw/misc/esp32c6_sx1262.h": "89a35486301a5ef23a4f44944abd0364fc5209886c06eed0201d25d47a241440",
+      "include/hw/misc/esp32c6_wifi.h": "d457d04024365bcaec2186d151616a743227e94813c7c3e1209d0c13501d8fd4",
+      "include/hw/nvram/esp32c6_efuse.h": "cc74f0101f0f98a720a833b95e339efa6fbd6f610daa07bd13716c6d8a5f4ae8",
+      "include/hw/ssi/esp32c3_spi.h": "90f2473cddedc8a4f11312885c91fe082a07b8c7118f26f9bb128a3e6e347646",
+      "include/hw/timer/esp32c6_timg.h": "593cb0a3260d6230d6921f3e8d52d7716bb357811e851703ac110bb2829eac1d",
+      "include/hw/timer/esp_timg.h": "3ea799712bce32de26772055aab3c2ac8a8a303a0b107f804ac3de09a45c8141",
+      "target/riscv/cpu_helper.c": "2bbb3ef1d6252ead223684e77bd084de06cf67f06d57dd1f434f239b91e58401",
+      "target/riscv/esp_cpu.c": "44f9c51aca8f8d0b23c638d57499a098c2393d5ef37ebf6a635262aad3e8b99a"
+    },
+    "fresh_build_receipt_sha256": "df45f4bd186893a64e13751eabaa3b84db2d74b46bcf2f9af8e37e9891a1a894",
+    "configure_log_sha256": "577a8d12e33922ebac5c7825c133f160ba65e1f5a8f24f899dcb6a7713308935",
+    "build_log_sha256": "9c62653016a4740143487a4ef5396b2ba6e0536cad7263938e9a9c5fe3eb5462",
+    "object_count": 1273,
+    "qemu_objects_reused": false,
+    "diagnostic_instrumentation": false
+  },
+  "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+  "service_archive_sha256": "ecb9824e83f2531d4424a67b15027ba231d4af16b3b1aac0fa8b057bb973bf94",
+  "production_clock_scope": "Only plain NanoC6 qemu sessions using the separate third USB Serial-JTAG chardev use single-thread TCG and fixed icount shift=5,align=off,sleep=off; Nesso and other profiles retain their prior clock recipe.",
+  "historical_honeypot_attempts": {
+    "rows": [
+      {
+        "case": "honeypot-final-v2",
+        "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+        "service_source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+        "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "observation_seconds": 180.00199199980125,
+        "uart_bytes": 461,
+        "usb_bytes": 461,
+        "payload_bytes": 0,
+        "payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "prefix_equal": true,
+        "complete_payload_exact": false,
+        "evidence_zip_sha256": "762b6752090c386a87ec4a0171970ca911e98b3ccdcbe38507d585bf110b4673",
+        "uart_boots": 1,
+        "uart_fatal": [],
+        "usb_boots": 1,
+        "application_partitions": [
+          {
+            "offset": 65536,
+            "size": 1310720,
+            "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+            "unchanged": true
+          },
+          {
+            "offset": 1376256,
+            "size": 1310720,
+            "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+            "unchanged": true
+          }
+        ],
+        "cleanup": {
+          "terminal_state": "stopped",
+          "flash_released": true,
+          "lease_released": true,
+          "native_pid_exited": true,
+          "owned_service_stopped": true
+        },
+        "diagnostic": false,
+        "clock_args_added": false
+      },
+      {
+        "case": "honeypot-diagnostic-8df",
+        "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+        "service_source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+        "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "observation_seconds": 30.012704374967143,
+        "uart_bytes": 461,
+        "usb_bytes": 612,
+        "payload_bytes": 151,
+        "payload_sha256": "74d7b4d06622038a3160a40df0aebad239bad4aa83784a2ea08672fc138e9631",
+        "prefix_equal": true,
+        "complete_payload_exact": false,
+        "evidence_zip_sha256": "832bb0be229cc03657ba9c1a7f95de948abbfdc2e3213a341d4b1c40eb0d5c00",
+        "uart_boots": 1,
+        "uart_fatal": [],
+        "usb_boots": 1,
+        "application_partitions": [
+          {
+            "offset": 65536,
+            "size": 1310720,
+            "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+            "unchanged": true
+          },
+          {
+            "offset": 1376256,
+            "size": 1310720,
+            "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+            "unchanged": true
+          }
+        ],
+        "cleanup": {
+          "terminal_state": "stopped",
+          "flash_released": true,
+          "lease_released": true,
+          "native_pid_exited": true,
+          "owned_service_stopped": true
+        },
+        "diagnostic": true,
+        "clock_args_added": false
+      },
+      {
+        "case": "honeypot-diagnostic-8df-ring",
+        "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+        "service_source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+        "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "observation_seconds": 30.011674750130624,
+        "uart_bytes": 461,
+        "usb_bytes": 614,
+        "payload_bytes": 153,
+        "payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+        "prefix_equal": true,
+        "complete_payload_exact": true,
+        "evidence_zip_sha256": "b50119b7e176beb961740b6bb0087ad6f8e06930adb2299ff345b6b50f008746",
+        "uart_boots": 1,
+        "uart_fatal": [],
+        "usb_boots": 1,
+        "application_partitions": [
+          {
+            "offset": 65536,
+            "size": 1310720,
+            "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+            "unchanged": true
+          },
+          {
+            "offset": 1376256,
+            "size": 1310720,
+            "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+            "unchanged": true
+          }
+        ],
+        "cleanup": {
+          "terminal_state": "stopped",
+          "flash_released": true,
+          "lease_released": true,
+          "native_pid_exited": true,
+          "owned_service_stopped": true
+        },
+        "diagnostic": true,
+        "clock_args_added": false
+      },
+      {
+        "case": "honeypot-icount-control-8df",
+        "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+        "service_source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+        "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "observation_seconds": 90.01234329212457,
+        "uart_bytes": 461,
+        "usb_bytes": 614,
+        "payload_bytes": 153,
+        "payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+        "prefix_equal": true,
+        "complete_payload_exact": true,
+        "evidence_zip_sha256": "73d4afde97dc2f64fe99859eeeb0a6c3123e4e9fb4c7338af6a9d28eed54e5ff",
+        "uart_boots": 1,
+        "uart_fatal": [],
+        "usb_boots": 1,
+        "application_partitions": [
+          {
+            "offset": 65536,
+            "size": 1310720,
+            "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+            "unchanged": true
+          },
+          {
+            "offset": 1376256,
+            "size": 1310720,
+            "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+            "unchanged": true
+          }
+        ],
+        "cleanup": {
+          "terminal_state": "stopped",
+          "flash_released": true,
+          "lease_released": true,
+          "native_pid_exited": true,
+          "owned_service_stopped": true
+        },
+        "diagnostic": false,
+        "clock_args_added": true
+      }
+    ],
+    "notes": [
+      "Raw diagnostic snapshots do not replace direct acceptance",
+      "USB MMIO observation synchronizes pending host deadlines",
+      "No RF, WiFi data plane or physical USB claim",
+      "Production launch verification was pending at those earlier attempts; the separate original_honeypot field records the later direct production result."
+    ]
+  },
+  "historical_6ae_originals": [
+    {
+      "case": "meshtastic",
+      "runtime_sha256": "6ae6fcc3209dfa81325f13081ffbff408afb99d656422de333b06bfbb8fff261",
+      "service_source_commit": "671a2de1fe39273d69aaf4c17d1d98ce5fa66c6e",
+      "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "observed_seconds": 150.502,
+      "control_checks": {
+        "one_boot": true,
+        "no_fatal": true,
+        "input_changed_frame": false,
+        "natural_sleep_observed": true,
+        "button_wake_nonblack": true
+      },
+      "evidence_zip_sha256": "cdb554c07572d58df7dbd3eecba9240686479e11cead488875d8975e3a482550",
+      "status": "FAIL",
+      "scope_note": "Retained candidate failure: Bruce black before input; Mesh initial host-timed B missed, while natural sleep/wake passed. Neither grants final runtime or production-input acceptance."
+    },
+    {
+      "case": "bruce",
+      "runtime_sha256": "6ae6fcc3209dfa81325f13081ffbff408afb99d656422de333b06bfbb8fff261",
+      "service_source_commit": "671a2de1fe39273d69aaf4c17d1d98ce5fa66c6e",
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "observed_seconds": 30.401,
+      "control_checks": {
+        "two_boots_one_requested_reset": false,
+        "no_fatal": true,
+        "touch_changed_frame": true,
+        "remount_nonblack": false,
+        "post_reset_littlefs_error_absent": true
+      },
+      "evidence_zip_sha256": "6cec509ed9cba984d97e0bdde900decd7b27e3a1236142b06560073d7cc88b5e",
+      "status": "FAIL",
+      "scope_note": "Retained candidate failure: Bruce black before input; Mesh initial host-timed B missed, while natural sleep/wake passed. Neither grants final runtime or production-input acceptance."
+    }
+  ],
+  "portable_probes": [
+    {
+      "status": "PASS",
+      "kind": "arduino",
+      "mode": "after",
+      "firmware_sha256": "b63e1d621c647e030f5100bc0c90642c870744973a76833e60d8d0e6660ca4e8",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "observed_seconds": 8.024798624916002,
+      "host_request_sha256": "7b84e6b8018067a7389f81cc113d28dc82f09f8841f09897c56b64b34cb67fd5",
+      "host_received_sha256": "e951081de9b31798cbb646e9518d0407f8f618b26aa858e0b8995573d436b598",
+      "host_received_bytes": 622,
+      "usb_serial_sha256": "e951081de9b31798cbb646e9518d0407f8f618b26aa858e0b8995573d436b598",
+      "evidence_zip_sha256": "57b5388e474797e4c5d19c46e9e18814479d1c78dd7e5078dd07f51456582c9f",
+      "serial_sha256": "a53b629eaad252e5c6b8c589178b144d3d7ff43744663a92e652fcf51321a967",
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "b24ac3e7f3f16bcf2da5b5064e12e06712873bd358a5cb7927af969eddf91737",
+          "unchanged": true
+        }
+      ],
+      "same_session_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "oracle": {
+        "tx_exact_257": true,
+        "guest_rx_exact_197": true,
+        "usb_ack": true
+      },
+      "production_clock_args_verified": true
+    },
+    {
+      "status": "PASS",
+      "kind": "uiflow",
+      "mode": "after",
+      "firmware_sha256": "225733159ae5cac742776c61fea9ba50241298dfa62d55ca40e8657b4e535531",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "observed_seconds": 20.027010124875233,
+      "host_request_sha256": "f8279ba164ac99e30ee3dbe56e6bd5cdbc06794b8077c79a1033b7fd80d3c80e",
+      "host_received_sha256": "7d0625511988e86cd887894f3e27a862a7a2b92792d1e30a2a40c89125ccc480",
+      "host_received_bytes": 828,
+      "usb_serial_sha256": "7d0625511988e86cd887894f3e27a862a7a2b92792d1e30a2a40c89125ccc480",
+      "evidence_zip_sha256": "d33161aeef1b1a210b32fcaf74e04c799337884d2455e78180e3090441b9ac4d",
+      "serial_sha256": "cca9a744f0232f26f447c7287019d76a977b0a6cfed0b04fc3d67d6bffea8fa9",
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 3559424,
+          "sha256": "ad72cbe3700fe50aa1c5ecc2b13200eaaa5d8d1350caa51873bfc8b702c0956e",
+          "unchanged": true
+        }
+      ],
+      "same_session_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "oracle": {
+        "repl_result": true
+      },
+      "production_clock_args_verified": true
+    },
+    {
+      "status": "PASS",
+      "kind": "tsf",
+      "mode": "after",
+      "firmware_sha256": "50a1ec99e10b6a3c86a2ed2192687d391772834b478fca0d40afd9c7fc772b8c",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "observed_seconds": 0.002679749857634306,
+      "evidence_zip_sha256": "8ef937e9bffa96ebc66b7691335397ccf6ba1a4122bdeec5c87bd5b8e73a962c",
+      "serial_sha256": "c4f4f7a7975c0aaf8172213a1fdd9c95af54899b7d82c3bfee1f68a9432a2fb8",
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "58a3a46c685f642ed55905b472be5ef3cb9e7292d45c7eb4b589e974432aa065",
+          "unchanged": true
+        }
+      ],
+      "same_session_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "oracle": {
+        "passed": 6,
+        "total": 6
+      },
+      "production_clock_args_verified": true
+    },
+    {
+      "status": "PASS",
+      "kind": "identity",
+      "mode": "after",
+      "firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "observed_seconds": 0.20737287518568337,
+      "evidence_zip_sha256": "35f7140bc77d3621bd39572eb1d0bb313764a243e2ea3768fa15ecf0600c25c2",
+      "serial_sha256": "0174f2dc4f06a6ba2cb670657c5f94978d09ce5fb45620bca450944da9c8f189",
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "same_session_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "oracle": {
+        "api_passes": 2,
+        "reset_stable": true,
+        "ieee_address_readback": "EXPECTED_FAIL"
+      },
+      "production_clock_args_verified": true
+    },
+    {
+      "status": "PASS",
+      "kind": "identity",
+      "mode": "after",
+      "firmware_sha256": "480d694607a6e6d3414445fdcf7dead31ec9578fa7e522eaaf11cebacc8493a4",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "observed_seconds": 0.21320533310063183,
+      "evidence_zip_sha256": "2e99bb99727c785a0e5bc983f2f5c7ff221cb92fc8e45a24983e23e214d54e4f",
+      "serial_sha256": "5912196696521fd19242525a4bd48bc462fb170b61b9b510aa1e17caa0193978",
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "244631b5a61c26bafa97e10ae6c960cb115faa70d703f819b15dfe48ab2036f3",
+          "unchanged": true
+        }
+      ],
+      "same_session_verified": true,
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "oracle": {
+        "api_passes": 2,
+        "reset_stable": true,
+        "ieee_address_readback": "EXPECTED_FAIL"
+      },
+      "production_clock_args_verified": true
+    }
+  ],
+  "identity_isolation": {
+    "independent_session_identities_differ": true,
+    "same_session_reset_stable_twice": true,
+    "raw_values_and_identity_fingerprints_omitted": true,
+    "ieee802154_extended_address_readback": "EXPECTED_FAIL: actual 802.15.4 data plane remains unimplemented"
+  },
+  "original_honeypot": {
+    "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+    "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+    "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+    "observed_seconds": 180.0079998751171,
+    "normalized_flash_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+    "application_before": [
+      {
+        "offset": 65536,
+        "size": 1310720,
+        "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+        "unchanged": true
+      },
+      {
+        "offset": 1376256,
+        "size": 1310720,
+        "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+        "unchanged": true
+      }
+    ],
+    "application_after": [
+      {
+        "offset": 65536,
+        "size": 1310720,
+        "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+        "unchanged": true
+      },
+      {
+        "offset": 1376256,
+        "size": 1310720,
+        "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+        "unchanged": true
+      }
+    ],
+    "serial_bytes": 461,
+    "serial_sha256": "9ed8c7e8b3406f2590b2752c41f4b2473bdd68d6eead25cc4efa1e3f20dd1769",
+    "usb_serial_bytes": 614,
+    "usb_serial_sha256": "5785e6f2f98742ee325c1e3398c43d5d866f53bc334d821b823c75b7ae5ddc21",
+    "usb_uart_prefix_equal": true,
+    "application_payload_bytes": 153,
+    "application_payload_sha256": "957653a047aacb4f6c16b22209ba72edc5e5ae941ff7fd744992c3c297d9f3c6",
+    "application_payload_lines": 4,
+    "complete_payload_matches": true,
+    "boot_banners": 1,
+    "usb_boot_banners": 1,
+    "fatal_markers": [],
+    "usb_fatal_markers": [],
+    "configuration_serial_control": "PASS",
+    "application_status": "PARTIAL",
+    "application_limit": "Configuration console only; WiFi association/HTTP data plane and physical RF NOT RUN",
+    "production_clock_args_verified": true,
+    "zip_before_stop": true,
+    "evidence_zip_sha256": "1373b8b08fec6f85dcfb5b35ec11ae8e2d6fb38c113356cd1b0c985b7d8833ed",
+    "same_session_zip_verified": true,
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "lease_released": true,
+    "native_pid_exited": true,
+    "owned_service_stopped": true,
+    "inputs": [],
+    "visual_review": "NOT APPLICABLE: NanoC6 has no display; web channel observations are a separate record",
+    "causal_limit": "The original application prints the four lines after softAP initialization returns; no button was injected. Console output is not WiFi association, HTTP, RF, or complete honeypot validation."
+  },
+  "original_nesso": [
+    {
+      "case": "meshtastic",
+      "device": "nesso-n1",
+      "validation": "virtual-device validation",
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "runtime": "qemu",
+      "network_added": false,
+      "peer_added": false,
+      "observed_seconds": 45.431,
+      "serial_bytes": 12453,
+      "serial_sha256": "1b6d4a2f533960a1913f9a2a5a07c12d2d6f18a7b1526b6b5f7d07c6a2700266",
+      "counts": {
+        "ESP-ROM:esp32c6": 1,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "t000",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 0.012
+        },
+        {
+          "sample": "t010",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+          "pixel_sha256": "c66b5cf0ea55080ab6faf8751bcd78403a37f675c6dceeb0eb0d799c78a2c804",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 10.276
+        },
+        {
+          "sample": "t030",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+          "pixel_sha256": "c66b5cf0ea55080ab6faf8751bcd78403a37f675c6dceeb0eb0d799c78a2c804",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 30.282
+        },
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+          "pixel_sha256": "c66b5cf0ea55080ab6faf8751bcd78403a37f675c6dceeb0eb0d799c78a2c804",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 30.305
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "231dec31f38d6e2efae728dd0aac553545381d914a920ce0f6e1ea873a5511ac",
+          "pixel_sha256": "2eac0b5c8ac45633be9fc1b11fc5d2984773d240008afc9173be05f63264ff56",
+          "nonblack_pixels": 8775,
+          "colors": 3,
+          "elapsed_seconds": 32.845
+        },
+        {
+          "sample": "t040",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "231dec31f38d6e2efae728dd0aac553545381d914a920ce0f6e1ea873a5511ac",
+          "pixel_sha256": "2eac0b5c8ac45633be9fc1b11fc5d2984773d240008afc9173be05f63264ff56",
+          "nonblack_pixels": 8775,
+          "colors": 3,
+          "elapsed_seconds": 40.036
+        },
+        {
+          "sample": "before-short-a",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "231dec31f38d6e2efae728dd0aac553545381d914a920ce0f6e1ea873a5511ac",
+          "pixel_sha256": "2eac0b5c8ac45633be9fc1b11fc5d2984773d240008afc9173be05f63264ff56",
+          "nonblack_pixels": 8775,
+          "colors": 3,
+          "elapsed_seconds": 40.057
+        },
+        {
+          "sample": "after-short-a",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "d6fa4750e0306dac937136d4521379a7bfb80249ff8e0945064b402d8104bbf4",
+          "pixel_sha256": "78f42bcb7ea3c02eaf12310bb31da820e055b10426aa171b3c036b7592fa5bb6",
+          "nonblack_pixels": 8775,
+          "colors": 3,
+          "elapsed_seconds": 42.618
+        },
+        {
+          "sample": "t045",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "d6fa4750e0306dac937136d4521379a7bfb80249ff8e0945064b402d8104bbf4",
+          "pixel_sha256": "78f42bcb7ea3c02eaf12310bb31da820e055b10426aa171b3c036b7592fa5bb6",
+          "nonblack_pixels": 8775,
+          "colors": 3,
+          "elapsed_seconds": 45.196
+        }
+      ],
+      "control_checks": {
+        "one_boot": true,
+        "no_fatal": true,
+        "select_changed_frame": true,
+        "short_a_changed_frame": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_padded_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "final_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "4322cbbd186dbdf8ea2dee89e387fba3af1913d45b8705aa595f6a1c43d12f51",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "visual_review": "PASS: actual input source and destination frames inspected separately",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 30.809,
+          "request": {
+            "kind": "key",
+            "key": "a",
+            "action": "tap",
+            "hold_seconds": 1.2,
+            "settle_seconds": 0.5
+          }
+        },
+        {
+          "label": "short-a",
+          "elapsed_seconds": 40.562,
+          "request": {
+            "kind": "key",
+            "key": "a",
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "case": "bruce",
+      "device": "nesso-n1",
+      "validation": "virtual-device validation",
+      "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "runtime": "qemu",
+      "network_added": false,
+      "peer_added": false,
+      "observed_seconds": 150.347,
+      "serial_bytes": 6044,
+      "serial_sha256": "c3ffeef795669955d683fe486a91b3d8e08f16a4fb5bfdc208770948119d0f86",
+      "counts": {
+        "ESP-ROM:esp32c6": 2,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "t000",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 0.005
+        },
+        {
+          "sample": "t010",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+          "pixel_sha256": "8172d8fcd69f3b44b9c8326022c3ad73d0c5b64455e498fc9782719a9b3081a8",
+          "nonblack_pixels": 3531,
+          "colors": 5,
+          "elapsed_seconds": 10.272
+        },
+        {
+          "sample": "t030",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+          "pixel_sha256": "8172d8fcd69f3b44b9c8326022c3ad73d0c5b64455e498fc9782719a9b3081a8",
+          "nonblack_pixels": 3531,
+          "colors": 5,
+          "elapsed_seconds": 30.249
+        },
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+          "pixel_sha256": "8172d8fcd69f3b44b9c8326022c3ad73d0c5b64455e498fc9782719a9b3081a8",
+          "nonblack_pixels": 3531,
+          "colors": 5,
+          "elapsed_seconds": 30.266
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "1494a15e663d2ee69538f1178ed24462106276b461dc3a645b5185db213ffc2f",
+          "pixel_sha256": "2879e5ce8c93e414caa0397a87601bc4082ed20f698b2f4ce88086475d7d9bae",
+          "nonblack_pixels": 3400,
+          "colors": 5,
+          "elapsed_seconds": 33.271
+        },
+        {
+          "sample": "t060",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b978d59b5f37818b359e0231a8019b2c3251573bcc0ab8960e731aeaa7e5b417",
+          "pixel_sha256": "b38f6ec4f41f087f5815d7d412e451650c873d978c7091ea442bd925be3277c1",
+          "nonblack_pixels": 3392,
+          "colors": 5,
+          "elapsed_seconds": 60.197
+        },
+        {
+          "sample": "t090",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "d7428ea02d1c485cca7bcc8be85849324be005031a2338434d3fdce1966ad972",
+          "pixel_sha256": "145a04b96fc11c9bdc0fe3210f0f306c006e32e3eecb3d47ddb2fef694dab4e7",
+          "nonblack_pixels": 3387,
+          "colors": 5,
+          "elapsed_seconds": 90.128
+        },
+        {
+          "sample": "t120",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "colors": 5,
+          "elapsed_seconds": 120.174
+        },
+        {
+          "sample": "remount",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "colors": 5,
+          "elapsed_seconds": 125.046
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "c64a2f1430d36b6dc5e4aa8f04d915f3c94019bcdccfae881731cc2e3b7447b6",
+          "pixel_sha256": "3511b59691b1c61a51c384d1a1899a87c5df4f7efd61498a229a08d94fa0d777",
+          "nonblack_pixels": 3521,
+          "colors": 5,
+          "elapsed_seconds": 150.066
+        }
+      ],
+      "control_checks": {
+        "two_boots_one_requested_reset": true,
+        "no_fatal": true,
+        "touch_changed_frame": true,
+        "remount_nonblack": true,
+        "post_reset_littlefs_error_absent": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "original_padded_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "final_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "d6c8a67ce1286063855aefb6f69e0269d877ed1af8c9e1177de77900314857d1",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "visual_review": "PASS: actual input source and destination frames inspected separately",
+      "status": "PASS",
+      "inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 31.239,
+          "request": {
+            "kind": "touch",
+            "x": 66,
+            "y": 214,
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        },
+        {
+          "label": "reset",
+          "elapsed_seconds": 100.118,
+          "request": {}
+        }
+      ]
+    }
+  ],
+  "mesh_original_b_oracle_attempt": {
+    "case": "meshtastic",
+    "device": "nesso-n1",
+    "validation": "virtual-device validation",
+    "service_source_commit": "10c826b832b78c9bc42e9f788bd3e595584978ae",
+    "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+    "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+    "runtime": "qemu",
+    "network_added": false,
+    "peer_added": false,
+    "observed_seconds": 150.421,
+    "serial_bytes": 12260,
+    "serial_sha256": "ba64030c25abc79374edd90ffd094fb091ec0b32ffd66f184f2ba98cd0e31514",
+    "counts": {
+      "ESP-ROM:esp32c6": 1,
+      "assert failed: xTaskPriorityDisinherit": 0,
+      "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+      "abort() was called": 0,
+      "Guru Meditation": 0,
+      "Core  0 register dump:": 0,
+      "Rebooting...": 0,
+      "Task watchdog got triggered": 0,
+      "delete_entry(": 0
+    },
+    "control_checks": {
+      "one_boot": true,
+      "no_fatal": true,
+      "input_changed_frame": false,
+      "natural_sleep_observed": true,
+      "button_wake_nonblack": true
+    },
+    "application_partitions": [
+      {
+        "offset": 65536,
+        "size": 2424832,
+        "original_padded_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "final_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+        "unchanged": true
+      },
+      {
+        "offset": 2490368,
+        "size": 655360,
+        "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+        "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+        "unchanged": true
+      }
+    ],
+    "evidence_zip_sha256": "806e9e29d954f4ddbd4b58aeab61dbb75a70153d04a3f0f033981a7f8c7c4a52",
+    "zip_before_stop": true,
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "lease_released": true,
+    "native_pid_exited": true,
+    "status": "FAIL",
+    "visual_review": "PENDING"
+  },
+  "mesh_oracle_correction": "The earlier B-change expectation failed and is retained. Original BIN A hold 1.2 seconds opens Home Action; a default short A advances selection. Source reference identifies A as the handled bit and 1000ms as Select; the exact original behavior is established by the separate same-BIN input run, not by assuming source dependency equivalence.",
+  "limits": {
+    "shared_sys_irq_pad": "Separate known PI4IOE status/mask/default and shared-pad gaps remain in this runtime; correction and new-runtime acceptance are subsequent work. CPU GPIO IRQ dispatch and BMI pending are not claimed.",
+    "physical_hardware": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "resident_deployment": "NOT RUN in this fixture",
+    "usb_enumeration_otg_jtag": "NOT RUN / unmodeled",
+    "wifi_association_http_rf": "NOT RUN",
+    "zigbee": "PARTIAL: eFuse identity repaired; ZDO ESP_FAIL and missing 802.15.4 controller data plane remain",
+    "rfid_original": "Prior watchdog firmware failure is not reclassified or inherited from other images",
+    "launcher_original": "Separate fixed-source M5GFX controls, not original-BIN PASS"
+  },
+  "checked_in_native_regressions": {
+    "source_commit": "3dcc0dad339b7d453bc81996dbdff6737229d33a",
+    "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+    "cases": {
+      "nesso-peripherals": {
+        "status": "PASS"
+      },
+      "nesso-lora": {
+        "status": "PASS"
+      }
+    },
+    "summary_sha256": "f5d98bf7d3d98bc835289bfa9524003e5abde09fd0bc675e1b802735042c679a",
+    "route": "Checked-in direct native regression fixtures; separate from original-firmware Device Service sessions",
+    "retries": 0
+  }
+}
