@@ -1,0 +1,723 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "patch": "0014-c6-nesso-panel-madctl.patch",
+  "patch_sha256": "fb60c5e74b05b05de34379bcd1ef988f8a831419185fc8cf039d9c6bff6acecc",
+  "runtime_sha256": "37d63478e529ddf6ca4cb4e391c8be7a9c79806081199910da960a9ffc68297b",
+  "source_base": "febae182e132e4055529be423a818225ebddaa3a",
+  "panel_source_sha256": "06d43f65cf5e6618cd15dc69f20f04c447bbef2de8b5cd2816b0c759aebfe64b",
+  "runs": [
+    {
+      "label": "panel-old",
+      "input_sha256": "4c7eb94246cb89bed2c989d13bbf7b7cc8bfba3afe9e2c8bb4c9d7cba2d94575",
+      "runtime_sha256": "ec8d2f78b323836a56f62b110f2a04ef8774c369f5648e61e9edb6299041e2cc",
+      "route": "Device Service /api/v1",
+      "device": "nesso-n1",
+      "results": [
+        {
+          "rotation": 0,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+            }
+          ]
+        },
+        {
+          "rotation": 1,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ]
+              ],
+              "pass": false,
+              "sha256": "d91cf68d306657a112bda6ef7108b40a9744f87036a42aaa8d1a2a5b7c050289"
+            }
+          ]
+        },
+        {
+          "rotation": 2,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ]
+              ],
+              "pass": false,
+              "sha256": "bbd10e5c23ea7534cc05ee441ee74f3e736c4525148e981ad83de3d69710629d"
+            }
+          ]
+        },
+        {
+          "rotation": 3,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ]
+              ],
+              "pass": false,
+              "sha256": "5ffb10dee2d17f63ac159c63f2b1a041c15bf9c55b8668b95ce61bf9fedab0ea"
+            }
+          ]
+        }
+      ],
+      "zip_sha256": "d2358ace34fd1df3505a5773f0a4fe0fccd2496e44e00c3b80e8f35edd5b78d5",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false
+    },
+    {
+      "label": "panel-v1",
+      "input_sha256": "4c7eb94246cb89bed2c989d13bbf7b7cc8bfba3afe9e2c8bb4c9d7cba2d94575",
+      "runtime_sha256": "37d63478e529ddf6ca4cb4e391c8be7a9c79806081199910da960a9ffc68297b",
+      "route": "Device Service /api/v1",
+      "device": "nesso-n1",
+      "results": [
+        {
+          "rotation": 0,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+            },
+            {
+              "orient": "display",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+            }
+          ]
+        },
+        {
+          "rotation": 1,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ]
+              ],
+              "expected": [
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ]
+              ],
+              "pass": true,
+              "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa"
+            },
+            {
+              "orient": "display",
+              "size": [
+                240,
+                135
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+            }
+          ]
+        },
+        {
+          "rotation": 2,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ]
+              ],
+              "pass": true,
+              "sha256": "9231caf6d2a7bc1e06faf8085949722d48b7f3fed05da4d16ed1a93e0ac10fa9"
+            },
+            {
+              "orient": "display",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946"
+            }
+          ]
+        },
+        {
+          "rotation": 3,
+          "frames": [
+            {
+              "orient": "panel",
+              "size": [
+                135,
+                240
+              ],
+              "corners": [
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "eef94cb95a794d1d870b06cab0eb105080478c3bbaa4238845f60929925f4a01"
+            },
+            {
+              "orient": "display",
+              "size": [
+                240,
+                135
+              ],
+              "corners": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "expected": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "pass": true,
+              "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d"
+            }
+          ]
+        }
+      ],
+      "zip_sha256": "7777e47371e63540f132a602e0aed23e720dbc84a043d2d64976117a7339f058",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false
+    }
+  ],
+  "claim": "All four real-SPI2 quadrant cases match the physical MADCTL mapping and controller-derived display orientation. Old runtime fails physical rotations 1, 2, 3.",
+  "checks": [
+    "Fresh source replay/build and reverse patch check passed.",
+    "Eight frame-presentation host tests passed, including Nesso QOM discovery."
+  ],
+  "remaining": "Original Meshtastic now has a correctly oriented 240x135 surface, but DMA lines above 128 bytes are truncated by the separate SPI2 length-field defect; whole-app display acceptance is not claimed by this patch alone.",
+  "not_run": [
+    "Physical hardware optics, electrical timing and RF.",
+    "Full native matrix is deferred to final runtime integration."
+  ]
+}

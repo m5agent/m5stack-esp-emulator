@@ -6695,8 +6695,13 @@ class DeviceSession:
             panel_path = None
             listing = self._qmp_call("qom-list", path="/machine/unattached").get("return", [])
             panels = [entry for entry in listing if entry.get("type") == "child<m5.spi-panel>"]
-            if len(panels) == 1:
-                path = "/machine/unattached/" + panels[0]["name"]
+            paths = ["/machine/unattached/" + entry["name"] for entry in panels]
+            if not panels:
+                children = self._qmp_call("qom-list", path="/machine").get("return", [])
+                paths = ["/machine/" + entry["name"] for entry in children
+                         if entry.get("type") == "child<esp32c6.nesso-panel>"]
+            if len(paths) == 1:
+                path = paths[0]
                 properties = self._qmp_call("qom-list", path=path).get("return", [])
                 if any(entry.get("name") == "frame-presentation" for entry in properties):
                     panel_path = path

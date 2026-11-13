@@ -82,6 +82,22 @@ class PresentationTests(unittest.TestCase):
 
 
 class FramePresentationIntegrationTests(_ProgramFixture):
+    def test_discovers_c6_panel_observer_on_machine_child(self):
+        session = self.session(transport=None)
+        state = controller(madctl=0x6c, width=135, height=240)
+        def qmp(name, **args):
+            if name == "qom-get":
+                self.assertEqual(args["path"], "/machine/nesso-panel")
+                return {"return": json.dumps(state)}
+            listing = {"/machine/unattached": [],
+                       "/machine": [{"name": "nesso-panel", "type": "child<esp32c6.nesso-panel>"}],
+                       "/machine/nesso-panel": [{"name": "frame-presentation", "type": "string"}]}
+            return {"return": listing[args["path"]]}
+        session._qmp_call = mock.Mock(side_effect=qmp)
+        self.assertEqual(session._frame_presentation().rotation_cw, 270)
+        self.assertEqual(session._frame_presentation().rotation_cw, 270)
+        self.assertEqual(session._qmp_call.call_count, 5)
+
     def display(self, *, modern=True):
         session = self.session(transport=None)
         session.spec = replace(session.spec, display={"width": 2, "height": 3})

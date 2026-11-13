@@ -1,0 +1,73 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6 Nesso: map DCS rotation into physical display memory
+
+diff --git a/hw/misc/esp32c6_nesso_panel.c b/hw/misc/esp32c6_nesso_panel.c
+--- a/hw/misc/esp32c6_nesso_panel.c
++++ b/hw/misc/esp32c6_nesso_panel.c
+@@ -31,6 +31,7 @@
+     QEMUBH *refresh_bh;
+     uint16_t *mem;
+     uint8_t madctl;
++    uint64_t presentation_generation;
+     uint8_t cmd;
+     uint8_t params[4];
+     unsigned pidx;
+@@ -81,11 +82,10 @@
+         fprintf(stderr, "[nesso-black] x=%d y=%d\n", x, y);
+     }
+ 
+-    /*
+-     * M5GFX already applies the board rotation and the 52/40 controller
+-     * offset when it programs CASET/RASET.  Apply MADCTL a second time
+-     * here and the 135-wide stream is transposed into a diagonal pattern.
+-     */
++    /* DCS address axes are transformed into the fixed physical GRAM. */
++    if (s->madctl & 0x20) { int t = x; x = y; y = t; }
++    if (s->madctl & 0x40) { x = MEM_W - 1 - x; }
++    if (s->madctl & 0x80) { y = MEM_H - 1 - y; }
+     if (x >= 0 && x < MEM_W && y >= 0 && y < MEM_H) {
+         s->mem[y * MEM_W + x] = px;
+     }
+@@ -146,6 +146,7 @@
+                 s->disp_on = false;
+                 s->sleep = true;
+                 s->madctl = 0;
++                s->presentation_generation++;
+                 break;
+             case 0x2C:
+             case 0x3C:
+@@ -200,6 +201,7 @@
+             break;
+         case 0x36:
+             s->madctl = b;
++            s->presentation_generation++;
+             s->dirty = true;
+             break;
+         default:
+@@ -317,11 +319,26 @@
+     .gfx_update = nesso_panel_update,
+ };
+ 
++/* Same immutable sample contract used by the generic SPI-panel observer. */
++static char *nesso_panel_presentation_get(Object *obj, Error **errp)
++{
++    ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)obj;
++    return g_strdup_printf(
++        "{\"schema_version\":1,\"supported\":true,\"apply_madctl\":true,"
++        "\"generation\":%" PRIu64 ",\"madctl\":%u,\"glass_rotation\":0,"
++        "\"memory_width\":%u,\"memory_height\":%u,\"width\":%u,\"height\":%u,"
++        "\"offset_x\":%u,\"offset_y\":%u}",
++        s->presentation_generation, s->madctl, MEM_W, MEM_H,
++        PANEL_W, PANEL_H, PANEL_OFF_X, PANEL_OFF_Y);
++}
++
+ static void nesso_panel_realize(DeviceState *dev, Error **errp)
+ {
+     ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)dev;
+     QemuInputHandlerState *hs;
+ 
++    object_property_add_str(OBJECT(s), "frame-presentation",
++                            nesso_panel_presentation_get, NULL);
+     s->mem = g_new0(uint16_t, MEM_W * MEM_H);
+     s->disp_on = true;
+     s->sleep = false;
