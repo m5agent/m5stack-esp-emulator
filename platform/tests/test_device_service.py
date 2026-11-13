@@ -3347,6 +3347,19 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             self.assertEqual(atoms3r["profile"], "generic-observe")
             self.assertEqual(atoms3r["nic"], "misc.esp32s3.wifi")
+            for device_id in ("atom-matrix", "atom-matrix-v11", "atom-lite", "stickc-plus2"):
+                with self.subTest(classic_device=device_id):
+                    classic = device_service_module.parse_qemu_wifi_execution(
+                        self.service.specs[device_id],
+                        {"profile": "generic-observe", "http_fixture": False},
+                    )
+                    self.assertEqual(classic["nic"], "misc.esp32_wifi")
+                    self.assertEqual(classic["profile"], "generic-observe")
+                    with self.assertRaises(ServiceError) as wrong_profile:
+                        device_service_module.parse_qemu_wifi_execution(
+                            self.service.specs[device_id], {"profile": "core2-openmac"},
+                        )
+                    self.assertEqual(wrong_profile.exception.code, "unsupported_network_profile")
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_wifi_execution(
                     self.service.specs["nanoc6"],

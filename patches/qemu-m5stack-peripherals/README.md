@@ -1407,3 +1407,21 @@ from cache errors. Previously the missing status window returned zero, so
 both cores entered the non-offending-cache-panic loop. The same BIN now
 prints the actual interrupt-watchdog diagnostic; this change alone does not
 fix the separate scheduler wait. See the classic factory bounded summary.
+
+## Classic WiFi RX cursor and CCMP (0188)
+
+`0188-classic-wifi-rx-cursors.patch` keeps the integrated MAC present on classic
+ESP32 machines even without a network backend, with the radio disabled by
+that default path. It implements the hardware NEXT/LAST RX descriptor cursor
+registers and the RX-list refresh request, so a driver can replenish a finite
+DMA chain. The last completed descriptor survives a new base-pointer write.
+Classic RX now uses the existing authenticated CCMP decryption path also used
+by S3. No scan results, credentials, DHCP response or HTTP result are supplied
+by host Python code.
+
+The register contract is independently documented by
+[OpenMAC hardware.c](https://github.com/esp32-open-mac/esp32-open-mac/blob/20ce43d595be914b4d3f553b28352bc07e003fa1/main/hardware.c):
+`WIFI_NEXT_RX_DSCR`, `WIFI_LAST_RX_DSCR`, `update_rx_chain`, and
+`rs_recycle_dma_item`. The original Atom Matrix binary also reads these
+registers in its IDF WiFi ISR. Its native Device Service acceptance and honest
+factory/LED limits are in the [classic factory fixture](../../tests/firmware/classic_factory/README.md).

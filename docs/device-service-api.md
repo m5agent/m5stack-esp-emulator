@@ -1776,6 +1776,15 @@ wrong credentials are rejected at M2 MIC and retried without DHCP. WPA3-SAE
 returns `unsupported_wifi_security`; WPA2 group-key multicast and RF behavior
 remain outside the current claim.
 
+Classic ESP32 boards other than Core2 also accept
+`runtime=qemu-wifi, network.profile=generic-observe`, with the board's native
+`misc.esp32_wifi` MAC and the same explicit AP/security/network policy fields.
+The original Atom Matrix factory image has exercised WPA2, DHCP, DNS and an
+HTTP response through this path. Its fixed HTTP target returns 404; this is a
+real peer response, not a passing factory verdict. A plain `qemu` session keeps
+the on-chip MAC registers, DMA and IRQ available with its radio disabled and
+no implicit test AP or host networking.
+
 Core2 retains `qemu-wifi` and `qemu-ble` as compatibility runtimes when the
 service starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing
 the classic ESP32 WiFi and Bluetooth models. The canonical combined paths are

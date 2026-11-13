@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "source_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+  "baseline_runtime_sha256": "dcb5c9f3f33bab3915348d48ce5dfa35483889ef1255977b2d49df6c17bea8f1",
+  "runtime_sha256": "de6bc720de0cf3d88b66863e646ed3433f9f1868cc4c4a252f090d7a2029fbb6",
+  "runtime_source": "canonical native bootstrap through 0186 plus 0187 and 0188; existing pinned dependencies reused; isolated clean QEMU build",
+  "service_source_base": "8598b1f603ae6638a3f6d27824431781429b9e49",
+  "profile": "atom-matrix / qemu-wifi / generic-observe / WPA2-PSK / trusted-host",
+  "firmware_modified": false,
+  "watchdogs_disabled": false,
+  "radio_default": "disabled for plain qemu; explicit modeled AP for qemu-wifi",
+  "results": [
+    {
+      "run": 1,
+      "source_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "evidence_zip_sha256": "865e9cea84cd0ea17ad63c943ddda2274fcbe25b77fcb1571787af67eef8f5d7",
+      "serial_sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+      "serial_bytes": 468,
+      "boots": 1,
+      "watchdog_markers": 0,
+      "abort_markers": 0,
+      "guru_markers": 0,
+      "scan": true,
+      "http_response": true,
+      "factory_http_pass": false,
+      "observed_seconds_at_least": 130,
+      "network": {
+        "packets": 33,
+        "udp_dhcp": 4,
+        "udp_dns": 2,
+        "tcp": 10,
+        "http_status_lines": [
+          "HTTP/1.1 404 Not Found"
+        ],
+        "sha256": "891f84ff436b854fe0fa831762cccbb551853e2ef0fc81facc4ae8dda1332fbc",
+        "bytes": 5169
+      }
+    },
+    {
+      "run": 2,
+      "source_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "evidence_zip_sha256": "3f0768319897d1caffa3a84b73ed7c7d930328966582c7d096b1e0fd923f4038",
+      "serial_sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+      "serial_bytes": 468,
+      "boots": 1,
+      "watchdog_markers": 0,
+      "abort_markers": 0,
+      "guru_markers": 0,
+      "scan": true,
+      "http_response": true,
+      "factory_http_pass": false,
+      "observed_seconds_at_least": 130,
+      "network": {
+        "packets": 33,
+        "udp_dhcp": 4,
+        "udp_dns": 2,
+        "tcp": 10,
+        "http_status_lines": [
+          "HTTP/1.1 404 Not Found"
+        ],
+        "sha256": "dcd67ad336fa5a9a5f73346d8e567b5e7cec8fc296e383b07a8dbdadbe59df4a",
+        "bytes": 5169
+      }
+    }
+  ],
+  "limits": [
+    "Original factory hard-coded public HTTP target returns 404; factory overall acceptance is PARTIAL.",
+    "LED stream remains PARTIAL: 128-symbol RMT transactions, 600 required for full chain.",
+    "Physical RF/security/timing NOT RUN.",
+    "Other classic boards and S3 regression matrix NOT RUN in this subtask; required on integrated runtime."
+  ],
+  "tests": {
+    "device_service": 135,
+    "serve_api": 15,
+    "network_doc_contract": 9,
+    "native_rx_cursor_c_harness": {
+      "tests": 1,
+      "cases": 5,
+      "negative_controls": 3
+    }
+  }
+}

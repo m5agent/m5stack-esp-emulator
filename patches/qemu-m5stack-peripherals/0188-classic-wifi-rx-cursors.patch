@@ -1,0 +1,117 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -954,7 +954,7 @@
+         TYPE_ESP32_WIFI, true, NULL);
+     bool offline_wifi = false;
+ 
+-    if (!wifi_dev && m5_board == M5_BOARD_CORE2) {
++    if (!wifi_dev) {
+         /* The on-chip MAC exists even without a configured network backend.
+          * Keep its register/DMA/IRQ path available to the guest WiFi driver,
+          * but do not create an AP or attach a host network implicitly. */
+diff --git a/hw/misc/esp32_wifi.c b/hw/misc/esp32_wifi.c
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -23,6 +23,13 @@
+     switch(addr) {
+         case A_WIFI_DMA_IN_STATUS:
+             r=0;
++            break;
++        case A_WIFI_NEXT_RX_DSCR:
++            /* Hardware retains the RAM region bits at the end of a chain. */
++            r = 0x3ff00000u | (s->dma_inlink_address & 0xfffffu);
++            break;
++        case A_WIFI_LAST_RX_DSCR:
++            r = s->mem[A_WIFI_LAST_RX_DSCR / 4];
+             break;
+         case A_WIFI_DMA_INT_STATUS:
+         case A_WIFI_DMA_INT_CLR:
+@@ -80,6 +87,19 @@
+     if(DEBUG) printf("esp32_wifi_write %lx=%lx\n",addr, value);
+ 
+     switch (addr) {
++        case A_WIFI_DMA_IN_STATUS:
++            /* Software appends buffers to the linked list then asks the MAC
++             * to refresh an exhausted cursor. Do not restart at its old head
++             * or overwrite a descriptor already handed to the guest. */
++            if ((value & 1) && !s->dma_inlink_address) {
++                uint32_t last = s->mem[A_WIFI_LAST_RX_DSCR / 4];
++                dma_list_item tail = { 0 };
++                if (last && address_space_read(&address_space_memory, last,
++                        MEMTXATTRS_UNSPECIFIED, &tail, sizeof(tail)) == MEMTX_OK) {
++                    s->dma_inlink_address = tail.next;
++                }
++            }
++            break;
+         case A_WIFI_DMA_INLINK:
+             s->dma_inlink_address = value;
+             break;
+@@ -120,6 +140,11 @@
+         return;
+     }
+ 
++    /* Classic ESP32, like S3, receives authenticated CCMP plaintext from
++     * its MAC crypto engine while preserving the hardware packet envelope. */
++    if (!Esp32_WLAN_prepare_rx(s, frame)) {
++        return;
++    }
+     if(s->dma_inlink_address == 0) {
+         return;
+     }
+@@ -156,6 +181,7 @@
+     item.length=length;
+     item.eof=1;
+     address_space_write(&address_space_memory, s->dma_inlink_address, MEMTXATTRS_UNSPECIFIED,&item,4);
++    s->mem[A_WIFI_LAST_RX_DSCR / 4] = s->dma_inlink_address;
+     s->dma_inlink_address=item.next;
+     set_interrupt(s, 0x1000024);
+ }
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -99,6 +99,8 @@
+ 
+ REG32(WIFI_DMA_IN_STATUS, 0x84);
+ REG32(WIFI_DMA_INLINK, 0x88);
++REG32(WIFI_NEXT_RX_DSCR, 0x8c);
++REG32(WIFI_LAST_RX_DSCR, 0x90);
+ REG32(WIFI_DMA_INT_STATUS, 0xc48);
+ REG32(WIFI_DMA_INT_CLR, 0xc4c);
+ REG32(WIFI_STATUS, 0xcc8);
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -129,7 +129,7 @@
+     uint32_t rx_word0;
+     size_t total;
+ 
+-    if (!Esp32_WLAN_prepare_s3_rx(s, frame)) {
++    if (!Esp32_WLAN_prepare_rx(s, frame)) {
+         return false;
+     }
+     if (!descriptor || !frame->frame_length ||
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -594,7 +594,7 @@
+     return true;
+ }
+ 
+-bool Esp32_WLAN_prepare_s3_rx(Esp32WifiState *s,
++bool Esp32_WLAN_prepare_rx(Esp32WifiState *s,
+                               struct mac80211_frame *frame)
+ {
+     const uint8_t *header = (const uint8_t *)frame;
+diff --git a/hw/misc/esp32_wlan_packet.h b/hw/misc/esp32_wlan_packet.h
+--- a/hw/misc/esp32_wlan_packet.h
++++ b/hw/misc/esp32_wlan_packet.h
+@@ -37,7 +37,7 @@
+ void Esp32_WLAN_init_ap_frame(Esp32WifiState *s, struct mac80211_frame *frame);
+ int Esp32_WLAN_dumpFrame(struct mac80211_frame *frame, int frame_len, char *filename);
+ void Esp32_WLAN_insert_frame(Esp32WifiState *s, struct mac80211_frame *frame);
+-bool Esp32_WLAN_prepare_s3_rx(Esp32WifiState *s,
++bool Esp32_WLAN_prepare_rx(Esp32WifiState *s,
+                               struct mac80211_frame *frame);
+ struct mac80211_frame *Esp32_WLAN_create_beacon_frame(Esp32WifiState *s,
+                                                        access_point_info *ap);

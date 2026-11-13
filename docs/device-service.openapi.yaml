@@ -4484,7 +4484,9 @@ components:
       type: object
       required: [profile]
       description: >
-        Select the profile for the requested device. runtime=qemu-unified
+        Select the profile for the requested device. runtime=qemu-wifi accepts
+        generic-observe for classic ESP32 and ESP32-S3 boards except Core2 and
+        StickS3, which retain their named WiFi profiles. runtime=qemu-unified
         requires a one-guest *-unified profile. runtime=qemu-ble remains
         accepted for compatibility and for radio-specific profiles.
         sticks3-native-hid requires runtime=qemu-ble, device_id=sticks3,

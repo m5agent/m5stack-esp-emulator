@@ -967,16 +967,20 @@ def parse_qemu_wifi_execution(
         default_profile = STICKS3_WIFI_PROFILE
         supported_profile = STICKS3_WIFI_PROFILE
         nic = "misc.esp32s3.wifi"
-    elif spec.backend == "qemu-esp32s3":
+    elif spec.backend in {"qemu-esp32s3", "qemu-esp32lx6"}:
         default_profile = "generic-observe"
         supported_profile = "generic-observe"
-        nic = "misc.esp32s3.wifi"
+        nic = (
+            "misc.esp32s3.wifi"
+            if spec.backend == "qemu-esp32s3"
+            else "misc.esp32_wifi"
+        )
     else:
         raise ServiceError(
             "qemu_wifi_not_supported",
             (
                 "qemu-wifi is supported for Core2, StickS3 and generic "
-                "ESP32-S3 observe profiles"
+                "ESP32 / ESP32-S3 observe profiles"
             ),
             409,
         )
