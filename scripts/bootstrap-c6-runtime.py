@@ -41,6 +41,7 @@ PATCHES = (
     "patches/qemu-esp32c6-uiflow2-adapters/0019-c6-efuse-lp-subregion.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0020-c6-usb-serial-jtag-endpoints.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0021-c6-efuse-unprovisioned-defaults.patch",
+    "patches/qemu-esp32c6-uiflow2-adapters/0022-c6-usb-serial-jtag-host-timing.patch",
 )
 RECEIPT = ".m5-c6-runtime-source.json"
 
