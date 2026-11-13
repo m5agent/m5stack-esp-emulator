@@ -1,0 +1,269 @@
+{
+  "status": "PASS",
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "cases": [
+    {
+      "case": "cloud-browser-cores3",
+      "device": "cores3",
+      "kind": "browser",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "frame_sha256": "6ba9099fbbd561d54af181f4f7d5a951a87cdab0c775bc9ecd70cfd85c14dc81",
+      "evidence_zip_sha256": "c1bec6ac0692e5921c46e8170e870392e60593f9d05d8e251d02185d339909bb",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "6695944c70b46fc9ea7f0e08f0e914ab289f70c9253b7417faba652929e21d76",
+        "capture_bytes": 15293,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "ab209fd2807ecd2b73e631546c28bd8382b6e93aa82f5af151b33e07528e2ff1",
+        "session": "1187d4ba630d8ffe8f1e356f0dc8aa5e4ddbbcc58362a5725bf9ce7da09d2b42",
+        "terminal": "8d1a626ed884b2bfe3ad5bc989ef5cdcc6fad481284f1ae71042cf83daa116dc",
+        "response": "c238fba0667fc240ee4485a13bed9c6b2b330840a8b639428600db2d70431305"
+      }
+    },
+    {
+      "case": "cloud-api-sticks3",
+      "device": "sticks3",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+      "normalized_firmware_sha256": "e9d52fa2459624f277e0d6aa2433ae42db61975b54e9d1c0eb47889cc4ba5579",
+      "frame_sha256": "370069f4ccc26dd72e1a1703efefae197907d294458a22f8833707cc6de37d3a",
+      "evidence_zip_sha256": "ec73269b5d70a868623ddb7f4f7b9e8419313796ed75e87b9ea68301ff32b26c",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "14d61ed39fc765c3d28fc03de5b782d3a0335cab571973aee889a1d5ce9f7bb3",
+        "capture_bytes": 15086,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "0c2b00283b0bbdcae6f78bb916ac0e8bbc1a7a81afd1aa90986712e7154a7928",
+        "session": "ec238d061ba22733b26c65043d5ef00bca7bdd589bba75e563c9cba26ac83f91",
+        "terminal": "5776bb238fd972ac97b7332b5ca5a60a6d80af2df3bebea9417c82314245caf4",
+        "response": "7110b952d0d9190753d56efb3f2850741b309f79d4ac624dd0ed04bcec9535bd"
+      }
+    },
+    {
+      "case": "cloud-api-core2",
+      "device": "core2",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "normalized_firmware_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+      "frame_sha256": "e666d3f1cfa250e2dedf4c674252b215faf615be26f42b1e6817bc096b04d6a3",
+      "evidence_zip_sha256": "5d0b0c034d6639ebccf707717b6fcc2766a3cde80a927e54cc0905e0e8d5c395",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "8eaf27ed49e6a2e32ec88633f5827d08734b40c710839990a260b3f31ecee5b1",
+        "capture_bytes": 7839,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "0c2b00283b0bbdcae6f78bb916ac0e8bbc1a7a81afd1aa90986712e7154a7928",
+        "session": "dc0fae79107c46e6db912125db7dbaf00053da98295ff8c3050bef71cf439a75",
+        "terminal": "b3a5790df8bf5410745f43559df4ccd1b76fcebbdd474d3a481509848dd958c3",
+        "response": "7d2e981fce6b2cacf2d03f74112204762eadde9f73c55896e25e39c4e8f497d1"
+      }
+    },
+    {
+      "case": "cloud-api-atoms3r",
+      "device": "atoms3r",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+      "normalized_firmware_sha256": "262602882d69eeeb9d4160e2ba7b8934981009c26eb42e494aa5defcab6cba29",
+      "frame_sha256": "dc1e6557ee161d57637b9d381b461357c64e84e9b7d95f69a521f66203423064",
+      "evidence_zip_sha256": "1c2fcc1e0e62bc901f774c8fd58daf95fe896a427f1cf42537bcdea4d806e38e",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "797378a9360330f3f7bd4f0a7f29de0b88a5c8b98d18042d84dcfbbd73a72a0d",
+        "capture_bytes": 15300,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "0c2b00283b0bbdcae6f78bb916ac0e8bbc1a7a81afd1aa90986712e7154a7928",
+        "session": "34f08c77f56f8bfe41f80a450d4aec4d8e2bd4005a72e09d3e3d07a127ba25ef",
+        "terminal": "38c8c1ac3ae1526dc5dfaea645cf1b6423ca8801341c95ab95d4bfd5e2156a94",
+        "response": "f463cc9669fb809b1e67d8fafb44984399a6815a90751fed8306e4f491a9dd60"
+      }
+    },
+    {
+      "case": "cloud-api-stopwatch",
+      "device": "stopwatch",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+      "normalized_firmware_sha256": "7bf51befb4bdf7581367fdac993b6b3eb6a01f11c3f42c31a1feafa68365963c",
+      "frame_sha256": "5922cd992da557b5ac7f05ff5f09c06ccfa47cb083992d3cda11d5bdb9f954b3",
+      "evidence_zip_sha256": "3970391df8c728056a10135ad77737637da866a6e6140becb1e59d557ab14adf",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "621b23e6e21df1ea0ea7ed8776bba2fb53eb80889cc689e868fb4d6c4520451d",
+        "capture_bytes": 16309,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "0c2b00283b0bbdcae6f78bb916ac0e8bbc1a7a81afd1aa90986712e7154a7928",
+        "session": "5d380b6495710e83c2db4abd73b0773924c3ed64e08487e990471cf982b045b5",
+        "terminal": "92aee02067df42949b464aeb9f565763bd1aa3eef1dd307aa98f2f372bdb1092",
+        "response": "138d828b25c062db9c359a0f4bff8a7d72d4b5945fd6d190afe528aed9ac6988"
+      }
+    },
+    {
+      "case": "cloud-api-cardputer-adv",
+      "device": "cardputer-adv",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "normalized_firmware_sha256": "f9d6026012b893409b33fde8be2e7b508f6c669db8b6d4f42d56522fe2b7c9d4",
+      "frame_sha256": "06fd607cdb6d915b8313e3a7ba0edb7b1398f5566680c53946c4e25c12132c08",
+      "evidence_zip_sha256": "211baeae3a8005b5111fb22774fc823f7c4cc01988fd84d2ddf3d4dbdc2156e0",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "16847b60653b394fb98a7c507d20b80540fdc78af7af7a9c04a0681e9d2a084e",
+        "capture_bytes": 15736,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "0c2b00283b0bbdcae6f78bb916ac0e8bbc1a7a81afd1aa90986712e7154a7928",
+        "session": "90f5fcc0caf6d344b086476d09f579e4f758ff958487abb3e212ed1c427c3464",
+        "terminal": "baeba12f1966a020ac6a286619fd790471489d1ed8f68e2b4c15277d259202ee",
+        "response": "512def41f341ffa0ff53fd76cf8f4745f3d31aa1ea79dd45bef8a082dcca39c3"
+      }
+    },
+    {
+      "case": "cloud-api-cores3-repeat",
+      "device": "cores3",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+      "normalized_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+      "frame_sha256": "b350c3db734c22e3bcc91346ea694eb70b9554b820254f566826471afb1321a3",
+      "evidence_zip_sha256": "75d0d4f7992f8481f8647ab698d0ca2ac4de29504e39bd25cc907622abbc851e",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "d19c3b7125e5cead2e7fb3a39f66299ab7e1b840961eae873ea8bb1211fdea19",
+        "capture_bytes": 16248,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "09822e03b7491e488a5078697e4257dadd35cd58a9893a07d8134f69280d902e",
+        "session": "2b000a17babdd04fdcfce3c4f0afb3af7747cc5a55e280e5a7c1737cd24fb5a1",
+        "terminal": "cc9685c23e6650e52e2781d684350d633540b45ce5e9c2fca502414aad0d82f4",
+        "response": "35f047d572124fac6f02a467f4cf3fe8fe2ad38b651ea8c063e4da9ecbe53fae"
+      }
+    },
+    {
+      "case": "cloud-api-core2-repeat",
+      "device": "core2",
+      "kind": "api",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+      "normalized_firmware_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+      "frame_sha256": "d6ef4de270d616f3339ca1feeca581e4e4a5630c16e0add71475c29d223ce524",
+      "evidence_zip_sha256": "8fad07c1a982ab059deadbc87f46237ade9bf5542a0142750fe6975b84e1006e",
+      "actual_cloud_response": true,
+      "cloud_proof": {
+        "capture_sha256": "e9d5a6de9d32f3123815c234ecdd6513667a75e0a8b914a2790d8a4d6f7b92a0",
+        "capture_bytes": 8345,
+        "actual_nonempty_access_code_received": true,
+        "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+        "source": "same-session evidence ZIP network/capture.pcap"
+      },
+      "local_program_executed": false,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "09822e03b7491e488a5078697e4257dadd35cd58a9893a07d8134f69280d902e",
+        "session": "414048ce7749f588d9d1134bd5eed4b86a3d5a8f21b4856bb9dd78402601bc12",
+        "terminal": "c4e7b2b9bde74365d6495e6a70cd1cdcacd437433423858c22b148887934ebce",
+        "response": "8caaa82d2ecbeeed2b5a3debb2ef0b8c40e7de4eef212ea69682905eaa646367"
+      }
+    },
+    {
+      "case": "local-program-cores3",
+      "device": "cores3",
+      "kind": "program",
+      "status": "PASS",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "official_reference_sha256": null,
+      "normalized_firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+      "frame_sha256": "6a862feb5be7487dcc6f07152402fff3866eb274e9961c2d17f0c470a833aaa6",
+      "evidence_zip_sha256": "e9ec7c887797f4fa3fad54ea423dd4929106edf9ea59215e5848fa347b6e4cfe",
+      "actual_cloud_response": false,
+      "cloud_proof": null,
+      "local_program_executed": true,
+      "cleanup": "PASS",
+      "receipt_sha256": {
+        "runtime": "6b2dd8b6583d851fd318394c6660e1a15e5b7abd9519eea3952c5502910695fa",
+        "session": "2bf031dec07dee0620bbb1df8d72d147942e9041ccc33bb11ffbd3f7206f5bdd",
+        "terminal": "19aa5ffeb84c2fbed033b0fa708f6bdc2b38388c56373a7ceea944596bec8a63",
+        "response": "2bf031dec07dee0620bbb1df8d72d147942e9041ccc33bb11ffbd3f7206f5bdd"
+      }
+    }
+  ],
+  "cloud_reuse_provenance": {
+    "source_attempt": "post-deploy-02",
+    "cloud_paths": 8,
+    "byte_identical_process_rows": true,
+    "independently_verified_final_session_evidence": true,
+    "inputs": {
+      "reuse": {
+        "sha256": "64c5e9ec437c5f99d23eeaab8062f290baaa57c86695035d7f1566f0fd422320",
+        "bytes": 2086
+      },
+      "source_summary": {
+        "sha256": "fd857580df7c1d2ffa8e014b2306d83d01a853480eb491cde0964886600424c3",
+        "bytes": 2330
+      }
+    }
+  },
+  "inputs": {
+    "summary": {
+      "sha256": "0ff9aed5711c278637ced3549dd9074ce55c0d5dae16912afffa59c6e1c37f26",
+      "bytes": 2778
+    },
+    "visual_review": {
+      "sha256": "dc7dea478318ff2aec5ad6f798541fb01b71c6033d5104ca5e5edc4f5280a584",
+      "bytes": 2710
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "status": "DELIVERY_AND_SCOPED_POST_ACCEPTANCE_PASS",
+  "validation": "virtual-device validation",
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "ci_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43414271086",
+  "ci_conclusion": "success",
+  "native_runtime_sha256": {
+    "xtensa": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+    "c6": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4"
+  },
+  "resident_roles": [
+    "primary-device-service",
+    "firmware-review-device-service"
+  ],
+  "post_acceptance": {
+    "cloud_paths": 8,
+    "local_program_paths": 1,
+    "independent_sessions": 9,
+    "cloud_origin": "Unchanged successful second-attempt cloud results, independently verified from their own ZIP captures",
+    "local_program_origin": "Fourth program attempt after private acceptance-helper fixes",
+    "retained_infra_failed_attempts": 3,
+    "native_frame_orientation_originals": 5,
+    "original_firmware_dry_runs": [
+      "Cardputer ADV MP3 Player v1.0.0",
+      "Core2 2048 Game v1.0"
+    ],
+    "aws_display_only_control_seconds": 90.02370795793831
+  },
+  "preservation": {
+    "existing_history_preserved": true,
+    "existing_configuration_preserved": true,
+    "backup_verified": true,
+    "owned_test_sessions_cleared": true
+  },
+  "rollback": {
+    "host_controls": "PASS",
+    "host_control_count": 30,
+    "live_rollback": "NOT RUN"
+  },
+  "state_migration": "NOT RUN; existing state retained in place",
+  "burner_submitted": false,
+  "limits": [
+    "The delivered35c runtime retains issue225 as PARTIAL; private GPIO candidates are not part of this delivery.",
+    "Original Launcher and StackChan BINs do not inherit source-rebuild fixes. RFID original remains unstable; Tab5 USB/DSI/CSR and unsupported Zigbee paths remain open.",
+    "AWS intro display control does not grant touch, sensors, AWS cloud or radio functionality; BMI270 read errors are retained.",
+    "Physical hardware, physical audio/RF/electrical behavior and browser-WASM validation NOT RUN in this delivery."
+  ],
+  "evidence": [
+    {
+      "file": "aws-summary.json",
+      "bytes": 5547,
+      "sha256": "712be27f5f2fbd260b61e630e575305e764dd83e0b07e1b2a160c0db2fdc4fa6"
+    },
+    {
+      "file": "deployment.json",
+      "bytes": 989,
+      "sha256": "f046bf14dc25d0dd2a70e65c68cd930174b1adf44e15796dd12a80797cde788d"
+    },
+    {
+      "file": "main-ci.json",
+      "bytes": 467,
+      "sha256": "a17d829b9384bc9bbd3dbcfd218906c706d037cacba311308bba87e5e2e7525c"
+    },
+    {
+      "file": "orientation5.json",
+      "bytes": 3622,
+      "sha256": "8dfda5d97770903cbba0ddf0c8a61f2272b0b2df03cecf8a71b958416056aa58"
+    },
+    {
+      "file": "original-functional-observations.json",
+      "bytes": 15358,
+      "sha256": "bb22e1ed9aa8569558b9c47d032d525387209c1c85a204c97889abe61becde71"
+    },
+    {
+      "file": "original-reviews.json",
+      "bytes": 1448,
+      "sha256": "b16572a88739a4f4190eeaafc767f937a54bb34e6ebb32e1e601ba32abd04503"
+    },
+    {
+      "file": "post9.json",
+      "bytes": 13675,
+      "sha256": "6e98deee86a89c66b2d94af5fc8b96a5779261561c8f81c3536245211fbfb598"
+    },
+    {
+      "file": "retained-attempt-01.json",
+      "bytes": 1859,
+      "sha256": "cce6fc90fd00efdeba19a200f76bf8a0a405411114ecef4538f5a16449494680"
+    },
+    {
+      "file": "retained-attempt-02.json",
+      "bytes": 1867,
+      "sha256": "009610946116f704f47a9e0a4b15fb6d5328eb40e1ec3a4dcf1d12eb0eac009f"
+    },
+    {
+      "file": "retained-attempt-03.json",
+      "bytes": 1928,
+      "sha256": "096ef2d2a65a37b2cd6dcfd2b8dddf709e994674e7a7a922993a87042a49ece3"
+    }
+  ]
+}

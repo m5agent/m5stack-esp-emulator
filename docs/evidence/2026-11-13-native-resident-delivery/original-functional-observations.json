@@ -1,0 +1,700 @@
+{
+  "schema_version": 1,
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "validation": "virtual-device validation",
+  "dry_run": true,
+  "burner_submitted": false,
+  "cases": [
+    {
+      "case": "cardputer-adv-mp3-original",
+      "status": "PASS",
+      "original_firmware_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+      "normalized_flash_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "observation_sha256": "2de0e35a71de473ead169a272f84968e0f3fbaba3f3b4a9c5bf0b1a6e1227473",
+      "evidence_zip_sha256": "5e8d9db8784e971202d451b243f4c1acfc9d7485717863453787ef1e399fa259",
+      "original_application_unchanged": true,
+      "cleanup": "PASS",
+      "complete_serial": {
+        "sha256": "7fac0ec42d982693c5d1a6035d5ef6cfd4c6418b625a4587de69ba4dd1a357e8",
+        "bytes": 3076,
+        "boot_banners": 1,
+        "fatal_markers": []
+      },
+      "application_bytes": [
+        {
+          "offset": 65536,
+          "bytes": 3342336,
+          "sha256": "b1f1402955aead3935b45c5a3b0c4700512ccdb77e4906fe87352c885d524a0c",
+          "unchanged": true
+        },
+        {
+          "offset": 3407872,
+          "bytes": 3342336,
+          "sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "unchanged": true
+        }
+      ],
+      "service_observation_sha256": "1ea7ba048a744f2b09fed7bb0dac9bd66b49364f978ca07cd0127362f205c691",
+      "physical_hardware": "NOT RUN",
+      "behavior": "Original SD library lists TEST.MP3; real Enter input opens NOW PLAYING and playback progress changes. Guest speaker PCM matches known fixture tone.",
+      "sd_image_sha256": "6e7c003e532f2912b5a6841ea24b6ffbe1ca113caf0dd83b26d750d0cbd7f4a0",
+      "input": {
+        "kind": "key",
+        "key": "ret",
+        "hold_seconds": 0.1,
+        "settle_seconds": 1.4
+      },
+      "audio": {
+        "bytes": 1333760,
+        "sha256": "a4fe8493279e8ef46328b6b282db79668cea072199aa7d43a196c4ab2d917bfc",
+        "peak_abs": 1353,
+        "nonzero_samples": 662438,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "fixture_tone_hz": 524,
+        "physical_acoustics": "NOT RUN",
+        "matching_window_count": 157,
+        "matching_tone_energy_fraction_min": 0.85159,
+        "matching_tone_energy_fraction_max": 0.99018
+      },
+      "reviewed_frames": {
+        "frame-before-input.png": "370b4236939c088e11013efe20609e33e927a03f1e9da07b3d68fc230ed28d7d",
+        "interaction-key_ret.png": "6ae44981f712c0347ff9523941c60e048600f7c44aa6ae1d7e9a9eb883f6a59e",
+        "frame.png": "30cecdba88a268e7744a8ac73637d9984c7b381c79d2305185715ccb9a3c9144"
+      }
+    },
+    {
+      "case": "core2-2048-original",
+      "status": "PASS",
+      "original_firmware_sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+      "normalized_flash_sha256": "cd13c9bc7594ea3ad1994b1192d7bdd620ab1e6fa2adb2abf23152ebd80020d8",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "observation_sha256": "75ba9334820c534106a10480ec76755b80451806f20b614ad85dddc65457ae50",
+      "evidence_zip_sha256": "332b4f75f13c6d67e18033dcf7aab91d5053a5f7e00b8c290227af3b1e8f3a21",
+      "original_application_unchanged": true,
+      "cleanup": "PASS",
+      "complete_serial": {
+        "sha256": "353121f7108a20d9818c1e92d2fb9aa2a213d9bf07927bd56d8827fcd1cb3d7c",
+        "bytes": 325,
+        "boot_banners": 1,
+        "fatal_markers": []
+      },
+      "application_bytes": [
+        {
+          "offset": 65536,
+          "bytes": 505760,
+          "sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+          "unchanged": true
+        }
+      ],
+      "service_observation_sha256": "3b464d17fad9d5cd2a093480d47abeb88bc37f553f02845efac1d5b4fb8dec3a",
+      "physical_hardware": "NOT RUN",
+      "behavior": "Two complete cycles of right/left/up/down; each board independently satisfies direction-specific sliding/merge plus one legal spawn, also visually inspected by root.",
+      "board_moves": [
+        {
+          "input": "drag_right_1",
+          "before": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              2,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              0,
+              4,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ]
+          ],
+          "spawn": [
+            0,
+            1,
+            4
+          ],
+          "status": "PASS",
+          "frame_sha256": "1ade026e87b9601fab9819836fc2940fb2ec91353c2d5487bee5ba1eef161c30"
+        },
+        {
+          "input": "drag_left_1",
+          "before": [
+            [
+              0,
+              4,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ]
+          ],
+          "after": [
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              2
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ]
+          ],
+          "spawn": [
+            2,
+            3,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "30bf4b8006f697092c3b3686d9658b52fbee03e31ae13f8bf99f6935be7e06a2"
+        },
+        {
+          "input": "drag_up_1",
+          "before": [
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              2
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              4,
+              0,
+              0,
+              2
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "spawn": [
+            2,
+            2,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "e9655a9cdcf395a28ab7914acbddf8038aa0094792bd6f0b98b9910d0e63ff31"
+        },
+        {
+          "input": "drag_down_1",
+          "before": [
+            [
+              4,
+              0,
+              0,
+              2
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              8,
+              0,
+              2,
+              2
+            ]
+          ],
+          "spawn": [
+            2,
+            3,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "b3b9f4cc005f2416e23d2d2e078c7fa483194553c53f18db3dffb3f32cee693b"
+        },
+        {
+          "input": "drag_right_2",
+          "before": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              8,
+              0,
+              2,
+              2
+            ]
+          ],
+          "after": [
+            [
+              0,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              8,
+              4
+            ]
+          ],
+          "spawn": [
+            0,
+            1,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "cea879b3178693737c9cd197a657cd97578cf5646c68e5c825549e0c877e079d"
+        },
+        {
+          "input": "drag_left_2",
+          "before": [
+            [
+              0,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              8,
+              4
+            ]
+          ],
+          "after": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              4,
+              2,
+              0
+            ]
+          ],
+          "spawn": [
+            3,
+            2,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "349d1cd8b3ddfb6749461f65c117e5f3a3615f6cde6a89e4fc9a29f0762931a5"
+        },
+        {
+          "input": "drag_up_2",
+          "before": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              4,
+              2,
+              0
+            ]
+          ],
+          "after": [
+            [
+              4,
+              4,
+              2,
+              0
+            ],
+            [
+              8,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "spawn": [
+            1,
+            1,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "5d852390d1b31639a1b45e4ce7ac1417f2ea14c6930e67f352baec2c01f57a79"
+        },
+        {
+          "input": "drag_down_2",
+          "before": [
+            [
+              4,
+              4,
+              2,
+              0
+            ],
+            [
+              8,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              0,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              4,
+              0,
+              0
+            ],
+            [
+              8,
+              2,
+              2,
+              0
+            ]
+          ],
+          "spawn": [
+            0,
+            1,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "dc081b0975431c7c1abf6942cc9a72964f1929b0ce7cf4b3693a6e46c49262ee"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "drag_right_1",
+          "input": {
+            "kind": "drag",
+            "x1": 65,
+            "y1": 165,
+            "x2": 245,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_left_1",
+          "input": {
+            "kind": "drag",
+            "x1": 245,
+            "y1": 165,
+            "x2": 65,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_up_1",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 220,
+            "x2": 155,
+            "y2": 78,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_down_1",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 78,
+            "x2": 155,
+            "y2": 220,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_right_2",
+          "input": {
+            "kind": "drag",
+            "x1": 65,
+            "y1": 165,
+            "x2": 245,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_left_2",
+          "input": {
+            "kind": "drag",
+            "x1": 245,
+            "y1": 165,
+            "x2": 65,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_up_2",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 220,
+            "x2": 155,
+            "y2": 78,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_down_2",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 78,
+            "x2": 155,
+            "y2": 220,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "frame_changed": true
+        }
+      ]
+    }
+  ]
+}

@@ -16,12 +16,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-13
 
-原生后续：[SPI SD / RMT / 缓存 / C6 / SDK 竞态对照](evidence/2026-11-13-native-compatibility-followup/README.md)分别绑定原 BIN、运行时和失败控制；最终组合矩阵与交付待独立追加。
+原生后续：[SPI SD / RMT / 缓存 / C6 / SDK 竞态对照](evidence/2026-11-13-native-compatibility-followup/README.md)分别绑定原 BIN、运行时和失败控制；最终组合矩阵与常驻交付已由下方独立证据追加，旧失败及原有执行身份保持不变。
 
 [重新构建后的独立复验](evidence/2026-11-13-native-runtime-recovery/README.md)：Xtensa `e529a11c…` 的原 Atom Lite watchdog 阻止交付，其 Matrix/Core2 原路径与五款显示方向结果分别保留；C6 `e4c9bb8d…` 完成七份原版复验，原 Launcher 的错误 mutex 释放链有实际指令追踪。旧运行时及部分原始 ZIP 已丢失；源码重建一致不替代新二进制运行。
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| main 与常驻发布后验收 / virtual-device validation | 精确源码 `4f09fcba…`、CI `43414271086`、Xtensa `35c35ef2…` / C6 `3679e74e…`：两个常驻角色更新，八条原版云端配对及一条网页本地编程通过；八云端复用第二轮，最终编程来自第四次，前三次脚本 INFRA_FAILED 保留。五份原版方向与 MP3/2048 dry-run 通过；历史/配置/备份核对及最终清场完成，Burner 未提交 | [交付、同会话摘要与边界](evidence/2026-11-13-native-resident-delivery/README.md) |
+| Core2 AWS 最终显示控制 / virtual-device validation | 同原 BIN `22ee8c0f…` 在 `35c35ef2…` 观察 90.024 秒，1 boot/0 fatal，三张介绍页的时钟和滚动条继续更新，应用字节不变并取证后清场。首次路径解析 harness 失败与 BMI270 读取错误保留；不授传感器、触摸或云端功能 | [原 BIN、帧与完整串口摘要](evidence/2026-11-13-native-resident-delivery/aws-summary.json) |
 | 最终原生高负载矩阵 / virtual-device validation | 执行源码 `890acf8f…`、Xtensa `35c35ef2…`、C6 `3679e74e…`：两轮各 69/69，3×23 scopes，单 attempt、零 retry；1,269 个正式采样全部 ≥10，最低 10.3735。进程/套接字清场且前后 pins 一致；历史失败保留，main/常驻交付另验 | [两轮、六 scope 与逐例 SHA](evidence/2026-11-13-native-final-regression/README.md) |
 | 146 补丁 fresh 原版复验 / virtual-device validation | Xtensa `35c35ef2…` 上原 Lite/Matrix/Matrix v1.1 各 130 秒，原 UIFlow1/HamRadio 各 180 秒；应用字节不变，真实输入/帧/网络/SD 子路径通过，Matrix HTTP 404 保留。SD/IMU 两项定向 case 单 attempt 通过；Pillow harness 错误另记 INFRA_FAILED；完整高负载和发布未由此授予 | [精确 SHA、阶段帧和清场](../tests/firmware/classic_factory/final-0194-0198-summary.json) |
 | C6 PCR/MWDT 计时对照 / virtual-device validation | 原 `e4c9bb8d…` 六控只过 80 MHz；增量 `d7a6f11d…` 六控通过，原 RFID 5 秒首超时恢复为 5002 guest ticks，但 IDLE 未喂狗导致重启仍 FAIL。全 OFF 阶段 host 边界另发现零时循环，最终修复另验，不授整组发布 | [controller 与原 BIN 两类原因](../tests/firmware/esp32c6_mwdt_clock/README.md) |

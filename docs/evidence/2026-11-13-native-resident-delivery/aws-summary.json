@@ -1,0 +1,154 @@
+{
+  "case": "aws-original-final35c",
+  "validation": "virtual-device validation",
+  "service_source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "original_firmware_sha256": "22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a",
+  "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+  "runtime": "qemu",
+  "network_added": false,
+  "normalized_flash_sha256": "104062aa0e6f52470f0c7f409d202af5d2dad5c3e5ee8f7e65815508a512ef3c",
+  "observed_seconds": 90.02370795793831,
+  "application_before": [
+    {
+      "offset": 65536,
+      "size": 4160000,
+      "sha256": "7c444c1b1789763701e964d04937db9a02a298cdd3fd79eadd398bb7c3a63b40",
+      "unchanged": true
+    },
+    {
+      "offset": 4259840,
+      "size": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "unchanged": true
+    },
+    {
+      "offset": 4325376,
+      "size": 6553600,
+      "sha256": "5393d0abf56f98debbc69b85ff2d2f65a559fee7ff6c0f0fe4f694860431f568",
+      "unchanged": true
+    }
+  ],
+  "application_after": [
+    {
+      "offset": 65536,
+      "size": 4160000,
+      "sha256": "7c444c1b1789763701e964d04937db9a02a298cdd3fd79eadd398bb7c3a63b40",
+      "unchanged": true
+    },
+    {
+      "offset": 4259840,
+      "size": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "unchanged": true
+    },
+    {
+      "offset": 4325376,
+      "size": 6553600,
+      "sha256": "5393d0abf56f98debbc69b85ff2d2f65a559fee7ff6c0f0fe4f694860431f568",
+      "unchanged": true
+    }
+  ],
+  "frames": [
+    {
+      "seconds": 0.6331423749215901,
+      "file": "frame-000.png",
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "size": [
+        320,
+        240
+      ],
+      "colors": 1,
+      "nonblack_pixels": 0
+    },
+    {
+      "seconds": 30.017652249895036,
+      "file": "frame-030.png",
+      "sha256": "de6b5a3a05a6d63f8d11610ea55876cda73ae65e1bc8f405070695000c687074",
+      "size": [
+        320,
+        240
+      ],
+      "colors": 74,
+      "nonblack_pixels": 76294
+    },
+    {
+      "seconds": 60.01555358292535,
+      "file": "frame-060.png",
+      "sha256": "e3d75ecb1e8a76304cc56428084147b185149056a57516c0bd43d5d048e90d78",
+      "size": [
+        320,
+        240
+      ],
+      "colors": 74,
+      "nonblack_pixels": 76294
+    },
+    {
+      "seconds": 90.02064466685988,
+      "file": "frame-090.png",
+      "sha256": "d25900e3851a54eb4f9533cc4faf6d4fbe5e2f6ef52113321a0acadb188a3614",
+      "size": [
+        320,
+        240
+      ],
+      "colors": 74,
+      "nonblack_pixels": 76294
+    }
+  ],
+  "serial_sha256": "14b0534e4287447dbe8de90b45ba72a98d3b85099ec7b6b2b2e988a6cf2d7e9b",
+  "serial_bytes": 5315,
+  "boot_banners": 1,
+  "fatal_markers": [],
+  "zip_before_stop": true,
+  "evidence_zip_sha256": "ac3c46457254b6716b427eeb8679759e1353648305097541aad38aaff2f8af08",
+  "same_session_zip_verified": true,
+  "terminal_state": "stopped",
+  "flash_released": true,
+  "lease_released": true,
+  "native_pid_exited": true,
+  "owned_service_stopped": true,
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "device": "core2",
+  "firmware_name": "M5Stack Core2 for AWS IoT Kit Factory Firmware",
+  "status": "DISPLAY_BOOT_PASS_OTHER_CAPABILITIES_NOT_GRANTED",
+  "display_control": {
+    "status": "PASS",
+    "actual_native_executable_sha_verified": true,
+    "visual_review": "The 30,60 and90second frames show the full original Core2 for AWS welcome/introduction. Clock text and scrolling strip advance across frames. Initial frame is black during boot.",
+    "reviewed_frame_sha256": [
+      "de6b5a3a05a6d63f8d11610ea55876cda73ae65e1bc8f405070695000c687074",
+      "e3d75ecb1e8a76304cc56428084147b185149056a57516c0bd43d5d048e90d78",
+      "d25900e3851a54eb4f9533cc4faf6d4fbe5e2f6ef52113321a0acadb188a3614"
+    ],
+    "input": []
+  },
+  "serial_observations": {
+    "lcd": "FT6336 ID CIPHER=0x51 FIRMID=0x10 VENDID=0x11; old panel detected",
+    "unresolved_sensor_errors": [
+      "BMI270: Failed to read accel data",
+      "BMI270: Failed to read gyro data"
+    ]
+  },
+  "earlier_attempt": {
+    "classification": "INFRA_FAILED",
+    "cause": "Harness split unquoted ps command with a space-containing executable path; failed runtime-path assertion before observation. Corrected runner reads executable using ps comm.",
+    "firmware_failure_inferred": false,
+    "actual_guest_created": true,
+    "successful_observation_claimed": false,
+    "evidence_zip_sha256": "c03c1a73c7b00d12a33d346ce1b851022a25ae8e2f573803d9b4097b85e6e3ae",
+    "zip_before_stop": true,
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "lease_released": true,
+    "native_pid_exited": true,
+    "owned_service_stopped": true,
+    "additional_evidence_parser_error": "The interrupted setup did not set normalized_flash_sha256, so the first runner also reported a post-capture metadata KeyError; the ZIP itself was preserved and actual terminal cleanup independently verified."
+  },
+  "limits": [
+    "This is a final-runtime LCD/intro stability regression for issue222. No touch swipe, AWS cloud, WiFi, peripheral or sensor functionality is granted by the visible intro.",
+    "BMI270 accel/gyro read failures remain in the complete serial and are not classified as successful sensor operation.",
+    "The90.024second observation does not inherit any longer-duration acceptance from a different image.",
+    "Physical hardware and browser-WASM NOT RUN."
+  ],
+  "burner_submitted": false
+}

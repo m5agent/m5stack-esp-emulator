@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "runtime": {
+    "xtensa": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+    "c6": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4"
+  },
+  "history_and_configuration_preserved": true,
+  "backup_verified": true,
+  "rollback_control_evidence_reviewed": true,
+  "rollback_validation": {
+    "scope": "isolated host controls with mocked services and process lifecycle",
+    "count": 30,
+    "status": "PASS"
+  },
+  "live_rollback": {
+    "status": "NOT RUN"
+  },
+  "state_migration": {
+    "status": "NOT RUN",
+    "scope": "Existing state directories preserved in place"
+  },
+  "inputs": {
+    "deployment": {
+      "sha256": "b5fa7ee51e46b0a7ee408367388327f802e18451efeaa3400a776fcc5a030537",
+      "bytes": 871
+    },
+    "preservation_review": {
+      "sha256": "b80d6290cb593c12c40e2f264542b68c6b5f94ece6cd413a12cc1baf569b6c61",
+      "bytes": 7827
+    }
+  }
+}

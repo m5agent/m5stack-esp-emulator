@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "cases": [
+    {
+      "case": "cardputer-adv-mp3-original",
+      "status": "PASS",
+      "original_firmware_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+      "normalized_flash_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "observation_sha256": "2de0e35a71de473ead169a272f84968e0f3fbaba3f3b4a9c5bf0b1a6e1227473",
+      "evidence_zip_sha256": "5e8d9db8784e971202d451b243f4c1acfc9d7485717863453787ef1e399fa259",
+      "cleanup": "PASS"
+    },
+    {
+      "case": "core2-2048-original",
+      "status": "PASS",
+      "original_firmware_sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+      "normalized_flash_sha256": "cd13c9bc7594ea3ad1994b1192d7bdd620ab1e6fa2adb2abf23152ebd80020d8",
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "observation_sha256": "75ba9334820c534106a10480ec76755b80451806f20b614ad85dddc65457ae50",
+      "evidence_zip_sha256": "332b4f75f13c6d67e18033dcf7aab91d5053a5f7e00b8c290227af3b1e8f3a21",
+      "cleanup": "PASS"
+    }
+  ],
+  "dry_run": true,
+  "burner_submitted": false,
+  "input": {
+    "sha256": "8de553dd41adeb1f0a62bb91633061aac70ca06dee7f182d5a654ddae73d36a6",
+    "bytes": 1869
+  }
+}

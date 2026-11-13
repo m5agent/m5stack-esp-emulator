@@ -1,0 +1,47 @@
+{
+  "status": "INFRA_FAILED",
+  "attempt": "post-deploy-03",
+  "source_commit": "4f09fcba8364e02cb1f60eeec0422e3cae66db54",
+  "runtime_sha256": {
+    "xtensa": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+    "c6": "3679e74e893670a5fd665345addcf00e0e49b9f708c6d4093960f8dc228b0db4"
+  },
+  "original_aggregate_status": "FAIL",
+  "successful_cloud_results": 8,
+  "failed_program_processes": 1,
+  "cloud_result_origin": "reused_from_post-deploy-02",
+  "cloud_source_summary_sha256": "fd857580df7c1d2ffa8e014b2306d83d01a853480eb491cde0964886600424c3",
+  "cloud_process_rows_sha256": "fca51326c3b8aa7c068e4d878ef9a208717d3f768b1e26262a0da318c04276ec",
+  "cause": "program_preview_client_request_context",
+  "firmware_failure_inferred": false,
+  "owned_preview_was_created": true,
+  "final_gate_substitute": false,
+  "reviewed_preservation_and_cleanup": {
+    "reviewed": true,
+    "original_bytes_preserved": true,
+    "owned_preview_identified": true,
+    "zip_before_close": true,
+    "preview_closed": true,
+    "session_stopped": true,
+    "flash_released": true,
+    "lease_released": true,
+    "owned_processes_cleared": true
+  },
+  "relocation_manifest_sha256": "9dfd73280d4b60e2db22d3c8e459302f180b44e6e9d972af95b28df16d31b298",
+  "cleanup_evidence_sha256": {
+    "ownership_review": "6169d403ca2c84cbe688f005e6f58df10a17334612a91deee307adc17bda3d0a",
+    "terminal_preview": "c3b4eb53094b223f2071337ff461122991b6d9b608e8157e0f08bbc5730356ae",
+    "terminal_session": "03db9e001c7906c05c7a421c71059889b3f9c2880ebfe3ab123279fe050dfa9b",
+    "evidence_zip": "21b3971d1623b5d387481a9b59598bc80460cdd18742af631930169736bf9bda"
+  },
+  "inputs": {
+    "summary": {
+      "sha256": "c0b8855374897407c80d7a3467aaf7159f6faddb0dc3b65bee7c45ad0c8d488a",
+      "bytes": 2755
+    },
+    "review": {
+      "sha256": "a6ebd363c3751154ddcbabb4facaa478ea37bf67a65fb2925df6b83b902dbb2a",
+      "bytes": 1377
+    }
+  }
+}

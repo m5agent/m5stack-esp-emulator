@@ -33,7 +33,7 @@
 [2026-11-13 的后续证据](evidence/2026-11-13-native-compatibility-followup/README.md)
 把模型故障与固件故障分开：Classic SPI 片选/FIFO/DMA、Matrix RX 游标和
 RMT 时钟、C6 QIO/射频控制器存在性属于已验证的模型修复子路径；最终组合
-运行时与发布资格单独验收。Tab5 最新固件仍依赖闭源 P4 CSR/DSI 修复。
+运行时已完成[高负载回归](evidence/2026-11-13-native-final-regression/README.md)和[常驻交付](evidence/2026-11-13-native-resident-delivery/README.md)。Tab5 最新固件仍依赖闭源 P4 CSR/DSI 修复。
 StackChan 两款原版 BIN 的 I2C ISR 在 RX 拷贝前通知另一个 CPU，UserDemo 的
 公开源码负控重现崩溃，GPT 没有独立未修源码重建负控。仅加入官方 SDK 修复的两款重建版通过连续动画/触摸对照；这不
 证明原版 BIN 已修复，也不允许用模拟器时序规避来关闭固件缺陷。
@@ -45,11 +45,16 @@ descriptor/4 KiB 上限不等于完整 DMA 链支持。[恢复后的原版追踪
 已验证仅修正独立触摸配置即可消除该 owner 断言；原 BIN 不继承通过。
 [RFID 时钟对照](../tests/firmware/esp32c6_mwdt_clock/README.md)区分 PCR 未接 MWDT
 时钟和应用 IDLE 订阅未喂狗；原 BIN 仍失败。全 OFF 阶段边界修正后，
-[fresh C6 定向复验](../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json)通过，完整组合发布仍独立验收。
+[fresh C6 定向复验](../tests/firmware/esp32c6_mwdt_clock/final-runtime-summary.json)通过；最终组合运行时与交付结果见上述独立证据。
 IRQ 调度状态和 CPU 变频连续性已完成 [fresh 原版复验](../tests/firmware/classic_factory/final-0194-0198-summary.json)，
-完整高负载矩阵与发布继续独立验收。[Tab5 USB DWC 缺口](../tests/firmware/tab5_usb_model_gap/README.md)
+完整高负载矩阵与常驻发布后验收已完成，但不授予未覆盖的固件或功能。[Tab5 USB DWC 缺口](../tests/firmware/tab5_usb_model_gap/README.md)
 按实际 `qemu` 会话元数据、特定自检断言及仍为 planned 的 controller 合同分类；
 原应用未就绪，闭源 P4 后端的控制器与 endpoint 缺口没有由分类修正关闭。
+
+正式 `35c35ef2…` 上 #225 的应用就绪和 BLE HID 数据面仍为 `PARTIAL`；
+私有 GPIO 候选不属于本次交付运行时，也不能改变正式原 BIN 的判定。
+Core2 AWS 原版的最终显示复验通过，但串口中的 BMI270 加速度/陀螺仪读取失败
+保留，未由介绍页授予传感器或云端功能通过。
 
 ## 已关闭缺口
 
