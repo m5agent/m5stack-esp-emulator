@@ -1,0 +1,679 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "Post-delivery receipts only; native regression matrix is a separate record",
+  "source_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+  "runtime": {
+    "xtensa": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+    "c6": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf"
+  },
+  "delivery": {
+    "status": "PASS",
+    "main_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+    "ci_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43453074487",
+    "ci_conclusion": "success",
+    "inputs": {
+      "main": {
+        "sha256": "7f8a8d479ea999dbfb4431ba84a30626b40ae10180fd61059974d1af0ec5974b",
+        "bytes": 314
+      },
+      "ci": {
+        "sha256": "a86b78f7b5da4a0720ba55015e2d2a0364bb6653784f98e0e1fd3d297de72891",
+        "bytes": 5977
+      }
+    }
+  },
+  "deployment": {
+    "status": "PASS",
+    "source_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+    "runtime": {
+      "xtensa": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "c6": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf"
+    },
+    "existing_history_preserved": true,
+    "existing_configuration_preserved": true,
+    "backup_verified": true,
+    "owned_test_sessions_cleared": true,
+    "history_counts": [
+      {
+        "prior_count": 29,
+        "current_count": 36,
+        "new_count": 7
+      },
+      {
+        "prior_count": 42,
+        "current_count": 46,
+        "new_count": 4
+      }
+    ],
+    "owned_terminal_sessions": 11,
+    "all_captured_guest_processes_gone": true,
+    "state_migration": "NOT RUN",
+    "configuration_scope": "Verified argv, environment, capacity, runtime policy and retained state locations; current token permissions and authentication checked where configured",
+    "configuration_limits": {
+      "pre_cutover_token_byte_equality": "NOT RUN: no pre-cutover content hash baseline"
+    },
+    "preservation_audit_script_sha256": "ea31aba3111c235606da2e0b042b549f7fba9a7f94e9a0d6154a942e871d3b76",
+    "rollback_validation": {
+      "status": "PASS",
+      "scope": "isolated host controls; no live rollback performed",
+      "count": 57
+    },
+    "live_rollback": "NOT RUN",
+    "inputs": {
+      "deployment": {
+        "sha256": "a750feff13c848ad2063188d14fb75363480e2621f1d07b87b17052e713db403",
+        "bytes": 871
+      },
+      "preservation": {
+        "sha256": "fe149d7f517834a8007f31cc141c2f3d66995421adf0e1fb76fa4275e8b0773d",
+        "bytes": 13534
+      },
+      "host_controls": {
+        "sha256": "27518b925539cf185db2a61f5344e8b008c709b82f85686231c8fafa07a4e266",
+        "bytes": 2580
+      },
+      "runtime_configuration": {
+        "sha256": "0ec1c645d7c2e9f48082fdff054602cc74494bcfb6f9c1d3d0670ba7b6687ab4",
+        "bytes": 2615
+      },
+      "host_control_log": {
+        "sha256": "de2aef58b40801a76a9e6ecadbb83b27aae51c1e7828be1c467ab31932a036d4",
+        "bytes": 808
+      }
+    }
+  },
+  "post_nine": {
+    "status": "PASS",
+    "source_commit": "4a5d28e6d4764ec78c0621aed0e0527080597486",
+    "cases": [
+      {
+        "case": "cloud-browser-cores3",
+        "device": "cores3",
+        "kind": "browser",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "normalized_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+        "frame_sha256": "811ad0e0e1650750c88f1a8dc7d5c9c71d8dd1f085b5c0a5a5918f35ca15fb71",
+        "evidence_zip_sha256": "81834e08f9646ff708a44be30583d9bca72cbe9202ec4a9991f72401a22ab7fe",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "bf3cba8024e73dc1d39849b65717a0488f282cde99c048978ec78fb82ea7eb8d",
+          "capture_bytes": 13956,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "40868494879c4555d8abcb34045ae52ca102645c411ad01d4afe718a08c83528",
+          "session": "0036f3825af18e8b56609fb3ab648a5b174d494498340b183002c6fa88776dc0",
+          "terminal": "8e6aec4558d1fe01e1360d98eada5e25fe5dd6b2439c936141db2ca6c7ea43f8",
+          "response": "a410de5bd37fb8e6680cccc4c59a634d18311720a7e6dc7b27a9e5f9ca25e53c"
+        }
+      },
+      {
+        "case": "cloud-api-sticks3",
+        "device": "sticks3",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "fd85648dfa1fd9656448aa45e86ee63be537a4534e959e422c0be4d45b3466c7",
+        "normalized_firmware_sha256": "e9d52fa2459624f277e0d6aa2433ae42db61975b54e9d1c0eb47889cc4ba5579",
+        "frame_sha256": "1d306f71492e9a9a21f37e1570cf366f6d14f586299cf79919de7f795e9dd0b4",
+        "evidence_zip_sha256": "265f7db79dd5db6631ac677cf099e3ee2951dad4e1f750a32473f4cfd6e0a932",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "e4fdfaef311d64e34ddc6c0256fe40bcd2c91530bdb15e0764c042e5de2821aa",
+          "capture_bytes": 16107,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "e7155df09ac9b31b0df76e8df94afb9ef658bdafbe284418776547551b86c5ba",
+          "session": "ec954632f319ccddb2dfe6dbbec5ff528493a3d89b89553e1b530ff988f5eb83",
+          "terminal": "2f1cb087f652512cf82fc08c61d8874a8c1fbccb75de1177a323cdd40d88437d",
+          "response": "46659cfec450d3b0a757b5279dae237055f16c938399106dc14cabc756259375"
+        }
+      },
+      {
+        "case": "cloud-api-core2",
+        "device": "core2",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "normalized_firmware_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+        "frame_sha256": "7152c667c84537404ebf3ef49f8e48f35e09b5ef7f87e32840aa28a0405ad16d",
+        "evidence_zip_sha256": "dafd2c9b1f22e6863309015e66ebdd7d94462c635702c2b179e4fc6b740a3be6",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "4abe0d43ffd29975165ca4f11f6c8275cfa3320c269afcebd5874d2098304d9a",
+          "capture_bytes": 7839,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "e7155df09ac9b31b0df76e8df94afb9ef658bdafbe284418776547551b86c5ba",
+          "session": "cad200c4cd51174c8b41ed495bd34e473266df3e3427236a61c8fad10dac1ab4",
+          "terminal": "55e5e694ac7ef146d1ee06a304840e100ce86facced5bc7657f3ebe2c375c46a",
+          "response": "19b6b036448385c102c23a9cf075ffc4ff73f2568e060eeaaa8788c4ad8511b4"
+        }
+      },
+      {
+        "case": "cloud-api-atoms3r",
+        "device": "atoms3r",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "c289f7df74919b0b544e524d0117661e81429e0c3a4bb42623ccdf42200b952e",
+        "normalized_firmware_sha256": "262602882d69eeeb9d4160e2ba7b8934981009c26eb42e494aa5defcab6cba29",
+        "frame_sha256": "8082d9feb9c865c33b578d55ecd9ab9a1802ce312bdad5910a74e00419557661",
+        "evidence_zip_sha256": "69523888bc260c697706fe73d0497d8230a101ec3b0c9bbdd10870e79b560976",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "82a44d5fc96db0cea27f5828d276d146465a9bed97ca549bd2f2c66738de890b",
+          "capture_bytes": 13641,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "e7155df09ac9b31b0df76e8df94afb9ef658bdafbe284418776547551b86c5ba",
+          "session": "6489f97b207623cb1d56205d10c665037d8c0848791e2e2828f80da2c7155569",
+          "terminal": "3569b0e76726e51f3362b9e931026662e156ec85036e03d4964c1823045c033f",
+          "response": "d23e9c043e49f743b99217079bc79fdf93764d96098432a9172aca84491ee8c2"
+        }
+      },
+      {
+        "case": "cloud-api-stopwatch",
+        "device": "stopwatch",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "0bcb9269f42186ec0a66b503a4d97bb005fec72848c4374475a53009e1d3b24b",
+        "normalized_firmware_sha256": "7bf51befb4bdf7581367fdac993b6b3eb6a01f11c3f42c31a1feafa68365963c",
+        "frame_sha256": "f1703a49015a926e9f1b20d74c82841777c2d1d2e17fb4cecafad4095f929e7c",
+        "evidence_zip_sha256": "c0fbb2d59284c3b5ddd85672c32e432f8195778027a5a9efa15c35fc1ea1af0e",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "be30b20995473d99f23a1a337d26c85382fe656d0f1fff9a67e9cb3568d4c913",
+          "capture_bytes": 15293,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "e7155df09ac9b31b0df76e8df94afb9ef658bdafbe284418776547551b86c5ba",
+          "session": "83c72e9c2fc461877cccdf432cc3e0ccb435ec4372ac49dedc15ebd0f35f3edd",
+          "terminal": "ba6ee402ce5fc27a99aa158fde26fe103a811ba3bf54e58d4338d68c91fc94d2",
+          "response": "cd5aaf3290cf3570a8449ac3b9e098fd02cab4a0b39a1676a6806c5ad8970b48"
+        }
+      },
+      {
+        "case": "cloud-api-cardputer-adv",
+        "device": "cardputer-adv",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "normalized_firmware_sha256": "f9d6026012b893409b33fde8be2e7b508f6c669db8b6d4f42d56522fe2b7c9d4",
+        "frame_sha256": "f6d6c18922a4fee2c6c281ec6d67d3e11ac01aab7a8495eb4528a4e9748de8ca",
+        "evidence_zip_sha256": "923f91227985973b93d9cd8fdaf61fc6fa21dd429992106f7116f071930d44ed",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "ad5c276840a73f2b750e78181ac65bc0034fe620e233ebca2d5d503700a3e44a",
+          "capture_bytes": 14781,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "e7155df09ac9b31b0df76e8df94afb9ef658bdafbe284418776547551b86c5ba",
+          "session": "1195b812a1b2abc081821d5414cfefafdb73b25193c9250c603fee5c7997d7e4",
+          "terminal": "e28e7c2e40c06df8d549702eea7de7d8cd578c854749d7dd45b4b12c7cac5381",
+          "response": "363e5b22a28cc148f6b18f78a98e1144f3b940f558d09dc7f4a9eda23e89dfee"
+        }
+      },
+      {
+        "case": "cloud-api-cores3-repeat",
+        "device": "cores3",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+        "normalized_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+        "frame_sha256": "2538b7b6f0ae8a2e52e62b0730511556dadf1961e6a098a5c66fe5f3c6da4e01",
+        "evidence_zip_sha256": "26ff7d9c52eba2b515b0d47adc02ec2fe8d90bcf1fe3ec7424f84fe40de1622c",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "a45d080f042ff0bffbe8444f2cdec119d45c2ce930c3af3f7462b64dafb956fb",
+          "capture_bytes": 14206,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "424b8e12a59fdca644376b6daf761efc2f153ba93734b873ac2fb84245fb5d93",
+          "session": "14acd2478b78a75320e0c314e68ef0401c728ea1efb322c17c0ea4c974f21c34",
+          "terminal": "4b78e850c80bd1f453200776039ad559fa81846f9cb1185573ee4fd071af9b72",
+          "response": "77e072ed8e2505bfa99cdc6104e4eeb1de944057b7a21328350a3059cdf37f5d"
+        }
+      },
+      {
+        "case": "cloud-api-core2-repeat",
+        "device": "core2",
+        "kind": "api",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+        "normalized_firmware_sha256": "e3f0acd18a60b9bd914b38698b0ce2a5089a95625cd0c10ad5ed98d1d3ab54bb",
+        "frame_sha256": "b253be76d9bfb1ac07981c75e1f07c171b2869b92e35bc5e07914ffab15f5dbe",
+        "evidence_zip_sha256": "e7201c818b87280fbb81179870aef0b9beee8f464d6da2e84651b7d09bdec509",
+        "actual_cloud_response": true,
+        "cloud_proof": {
+          "capture_sha256": "b8c3b1b21ac79b40157d8a2fbb537a36ed2f5ec51bf95c5374dcc6815763511e",
+          "capture_bytes": 8138,
+          "actual_nonempty_access_code_received": true,
+          "analyzer_sha256": "20bdbc3b44ad9e1ec00081fff9a26018009a34680b511422c985dfed1f141e59",
+          "source": "same-session evidence ZIP network/capture.pcap"
+        },
+        "local_program_executed": false,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "424b8e12a59fdca644376b6daf761efc2f153ba93734b873ac2fb84245fb5d93",
+          "session": "b2b07656d5fd2a8c1e3a14eb4af583869fe77040e2e3c5ba90bcc6806d7ae7da",
+          "terminal": "ffc3570daccbf9a860ff61ea02f02b15a90747cba97994c166a0d58e7f4db346",
+          "response": "73ed30a0e5d567aaaf78a721bdf803d0135f76c11efe66c42a52696d45626fce"
+        }
+      },
+      {
+        "case": "local-program-cores3",
+        "device": "cores3",
+        "kind": "program",
+        "status": "PASS",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "official_reference_sha256": null,
+        "normalized_firmware_sha256": "700d243ade543627100c76e8b68a2740d2701d6b0801b1262f2642f0512861f7",
+        "frame_sha256": "6a862feb5be7487dcc6f07152402fff3866eb274e9961c2d17f0c470a833aaa6",
+        "evidence_zip_sha256": "06d81881c9e0f889717f4bee539d363b190d9f1303c5f2e5ec7c558aa4670d88",
+        "actual_cloud_response": false,
+        "cloud_proof": null,
+        "local_program_executed": true,
+        "cleanup": "PASS",
+        "receipt_sha256": {
+          "runtime": "a474ec40dd828da64f5a2be63ec5cd23fe72096b59501e5bd17c100fa51311d7",
+          "session": "13e671293ac63d369f74368e223d4591c3f6f2a29954b0a99210872c44d4ac1e",
+          "terminal": "9e1b883aaea7f644f31c3d8a0dcaf0c52eb76d74ab649ab0a60c81a75625f735",
+          "response": "13e671293ac63d369f74368e223d4591c3f6f2a29954b0a99210872c44d4ac1e"
+        }
+      }
+    ],
+    "cloud_reuse_provenance": null,
+    "inputs": {
+      "summary": {
+        "sha256": "79007386445f6fea861cbc374056d4377cbc3e8b9cc222b2f04efe29c16139bd",
+        "bytes": 2331
+      },
+      "visual_review": {
+        "sha256": "dfb5fd2a9d403bb208bd288bb2298bc84a290b1dff4f012d85378c8ef9d94b55",
+        "bytes": 2610
+      }
+    },
+    "complete_serial": {
+      "status": "PASS",
+      "cases": [
+        {
+          "case": "cloud-api-sticks3",
+          "serial_bytes": 1792,
+          "serial_sha256": "962e24704525822ed4fa3a80884ea0b4bb37e05a84ad8fa53ac35aa12a088d7e",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-browser-cores3",
+          "serial_bytes": 1630,
+          "serial_sha256": "194f78e922e72536c4b928b0504a5c2309fd493274ebd4eab8ef5b3025a81b47",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-atoms3r",
+          "serial_bytes": 1544,
+          "serial_sha256": "c971a5c35a9ce0f57c325e8a5663921eafbf2037246c2eca08c15094d12113fa",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-core2",
+          "serial_bytes": 724,
+          "serial_sha256": "ebfe73e1a777ea80a12e30b025d8bb017b15abf15077e088600409fe8be3fabd",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 0,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-stopwatch",
+          "serial_bytes": 1544,
+          "serial_sha256": "1a4e56155e31f61489978f1baa88aeea8bf614a12ddf970dc91e8e6fad564b96",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-cardputer-adv",
+          "serial_bytes": 2587,
+          "serial_sha256": "8ab77fb0d3cd5348dcaf8f111690556aa9aedfd66e720ecb9669e352836c7bdb",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-cores3-repeat",
+          "serial_bytes": 1632,
+          "serial_sha256": "1dcf7dfa8e4417575e92224e03de4e1c0380e500ce5fe841d01de46e19716c03",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "cloud-api-core2-repeat",
+          "serial_bytes": 724,
+          "serial_sha256": "0bd9749ce555a2ddde402bbdeb95699c5b4a8e16692deee6d270e54af22b9849",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 0,
+          "observed_boots": 1,
+          "fatal_markers": []
+        },
+        {
+          "case": "local-program-cores3",
+          "serial_bytes": 2165,
+          "serial_sha256": "ff0ead5eb331c500db8a0dc27b77e67a54751c344ede2200c3c83284a2ff3cec",
+          "reset_reason_lines": 1,
+          "rom_banner_lines": 1,
+          "observed_boots": 1,
+          "fatal_markers": []
+        }
+      ],
+      "count_rule": "ROM banner and reset-reason line from the same boot are counted separately, never added",
+      "app_byte_comparison": "NOT RUN for post9 bundles without Flash; original dry-run bundles are checked separately"
+    }
+  },
+  "original_dry_runs": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "cardputer-adv-mp3-original",
+        "status": "PASS",
+        "execution_status": "PASS",
+        "raw_helper_status": "REVIEW",
+        "raw_visual_status": "PENDING",
+        "independent_visual_review": "PASS",
+        "review_service_verdict": {
+          "status": "done",
+          "passed": true,
+          "source_flag_encoding": "JSON boolean or SQLite integer0/1",
+          "lane": "SIM_VERIFIED"
+        },
+        "original_firmware_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+        "normalized_firmware_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "application_bytes": [
+          {
+            "offset": 65536,
+            "bytes": 3342336,
+            "sha256": "b1f1402955aead3935b45c5a3b0c4700512ccdb77e4906fe87352c885d524a0c",
+            "unchanged": true
+          },
+          {
+            "offset": 3407872,
+            "bytes": 3342336,
+            "sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+            "unchanged": true
+          }
+        ],
+        "serial": {
+          "sha256": "432cdf0adfaf3e005c4c998d05e0e438b30f79e96d46ab8a3e8d35081abfd423",
+          "bytes": 3076,
+          "boot_banners": 1,
+          "fatal_markers": []
+        },
+        "evidence_zip_sha256": "1eacdfdbcf0ae2095b1324d0f44def7c7450e6e90b92a9cc1881f3c15dd71e06",
+        "observation_sha256": "51ff07c878d8ab1a519e047b2c72115bb8221671e8adabfb707cd95f4315be23",
+        "observation_scope": "raw helper case summary; independently reviewed separately",
+        "service_observation_sha256": "4a82bf9c0df710461d93871fa468c0b10e79c292d38514add84cca68dd9edd38",
+        "audio": {
+          "bytes": 1364992,
+          "sha256": "2b6553117149564e1d3253ef196333f5fb330dbad3399623d4a8beee4a0df81f",
+          "fixture_tone_hz": 524,
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "peak_abs": 1353,
+          "nonzero_samples": 677539
+        },
+        "board_movements": null,
+        "cleanup": "PASS",
+        "source_mode": "saved_snapshot",
+        "dry_run": true,
+        "burner_submitted": false
+      },
+      {
+        "case": "core2-2048-original",
+        "status": "PASS",
+        "execution_status": "PASS",
+        "raw_helper_status": "REVIEW",
+        "raw_visual_status": "PENDING",
+        "independent_visual_review": "PASS",
+        "review_service_verdict": {
+          "status": "done",
+          "passed": true,
+          "source_flag_encoding": "JSON boolean or SQLite integer0/1",
+          "lane": "SIM_VERIFIED"
+        },
+        "original_firmware_sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+        "normalized_firmware_sha256": "cd13c9bc7594ea3ad1994b1192d7bdd620ab1e6fa2adb2abf23152ebd80020d8",
+        "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+        "application_bytes": [
+          {
+            "offset": 65536,
+            "bytes": 505760,
+            "sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+            "unchanged": true
+          }
+        ],
+        "serial": {
+          "sha256": "353121f7108a20d9818c1e92d2fb9aa2a213d9bf07927bd56d8827fcd1cb3d7c",
+          "bytes": 325,
+          "boot_banners": 1,
+          "fatal_markers": []
+        },
+        "evidence_zip_sha256": "fab075b2f919ccadc2137f589b50717ec96ee146d57306fbdc598a26e4439739",
+        "observation_sha256": "ccd5ec9d9ada3dc7d9a25e724604e2df3f386a84a33f43b5c20f0b76858c7787",
+        "observation_scope": "raw helper case summary; independently reviewed separately",
+        "service_observation_sha256": "2fe4b5babcdf8f3e195227af38651bb6e34c8a25356bfa5c70db87eaddb13d5f",
+        "audio": null,
+        "board_movements": [
+          {
+            "input": "drag_right_1",
+            "status": "PASS",
+            "frame_sha256": "d02e98b55fa01ead571f7b02ad5469fb4d072d96f24c9caefdcff1c2bd315fa4",
+            "spawn": [
+              1,
+              3,
+              2
+            ]
+          },
+          {
+            "input": "drag_left_1",
+            "status": "PASS",
+            "frame_sha256": "1d549cf852378a85884cc20ff5a321fec9e9e30e65fa78de9f1cef8fd0ed505e",
+            "spawn": [
+              3,
+              2,
+              2
+            ]
+          },
+          {
+            "input": "drag_up_1",
+            "status": "PASS",
+            "frame_sha256": "846d1663e288c8eed0d3a388716360207a6534392a667e2e22a5dbdf4f99ea5a",
+            "spawn": [
+              1,
+              3,
+              2
+            ]
+          },
+          {
+            "input": "drag_down_1",
+            "status": "PASS",
+            "frame_sha256": "685695985ae413de4668eb8849dec811927112a51cb7c7ed1d3a4ac567b8d64a",
+            "spawn": [
+              0,
+              3,
+              2
+            ]
+          },
+          {
+            "input": "drag_right_2",
+            "status": "PASS",
+            "frame_sha256": "153b038032048712f79bd60f7af5af00b32ded02d9d6a567377d41ab367c8d56",
+            "spawn": [
+              1,
+              1,
+              2
+            ]
+          },
+          {
+            "input": "drag_left_2",
+            "status": "PASS",
+            "frame_sha256": "ff2742d2cf76c055a80aadf80cb9d84746aa1266129bbc62584b36ca8c04fe17",
+            "spawn": [
+              0,
+              3,
+              2
+            ]
+          },
+          {
+            "input": "drag_up_2",
+            "status": "PASS",
+            "frame_sha256": "985860ad68a691739637c9b8897ccbec52bcd699d1749725fd345254139686f4",
+            "spawn": [
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "input": "drag_down_2",
+            "status": "PASS",
+            "frame_sha256": "b67a66f414ae36ca0693947c037453f23548a54c4b75f3e5a7e192f168b67e34",
+            "spawn": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "cleanup": "PASS",
+        "source_mode": "saved_snapshot",
+        "dry_run": true,
+        "burner_submitted": false
+      }
+    ],
+    "inputs": {
+      "raw_aggregate": {
+        "sha256": "87bd172d66fc1862a78a1be26d92d3b0b1b4909ba5bc6620cbfec9a0ab8f7223",
+        "bytes": 35008
+      },
+      "independent_visual_review": {
+        "sha256": "9f20604dd22a8ef5772cfe52398b49aac8105e6977f14aee8c1b5c06383d2156",
+        "bytes": 1939
+      }
+    },
+    "physical_acoustics": "NOT RUN"
+  },
+  "retained_infrastructure_attempts": [
+    {
+      "status": "INFRA_FAILED",
+      "stage": "original-review-preflight",
+      "reason": "Missing Pillow in initial Python import path",
+      "guest_created": false,
+      "review_job_requested": false,
+      "output_directory_created": false,
+      "repair": "Use already installed Python dependency path; helper source unchanged",
+      "source_sha256": "f93408ca1450282ac16623dd47a9483a173bcca194352070c7dd8dbe4b2a5cae",
+      "inputs": {
+        "receipt": {
+          "sha256": "1d4ee4bde0fc00155b8bcafb280885b2c542473848d88fe29dc1b5f59651db12",
+          "bytes": 441
+        },
+        "log": {
+          "sha256": "4fffe6326c3837eff787d917ac60b1365a009ddebd437e9736ee309414d92440",
+          "bytes": 431
+        }
+      },
+      "interpretation": "Retained infrastructure attempt; does not erase later separate accepted dry-run or imply an application failure"
+    }
+  ],
+  "retained_auditor_history": {
+    "scope": "Retained auditor execution history",
+    "history_sha256": "084ea9a0054f59f3d40584565417016c07b2e01090551d6dddd424df43db6438",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "FAIL",
+        "scope": "Read-only auditor tool; not firmware or product failure",
+        "error_type": "ValueError",
+        "reason": "Wrong host-control log locator rejected by exact hash gate",
+        "product_or_firmware_failure": false,
+        "service_mutation_performed": false,
+        "receipt_sha256": "87114a079289b87f5a0eec48ea9669b71f5c2bc24175218ead22b42af0119627",
+        "log_sha256": "0b3284764f245547785868762b8ca1c20c990dd4ea2c9eed0728c236dd88bd1a"
+      },
+      {
+        "attempt": 2,
+        "status": "FAIL",
+        "scope": "Read-only auditor tool; not firmware or product failure",
+        "error_type": "TypeError",
+        "reason": "Auditor applied len() to the documented integer active_sessions field",
+        "product_or_firmware_failure": false,
+        "service_mutation_performed": false,
+        "receipt_sha256": "a7e79064bdee60ffff7d499cd57324aebc76c42c42e1e0cd67717955e11cb39b",
+        "log_sha256": "2cefd3a28cea95898d8382c65c46430a1a4e8c08f1bdc5f050bc223315bcad81"
+      }
+    ],
+    "final_receipt_sha256": "fe149d7f517834a8007f31cc141c2f3d66995421adf0e1fb76fa4275e8b0773d"
+  },
+  "limits": {
+    "physical_hardware": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "live_rollback": "NOT RUN",
+    "burner_submission": "NOT RUN"
+  }
+}

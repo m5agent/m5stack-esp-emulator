@@ -22,6 +22,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| 经典 ESP32 时钟与 C6 USB 后续 / virtual-device validation | `4a5d28e6…`、Xtensa `5ce7d9f5…`、C6 `80d92a6c…`：原 JIGGLER 两轮有界自适应的主界面后虚拟时间下界均超过 300 秒，默认模式在设置页后继续至少 15.866 虚拟秒。C6 原 Mesh/Bruce/Honeypot 及三页串口切换、Nesso 共享 pad 17/17 通过。联合环境负载回归 69/69、每项单 attempt、零 retry，执行 964.700 秒并清场。main 已快进且两常驻角色健康检查通过，发布后 9/9 配对与编程、两份原版 dry-run 通过，首次 dry-run 脚本依赖失败保留 | [原版、控制器与逐项矩阵](evidence/2026-11-13-native-clock-usb-followup/README.md) |
 | main 与常驻发布后验收 / virtual-device validation | 精确源码 `4f09fcba…`、CI `43414271086`、Xtensa `35c35ef2…` / C6 `3679e74e…`：两个常驻角色更新，八条原版云端配对及一条网页本地编程通过；八云端复用第二轮，最终编程来自第四次，前三次脚本 INFRA_FAILED 保留。五份原版方向与 MP3/2048 dry-run 通过；历史/配置/备份核对及最终清场完成，Burner 未提交 | [交付、同会话摘要与边界](evidence/2026-11-13-native-resident-delivery/README.md) |
 | Core2 AWS 最终显示控制 / virtual-device validation | 同原 BIN `22ee8c0f…` 在 `35c35ef2…` 观察 90.024 秒，1 boot/0 fatal，三张介绍页的时钟和滚动条继续更新，应用字节不变并取证后清场。首次路径解析 harness 失败与 BMI270 读取错误保留；不授传感器、触摸或云端功能 | [原 BIN、帧与完整串口摘要](evidence/2026-11-13-native-resident-delivery/aws-summary.json) |
 | #225 StickC Plus2 GPIO 显示与 BR/EDR 定时器 / virtual-device validation | 148 补丁 fresh Xtensa `0d53fcb1…` 通过 GPIO 与 BR/EDR qtest。原 JIGGLER 在默认 shift 5 经 C 长按到主界面，85 秒无复位；同原 BIN 的 auto 对照在 guest 14.844 秒触发 IDLE0 任务看门狗并复位。Plus2 UIFlow2 按键和 Core2 触摸回归通过。BLE HID 未验 | [运行时、原 BIN、回归与失败控制](../tests/firmware/stickc_plus2_bt_lp_clock/rwbt-sleep-evidence-summary.json) |

@@ -51,8 +51,8 @@ IRQ 调度状态和 CPU 变频连续性已完成 [fresh 原版复验](../tests/f
 按实际 `qemu` 会话元数据、特定自检断言及仍为 planned 的 controller 合同分类；
 原应用未就绪，闭源 P4 后端的控制器与 endpoint 缺口没有由分类修正关闭。
 
-正式 `35c35ef2…` 上 #225 的应用就绪和 BLE HID 数据面仍为 `PARTIAL`；
-私有 GPIO 候选不属于本次交付运行时，也不能改变正式原 BIN 的判定。
+[#225 最终原版对照](../tests/firmware/stickc_plus2_bt_lp_clock/bounded-adaptive-evidence-summary.json)在 `5ce7d9f5…` 上通过默认固定步长和两轮有界自适应：原 JIGGLER 进入主界面及设置页，正常看门狗下没有复位。DPORT/RWBT 复位域另有控制器 qtest。旧无界自适应失败保留，其首次 IDLE0 超时的完整事件链尚未定位；BLE HID 数据面不由本次显示/输入结果授予。
+[C6 最终原版与控制器对照](../tests/firmware/esp32c6_shared_irq_pad/README.md)记录真实 eFuse、USB endpoint、TSF 与共享 GPIO3 pad 的限定路径。pad 通过不代表 CPU GPIO 中断矩阵、BMI IRQ 或 FT6336 精确中断时序已实现；Honeypot 只通过完整配置输出，AP/HTTP/RF 未验，802.15.4 数据面仍缺失。
 Core2 AWS 原版的最终显示复验通过，但串口中的 BMI270 加速度/陀螺仪读取失败
 保留，未由介绍页授予传感器或云端功能通过。
 

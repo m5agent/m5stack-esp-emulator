@@ -23,6 +23,8 @@
 
 [2026-11-13 main 与常驻服务交付](evidence/2026-11-13-native-resident-delivery/README.md)记录最终运行时、真实配对/编程、原版方向和 MP3/2048 dry-run，保留验收脚本失败、云端结果复用与未完成范围。
 
+[2026-11-13 经典 ESP32 时钟与 C6 USB 后续](evidence/2026-11-13-native-clock-usb-followup/README.md)记录原版 JIGGLER、最终 C6 原版与串口、Nesso 共享 pad、当前原版包身份和 69 项联合回归。交付与发布后复验单列。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
@@ -355,6 +357,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [#211 浏览器上传、输入与证据验收](evidence/2026-11-13-browser-skill-acceptance/README.md) | 证据/差异 | `2026-11-13` | 实际 WASM demo 触摸/PIR、原版 BIN 上传/双 SHA/REPL 边界/下载/负控和 Worker 清场；测试服务器 404 失败独立保留 |
 | [原生固件兼容性后续](evidence/2026-11-13-native-compatibility-followup/README.md) | 日期化原生证据 | `2026-11-13` | 原 BIN 与公开源码对照；SPI SD、缓存、RMT、C6 和 SDK 竞态边界 |
 | [最终原生高负载回归](evidence/2026-11-13-native-final-regression/README.md) | 日期化原生证据 | `2026-11-13` | fresh Xtensa/C6 两轮完整矩阵、真实负载、零重试与清场；发布见独立交付证据 |
+| [经典 ESP32 时钟与 C6 USB 后续](evidence/2026-11-13-native-clock-usb-followup/README.md) | 日期化验证与交付证据 | `2026-11-13` | 原版 JIGGLER/C6、共享 pad、69 项矩阵、公开固件包身份和发布后复验 |
 | [main 与常驻服务交付](evidence/2026-11-13-native-resident-delivery/README.md) | 日期化交付证据 | `2026-11-13` | 精确 main/CI、最终 native、配对/编程、原版方向与 dry-run；失败和结果复用保留 |
 | [原生运行时恢复与复验](evidence/2026-11-13-native-runtime-recovery/README.md) | 日期化原生证据 | `2026-11-13` | 新构建独立原版复验、旧证据可用性与 Launcher mutex 追踪；失败不被历史通过覆盖 |
 | [原生帧方向与同帧派生](evidence/2026-11-13-native-frame-orientation/README.md) | 证据/差异 | `2026-11-13` | 真实MADCTL/玻璃几何、same-sample显示旋转、五原版与缓存/历史；raw/3D/触摸不变 |

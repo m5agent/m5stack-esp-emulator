@@ -77,7 +77,7 @@ API and three-page read-only observation. The browser completed before ZIP
 export and stop. It is separate from the original 180-second run: the first
 UI borrow reached that earlier owner only after it had stopped, and its
 preflight infrastructure failure is retained. The detailed [browser response
-and frame audit](https://github.com/m5agent/m5stack-esp-emulator/blob/224a6e796d2da842ed4952e715a28fd844394262/tests/firmware/esp32c6_usb_serial_jtag/serial-channel-ui/final-v3/summary.json)
+and frame audit](https://github.com/m5agent/m5stack-esp-emulator/blob/27a1706ba1500cde7cd0e77beb479515b0beb164/tests/firmware/esp32c6_usb_serial_jtag/serial-channel-ui/final-v3/summary.json)
 is separate: 18 API chunks, 13 page responses and nine reviewed screenshots.
 No firmware input was injected.
 
