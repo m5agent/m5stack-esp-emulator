@@ -4540,7 +4540,7 @@ class DeviceSession:
                     "session-isolated SD image checksum changed"
                 )
             self.storage_info = {
-                "interface": "sdmmc",
+                "interface": self.storage_config.get("interface", "sdmmc"),
                 "format": "raw",
                 "artifact_id": artifact_id,
                 "sha256": storage_sha,

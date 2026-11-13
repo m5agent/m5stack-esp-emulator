@@ -228,6 +228,42 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "CoreS3 SD"},
     },
     {
+        "id": "core2-sd",
+        "expected_status": "PASS",
+        "reason": (
+            "The board-wired Core2 SPI SD path uses the official M5Unified "
+            "pin table; native SDCard writes and reads a sector and an "
+            "independent host oracle checks the retained raw image."
+        ),
+        "checks": [
+            {"name": "sdspi_init", "status": "PASS"},
+            {"name": "sdspi_write_block", "status": "PASS"},
+            {"name": "sdspi_readback", "status": "PASS"},
+            {"name": "sd_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_sd",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_driver": "none",
+        "memory": "0",
+        "deterministic": True,
+        "wait": "22",
+        "inputs": [],
+        "qom": [],
+        "allow_static_frame": True,
+        "sd_image": True,
+        "env": {"M5SW_SPI_SD_IMAGE": "{out_dir}/sd.img"},
+        "disk": {"image": "{out_dir}/sd.img", "sector": 100},
+        "pre_input_marker": "CORE2_SD_READY",
+        "post_input_marker": "CORE2_SD_DRAW_COMPLETE",
+        "serial_expect": ["CORE2_SD_RW_PASS", "CORE2_SD_DRAW_COMPLETE"],
+        "frame_color": {"x": 4, "y": 4, "label": "Core2 SD"},
+    },
+    {
         "id": "cardputer-adv-imu",
         "expected_status": "PASS",
         "reason": (

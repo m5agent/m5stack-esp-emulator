@@ -1264,7 +1264,8 @@
       "tested_devices": [
         "cores3",
         "cardputer-adv",
-        "papercolor"
+        "papercolor",
+        "core2"
       ]
     },
     "usb-host": {
@@ -2276,6 +2277,17 @@
           "compatibility": true,
           "qom_path": "/machine/atecc608",
           "status": "simulated"
+        },
+        {
+          "id": "sd",
+          "model": "sd-card-spi",
+          "interface": "spi",
+          "pins": {
+            "sck": 18,
+            "mosi": 23,
+            "miso": 38,
+            "cs": 4
+          }
         }
       ]
     },

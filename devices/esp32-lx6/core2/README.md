@@ -20,7 +20,7 @@
 | 重量 | 45.1 g |
 | 显示 | 320×240 ips，2"，ILI9342C / ILI9342E，触摸 |
 | 控制 | Touch, PWR |
-| 外设 | imu:mpu6886, rtc:bm8563, microphone:spm1423, speaker:ns4168, power-monitor:ina3221 |
+| 外设 | imu:mpu6886, rtc:bm8563, microphone:spm1423, speaker:ns4168, power-monitor:ina3221, sd |
 
 ## 模拟状态
 

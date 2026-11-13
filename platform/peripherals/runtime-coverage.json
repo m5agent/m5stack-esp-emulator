@@ -543,6 +543,9 @@
     ],
     "paperdiy-et047-factory": [
       "gpio-button"
+    ],
+    "core2-sd": [
+      "sd-card-spi"
     ]
   },
   "device_case_groups": {
@@ -794,7 +797,8 @@
         "core2-mic",
         "core2-power-monitor",
         "core2-imu",
-        "core2-axp192"
+        "core2-axp192",
+        "core2-sd"
       ],
       "external": [
         "core2-unified",
@@ -810,7 +814,8 @@
         "ns4168",
         "pwr-button",
         "axp192",
-        "atecc608"
+        "atecc608",
+        "sd-card-spi"
       ]
     },
     "nesso-n1": {
@@ -1328,7 +1333,8 @@
     "sd-card-spi": {
       "matrix": [
         "cardputer-adv-sd",
-        "cores3-sd"
+        "cores3-sd",
+        "core2-sd"
       ]
     },
     "usb-host": {

@@ -1,0 +1,453 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] Classic SPI: hardware CS, Core2 SD and bidirectional DMA
+
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+index cc54855..7045764 100644
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -10,6 +10,7 @@
+  */
+ #include "qemu/osdep.h"
+ #include "m5stopwatch.h"
++#include "hw/ssi/esp32_spi.h"
+ 
+ #define SD_BLOCK_SIZE 512
+ #define SD_RESP_SIZE  1024
+@@ -463,7 +464,7 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+     return out;
+ }
+ 
+-void m5_spi_sd_attach(DeviceState *spi, int cs_pin)
++static M5SpiSdState *m5_spi_sd_create(void)
+ {
+     M5SpiSdState *s = g_new0(M5SpiSdState, 1);
+     const char *path = getenv("M5SW_SPI_SD_IMAGE");
+@@ -483,5 +484,18 @@ void m5_spi_sd_attach(DeviceState *spi, int cs_pin)
+         }
+     }
+     sd_set_identity(s, s->image_size);
+-    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, s, cs_pin);
++    return s;
++}
++
++void m5_spi_sd_attach(DeviceState *spi, int cs_pin)
++{
++    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, m5_spi_sd_create(), cs_pin);
++}
++
++void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin)
++{
++    /* Both GP-SPI controllers can be routed to the one physical card bus. */
++    M5SpiSdState *s = m5_spi_sd_create();
++    esp32_spi_attach_spi_slave(spi_a, &sd_spi_ops, s, cs_pin);
++    esp32_spi_attach_spi_slave(spi_b, &sd_spi_ops, s, cs_pin);
+ }
+diff --git a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+index a983ba1..88fea47 100644
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -86,6 +86,7 @@ void m5core2_board_init(Esp32SocState *s)
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 15, 5);
+     esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 15, 5);
++    m5_spi_sd_attach_classic(DEVICE(&s->spi[2]), DEVICE(&s->spi[3]), 4);
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 3042440..de6668d 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -167,6 +167,7 @@ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin);
+ /* FLIR Lepton 3.0 VoSPI model attached to a classic ESP32 SPI controller. */
+ void m5_lepton_attach_spi(DeviceState *dev, DeviceState *spi);
+ void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+index 95f9bc6..1c7e6ab 100644
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -19,6 +19,7 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/ssi/ssi.h"
+ #include "hw/ssi/esp32_spi.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/misc/esp32_flash_enc.h"
+ #include "hw/m5stopwatch/m5stopwatch.h"
+ #include "exec/cpu-common.h"
+@@ -59,38 +60,83 @@ static void esp32_spi_update_irq(Esp32SpiState *s)
+     qemu_set_irq(s->irq, level);
+ }
+ 
+-static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link,
+-                                  uint32_t remaining, bool command_phase,
+-                                  bool panel_selected)
++/* Classic DMA descriptors use a 20-bit DRAM link, followed by full buffer
++ * and next-descriptor addresses. TX length and RX capacity are distinct. */
++static uint32_t esp32_spi_dma_copy(uint32_t link, uint8_t *data,
++                                  uint32_t bytes, bool receive)
+ {
+-    uint32_t desc_addr = 0x3ff00000u | (link & 0xfffff);
++    uint32_t address = 0x3ff00000u | (link & 0xfffff);
++    uint32_t copied = 0;
+ 
+-    for (unsigned descriptors = 0; remaining && descriptors < 4096;
+-         descriptors++) {
++    for (unsigned seen = 0; copied < bytes && address && seen < 4096; seen++) {
+         uint32_t desc[3];
+-        uint32_t length, eof, buf;
+-
+-        cpu_physical_memory_read(desc_addr, desc, sizeof(desc));
+-        length = (desc[0] >> 12) & 0xfff;
+-        length = MIN(length, remaining);
+-        eof = (desc[0] >> 30) & 1;
+-        buf = desc[1];
+-        if (length) {
+-            uint8_t *data = g_malloc(length);
+-            cpu_physical_memory_read(buf, data, length);
+-            esp32_spi_txrx_buffer(s, data, length, 0);
+-            if (panel_selected) {
+-                m5_spi_panel_write((M5SpiPanelState *)s->m5_panel,
+-                                   data, length, command_phase);
++        cpu_physical_memory_read(address, desc, sizeof(desc));
++        if (!(desc[0] & (1u << 31))) {
++            break;
++        }
++        uint32_t capacity = receive ? desc[0] & 0xfff : (desc[0] >> 12) & 0xfff;
++        uint32_t length = MIN(capacity, bytes - copied);
++        if (!length) {
++            break;
++        }
++        if (receive) {
++            cpu_physical_memory_write(desc[1], data + copied, length);
++            /* Return ownership after the buffer bytes are visible. */
++            desc[0] = (desc[0] & ~0xc0fff000u) | (length << 12);
++            if (copied + length == bytes) {
++                desc[0] |= 1u << 30;
+             }
+-            g_free(data);
+-            remaining -= length;
++            cpu_physical_memory_write(address, desc, sizeof(uint32_t));
++        } else {
++            cpu_physical_memory_read(desc[1], data + copied, length);
+         }
+-        if (eof || desc[2] == 0) {
++        copied += length;
++        if (!receive && (desc[0] & (1u << 30))) {
+             break;
+         }
+-        desc_addr = desc[2];
++        address = desc[2];
++    }
++    return copied;
++}
++
++static void esp32_spi_dma_transfer(Esp32SpiState *s, uint32_t tx_bytes,
++                                    uint32_t rx_bytes, bool command_phase,
++                                    bool panel_selected)
++{
++    /* MOSI/MISO length registers are 24-bit bit counts. */
++    uint32_t bytes = MAX(tx_bytes, rx_bytes);
++    uint8_t *data = g_malloc0(bytes);
++    uint32_t fifo_size = sizeof(s->data_reg);
++
++    if (s->m5_dma_out_link && tx_bytes) {
++        uint32_t supplied = esp32_spi_dma_copy(s->m5_dma_out_link, data,
++                                                tx_bytes, false);
++        /* A truncated/unowned chain cannot manufacture bytes on MOSI. */
++        if (supplied < tx_bytes) {
++            tx_bytes = supplied;
++            rx_bytes = MIN(rx_bytes, supplied);
++        }
++    } else {
++        for (uint32_t i = 0; i < tx_bytes; i++) {
++            data[i] = ((uint8_t *)s->data_reg)[i % fifo_size];
++        }
++    }
++    if (panel_selected && tx_bytes) {
++        m5_spi_panel_write((M5SpiPanelState *)s->m5_panel, data,
++                           tx_bytes, command_phase);
++    }
++    esp32_spi_txrx_buffer(s, data, tx_bytes, rx_bytes);
++    if (panel_selected && rx_bytes) {
++        m5_spi_panel_read((M5SpiPanelState *)s->m5_panel, data, rx_bytes);
++    }
++    if (s->m5_dma_in_link && rx_bytes) {
++        esp32_spi_dma_copy(s->m5_dma_in_link, data, rx_bytes, true);
++    } else if (rx_bytes) {
++        memcpy(s->data_reg, data, MIN(rx_bytes, fifo_size));
+     }
++    s->m5_dma_out_link = 0;
++    s->m5_dma_in_link = 0;
++    g_free(data);
+ }
+ 
+ static uint64_t esp32_spi_read(void *opaque, hwaddr addr, unsigned int size)
+@@ -185,10 +231,10 @@ static void esp32_spi_write(void *opaque, hwaddr addr,
+         s->user2_reg = value;
+         break;
+     case A_SPI_MOSI_DLEN:
+-        s->mosi_dlen_reg = value;
++        s->mosi_dlen_reg = value & 0xffffff;
+         break;
+     case A_SPI_MISO_DLEN:
+-        s->miso_dlen_reg = value;
++        s->miso_dlen_reg = value & 0xffffff;
+         break;
+     case A_SPI_PIN:
+         s->pin_reg = value;
+@@ -202,6 +248,12 @@ static void esp32_spi_write(void *opaque, hwaddr addr,
+         esp32_spi_update_irq(s);
+         break;
+     case 0x100:
++        if (value & (1u << 3)) {
++            s->m5_dma_out_link = 0;
++        }
++        if (value & (1u << 2)) {
++            s->m5_dma_in_link = 0;
++        }
+         if (getenv("M5SW_ESP32_SPI_DMA_TRACE")) {
+             fprintf(stderr, "[esp32-spi-dma] conf=%08lx\n",
+                     (unsigned long)value);
+@@ -218,6 +270,17 @@ static void esp32_spi_write(void *opaque, hwaddr addr,
+         if (value & 0xfffff) {
+             s->m5_dma_out_link = value & 0xfffff;
+         }
++        if (value & (1u << 28)) {
++            s->m5_dma_out_link = 0;
++        }
++        break;
++    case 0x108:
++        if (value & 0xfffff) {
++            s->m5_dma_in_link = value & 0xfffff;
++        }
++        if (value & (1u << 28)) {
++            s->m5_dma_in_link = 0;
++        }
+         break;
+     }
+ }
+@@ -255,8 +318,36 @@ static void esp32_spi_txrx_buffer(Esp32SpiState *s, void *buf, int tx_bytes, int
+     }
+ }
+ 
++static int esp32_spi_pin_cs_level(Esp32SpiState *s, int pin)
++{
++    int route = esp32_gpio_matrix_out_signal(pin, false);
++    int index = -1;
++
++    if (route == 256) { /* SIG_GPIO_OUT_IDX: software GPIO output. */
++        return esp32_gpio_get_line(pin);
++    }
++    if (s->gpio_cs0_signal == 11) { /* HSPI CS0/1/2. */
++        index = route == 11 ? 0 : route == 61 ? 1 : route == 62 ? 2 : -1;
++    } else if (s->gpio_cs0_signal == 68 && route >= 68 && route <= 70) {
++        index = route - 68; /* VSPI CS0/1/2. */
++    }
++    /* A different controller's output must not inherit stale GPIO state. */
++    return index < 0 || (s->pin_reg & (1u << index)) ? 1 : s->gpio_cs0_level;
++}
++
+ static void esp32_spi_cs_set(Esp32SpiState *s, int value)
+ {
++    s->gpio_cs0_level = value;
++    if (s->spi_slave_ops) {
++        int level = esp32_spi_pin_cs_level(s, s->spi_slave_cs_pin);
++        if (level != s->spi_slave_cs_level) {
++            s->spi_slave_cs_level = level;
++            if (s->spi_slave_ops->set_cs) {
++                s->spi_slave_ops->set_cs(s->spi_slave_opaque, level);
++            }
++        }
++    }
++
+     for (int i = 0; i < ESP32_SPI_CS_COUNT; ++i) {
+         qemu_set_irq(s->cs_gpio[i], ((s->pin_reg & (1 << i)) == 0) ? value : 1);
+     }
+@@ -270,60 +361,59 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     for (int i = 0; i < t->extra_dummy_bytes; i++) {
+         ssi_transfer(s->spi, 0xff);
+     }
+-    if (!s->m5_panel) {
++    bool panel_selected = s->m5_panel && (s->m5_cs_pin < 0 ||
++                          !esp32_spi_pin_cs_level(s, s->m5_cs_pin));
++    bool command_phase = s->m5_dc_pin >= 0
++                       ? !esp32_gpio_get_line(s->m5_dc_pin) : false;
++
++    if ((s->m5_dma_out_link && t->data_tx_bytes) ||
++        (s->m5_dma_in_link && t->data_rx_bytes)) {
++        esp32_spi_dma_transfer(s, t->data_tx_bytes, t->data_rx_bytes,
++                               command_phase, panel_selected);
++    } else if (!s->m5_panel) {
+         esp32_spi_txrx_buffer(s, t->data, t->data_tx_bytes, t->data_rx_bytes);
+     } else {
+-        bool panel_selected = s->m5_cs_pin < 0 || !esp32_gpio_get_line(s->m5_cs_pin);
+-        bool command_phase = s->m5_dc_pin >= 0
+-                           ? !esp32_gpio_get_line(s->m5_dc_pin) : false;
++        uint32_t capacity = ESP32_SPI_BUF_WORDS * sizeof(uint32_t);
++        uint32_t remaining = t->data_tx_bytes;
++        /*
++         * Full-duplex transactions (DOUTDIN) copy the received MISO
++         * bytes back into the same data buffer.  A panel on MOSI must
++         * see the original TX bytes, so keep a snapshot for the sink.
++         */
++        uint8_t tx_snapshot[ESP32_SPI_BUF_WORDS * sizeof(uint32_t)];
++        const uint8_t *tx = (const uint8_t *)t->data;
++
++        if (t->data == &s->data_reg[ESP32_SPI_BUF_WORDS / 2]) {
++            capacity /= 2;
++        }
++        if (remaining) {
++            memcpy(tx_snapshot, t->data, MIN(remaining, capacity));
++            tx = tx_snapshot;
++        }
++        esp32_spi_txrx_buffer(s, t->data, MIN(remaining, capacity),
++                              MIN(t->data_rx_bytes, capacity));
++        if (panel_selected && t->data_rx_bytes) {
++            /* Capture the selected panel response on SPI clocks. FIFO
++             * reads after CS deassertion must retain this same value.
++             * Sub-byte beginRead clocks carry the turnaround bit. */
++            memset(t->data, 0xff, MIN(t->data_rx_bytes, capacity));
++            m5_spi_panel_read((M5SpiPanelState *)s->m5_panel,
++                              (uint8_t *)t->data,
++                              MIN((s->miso_dlen_reg + 1) / 8, capacity));
++        }
++        while (remaining) {
++            uint32_t length = MIN(remaining, capacity);
+ 
+-        if (s->m5_dma_out_link && t->data_tx_bytes) {
+-            esp32_spi_m5_dma_panel(s, s->m5_dma_out_link,
+-                                   t->data_tx_bytes, command_phase, panel_selected);
+-            s->m5_dma_out_link = 0;
+-        } else {
+-            uint32_t capacity = ESP32_SPI_BUF_WORDS * sizeof(uint32_t);
+-            uint32_t remaining = t->data_tx_bytes;
+-            /*
+-             * Full-duplex transactions (DOUTDIN) copy the received MISO
+-             * bytes back into the same data buffer.  A panel on MOSI must
+-             * see the original TX bytes, so keep a snapshot for the sink.
+-             */
+-            uint8_t tx_snapshot[ESP32_SPI_BUF_WORDS * sizeof(uint32_t)];
+-            const uint8_t *tx = (const uint8_t *)t->data;
+-
+-            if (t->data == &s->data_reg[ESP32_SPI_BUF_WORDS / 2]) {
+-                capacity /= 2;
+-            }
+-            if (remaining && remaining <= sizeof(tx_snapshot)) {
+-                memcpy(tx_snapshot, t->data, remaining);
+-                tx = tx_snapshot;
+-            }
+-            esp32_spi_txrx_buffer(s, t->data, MIN(remaining, capacity),
+-                                  MIN(t->data_rx_bytes, capacity));
+-            if (panel_selected && t->data_rx_bytes) {
+-                /* Capture the selected panel response on SPI clocks. FIFO
+-                 * reads after CS deassertion must retain this same value.
+-                 * Sub-byte beginRead clocks carry the turnaround bit. */
+-                memset(t->data, 0xff, MIN(t->data_rx_bytes, capacity));
+-                m5_spi_panel_read((M5SpiPanelState *)s->m5_panel,
+-                                  (uint8_t *)t->data,
+-                                  MIN((s->miso_dlen_reg + 1) / 8, capacity));
++            if (panel_selected) {
++                m5_spi_panel_write((M5SpiPanelState *)s->m5_panel, tx,
++                                   length, command_phase);
+             }
+-            while (remaining) {
+-                uint32_t length = MIN(remaining, capacity);
+-
+-                if (panel_selected) {
+-                    m5_spi_panel_write((M5SpiPanelState *)s->m5_panel, tx,
+-                                       length, command_phase);
+-                }
+-                remaining -= length;
+-                if (remaining) {
+-                    /* The classic controller repeats its FIFO for long
+-                     * non-DMA writes; never read past that register bank. */
+-                    esp32_spi_txrx_buffer(s, t->data,
+-                                          MIN(remaining, capacity), 0);
+-                }
++            remaining -= length;
++            if (remaining) {
++                /* The classic controller repeats its FIFO for long
++                 * non-DMA writes; never read past that register bank. */
++                esp32_spi_txrx_buffer(s, tx_snapshot,
++                                      MIN(remaining, capacity), 0);
+             }
+         }
+     }
+@@ -345,9 +435,12 @@ static void esp32_spi_slave_cs(void *opaque, int pin, int level)
+ {
+     Esp32SpiState *s = ESP32_SPI(opaque);
+ 
+-    s->spi_slave_cs_level = level;
+-    if (s->spi_slave_ops) {
+-        s->spi_slave_ops->set_cs(s->spi_slave_opaque, level);
++    level = esp32_spi_pin_cs_level(s, pin);
++    if (level != s->spi_slave_cs_level) {
++        s->spi_slave_cs_level = level;
++        if (s->spi_slave_ops && s->spi_slave_ops->set_cs) {
++            s->spi_slave_ops->set_cs(s->spi_slave_opaque, level);
++        }
+     }
+ }
+ 
+@@ -457,7 +550,7 @@ static void esp32_spi_do_command(Esp32SpiState* s, uint32_t cmd_reg)
+ 
+     case R_SPI_CMD_USR_MASK:
+         maybe_encrypt_data(s);
+-        if (FIELD_EX32(s->user_reg, SPI_USER, COMMAND) || FIELD_EX32(s->user2_reg, SPI_USER2, COMMAND_BITLEN)) {
++        if (FIELD_EX32(s->user_reg, SPI_USER, COMMAND)) {
+             t.cmd = FIELD_EX32(s->user2_reg, SPI_USER2, COMMAND_VALUE);
+             t.cmd_bytes = bitlen_to_bytes(FIELD_EX32(s->user2_reg, SPI_USER2, COMMAND_BITLEN));
+         } else {
+@@ -515,12 +608,14 @@ static void esp32_spi_reset_hold(Object *obj, ResetType type)
+ {
+     Esp32SpiState *s = ESP32_SPI(obj);
+     s->pin_reg = 0x6;
++    s->gpio_cs0_level = 1;
+     s->user1_reg = FIELD_DP32(0, SPI_USER1, ADDR_BITLEN, 23);
+     s->user1_reg = FIELD_DP32(s->user1_reg, SPI_USER1, DUMMY_CYCLELEN, 7);
+     s->user2_reg = FIELD_DP32(0, SPI_USER2, COMMAND_BITLEN, 4);
+     s->user2_reg = FIELD_DP32(s->user2_reg, SPI_USER2, COMMAND_VALUE, 0);
+     s->status_reg = 0;
+     s->m5_dma_out_link = 0;
++    s->m5_dma_in_link = 0;
+     s->trans_done = 0;
+     s->trans_inten = 0;
+     esp32_spi_update_irq(s);
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index b8561c5..f3fadc3 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -599,6 +599,9 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+         const hwaddr spi_base[] = {
+             DR_REG_SPI0_BASE, DR_REG_SPI1_BASE, DR_REG_SPI2_BASE, DR_REG_SPI3_BASE
+         };
++        /* ESP32 GPIO matrix table: HSPI CS0=11, VSPI CS0=68. */
++        s->spi[i].gpio_cs0_signal = i == 2 ? 11 : i == 3 ? 68 : -1;
++        s->spi[i].gpio_cs0_level = 1;
+         qdev_realize(DEVICE(&s->spi[i]), &s->periph_bus, &error_fatal);
+ 
+         esp32_soc_add_periph_device(sys_mem, &s->spi[i], spi_base[i]);
+diff --git a/include/hw/ssi/esp32_spi.h b/include/hw/ssi/esp32_spi.h
+index 63cafb0..f64cacf 100644
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -32,12 +32,15 @@ typedef struct Esp32SpiState {
+     uint32_t pin_reg;
+     uint32_t flash_qio_header_bytes;
+     uint32_t m5_dma_out_link;
++    uint32_t m5_dma_in_link;
+     uint32_t trans_done;
+     uint32_t trans_inten;
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;
+     int m5_cs_pin;
++    int gpio_cs0_signal;
++    int gpio_cs0_level;
+     /* Optional generic SPI slave (e.g. FLIR Lepton VoSPI) served on the
+      * data phase of USR transactions while its CS pin is low. */
+     const struct M5SpiSlaveOps *spi_slave_ops;

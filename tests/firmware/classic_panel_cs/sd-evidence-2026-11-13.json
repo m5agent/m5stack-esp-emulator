@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "scope": "Classic Core2 SPI SD and original HamRadio configuration selection",
+  "status": "PASS",
+  "regression": {
+    "base_firmware_sha256": "57868df3d1bb0cbd03fdca3eac0db8a9c6578a70195e4479822147b29ef691ae",
+    "runtime_sha256": "983f123d6c3c0a708993b037820ea22e9ba07a282e88dd75b8dc5116731f6856",
+    "composed_firmware_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+    "slot": 2,
+    "pins": {
+      "sck": 18,
+      "mosi": 23,
+      "miso": 38,
+      "cs": 4
+    },
+    "sector": 100,
+    "bytes": 512,
+    "pattern": "(index * 7 + 0x31) & 255",
+    "checks": [
+      {
+        "name": "sdspi_init",
+        "status": "PASS",
+        "evidence": [
+          "serial.log",
+          "disk",
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "sdspi_write_block",
+        "status": "PASS",
+        "evidence": [
+          "serial.log",
+          "disk",
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "sdspi_readback",
+        "status": "PASS",
+        "evidence": [
+          "serial.log",
+          "disk",
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "sd_ui_marker",
+        "status": "PASS",
+        "evidence": [
+          "serial.log",
+          "disk",
+          "frame-marker"
+        ]
+      }
+    ],
+    "host_oracle": "retained sector bytes match expected pattern; display marker RGB 0,255,0",
+    "serial_markers": [
+      "CORE2_SD_RW_PASS",
+      "CORE2_SD_DRAW_COMPLETE"
+    ],
+    "frame_sha256": "7b614015adf3c43bb522f7aebad204daddf99cfb5317357eeae3ce994eed164f"
+  },
+  "original_application": {
+    "firmware_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+    "runtime_sha256": "87b89e224bbb01dc2efaa2269fb31b95c192369095a63495538c7a61f0c27fb5",
+    "sd_image_sha256": "11c8de08df14009f4c30a37fb25b098fdf945305d5bc70ac4c693bd4b9095816",
+    "seconds": 180,
+    "inputs": [
+      {
+        "seconds": 13.21,
+        "input": {
+          "kind": "key",
+          "key": "b",
+          "settle_seconds": 0
+        },
+        "accepted": true
+      },
+      {
+        "seconds": 42.66,
+        "input": {
+          "kind": "key",
+          "key": "c",
+          "settle_seconds": 0
+        },
+        "accepted": true
+      },
+      {
+        "seconds": 63.95,
+        "input": {
+          "kind": "key",
+          "key": "b",
+          "settle_seconds": 0
+        },
+        "accepted": true
+      }
+    ],
+    "observed": "Ini Loader enumerates DXTracker.ini and IC705USB.ini; buttons open menu, move selection and load IC705USB.ini; final ICSMeter instrument page shows CHECK WIFI.",
+    "frames": [
+      {
+        "seconds": 15.15,
+        "png_sha256": "706219ac9db25f508c6baab0095d0da1f64f4b4a04e4ccb0c73a9facf1717351",
+        "pixel_sha256": "5008269d0b8dec41b297764c57533b3901dfbaee8caf224166e4c3a7fde5e6f4",
+        "nonblack_pixels": 3737
+      },
+      {
+        "seconds": 45.63,
+        "png_sha256": "b3efd3f9a102b68668c11c21dd75234f755860bfc3c41a7c490a20702afb67ed",
+        "pixel_sha256": "82c8bb3b63d6438ab44edd495bab2285304238b0e546c27e024eb949d1d48fe4",
+        "nonblack_pixels": 3737
+      },
+      {
+        "seconds": 175.11,
+        "png_sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+        "pixel_sha256": "2e3699696bba449cc09587634fc358b628441ae134d769afa08a3d27d4c5cca3",
+        "nonblack_pixels": 75763
+      }
+    ],
+    "evidence_zip_sha256": "5c432af1e93c81970d85606936862b73338aaef814fee335873c0dfbcfd2a6b9",
+    "stopped": true,
+    "limits": [
+      "The original application run preceded the TX short-chain defensive correction; final combined-runtime acceptance is recorded separately.",
+      "No network credentials or radio/transceiver provided; WiFi, remote CI-V and RF behavior NOT RUN."
+    ]
+  },
+  "negative_and_fixture_controls": [
+    {
+      "case": "Original no SD attachment",
+      "result": "real missing-config error; no SD support before this change"
+    },
+    {
+      "case": "First classic SD attachment",
+      "result": "host crash from optional null set_cs callback; corrected with guarded callback"
+    },
+    {
+      "case": "COMMAND_BITLEN stale while command phase disabled",
+      "result": "mount failed; correct COMMAND-enable gating permits SD directory listing"
+    },
+    {
+      "case": "UIFlow2 slot=3 fixture",
+      "result": "ESP_ERR_NOT_FOUND; official Core2 VSPI mapping uses slot=2"
+    },
+    {
+      "case": "UIFlow2 slot=2 without RX DMA",
+      "result": "SD commands reach model but guest initialization fails before sector write"
+    },
+    {
+      "case": "Frozen binary initial standalone regression",
+      "result": "NOT RUN: wrong ROM environment variable; rerun with M5_QEMU_XTENSA_ROM_DIR passes"
+    },
+    {
+      "case": "Short TX DMA descriptor host review",
+      "result": "supplied-byte count now bounds TX and duplex RX; separate host controls retain the initial defect"
+    }
+  ],
+  "limits": [
+    "Virtual data-plane validation only; no physical timing, signal integrity or endurance claim.",
+    "Original firmware bytes unmodified; provided SD settings are explicit external inputs."
+  ],
+  "followup_controller_boundaries": {
+    "runtime_sha256": "7a7fb1a941ebfd03b46b4cba7d5dfbc92814a52948d1ee58a563e91dc691a77f",
+    "patch_sha256": "7aa67f8404d385ddc64d3c75e0817c3cd5fc6fdb7fccaa9557026728a82bb7a0",
+    "status": "PASS",
+    "composed_firmware_sha256": "dcb494baabd644c275cc9467b0b4786d5f6044b989a3726e5c0cfe4fe5691e20",
+    "host_oracle": "sector 100 matches all 512 expected bytes; serial and green frame marker agree",
+    "fixed_boundaries": [
+      "Short/unowned TX DMA chains cannot synthesize trailing zero bytes",
+      "HIGHPART snapshot stays inside the selected 32-byte FIFO half",
+      "Repeated FIFO clocks preserve original TX bytes after RX overwrites FIFO",
+      "Hardware CS0/1/2 and wrong-controller route isolation",
+      "GPIO CS held low across transactions does not repeat slave reset callbacks"
+    ],
+    "host_tests": "30 actual-C before/after cases under ASan/UBSan plus existing 0190/0050 regressions"
+  }
+}

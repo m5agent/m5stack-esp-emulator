@@ -4451,9 +4451,11 @@ components:
       required: [sd_image_artifact_id]
       description: >
         Attach a content-addressed raw SD-card image to a device profile with
-        a modeled SDMMC interface. The artifact is copied into the session
-        directory, mounted as writable `if=sd`, and hashed again before QEMU
-        starts. The source artifact is never mounted directly.
+        a modeled SPI or SDMMC interface. The artifact is copied into the
+        session directory and hashed again before QEMU starts. Core2, CoreS3,
+        Cardputer-ADV and PaperColor use their board-wired SPI SD endpoint;
+        SDMMC profiles use writable `if=sd`. Storage metadata reports the
+        selected interface. The source artifact is never mounted directly.
       properties:
         sd_image_artifact_id:
           type: string

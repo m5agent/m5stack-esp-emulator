@@ -51,3 +51,23 @@ PYTHONPATH=platform/tools:platform/tests python3 -m unittest \
   test_classic_panel_cs_fifo_patch test_core2_spi_dma_patch \
   test_core2_dual_spi_panel_patch test_spi_panel_read_cursor_patch
 ```
+
+## Core2 SD follow-up
+
+[The SD follow-up](sd-evidence-2026-11-13.json) binds the official UIFlow2
+`SDCard` sector read/write to real classic SPI DMA and an independent disk
+oracle. It also retains an unchanged HamRadio BIN run with a provided FAT32 SD
+image: the actual B/C/B keys open the Ini Loader, select `IC705USB.ini`, load
+it and reach the instrument page with `CHECK WIFI`. The application needs
+explicit network/transceiver configuration for its remote features; these were
+not supplied or claimed by this run.
+
+Prepare a FAT32 SD image using `platform/tools/sd_image.py`, place configuration
+files from the pinned [M5HamRadio documentation](https://github.com/armel/M5HamRadio/tree/f10b8924bcfd990f970947dbff9144ce88566799)
+in its root, and upload it as a Device Service artifact. Set
+`storage.sd_image_artifact_id` when creating the Core2 session. During the blue
+Ini Loader gauge, press B to open the menu, C to move down and B to select.
+The firmware copies the chosen file into Flash; a file named `.backup.ini` on
+SD does not replace this original selection flow. Keep all image bytes, input
+receipts, serial and frame evidence with that same session and request its ZIP
+before stopping with `purge=0`. Retain raw configuration only in private storage.

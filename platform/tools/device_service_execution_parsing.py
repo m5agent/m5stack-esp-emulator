@@ -8,6 +8,15 @@ from device_service_parsing import is_sha256
 from device_service_specs import DeviceSpec
 
 
+def storage_interface(spec: DeviceSpec) -> str:
+    """Board-wired SD protocol used by the session disk.
+
+    These native boards use the GP-SPI SD endpoint; other supported storage
+    profiles retain their SDMMC block attachment.
+    """
+    return "spi" if spec.id in {"core2", "cores3", "cardputer-adv", "papercolor"} else "sdmmc"
+
+
 def parse_storage_execution(
     spec: DeviceSpec,
     value: Any,
@@ -37,7 +46,7 @@ def parse_storage_execution(
             409,
         )
     return {
-        "interface": "sdmmc",
+        "interface": storage_interface(spec),
         "format": "raw",
         "sd_image_artifact_id": artifact_id,
     }

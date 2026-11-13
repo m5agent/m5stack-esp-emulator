@@ -1452,3 +1452,12 @@ separates measured initialization progress from the independent hardware-CS
 black-screen defect and records the unmodified firmware's actual Flash/PSRAM
 path. This is a native model optimization, not a change to firmware delays or
 hardware cache timing.
+### Classic Core2 SPI SD and hardware chip select
+
+`0192-classic-spi-sd-dma.patch` connects Core2's GPIO4 SD card to both routable
+classic GP-SPI hosts, respects hardware CS matrix outputs and the command-phase
+enable bit, and carries received bytes through RX DMA descriptors. TX short
+chains cannot synthesize data beyond their owned buffers. The device-local
+[`core2-sd` regression](../../tests/uiflow2/core2_sd/README.md) checks real SDCard
+write/read, independent disk bytes and display output; original application
+observations are recorded with the classic panel fixture.
