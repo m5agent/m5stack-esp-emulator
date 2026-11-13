@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 220,
+  "validation_class": "virtual-device validation",
+  "runtime_sha256": "31336bcfa2d12f57e440e96b9e9bf60b0ee2b59e0f8e9ed017c32083831fa25f",
+  "source_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+  "status": "PASS",
+  "mode": "attached address=0 mode=buffer-dma",
+  "device_descriptor": "12010002ef0201403a300240000101020301",
+  "configuration_descriptor": "09022000010100a0320904000002080650000705010240000007058102400000",
+  "get_configuration": "01",
+  "msc_get_max_lun": "00",
+  "transactions": [
+    [
+      "reset",
+      "ACK"
+    ],
+    [
+      "setup 8006000100001200",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:12010002ef0201403a300240000101020301"
+    ],
+    [
+      "out 0",
+      "ACK"
+    ],
+    [
+      "setup 0005070000000000",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:"
+    ],
+    [
+      "setup 8006000200000900",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:09022000010100a032"
+    ],
+    [
+      "out 0",
+      "ACK"
+    ],
+    [
+      "setup 8006000200002000",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:09022000010100a0320904000002080650000705010240000007058102400000"
+    ],
+    [
+      "out 0",
+      "ACK"
+    ],
+    [
+      "setup 0009010000000000",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "NAK"
+    ],
+    [
+      "in 0",
+      "DATA:"
+    ],
+    [
+      "setup 8008000000000100",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:01"
+    ],
+    [
+      "out 0",
+      "ACK"
+    ],
+    [
+      "setup a1fe000000000100",
+      "ACK"
+    ],
+    [
+      "in 0",
+      "DATA:00"
+    ],
+    [
+      "out 0",
+      "ACK"
+    ]
+  ],
+  "reset_epochs": 1,
+  "evidence_zip_sha256": "6397b058392019acb1fa0089d108e658499e639470b862f77133fe05e1a403dc",
+  "serial_sha256": "0a182e4baf29988d45ed7746fa79a980d46ba6f0f0c849632a2eac86fd61406a",
+  "stop_state": "stopped",
+  "limits": [
+    "factory exposes MSC only, CDC not applicable",
+    "later application task-priority assertion remains open",
+    "MSC block data I/O, browser-WASM and physical USB not run"
+  ],
+  "sticks3_same_runtime_cdc_regression": {
+    "device_descriptor_sha256": "54f97f2f1795cfdc69ff8dee50c8db255ae4f8e2b77b4498876205e4075cccfe",
+    "configuration_descriptor_sha256": "d1eb820925f74d2cc6fe93ea883c69a588c331bdc770b9b21799b84d78b6ddbc",
+    "hid_report_descriptor_sha256": "642c0e84764a8c0563abff1005af3cff31a7e36bdb7722f81c297cb614957fe6",
+    "cdc_line_coding": [
+      115200,
+      57600,
+      115200
+    ],
+    "bulk_out_ep3": "CRLF ACK",
+    "bulk_in_ep4_bytes": 406,
+    "bulk_in_ep4_sha256": "de91db3028ada53fa64c2007d12f9ff4981f8d507b2a43fa37aa90825df4931c",
+    "guest_markers": [
+      "Press any key to start",
+      "HIZ>"
+    ],
+    "serial_sha256": "acb69d6b8fe83a69e36c37f768b63265c2ae6fb131c861a762cff1a89290a83c",
+    "transaction_sha256": "5e73d498a03e7a5857cc9d02cb11c3c749b3cd46cbcb0139ffb9e3762dcc7dab"
+  },
+  "sticks3_evidence_zip_sha256": "a0d29aa3e832ac25a515688e48472b0afbb9f8d8b706fd9140dba919b4ac684d"
+}
