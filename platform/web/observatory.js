@@ -1,3 +1,4 @@
+import {SerialChannelState, renderSerialChannelSelect} from './serial-channel-state.js';
 import {ObservatoryScene} from './observatory-scene.js';
 import {ObservatoryAPI} from './observatory-client.js';
 import {ObservatoryState, ACTIVE, STATE_NAMES, sessionIdentity, duration, bytes} from './observatory-state.js';
@@ -37,7 +38,7 @@ function observer(row) {
   const key = sessionIdentity(row), previous = observers.get(row.session_id), pid = row.pid ?? null;
   if (previous?.identity === key && previous.pid === pid) { previous.preview?.updateSession(row); return previous; }
   if (previous) { disposeObserver(previous); scene?.clearObservations?.(row.session_id); }
-  const entry = {identity: key, pid, row, pending: new Set(), last: {}, frame: null, frameKey: null, etag: null, serial: '', offset: 0, preview: null, disposed: false};
+  const entry = {identity: key, pid, row, pending: new Set(), last: {}, frame: null, frameKey: null, etag: null, serial: '', offset: 0, serialChannels: new SerialChannelState(row.session_id, 64000), preview: null, disposed: false};
   observers.set(row.session_id, entry);
   if (row.management_binding != null && ACTIVE.has(row.state)) {
     entry.preview = createPreviewClient({session: row, api: (path, options) => api.json(path, options)});
@@ -87,10 +88,10 @@ function updateObservers() {
     // Managed coordination requires the complete authoritative session including
     // PID; it is never constructed from a retained metadata-only projection.
     if (row.management_binding != null && ACTIVE.has(row.state) && !Object.hasOwn(row, 'pid')) continue;
-    const target = observer(row); target.row = row;
+    const target = observer(row); target.row = row; target.serialChannels.update(row);
     if (row.purged && !target.contentCleared) {
       for (const c of target.pending) c.abort();
-      target.preview?.dispose(); target.frame = null; target.serial = ''; target.offset = 0; target.units = null;
+      target.preview?.dispose(); target.frame = null; target.serial = ''; target.offset = 0; target.serialChannels = new SerialChannelState(row.session_id, 64000); target.serialChannels.update({...row, serial_channels: []}); target.units = null;
       target.contentCleared = true; scene?.clearObservations?.(row.session_id);
     }
     if (!ACTIVE.has(row.state) && target.preview) { target.unsubscribe?.(); target.preview.dispose(); target.preview = null; }
@@ -200,7 +201,8 @@ function renderDetail() {
     return n;
   });
   $('detailUnits').replaceChildren(...(units.length ? units : [node('span', '', '未连接外部 Unit')]));
-  $('detailSerial').textContent = row.purged ? '详情已清理。此处只保留生命周期与字节数。' : entry?.serial || (entry?.errors?.serial ? `串口暂不可读：${entry.errors.serial}` : '等待串口输出…');
+  if (entry) renderSerialChannelSelect($('detailSerialChannel'), entry.serialChannels, !!row.purged);
+  $('detailSerial').textContent = row.purged ? '详情已清理。此处只保留生命周期与字节数。' : entry?.serialChannels.view().text || (entry?.errors?.serial ? `串口暂不可读：${entry.errors.serial}` : '等待串口输出…');
   $('detailSerial').scrollTop = $('detailSerial').scrollHeight;
   $('serialStatus').textContent = row.purged ? '内容已清理' : '实时尾部 · 自动跟随';
 }
@@ -277,14 +279,15 @@ function contentTick() {
         if (!contextMatches(entry, context, row) || payload.session_id !== id) return;
         entry.units = payload; scene?.setUnits(id, payload); if (focused) renderDetail();
       });
-      if (focused && (active || entry.offset < Number(row.serial_bytes || 0))) void readTask(entry, row, 'serial', 500, async signal => {
-        const offset = Math.max(entry.offset, Number(row.serial_bytes || 0) - 16384);
-        const payload = await api.json(`${root}/serial?offset=${offset}&limit=16384`, {signal});
+      const serialRequest = entry.serialChannels.request(16384);
+      const serialSize = entry.serialChannels.channels.find(item => item.channel === serialRequest?.channel)?.bytes || 0;
+      if (focused && serialRequest && (active || entry.serialChannels.view().bytes < serialSize)) void readTask(entry, row, 'serial', 500, async signal => {
+        let payload;
+        try {payload = await api.json(`${root}/serial?offset=${serialRequest.offset}&limit=16384&channel=${encodeURIComponent(serialRequest.channel)}`, {signal});}
+        catch (error) {if (entry.serialChannels.matches(serialRequest)) throw error; return;}
         if (!current(entry, row) || selected !== id) return;
-        if (payload.session_id !== undefined && payload.session_id !== id) throw new Error('串口身份不匹配。');
-        if (payload.next_offset < offset) { entry.offset = 0; entry.serial = ''; return; }
-        if (offset > entry.offset) entry.serial = '…较早输出已省略…\n';
-        entry.offset = payload.next_offset; entry.serial = (entry.serial + (payload.data || '')).slice(-64000);
+        const accepted = entry.serialChannels.accept(serialRequest, payload); if (!accepted) return;
+        entry.offset = accepted.bytes; entry.serial = accepted.text;
         if (entry.errors) delete entry.errors.serial;
         renderDetail();
       });
@@ -320,3 +323,10 @@ void Promise.allSettled([api.json('/devices/catalog.json'), api.json('/api/v1/de
   render();
 });
 void poll(); contentTick(); render();
+
+$('detailSerialChannel').addEventListener('change', event => {
+  const entry = observers.get(selected); if (!entry) return;
+  entry.serialChannels.select(event.target.value); delete entry.last.serial;
+  if (entry.errors) delete entry.errors.serial;
+  renderDetail();
+});

@@ -142,6 +142,7 @@ print("Hello, UIFlow!")
           <details class="console-drawer" id="serialDrawer">
             <summary><span>串口输出</span><span id="serialCount">0 B</span></summary>
             <div class="console-content">
+              <label for="serialChannel">输出通道</label><select id="serialChannel" class="public-field" disabled><option value="console">默认控制台</option></select>
               <pre id="serialOutput" tabindex="0" aria-label="串口日志">运行固件后，串口输出会显示在这里。</pre>
               <form id="serialForm">
                 <label class="sr-only" for="serialInput">发送串口文本</label

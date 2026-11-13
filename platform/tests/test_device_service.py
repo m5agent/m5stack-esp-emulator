@@ -6053,7 +6053,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with mock.patch.object(Path, "open", autospec=True, side_effect=opened):
             result = session.serial_read(prefix_size + 2, 5)
         self.assertEqual(reads, [5])
-        self.assertEqual(result, {"session_id": session.id,
+        self.assertEqual(result, {"session_id": session.id, "channel": "console",
                          "offset": prefix_size + 2, "next_offset": prefix_size + 7,
                          "data": tail[2:7].decode("utf-8", errors="replace"), "bytes": 5})
 
@@ -6062,16 +6062,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session.serial0.write_bytes(b"abc")
         self.assertEqual(session.state, "stopped")
         self.assertEqual(session.serial_read(-10, 0), {
-            "session_id": session.id, "offset": 0, "next_offset": 1,
+            "session_id": session.id, "channel": "console", "offset": 0, "next_offset": 1,
             "data": "a", "bytes": 1})
         self.assertEqual(session.serial_read(100, 5), {
-            "session_id": session.id, "offset": 3, "next_offset": 3,
+            "session_id": session.id, "channel": "console", "offset": 3, "next_offset": 3,
             "data": "", "bytes": 0})
         session.serial0.write_bytes(b"")
         self.assertEqual(session.serial_read(100)["next_offset"], 0)
         session.serial0.unlink()
         self.assertEqual(session.serial_read(37), {
-            "session_id": session.id, "offset": 37, "next_offset": 37,
+            "session_id": session.id, "channel": "console", "offset": 37, "next_offset": 37,
             "data": "", "bytes": 0})
 
     def test_serial_readiness_and_evidence_bundle(self):

@@ -1,3 +1,4 @@
+import {renderSerialChannelSelect} from './serial-channel-state.js';
 import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './public-uiflow-firmware.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
@@ -130,6 +131,13 @@ function deviceRuntimeLabel(device) {
   if (device?.visual_only || (state.config.browser_runtime_engine === 'qemu-wasm' && device?.browser_only)) return '仅模型';
   return '连接服务';
 }
+function showSerialView(view) {
+  state.serial = view.text; state.serialBytes = view.bytes;
+  $('serialOutput').textContent = view.text; $('serialCount').textContent = bytes(view.bytes);
+  renderSerialChannelSelect($('serialChannel'), {view: () => view});
+  if ($('serialDrawer').open) $('serialOutput').scrollTop = $('serialOutput').scrollHeight;
+}
+
 function appendSerial(text) {
   if (!text) return;
   state.serialBytes += new TextEncoder().encode(text).byteLength;
@@ -239,6 +247,7 @@ function updateStageFirmwareNotice(currentStatus, uiflowReady) {
 }
 function updatePythonControls(currentStatus=state.run?.controller?.status || state.run?.controller?.current?.state) {
   const run=state.run, native=active(run)&&run.kind==='service'&&!!run.python;
+  if (!active(run) || run.kind !== 'service' || !run.controller.current) $('serialChannel').disabled = true;
   const supported=active(run)&&(run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart || native&&(run.python.ready||run.python.busy));
   const programming=!!run?.controller?.receipt?.uiflowWorkbench&&state.workbenchProfiles?.profiles.some(row=>
     row.deviceId===state.selected?.id&&row.deviceId===run.controller.receipt.deviceId
@@ -875,6 +884,9 @@ async function startRun() {
   state.serialBytes = 0;
   $('serialOutput').textContent = '';
   $('serialCount').textContent = '0 B';
+  $('serialChannel').disabled = true;
+  $('serialChannel').replaceChildren(new Option('默认控制台', 'console'));
+  delete $('serialChannel').dataset.channels;
   status('loading', '等待本次运行的屏幕帧');
   updateCapability();
   let run;
@@ -892,6 +904,7 @@ async function startRun() {
       onSerial: (text) => {
         if (active(run)) appendSerial(text);
       },
+      onSerialView: view => {if (active(run)) showSerialView(view);},
       onError: (cause) => {
         if (active(run)) {
           if (kind === 'browser') setBrowserModelsPaused(false);
@@ -1125,7 +1138,7 @@ async function openServiceSession(id) {
   if(!current())return;
   const run={kind:'service',generation:++state.runGeneration,owned:false,cloudStartup:session.uiflow_startup?.mode==='cloud'};
   run.controller=new PublicSessionController({service,shell:state.shell,unitContainer:$('runtimeUnitPanel'),
-    onSerial:text=>{if(active(run))appendSerial(text);},onError:cause=>{if(active(run))error(cause);},
+    onSerial:text=>{if(active(run))appendSerial(text);},onSerialView:view=>{if(active(run))showSerialView(view);},onError:cause=>{if(active(run))error(cause);},
     onState:value=>{if(active(run)){run.python?.bindSession(value.session);status(value.status,value.frameReady?'实际会话屏幕已更新':'等待应用显示帧');}}});
   state.run=run;await state.picker?.setLocked(true,'当前显示已创建的会话，停止查看后可修改装配草稿。');
   if(!current()||!active(run))return;
@@ -1558,4 +1571,12 @@ window.addEventListener('pagehide', () => {
   state.shell?.dispose();
   state.picker?.dispose();
 });
+
+$('serialChannel').addEventListener('change', () => {
+  const run = state.run;
+  if (run?.kind === 'service' && active(run)) {
+    try {run.controller.selectSerialChannel($('serialChannel').value);} catch (cause) {error(cause);}
+  }
+});
+
 void init().catch(error);

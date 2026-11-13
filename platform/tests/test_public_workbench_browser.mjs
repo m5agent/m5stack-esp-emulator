@@ -312,7 +312,7 @@ try {
   const serviceFixture = {units:unitCatalog.units.map(unit => ({...unit, runtime:runtimeProfiles.units[unit.id] || {}})), hosts:hostPorts.hosts};
   const originalService = 'https://original-service.public.invalid/device-center',
     candidateService = 'https://candidate-service.public.invalid/replacement';
-  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null;
+  let candidateMode = 'invalid', candidateUnitReads = 0, fixtureSessions = [], serviceCalls = [], delayedSession = null, fixtureSerial = null;
   const fixtureResponse = async (route, candidate = false) => {
     const url = new URL(route.request().url()), method = route.request().method();
     serviceCalls.push({candidate, method, path:url.pathname});
@@ -325,7 +325,10 @@ try {
     else if (url.pathname.endsWith('/devices')) body = {devices:candidate && candidateMode === 'invalid' ? {} : [{device_id:'cores3', creatable:true, program_modes:[]}]};
     else if (url.pathname.endsWith('/units')) body = serviceFixture;
     else if (url.pathname.endsWith('/sessions')) body = {sessions:fixtureSessions};
-    else if (url.pathname.endsWith('/serial')) body = {data:'', next_offset:0};
+    else if (url.pathname.endsWith('/serial')) {
+      const channel=url.searchParams.get('channel')||'console', offset=Number(url.searchParams.get('offset')||0), text=fixtureSerial?.[channel]||'';
+      body={session_id:url.pathname.split('/').at(-2),channel,data:text.slice(offset),next_offset:text.length};
+    }
     else if (/\/sessions\/[^/]+$/.test(url.pathname)) body = fixtureSessions.find(row=>row.session_id===url.pathname.split('/').at(-1)) || {};
     else body = {error:{message:'unexpected host-fixture route'}};
     return route.fulfill({status:candidate && candidateMode === 'offline' ? 503 : 200, contentType:'application/json', body:JSON.stringify(body)});
@@ -440,6 +443,20 @@ try {
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.run.controller.current.session_id), 'a'.repeat(32));
     assert.equal(await page.evaluate(() => window.__publicWorkbenchProbe.shell.model.port('grove').module), null, 'catalog preview cannot attach to the borrowed guest');
     assert.equal(serviceCalls.slice(before).some(row=>row.method==='POST'||row.method==='DELETE'), false, 'opening never creates or destroys another owner session');
+  });
+  await test('native-serial-channel-selection-keeps-independent-text-and-cursors-ui-fixture', async () => {
+    fixtureSessions[0].serial_channels=[{channel:'console',transport:'console',bytes:4},{channel:'usb-serial-jtag',transport:'usb-serial-jtag',bytes:3}];
+    fixtureSerial={console:'UART','usb-serial-jtag':'USB'};
+    await page.locator('#serialDrawer').evaluate(node=>node.open=true);
+    await page.waitForFunction(()=>!document.querySelector('#serialChannel').disabled);
+    await page.waitForFunction(()=>document.querySelector('#serialOutput').textContent==='UART');
+    await page.locator('#serialChannel').selectOption('usb-serial-jtag');
+    await page.waitForFunction(()=>document.querySelector('#serialOutput').textContent==='USB');
+    await page.locator('#serialDrawer').screenshot({path:resolve(out,'serial-channel-usb.png')});
+    await page.locator('#serialChannel').selectOption('console');
+    await page.waitForFunction(()=>document.querySelector('#serialOutput').textContent==='UART');
+    assert.equal(await page.locator('#serialCount').textContent(),'4 B');
+    fixtureSerial=null;delete fixtureSessions[0].serial_channels;
   });
   await test('pending-borrowed-B-cannot-replace-current-A-after-A-is-reselected-ui-fixture', async () => {
     fixtureSessions.push({...fixtureSessions[0],session_id:'b'.repeat(32),firmware_sha256:'2'.repeat(64)});

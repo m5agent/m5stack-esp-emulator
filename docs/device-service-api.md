@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-13`.
 
-Status: local MVP with unified-device runtime contract `1.60.0` and bounded
+Status: local MVP with unified-device runtime contract `1.61.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2917,6 +2917,27 @@ curl -sS \
 
 Use `next_offset` on the next request. Serial content is decoded as UTF-8 with
 replacement characters; the underlying file remains the authoritative evidence.
+
+`channel` defaults to `console`, the existing primary log and byte-offset
+contract. It does **not** imply UART0: NanoC6 HCI and Nesso unified profiles
+route their USB Serial/JTAG console there. For a separately captured native
+USB stream, request `channel=usb-serial-jtag`. The service reads only that
+retained log; it never concatenates UART and USB output. `serial_channels` in
+the session/observation metadata lists readable channels, their `transport`
+and separate `bytes`. The USB option appears only when its capture exists.
+A default console already carried by USB is labeled accordingly and has no
+duplicate USB option.
+
+Every chunk echoes `channel` and `session_id`. Maintain offsets separately
+for each channel. Unknown channel names return `400 invalid_serial_channel`;
+a known separate channel without a capture returns
+`409 serial_channel_unavailable`. The existing `serial.read` runtime ACL and
+HTTP authorization apply to every channel; a denied session advertises no
+readable channels. Stopped retained history remains readable, while purging
+removes content. The `/logs` convenience endpoint and REPL/program output
+continue to use the default console. Browser-WASM retains its existing single
+console. The native workbench, sessions page and observatory select channels
+explicitly and fence late responses across switches.
 
 ### Get a screenshot
 
