@@ -205,7 +205,8 @@ mouse message, and the 100 ms A tap paused. The service queued a 2 s B hold.
 The guest then logged an IDLE0 task watchdog at 155.641 guest seconds before
 the settings frame appeared. It separately logged a `LoadProhibited` panic
 after the first reboot. Both app partitions still matched the original.
-This longer failure remains open alongside the shorter C-only result.
+This uncapped failure is retained alongside the shorter C-only result. The
+later bounded adaptive profile has its own runtime and firmware evidence.
 
 The original restart also pulses DPORT core reset `0x3ff000d0` with
 `0x7ff` followed by zero before requesting software CPU reset. Patch 0201
@@ -247,6 +248,27 @@ saving the destination.
 python3 tests/firmware/stickc_plus2_bt_lp_clock/check_icount_admission.py   --qemu "$XTENSA_QEMU_WITH_0202" --uncapped-qemu "$XTENSA_QEMU_WITH_0200"
 python3 tests/firmware/stickc_plus2_bt_lp_clock/check_icount_shift_migration.py   --qemu "$XTENSA_QEMU_WITH_0202" --baseline "$XTENSA_QEMU_WITH_0200"
 ```
+
+The [final original-firmware runs](bounded-adaptive-evidence-summary.json)
+use unchanged JIGGLER 1.0, StickC Plus2 and native runtime `5ce7d9f5…`.
+Both bounded adaptive runs reached the home screen after C down/up. The
+production B 100 ms, A 100 ms and B 2000 ms taps displayed mouse unavailable,
+paused and settings in order. The two runs continued for **300.378** and
+**300.308** guest seconds after the fresh home baselines, and for **280.821**
+and **277.568** guest seconds after the fresh settings baselines. The
+independent fixed-shift run exercised the same inputs on the same binary
+and observed **15.866** guest seconds after its fresh settings baseline.
+
+The host read the existing emulator virtual microsecond counter before and
+after reading the firmware's LACT shadow. It waited for a larger LACT value
+after each first frame sample before establishing the baseline. The summary
+uses the smaller of the bracketed virtual clock and LACT elapsed values.
+Both clocks advanced in the same boot. Each run kept normal watchdog
+settings, preserved both app partitions and saved its evidence ZIP before
+releasing its session. The earlier uncapped task watchdog and reboot panic
+remain separate observations. The bounded runs establish application
+behavior within the observed window. Physical device timing and BLE HID
+delivery were outside this test.
 
 The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
 cases once under ambient host load using the new Xtensa runtime and the

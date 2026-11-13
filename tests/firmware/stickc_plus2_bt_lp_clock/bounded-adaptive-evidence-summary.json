@@ -1,0 +1,826 @@
+{
+  "schema_version": 1,
+  "classification": "virtual-device validation",
+  "device": "StickC Plus2",
+  "firmware": "JIGGLER 1.0",
+  "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+  "final_native_build": {
+    "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+    "source_commit": "6a8bf4a57a8b96d744b92966f4dc2a8d71976893",
+    "canonical_qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "patch_count": 150,
+    "source_postimages": 151,
+    "fresh_objects": 1235,
+    "receipt_sha256": "3d267112803a4ad844f12fad8bc2738b3eb67a520d42676a8d780c7308b84352",
+    "roms": {
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+    }
+  },
+  "clock_oracle": {
+    "final_guest_sessions": "Reads of the existing emulator virtual microsecond counter at 0x3ff7111c bracket guest-latched LACT reads. The reported elapsed time is the smaller of the counter bracket and the LACT delta at the stable observed basis. Fresh baselines require LACT to advance after a seed captured after the frame. Both clocks come from the same boot.",
+    "pilot": "The pilot used only guest-latched LACT at the stable sampled basis and is not part of final-runtime acceptance.",
+    "physical_timing_claim": false
+  },
+  "runtime_controls": {
+    "cli_admission": {
+      "status": "PASS",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "machine": "none",
+      "existing_replay_bytes_preserved": true,
+      "split_icount_does_not_create_or_modify_record_file": true,
+      "cases": [
+        {
+          "option": "shift=auto,align=off,sleep=on,max-shift=0",
+          "accepted": true,
+          "error_fragment": null
+        },
+        {
+          "option": "shift=auto,align=off,sleep=on,max-shift=5",
+          "accepted": true,
+          "error_fragment": null
+        },
+        {
+          "option": "shift=auto,max-shift=10",
+          "accepted": true,
+          "error_fragment": null
+        },
+        {
+          "option": "shift=5,align=off,sleep=off",
+          "accepted": true,
+          "error_fragment": null
+        },
+        {
+          "option": "shift=auto,sleep=on",
+          "accepted": true,
+          "error_fragment": null
+        },
+        {
+          "option": "shift=auto,max-shift=-1",
+          "accepted": false,
+          "error_fragment": "must be 0..10"
+        },
+        {
+          "option": "shift=auto,max-shift=11",
+          "accepted": false,
+          "error_fragment": "must be 0..10"
+        },
+        {
+          "option": "shift=auto,max-shift=5foo",
+          "accepted": false,
+          "error_fragment": "must be 0..10"
+        },
+        {
+          "option": "shift=5,max-shift=5",
+          "accepted": false,
+          "error_fragment": "requires shift=auto"
+        },
+        {
+          "option": "max-shift=5",
+          "accepted": false,
+          "error_fragment": "requires shift=auto"
+        },
+        {
+          "option": "shift=auto,max-shift=5,sleep=off",
+          "accepted": false,
+          "error_fragment": "requires align=off, sleep=on"
+        },
+        {
+          "option": "shift=auto,max-shift=5,align=on",
+          "accepted": false,
+          "error_fragment": "requires align=off, sleep=on"
+        },
+        {
+          "option": "shift=auto,max-shift=5,rr=record",
+          "accepted": false,
+          "error_fragment": "cannot be combined with record/replay"
+        },
+        {
+          "option": "shift=auto,max-shift=5,rr=replay",
+          "accepted": false,
+          "error_fragment": "cannot be combined with record/replay"
+        }
+      ],
+      "old_cli_rejected_new_option": true,
+      "unguarded_cli_modified_replay_before_rejecting": true
+    },
+    "migration_and_live_snapshot": {
+      "wire": "timer/icount/shift v2 signed BE16",
+      "cases": [
+        {
+          "case": "same_cap",
+          "input_shift": 5,
+          "cap": 5,
+          "completed": true,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": 5,
+          "outgoing_migration_after_incoming_admitted": true
+        },
+        {
+          "case": "lower_cap",
+          "input_shift": 5,
+          "cap": 4,
+          "completed": false,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": null,
+          "outgoing_migration_after_incoming_admitted": false
+        },
+        {
+          "case": "negative",
+          "input_shift": -1,
+          "cap": 5,
+          "completed": false,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": null,
+          "outgoing_migration_after_incoming_admitted": false
+        },
+        {
+          "case": "above_global_limit",
+          "input_shift": 11,
+          "cap": 5,
+          "completed": false,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": null,
+          "outgoing_migration_after_incoming_admitted": false
+        },
+        {
+          "case": "truncated",
+          "input_shift": null,
+          "cap": 5,
+          "completed": false,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": null,
+          "outgoing_migration_after_incoming_admitted": false
+        },
+        {
+          "case": "previous_wire_reader",
+          "input_shift": 5,
+          "cap": null,
+          "completed": true,
+          "cont_accepted": true,
+          "local_shift_from_resaved_stream": 5,
+          "outgoing_migration_after_incoming_admitted": true
+        }
+      ],
+      "live_snapshot_fail_before_store": {
+        "snapshot_shift": 3,
+        "local_cap": 2,
+        "snapshot_load_failed": true,
+        "cont_accepted": true,
+        "local_shift_from_resaved_stream": 2
+      }
+    },
+    "diagnostic_virtual_clock": {
+      "diagnostic_address": "0x3ff7111c",
+      "paused_wall_seconds": 0.07,
+      "initial": 0,
+      "after_host_only_sleep": 0,
+      "after_1250123_virtual_ns": 1250,
+      "after_additional_1500_virtual_ns": 1251,
+      "after_crossing_31_bit_us_wrap": 3603,
+      "no_time_oracle_mmio_writes": true,
+      "status": "PASS"
+    },
+    "controller_qtest_sha256": {
+      "dport-qtest.json": "277379aa7b8745a7ddc9a377a7422561c966c9bc9b7e53a9179ade6b84acffcd",
+      "ble-clock-qtest.json": "a57cc5c192b26001ab7942ae3871fad3b033742e9ebd290c59e221de51db1609",
+      "rwbt-clock-sleep-qtest.json": "5a5b855758ceb3de12828f0b8b98c737d90c229a7cd1cbdad12eba4f07e83938",
+      "rwbt-modem-reset-qtest.json": "c9242d89217600979499e09c0d39ccde067853275beb80356083ce8908165545",
+      "rwbt-modem-reset-old-qtest.json": "93dca2ed52c8e362a261a8a6329b6987ef7ff319105ae1cd070c4c62aab3c4ff",
+      "gpio-readback-qtest.json": "f972cf419953cf59ecf1de76eae929ced1f141a2f0ef0fb150e59e77ccdd077a",
+      "gpio-core2-negative-qtest.json": "6317a50f690d09582c7537696b8d88ee91afffb0ec267c495113369cdf2ef7fb"
+    }
+  },
+  "negative_control": {
+    "uncapped_runtime_sha256": "0d53fcb14ff70ce3709ee7a5f24c011bfa515ba013f6fde5c6a5f0d9952ebbd4",
+    "same_production_input_first_task_watchdog_guest_seconds": 155.641,
+    "corrected_uncapped_without_application_button_inputs_first_task_watchdog_guest_seconds": 185.957,
+    "first_uncapped_watchdog_exact_cause": "PARTIAL",
+    "notes": "The first IDLE0 failure is distinct from the secondary reset-path H4 panic. The observed fixed-shift 10 progress loss supports a bounded classic profile, without identifying a single cause of every uncapped watchdog."
+  },
+  "not_run": [
+    "physical device",
+    "over-the-air BLE HID",
+    "cycle-accurate timing",
+    "indefinite uptime",
+    "browser WASM"
+  ],
+  "runs": [
+    {
+      "label": "original-bounded-auto-round1",
+      "status": "PASS",
+      "role": "pilot before replay and VMState input guards",
+      "source_commit": "21178bcd79497d306163baffef378cef65d7f479",
+      "source_files_sha256": {
+        "platform/tools/device_service.py": "bac98316022c8fb34b42cd8f01c2bf37c1e4b8b2b3a6b65264d9c827f24c31ba",
+        "platform/tools/serve.py": "1692b33e9626c73e71e69ae343d4d84bdd9615d1d973f77f7284515399297942",
+        "platform/tools/qemu_accel.py": "32546ef8edbf7e6231c31c59149ad4436cbb1363fdbd4c418a15ea823ad20a33",
+        "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd"
+      },
+      "runtime_sha256": "bd46991a1bf252b16460297d14f328a98585a253afdb40069c554883438ef483",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "native_diagnostic_instrumentation": false,
+      "effective_icount": "shift=auto,align=off,sleep=on,max-shift=5",
+      "effective_per_vcpu_budget_ns": 10000,
+      "watchdog_disable_properties": [
+        false,
+        false
+      ],
+      "wall_seconds": 359.338376,
+      "inputs": [
+        {
+          "host_seconds": 0.3342545419000089,
+          "input": "keydown:c",
+          "action": "down"
+        },
+        {
+          "host_seconds": 1.9603309999220073,
+          "input": "keyup:c",
+          "action": "up"
+        },
+        {
+          "host_seconds": 23.053480125032365,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 38.590845374856144,
+          "input": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 54.004959708079696,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 2.0,
+            "hold_time_ms": 2000,
+            "completion": "queued"
+          }
+        }
+      ],
+      "frames": [
+        {
+          "stage": "home",
+          "sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+          "first_host_second": 23.053
+        },
+        {
+          "stage": "mouse unavailable",
+          "sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c",
+          "first_host_second": 24.548
+        },
+        {
+          "stage": "paused",
+          "sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695",
+          "first_host_second": 39.579
+        },
+        {
+          "stage": "settings",
+          "sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39",
+          "first_host_second": 59.047
+        }
+      ],
+      "clock": {
+        "accepted_samples": 312,
+        "guest_updates_after_frame_observation": true,
+        "fresh_home": {
+          "host_seconds": 24.222792,
+          "ticks": 8188668,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152
+        },
+        "fresh_settings": {
+          "host_seconds": 60.793267,
+          "ticks": 51473141,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152
+        },
+        "end": {
+          "host_seconds": 359.338362,
+          "ticks": 609939601,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152
+        },
+        "after_home": {
+          "reported_seconds": 300.8754665,
+          "virtual_clock_lower_bound_seconds": null,
+          "guest_lact_observed_seconds": 300.8754665
+        },
+        "after_settings": {
+          "reported_seconds": 279.23323,
+          "virtual_clock_lower_bound_seconds": null,
+          "guest_lact_observed_seconds": 279.23323
+        }
+      },
+      "boot_count": 1,
+      "task_watchdog_count": 0,
+      "interrupt_watchdog_count": 0,
+      "reboot_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "bytes": 3342336,
+          "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "unchanged": true
+        },
+        {
+          "offset": 3407872,
+          "bytes": 3342336,
+          "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "d43ef05277c6007d1aee5642355a39b95584f559645894208d11d01c9b8f61d6",
+      "serial_sha256": "d8056321835d118de1d7baa8b1b65bc2625155d5565a7abce01ac346887b1115",
+      "zip_saved_while_running": true,
+      "owned_session_flash_lease_and_process_released": true
+    },
+    {
+      "label": "release-original-bounded-auto-round1",
+      "status": "PASS",
+      "role": "final runtime functional acceptance",
+      "source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+      "source_files_sha256": {
+        "platform/tools/device_service.py": "bac98316022c8fb34b42cd8f01c2bf37c1e4b8b2b3a6b65264d9c827f24c31ba",
+        "platform/tools/serve.py": "1692b33e9626c73e71e69ae343d4d84bdd9615d1d973f77f7284515399297942",
+        "platform/tools/qemu_accel.py": "32546ef8edbf7e6231c31c59149ad4436cbb1363fdbd4c418a15ea823ad20a33",
+        "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd"
+      },
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "native_diagnostic_instrumentation": false,
+      "effective_icount": "shift=auto,align=off,sleep=on,max-shift=5",
+      "effective_per_vcpu_budget_ns": 10000,
+      "watchdog_disable_properties": [
+        false,
+        false
+      ],
+      "wall_seconds": 364.787495,
+      "inputs": [
+        {
+          "host_seconds": 0.335646583000198,
+          "input": "keydown:c",
+          "action": "down"
+        },
+        {
+          "host_seconds": 1.9693990000523627,
+          "input": "keyup:c",
+          "action": "up"
+        },
+        {
+          "host_seconds": 25.548637791071087,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 41.09725391608663,
+          "input": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 56.556743916124105,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 2.0,
+            "hold_time_ms": 2000,
+            "completion": "queued"
+          }
+        }
+      ],
+      "frames": [
+        {
+          "stage": "home",
+          "sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+          "first_host_second": 25.549
+        },
+        {
+          "stage": "mouse unavailable",
+          "sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c",
+          "first_host_second": 26.541
+        },
+        {
+          "stage": "paused",
+          "sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695",
+          "first_host_second": 42.007
+        },
+        {
+          "stage": "settings",
+          "sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39",
+          "first_host_second": 60.523
+        }
+      ],
+      "clock": {
+        "accepted_samples": 316,
+        "guest_updates_after_frame_observation": true,
+        "fresh_home": {
+          "host_seconds": 26.759664,
+          "ticks": 8885533,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 5136078,
+          "virtual_after_us": 5138235
+        },
+        "fresh_settings": {
+          "host_seconds": 62.557357,
+          "ticks": 47995403,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 24690634,
+          "virtual_after_us": 24695200
+        },
+        "end": {
+          "host_seconds": 364.787477,
+          "ticks": 609645111,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 305515799,
+          "virtual_after_us": 305520141
+        },
+        "after_home": {
+          "reported_seconds": 300.377564,
+          "virtual_clock_lower_bound_seconds": 300.377564,
+          "guest_lact_observed_seconds": 300.379789
+        },
+        "after_settings": {
+          "reported_seconds": 280.820599,
+          "virtual_clock_lower_bound_seconds": 280.820599,
+          "guest_lact_observed_seconds": 280.824854
+        }
+      },
+      "boot_count": 1,
+      "task_watchdog_count": 0,
+      "interrupt_watchdog_count": 0,
+      "reboot_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "bytes": 3342336,
+          "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "unchanged": true
+        },
+        {
+          "offset": 3407872,
+          "bytes": 3342336,
+          "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "0567eedb804b95c0c5f54ae3e7200275ef11bb2cab32b4f1ad23d4718370a686",
+      "serial_sha256": "86bb0615780bee4bc9e6807e9dcfe122f6ebd1d0286617185044f80a3b793cc4",
+      "zip_saved_while_running": true,
+      "owned_session_flash_lease_and_process_released": true
+    },
+    {
+      "label": "release-original-bounded-auto-round2",
+      "status": "PASS",
+      "role": "final runtime functional acceptance",
+      "source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+      "source_files_sha256": {
+        "platform/tools/device_service.py": "bac98316022c8fb34b42cd8f01c2bf37c1e4b8b2b3a6b65264d9c827f24c31ba",
+        "platform/tools/serve.py": "1692b33e9626c73e71e69ae343d4d84bdd9615d1d973f77f7284515399297942",
+        "platform/tools/qemu_accel.py": "32546ef8edbf7e6231c31c59149ad4436cbb1363fdbd4c418a15ea823ad20a33",
+        "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd"
+      },
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "native_diagnostic_instrumentation": false,
+      "effective_icount": "shift=auto,align=off,sleep=on,max-shift=5",
+      "effective_per_vcpu_budget_ns": 10000,
+      "watchdog_disable_properties": [
+        false,
+        false
+      ],
+      "wall_seconds": 354.749052,
+      "inputs": [
+        {
+          "host_seconds": 0.3440954170655459,
+          "input": "keydown:c",
+          "action": "down"
+        },
+        {
+          "host_seconds": 1.9662347920238972,
+          "input": "keyup:c",
+          "action": "up"
+        },
+        {
+          "host_seconds": 19.597504334058613,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 35.085572791984305,
+          "input": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 50.596543709049,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 2.0,
+            "hold_time_ms": 2000,
+            "completion": "queued"
+          }
+        }
+      ],
+      "frames": [
+        {
+          "stage": "home",
+          "sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+          "first_host_second": 19.598
+        },
+        {
+          "stage": "mouse unavailable",
+          "sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c",
+          "first_host_second": 21.069
+        },
+        {
+          "stage": "paused",
+          "sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695",
+          "first_host_second": 36.01
+        },
+        {
+          "stage": "settings",
+          "sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39",
+          "first_host_second": 54.565
+        }
+      ],
+      "clock": {
+        "accepted_samples": 312,
+        "guest_updates_after_frame_observation": true,
+        "fresh_home": {
+          "host_seconds": 20.754238,
+          "ticks": 8479041,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 4933757,
+          "virtual_after_us": 4935265
+        },
+        "fresh_settings": {
+          "host_seconds": 56.000826,
+          "ticks": 53955108,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 27671298,
+          "virtual_after_us": 27675813
+        },
+        "end": {
+          "host_seconds": 354.749034,
+          "ticks": 609099364,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 305243356,
+          "virtual_after_us": 305247481
+        },
+        "after_home": {
+          "reported_seconds": 300.308091,
+          "virtual_clock_lower_bound_seconds": 300.308091,
+          "guest_lact_observed_seconds": 300.3101615
+        },
+        "after_settings": {
+          "reported_seconds": 277.567543,
+          "virtual_clock_lower_bound_seconds": 277.567543,
+          "guest_lact_observed_seconds": 277.572128
+        }
+      },
+      "boot_count": 1,
+      "task_watchdog_count": 0,
+      "interrupt_watchdog_count": 0,
+      "reboot_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "bytes": 3342336,
+          "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "unchanged": true
+        },
+        {
+          "offset": 3407872,
+          "bytes": 3342336,
+          "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "01c04004286d2e79a1f1f6de0d39d37e486e2a413aba9d84b5c727c7d5795894",
+      "serial_sha256": "d8938d79aab876c71af73457aeea113428ead2be61faa112b38e64d280b4b999",
+      "zip_saved_while_running": true,
+      "owned_session_flash_lease_and_process_released": true
+    },
+    {
+      "label": "release-original-bounded-default",
+      "status": "PASS",
+      "role": "final runtime functional acceptance",
+      "source_commit": "1be1e1464a49e7e36d849a4610cac6eacfc91ac4",
+      "source_files_sha256": {
+        "platform/tools/device_service.py": "bac98316022c8fb34b42cd8f01c2bf37c1e4b8b2b3a6b65264d9c827f24c31ba",
+        "platform/tools/serve.py": "1692b33e9626c73e71e69ae343d4d84bdd9615d1d973f77f7284515399297942",
+        "platform/tools/qemu_accel.py": "32546ef8edbf7e6231c31c59149ad4436cbb1363fdbd4c418a15ea823ad20a33",
+        "tests/uiflow2/run_profile_ui_test.py": "a56d2b4c75af78da0e64788f4b487e97cd2cfdcdcbc5c03e4b2a518fee5a0ccd"
+      },
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "native_diagnostic_instrumentation": false,
+      "effective_icount": "shift=5,align=off,sleep=off",
+      "effective_per_vcpu_budget_ns": 10000,
+      "watchdog_disable_properties": [
+        false,
+        false
+      ],
+      "wall_seconds": 56.498259,
+      "inputs": [
+        {
+          "host_seconds": 0.34472695901058614,
+          "input": "keydown:c",
+          "action": "down"
+        },
+        {
+          "host_seconds": 2.00833308394067,
+          "input": "keyup:c",
+          "action": "up"
+        },
+        {
+          "host_seconds": 21.08932345896028,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 36.51082916697487,
+          "input": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.1,
+            "hold_time_ms": 100,
+            "completion": "queued"
+          }
+        },
+        {
+          "host_seconds": 51.55236241687089,
+          "input": "key:b",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 2.0,
+            "hold_time_ms": 2000,
+            "completion": "queued"
+          }
+        }
+      ],
+      "frames": [
+        {
+          "stage": "home",
+          "sha256": "8c4fb61677615d3a5f13f63194aeca4e7a7a3bf78bcd736e87af651249f3e941",
+          "first_host_second": 21.089
+        },
+        {
+          "stage": "mouse unavailable",
+          "sha256": "3e8cc345b9bad9ad20f3efbd42a8650ec85627200efe007a6b5709c0f990a62c",
+          "first_host_second": 22.028
+        },
+        {
+          "stage": "paused",
+          "sha256": "9c31752b181c03714f587f2c94d46ce9f48b5946d928e0579cd35f9485d69695",
+          "first_host_second": 37.001
+        },
+        {
+          "stage": "settings",
+          "sha256": "04ce3c4ebd84ba4854a4a6823d7d9840a42cb30cb0894ce7a6d1f99a38e60a39",
+          "first_host_second": 54.059
+        }
+      ],
+      "clock": {
+        "accepted_samples": 35,
+        "guest_updates_after_frame_observation": true,
+        "fresh_home": {
+          "host_seconds": 22.294061,
+          "ticks": 10050646,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 5720163,
+          "virtual_after_us": 5721134
+        },
+        "fresh_settings": {
+          "host_seconds": 55.393378,
+          "ticks": 163388873,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 82377012,
+          "virtual_after_us": 82409140
+        },
+        "end": {
+          "host_seconds": 56.498248,
+          "ticks": 195188873,
+          "divider": 40,
+          "config": 3221556224,
+          "rtc_clock_config": 693633152,
+          "virtual_before_us": 98275140,
+          "virtual_after_us": 98308148
+        },
+        "after_home": {
+          "reported_seconds": 92.554006,
+          "virtual_clock_lower_bound_seconds": 92.554006,
+          "guest_lact_observed_seconds": 92.5691135
+        },
+        "after_settings": {
+          "reported_seconds": 15.866,
+          "virtual_clock_lower_bound_seconds": 15.866,
+          "guest_lact_observed_seconds": 15.9
+        }
+      },
+      "boot_count": 1,
+      "task_watchdog_count": 0,
+      "interrupt_watchdog_count": 0,
+      "reboot_count": 0,
+      "app_partitions": [
+        {
+          "offset": 65536,
+          "bytes": 3342336,
+          "original_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "readback_sha256": "376e4758d525a11d63fe53c82d3291a6eb61a9b5de8e47e6b7fde27b3bb9eace",
+          "unchanged": true
+        },
+        {
+          "offset": 3407872,
+          "bytes": 3342336,
+          "original_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "readback_sha256": "4f2efb4b6a6f31cb1912870b67cc34c0e489a8147b860fd7a84c2bf4064b0e63",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "8bc6c898586a75909fa10c78b0f0c898cfa729bc24b20dbbdb6680af32e1a279",
+      "serial_sha256": "6b053a5121b28ea8fcdf3097aa7c9289efe69ce76302900bc0d74bafcb9a4b62",
+      "zip_saved_while_running": true,
+      "owned_session_flash_lease_and_process_released": true
+    }
+  ]
+}
