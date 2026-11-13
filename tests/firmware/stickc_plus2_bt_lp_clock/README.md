@@ -225,6 +225,29 @@ python3 tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_modem_reset.py \
   --qemu "$XTENSA_QEMU_WITH_0201" --rom-dir "$XTENSA_ROM_DIR"
 ```
 
+## Classic adaptive timing and state compatibility
+
+Classic ESP32 Device Service sessions use fixed shift 5 by default. Setting
+`M5_CORE2_ICOUNT_SHIFT=auto` selects `shift=auto,align=off,sleep=on,max-shift=5`.
+Adaptive adjustment can still select shifts 0 through 5. At the limit,
+guest time can fall behind host time rather than allocate more virtual time
+per instruction. QEMU auto without the option retains the original 0–10
+range. The cap limits emulator pacing and does not alter watchdog registers
+or firmware. [QEMU invocation](https://www.qemu.org/docs/master/system/invocation.html)
+
+Patch 0202 rejects the cap with a fixed shift, host clock alignment, instant
+idle jumps or record/replay. The record/replay combination is rejected before
+opening a file. The migration stream retains the signed 16-bit shift field
+in the existing v2 subsection. A capped destination validates the field
+before assignment. A failed snapshot load can leave other state partially
+loaded, so the test checks the shift field specifically after resuming and
+saving the destination.
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_icount_admission.py   --qemu "$XTENSA_QEMU_WITH_0202" --uncapped-qemu "$XTENSA_QEMU_WITH_0200"
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_icount_shift_migration.py   --qemu "$XTENSA_QEMU_WITH_0202" --baseline "$XTENSA_QEMU_WITH_0200"
+```
+
 The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
 cases once under ambient host load using the new Xtensa runtime and the
 existing C6 runtime. Its execution source predates the adaptive argument and
