@@ -1,0 +1,76 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] C6: retain isolated WiFi and PHY hardware without a network backend
+
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -497,12 +497,15 @@
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
+     }
+     /*
+-     * ESP32-C6 WiFi MAC register block. Keep it behind -nic so ordinary
+-     * board-only QEMU launches do not instantiate a partial radio model.
++     * The WiFi/PHY register blocks exist even without a host network.
++     * A missing backend represents an isolated radio, not absent silicon.
+      */
+     {
+         DeviceState *wifi = qemu_create_nic_device(TYPE_ESP32C6_WIFI, true, NULL);
+-        if (wifi) {
++        if (!wifi) {
++            wifi = qdev_new(TYPE_ESP32C6_WIFI);
++        }
++        {
+             ms->wifi = wifi;
+             sysbus_realize(SYS_BUS_DEVICE(wifi), &error_fatal);
+             memory_region_add_subregion_overlap(
+diff --git a/hw/misc/esp32c6_wifi.c b/hw/misc/esp32c6_wifi.c
+--- a/hw/misc/esp32c6_wifi.c
++++ b/hw/misc/esp32c6_wifi.c
+@@ -24,7 +24,7 @@
+     uint8_t next = (s->rx_queue_tail + 1) % ARRAY_SIZE(s->rx_queue);
+     Esp32C6WifiPendingFrame *pending;
+ 
+-    if (next == s->rx_queue_head || length > 1600) {
++    if (!s->peer_enabled || next == s->rx_queue_head || length > 1600) {
+         return false;
+     }
+     pending = &s->rx_queue[s->rx_queue_tail];
+@@ -369,7 +369,7 @@
+                     words[0], words[1], words[2], words[3],
+                     words[4], words[5], words[6], words[7]);
+         }
+-        if (words[1]) {
++        if (words[1] && s->peer_enabled) {
+             uint8_t response[256] = { 0 };
+ 
+             address_space_read(&address_space_memory, words[1],
+@@ -518,6 +518,10 @@
+     bool queued = false;
+     bool group = false;
+ 
++    /* No backend means no virtual AP and no injected receive traffic. */
++    if (!s->peer_enabled) {
++        return;
++    }
+     if (!descriptor || s->raw_interrupt) {
+         goto reschedule;
+     }
+@@ -754,6 +758,7 @@
+     sysbus_init_irq(sbd, &s->irq);
+     s->beacon_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                    esp32c6_wifi_beacon_timer, s);
++    s->peer_enabled = s->conf.peers.ncs[0] != NULL;
+     s->nic = qemu_new_nic(&esp32c6_wifi_net_info, &s->conf,
+                           object_get_typename(OBJECT(s)), dev->id,
+                           &s->reentrancy_guard, s);
+diff --git a/include/hw/misc/esp32c6_wifi.h b/include/hw/misc/esp32c6_wifi.h
+--- a/include/hw/misc/esp32c6_wifi.h
++++ b/include/hw/misc/esp32c6_wifi.h
+@@ -38,6 +38,7 @@
+     uint32_t beacon_count;
+     QEMUTimer *beacon_timer;
+     bool associated;
++    bool peer_enabled;
+     uint16_t sequence;
+     uint8_t macaddr[6];
+     Esp32C6WifiPendingFrame rx_queue[8];

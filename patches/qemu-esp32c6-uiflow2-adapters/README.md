@@ -49,6 +49,13 @@ packet-type 状态；[SPI 探针](../../tests/firmware/esp32c6_sx1262_spi/README
 及原版 Meshtastic 的命令流覆盖该路径。原版 Meshtastic 越过无线初始化后
 仍触发 TG0 watchdog，不能据此宣称整份应用通过；这也不建立 RF 验证。
 
+`0011-c6-isolated-wifi-presence.patch` 保留无宿主网络时的 WiFi/PHY
+硬件寄存器与计时器；未配置 backend 时不注入 AP、响应或 RX 数据。
+同 BIN 的有/无 NIC 控制器对照见
+[radio controller 探针](../../tests/firmware/esp32c6_radio_controllers/README.md)。
+原版 Meshtastic 可越过此前静止计时器的等待，后续 BLE 加密控制器缺口
+仍独立保留。
+
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。

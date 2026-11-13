@@ -1,0 +1,91 @@
+{
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "patch": "0011-c6-isolated-wifi-presence.patch",
+  "patch_sha256": "625a89ac455c02a9b871536a5d4915e7849fa96f73f82e65a960ea5ceb8c823e",
+  "runtime_sha256": "5dff55f24a65cfc3e7f692593ffc36c96de904ea92aa6552737a0915bf285f9c",
+  "base": "febae182e132e4055529be423a818225ebddaa3a",
+  "runs": [
+    {
+      "label": "controllers-old",
+      "device": "nesso-n1",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "68e5db66d46b806b625e8c2da5f8c4cc47fa1832f9742f201658c27e067d0700",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_FAIL",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_FAIL done=0 first=a5",
+        "C6_RADIO_AES_UNSUPPORTED_PASS"
+      ],
+      "zip_sha256": "f75bcc858faf1679d8307e614948b5b346df1b77051463ccea1ff6d4083c4563",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "failed"
+    },
+    {
+      "label": "controllers-presence",
+      "device": "nesso-n1",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "5dff55f24a65cfc3e7f692593ffc36c96de904ea92aa6552737a0915bf285f9c",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=33039",
+        "C6_RADIO_PEERLESS_PASS",
+        "C6_RADIO_AES_FAIL done=0 first=a5",
+        "C6_RADIO_AES_UNSUPPORTED_PASS"
+      ],
+      "zip_sha256": "697de65904701b0e5c0a505a05bff76773b16674581b5b5e1960f58574bdf2a8",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "failed"
+    },
+    {
+      "label": "controllers-presence-nic",
+      "device": "nesso-n1",
+      "input_sha256": "5a2a5f894e53d2617ec5aa3152fc9656ff3a3fd241fdb4b56b87cde796a067d1",
+      "runtime_sha256": "5dff55f24a65cfc3e7f692593ffc36c96de904ea92aa6552737a0915bf285f9c",
+      "route": "Device Service /api/v1",
+      "markers": [
+        "C6_RADIO_START",
+        "C6_RADIO_TIMER_PASS delta_us=33095",
+        "C6_RADIO_PEERLESS_FAIL",
+        "C6_RADIO_AES_FAIL done=0 first=a5",
+        "C6_RADIO_AES_UNSUPPORTED_PASS"
+      ],
+      "zip_sha256": "4421db137cb0914aba1d812245ae7bdc671ff09dfdaca07eafb38c5de4ffeda8",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "failed",
+      "diagnostic_extra_argv": [
+        "-nic",
+        "user,model=misc.esp32c6.wifi,restrict=yes"
+      ],
+      "oracle": "PEERLESS_FAIL is expected: explicitly attached AP consumes the real receive descriptor."
+    },
+    {
+      "label": "mesh-presence-v1",
+      "device": "nesso-n1",
+      "input_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "5dff55f24a65cfc3e7f692593ffc36c96de904ea92aa6552737a0915bf285f9c",
+      "route": "Device Service /api/v1",
+      "markers": [],
+      "zip_sha256": "e261227348058551b623c02e32a79387f3fd988699fa4a58ba24082800b48dea",
+      "zip_before_stop": true,
+      "purge": 0,
+      "lease_active": false,
+      "terminal_state": "stopped",
+      "result": "FAIL overall: passes the previously stalled PHY counter loop, then interrupt watchdog in BLE AES completion wait at 0x600a94c4."
+    }
+  ],
+  "claim": "WiFi/PHY counter remains present without a host backend; peerless RX does not invent an AP. AES and original application readiness remain separate.",
+  "not_run": [
+    "Physical hardware, RF behavior, PHY timing, security and entropy guarantees."
+  ],
+  "reproduce": "Build recipe through 0011; use the same radio_controllers probe in isolated Device Service sessions with and without an explicitly configured NIC; require TIMER_PASS and PEERLESS_PASS only for the no-NIC presence acceptance."
+}

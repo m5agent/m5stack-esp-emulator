@@ -30,6 +30,7 @@ PATCHES = (
     "patches/qemu-esp32c6-uiflow2-adapters/0008-c6-aes-gdma-wiring.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0009-c6-qio-flash-header.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0010-c6-sx1262-hardware-spi.patch",
+    "patches/qemu-esp32c6-uiflow2-adapters/0011-c6-isolated-wifi-presence.patch",
 )
 RECEIPT = ".m5-c6-runtime-source.json"
 
