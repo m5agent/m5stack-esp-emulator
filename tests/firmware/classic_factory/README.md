@@ -131,3 +131,72 @@ hashes, sampled state, controller counters, full-serial and ZIP hashes, and
 reproduction steps. Both sessions collected ZIPs before `purge=0` stop and
 released mutable Flash. Factory HTTP, physical properties, browser execution
 and the separate complete high-load matrix retain their stated limits.
+
+## IRQ lifetime and CPU clock recovery, 2026-11-13
+
+[`irq-clock-recovery-summary.json`](irq-clock-recovery-summary.json) retains the
+recovered-runtime failures, diagnostic controls and subsequent candidate results.
+It does not replace the historical `33c0ec98...` records above. The recovered
+`e529a11c...` runtime reproduced an original Atom Lite startup interrupt watchdog;
+removing cache optimization for a short wall-time observation did not establish
+application readiness, and a longer transaction-only control still failed.
+
+A bounded observer caught the original Lite's `RFI 5` restoring PS to level zero
+while the emulator's high-priority cooperative mask stayed set. The old helper
+ran before restoring PS and only retired level four. Native patch `0194` tracks
+accepted high-priority IRQs by their architectural EPS/EPC slot. A matching RFI
+retires that slot; software PS changes, RFE/RFDE and another CPU do not retire it.
+Repeated entry at the same level reuses the same hardware slot rather than
+inventing a software nesting stack. Reset clears the local state. An intermediate
+PS-based candidate and the subsequent slot implementation both passed the same
+original Lite's 130-second initialization, real button input and LED observation.
+The intermediate candidate is retained separately because software PS does not
+identify actual IRQ nesting.
+
+The next full-build candidate, `dfb73748...`, passed Lite and Core2 UIFlow1 but
+failed the original Matrix before initialization. Both CPUs' panic PCs identify
+the return immediately after `WAITI 0` in the idle hook. Restoring only the old
+MEMW predicate in a separate `14f5c435...` control did not fix Matrix; this result
+does not support blaming that predicate for the idle watchdog.
+
+A per-CPU ring observer then captured the actual Matrix clock sequence. At one
+virtual timestamp, switching CPU1 from 160 to 40 MHz changed its visible CCOUNT
+from 173724830 to 43431207. Its already-programmed compare deadline did not move.
+That deadline fired before the new count reached compare, and the original tick
+handler scheduled its next compare several virtual seconds away. A subsequent
+40-to-240 MHz switch jumped the counter forward again while retaining that late
+deadline. The original interrupt watchdog fired first. These are virtual-model
+observations, not physical clock measurements.
+
+Patch `0197` carries forward elapsed cycles at the old rate before installing the
+new rate, and retimes an armed future compare from its remaining unsigned ticks.
+It preserves due matches, latched interrupts, unarmed timers, compare register
+values and the original reset behavior. It does not clamp expired compares,
+change watchdog timeouts, or alter guest instructions. The classic board samples
+one virtual timestamp for both CPUs. This fix applies to serialized TCG;
+MTTCG retains its existing clock-update path and its clock-continuity limitation.
+The browser-WASM patch selection is unchanged.
+
+The independent `a2c5e415...` candidate restores the original Matrix's full
+130-second run: one boot, no Guru/watchdog markers, 9367 valid LED frames, real
+button edges and DHCP/DNS/TCP with the original HTTP 404 response. The same
+candidate also passes the original Lite for 130 seconds and Core2 UIFlow1's
+Wi-Fi Config page for 180 seconds. Each session verifies the actual runtime PID,
+`thread=single`, original application bytes before/after, evidence ZIP before
+stop and `purge=0` cleanup. The candidate uses incremental objects and predates
+the formal MTTCG guard; it is **not** a fresh-build release or a full shared
+matrix result. Factory HTTP remains **PARTIAL**. Final runtime regression,
+resident deployment, browser execution and physical hardware are separate gates.
+
+Run the independent actual-C controls with:
+
+```sh
+PYTHONPATH=platform/tools:platform/tests python3 -m unittest \
+  test_xtensa_restored_irq_level_patch test_xtensa_cpu_clock_rebase_patch
+```
+
+The tests execute the patch's actual accepted-IRQ, return, reset, clock-board and
+compare callback functions with ASan/UBSan. They preserve old-implementation
+negative controls, counter and deadline wrap, due/latched/unarmed timer cases,
+initial unclocked state, unchanged reset behavior, CPU isolation, and the
+MTTCG boundary. Host controls do not replace the original Device Service runs.

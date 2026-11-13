@@ -19,6 +19,8 @@
 
 [2026-11-13 原生兼容性后续](evidence/2026-11-13-native-compatibility-followup/README.md)汇总 SPI SD、RMT、缓存、C6 控制器和固件 SDK 竞态的同路径对照。
 
+[2026-11-13 原生运行时恢复](evidence/2026-11-13-native-runtime-recovery/README.md)记录重新构建后的独立原版复验、Atom Lite 的新失败和 Launcher 的原 BIN mutex 追踪；历史运行结果不转授新二进制。
+
 ## 五分钟阅读顺序
 
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
@@ -350,6 +352,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |
 | [#211 浏览器上传、输入与证据验收](evidence/2026-11-13-browser-skill-acceptance/README.md) | 证据/差异 | `2026-11-13` | 实际 WASM demo 触摸/PIR、原版 BIN 上传/双 SHA/REPL 边界/下载/负控和 Worker 清场；测试服务器 404 失败独立保留 |
 | [原生固件兼容性后续](evidence/2026-11-13-native-compatibility-followup/README.md) | 日期化原生证据 | `2026-11-13` | 原 BIN 与公开源码对照；SPI SD、缓存、RMT、C6 和 SDK 竞态边界 |
+| [原生运行时恢复与复验](evidence/2026-11-13-native-runtime-recovery/README.md) | 日期化原生证据 | `2026-11-13` | 新构建独立原版复验、旧证据可用性与 Launcher mutex 追踪；失败不被历史通过覆盖 |
 | [原生帧方向与同帧派生](evidence/2026-11-13-native-frame-orientation/README.md) | 证据/差异 | `2026-11-13` | 真实MADCTL/玻璃几何、same-sample显示旋转、五原版与缓存/历史；raw/3D/触摸不变 |
 | [Tab5 服务完整性与原版运行时对照](evidence/2026-11-13-tab5-service-boundaries/README.md) | 证据/差异 | `2026-11-13` | 完整Flash、ELF/eFuse隔离和旧参考首触摸通过；原版latest CLIC/DSI缺口保持OPEN |
 | [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md) | 日期化原生与浏览器证据 | `2026-11-09` | 合并版 QEMU 复测、工作台输入、模型渲染与浏览器原型 |

@@ -34,13 +34,19 @@
 把模型故障与固件故障分开：Classic SPI 片选/FIFO/DMA、Matrix RX 游标和
 RMT 时钟、C6 QIO/射频控制器存在性属于已验证的模型修复子路径；最终组合
 运行时与发布资格单独验收。Tab5 最新固件仍依赖闭源 P4 CSR/DSI 修复。
-StackChan 两款原版 BIN 的 I2C ISR 在 RX 拷贝前通知另一个 CPU，公开源码
-负控重现崩溃，仅加入官方 SDK 修复的重建版通过连续动画/触摸对照；这不
+StackChan 两款原版 BIN 的 I2C ISR 在 RX 拷贝前通知另一个 CPU，UserDemo 的
+公开源码负控重现崩溃，GPT 没有独立未修源码重建负控。仅加入官方 SDK 修复的两款重建版通过连续动画/触摸对照；这不
 证明原版 BIN 已修复，也不允许用模拟器时序规避来关闭固件缺陷。
 Nesso 原版 Meshtastic 的 MADCTL、长 SPI2 DMA 与休眠唤醒另有同 BIN 对照；
 GPIO matrix 片选已补未选中/无线电隔离和硬件 CS 路由；当前 SPI2 单
-descriptor/4 KiB 上限不等于完整 DMA 链支持。Launcher 原版
-mutex owner 不一致、RFID 缺少 PN532Killer peer 的证据与源码限制分别保留。
+descriptor/4 KiB 上限不等于完整 DMA 链支持。[恢复后的原版追踪](evidence/2026-11-13-native-runtime-recovery/README.md)
+确认 Launcher 的输入任务通过共享触摸配置释放显示任务持有的 SPI mutex；
+[完整 Launcher 与固定 M5GFX 源码对照](../tests/firmware/nesso_touch_bus_shared/README.md)
+已验证仅修正独立触摸配置即可消除该 owner 断言；原 BIN 不继承通过。
+RFID 的 PCR/MWDT 时钟接线与应用 TWDT 重复初始化分别继续核查，缺少 peer
+不能单独解释崩溃。新构建发现的高优先级 IRQ 调度状态和 CPU 变频计数器
+不连续已有 [原 Lite/Matrix/Core2 候选对照](../tests/firmware/classic_factory/irq-clock-recovery-summary.json)；
+最终 fresh 运行时、完整回归与发布仍单独验收。
 
 ## 已关闭缺口
 

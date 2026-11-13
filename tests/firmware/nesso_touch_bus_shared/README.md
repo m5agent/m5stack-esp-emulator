@@ -21,7 +21,7 @@ The master patch targets [M5GFX 28d47949](https://github.com/m5stack/M5GFX/tree/
 C6 runtime and Nesso profile:
 
 - Minimal dual-task probe: the drawing task holds the real display transaction;
-  a higher-priority input task calls the library's real touch API. Both fixed
+  a higher-priority input task calls the library's real touch API. Both pinned
   M5GFX 0.2.19 and fixed master fail before the patch and run over 155 seconds
   with three controller-delivered touch coordinates after it.
 - Full Launcher tag `4b06de691df15b0fe6a9f09f56d1d107bbf32b12`, M5Unified

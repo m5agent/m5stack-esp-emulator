@@ -1,0 +1,1107 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "status": "PASS_SCOPED_NARROW_CONTROLS",
+  "integration_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "build_receipt_sha256": "612e809d650358a0f1f76177d094eefd36fca7460e90604dce180c33c75ebf7f",
+  "device": "nesso-n1",
+  "panel_probe": {
+    "status": "PASS",
+    "checks_passed": 16,
+    "checks_total": 16,
+    "firmware_sha256": "754ef543420dc5db3a99c99bf849c76eed3ca30b958ba328c84fa43b833211a4",
+    "firmware_is_new_rebuild": true,
+    "original_fixture_source_unchanged": true,
+    "fixture_main_c_sha256": "f4024a78bf7c1725c30621965e5dc2463ffc6e20d1dd555940991f0a180ea6e3",
+    "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "elf_sha256": "1fd083fa0218fd4215b4494da754d6a0f1422fa0fe32011f41673532860de694",
+    "map_sha256": "9bd1d38f5197d0ff1d6396d267e162dee23f94e77c46a3374899347a8e88134a",
+    "sdkconfig_sha256": "ca67a128d2c744f035315868632fd93bf8ba77f6fbbd4f411e7d452486990ff1",
+    "zip_sha256": "c840510959b9baec21647f3ac487d98b4be60408e53dd58e29346ff2b82084fa",
+    "zip_before_stop": true,
+    "terminal_state": "stopped",
+    "flash_released": true,
+    "checks": [
+      {
+        "marker": "C6_PANEL_ROTATION_0_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946",
+        "pixel_sha256": "ecebb66f9aefab0640054db2d8e33f6ef143f3fcad3ca39cfd2e730189a3fd65",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_0_READY",
+        "orient": "display",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946",
+        "pixel_sha256": "ecebb66f9aefab0640054db2d8e33f6ef143f3fcad3ca39cfd2e730189a3fd65",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_1_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+        "pixel_sha256": "c3d13e058e054b083f5cc8f4e8ffe0fe922efa8c3010c168e3a2fbcdc0cae1ac",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_1_READY",
+        "orient": "display",
+        "size": [
+          240,
+          135
+        ],
+        "expected_size": [
+          240,
+          135
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+        "pixel_sha256": "e47f1b78d0bb44b080c57ca5297441cbb3d41e9a9c9fadc06b7a4296bdc9d2eb",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_2_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            0,
+            0
+          ]
+        ],
+        "sha256": "9231caf6d2a7bc1e06faf8085949722d48b7f3fed05da4d16ed1a93e0ac10fa9",
+        "pixel_sha256": "57ba60dde68e1e316d5d1027e15eab186470831feb153628c10a3c8045a8794e",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_2_READY",
+        "orient": "display",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "85e7ac434e61aeabade3f9a57365ca18d906c3433c7c7657decfeeae3c86a946",
+        "pixel_sha256": "ecebb66f9aefab0640054db2d8e33f6ef143f3fcad3ca39cfd2e730189a3fd65",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_3_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ]
+        ],
+        "sha256": "eef94cb95a794d1d870b06cab0eb105080478c3bbaa4238845f60929925f4a01",
+        "pixel_sha256": "63513ad686797f7eb5d9603a90cb26c3bf5f5593c5502959f0f88f29fc371fdb",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_ROTATION_3_READY",
+        "orient": "display",
+        "size": [
+          240,
+          135
+        ],
+        "expected_size": [
+          240,
+          135
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+        "pixel_sha256": "e47f1b78d0bb44b080c57ca5297441cbb3d41e9a9c9fadc06b7a4296bdc9d2eb",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_DMA_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+        "pixel_sha256": "c3d13e058e054b083f5cc8f4e8ffe0fe922efa8c3010c168e3a2fbcdc0cae1ac",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_DMA_READY",
+        "orient": "display",
+        "size": [
+          240,
+          135
+        ],
+        "expected_size": [
+          240,
+          135
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+        "pixel_sha256": "e47f1b78d0bb44b080c57ca5297441cbb3d41e9a9c9fadc06b7a4296bdc9d2eb",
+        "pass": true
+      },
+      {
+        "marker": "C6_PANEL_DESELECTED_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+        "pixel_sha256": "c3d13e058e054b083f5cc8f4e8ffe0fe922efa8c3010c168e3a2fbcdc0cae1ac",
+        "pass": true,
+        "whole_frame_preserved": true
+      },
+      {
+        "marker": "C6_PANEL_DESELECTED_READY",
+        "orient": "display",
+        "size": [
+          240,
+          135
+        ],
+        "expected_size": [
+          240,
+          135
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+        "pixel_sha256": "e47f1b78d0bb44b080c57ca5297441cbb3d41e9a9c9fadc06b7a4296bdc9d2eb",
+        "pass": true,
+        "whole_frame_preserved": true
+      },
+      {
+        "marker": "C6_PANEL_RADIO_ISOLATION_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            0
+          ]
+        ],
+        "sha256": "cf9b5b2d1868c251e35c7ec9dac4c466a653ab0d05b63c2bd0b874d53e20b9fa",
+        "pixel_sha256": "c3d13e058e054b083f5cc8f4e8ffe0fe922efa8c3010c168e3a2fbcdc0cae1ac",
+        "pass": true,
+        "whole_frame_preserved": true
+      },
+      {
+        "marker": "C6_PANEL_RADIO_ISOLATION_READY",
+        "orient": "display",
+        "size": [
+          240,
+          135
+        ],
+        "expected_size": [
+          240,
+          135
+        ],
+        "corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            255,
+            0,
+            0
+          ],
+          [
+            0,
+            255,
+            0
+          ],
+          [
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "sha256": "03f8a25503f8538fc2b689c1144179a3418c9de3b60e1bee8ab1f67243986d5d",
+        "pixel_sha256": "e47f1b78d0bb44b080c57ca5297441cbb3d41e9a9c9fadc06b7a4296bdc9d2eb",
+        "pass": true,
+        "whole_frame_preserved": true
+      },
+      {
+        "marker": "C6_PANEL_HW_CS_READY",
+        "orient": "panel",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ]
+        ],
+        "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+        "pixel_sha256": "396ebf4b89a92afaa8bce43155db6d947c2e0a5609d3c34fcbff7a2e8eea65a3",
+        "pass": true,
+        "cyan_pixels": 32400
+      },
+      {
+        "marker": "C6_PANEL_HW_CS_READY",
+        "orient": "display",
+        "size": [
+          135,
+          240
+        ],
+        "expected_size": [
+          135,
+          240
+        ],
+        "corners": [
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ]
+        ],
+        "expected_corners": [
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            255,
+            255
+          ]
+        ],
+        "sha256": "5b2cf244ea4d856dd77ba871ea162c360761d71e55c5411c0d97d3b457cb97af",
+        "pixel_sha256": "396ebf4b89a92afaa8bce43155db6d947c2e0a5609d3c34fcbff7a2e8eea65a3",
+        "pass": true,
+        "cyan_pixels": 32400
+      }
+    ]
+  },
+  "uiflow_narrow_cases": [
+    {
+      "name": "nesso-peripherals",
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nesso-lora",
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    }
+  ],
+  "preceding_failed_attempts": [
+    {
+      "kind": "runtime override misconfiguration",
+      "status": "MISCONFIGURED",
+      "observed_runtime_sha256": "25497c521ebd5838a56b066551dd5c33d6dd00df853ed4a256fcca79944de7db",
+      "candidate_acceptance": false
+    },
+    {
+      "kind": "incomplete historical SDK cache",
+      "status": "BUILD_INFRASTRUCTURE_FAIL",
+      "reason": "Missing esp-mqtt submodule and Git metadata. Retained failures; rebuilt the probe with a newly fetched exact IDF commit and its submodules."
+    }
+  ],
+  "limits": [
+    "Only the listed native controller/UIFlow paths pass these new controls.",
+    "Original application validation is separate and ongoing.",
+    "No full high-load matrix, browser-WASM, physical hardware, RF or electrical timing claim."
+  ]
+}

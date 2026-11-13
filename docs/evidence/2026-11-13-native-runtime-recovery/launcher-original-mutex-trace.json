@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-11-13T08:36:19.248534+00:00",
+  "status": "CONFIRMED_ORIGINAL_MUTEX_OWNERSHIP_VIOLATION; SOURCE_FIX_NOT_RUN",
+  "validation_kind": "virtual-device validation",
+  "review_type": "User Demo / complete interactive user application; focus on startup and real shared-state paths",
+  "device": "nesso-n1",
+  "service_source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+  "original_firmware_sha256": "58892afba6693f5316ace6610659e9386134b6ed714527713f0a820f35eb4e91",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "execution_notes": [
+    "Device Service created each session; frozen executable used through a wrapper that adds only initial pause and GDB transport.",
+    "No original BIN patch, register/owner mutation, disabled assertion/watchdog or fake IPC.",
+    "Only original-image instructions and live memory were used for address attribution; no rebuilt ELF symbols were transferred.",
+    "Instruction breakpoints perturb timing; the same mismatch/call path was independently caught by a single failure-branch breakpoint before dense tracing."
+  ],
+  "first_failure": {
+    "status": "FIRST_FAILURE_CAPTURED",
+    "validation": "virtual-device validation",
+    "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+    "original_sha256": "58892afba6693f5316ace6610659e9386134b6ed714527713f0a820f35eb4e91",
+    "zip_sha256": "24c3975d2f5c478c181ff9898f1c5d1919ee77de45cecdd043074d34b87b799c",
+    "zip_before_stop": true,
+    "stopped": true,
+    "lease_released": true,
+    "flash_released": true,
+    "application_partitions": [
+      {
+        "offset": 65536,
+        "size": 1572864,
+        "original_padded_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+        "final_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+        "unchanged": true
+      }
+    ],
+    "boot_banners": 1,
+    "asserts": 0,
+    "pc_hex": "0x4080d7bc",
+    "owner_hex": "0x4087d0c8",
+    "owner_task": "loopTask",
+    "current_hex": "0x40829734",
+    "current_task": "InputHandler",
+    "queue_hex": "0x4087dbe0"
+  },
+  "instruction_trace": {
+    "status": "ORIGINAL_MUTEX_OWNERSHIP_VIOLATION_CAPTURED",
+    "validation": "virtual-device validation",
+    "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+    "original_sha256": "58892afba6693f5316ace6610659e9386134b6ed714527713f0a820f35eb4e91",
+    "zip_sha256": "d0a438a0ee024ce7931551eb547bdb74376abdc04b2013bcca60c721ddbc7e23",
+    "zip_before_stop": true,
+    "stopped": true,
+    "lease_released": true,
+    "flash_released": true,
+    "application_partitions": [
+      {
+        "offset": 65536,
+        "size": 1572864,
+        "original_padded_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+        "final_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+        "unchanged": true
+      }
+    ],
+    "boot_banners": 2,
+    "asserts": 1,
+    "explicit_resets": 1,
+    "trace_events": 1143,
+    "last_events": [
+      {
+        "seq": 1141,
+        "kind": "owner-store-complete",
+        "pc": "0x4080b49a",
+        "ra": "0x4080b498",
+        "sp": "0x4082e9c0",
+        "current": "0x4087d1dc",
+        "current_name": "loopTask",
+        "queue": "0x4087dcf4",
+        "old_owner": "0x4087d1dc",
+        "new_owner": "0x4087d1dc",
+        "new_owner_name": "loopTask",
+        "queue_count": 0,
+        "instructions": "=> 0x4080b49a:\tlw\ta5,16(s0)\n   0x4080b49c:\tbeqz\ta5,0x4080b4ac\n   0x4080b49e:\taddi\ta0,s0,16\n   0x4080b4a2:\tjal\t0x4080d3b0\n   0x4080b4a6:\tbeqz\ta0,0x4080b4ac\n"
+      },
+      {
+        "seq": 1142,
+        "kind": "get-touch",
+        "pc": "0x42000f38",
+        "ra": "0x42010418",
+        "sp": "0x40829610",
+        "current": "0x40829734",
+        "current_name": "InputHandler",
+        "panel": "0x4087eb8c",
+        "transaction_count": 1,
+        "touch": "0x4087e104",
+        "bus_shared": 1,
+        "queue": "0x4087dcf4",
+        "owner": "0x4087d1dc"
+      },
+      {
+        "seq": 1143,
+        "kind": "first-owner-mismatch",
+        "pc": "0x4080d7bc",
+        "ra": "0x4080a8ca",
+        "sp": "0x40829590",
+        "current": "0x40829734",
+        "current_name": "InputHandler",
+        "queue": "0x4087dcf4",
+        "owner": "0x4087d1dc",
+        "owner_name": "loopTask"
+      }
+    ],
+    "source_snapshot_claim": "No reconstructed ELF symbol binding; all captured PC/pointers are from the original BIN."
+  },
+  "trace_interpretation": {
+    "events": 1143,
+    "acquire_events": 570,
+    "successful_release_events": 569,
+    "last_three": [
+      {
+        "seq": 1141,
+        "kind": "owner-store-complete",
+        "pc": "0x4080b49a",
+        "ra": "0x4080b498",
+        "sp": "0x4082e9c0",
+        "current": "0x4087d1dc",
+        "current_name": "loopTask",
+        "queue": "0x4087dcf4",
+        "old_owner": "0x4087d1dc",
+        "new_owner": "0x4087d1dc",
+        "new_owner_name": "loopTask",
+        "queue_count": 0,
+        "instructions": "=> 0x4080b49a:\tlw\ta5,16(s0)\n   0x4080b49c:\tbeqz\ta5,0x4080b4ac\n   0x4080b49e:\taddi\ta0,s0,16\n   0x4080b4a2:\tjal\t0x4080d3b0\n   0x4080b4a6:\tbeqz\ta0,0x4080b4ac\n"
+      },
+      {
+        "seq": 1142,
+        "kind": "get-touch",
+        "pc": "0x42000f38",
+        "ra": "0x42010418",
+        "sp": "0x40829610",
+        "current": "0x40829734",
+        "current_name": "InputHandler",
+        "panel": "0x4087eb8c",
+        "transaction_count": 1,
+        "touch": "0x4087e104",
+        "bus_shared": 1,
+        "queue": "0x4087dcf4",
+        "owner": "0x4087d1dc"
+      },
+      {
+        "seq": 1143,
+        "kind": "first-owner-mismatch",
+        "pc": "0x4080d7bc",
+        "ra": "0x4080a8ca",
+        "sp": "0x40829590",
+        "current": "0x40829734",
+        "current_name": "InputHandler",
+        "queue": "0x4087dcf4",
+        "owner": "0x4087d1dc",
+        "owner_name": "loopTask"
+      }
+    ],
+    "owner_write": "0x4080b498 sw a0,8(s0); capture at 0x4080b49a after store; a0 comes from original helper reading pxCurrentTCBs[0]",
+    "current_tcb_global": "0x408245bc",
+    "spi_handle_global": "*(uint32_t*)0x4082434c is Arduino spi_t; mutex is *(uint32_t*)(spi_t+4), not the spi_t itself",
+    "preempted_owner_saved_pc": "0x4080bbb8",
+    "preempted_owner_saved_ra": "0x4080b4b0",
+    "preempted_owner_context": "exit from the FreeRTOS critical section immediately after successful semaphore acquisition, before the new SPI transfer",
+    "raw_field_note": "For owner-store-complete records the legacy old_owner key is read AFTER the store and is not a pre-store sample.",
+    "limits": "Targeted instruction traces are not an exhaustive DMA-write trace. However, the owner observed at failure equals the legitimate current-task value stored by the original FreeRTOS acquire path, with no intervening successful clear. No corrupted owner is needed to explain this failure."
+  },
+  "call_path": [
+    {
+      "pc": "0x4201c2f4",
+      "action": "InputHandler calls update-like method on global M5 object"
+    },
+    {
+      "pc": "0x42010416",
+      "action": "update-like method calls display touch-read virtual method"
+    },
+    {
+      "pc": "0x42000f38",
+      "action": "reads panel start count and touch bus_shared flag"
+    },
+    {
+      "pc": "0x42000f60",
+      "action": "calls endTransaction virtual method because count and bus_shared are nonzero"
+    },
+    {
+      "pc": "0x4200390a -> 0x4200df84",
+      "action": "ends panel transaction"
+    },
+    {
+      "pc": "0x4200aaa6 -> 0x42006c3c -> 0x4203685e",
+      "action": "ends SPI transaction; loads mutex from Arduino spi_t+4"
+    },
+    {
+      "pc": "0x4080ad9e -> 0x4080a8ac -> 0x4080d7bc",
+      "action": "queue give checks holder against current task and reaches failure branch"
+    }
+  ],
+  "hardware_wiring": {
+    "lcd_spi": {
+      "mosi": 21,
+      "sck": 20,
+      "cs": 17,
+      "dc": 16
+    },
+    "touch_i2c": {
+      "sda": 10,
+      "scl": 8,
+      "int": 3,
+      "address_hex": "0x38"
+    },
+    "lora_spi": {
+      "mosi": 21,
+      "miso": 22,
+      "sck": 20,
+      "cs": 23
+    },
+    "conclusion": "Touch and LCD do not share a physical bus or data/clock pins. LCD and LoRa share SPI, so panel.bus_shared=true must remain distinct from touch.bus_shared."
+  },
+  "source_correspondence": {
+    "launcher_tag": "4b06de691df15b0fe6a9f09f56d1d107bbf32b12",
+    "library_reference_tag": "M5GFX 0.2.19",
+    "library_reference_commit": "53a7184601f3667b030ba141c58b87ce2acfaa2a",
+    "exact_original_library_version_known": false,
+    "finding": "Fixed library source declares Nesso I2C touch bus_shared=true although this flag means touch shares the panel bus; its getTouchRaw condition matches the original-image instruction path and observed values.",
+    "candidate_minimum_change": "Change only Nesso touch bus_shared to false; leave panel SPI sharing true. Validate an independent fixed-source unmodified and patched build pair before calling this a fix.",
+    "rebuild_status": "NOT RUN. Original ELF/dependency manifest remains unavailable; source rebuild identities must be separate from the original BIN."
+  },
+  "excluded_diagnostics": {
+    "data_watchpoint_variant": "DIAGNOSTIC_STALL: no functional conclusion. ZIP-before-stop request failed; bounded stop completed and a post-stop logs/serial ZIP was subsequently saved.",
+    "initial_instruction_filter": "The first filter compared mutex directly with spi_t rather than spi_t+4 and missed acquire events. Preserved as incomplete; corrected trace-v2 is the accepted owner chain."
+  },
+  "cleanup": {
+    "status": "STOPPED",
+    "active_sessions": 0,
+    "active_leases": 0,
+    "retained_sessions": 3,
+    "all_terminal": true,
+    "guest_debug_port_listeners": "",
+    "service_port_listeners": ""
+  },
+  "sources": [
+    {
+      "title": "Launcher exact tag InputHandler",
+      "url": "https://github.com/bmorcelli/Launcher/blob/4b06de691df15b0fe6a9f09f56d1d107bbf32b12/boards/arduino-nesso-n1/interface.cpp#L26-L33"
+    },
+    {
+      "title": "Launcher exact tag input task",
+      "url": "https://github.com/bmorcelli/Launcher/blob/4b06de691df15b0fe6a9f09f56d1d107bbf32b12/src/main.cpp#L84-L145"
+    },
+    {
+      "title": "M5GFX 0.2.19 touch bus semantics",
+      "url": "https://github.com/m5stack/M5GFX/blob/53a7184601f3667b030ba141c58b87ce2acfaa2a/src/lgfx/v1/Touch.hpp#L48"
+    },
+    {
+      "title": "M5GFX 0.2.19 Nesso configuration",
+      "url": "https://github.com/m5stack/M5GFX/blob/53a7184601f3667b030ba141c58b87ce2acfaa2a/src/M5GFX.cpp#L2333-L2382"
+    },
+    {
+      "title": "M5GFX 0.2.19 touch transaction",
+      "url": "https://github.com/m5stack/M5GFX/blob/53a7184601f3667b030ba141c58b87ce2acfaa2a/src/lgfx/v1/panel/Panel_Device.cpp#L486-L494"
+    },
+    {
+      "title": "Official Arduino pinout page 1 LCD and touch / page 2 LoRa",
+      "url": "https://docs.arduino.cc/resources/pinouts/TPX00227-full-pinout.pdf"
+    },
+    {
+      "title": "Official M5Stack pin map",
+      "url": "https://docs.m5stack.com/en/core/Arduino_Nesso_N1"
+    }
+  ],
+  "evidence_files": [
+    {
+      "relative_path": "launcher300-diagnostic-first/summary.json",
+      "bytes": 966,
+      "sha256": "20c67b59c4761e55412d751b573f98b2d936defaefa6590c26d9ba8c122e8f01"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/first-failure-gdb.log",
+      "bytes": 25820,
+      "sha256": "53009aa2ed021aac034aace9fddfc3c64f048bec7b73f543d2d255895f78553a"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/first-failure-sram.bin",
+      "bytes": 524288,
+      "sha256": "3a36c4ae6dbea6a733e0d226f6409a2b9d791aa9b0981aee87d00417b0872bd5"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/evidence.zip",
+      "bytes": 1006776,
+      "sha256": "24c3975d2f5c478c181ff9898f1c5d1919ee77de45cecdd043074d34b87b799c"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/runtime-identity.json",
+      "bytes": 1311,
+      "sha256": "17d6344c4d934f3bcd0ad364a4935aafc3dbd6e8a28635accb8d691dc3365cf8"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/capture.gdb",
+      "bytes": 828,
+      "sha256": "05ba8640bb5501fe9b8c5ad62c15ed6d2f68fe4eeb689894805bc94bb3c66633"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/qemu-observer",
+      "bytes": 287,
+      "sha256": "40169764f62281208f9d08311b630ba865be37acc5c77904a8efa14609f33274"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-first/owned-cleanup.json",
+      "bytes": 190,
+      "sha256": "eac4a25004972b0654ec2230f1c582313c3423929337591271ef5b254996c665"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/summary.json",
+      "bytes": 2243,
+      "sha256": "71652e563d5e91da15b1c89b016725340098fa8177cafcfe6acc800c48250ce3"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/instructiontrace-gdb.log",
+      "bytes": 7602,
+      "sha256": "b42fe666ed0cadfdd3ff82556266a06bd780f22874d067e9bd7d5826c44611cb"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/owner-trace.jsonl",
+      "bytes": 3899,
+      "sha256": "14157373c6385a7c8db81b30ca021e222f1d77385d4354597d74a060416c3806"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/owner-trace-v2.jsonl",
+      "bytes": 398170,
+      "sha256": "e5db0e10377ae9070feb4e2d2cca636439d5a4c7569bebd711299ac81a695bea"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/failure-v2-sram.bin",
+      "bytes": 524288,
+      "sha256": "0e9c09de8e03ac237cf70ae5949680b3b6089f0b49e25af64f1b2ba6727e9bcb"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/evidence.zip",
+      "bytes": 1009794,
+      "sha256": "d0a438a0ee024ce7931551eb547bdb74376abdc04b2013bcca60c721ddbc7e23"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/runtime-identity.json",
+      "bytes": 1311,
+      "sha256": "7c83b9a21cce0d30dfcb2ad77b72e0fbacb7304d0ee3c89a26acb9f1f4801f25"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/trace.py",
+      "bytes": 2316,
+      "sha256": "4c0cb7facfe2bc5f23c94341e6162caae62e6479e7fc793331ff5ae72019c3c6"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-instructiontrace/trace-v2.py",
+      "bytes": 2419,
+      "sha256": "1516dbe68fd1683da77ba277e9df9ccc2a8e38a23d1501150a83feb2d49029fd"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-locktrace/diagnostic-limit.json",
+      "bytes": 283,
+      "sha256": "dac6cadc6a37ed7f769261f5943ad4be5ca3322cb4aa8f764cdd56a3fc9859cb"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-locktrace/post-stop-evidence.zip",
+      "bytes": 2816,
+      "sha256": "364fc8a33b0f2d0ebc22bef406d5b93d552da853acf60c065a48421236a79b0b"
+    },
+    {
+      "relative_path": "launcher300-diagnostic-locktrace/trace.py",
+      "bytes": 2318,
+      "sha256": "39bc0af868d255aa7b74b7124986cdc378c4a91453e724af3feb7d8fdaeb6721"
+    }
+  ]
+}

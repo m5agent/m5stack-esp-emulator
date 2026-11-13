@@ -17,8 +17,8 @@
 | #216 | SX1262 实际硬件/软件 SPI 共用寄存器和 FIFO；Meshtastic 越过旧 radio 初始化失败，原 140 秒黑帧保留为较晚采样，后续主循环、显示与休眠另有独立证据 | [SX1262](../../../tests/firmware/esp32c6_sx1262_spi/README.md) |
 | #216 | 无 host backend 仍有 PHY 计时器，但没有虚构 AP/RX；BLE 独立 AES 控制器执行真实单块 DMA 加密，LPPERI RNG 经真实 MMIO 接入 guest-random | [射频控制器](../../../tests/firmware/esp32c6_radio_controllers/README.md) |
 | #216 | Nesso MADCTL 与 SPI2 18 位长度修复后，同原 Meshtastic 显示完整欢迎页、响应按键、自然休眠后按键唤醒；实际 C 正反对照覆盖 DMA 无通道与 FIFO 混合路径；GPIO matrix 硬件片选与未选中/无线电隔离另有 16 项 guest、24 项 actual-C 对照 | [显示与 DMA](../../../tests/firmware/esp32c6_panel_madctl/README.md) |
-| #216 | Launcher 原版发生 mutex owner/current task 不匹配；RFID 等待未连接 PN532Killer 串口外设，均未授予整应用 PASS | [原版边界](../../../tests/firmware/esp32c6_radio_controllers/remaining-originals-2026-11-13.json) |
-| #223 | 原 BIN 与未修 SDK 的公开源码重建均崩溃；仅加入官方 I2C 补丁的两款重建版各 360 秒、真实动画/触摸/UART 协议通过 | [源码与控制实验](../../../tests/firmware/s3_i2c_lifetime/rebuild-applications.md) |
+| #216 | Launcher 原版发生 mutex owner/current task 不匹配；RFID 原版寄存器转储、重启与黑帧仍未解决。缺少 PN532Killer 外设不能单独证明崩溃原因，均未授予整应用 PASS | [原版边界](../../../tests/firmware/esp32c6_radio_controllers/remaining-originals-2026-11-13.json) |
+| #223 | 两份原 BIN 和 UserDemo 的未修 SDK 公开源码重建均崩溃；GPT 没有独立未修源码重建负控。仅加入官方 I2C 补丁的两款重建版各 360 秒、真实动画/触摸/UART 协议通过 | [源码与控制实验](../../../tests/firmware/s3_i2c_lifetime/rebuild-applications.md) |
 | 服务输入 | QOM 错误清空 QMP 连接后，下一次原生输入通过统一重连路径进入同一 guest | [输入恢复](../../../tests/firmware/service_input_reconnect/README.md) |
 
 当前整合交付：`NOT RUN`。此前全量平台 2,128 项通过、8 项按依赖可用性

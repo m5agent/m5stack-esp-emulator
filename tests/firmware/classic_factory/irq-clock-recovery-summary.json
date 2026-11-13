@@ -1,0 +1,1253 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL: candidate original Lite, Matrix and Core2 UIFlow1 paths pass; final fresh runtime and shared runtime acceptance pending",
+  "observation": "Original RFI5 restores CPU1 PS interrupt level from 5 to 0 while the CPU active mask remains set. A low-overhead observer ties this stale mask to Flash IPC waiting and a severely overdue CPU1 compare register before the original interrupt watchdog.",
+  "causal_limits": [
+    "Removing cache optimization changes progress per host second; equal wall duration does not establish equal guest virtual-time coverage.",
+    "The transaction-only 35-second no-input control reached no application readiness and its original 130-second button acceptance failed.",
+    "TIMG tracing emitted excessive output and changed host overhead; its no-WDT result is not application PASS.",
+    "PC fields sampled from CPU state may reflect a translation-block boundary; raw exception dumps and RFI instruction arguments identify the precise relevant operations.",
+    "No guest register, watchdog, scheduler quantum, firmware instruction or timeout changed in diagnostic runs."
+  ],
+  "cases": [
+    {
+      "case": "lite-no-input-control",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.021,
+      "rom_boots": 2,
+      "guru_count": 2,
+      "interrupt_watchdog_count": 2,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "c23ff2e5dfd494ef6bd5f1e0ad34066903f1ab60bfc8fa9a1611ed30dae84121",
+          "bytes": 3022
+        },
+        "evidence.zip": {
+          "sha256": "83fd6cd51753c8507ab7813c8d02fcce086bcab495dd635b0fb6851a58e458b3",
+          "bytes": 7716
+        },
+        "observation.json": {
+          "sha256": "af58755bfdeb4343204cb04649c20f9b39f246f954499486bce9e98aae08bce6",
+          "bytes": 33325
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "FAIL: startup interrupt watchdog",
+      "initialization_started": false,
+      "initialization_completed": false
+    },
+    {
+      "case": "lite-no193-no-input-control",
+      "runtime_sha256": "69091e89b2c774e12f9f405713b8c8af6633e6a1627b9ec992f6e5a28486bb4b",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.034,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "0b62a8ddc5e68b6711d126a4ed80478bad5412248d6362730709305d7a09e88b",
+          "bytes": 330
+        },
+        "evidence.zip": {
+          "sha256": "441c4f822c8e2cd3d2e89a0ea298ba14c521279dd1f59c544d915d970716e8b5",
+          "bytes": 7437
+        },
+        "observation.json": {
+          "sha256": "118aeb80378c89496a8076c11a17d042a3650bc568b21bb0bf861f3468a3070c",
+          "bytes": 35093
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "NO_WDT_OBSERVED; application readiness not reached; no application PASS",
+      "initialization_started": true,
+      "initialization_completed": true
+    },
+    {
+      "case": "lite-dirty-only-control",
+      "runtime_sha256": "35095c9083cca73fba82083647d4194038e9e585eb6568415f83635fd753e545",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.052,
+      "rom_boots": 16,
+      "guru_count": 15,
+      "interrupt_watchdog_count": 15,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "02264a1c9b7309d76ab8cca4a579570b71b7bb5ba1c9d1e0a0d7ad3502ad12bd",
+          "bytes": 27288
+        },
+        "evidence.zip": {
+          "sha256": "7cf08c9e80be5f82e202019b3167e9d93cb10a46480042624d2d3be5c5f2a807",
+          "bytes": 8967
+        },
+        "observation.json": {
+          "sha256": "61e9077b8337ef36e59271689400d0671e0195443f743cb86713a3c464071ffb",
+          "bytes": 35213
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "FAIL: startup interrupt watchdog",
+      "initialization_started": true,
+      "initialization_completed": true
+    },
+    {
+      "case": "lite-transaction-only-control",
+      "runtime_sha256": "53431eaa391c3d9ce2ada3cd15be2ccda57c9958af80ac6e3b5a80723e755aed",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.043,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "0b62a8ddc5e68b6711d126a4ed80478bad5412248d6362730709305d7a09e88b",
+          "bytes": 330
+        },
+        "evidence.zip": {
+          "sha256": "bbc7c806f53e2969cd0e4a9f87b0740d0fe5f7870653aeb1339bd88316f8b184",
+          "bytes": 7435
+        },
+        "observation.json": {
+          "sha256": "eb7f6651e3e2d1ada3cf726bafd752a53d0f7b827dca625a7e0a2444f46b4125",
+          "bytes": 35101
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "NO_WDT_OBSERVED; application readiness not reached; no application PASS",
+      "initialization_started": true,
+      "initialization_completed": true
+    },
+    {
+      "case": "lite-transaction-acceptance",
+      "runtime_sha256": "53431eaa391c3d9ce2ada3cd15be2ccda57c9958af80ac6e3b5a80723e755aed",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 130.121,
+      "rom_boots": 2,
+      "guru_count": 2,
+      "interrupt_watchdog_count": 2,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "seconds": 3.207,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "seconds": 3.315,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "9d520f4da5f42ba2fdaa3a3ceceae4c3f625f7f1a68ca0123679eeeed7e8fec8",
+          "bytes": 2639
+        },
+        "evidence.zip": {
+          "sha256": "33d90ee7d32cc8d335a71328729380322ee1c1fbc87840f42ac8d68a95f3cf1d",
+          "bytes": 7979
+        },
+        "observation.json": {
+          "sha256": "5197e0d843955c5f4fda01a4687074a282914509092c72e272fa54498ba450ad",
+          "bytes": 51231
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "FAIL: startup interrupt watchdog",
+      "initialization_started": false,
+      "initialization_completed": false
+    },
+    {
+      "case": "uiflow1-transaction-acceptance",
+      "runtime_sha256": "53431eaa391c3d9ce2ada3cd15be2ccda57c9958af80ac6e3b5a80723e755aed",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "wall_seconds": 180.149,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "1084bf624357d67c711d1527969c199bebb7674e576ffe705872f2f1fb74fdba",
+          "bytes": 552
+        },
+        "evidence.zip": {
+          "sha256": "d2909e840775d3f51d0bafdfdb864b9c55f4dbf505a9bfced2a5487bf711375e",
+          "bytes": 24761
+        },
+        "observation.json": {
+          "sha256": "db693a60e24e87cbe6b2260c1e7a084b2e9fc8dd6ff189e55731d66fc975d82c",
+          "bytes": 55727
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "PASS original Wi-Fi Config page only",
+      "final_frame_sha256": "bd59f625d165a421a22f0a2b7f38cf2f7f08988642e17932aa509b9a434fdb75",
+      "initialization_started": false,
+      "initialization_completed": false
+    },
+    {
+      "case": "lite-timing-observer",
+      "runtime_sha256": "8590bd811f89a0cdbb3f87497439c1f57f96c1ecd0bbafebeb504136f6bdf3cd",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.139,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "0b62a8ddc5e68b6711d126a4ed80478bad5412248d6362730709305d7a09e88b",
+          "bytes": 330
+        },
+        "evidence.zip": {
+          "sha256": "ec21f257ce61f380f98f472a3d2821ed3cefa1691f8ae3e2dd18df44bdd50190",
+          "bytes": 4709768
+        },
+        "observation.json": {
+          "sha256": "d0dbefe6eff4974f126228bade77b1ff0ff665092311c4bff92efdc29947253a",
+          "bytes": 138065
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "DIAGNOSTIC ONLY: observer changes execution overhead; no application PASS",
+      "initialization_started": true,
+      "initialization_completed": true
+    },
+    {
+      "case": "lite-timing-lowtrace",
+      "runtime_sha256": "8590bd811f89a0cdbb3f87497439c1f57f96c1ecd0bbafebeb504136f6bdf3cd",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 0.942,
+      "rom_boots": 1,
+      "guru_count": 1,
+      "interrupt_watchdog_count": 1,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "8f10b0b1defcdbc52bc48ffeadefdf6d9ebd6fa5c3d4864f5062f6a57389305d",
+          "bytes": 2064
+        },
+        "evidence.zip": {
+          "sha256": "e82df525336a3cf777675a7546c130808bbec93b08cb8865ec9d3b0490cb507d",
+          "bytes": 17167
+        },
+        "observation.json": {
+          "sha256": "9e37df47239b3bf248e19510c1ada6c0463cba9c6f06401fe3f9961d3b3a146f",
+          "bytes": 13084
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "FAIL: startup interrupt watchdog",
+      "trace_bytes": 53791,
+      "mask_transitions": [
+        "[lite-mask] cpu=1 active=1 old=0 new=2",
+        "[lite-mask] cpu=0 active=1 old=2 new=3",
+        "[lite-mask] cpu=0 active=0 old=3 new=2",
+        "[lite-mask] cpu=1 active=0 old=2 new=0"
+      ],
+      "initial_return_observations": [],
+      "stale_mask_sample_excerpt": [
+        "[lite-sample] ns=604533728 trigger=0 cpu=1 envpc=40082a5d ps=00060120 ie=84000044 is=00000000 pending=0 count=96725396 compare=96797486 delta=72090 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=614600832 trigger=0 cpu=1 envpc=40082a63 ps=00060120 ie=84000044 is=00000000 pending=0 count=147504199 compare=97597486 delta=-49906713 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=895356544 trigger=0 cpu=1 envpc=40082a60 ps=00060120 ie=84000044 is=00000000 pending=0 count=214885570 compare=97597486 delta=-117288084 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=905473024 trigger=0 cpu=1 envpc=40082a5d ps=00060120 ie=84000044 is=00000000 pending=0 count=217313525 compare=97597486 delta=-119716039 flags=0,1 read=0 mask=2"
+      ],
+      "initialization_started": false,
+      "initialization_completed": false
+    },
+    {
+      "case": "lite-rfi-observer",
+      "runtime_sha256": "5804ba41df87789cbe522448798a7cee308bea3adcecd7b98f225fb1cb4f649f",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 35.149,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "0b62a8ddc5e68b6711d126a4ed80478bad5412248d6362730709305d7a09e88b",
+          "bytes": 330
+        },
+        "evidence.zip": {
+          "sha256": "f57620221cd6913b7819508cd6e44b41de61dd13597b0bb24b711a8605058d12",
+          "bytes": 60689
+        },
+        "observation.json": {
+          "sha256": "bf6936298231d5912d0eca4cdafaf576bbf9fca84984dfa8a0b75fa7c2cca821",
+          "bytes": 138062
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "evidence_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "result": "DIAGNOSTIC ONLY: observer changes execution overhead; no application PASS",
+      "trace_bytes": 795361,
+      "mask_transitions": [
+        "[lite-mask] cpu=1 active=1 old=0 new=2"
+      ],
+      "initial_return_observations": [
+        "[lite-return] cached_ns=602348704 cpu=1 level=5 phase=0 ps=00000025 mask=2",
+        "[lite-return] cached_ns=602348704 cpu=1 level=5 phase=1 ps=00060120 mask=2",
+        "[lite-return] cached_ns=602516960 cpu=1 level=5 phase=0 ps=00000025 mask=2",
+        "[lite-return] cached_ns=602516960 cpu=1 level=5 phase=1 ps=00060120 mask=2"
+      ],
+      "stale_mask_sample_excerpt": [
+        "[lite-sample] ns=604551584 trigger=0 cpu=1 envpc=40082a66 ps=00060120 ie=84000044 is=00000000 pending=0 count=96728253 compare=96800348 delta=72095 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=614957120 trigger=0 cpu=1 envpc=40082a66 ps=00060120 ie=84000044 is=00000000 pending=0 count=147589708 compare=147600348 delta=10640 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=885527648 trigger=0 cpu=1 envpc=40082a60 ps=00060120 ie=84000044 is=00000000 pending=0 count=212526635 compare=212640348 delta=113713 flags=0,1 read=0 mask=2",
+        "[lite-sample] ns=890553824 trigger=0 cpu=1 envpc=40082a66 ps=00060120 ie=84000044 is=00000000 pending=0 count=213732917 compare=213840348 delta=107431 flags=0,1 read=0 mask=2"
+      ],
+      "initialization_started": true,
+      "initialization_completed": true
+    },
+    {
+      "case": "lite-0194-ps-candidate",
+      "result": "PASS: 130-second original initialization, GPIO and LED",
+      "runtime_sha256": "cd6fa0d52c2153b28704b5f43d3fa16643ad399538b1c4d58c833b4f979a2570",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 130.04,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "initialization_started": true,
+      "initialization_completed": true,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3684728,
+        "/machine/rmt-classic/tx-threshold-events": 55769,
+        "/machine/rmt-classic/tx-completions": 7723,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 7723,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 1310720,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.216,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.325,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "74b2322672356b7eb40aa1e65794ac18effcc766270ce14aac80d4f66cb02bfc",
+          "bytes": 14934274
+        },
+        "evidence.zip": {
+          "sha256": "33045450078ae3107a85b47f2f5c92995e3eea346e91b85d26f6598d6a334944",
+          "bytes": 51038
+        },
+        "observation.json": {
+          "sha256": "c1cbf126f7b1c8979f3887165fb0a8a3437639e11c06da6617932027f62bbc8f",
+          "bytes": 51821
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      }
+    },
+    {
+      "case": "uiflow1-0194-ps-candidate",
+      "result": "PASS: 180-second original Wi-Fi Config page",
+      "runtime_sha256": "cd6fa0d52c2153b28704b5f43d3fa16643ad399538b1c4d58c833b4f979a2570",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "wall_seconds": 180.131,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "initialization_started": false,
+      "initialization_completed": false,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": null,
+      "controller": null,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "ab89f0473d25eb811e239c83296d93d654884d99c45cf4d32852dcb129c2c613",
+          "bytes": 552
+        },
+        "evidence.zip": {
+          "sha256": "ffa6799a5b9f8b94a8fecba39244a9e45ef9ca5025c53852f97518fec7f5cfe4",
+          "bytes": 24747
+        },
+        "observation.json": {
+          "sha256": "cf2fe62325b9d415fc8eb8efb72d106088c0ce82bd46ae62b6b4a744e68dea82",
+          "bytes": 55722
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "frame_review": {
+        "status": "PASS",
+        "observed": "Original Core2 UIFlow1 v1.15.5 Wi-Fi Config page; identifiers withheld.",
+        "frame_sha256": "7100e8e8ae5765a55f407a29df20cc0a1182ee6fda41178229ae241aa17a90f7"
+      }
+    },
+    {
+      "case": "lite-0194-0195-final",
+      "result": "PASS: 130-second original initialization, GPIO and LED",
+      "runtime_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 130.083,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "initialization_started": true,
+      "initialization_completed": true,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3721324,
+        "/machine/rmt-classic/tx-threshold-events": 56286,
+        "/machine/rmt-classic/tx-completions": 7682,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 7683,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 1310720,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.21,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.318,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "863412fbafe14fc3383a055726f7f304dd375d1f60002317f1c648fe9ced2e30",
+          "bytes": 14835969
+        },
+        "evidence.zip": {
+          "sha256": "7581d2e616bd6096ad0ee355448c4f3bf41dac0041cbf86742f7968ed5cee6bb",
+          "bytes": 50757
+        },
+        "observation.json": {
+          "sha256": "8e3f6a883f610156d2ea028b69be88fa4e7fdc7a90f64cda2fc1fb84a5863bae",
+          "bytes": 51824
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      }
+    },
+    {
+      "case": "uiflow1-0194-0195-final",
+      "result": "PASS: 180-second original Wi-Fi Config page",
+      "runtime_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "wall_seconds": 180.01,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "initialization_started": false,
+      "initialization_completed": false,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": null,
+      "controller": null,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "49b1e63c6c2de0108835a1394ab3d77b65fde2f77f823f2a88c627891f759307",
+          "bytes": 552
+        },
+        "evidence.zip": {
+          "sha256": "a7e2a67e1b847f8d866ae2752f36b5c845bf951392d5ddd10982c484fb86dcb4",
+          "bytes": 24759
+        },
+        "observation.json": {
+          "sha256": "0938e25d5cc5f736c926e2574f4a692c4d9bf19ca8fee20ad25be26c1c36a959",
+          "bytes": 55735
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      },
+      "frame_review": {
+        "status": "PASS",
+        "observed": "Original Core2 UIFlow1 v1.15.5 Wi-Fi Config page; identifiers withheld.",
+        "frame_sha256": "e02fb8d1651152d804903885bd2bce24da44a974503ce607bd5bbe592bea3630"
+      }
+    },
+    {
+      "case": "matrix-0194-0195-final",
+      "result": "FAIL: early interrupt WDT on both CPUs after WAITI0, no application initialization or LED frames",
+      "runtime_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "wall_seconds": 130.235,
+      "rom_boots": 1,
+      "guru_count": 1,
+      "interrupt_watchdog_count": 1,
+      "initialization_started": false,
+      "initialization_completed": false,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 0,
+        "/machine/rmt-classic/tx-threshold-events": 0,
+        "/machine/rmt-classic/tx-completions": 0,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 0,
+        "/machine/onboard_io/led-frames": 0,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.126,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.235,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "fabb1282df51617365dbf0b78ebe4fbc228aca6a13ddcb676a2e4bad22f9bf9a",
+          "bytes": 1722
+        },
+        "evidence.zip": {
+          "sha256": "de9cb9699f0dc54ae641fa6909d0337d4a71de18853d9e103de05432a7b7da0f",
+          "bytes": 9306
+        },
+        "observation.json": {
+          "sha256": "edc9857d18ab9da4d44b1003b878afe55fae1aa8384b838742c1fe5daf4e6e2b",
+          "bytes": 103217
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      }
+    },
+    {
+      "case": "matrix-0194-memw-control",
+      "result": "FAIL: same idle watchdog with only MEMW gate restored; insufficient explanation",
+      "runtime_sha256": "14f5c435738060f2717d23ffb54be8d6148930eeaf526f54f4574adb9f6bcf19",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "wall_seconds": 130.35,
+      "rom_boots": 1,
+      "guru_count": 1,
+      "interrupt_watchdog_count": 1,
+      "initialization_started": false,
+      "initialization_completed": false,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 0,
+        "/machine/rmt-classic/tx-threshold-events": 0,
+        "/machine/rmt-classic/tx-completions": 0,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 0,
+        "/machine/onboard_io/led-frames": 0,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.243,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.35,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "fabb1282df51617365dbf0b78ebe4fbc228aca6a13ddcb676a2e4bad22f9bf9a",
+          "bytes": 1722
+        },
+        "evidence.zip": {
+          "sha256": "2b059d59b18aa154ebfcc289b7b5a0337dada97aaea7dd2111ca4a611bf76664",
+          "bytes": 9307
+        },
+        "observation.json": {
+          "sha256": "0ecab989558743d8b9e54321373a878f31f0bff11a9c6d351439d5bb78d789eb",
+          "bytes": 103226
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      }
+    },
+    {
+      "case": "lite-0194-memw-control",
+      "result": "PASS: 130-second original initialization, GPIO and LED",
+      "runtime_sha256": "14f5c435738060f2717d23ffb54be8d6148930eeaf526f54f4574adb9f6bcf19",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 130.08,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "initialization_started": true,
+      "initialization_completed": true,
+      "app_bytes_equal_before_and_after": true,
+      "runtime_pid_binary_verified": true,
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3466248,
+        "/machine/rmt-classic/tx-threshold-events": 52476,
+        "/machine/rmt-classic/tx-completions": 7295,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 7295,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 1310720,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.201,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.309,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "2cd164bca54603d3a1948e6a399a72fe8a2c6ee00dbe10937028cbc916f697f3",
+          "bytes": 14111682
+        },
+        "evidence.zip": {
+          "sha256": "cf178ea200b71996062fff867545ffbc780b5f66eb9f01f463f38356ac1bde82",
+          "bytes": 48648
+        },
+        "observation.json": {
+          "sha256": "b81c0da5a451c7a39111457c7bed5dac80b6ed671ea9b0a48aae09477c4e21a1",
+          "bytes": 51818
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "zip_before_stop": true,
+        "purge": 0,
+        "flash_retained": false
+      }
+    },
+    {
+      "case": "matrix-clock-candidate-v2",
+      "result": "PASS for original boot/LED/GPIO/network transport; PARTIAL factory HTTP (real 404)",
+      "runtime_sha256": "a2c5e41523128037f95496d81d8d8d1a677d19bd300613199076209cdf823832",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "wall_seconds": 130.327,
+      "runtime_pid_binary_verified": true,
+      "tcg_thread_single_verified": true,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.218,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.327,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+          "bytes": 468
+        },
+        "evidence.zip": {
+          "sha256": "d1ef1c8dc626c88fd9b3449c733008163adfc74003c29a328d7cb6b5ec93722c",
+          "bytes": 11111
+        },
+        "observation.json": {
+          "sha256": "2943d56d699cd8e876c64ea88c84e16f1946dd7bd17dea00ee1750784436ca7d",
+          "bytes": 112721
+        }
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false,
+        "owned_service_stopped": true
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 5627884,
+        "/machine/rmt-classic/tx-threshold-events": 84424,
+        "/machine/rmt-classic/tx-completions": 9427,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 9367,
+        "/machine/onboard_io/incomplete-frames": 61,
+        "/machine/onboard_io/led-rgb": [
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 64,
+        "distinct_states": 58
+      },
+      "network": {
+        "validation": "virtual-device validation",
+        "packet_counts": {
+          "ethernet_packets": 29,
+          "udp_packets": 6,
+          "dhcp_packets": 4,
+          "arp_packets": 12,
+          "dns_packets": 2,
+          "tcp_packets": 10,
+          "tcp_syn_packets": 2,
+          "http_requests": 1
+        },
+        "http_response_statuses": [
+          404
+        ],
+        "fixture": false,
+        "raw_pcap_sha256": "439442f82549cf0637f664d7d3121c6f5494387cd761fd875647d18092f33584",
+        "identifiers_redacted": true
+      },
+      "factory_http_pass": false
+    },
+    {
+      "case": "lite-clock-candidate-v2",
+      "result": "PASS for original 130-second GPIO/LED and startup",
+      "runtime_sha256": "a2c5e41523128037f95496d81d8d8d1a677d19bd300613199076209cdf823832",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "wall_seconds": 130.148,
+      "runtime_pid_binary_verified": true,
+      "tcg_thread_single_verified": true,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.201,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.31,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "a0a0e6bc10bb7dcd12b716d0485a99202a0fac726d24f5a05bdca27a47f29390",
+          "bytes": 14612170
+        },
+        "evidence.zip": {
+          "sha256": "9c1e3c74b76d2fa7cb62dc0119505b6883ce65a042d273cb0ecb5a2aa50e0e8a",
+          "bytes": 50106
+        },
+        "observation.json": {
+          "sha256": "e74c491f2d77f1122842a840220ecb19a564aa98b8e711aacbe3b8482d7c3df5",
+          "bytes": 51819
+        }
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false,
+        "owned_service_stopped": true
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3586864,
+        "/machine/rmt-classic/tx-threshold-events": 54301,
+        "/machine/rmt-classic/tx-completions": 7554,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 7554,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 1310720,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 63,
+        "distinct_states": 2
+      },
+      "initialization_completed": true
+    },
+    {
+      "case": "uiflow1-clock-candidate-v2",
+      "result": "PASS for original Wi-Fi Config page at 180 seconds",
+      "runtime_sha256": "a2c5e41523128037f95496d81d8d8d1a677d19bd300613199076209cdf823832",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "wall_seconds": 180.037,
+      "runtime_pid_binary_verified": true,
+      "tcg_thread_single_verified": true,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "app_bytes_equal_before_and_after": true,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "d5778ed4ea1ebef43097216e6766e3658b303f1101b3a8c1a24260d742726cc3",
+          "bytes": 552
+        },
+        "evidence.zip": {
+          "sha256": "30ef1f78ade3aa4b337fcda13cdb809a8ea6f57d46b7a4c892d01ce647d9a60f",
+          "bytes": 24756
+        },
+        "observation.json": {
+          "sha256": "8282670f7f4e27de9a2b96415f5ee482552c7bcca496e3681ecf03f39d2250aa",
+          "bytes": 55734
+        }
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false,
+        "owned_service_stopped": true
+      },
+      "frame_review": {
+        "status": "PASS",
+        "observed": "Original Core2 UIFlow1 v1.15.5 Wi-Fi Config page; generated identifiers withheld.",
+        "frame_sha256": "0b90fb1145744aa4f8a43051abb7ada1108d11b7b722f72ddbdc7d05139b60ac"
+      }
+    }
+  ],
+  "physical_hardware": "NOT RUN",
+  "burner_submitted": false,
+  "historical_diagnostics_summary_sha256": "41a022a84b360d8d1b04e9f059edbcb13dbb3c381f5803e0179a734d3cf8fbcd",
+  "later_findings": [
+    "The PS-based candidate fixed original Lite but did not model software PS critical sections as distinct from accepted IRQ slots.",
+    "Final accepted-entry/RFI-level bitset prevents stale state without treating software PS as handler depth.",
+    "The first 143-patch candidate passed original Lite and Core2 UIFlow1 but Matrix failed in its idle hook.",
+    "Both Matrix cores panic at 0x4021724a, the RETW immediately following WAITI0 at 0x40217247; no spinlock conclusion is inferred from the initial unaligned disassembly.",
+    "A 146-file comparison of the independent MEMW control found only its predicate changed; that control retains the same Matrix idle watchdog.",
+    "No deployment, shared matrix or browser PASS is inferred from these diagnostic runs."
+  ],
+  "kind": "native-irq-and-cpu-clock-recovery",
+  "baseline_source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "source_commit": "c665ca89d640ac694db5be84055572b3ac332a17",
+  "clock_diagnostics": [
+    {
+      "schema_version": 1,
+      "validation": "virtual-device diagnostic",
+      "firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "runtime_sha256": "83f45b0b53951b23283eaacb6a0577daa116b39a4f4b168be4888cf1d5561889",
+      "observer_base_runtime_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+      "wall_seconds_to_first_panic": 0.779016416054219,
+      "status": "FAIL reproduced; CPU1 compare expired in count domain but its virtual timer still scheduled in the future",
+      "app_bytes_equal_before_after": true,
+      "runtime_pid_binary_verified": true,
+      "guru_markers": 1,
+      "interrupt_watchdog_markers": 1,
+      "bounded_observations": [
+        "[jiggler-wdt] ns=1386330560 stage=0 mode=1 raw=0 ena=4 apb=80000000",
+        "[jiggler-idle] seq=1680 event=STOP ns=1386330560 cpu=0 pc=4021724a ps=00060920 set=00000000 ena=8400124c pending=0 halted=1 runstall=0 irq_levels=0 hz=240000000 cmp_i=0 cmp_irq=6 count=552907103 compare=553119102 delta=211999 due=1387213888 detail=0",
+        "[jiggler-idle] seq=1683 event=STOP ns=1386330560 cpu=1 pc=4021724a ps=00060620 set=00000000 ena=8400004c pending=0 halted=1 runstall=0 irq_levels=0 hz=240000000 cmp_i=0 cmp_irq=6 count=332719334 compare=173884856 delta=-158834478 due=4347121401 detail=0",
+        "[jiggler-events] cpu=0 wait=264 program=673 fire=301 other=344",
+        "[jiggler-events] cpu=1 wait=51 program=4 fire=3 other=46"
+      ],
+      "cpu0_recent_timer_period_ns": 1000000,
+      "limits": [
+        "Ring tail overwritten by regular CPU0 timer activity; exact earlier clock transition is not retained in this run.",
+        "Observer only; no firmware acceptance or physical timing claim."
+      ],
+      "evidence_sha256": {
+        "serial.log": "fabb1282df51617365dbf0b78ebe4fbc228aca6a13ddcb676a2e4bad22f9bf9a",
+        "qemu.stderr": "f069ee0203669ae8dcc1bc8dc7e569662f5ec62dd14f6267af86fd3127658f3b",
+        "evidence.zip": "7782d1a030a4b48f3fb961cd5faf74742fdabba7c6d52c84c680859738b66024",
+        "observation.json": "c9d9ff14469ff5da9f7d25c3a16eac27ae02ee3785912bbb2bd2a6252fffe39a"
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false,
+        "owned_service_stopped": true
+      }
+    },
+    {
+      "schema_version": 1,
+      "validation": "virtual-device diagnostic",
+      "firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "runtime_sha256": "ca8a6cae8fc3c795f0be467f03d452be29bea69f04ffd2b185799ca626226848",
+      "observer_base_runtime_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+      "wall_seconds_to_first_panic": 0.7850172088947147,
+      "status": "Confirmed clock-switch CCOUNT discontinuity and stale CCOMPARE virtual deadline",
+      "app_bytes_equal_before_after": true,
+      "runtime_pid_binary_verified": true,
+      "bounded_observations": [
+        "[jiggler-wdt] ns=1386335136 stage=0 mode=1 raw=0 ena=4 apb=80000000",
+        "[jiggler-idle] seq=47 event=CLOCK-BEFORE ns=1085780192 cpu=1 pc=4021724a ps=00060320 set=00000000 ena=84000044 pending=0 halted=1 runstall=0 irq_levels=0 hz=160000000 cmp_i=0 cmp_irq=6 count=173724830 compare=173725588 delta=758 due=1085784930 detail=40000000",
+        "[jiggler-idle] seq=48 event=CLOCK-AFTER ns=1085780192 cpu=1 pc=4021724a ps=00060320 set=00000000 ena=84000044 pending=0 halted=1 runstall=0 irq_levels=0 hz=40000000 cmp_i=0 cmp_irq=6 count=43431207 compare=173725588 delta=130294381 due=1085784930 detail=40000000",
+        "[jiggler-idle] seq=49 event=FIRE ns=1085784960 cpu=1 pc=4021724a ps=00060320 set=00000000 ena=84000044 pending=0 halted=1 runstall=0 irq_levels=0 hz=40000000 cmp_i=0 cmp_irq=6 count=43431398 compare=173725588 delta=130294190 due=-1 detail=0",
+        "[jiggler-idle] seq=51 event=PROGRAM ns=1085801152 cpu=1 pc=400954ff ps=00050021 set=00000000 ena=84000044 pending=0 halted=0 runstall=0 irq_levels=0 hz=40000000 cmp_i=0 cmp_irq=6 count=43432046 compare=173885588 delta=130453542 due=4347139702 detail=130453542",
+        "[jiggler-idle] seq=53 event=CLOCK-BEFORE ns=1085973184 cpu=1 pc=4021724a ps=00060320 set=00000000 ena=84000044 pending=0 halted=1 runstall=0 irq_levels=0 hz=40000000 cmp_i=0 cmp_irq=6 count=43438927 compare=173885588 delta=130446661 due=4347139702 detail=4534967296",
+        "[jiggler-idle] seq=54 event=CLOCK-AFTER ns=1085973184 cpu=1 pc=4021724a ps=00060320 set=00000000 ena=84000044 pending=0 halted=1 runstall=0 irq_levels=0 hz=240000000 cmp_i=0 cmp_irq=6 count=260633564 compare=173885588 delta=-86747976 due=4347139702 detail=4534967296",
+        "[jiggler-idle] seq=101 event=STOP ns=1386335136 cpu=1 pc=4021724a ps=00060620 set=00000000 ena=8400004c pending=0 halted=1 runstall=0 irq_levels=0 hz=240000000 cmp_i=0 cmp_irq=6 count=332720432 compare=173885588 delta=-158834844 due=4347139702 detail=0"
+      ],
+      "observed_clock_chain_mhz": [
+        160,
+        40,
+        240
+      ],
+      "causal_sequence": [
+        "CPU1 is halted in WAITI0 with a pending compare at 160MHz.",
+        "At the same virtual nanosecond, 160-to-40MHz recomputes the entire elapsed CCOUNT and drops its visible count; the original compare timer deadline is unchanged.",
+        "That deadline fires before the new count reaches compare; the guest tick handler advances its existing compare value and schedules it several virtual seconds away.",
+        "40-to-240MHz then jumps the count forward while retaining that several-second timer deadline. The original interrupt watchdog fires before the next CPU1 tick."
+      ],
+      "limits": [
+        "Read-only bounded observer; no guest register or timer behavior modified.",
+        "No physical clock timing or application PASS claimed."
+      ],
+      "evidence_sha256": {
+        "serial.log": "18c1ea341270fdff56062b475b32ffbffc4328215c2fa075fa7c424f63fb6267",
+        "qemu.stderr": "5dbc7fc0e01055277364914038b0785ea22d8b0ecbb58905002b6099b1027387",
+        "evidence.zip": "d1f3e6c88925f84750e6009ea485fecf934f439417667a801290dfa5c1f6a5ac",
+        "observation.json": "ac708f5ec759791eb29b78a63114d0037ceb3bbe2ad58df4280a4f548a145f76"
+      },
+      "cleanup": {
+        "zip_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false,
+        "owned_service_stopped": true
+      }
+    }
+  ],
+  "clock_candidate_build": {
+    "base_qemu_sha256": "dfb73748811ebefe9af697cb36faded4a35f5e617562092bb96ab0a838093e69",
+    "base_source_receipt_sha256": "c2f566179acefc173639ddb4c6ef8ca38438d7496d0f31c3d1dd7c9c988e5491",
+    "base_files_verified": 146,
+    "patches": {
+      "0196-classic-dport-wifi-clock-enable.patch": "db2749ce78672583db50aeda071cf2a0ca619fb7ab60907ec9e75ed0b30c2ad1",
+      "0197-xtensa-clock-switch-cycle-continuity.patch": "b327ae26524dcff7156407477845db25f5fe83bc56e25dfc90bcff7e6182cfd5"
+    },
+    "changed_files": {
+      "hw/misc/esp32_dport.c": "a0206a8e81e87e551fc7cf4f2741232a16fa8279b2185388d9efd749f95d0198",
+      "hw/xtensa/esp32.c": "cd90e04c185d8b2d9966c62688ff6280d7fd2f51084b316fa853148eb0d41edd",
+      "include/hw/misc/esp32_dport.h": "e95c4af24e448072c7211df67c2efc96ac9333e111846b67e7d6ee271389e0b4",
+      "target/xtensa/cpu.h": "cd7b73d6cf0bab6fd673040fc128b90dbc771853d8589f653a23ae8eb013b8f0",
+      "hw/xtensa/pic_cpu.c": "3dfe758efe0596fe5d03203e432d936b8f8811e1f247232c2c0359e29f64b695"
+    },
+    "observer_in_build": false,
+    "build_kind": "independent source tree, incremental native objects from private observer tree",
+    "runtime_sha256": "a2c5e41523128037f95496d81d8d8d1a677d19bd300613199076209cdf823832",
+    "build_receipt_sha256": "5e0a17568c785f368fc9d31d8860a78709d2f2c992bbed61bc6be88e67f22203",
+    "source_receipt_sha256": "4e6e007cc9df5947f4eb77e35e54d9bbec95ef6458652dce98dbad65aa106038",
+    "later_mttcg_guard_in_this_binary": false,
+    "serialized_source_equivalent_to_formal_0197": true
+  },
+  "host_controls": {
+    "kind": "actual native C/TCG host replay with ASan/UBSan",
+    "registered_tests": 11,
+    "status": "PASS",
+    "log_sha256": "a048449ae3452f71b417e8241a80c4c92cc833e1407b6ede418f90aaf34b25e3",
+    "independent_root_log_sha256": "32fba5f56e691c99ea524672602a227b8a8a5118e2ca8127a15fa85a42872622",
+    "files": {
+      "platform/tests/test_xtensa_restored_irq_level_patch.py": "9c1860ce8338b110e149d1de95d933d12424511383e996adce706c2a9c9569e8",
+      "platform/tests/test_xtensa_cpu_clock_rebase_patch.py": "702091ddd15c451238c7b8cfe89425427a989682e33dc81062294c851d47e828"
+    },
+    "negative_controls": [
+      "Original pre-acceptance IRQ marking",
+      "Original pre-PS-restore level-four-only RFI clearing",
+      "Old PS-only MEMW predicate under the explicit handler-only host contract; the separate Matrix failure is not explained by that change",
+      "Original frequency-only board update loses count continuity",
+      "Counter rebasing without pending compare retiming leaves the wrong deadline",
+      "Incoming zero rate is rejected rather than firing a fake match"
+    ],
+    "clock_edges": [
+      "40/80/160/240 MHz up/down/same",
+      "old unclocked initialization",
+      "32-bit CCOUNT wrap and future wrapped compare",
+      "equal-cycle, already-due, latched, unarmed and null compare timers",
+      "unchanged actual reset behavior and subsequent rate switch",
+      "independent CPU state and one sampled virtual time per board update",
+      "MTTCG retains its previous clock-only path without introducing cross-thread CPU-env mutation"
+    ]
+  },
+  "limits": [
+    "The a2c5 clock candidate uses verified independent source and reused incremental objects; it is not the final fresh-build release.",
+    "Formal 0197 adds an MTTCG guard after this candidate; all reported original sessions explicitly used single-thread TCG. MTTCG clock continuity is not claimed fixed.",
+    "Final fresh runtime, Matrix v1.1/Ham/SD/IMU follow-up and full shared matrix are separate pending gates.",
+    "Matrix original server returns HTTP 404, so factory HTTP remains PARTIAL.",
+    "No browser-WASM, physical RF/electrical timing or Burner submission claimed.",
+    "Same-priority accepted IRQ entry reuses the architectural EPS/EPC slot; the fix does not invent a software nesting stack for manual EPS/EPC rewrites."
+  ],
+  "not_run_in_this_candidate": [
+    "final fresh-build release",
+    "shared native high-load matrix",
+    "resident deployment",
+    "browser-WASM",
+    "physical hardware"
+  ],
+  "infrastructure_not_run": [
+    {
+      "case": "clock candidate initial service preflight",
+      "status": "NOT RUN",
+      "guest_sessions_created": 0,
+      "reason": "The supplied candidate directory had no sibling ROM directory; service rejected allocation. The corrected independent run used the already-verified identical frozen ROM set.",
+      "functional_pass_claimed": false
+    }
+  ]
+}

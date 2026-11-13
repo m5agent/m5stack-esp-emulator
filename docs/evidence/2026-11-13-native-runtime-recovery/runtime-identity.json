@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "recovery": {
+    "reason": "Disposable worktrees and frozen runtime copies were removed during workspace cleanup. Tracked commits remained.",
+    "previous_xtensa_sha256": "33c0ec98b7576c22526deddf81519d8f0719efbfc5fb2221267e4d6bb83ffc58",
+    "previous_c6_sha256": "4bbbee9a8c4d7eeed9f99b049c8bc0db693c87f8334f95339735ef41f79a66ed",
+    "matching_previous_binary_recovered": false,
+    "new_runtimes_rebuilt": true,
+    "old_results_reassigned_to_new_runtime": false,
+    "historical_raw_zip_availability": "Some private original-application ZIPs were removed with their disposable worktrees. Tracked/public bounded summaries remain; fresh execution evidence is collected separately.",
+    "historical_five_original_summary": {
+      "sha256": "b652699203b27c37f7e060023368428eb77f43dbcedd5c07ef91b5f5569ae906",
+      "bytes": 19487,
+      "recovered_byte_exact": true
+    }
+  },
+  "xtensa": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "patch_count": 141,
+    "last_patch": "patches/qemu-m5stack-peripherals/0193-classic-cache-dirty-sync.patch",
+    "binary_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+    "build_manifest_sha256": "606617c847e926c664c354581409390d080c530be0c59e628f020e71cfd6fded",
+    "recipe_sha256": "db7e25ef6565425db4038b1e5ced02a3383d8769c3203c7aa184826f43b61578",
+    "source_file_set_sha256": "dfb71e5813825267554dc300b028ac321a2d4ed5e8685f32ed5efccd6e12e0b5",
+    "old_object_files_reused": false
+  },
+  "c6": {
+    "qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+    "patch_count": 18,
+    "last_patch": "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch",
+    "binary_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+    "build_manifest_sha256": "612e809d650358a0f1f76177d094eefd36fca7460e90604dce180c33c75ebf7f",
+    "recipe_sha256": "9c869624c14462e5927d6484c2a20b0736fd8eb8a49b3137ddf5bba78cb2240c",
+    "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+    "old_object_files_reused": false
+  },
+  "limits": [
+    "This record identifies recovered builds; new application and matrix acceptance are reported separately.",
+    "Historical FAIL/PARTIAL/NOT RUN records remain valid for their original identities.",
+    "No physical hardware, RF or browser-WASM equivalence claim."
+  ],
+  "old_receipt_recovery": {
+    "sha256": "d8181b9bbb40ebd3fb1e4195f1828c2654c56988236c6c75a965a1fc846d8ee4",
+    "bytes": 1595,
+    "selected_source_hashes": 9,
+    "all_selected_sources_match_rebuilt_source": true,
+    "baseline_recipe_replay_postimages": 146,
+    "baseline_recipe_replay_matches_rebuilt_source": true,
+    "basis_limit": "The reconstructed 146-file recipe is not a recovered complete identity of the lost incremental binary. It cannot rule out stale objects or undocumented changes in that old build.",
+    "runtime_status": "New original-application tests exposed Atom Lite watchdog failures. Matching source receipts do not override those observed failures; release acceptance remains pending."
+  }
+}

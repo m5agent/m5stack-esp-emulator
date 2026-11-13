@@ -18,8 +18,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 原生后续：[SPI SD / RMT / 缓存 / C6 / SDK 竞态对照](evidence/2026-11-13-native-compatibility-followup/README.md)分别绑定原 BIN、运行时和失败控制；最终组合矩阵与交付待独立追加。
 
+[重新构建后的独立复验](evidence/2026-11-13-native-runtime-recovery/README.md)：Xtensa `e529a11c…` 的原 Atom Lite watchdog 阻止交付，其 Matrix/Core2 原路径与五款显示方向结果分别保留；C6 `e4c9bb8d…` 完成七份原版复验，原 Launcher 的错误 mutex 释放链有实际指令追踪。旧运行时及部分原始 ZIP 已丢失；源码重建一致不替代新二进制运行。
+
 | 范围 | 结果与身份 | 证据 |
 | --- | --- | --- |
+| IRQ/CPU 变频候选 / virtual-device validation | 0194 记录实际高优先级 IRQ 槽，0197 保持变频 CCOUNT 连续并重排未来 compare；增量 `a2c5e415…` 原 Matrix/Lite 各 130 秒与 UIFlow1 180 秒通过，旧失败和仅恢复 MEMW 门控的失败保留。最终 fresh 组合验收另行追加 | [控制历史与边界](../tests/firmware/classic_factory/irq-clock-recovery-summary.json) |
+| Nesso 触摸总线 / virtual-device validation | `e4c9bb8d…` 上原 Launcher 的实际错误任务释放链已定位；完整固定 Launcher、M5GFX 0.2.19 和固定 master 三组源码未修/修复对照通过。修正版各超过 155 秒，完整应用菜单/触摸/返回/设置正常；原发布 BIN 仍 FAIL | [源码、输入、SHA 与复现](../tests/firmware/nesso_touch_bus_shared/README.md) |
 | #205 原生帧方向 / virtual-device validation | native `fb90044a…`，原版 Bruce/Launcher/PulseOS/AirMouse/小智分别90/90/270/180/0度，同sample独立Pillow全像素一致、可读帧和取证后停止通过。192项相关host/API checks通过；额外UART探针未同步保留失败，镜像/reset只有host C证据 | [方向、固件身份与边界](evidence/2026-11-13-native-frame-orientation/README.md) |
 | #188 Tab5 服务与原版运行时对照 / virtual-device validation | 原版 `94b6b43c…` 应用字节保留；0.51.0 PHY lock=0、rc2 CSR 0x346 illegal instruction 均 FAIL。独立旧参考 `04a809b7…` 首触摸发布修复后实际坐标640,520及帧计数1→2 PASS；完整Flash/cache、会话ELF/eFuse边界已修。最新应用仍 OPEN，全部取证后停止 | [运行身份与边界](evidence/2026-11-13-tab5-service-boundaries/README.md) |
 | UIFlow2 配对交付后复验 / virtual-device validation | main `8598b1f6…`、native `dcb5c9f3…`：更新后的 main/review 角色共八次原版配对及一次本地编程通过；旧历史保留、全部取证后停止。完整平台 2098 项（1 skipped）、Node、四 validators 与远端 CI PASS。首轮 observer 路径解析失败保留并独立重跑 | [固定交付记录](https://github.com/m5agent/agent-work-logs/blob/1d3fae72bd990be3ddda105e4185f665916c8e7d/records/esp-emulator/2026-11-13-uiflow-cloud-startup/followups/2026-11-13-published-source-paths/README.md) |

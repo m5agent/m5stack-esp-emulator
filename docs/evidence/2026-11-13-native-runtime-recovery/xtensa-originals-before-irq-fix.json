@@ -1,0 +1,1225 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "validation": "virtual-device validation",
+  "source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+  "runtime_build_manifest_sha256": "606617c847e926c664c354581409390d080c530be0c59e628f020e71cfd6fded",
+  "status": "PARTIAL; Atom Lite startup FAIL blocks runtime release",
+  "cases": [
+    {
+      "case": "matrix",
+      "device": "atom-matrix",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "observed_seconds": 130.246,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "rom_boot_marker_count": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "abort_count": 0,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.14,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.246,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+          "bytes": 468
+        },
+        "evidence.zip": {
+          "sha256": "61297cd5b8480715bd84497710830ae4be4a9bae4ba79d36e394b16962662cfc",
+          "bytes": 10994
+        },
+        "observation.json": {
+          "sha256": "b22115d73f84093e98d868589c7261138d79568faa012928222c7fc5f01b8316",
+          "bytes": 112880
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3921059,
+        "/machine/rmt-classic/tx-threshold-events": 58822,
+        "/machine/rmt-classic/tx-completions": 6590,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 6518,
+        "/machine/onboard_io/incomplete-frames": 72,
+        "/machine/onboard_io/led-rgb": [
+          0,
+          0,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 64,
+        "distinct_states": 61
+      },
+      "network": {
+        "validation": "virtual-device validation",
+        "packet_counts": {
+          "ethernet_packets": 26,
+          "udp_packets": 6,
+          "dhcp_packets": 4,
+          "arp_packets": 10,
+          "dns_packets": 2,
+          "tcp_packets": 10,
+          "tcp_syn_packets": 2,
+          "http_requests": 1
+        },
+        "http_response_statuses": [
+          404
+        ],
+        "fixture": false,
+        "raw_pcap_sha256": "ea42cacbdd039593cacbcf795a5f68cb6f615a6d6ab685b95dbad96056128373",
+        "identifiers_redacted": true
+      },
+      "status": "PASS for boot/LED/GPIO and network transport; PARTIAL factory HTTP",
+      "limits": [
+        "Original server returned HTTP 404; no fixture supplied and factory application success not claimed.",
+        "Physical RF and electrical timing NOT RUN."
+      ],
+      "frames": []
+    },
+    {
+      "case": "matrix-v11",
+      "device": "atom-matrix-v11",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f",
+      "normalized_flash_sha256": "22e059f12bf6b85d00d08053ba97f96f1181b1b5897bf59501faf53152f343e5",
+      "observed_seconds": 130.336,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 3145728,
+          "equal": true,
+          "sha256": "7367ce01addccc0eaed475c5f85c937a2605605bd7058e71bf1c6f10dbd5f8b8"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "rom_boot_marker_count": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "abort_count": 0,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 130.226,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 130.336,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "7e1e17bf0ed03884c60d23b1eee2dd39277f9e00c12b77d0f204dcc2209f529f",
+          "bytes": 468
+        },
+        "evidence.zip": {
+          "sha256": "7c50c5b0816fa3c938bb3787547a6e7389d2fee4ffb0281c935cc476bf4a6431",
+          "bytes": 11054
+        },
+        "observation.json": {
+          "sha256": "d954859adf9f040d134f6edf2cc84a65e59c055252dd56116f7b5c38ec41f631",
+          "bytes": 113307
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 3981294,
+        "/machine/rmt-classic/tx-threshold-events": 59726,
+        "/machine/rmt-classic/tx-completions": 6685,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 6620,
+        "/machine/onboard_io/incomplete-frames": 65,
+        "/machine/onboard_io/led-rgb": [
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          655360,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "sampled_led": {
+        "samples": 65,
+        "nonblack_samples": 64,
+        "distinct_states": 55
+      },
+      "network": {
+        "validation": "virtual-device validation",
+        "packet_counts": {
+          "ethernet_packets": 27,
+          "udp_packets": 6,
+          "dhcp_packets": 4,
+          "arp_packets": 10,
+          "dns_packets": 2,
+          "tcp_packets": 10,
+          "tcp_syn_packets": 2,
+          "http_requests": 1
+        },
+        "http_response_statuses": [
+          404
+        ],
+        "fixture": false,
+        "raw_pcap_sha256": "33a3d618dc8cb2678bf76ecf42fe492b442ae33ac6f4689936a71cbd5bc85455",
+        "identifiers_redacted": true
+      },
+      "status": "PASS for boot/LED/GPIO and network transport; PARTIAL factory HTTP",
+      "limits": [
+        "Original server returned HTTP 404; no fixture supplied and factory application success not claimed.",
+        "Physical RF and electrical timing NOT RUN."
+      ],
+      "frames": []
+    },
+    {
+      "case": "lite",
+      "device": "atom-lite",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "observed_seconds": 130.095,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "rom_boot_marker_count": 16,
+      "guru_count": 15,
+      "interrupt_watchdog_count": 15,
+      "abort_count": 0,
+      "inputs": [
+        {
+          "key": "a",
+          "action": "down",
+          "elapsed_seconds": 3.203,
+          "accepted": true
+        },
+        {
+          "key": "a",
+          "action": "up",
+          "elapsed_seconds": 3.311,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "abbdd42aac06d320d67c4cc1c839ee03b750a252e649689e5862761bd73155ca",
+          "bytes": 26839
+        },
+        "evidence.zip": {
+          "sha256": "802e5d972eb3d4ab9127bbaa92014b23edd6b07aedfcd466111e156ebb1ddf33",
+          "bytes": 8987
+        },
+        "observation.json": {
+          "sha256": "d2342b86f5a55c258b8cd551e5c3e5bec22817ae5935cd4da625df12ea5c74e4",
+          "bytes": 51242
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 600,
+        "/machine/rmt-classic/tx-threshold-events": 9,
+        "/machine/rmt-classic/tx-completions": 1,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 1,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 0,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [
+        false,
+        true,
+        false
+      ],
+      "status": "FAIL: original Atom Lite startup interrupt watchdog",
+      "panic_type": "Core 1 Interrupt wdt timeout on CPU1",
+      "scope": "Original 130-second button/LED acceptance",
+      "limits": [
+        "No firmware, watchdog or timer limits changed.",
+        "Initial failure is retained; not eligible to release the rebuilt runtime."
+      ],
+      "frames": []
+    },
+    {
+      "case": "uiflow1",
+      "device": "core2",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "3b389eea45b2c1a45b65c29e6de969635e19c486cd5876a048724d6c551f7d1b",
+      "normalized_flash_sha256": "594d098a3727693fe819f382f6992d17826c440dfc9894ebd81a34c4f0b2c5d1",
+      "observed_seconds": 180.152,
+      "original_app_partitions_before": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "bytes": 5373952,
+          "equal": true,
+          "sha256": "c23adacab57df0f97b809fad52ab24f290be47cd5c2222974ff0af5a0359e603"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "bytes": 5373952,
+          "equal": true,
+          "sha256": "c23adacab57df0f97b809fad52ab24f290be47cd5c2222974ff0af5a0359e603"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu-wifi",
+      "rom_boot_marker_count": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "abort_count": 0,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "e2618721a032fe3cf9ac10b7be031062cc9de5ad534e594e13d047c02fe2870d",
+          "bytes": 552
+        },
+        "evidence.zip": {
+          "sha256": "9fda5ed66316a1879acf63bc6163f07c7e1e9c3eac4147f301680a0f79418699",
+          "bytes": 24710
+        },
+        "observation.json": {
+          "sha256": "7f472f1cd896f053e8a7f80207d8545e9959f61127022d41fdc342e70db3bf3e",
+          "bytes": 55729
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "status": "PASS for original boot and Wi-Fi Config page",
+      "limits": [
+        "Cloud pairing, network provisioning and physical hardware NOT RUN."
+      ],
+      "frames": [
+        {
+          "name": "frame-000.png",
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "bytes": 302
+        },
+        {
+          "name": "frame-030.png",
+          "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+          "bytes": 1322
+        },
+        {
+          "name": "frame-060.png",
+          "sha256": "7e495cbef51ba9ca21c15a8edbfb8270abb46b01d15680ba1588c2ba8adc9b05",
+          "bytes": 1322
+        },
+        {
+          "name": "frame-090.png",
+          "sha256": "2ff7545c3dad9a4368a1031eb9e51cb535dc3f5d74ee1b39d06c1e408829db2d",
+          "bytes": 8461
+        },
+        {
+          "name": "frame-120.png",
+          "sha256": "e66ea6ec61942d0fdc155df62493296ee7727766fa42c9bf43823a0586d1d21f",
+          "bytes": 14155
+        },
+        {
+          "name": "frame-150.png",
+          "sha256": "e66ea6ec61942d0fdc155df62493296ee7727766fa42c9bf43823a0586d1d21f",
+          "bytes": 14155
+        },
+        {
+          "name": "frame-final.png",
+          "sha256": "e66ea6ec61942d0fdc155df62493296ee7727766fa42c9bf43823a0586d1d21f",
+          "bytes": 14155
+        }
+      ]
+    },
+    {
+      "case": "ham",
+      "device": "core2",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "normalized_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "observed_seconds": 180.066,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "rom_boot_marker_count": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "abort_count": 0,
+      "inputs": [
+        {
+          "key": "b",
+          "action": "tap",
+          "elapsed_seconds": 16.031,
+          "accepted": true
+        },
+        {
+          "key": "c",
+          "action": "tap",
+          "elapsed_seconds": 45.984,
+          "accepted": true
+        },
+        {
+          "key": "b",
+          "action": "tap",
+          "elapsed_seconds": 65.955,
+          "accepted": true
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "cbb33f769718bea2737f9c1f30bebc6d08d5a587e1eb8274c06476ce5efa2df0",
+          "bytes": 637
+        },
+        "evidence.zip": {
+          "sha256": "06140aa2838cf1689ac6e954be1b712624e388d453b272e1ca67c942c5b0e123",
+          "bytes": 12858
+        },
+        "observation.json": {
+          "sha256": "7faeec78ee1cb0be0e20b3b9f5dd8d6cab89027404e3a8936c6f8686f9f80d9f",
+          "bytes": 53682
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "status": "FAIL for configuration selection in initial fixed-time harness",
+      "reason": "SD files enumerated, but first B input at 15 seconds missed the original firmware three-second Ini Loader window; original missing-backup error remained.",
+      "sd_image_sha256": "4700f8d0d81fc702faa096517f2fdb29b420473f4f8188efa4b6f2b81b21ff6e",
+      "sd_isolated_copy": true,
+      "configuration_source": "https://github.com/armel/M5HamRadio/tree/f10b8924bcfd990f970947dbff9144ce88566799/ini",
+      "configuration_sha256": {
+        "DXTracker.ini": "0fa92d2e139a3bb071eff1408aa87d1bb098cafc65e4b30d31a3aae62dd0ffa8",
+        "IC705USB.ini": "9c8443d2c48eb5521b5d3e96b45eab3c62ec1fb0832cc9cb1472a7a397b03b18"
+      },
+      "sd_files_enumerated_in_guest": true,
+      "frames": [
+        {
+          "name": "frame-000.png",
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "bytes": 302
+        },
+        {
+          "name": "frame-005.png",
+          "sha256": "2f9ec122f93fff313ea37053158e936a784b41da3bc5cce8f933cde4bc0c669a",
+          "bytes": 1650
+        },
+        {
+          "name": "frame-010.png",
+          "sha256": "5c219b469f78320c30614ac753b15f90c071aadca1bd6cf010d17f273461ee81",
+          "bytes": 1616
+        },
+        {
+          "name": "frame-015.png",
+          "sha256": "c7b9ef4d5ff8e4534f77b99c40dab7e590f30f50ec7f781b70c1315ac9532f79",
+          "bytes": 2644
+        },
+        {
+          "name": "frame-020.png",
+          "sha256": "7edb43f41b69b82b20cff9bcef706987fc536f29b973c79573916c70007d33ae",
+          "bytes": 2766
+        },
+        {
+          "name": "frame-025.png",
+          "sha256": "8047e0c1b29f317a6e56b8bfe651c1c3158004c60efe025d66568c1ae45e0a13",
+          "bytes": 2778
+        },
+        {
+          "name": "frame-030.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-035.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-040.png",
+          "sha256": "72a8b6accf26a9222a2caa839bcf65ca4a6fb8a15e4c7d6950b81f5009cf8845",
+          "bytes": 2690
+        },
+        {
+          "name": "frame-045.png",
+          "sha256": "8047e0c1b29f317a6e56b8bfe651c1c3158004c60efe025d66568c1ae45e0a13",
+          "bytes": 2778
+        },
+        {
+          "name": "frame-050.png",
+          "sha256": "8047e0c1b29f317a6e56b8bfe651c1c3158004c60efe025d66568c1ae45e0a13",
+          "bytes": 2778
+        },
+        {
+          "name": "frame-055.png",
+          "sha256": "8047e0c1b29f317a6e56b8bfe651c1c3158004c60efe025d66568c1ae45e0a13",
+          "bytes": 2778
+        },
+        {
+          "name": "frame-060.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-065.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-070.png",
+          "sha256": "8047e0c1b29f317a6e56b8bfe651c1c3158004c60efe025d66568c1ae45e0a13",
+          "bytes": 2778
+        },
+        {
+          "name": "frame-075.png",
+          "sha256": "3245319a48ba7a70559b2b4cfa69c716e9a247966ecddf230dc2456af106c236",
+          "bytes": 2721
+        },
+        {
+          "name": "frame-080.png",
+          "sha256": "fcaa62b30c92fb382c1cfb0dfb108d391af08555e63a76b75949abf012147aea",
+          "bytes": 2661
+        },
+        {
+          "name": "frame-110.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-140.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        },
+        {
+          "name": "frame-170.png",
+          "sha256": "7b2168162abe43e03fa587940539483f576aa659c2ae463f183ceec42ba8f395",
+          "bytes": 2766
+        },
+        {
+          "name": "frame-final.png",
+          "sha256": "c000638feae99034a58de48e6853ef681a9fca05952f54f40d16c7bdf1e5b820",
+          "bytes": 2503
+        }
+      ]
+    },
+    {
+      "case": "ham-frame-ready",
+      "device": "core2",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "normalized_flash_sha256": "2fd173b7e9755aa051c014f1dc60075f18a20a6dd9fbe7d236381ff8ae9e6ceb",
+      "observed_seconds": 180.141,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c6fbccd10817f469eceeb93b59860a0f679fefa534ce05d2c726de35b1c7c231"
+        },
+        {
+          "label": "app1",
+          "offset": 4784128,
+          "bytes": 4718592,
+          "equal": true,
+          "sha256": "c9bd2aa628c888e2eb30ca79390f4eb910f3cf93453d20d5df2e09455575f801"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "rom_boot_marker_count": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "abort_count": 0,
+      "inputs": [
+        {
+          "key": "b",
+          "action": "tap",
+          "elapsed_seconds": 10.989,
+          "accepted": true,
+          "readiness_trigger": "blue Ini Loader progress in actual frame"
+        },
+        {
+          "key": "c",
+          "action": "tap",
+          "accepted": true,
+          "readiness_trigger": "visual menu/selection review"
+        },
+        {
+          "key": "b",
+          "action": "tap",
+          "accepted": true,
+          "readiness_trigger": "visual menu/selection review"
+        }
+      ],
+      "evidence": {
+        "serial.log": {
+          "sha256": "1b8b981b9a3628903b8446cfda8dc591cbd4c02ca245226cf37eddf28dcbbf7c",
+          "bytes": 24762
+        },
+        "evidence.zip": {
+          "sha256": "6257916a0b0f06ded52e69de5a64d5546a7d5fb89e44e60f8c22855824037113",
+          "bytes": 26248
+        },
+        "observation.json": {
+          "sha256": "b8ba8ebe46e59c835931fee02ea4089776f3cdb2533ac75ed198e472c0e69b9b",
+          "bytes": 53307
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "status": "PASS for SD enumeration and real B/C/B configuration selection",
+      "observed": "Actual Ini Loader shows both original configuration files; C selects IC705USB.ini; B loads original ICSMeter 705 USB instrument page with CHECK WIFI, still present at 180 seconds.",
+      "limits": [
+        "WiFi credentials and transceiver not supplied; remote CI-V/RF NOT RUN.",
+        "Physical SD timing and browser-WASM NOT RUN."
+      ],
+      "sd_image_sha256": "4700f8d0d81fc702faa096517f2fdb29b420473f4f8188efa4b6f2b81b21ff6e",
+      "sd_isolated_copy": true,
+      "configuration_source": "https://github.com/armel/M5HamRadio/tree/f10b8924bcfd990f970947dbff9144ce88566799/ini",
+      "configuration_sha256": {
+        "DXTracker.ini": "0fa92d2e139a3bb071eff1408aa87d1bb098cafc65e4b30d31a3aae62dd0ffa8",
+        "IC705USB.ini": "9c8443d2c48eb5521b5d3e96b45eab3c62ec1fb0832cc9cb1472a7a397b03b18"
+      },
+      "sd_files_enumerated_in_guest": true,
+      "frames": [
+        {
+          "name": "frame-000.png",
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "bytes": 302
+        },
+        {
+          "name": "frame-001.png",
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "bytes": 302
+        },
+        {
+          "name": "frame-002.png",
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "bytes": 302
+        },
+        {
+          "name": "frame-003.png",
+          "sha256": "51f177566b539a08c1c18dc9c003d6348e46fcfc29984d6cb31c9342a0177781",
+          "bytes": 1589
+        },
+        {
+          "name": "frame-004.png",
+          "sha256": "de626e3fe3edd382d075eedb92ce6f0ba4f35bef065fd53426528b44e4f53bb9",
+          "bytes": 1952
+        },
+        {
+          "name": "frame-005.png",
+          "sha256": "8f005b6dcffe872fc5577ef6dde9e992f64f1a0966459a2fcdb6d9b44a8e0886",
+          "bytes": 1648
+        },
+        {
+          "name": "frame-006.png",
+          "sha256": "e3acb90655d0fc49f32c788994bb2fb8de6d1266ad2b27652a2b3f035af9f1c7",
+          "bytes": 2024
+        },
+        {
+          "name": "frame-007.png",
+          "sha256": "f2a885262e3c34d1d047da3c0b7e396db88537e8a57ef511f3b591f4daaf35a0",
+          "bytes": 1664
+        },
+        {
+          "name": "frame-008.png",
+          "sha256": "5e32e1ca9f5536accf020d304979e8df3afa19b693ea5cfa166094441580f050",
+          "bytes": 1642
+        },
+        {
+          "name": "frame-009.png",
+          "sha256": "7354ba4094077ac6bee27de5919297d00c52f78dacb1ee259de2431a7df34280",
+          "bytes": 1328
+        },
+        {
+          "name": "frame-010.png",
+          "sha256": "7a7e757cde96c7b0edbf1fe875e51e08db02a854608d19817fa3738ff2721997",
+          "bytes": 1718
+        },
+        {
+          "name": "frame-011.png",
+          "sha256": "140c69206813039aa024a47a190127e6c7cceb1f6abd019d7a6052b239e743fb",
+          "bytes": 2492
+        },
+        {
+          "name": "frame-012.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-013.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-014.png",
+          "sha256": "fff494e48ecaa6b15f0ca3a9f3fda081fa395182206cd14436fb2f5bf3d2622f",
+          "bytes": 2491
+        },
+        {
+          "name": "frame-015.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-016.png",
+          "sha256": "e2ae5c8ba2c98c1299619a6a141858f01ec73745ce782a146f40a2174a9d6206",
+          "bytes": 2483
+        },
+        {
+          "name": "frame-017.png",
+          "sha256": "ef669f960aabeb435bdd9d5a52b6d059f1640a9e18b2ee2a92ed785d0577d9b3",
+          "bytes": 2490
+        },
+        {
+          "name": "frame-018.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-019.png",
+          "sha256": "23d33bacb038905d3bb5941b70ea04178890fed61e4f5d8e9c1f894550ac78b9",
+          "bytes": 2492
+        },
+        {
+          "name": "frame-020.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-021.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-022.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-023.png",
+          "sha256": "cfd773bc52573d40ccf19b8cd84b5d456ac8797c35da3c372adbe6938836b99c",
+          "bytes": 2486
+        },
+        {
+          "name": "frame-024.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-025.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-026.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-027.png",
+          "sha256": "e4265a2456741aafd2f894220cdfc30a513c6383511c8c5df1213c3f48cae39b",
+          "bytes": 2489
+        },
+        {
+          "name": "frame-028.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-029.png",
+          "sha256": "5e0f043b07a88294bf06bc395da0fd6bf85f67ea16cff4186aef7c93840b32f1",
+          "bytes": 2486
+        },
+        {
+          "name": "frame-030.png",
+          "sha256": "3e6d3b50d5ef4f6f7a12521dd1d3ac1ac9c2a98672d4577b76c9204780d13298",
+          "bytes": 2484
+        },
+        {
+          "name": "frame-031.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-032.png",
+          "sha256": "0b6da4241384cd97e7c1e0fc2260a7610c77ced132f8ef93e1db2c2c7236acbd",
+          "bytes": 2485
+        },
+        {
+          "name": "frame-033.png",
+          "sha256": "0570387d13d6993ba3a320f569771103782006b674b9175d9d7b41eefb40866d",
+          "bytes": 2487
+        },
+        {
+          "name": "frame-034.png",
+          "sha256": "eabfc9a4467dbac42d5b7117129f1989e5224139639dd8f01d03c0fe12fd6c8a",
+          "bytes": 2507
+        },
+        {
+          "name": "frame-035.png",
+          "sha256": "1018e9e6e9547c5d6154e2194f36ab514eecb923f257be176d7d0c177c6ab269",
+          "bytes": 2502
+        },
+        {
+          "name": "frame-036.png",
+          "sha256": "1018e9e6e9547c5d6154e2194f36ab514eecb923f257be176d7d0c177c6ab269",
+          "bytes": 2502
+        },
+        {
+          "name": "frame-037.png",
+          "sha256": "ef10072561629646128b7dcb4bdce31cb2f4a1e563896769a8b56070901da591",
+          "bytes": 2498
+        },
+        {
+          "name": "frame-038.png",
+          "sha256": "01a7902362313222132c5c14a16ce500f4c366a11da24cce2cb1f9c97d7b3878",
+          "bytes": 2502
+        },
+        {
+          "name": "frame-039.png",
+          "sha256": "423e1bc349ee614d7e6689fb72d74c5b99760c49e2ff8f025e197fe1de69fbb4",
+          "bytes": 2499
+        },
+        {
+          "name": "frame-040.png",
+          "sha256": "7e3c800e8abcbe1c39f64484b4f1266593a7a25b5b70634b68d24253148c3316",
+          "bytes": 2507
+        },
+        {
+          "name": "frame-055.png",
+          "sha256": "632308d70f26253aca762a65e3a2dfc2ff36f02dea87b760d4789a29b9568b33",
+          "bytes": 12357
+        },
+        {
+          "name": "frame-070.png",
+          "sha256": "6d937a1113a4498120d19288dc71bef8caf124e80b896c432fcad17f98fd3096",
+          "bytes": 12358
+        },
+        {
+          "name": "frame-085.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-100.png",
+          "sha256": "e3f05e3fffc9c4c70b08e52c8dc27c01a274857bfe084ea362453caeea2985bd",
+          "bytes": 12353
+        },
+        {
+          "name": "frame-115.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-130.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-145.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-160.png",
+          "sha256": "e10ae83407de0c5efdbc9d6ae27b738d1dd5a1fd08002fe60e09668b54b02a5f",
+          "bytes": 12357
+        },
+        {
+          "name": "frame-175.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-after-b.png",
+          "sha256": "057fd0b6c61d706ab2104862bc69f32f21b17184a0867ec9a82bc59d0a884200",
+          "bytes": 2475
+        },
+        {
+          "name": "frame-after-c.png",
+          "sha256": "1018e9e6e9547c5d6154e2194f36ab514eecb923f257be176d7d0c177c6ab269",
+          "bytes": 2502
+        },
+        {
+          "name": "frame-final.png",
+          "sha256": "5f92b48228982ff7aa15f327bb89b2633b5243b72bb30f81e34cd74af5508819",
+          "bytes": 12351
+        },
+        {
+          "name": "frame-ini-ready.png",
+          "sha256": "7a7e757cde96c7b0edbf1fe875e51e08db02a854608d19817fa3738ff2721997",
+          "bytes": 1718
+        }
+      ]
+    },
+    {
+      "case": "lite-no-input-control",
+      "device": "atom-lite",
+      "runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "observed_seconds": 35.021,
+      "original_app_partitions_before": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "original_app_partitions_after": [
+        {
+          "label": "app0",
+          "offset": 65536,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "1778d5ac65eb908842a2f91872724f8faf95a2cb0c72a358ebdc839d95c7dac6"
+        },
+        {
+          "label": "app1",
+          "offset": 1376256,
+          "bytes": 1310720,
+          "equal": true,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738"
+        }
+      ],
+      "runtime_pid_binary_verified": true,
+      "runtime": "qemu",
+      "rom_boot_marker_count": 2,
+      "guru_count": 2,
+      "interrupt_watchdog_count": 2,
+      "abort_count": 0,
+      "inputs": [],
+      "evidence": {
+        "serial.log": {
+          "sha256": "c23ff2e5dfd494ef6bd5f1e0ad34066903f1ab60bfc8fa9a1611ed30dae84121",
+          "bytes": 3022
+        },
+        "evidence.zip": {
+          "sha256": "83fd6cd51753c8507ab7813c8d02fcce086bcab495dd635b0fb6851a58e458b3",
+          "bytes": 7716
+        },
+        "observation.json": {
+          "sha256": "af58755bfdeb4343204cb04649c20f9b39f246f954499486bce9e98aae08bce6",
+          "bytes": 33325
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 0,
+        "/machine/rmt-classic/tx-threshold-events": 0,
+        "/machine/rmt-classic/tx-completions": 0,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 0,
+        "/machine/onboard_io/led-frames": 0,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 0,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "button_edges": [],
+      "status": "FAIL: original Atom Lite startup interrupt watchdog",
+      "panic_type": "Core 1 Interrupt wdt timeout on CPU1",
+      "scope": "Diagnostic no-input control",
+      "limits": [
+        "No firmware, watchdog or timer limits changed.",
+        "Initial failure is retained; not eligible to release the rebuilt runtime."
+      ],
+      "effective_clock_environment": {
+        "M5SW_ICOUNT_MAX_PERCPU_NS": "10000"
+      },
+      "first_guru_sample_seconds": 1.0813296248670667,
+      "frames": []
+    }
+  ],
+  "hardware_validation": false,
+  "burner_submitted": false,
+  "raw_evidence_published": false,
+  "diagnostics": [
+    {
+      "case": "lite-no193-no-input-control",
+      "validation": "virtual-device validation",
+      "diagnostic_only": true,
+      "status": "PARTIAL: no watchdog observed in 35 seconds, but application readiness not reached",
+      "source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+      "source_variation": "Only 0193 classic cache optimization reversed; original firmware and watchdog unchanged",
+      "runtime_sha256": "69091e89b2c774e12f9f405713b8c8af6633e6a1627b9ec992f6e5a28486bb4b",
+      "base_runtime_sha256": "e529a11c4cca190121b566f7647973d3d60093c7d6deb9ed38f171f60a16f15d",
+      "build_control_receipt_sha256": "2360e8feb0c1ccfb0939493cef34214d640c0afc02fb0a7dbe7a90ea5d2893ce",
+      "original_firmware_sha256": "1c8fa292e31819c4a3ca36c714e93d08f7a8a58f16918f8fdf1df0210e546ce4",
+      "normalized_flash_sha256": "868ba1c674eb5ef7cb4fce4ff6310f791f95920f6a05cccde3f7da27befd7cf0",
+      "observed_seconds": 35.034,
+      "rom_boots": 1,
+      "guru_count": 0,
+      "interrupt_watchdog_count": 0,
+      "input_count": 0,
+      "effective_clock_environment": {
+        "M5SW_ICOUNT_MAX_PERCPU_NS": "10000"
+      },
+      "app_bytes_preserved_before_after": true,
+      "controller": {
+        "/machine/rmt-classic/tx-symbols": 600,
+        "/machine/rmt-classic/tx-threshold-events": 9,
+        "/machine/rmt-classic/tx-completions": 1,
+        "/machine/rmt-classic/tx-errors": 0,
+        "/machine/rmt-classic/tx-last-tick-hz": 40000000,
+        "/machine/onboard_io/led-frames": 1,
+        "/machine/onboard_io/incomplete-frames": 0,
+        "/machine/onboard_io/led-rgb": 0,
+        "/machine/onboard_io/pressed": false,
+        "/machine/onboard_io/input-level": true
+      },
+      "evidence": {
+        "serial.log": {
+          "bytes": 330,
+          "sha256": "0b62a8ddc5e68b6711d126a4ed80478bad5412248d6362730709305d7a09e88b"
+        },
+        "evidence.zip": {
+          "bytes": 7437,
+          "sha256": "441c4f822c8e2cd3d2e89a0ea298ba14c521279dd1f59c544d915d970716e8b5"
+        },
+        "observation.json": {
+          "bytes": 35093,
+          "sha256": "118aeb80378c89496a8076c11a17d042a3650bc568b21bb0bf861f3468a3070c"
+        }
+      },
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "purge": 0,
+        "flash_retained": false
+      },
+      "limits": [
+        "Single variable diagnostic only; the absence of watchdog is not original application PASS.",
+        "Application initialization marker was not reached; root cause remains under investigation."
+      ]
+    }
+  ],
+  "baseline_service_cleanup": {
+    "active_sessions": 0,
+    "all_sessions_stopped": true,
+    "owned_service_stopped": true,
+    "purge": 0
+  }
+}

@@ -1,0 +1,813 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-13T08:06:54.583165+00:00",
+  "validation": "virtual-device validation",
+  "overall_status": "PARTIAL",
+  "source_commit": "943373891a76fbc07d6d4a3dfc62ec2b38d1a20a",
+  "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+  "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+  "runtime": "qemu",
+  "network_added": false,
+  "peer_added": false,
+  "maximum_owned_concurrent_sessions": 3,
+  "high_load_matrix": false,
+  "capture_driver_sha256": "fff205e7b3ae6f7e180a0c31fd1899b68a25be8a70ee369f2645bd9aa115fb69",
+  "cases": [
+    {
+      "case": "meshtastic",
+      "device": "nesso-n1",
+      "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.237,
+      "status": "PASS",
+      "reason": "Full Welcome dialog, actual key:b selection, natural screen sleep and same-boot button wake pass the bounded control.",
+      "full_bundle_serial_bytes": 12260,
+      "full_bundle_serial_sha256": "a3c87074f94d26bd5dfbd2add4d00cfe13a6c161f40c31de558ae3063ca2657c",
+      "counts": {
+        "ESP-ROM:esp32c6": 1,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+          "pixel_sha256": "c66b5cf0ea55080ab6faf8751bcd78403a37f675c6dceeb0eb0d799c78a2c804",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 30.143
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "f99f52593d95ffc4fc146a54eb448bd6ae8c48a5a0397cdfe3aa76ef47a4af5a",
+          "pixel_sha256": "a78507c250badf7adee0ecdc51283c06787b4ac046342c840b6c8ef704f2a951",
+          "nonblack_pixels": 7566,
+          "colors": 3,
+          "elapsed_seconds": 33.578
+        },
+        {
+          "sample": "sleep-observed",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 61.611
+        },
+        {
+          "sample": "after-wake",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "89a8baf56c1681b97c09cb2fef70b11f7f5eda6c1c6b23a5c8587371e5d8440a",
+          "pixel_sha256": "49383f7200ec714e9d45d2c82ad14dccd6e1f182ecc15fc3a8360c29c4323741",
+          "nonblack_pixels": 7546,
+          "colors": 3,
+          "elapsed_seconds": 65.044
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 150.014
+        }
+      ],
+      "control_checks": {
+        "one_boot": true,
+        "no_fatal": true,
+        "input_changed_frame": true,
+        "natural_sleep_observed": true,
+        "button_wake_nonblack": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_padded_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "final_sha256": "f7d319abd01d9d971f4e53bd16b3bfa5bd6a4f12cddde5587e28a1c889c19ae4",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "be0fc3b21ad8d0ef22345a1c05c815c0a2453c09079033c832b5a14d56361e03",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "actual_inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 31.552,
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        },
+        {
+          "label": "wake",
+          "elapsed_seconds": 63.016,
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        }
+      ],
+      "visual_review": {
+        "status": "PASS",
+        "frames": {
+          "before-input": {
+            "sha256": "b6b33c6520917c123741ea9c928d0b6cb8131910949ff2cb89c7777a2d09b673",
+            "observation": "Full Welcome to Meshtastic dialog is visible; OK is selected."
+          },
+          "after-input": {
+            "sha256": "f99f52593d95ffc4fc146a54eb448bd6ae8c48a5a0397cdfe3aa76ef47a4af5a",
+            "observation": "The same full Welcome dialog remains; actual key:b moves selection from OK to Got it."
+          },
+          "after-wake": {
+            "sha256": "89a8baf56c1681b97c09cb2fef70b11f7f5eda6c1c6b23a5c8587371e5d8440a",
+            "observation": "After natural black-screen capture, actual key:b restores the full Welcome dialog in the same session."
+          }
+        },
+        "scope": "Original useful GUI, actual input, bounded stability and same-boot timed sleep/button wake"
+      }
+    },
+    {
+      "case": "bruce",
+      "device": "nesso-n1",
+      "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.49,
+      "status": "PASS",
+      "reason": "Useful WiFi menu, actual touch to Clock, and a single requested reset followed by LittleFS remount and menu return pass.",
+      "full_bundle_serial_bytes": 6044,
+      "full_bundle_serial_sha256": "7e1c711cefdf8f704d57b1b91296ae7e9a956c2d2d3ae231ac9b2579b28f3b29",
+      "counts": {
+        "ESP-ROM:esp32c6": 2,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "before-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+          "pixel_sha256": "8172d8fcd69f3b44b9c8326022c3ad73d0c5b64455e498fc9782719a9b3081a8",
+          "nonblack_pixels": 3531,
+          "colors": 5,
+          "elapsed_seconds": 30.158
+        },
+        {
+          "sample": "after-input",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "1494a15e663d2ee69538f1178ed24462106276b461dc3a645b5185db213ffc2f",
+          "pixel_sha256": "2879e5ce8c93e414caa0397a87601bc4082ed20f698b2f4ce88086475d7d9bae",
+          "nonblack_pixels": 3400,
+          "colors": 5,
+          "elapsed_seconds": 33.141
+        },
+        {
+          "sample": "remount",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+          "pixel_sha256": "5150412d8615885bc803557e8c2f5d2e52daac9a8bfcbdd5a674df43da63496a",
+          "nonblack_pixels": 3525,
+          "colors": 5,
+          "elapsed_seconds": 125.178
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "c64a2f1430d36b6dc5e4aa8f04d915f3c94019bcdccfae881731cc2e3b7447b6",
+          "pixel_sha256": "3511b59691b1c61a51c384d1a1899a87c5df4f7efd61498a229a08d94fa0d777",
+          "nonblack_pixels": 3521,
+          "colors": 5,
+          "elapsed_seconds": 150.193
+        }
+      ],
+      "control_checks": {
+        "two_boots_one_requested_reset": true,
+        "no_fatal": true,
+        "touch_changed_frame": true,
+        "remount_nonblack": true,
+        "post_reset_littlefs_error_absent": true
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4653056,
+          "original_padded_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "final_sha256": "754af3b23ebbe007429efa7941a1d0f620dee011847fb62b8f758a6a1d595532",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "cba25d1900f317eabd31492814f27a71ce4f39b89846db18beaba7c6130905ef",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "actual_inputs": [
+        {
+          "label": "main-input",
+          "elapsed_seconds": 31.118,
+          "request": {
+            "kind": "touch",
+            "x": 66,
+            "y": 214,
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        },
+        {
+          "label": "reset",
+          "elapsed_seconds": 100.134,
+          "request": {}
+        }
+      ],
+      "visual_review": {
+        "status": "PASS",
+        "frames": {
+          "before-input": {
+            "sha256": "e763bd06ac289883ac50cbf1e58ea7c5166d1ab817db2505e0044ef79300e7bd",
+            "observation": "Complete WiFi menu with PREV/SEL/NEXT controls is visible."
+          },
+          "after-input": {
+            "sha256": "1494a15e663d2ee69538f1178ed24462106276b461dc3a645b5185db213ffc2f",
+            "observation": "Actual physical touch (66,214) changes the selected menu to Clock."
+          },
+          "remount": {
+            "sha256": "ad56f5e38bb2ba2e9c1424b5a6159dec03d3b88e87c2d0677799f4d2e1ebb061",
+            "observation": "After the one requested reset, the full WiFi menu returns with PREV/SEL/NEXT controls."
+          }
+        },
+        "scope": "Original useful GUI, actual input, bounded stability and requested-reset LittleFS remount"
+      },
+      "post_reset_serial": {
+        "sha256": "4aea13ce1d875b46b34a2df4c313f5b7c41ffc333fc177869b82500586108452",
+        "bytes": 2156,
+        "littlefs_related_lines": 0,
+        "error_failure_corruption_matches": 0,
+        "boundary": "Second ROM boot after the single requested session reset"
+      }
+    },
+    {
+      "case": "launcher-300",
+      "device": "nesso-n1",
+      "original_firmware_sha256": "58892afba6693f5316ace6610659e9386134b6ed714527713f0a820f35eb4e91",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.315,
+      "status": "FAIL",
+      "reason": "Original 3.0.0 still repeats xTaskPriorityDisinherit ownership assertions. Exact-release root cause remains REVIEW; no 2.6.6 symbols or causal claim are transferred.",
+      "full_bundle_serial_bytes": 390309,
+      "full_bundle_serial_sha256": "80e8ab82855763ae8765da652d2483e51f6b15c7d3d018091cb37abbe51fc818",
+      "counts": {
+        "ESP-ROM:esp32c6": 86,
+        "assert failed: xTaskPriorityDisinherit": 85,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 85,
+        "Rebooting...": 85,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "t000",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 0.015
+        },
+        {
+          "sample": "t010",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b19ee59da78952c45e82803c7ad341ef486b1c2d4df857fd9b8dc799e66bfa97",
+          "pixel_sha256": "2570efb083f2879493637f24f11c81626b11553b17d46f6780e87911fc098692",
+          "nonblack_pixels": 8364,
+          "colors": 4,
+          "elapsed_seconds": 10.182
+        },
+        {
+          "sample": "t030",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "a3fd491d74595f0bdcc8fd6c4b0bd1bf905a6904468f036d228442ba9d87d27a",
+          "pixel_sha256": "fb96e6d56ace574af4309e3d3ebae658a382b2b0c45f178ad0b297e6da22c472",
+          "nonblack_pixels": 8243,
+          "colors": 4,
+          "elapsed_seconds": 30.174
+        },
+        {
+          "sample": "t060",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "07fadc072a7d91f2d015ec573dbdd02586d9f91902f6bd086f102db2406aa63f",
+          "pixel_sha256": "0042b007d0aef719a1579f29ce34ec1f6a17d108034d0f75ab0dc158a7126eb0",
+          "nonblack_pixels": 8284,
+          "colors": 4,
+          "elapsed_seconds": 60.287
+        },
+        {
+          "sample": "t090",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "54399c9f4837468677bf4f7759a5a06404c0377d404617db8dd16ec6a9b6caee",
+          "pixel_sha256": "f444495cc8a6804bf27dcf0ecdf8d55d12984eedcd9bcb0fb4352ba399ef6623",
+          "nonblack_pixels": 8507,
+          "colors": 4,
+          "elapsed_seconds": 90.109
+        },
+        {
+          "sample": "t120",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "b2ea10f600b6eb828f1185d5a87fd0cdaba61dbd6f609568c513befbea8be868",
+          "pixel_sha256": "46df83ac74f5cc55b9ae5c7e4dde640cc5871c87d2c6e7140566cc076475317b",
+          "nonblack_pixels": 8464,
+          "colors": 4,
+          "elapsed_seconds": 120.2
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "4079a011de77bcfaa4a5a48730e409f644c2633801dce9ef324767ebcee4642d",
+          "pixel_sha256": "0adf134639fa446e8c1271506a45deb7aaaf59fe8892c8a0705034f8a6e72945",
+          "nonblack_pixels": 8293,
+          "colors": 4,
+          "elapsed_seconds": 150.045
+        }
+      ],
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 1572864,
+          "original_padded_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+          "final_sha256": "a19f8a7dd550a2a2de4cf9e24c66ca6607b81f317c8782dcd45503e054b2ad05",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "188f2f51d61c8ef02a50c645b12e7bdb94099b274e3d0b52bdf94a423dabd464",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true
+    },
+    {
+      "case": "launcher-266",
+      "device": "nesso-n1",
+      "original_firmware_sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.388,
+      "status": "FAIL",
+      "reason": "Original 2.6.6 still repeats xTaskPriorityDisinherit ownership assertions. No stable useful application acceptance is claimed.",
+      "full_bundle_serial_bytes": 114508,
+      "full_bundle_serial_sha256": "274e2176f2e6697cf570d19aa42fff633dc973680dc32c39776db9ba42175ae7",
+      "counts": {
+        "ESP-ROM:esp32c6": 25,
+        "assert failed: xTaskPriorityDisinherit": 24,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 24,
+        "Rebooting...": 24,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "t000",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 0.006
+        },
+        {
+          "sample": "t010",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 10.115
+        },
+        {
+          "sample": "t030",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "51b8a7d960c1caceb69fff0b43b951945918454b4e9ca3a9ad61e4399fa9a6d3",
+          "pixel_sha256": "1307b05c331b76acc5205afffdf2b8bc1c0c2672c64da43ee8fd23182e11d391",
+          "nonblack_pixels": 8380,
+          "colors": 4,
+          "elapsed_seconds": 30.136
+        },
+        {
+          "sample": "t060",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "51b8a7d960c1caceb69fff0b43b951945918454b4e9ca3a9ad61e4399fa9a6d3",
+          "pixel_sha256": "1307b05c331b76acc5205afffdf2b8bc1c0c2672c64da43ee8fd23182e11d391",
+          "nonblack_pixels": 8380,
+          "colors": 4,
+          "elapsed_seconds": 60.243
+        },
+        {
+          "sample": "t090",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "51b8a7d960c1caceb69fff0b43b951945918454b4e9ca3a9ad61e4399fa9a6d3",
+          "pixel_sha256": "1307b05c331b76acc5205afffdf2b8bc1c0c2672c64da43ee8fd23182e11d391",
+          "nonblack_pixels": 8380,
+          "colors": 4,
+          "elapsed_seconds": 90.112
+        },
+        {
+          "sample": "t120",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "51b8a7d960c1caceb69fff0b43b951945918454b4e9ca3a9ad61e4399fa9a6d3",
+          "pixel_sha256": "1307b05c331b76acc5205afffdf2b8bc1c0c2672c64da43ee8fd23182e11d391",
+          "nonblack_pixels": 8380,
+          "colors": 4,
+          "elapsed_seconds": 120.244
+        },
+        {
+          "sample": "t150",
+          "size": [
+            240,
+            135
+          ],
+          "sha256": "51b8a7d960c1caceb69fff0b43b951945918454b4e9ca3a9ad61e4399fa9a6d3",
+          "pixel_sha256": "1307b05c331b76acc5205afffdf2b8bc1c0c2672c64da43ee8fd23182e11d391",
+          "nonblack_pixels": 8380,
+          "colors": 4,
+          "elapsed_seconds": 150.124
+        }
+      ],
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2031616,
+          "original_padded_sha256": "e0d4280ec453dee22ae0dffc644bc694794c1ca4b4f8455812676218b559a2fc",
+          "final_sha256": "e0d4280ec453dee22ae0dffc644bc694794c1ca4b4f8455812676218b559a2fc",
+          "unchanged": true
+        },
+        {
+          "offset": 2097152,
+          "size": 8388608,
+          "original_padded_sha256": "9f9b02f5ee6cbef5e018c1ee424095fc21a842ea6968c0d36114b5930dab2ba1",
+          "final_sha256": "9f9b02f5ee6cbef5e018c1ee424095fc21a842ea6968c0d36114b5930dab2ba1",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "a655da6f2b0f1e7c3989743ce0810186e8a2d51cb3c1bbca7b1ae30c113eaed5",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true
+    },
+    {
+      "case": "nanoc6-zigbee",
+      "device": "nanoc6",
+      "original_firmware_sha256": "a736daf26ca51983bf6a9bd30dd79c3148631291edf50acea1b8f29600183504",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.479,
+      "status": "PARTIAL",
+      "reason": "The original Zigbee stack still aborts at nwk_nlme.c:1354. Application result FAIL; the virtual profile separately lacks an implemented 802.15.4 controller/data plane. No join/light-control PASS.",
+      "full_bundle_serial_bytes": 4655448,
+      "full_bundle_serial_sha256": "8f8ac84df593cf4edbef65f6cea906982a3d6f830afcfe334c364e636c1191f8",
+      "counts": {
+        "ESP-ROM:esp32c6": 589,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 588,
+        "abort() was called": 588,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 588,
+        "Rebooting...": 588,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [],
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 921600,
+          "original_padded_sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "final_sha256": "f6621b298f47c413b9ba15998c7ff98ce60c35a999946d73e4f83b0618cdab97",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "5285136345f5930b5d460b214aa7ab35de4c48eec65199b70f90baf36db8c35d",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "application_result": "FAIL"
+    },
+    {
+      "case": "nanoc6-honeypot",
+      "device": "nanoc6",
+      "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.365,
+      "status": "PARTIAL",
+      "reason": "150 seconds without watchdog or restart; button request accepted and GPIO levels observed, but no end-to-end application/network output established. PARTIAL only.",
+      "full_bundle_serial_bytes": 461,
+      "full_bundle_serial_sha256": "983b49b8217e03d419dd60e8b734150c217be2cb19219505a173f54d1d48998d",
+      "counts": {
+        "ESP-ROM:esp32c6": 1,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 0,
+        "Rebooting...": 0,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [],
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "original_padded_sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "final_sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "original_padded_sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "final_sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "deb9e99b8f24281a60eb9a05ccfdc6b365f9734908de557a7c93c5dd7d110bd7",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "actual_inputs": [
+        {
+          "label": "button",
+          "elapsed_seconds": 60.697,
+          "request": {
+            "kind": "key",
+            "key": "a",
+            "action": "tap",
+            "settle_seconds": 0.5
+          }
+        }
+      ],
+      "gpio_after_input": {
+        "7": {
+          "property": "gpio7-level",
+          "value": true
+        },
+        "9": {
+          "property": "gpio9-level",
+          "value": true
+        },
+        "19": {
+          "property": "gpio19-level",
+          "value": true
+        }
+      }
+    },
+    {
+      "case": "rfid",
+      "device": "nesso-n1",
+      "original_firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "runtime_sha256": "e4c9bb8de6dba1395ab22712ec8dce58d4c2f701799598d289e1ffb9d5b4e7ec",
+      "observed_seconds": 150.236,
+      "status": "FAIL",
+      "reason": "Original image still produces register dumps and reboots without a useful frame or RFID transaction. The absent external PN532Killer peer is a separate limitation, not proof of the crash cause.",
+      "full_bundle_serial_bytes": 82860,
+      "full_bundle_serial_sha256": "3cab513b91de3d7efbfd36e74fa2229956e5b3a99c5f9c5ec2bedea104bb5830",
+      "counts": {
+        "ESP-ROM:esp32c6": 20,
+        "assert failed: xTaskPriorityDisinherit": 0,
+        "Zigbee stack assertion failed nwk/nwk_nlme.c:1354": 0,
+        "abort() was called": 0,
+        "Guru Meditation": 0,
+        "Core  0 register dump:": 19,
+        "Rebooting...": 19,
+        "Task watchdog got triggered": 0,
+        "delete_entry(": 0
+      },
+      "frames": [
+        {
+          "sample": "t000",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 0.006
+        },
+        {
+          "sample": "t010",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 10.125
+        },
+        {
+          "sample": "t030",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 30.138
+        },
+        {
+          "sample": "t060",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 60.213
+        },
+        {
+          "sample": "t090",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 90.052
+        },
+        {
+          "sample": "t120",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 120.129
+        },
+        {
+          "sample": "t150",
+          "size": [
+            135,
+            240
+          ],
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "pixel_sha256": "e6da5040cd854e914ae0ea9d85f741213ab077415c7498f2d41e0cf39ddb4b4d",
+          "nonblack_pixels": 0,
+          "colors": 1,
+          "elapsed_seconds": 150.008
+        }
+      ],
+      "control_checks": {},
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "original_padded_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "final_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "original_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "final_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "ad17fa734240acdc6cebab57e7f0c7cfeb065b37dd1e1971e6f99753871c1c96",
+      "zip_before_stop": true,
+      "terminal_state": "stopped",
+      "flash_released": true
+    }
+  ],
+  "status_counts": {
+    "PASS": 2,
+    "FAIL": 3,
+    "PARTIAL": 2
+  },
+  "cleanup": {
+    "active_sessions": 0,
+    "active_leases": 0,
+    "all_zips_before_stop": true,
+    "all_mutable_flash_released": true,
+    "service_shutdown_receipt": "Separate owned-service-stop.json"
+  },
+  "evidence_availability": {
+    "new_e4c9_raw_zips_present_at_summary": true,
+    "earlier_4bb_raw_zips": "LOST during workspace cleanup; recovered historical summary is separate and is not substituted for these new runs."
+  },
+  "limits": [
+    "Only Meshtastic and Bruce pass the listed original application subpaths. Issue #216 as a whole remains PARTIAL.",
+    "No added host network or external RFID peer; absence of a peer does not establish a crash cause.",
+    "No physical hardware, RF, browser-WASM or indefinite-stability claim.",
+    "No original application partition changed; no Burner submission."
+  ]
+}
