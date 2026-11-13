@@ -1954,6 +1954,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session = self.service.get_session(result["session_id"])
         self.assertEqual(session.runtime_env, traces)
 
+    def test_plain_c6_usb_capture_preserves_both_uart_channels(self):
+        class LaunchCaptured(Exception):
+            pass
+
+        for device_id in ("nanoc6", "nesso-n1", "cores3"):
+            session = self._stopped_session(session_id=uuid.uuid4().hex)
+            session.spec = self.service.specs[device_id]
+            session.state = "booting"
+            with mock.patch.object(session, "_prepare_microphone_tone"), mock.patch.object(
+                device_service_module.subprocess, "Popen", side_effect=LaunchCaptured
+            ) as launch:
+                with self.assertRaises(LaunchCaptured):
+                    session._launch()
+            command = launch.call_args.args[0]
+            serials = [command[index + 1] for index, value in enumerate(command) if value == "-serial"]
+            expected = [f"file:{session.serial0}", f"file:{session.serial1}"]
+            if device_id != "cores3":
+                expected.append(f"file:{session.dir / 'usb-serial-jtag.log'}")
+            self.assertEqual(serials, expected)
+
     def test_sticks3_usb_serial_jtag_capture_is_opt_in_and_separate(self):
         key = "M5SW_USB_SERIAL_JTAG_CAPTURE"
         for device_id, value in (("cores3", "1"), ("sticks3", "0")):

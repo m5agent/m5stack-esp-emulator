@@ -20,7 +20,7 @@
 | 重量 | 2.7 g |
 | 显示 | 无板载显示屏 |
 | 控制 | GPIO9 |
-| 外设 | rgb-led, led-output:blue, ir |
+| 外设 | rgb-led, led-output:blue, ir, usb-serial-jtag |
 
 ## 模拟状态
 

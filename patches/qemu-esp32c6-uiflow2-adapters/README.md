@@ -83,6 +83,11 @@ SPI1 的 10-bit Flash 长度字段分开，保留 FIFO 字节并约束 DMA 缓�
 
 ## 当前开放边界
 
+`0020-c6-usb-serial-jtag-endpoints.patch` 为固定 CDC IN/OUT 端点提供
+64 字节 FIFO、真实 chardev 收发、背压及 C6 IRQ48 接线。独立
+[HWCDC 与 UIFlow2 USB REPL 用例](../../tests/firmware/esp32c6_usb_serial_jtag/README.md)
+不继承 USB 枚举、EP0、USB OTG、JTAG 或物理电气覆盖。
+
 `0018-c6-wifi-tsf-counter.patch` 补齐原 WiFi HAL 使用的四个 TSF
 计数器、门控、64 位加载与一致性快照。`0019-c6-efuse-lp-subregion.patch`
 修正被宽 LP 区域遮蔽的 eFuse MMIO 映射；NanoC6 的会话身份经实际

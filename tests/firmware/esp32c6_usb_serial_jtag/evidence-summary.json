@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "status": "PARTIAL",
+  "validation": "virtual-device validation",
+  "canonical_qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+  "candidate_note": "These rows bind the first 0020 candidate, before the copyright attribution and unrealize-handler cleanup follow-up. Final fresh runtime acceptance remains separate.",
+  "runs": [
+    {
+      "case": "usb-probe-before",
+      "original_firmware_sha256": "b63e1d621c647e030f5100bc0c90642c870744973a76833e60d8d0e6660ca4e8",
+      "runtime_sha256": "bfd4d540b1110042002ace91cac5bfaab21656102497448a421b7309defde59b",
+      "observed_seconds": 8.034646749962121,
+      "boot_banners": 1,
+      "serial_sha256": "6bf45b18f745c225fd4cc4c4926b3e35c7e1ce4c38ae489f518bcb04ae9344a9",
+      "serial_bytes": 369,
+      "evidence_zip_sha256": "346a65ddee9510c570d0e0043fade28a0c92c07f378fdb0a3b64390862adce8a",
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "b24ac3e7f3f16bcf2da5b5064e12e06712873bd358a5cb7927af969eddf91737",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "b24ac3e7f3f16bcf2da5b5064e12e06712873bd358a5cb7927af969eddf91737",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "host_tx_sha256": "7b84e6b8018067a7389f81cc113d28dc82f09f8841f09897c56b64b34cb67fd5",
+      "host_rx_bytes": 307,
+      "host_rx_sha256": "b609928f604376036788efa77717c6acbca93642bbedfc09152560742d5f926f",
+      "tx_exact_frame_present": false,
+      "guest_rx_pass": false,
+      "usb_rx_ack": false,
+      "uart_fatal_count": 0
+    },
+    {
+      "case": "usb-probe-after",
+      "original_firmware_sha256": "b63e1d621c647e030f5100bc0c90642c870744973a76833e60d8d0e6660ca4e8",
+      "runtime_sha256": "52f3e5c9f784e6ca34aee9126eafe33e3c36f1a752ada5c8f14239f88de69a19",
+      "observed_seconds": 8.078105499967933,
+      "boot_banners": 1,
+      "serial_sha256": "a53b629eaad252e5c6b8c589178b144d3d7ff43744663a92e652fcf51321a967",
+      "serial_bytes": 371,
+      "evidence_zip_sha256": "e03624670c7fb8bdf848fdac06b525f62f40104cc7477487082f8daa92409d89",
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "b24ac3e7f3f16bcf2da5b5064e12e06712873bd358a5cb7927af969eddf91737",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3145728,
+          "sha256": "b24ac3e7f3f16bcf2da5b5064e12e06712873bd358a5cb7927af969eddf91737",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "host_tx_sha256": "7b84e6b8018067a7389f81cc113d28dc82f09f8841f09897c56b64b34cb67fd5",
+      "host_rx_bytes": 622,
+      "host_rx_sha256": "e951081de9b31798cbb646e9518d0407f8f618b26aa858e0b8995573d436b598",
+      "tx_exact_frame_present": true,
+      "guest_rx_pass": true,
+      "usb_rx_ack": true,
+      "uart_fatal_count": 0
+    },
+    {
+      "case": "usb-uiflow-after",
+      "original_firmware_sha256": "225733159ae5cac742776c61fea9ba50241298dfa62d55ca40e8657b4e535531",
+      "runtime_sha256": "52f3e5c9f784e6ca34aee9126eafe33e3c36f1a752ada5c8f14239f88de69a19",
+      "observed_seconds": 20.015065083047375,
+      "boot_banners": 1,
+      "serial_sha256": "cca9a744f0232f26f447c7287019d76a977b0a6cfed0b04fc3d67d6bffea8fa9",
+      "serial_bytes": 323,
+      "evidence_zip_sha256": "e56c3e28742a4d822892e99602de0db99951a24a97b7ce8e267edc801f846377",
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 3559424,
+          "sha256": "ad72cbe3700fe50aa1c5ecc2b13200eaaa5d8d1350caa51873bfc8b702c0956e",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 3559424,
+          "sha256": "ad72cbe3700fe50aa1c5ecc2b13200eaaa5d8d1350caa51873bfc8b702c0956e",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "host_tx_sha256": "f8279ba164ac99e30ee3dbe56e6bd5cdbc06794b8077c79a1033b7fd80d3c80e",
+      "host_rx_bytes": 828,
+      "host_rx_sha256": "16e9e25111d85559b0a6680e2aa48046e9f4a4940b768b3d242c3ddf981c583a",
+      "repl_result_received": true,
+      "uart_fatal_count": 0
+    },
+    {
+      "case": "honeypot-usb-v1",
+      "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+      "runtime_sha256": "52f3e5c9f784e6ca34aee9126eafe33e3c36f1a752ada5c8f14239f88de69a19",
+      "observed_seconds": 90.00277604209259,
+      "boot_banners": 1,
+      "serial_sha256": "a0cc508750f69198e3d75b45378ddeb1bb1d70f7673d728ccb5a130ea380accc",
+      "serial_bytes": 461,
+      "usb_serial_sha256": "ce446b0854327d83c08ec9ae5accbbb0ebb42edad8ef41973938676a9433736b",
+      "usb_serial_bytes": 614,
+      "evidence_zip_sha256": "21418b1165d3ceedbc062fd8a5f06cbf244f25edb6ea6b53c70c25ae90ef887c",
+      "actual_native_sha_verified": true,
+      "application_before": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "application_after": [
+        {
+          "offset": 65536,
+          "size": 1310720,
+          "sha256": "5de936fdceab2d3619a0db1805d55e72bae73b3b398f8c251dc846abeff97c0a",
+          "unchanged": true
+        },
+        {
+          "offset": 1376256,
+          "size": 1310720,
+          "sha256": "35805909a516a528e396b6ea22dab437b6f1c703afe92e92dddfa0243bfae738",
+          "unchanged": true
+        }
+      ],
+      "zip_before_stop": true,
+      "same_session_zip_verified": true,
+      "terminal_state": "stopped",
+      "flash_released": true,
+      "lease_released": true,
+      "native_pid_exited": true,
+      "owned_service_stopped": true,
+      "uart_fatal_count": 0
+    }
+  ],
+  "host_controls": {
+    "cases": 15,
+    "before_expected_fail": 14,
+    "before_unchanged_pass": 1,
+    "after_pass": 15,
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ]
+  },
+  "invalid_attempts_retained": [
+    "First USB socket probe used a UNIX socket path exceeding the host limit. QEMU exited before guest execution; the attempt remains INFRA_FAILED. Its owned service/session was stopped."
+  ],
+  "scope": [
+    "Fixed 64-byte CDC IN/OUT endpoints, guest FIFO MMIO, RAW/ENA/ST/W1C and C6 interrupt-matrix source 48, explicit virtual serial host, pad gating and 1ms virtual host frames.",
+    "No USB enumeration, EP0 control transfers/line coding, USB OTG, JTAG/debug transport, physical signaling or RF claim.",
+    "Honeypot configuration console is visible; no WiFi peer, AP association, HTTP or honeypot network behavior has been validated.",
+    "Earlier host-socket controls saved exactly the bytes read from that explicit endpoint into the same-session evidence log; the final portable runner uses QEMU chardev logfile directly.",
+    "UART and USB ROM banners are separate channels and are never summed to infer resets.",
+    "Native full matrix/resident rollout/browser-WASM/physical hardware NOT RUN for this candidate."
+  ]
+}
