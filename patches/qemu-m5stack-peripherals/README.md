@@ -1425,3 +1425,18 @@ The register contract is independently documented by
 `rs_recycle_dma_item`. The original Atom Matrix binary also reads these
 registers in its IDF WiFi ISR. Its native Device Service acceptance and honest
 factory/LED limits are in the [classic factory fixture](../../tests/firmware/classic_factory/README.md).
+
+## Classic RMT deadlines and LED symbols (0189, 0191)
+
+`0189-classic-rmt-symbol-timing.patch` advances each transmitted symbol using
+absolute virtual-clock deadlines from the clock source, divider and durations.
+Threshold interrupts do not pause hardware pending guest acknowledgement.
+This preserves the original FastLED refill deadline and its late-ISR failure
+behavior. See the [timing controls](../../tests/firmware/classic_rmt_timing/README.md).
+
+`0191-rmt-led-equal-duty-symbol.patch` fixes the shared LED endpoint's handling
+of a one bit with equal high and low duration, as emitted by the unchanged Atom
+Matrix factory BIN. Invalid phases or clock values reject the complete frame
+before any pixel changes. Existing classic/S3 routing and short-frame rejection
+remain intact. This is a digital relative-duration model, not validation of
+every LED variant's electrical pulse tolerance or reset/latch waveform.

@@ -1,0 +1,28 @@
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -983,13 +983,23 @@
+             g->unit->output_transitions++;
+         } else if (g->leds) {
+             if (count < g->leds * 24) { g->incomplete_frames++; continue; }
++            bool valid = isfinite(tick_hz) && tick_hz > 0;
++            for (unsigned bit = 0; valid && bit < g->leds * 24; bit++) {
++                uint32_t symbol = symbols[bit];
++                valid = (symbol & 0x7fff) && ((symbol >> 16) & 0x7fff)
++                    && (!!(symbol & BIT(15)) != !!(symbol & BIT(31)));
++            }
++            if (!valid) { g->incomplete_frames++; continue; }
+             for (unsigned led = 0; led < g->leds; led++) {
+                 uint32_t grb = 0;
+                 for (unsigned bit = 0; bit < 24; bit++) {
+                     uint32_t symbol = symbols[led * 24 + bit];
+                     unsigned a = symbol & 0x7fff, b = (symbol >> 16) & 0x7fff;
+                     bool high_first = symbol & BIT(15);
+-                    grb = (grb << 1) | (high_first ? a > b : b > a);
++                    /* FastLED's 300/300/600 ns profile encodes one with
++                     * equal 600 ns high/low phases, and zero with 300/900.
++                     * A one therefore includes the equal-duration boundary. */
++                    grb = (grb << 1) | (high_first ? a >= b : b >= a);
+                 }
+                 g->rgb[led] = ((grb >> 8) & 0xff00) | ((grb & 0xff00) << 8) | (grb & 0xff);
+             }

@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import time
+import urllib.parse
 import urllib.request
 
 EXPECTED_SHA = '24892fcf5d5f8c97ee30a5ffb4fec166dca1c254cc6f54861af28abc8732ba2f'
@@ -17,14 +18,15 @@ def main():
     parser.add_argument('--firmware', type=Path, required=True)
     parser.add_argument('--out-dir', type=Path, required=True)
     parser.add_argument('--seconds', type=float, default=130)
-    parser.add_argument('--wifi-ssid', required=True)
+    parser.add_argument('--wifi-ssid')
+    parser.add_argument('--offline', action='store_true', help='use the default radio-disabled qemu runtime')
     parser.add_argument('--password-env', default='M5_TEST_WIFI_PASSWORD')
     args = parser.parse_args()
     if args.seconds < 120:
         parser.error('at least 120 seconds are required')
     password = os.environ.get(args.password_env)
-    if not password:
-        parser.error('the specified password environment variable must be set')
+    if not args.offline and (not password or not args.wifi_ssid):
+        parser.error('--wifi-ssid and the specified password environment variable must be set')
     firmware = args.firmware.read_bytes()
     if hashlib.sha256(firmware).hexdigest() != EXPECTED_SHA:
         parser.error('this regression requires the original Atom Matrix v1.0 BIN')
@@ -42,19 +44,24 @@ def main():
     artifact = call('POST', 'artifacts', raw=firmware)
     image = call('POST', 'firmware', {'device_id': 'atom-matrix', 'kind': 'merged',
                                     'artifact_id': artifact['artifact_id']})
-    session = call('POST', 'sessions', {
+    request = {
         'device_id': 'atom-matrix', 'firmware_id': image['firmware_id'],
-        'runtime': 'qemu-wifi', 'ttl_seconds': int(args.seconds + 180),
-        'network': {'profile': 'generic-observe', 'wifi_ssid': args.wifi_ssid,
+        'runtime': 'qemu' if args.offline else 'qemu-wifi',
+        'ttl_seconds': int(args.seconds + 180),
+    }
+    if not args.offline:
+        request['network'] = {'profile': 'generic-observe', 'wifi_ssid': args.wifi_ssid,
                     'wifi_auth': 'wpa2-psk', 'wifi_password': password,
-                    'capture_pcap': True, 'http_fixture': False},
-    })
+                    'capture_pcap': True, 'http_fixture': False}
+    session = call('POST', 'sessions', request)
     prefix = 'sessions/' + session['session_id']
     started = time.monotonic()
     try:
-        time.sleep(2)
+        samples = []
         while time.monotonic() - started < args.seconds:
             time.sleep(max(0, min(2, args.seconds - (time.monotonic() - started))))
+            samples.append({'wall_seconds': time.monotonic() - started,
+                            'state': call('GET', prefix + '/device-state')})
         states = [call('GET', prefix + '/device-state')]
         for action in ('down', 'up'):
             call('POST', prefix + '/input', {'kind': 'key', 'key': 'a', 'action': action,
@@ -69,21 +76,40 @@ def main():
                 break
             offset = chunk['next_offset']
         (args.out_dir / 'serial.log').write_text(serial)
+        (args.out_dir / 'samples.json').write_text(json.dumps(samples, indent=2))
         (args.out_dir / 'device-state.json').write_text(json.dumps(states, indent=2))
+        controller = {}
+        for path, properties in (
+            ('/machine/rmt-classic', ('tx-symbols', 'tx-threshold-events',
+                                    'tx-completions', 'tx-errors', 'tx-last-tick-hz')),
+            ('/machine/onboard_io', ('led-frames', 'incomplete-frames', 'led-rgb')),
+        ):
+            for prop in properties:
+                query = urllib.parse.urlencode({'path': path, 'property': prop})
+                controller[path + '/' + prop] = call('GET', prefix + '/qom?' + query)['value']
+        (args.out_dir / 'controller.json').write_text(json.dumps(controller, indent=2))
         (args.out_dir / 'session.json').write_text(json.dumps(call('GET', prefix), indent=2))
         (args.out_dir / 'evidence.zip').write_bytes(call('GET', prefix + '/evidence'))
         result = {'source_sha256': EXPECTED_SHA, 'wall_seconds': time.monotonic() - started,
                   'scan_observed': 'Best RSSI:' in serial,
                   'http_response_observed': '[HTTP] GET... code:' in serial,
                   'factory_http_pass': '[HTTP] HTTP test pass' in serial,
+                  'poweron_resets': serial.count('POWERON_RESET'),
                   'runtime_errors': [marker for marker in ('Guru Meditation', 'watchdog', 'abort()') if marker in serial],
                   'button_edges': [state['components']['onboard-io']['properties']['pressed'] for state in states],
-                  'led_frames': states[-1]['components']['onboard-io']['properties']['led-frames']}
+                  'led_frames': states[-1]['components']['onboard-io']['properties']['led-frames'],
+                  'nonblack_samples': sum(any(sample['state']['components']['onboard-io']['properties']['led-rgb']) for sample in samples),
+                  'controller': controller}
         (args.out_dir / 'summary.json').write_text(json.dumps(result, indent=2))
         print(json.dumps(result, indent=2))
-        return 0 if result['scan_observed'] and result['http_response_observed'] and not result['runtime_errors'] and result['button_edges'] == [False, True, False] else 1
+        network_ok = args.offline or (result['scan_observed'] and result['http_response_observed'])
+        return 0 if network_ok and not result['runtime_errors'] and result['poweron_resets'] == 1 and result['button_edges'] == [False, True, False] and result['nonblack_samples'] > 0 else 1
     finally:
-        call('DELETE', prefix + '?purge=0&retain_flash=0')
+        try:
+            if not (args.out_dir / 'evidence.zip').exists():
+                (args.out_dir / 'evidence.zip').write_bytes(call('GET', prefix + '/evidence'))
+        finally:
+            call('DELETE', prefix + '?purge=0&retain_flash=0')
 
 if __name__ == '__main__':
     raise SystemExit(main())
