@@ -311,6 +311,27 @@
         "sha256": "fbf7b53bbd0c878d447f8431700deede21bd8b11392eff4f9026546cf91dbbc1",
         "bytes": 5262
       }
+    },
+    {
+      "id": "cores3-centered-lcd",
+      "patch": "patches/visual-models/0003-cores3-centered-lcd.patch",
+      "patch_sha256": "fd4474bb61e9f657074d91a790f5b8c9186ea8a653c3c5cf0634c8620c0cd72f",
+      "target": "src/devices/cores3/dimensions.js",
+      "scope": "Center the CoreS3 2.0-inch LCD in the 54 mm face per the official dimension drawing; standalone CoreS3 only, StackChan already passes 0",
+      "adapted_from": {
+        "kind": "local geometry correction",
+        "evidence": "official CoreS3 dimension drawing (docs.m5stack.com/en/core/CoreS3)"
+      },
+      "upstream": {
+        "commit": "de6cddc065674ecb53bba29c7fe90d9ab4ee32f7",
+        "sha256": "6b8286fc8bc8fbe4f728060a835632442ad686b206b8468764400e744ec9d067",
+        "bytes": 482,
+        "source_url": "https://github.com/yuyun2000/m5stack-models/blob/de6cddc065674ecb53bba29c7fe90d9ab4ee32f7/src/devices/cores3/dimensions.js"
+      },
+      "effective": {
+        "sha256": "bbd218e2bad078c5198c09f71577738a793ba36ad4f0a04a9cad0d1dac7e0141",
+        "bytes": 498
+      }
     }
   ],
   "file_hash_scope": "files records effective vendored bytes; local_runtime_patches separately pins upstream preimages, patch bytes and effective results",
@@ -5287,8 +5308,8 @@
       "bytes": 326129
     },
     "src/devices/cores3/dimensions.js": {
-      "sha256": "6b8286fc8bc8fbe4f728060a835632442ad686b206b8468764400e744ec9d067",
-      "bytes": 482
+      "sha256": "bbd218e2bad078c5198c09f71577738a793ba36ad4f0a04a9cad0d1dac7e0141",
+      "bytes": 498
     },
     "src/devices/cores3/geometry-data-din.js": {
       "sha256": "be7ff625e27c38fcfb55e09bcdede3c6bc655808614d0e6249f7d0860ec2d63f",

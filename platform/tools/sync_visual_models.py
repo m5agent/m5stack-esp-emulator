@@ -55,7 +55,19 @@ REVIEWED_LOCAL_RUNTIME_PATCHES = ({
  'patch': 'patches/visual-models/0002-cardputer-zero-rj45-clearance.patch',
  'patch_sha256': '599d08a53a410cfe7ede68eb8b254158f296c5968d53e885c3b6c8945e5f9137',
  'scope': 'Issue #75: separate metal and plastic RJ45 keyed cavity walls by '
-          '0.2 mm; visual geometry only'},)
+          '0.2 mm; visual geometry only'},
+ {'id': 'cores3-centered-lcd',
+  'adapted_from': {'kind': 'local geometry correction',
+                   'evidence': 'official CoreS3 dimension drawing (docs.m5stack.com/en/core/CoreS3)'},
+  'source_commit': 'de6cddc065674ecb53bba29c7fe90d9ab4ee32f7',
+  'target': 'src/devices/cores3/dimensions.js',
+  'upstream_sha256': '6b8286fc8bc8fbe4f728060a835632442ad686b206b8468764400e744ec9d067',
+  'effective_sha256': 'bbd218e2bad078c5198c09f71577738a793ba36ad4f0a04a9cad0d1dac7e0141',
+  'patch': 'patches/visual-models/0003-cores3-centered-lcd.patch',
+  'patch_sha256': 'fd4474bb61e9f657074d91a790f5b8c9186ea8a653c3c5cf0634c8620c0cd72f',
+  'scope': 'Center the CoreS3 2.0-inch LCD in the 54 mm face per the official '
+           'dimension drawing; standalone CoreS3 only, StackChan already passes 0'},
+)
 THREE_ADDON = "examples/jsm/utils/BufferGeometryUtils.js"
 THREE_DESTINATION = ROOT / "platform/web/vendor/three/addons/utils/BufferGeometryUtils.js"
 THREE_ADDONS = {
