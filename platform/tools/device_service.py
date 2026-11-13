@@ -27,6 +27,7 @@ import threading
 import time
 import uuid
 import zipfile
+from frame_presentation import FramePresentation, bind_presentation, presentation_from_controller
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -6661,6 +6662,7 @@ class DeviceSession:
                 captured_monotonic=metrics.get("captured_monotonic"),
                 execution_id=metrics.get("execution_id"), revision_id=metrics.get("revision_id"),
                 program_state=metrics.get("program_state"),
+                presentation=FramePresentation.from_dict(metrics.get("presentation")),
             )
 
         try:
@@ -6679,6 +6681,27 @@ class DeviceSession:
         return {"execution_id": program.get("execution_id"),
                 "revision_id": program.get("revision_id"),
                 "program_state": program.get("state")}
+
+    def _frame_presentation(self) -> FramePresentation:
+        # Discover once per process. Old runtimes and non-SPI displays have no
+        # observer; their raw captures remain available with unknown orientation.
+        identity = (self.pid, self.process_start_token)
+        if getattr(self, "_frame_panel_identity", None) != identity:
+            panel_path = None
+            listing = self._qmp_call("qom-list", path="/machine/unattached").get("return", [])
+            panels = [entry for entry in listing if entry.get("type") == "child<m5.spi-panel>"]
+            if len(panels) == 1:
+                path = "/machine/unattached/" + panels[0]["name"]
+                properties = self._qmp_call("qom-list", path=path).get("return", [])
+                if any(entry.get("name") == "frame-presentation" for entry in properties):
+                    panel_path = path
+            self._frame_panel_path = panel_path
+            self._frame_panel_identity = identity
+        path = getattr(self, "_frame_panel_path", None)
+        if path is None:
+            return FramePresentation()
+        value = self._qmp_call("qom-get", path=path, property="frame-presentation").get("return")
+        return presentation_from_controller(value)
 
     def frame_metrics(
         self, *, analyze: bool = True, force_persist: bool = False
@@ -6700,11 +6723,14 @@ class DeviceSession:
             ppm = self.dir / f"frame-{uuid.uuid4().hex}.ppm"
             png = ppm.with_suffix(".png")
             try:
+                before = self._frame_presentation()
                 self._qmp_call("screendump", filename=str(ppm))
                 captured_at = iso_now()
                 captured_monotonic = time.monotonic()
+                after = self._frame_presentation()
                 program_context = self._frame_program_context()
                 width, height, pixels = read_ppm(ppm)
+                presentation = bind_presentation(before, after, width, height)
                 write_rgb_png(png, width, height, pixels)
                 png_bytes = png.read_bytes()
                 metrics = {
@@ -6715,6 +6741,8 @@ class DeviceSession:
                     "source": "live",
                     "captured_at": captured_at,
                     "captured_monotonic": captured_monotonic,
+                    "presentation": presentation.as_dict(),
+                    "coordinate_space": "panel",
                     **program_context,
                 }
                 if analyze:

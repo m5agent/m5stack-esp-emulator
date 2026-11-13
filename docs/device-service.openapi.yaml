@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.58.0
+  version: 1.59.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2241,6 +2241,12 @@ paths:
         reuse. Captured program context is not application readiness or an atomic
         snapshot with Unit/serial state. Tab5/network do not admit shared capture;
         omit max_age_ms to retain their existing capture behavior.
+        The default orient=panel preserves raw physical coordinates. Native SPI
+        TFT observers provide controller-derived orientation metadata bound to
+        the capture; this is not text recognition or application readiness.
+        Explicit orient=display returns a losslessly rotated derivative of the
+        same sample, or 409 frame_orientation_unavailable for unknown, unstable
+        or mirrored orientation. Legacy runtimes remain available in panel mode.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - name: max_age_ms
@@ -2256,6 +2262,13 @@ paths:
           schema:
             type: string
           description: Only positive max_age_ms requests use conditional image reuse.
+        - name: orient
+          in: query
+          schema:
+            type: string
+            enum: [panel, display]
+            default: panel
+          description: Explicit display orientation leaves raw storage, physical 3D and touch coordinates unchanged. Repeated or invalid values return invalid_frame_orientation.
       responses:
         "200":
           description: PNG framebuffer
@@ -2267,6 +2280,27 @@ paths:
               schema:
                 type: integer
             X-Frame-SHA256:
+              schema:
+                type: string
+            X-Frame-Raw-SHA256:
+              description: SHA256 of the captured raw panel PNG before optional rotation.
+              schema:
+                type: string
+            X-Frame-Coordinate-Space:
+              schema:
+                type: string
+                enum: [panel, display]
+            X-Frame-Orientation:
+              schema:
+                type: string
+                enum: [known, mirrored, unknown, unstable]
+            X-Frame-Rotation:
+              description: Clockwise raw-panel-to-controller-logical rotation; absent unless known. Does not infer text direction.
+              schema:
+                type: integer
+                enum: [0, 90, 180, 270]
+            X-Frame-Presentation:
+              description: JSON string with schema_version=1, status, rotation_cw, mirrored and controller snapshot (generation, MADCTL, apply_madctl, fixed glass rotation, memory/visible sizes and offsets). Snapshot is stable across capture; no address-window heuristic.
               schema:
                 type: string
             ETag:
@@ -2306,6 +2340,8 @@ paths:
             Opt-in shared image matches If-None-Match. No body; returns the same
             frame metadata headers as 200. Even identical pixels under a new
             execution return that capture's new program context.
+            Consumers must process orientation metadata on 304 even if pixels
+            are unchanged. Metadata describes this capture, not current guest state.
         "400":
           $ref: "#/components/responses/Error"
         "409":

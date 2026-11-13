@@ -20,6 +20,7 @@ import math
 import threading
 import time
 from typing import Callable, Hashable
+from frame_presentation import FramePresentation
 
 
 MAX_AGE_MS = 1000
@@ -42,6 +43,7 @@ class CaptureResult:
     revision_id: str | None = None
     program_state: str | None = None
     captured_monotonic: float | None = None
+    presentation: FramePresentation = FramePresentation()
 
 
 @dataclass(frozen=True)
@@ -59,6 +61,7 @@ class FrameSample:
     execution_id: str | None = None
     revision_id: str | None = None
     program_state: str | None = None
+    presentation: FramePresentation = FramePresentation()
 
     def as_dict(self) -> dict:
         """Return an independent metrics mapping; PNG storage is immutable."""
@@ -74,6 +77,8 @@ class FrameSample:
             "execution_id": self.execution_id,
             "revision_id": self.revision_id,
             "program_state": self.program_state,
+            "presentation": self.presentation.as_dict(),
+            "coordinate_space": "panel",
         }
         for key in ("nonblack_pixels", "unique_colors"):
             value = getattr(self, key)
@@ -142,6 +147,8 @@ class FrameCache:
             raise ValueError("capture dimensions must be positive integers")
         if result.source not in {"live", "persisted"}:
             raise ValueError("capture source must be live or persisted")
+        if not isinstance(result.presentation, FramePresentation):
+            raise ValueError("capture presentation must be immutable FramePresentation")
         if result.captured_at is not None and (
             not isinstance(result.captured_at, str) or not result.captured_at
         ):
@@ -164,6 +171,7 @@ class FrameCache:
             execution_id=result.execution_id, revision_id=result.revision_id,
             program_state=result.program_state,
             captured_monotonic=result.captured_monotonic,
+            presentation=result.presentation,
         )
 
     def get(
@@ -259,6 +267,7 @@ class FrameCache:
                     unique_colors=result.unique_colors,
                     execution_id=result.execution_id, revision_id=result.revision_id,
                     program_state=result.program_state,
+                    presentation=result.presentation,
                 )
                 self._sample = sample
                 self._captured_monotonic = captured_monotonic

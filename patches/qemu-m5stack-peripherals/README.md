@@ -1374,6 +1374,19 @@ MMIO reads retain the FIFO data without clocking the peripheral again.
 The [stock-image regression](../../tests/firmware/atoms3_display/README.md)
 separates controller evidence from native guest and physical validation.
 
+## Native framebuffer presentation observer
+
+`0187-spi-panel-frame-presentation.patch` adds the read-only `frame-presentation`
+QOM property to the shared SPI panel. The snapshot reports MADCTL, fixed glass
+mount and memory/visible geometry. Its generation advances on changed MADCTL
+and software reset, so a capture can detect A-to-B-to-A changes. Partial address
+windows do not change the orientation. SH1107 explicitly reports unsupported.
+The existing RAM writes, raw scanout and physical input coordinates are unchanged.
+The native bootstrap selects this patch; the separate browser-WASM recipe does
+not inherit it. `test_spi_panel_presentation_patch.py` replays the exact native
+stack and executes the actual command handler/getter as a host C control.
+Guest and physical validation are separate from that source-level check.
+
 ## Cross-vCPU cache invalidation (0182)
 
 `0182-tcg-iommu-vcpu-flush.patch` follows `0181` in the native bootstrap.

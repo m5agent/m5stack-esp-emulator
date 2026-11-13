@@ -163,6 +163,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0184-classic-interrupt-source-status.patch",
     "patches/qemu-m5stack-peripherals/0185-atoms3-lcdcam-probe.patch",
     "patches/qemu-m5stack-peripherals/0186-spi-panel-read-cursor.patch",
+    "patches/qemu-m5stack-peripherals/0187-spi-panel-frame-presentation.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

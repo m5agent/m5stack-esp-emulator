@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-13`.
 
-Status: local MVP with unified-device runtime contract `1.58.0` and bounded
+Status: local MVP with unified-device runtime contract `1.59.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2952,6 +2952,37 @@ return 304 with no body and the current sample metadata headers, even when a
 new execution produces identical pixels. Retain the displayed blob on 304 and
 process its metadata separately. Headers are CORS-exposed; conditional access
 keeps existing Bearer authorization and does not enable disk caching.
+
+API 1.59 keeps the default `orient=panel` PNG in raw panel coordinates. Native
+SPI TFT runtimes with the read-only `frame-presentation` QOM observer also return
+`X-Frame-Orientation` (`known`, `mirrored`, `unknown` or `unstable`) and, only
+when known, `X-Frame-Rotation` (`0`, `90`, `180` or `270`, clockwise). The angle
+maps the raw panel image to the controller's logical address axes; it does not
+infer text direction or prove a redraw is complete. Actual MADCTL state,
+`apply_madctl`, fixed glass rotation, visible/memory sizes and offsets determine
+the hint. CASET/RASET partial-write window dimensions do not determine it.
+`X-Frame-Presentation` is a JSON string containing this bounded snapshot and
+its controller generation. The service reads the observer before and after
+capture; a changed generation is `unstable`, including A-to-B-to-A changes.
+
+Request `?orient=display` explicitly to receive a losslessly rotated derivative
+of that captured image. `X-Frame-Coordinate-Space` identifies `panel` or
+`display`; `X-Frame-Raw-SHA256` identifies the original PNG, while
+`X-Frame-SHA256` and ETag identify the returned PNG. Width/height describe the
+returned representation. Shared requests for both representations reuse the
+same sample and capture sequence while within `max_age_ms`. Rotation never
+changes the stored raw frame, 3D texture, physical touch coordinates or guest
+controller state. Metadata persists with the raw frame and evidence ZIP.
+
+Old runtimes, legacy history and unsupported display controllers report
+`unknown`; mirrored MADCTL states report `mirrored` with no rotation angle.
+These and unstable captures reject `orient=display` with HTTP 409
+`frame_orientation_unavailable`, while raw capture remains available. Invalid
+or repeated `orient` parameters return HTTP 400 `invalid_frame_orientation`.
+Devices without a framebuffer retain `display_not_available`. On a 304,
+consumers must still process the current orientation headers: identical raw
+pixels can accompany a changed controller orientation. This native API contract
+does not change the separately pinned browser-WASM presentation path.
 
 The Live Sessions page uses 125 ms shared sampling for QEMU and polls active framebuffers independently
 from session metadata, targets about 8 FPS, and skips texture updates when the

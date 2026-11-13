@@ -1,0 +1,74 @@
+From: M5Stack Agent <agent@m5stack.local>
+Subject: [PATCH] hw/m5stopwatch: observe framebuffer controller orientation
+
+Expose a read-only controller snapshot and monotonic presentation generation.
+Keep raw scanout, RAM writes and physical input coordinates unchanged.
+
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index c3de8e1..547a4de 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -42,6 +42,7 @@ struct M5SpiPanelState {
+     bool disp_on;
+     bool sleep;
+     uint8_t madctl;
++    uint64_t presentation_generation;
+     uint8_t colmod;
+     uint8_t cmd;
+     uint8_t params[4];
+@@ -409,6 +410,7 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+                 s->disp_on = false;
+                 s->sleep = true;
+                 s->madctl = 0;
++                s->presentation_generation++;
+                 s->controller_invert = false;
+                 break;
+             default:
+@@ -462,6 +464,9 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+             }
+             break;
+         case 0x36:
++            if (s->madctl != b) {
++                s->presentation_generation++;
++            }
+             s->madctl = b;
+             s->dirty = true;
+             break;
+@@ -893,6 +898,20 @@ static const QemuInputHandler m5_panel_input_handler = {
+     .sync = m5_panel_input_sync,
+ };
+ 
++/* Observation only: preserve RAM, scanout, input and guest controller state. */
++static char *m5_panel_presentation_get(Object *obj, Error **errp)
++{
++    M5SpiPanelState *s = M5_SPI_PANEL(obj);
++    return g_strdup_printf(
++        "{\"schema_version\":1,\"supported\":%s,\"generation\":%" PRIu64
++        ",\"madctl\":%u,\"apply_madctl\":%s,\"glass_rotation\":%u,"
++        "\"memory_width\":%u,\"memory_height\":%u,\"width\":%u,\"height\":%u,"
++        "\"offset_x\":%u,\"offset_y\":%u}",
++        s->mono_sh1107 ? "false" : "true", s->presentation_generation,
++        s->madctl, s->apply_madctl ? "true" : "false", s->glass_rotation & 3,
++        s->mem_w, s->mem_h, s->vis_w, s->vis_h, s->off_x, s->off_y);
++}
++
+ static void m5_panel_realize(DeviceState *dev, Error **errp)
+ {
+     M5SpiPanelState *s = M5_SPI_PANEL(dev);
+@@ -905,6 +924,7 @@ static void m5_panel_realize(DeviceState *dev, Error **errp)
+     } else {
+         s->mem = g_new0(uint16_t, s->mem_w * s->mem_h);
+     }
++    s->presentation_generation = 1;
+     s->con = graphic_console_init(dev, 0, &m5_panel_ops, s);
+     qemu_console_resize(s->con, s->vis_w, s->vis_h);
+     s->dirty = true;
+@@ -919,6 +939,8 @@ static void m5_panel_realize(DeviceState *dev, Error **errp)
+               qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 16666667);
+     QemuInputHandlerState *hs = qemu_input_handler_register(dev, &m5_panel_input_handler);
+     qemu_input_handler_activate(hs);
++    object_property_add_str(OBJECT(s), "frame-presentation",
++                            m5_panel_presentation_get, NULL);
+     object_property_add_str(OBJECT(s), "dump-path",
+                             m5_panel_get_dump_path, m5_panel_set_dump_path);
+     object_property_add_str(OBJECT(s), "gddram-path", m5_sh1107_get_gddram_path,

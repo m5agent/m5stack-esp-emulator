@@ -33,6 +33,7 @@ from device_service import (
     ServiceError,
 )
 from evidence_store import MAX_EVIDENCE_BYTES
+from frame_presentation import frame_representation, presentation_headers
 from peripheral_inventory import build_inventory
 from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
 from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
@@ -366,7 +367,7 @@ class Handler(SimpleHTTPRequestHandler):
             "Access-Control-Expose-Headers",
             "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, "
             "X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, "
-            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, "
+            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, X-Frame-Rotation, X-Frame-Orientation, X-Frame-Coordinate-Space, X-Frame-Raw-SHA256, X-Frame-Presentation, "
             "X-Preview-ID, X-Run-ID",
         )
         super().end_headers()
@@ -848,9 +849,14 @@ class Handler(SimpleHTTPRequestHandler):
                 if len(ages) != 1 or not 1 <= len(ages[0]) <= 4 or not ages[0].isascii() or not ages[0].isdigit() or not 0 <= int(ages[0]) <= 1000:
                     raise ServiceError("invalid_frame_age", "max_age_ms must be an integer between 0 and 1000", 400)
                 max_age_ms = int(ages[0])
+                orientations = parse_qs(urlparse(self.path).query, keep_blank_values=True).get("orient", ["panel"])
+                if len(orientations) != 1 or orientations[0] not in {"panel", "display"}:
+                    raise ServiceError("invalid_frame_orientation", "orient must be panel or display", 400)
+                orient = orientations[0]
                 if max_age_ms:
-                    frame = session.preview_frame(max_age_ms)
+                    frame = frame_representation(session.preview_frame(max_age_ms), orient)
                     frame_headers = {
+                        **presentation_headers(frame),
                         "X-Request-ID": request_id,
                         "X-Frame-Width": str(frame["width"]),
                         "X-Frame-Height": str(frame["height"]),
@@ -874,15 +880,16 @@ class Handler(SimpleHTTPRequestHandler):
                     else:
                         self._send_bytes(frame["png"], "image/png", extra_headers=frame_headers)
                     return
-                png, width, height = session.frame_png()
+                frame = frame_representation(session.frame_metrics(analyze=False), orient)
                 self._send_bytes(
-                    png,
+                    frame["png"],
                     "image/png",
                     extra_headers={
+                        **presentation_headers(frame),
                         "X-Request-ID": request_id,
-                        "X-Frame-Width": str(width),
-                        "X-Frame-Height": str(height),
-                        "X-Frame-SHA256": hashlib.sha256(png).hexdigest(),
+                        "X-Frame-Width": str(frame["width"]),
+                        "X-Frame-Height": str(frame["height"]),
+                        "X-Frame-SHA256": frame["sha256"],
                     },
                 )
                 return

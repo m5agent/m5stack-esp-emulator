@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 205,
+  "validation_kind": "virtual-device validation",
+  "scope": "native Device Service explicit frame orientation; raw physical scanout unchanged",
+  "status": "PASS",
+  "base_commit": "8598b1f603ae6638a3f6d27824431781429b9e49",
+  "runtime_sha256": "fb90044af572c80c488a7767dcd04195cd531ca8047c753c521398e21dd815f5",
+  "runtime_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "runtime_build": "fresh canonical source and QEMU objects; previously verified dependency libraries reused",
+  "source_files_sha256": {
+    "platform/tools/frame_presentation.py": "197c62e094de10413b28b6ac242c49afb57b09ab3708275e72f7df784d039aae",
+    "platform/tools/frame_cache.py": "e7fc02c7b0aa82bf14c1c4c8d5f52bcc04c42f034f0b72a23ea03782177dabdc",
+    "platform/tools/device_service.py": "8e4704c6fa8928daaf8925367f9d287179962c89ba70cc76b2293eaefc8b38f7",
+    "platform/tools/serve.py": "ae4de559a1b16028843866064215cfd041832382a3d20931f222351f194fe41b",
+    "patches/qemu-m5stack-peripherals/0187-spi-panel-frame-presentation.patch": "56cb490cac937e7f0301b0ea84ba9f04d1abce0a75e39d5582f42f516a0c962c",
+    "scripts/bootstrap-unit-runtime.py": "6797dfd24a50f30f79de4bb697e04a00d78a2171013920923a2b3e790aaf706b",
+    "platform/tests/test_frame_presentation.py": "e08add0951bbb677bf2e72f9926ef25e895b391c5dc16d27bd793c42273d0db3",
+    "platform/tests/test_spi_panel_presentation_patch.py": "57067b6c166a48ec2cd6b53cc4901a0f21eca9a230341dc5b29304fb0a1c2043",
+    "tests/firmware/frame_presentation/run_original.py": "cb8c28661665186e340b329cf0d5dd68d636b247ea4a7217d19ed7e208719f80"
+  },
+  "initial_service_files_sha256": {
+    "platform/tools/frame_cache.py": "a53c5410d3b968de9a4a9213bf1a50d31ebed27b7b8273a428263278bb76f670",
+    "platform/tools/device_service.py": "82d958468765f4e33cd53501279fb2ce9f5c08344415b38d824f1569a1bf50c9",
+    "platform/tools/serve.py": "a783ff085c8823e90aa852e700de5f4f22bbd96b56ef03d8e522770399f63ae6"
+  },
+  "service_revision_note": "Initial captures precede explicit coordinate_space persistence and empty-orient rejection. Controller, frame_presentation implementation and pixel transforms are identical. Final-service retained-frame API replay passes all five originals.",
+  "original_firmware_runs": [
+    {
+      "device_id": "sticks3",
+      "original_sha256": "f4da587db0275e334231de0d458b96285d4cf9f223cf53c462b265ca66e32c4b",
+      "normalized_sha256": "3942849f077220c4b3555c7f9c9db588fc0b69275d17954135dd3efb0d2ecbd3",
+      "requested_rotation_cw": 90,
+      "status": "PASS",
+      "same_sample": true,
+      "independent_pixel_comparison": true,
+      "rotation_cw": 90,
+      "presentation": {
+        "schema_version": 1,
+        "status": "known",
+        "rotation_cw": 90,
+        "mirrored": false,
+        "controller": {
+          "schema_version": 1,
+          "supported": true,
+          "apply_madctl": true,
+          "generation": 3,
+          "madctl": 184,
+          "glass_rotation": 0,
+          "memory_width": 240,
+          "memory_height": 320,
+          "width": 135,
+          "height": 240,
+          "offset_x": 52,
+          "offset_y": 40
+        }
+      },
+      "raw_size": [
+        135,
+        240
+      ],
+      "display_size": [
+        240,
+        135
+      ],
+      "raw_frame_sha256": "557887fdfb989618a32276d6fc51efd6d5f1dd513c63723e520dd2b4a62ae3b5",
+      "display_frame_sha256": "9e0b8d48923d88a37e7d398e0acda2f1b55aa83f49aede176f28c8bcb3095e67",
+      "evidence_zip_sha256": "d91f6ee206717c7a385cd4b40cb63b4b25b79407dc3fcb587cf2a946a1fac5a6",
+      "evidence_has_presentation": true,
+      "evidence_before_stop": true,
+      "stopped": true,
+      "history_retained": true,
+      "firmware": "Bruce",
+      "version": "1.16.1",
+      "visual_review": "PASS",
+      "lease_released": true,
+      "mutable_flash_released": true,
+      "service_capture_revision": "initial"
+    },
+    {
+      "device_id": "sticks3",
+      "original_sha256": "5eb4e04bcef3b4dbe799a8d6800dccdc583e206da163cc3acfdf898ad0ae960f",
+      "normalized_sha256": "864f0e4fff680309c4e4007bb6e1f1bb510e890f5183fbb0d1c40a05bf46d8d7",
+      "requested_rotation_cw": 90,
+      "status": "PASS",
+      "same_sample": true,
+      "independent_pixel_comparison": true,
+      "rotation_cw": 90,
+      "presentation": {
+        "schema_version": 1,
+        "status": "known",
+        "rotation_cw": 90,
+        "mirrored": false,
+        "controller": {
+          "schema_version": 1,
+          "supported": true,
+          "apply_madctl": true,
+          "generation": 3,
+          "madctl": 160,
+          "glass_rotation": 0,
+          "memory_width": 240,
+          "memory_height": 320,
+          "width": 135,
+          "height": 240,
+          "offset_x": 52,
+          "offset_y": 40
+        }
+      },
+      "raw_size": [
+        135,
+        240
+      ],
+      "display_size": [
+        240,
+        135
+      ],
+      "raw_frame_sha256": "5b6947fb30b461882cf700db90c9af4240f9fe3b725f925220e53009b42869f2",
+      "display_frame_sha256": "be5d1e4e35d2fe439be89c2ca0da617c777f3c5fc7000aad51cd917694e31270",
+      "evidence_zip_sha256": "78e8fe7e4b65b3644829e2cf60c5231528d1f8d9a78da0f291ce4a140a03ca72",
+      "evidence_has_presentation": true,
+      "evidence_before_stop": true,
+      "stopped": true,
+      "history_retained": true,
+      "firmware": "M5Launcher",
+      "version": "3.0",
+      "visual_review": "PASS",
+      "lease_released": true,
+      "mutable_flash_released": true,
+      "service_capture_revision": "initial"
+    },
+    {
+      "device_id": "sticks3",
+      "original_sha256": "d5d6f3edc42ba1fe53fa3b857039cea788aad4ee74b0ca182a7f68cf742cefa4",
+      "normalized_sha256": "d5d6f3edc42ba1fe53fa3b857039cea788aad4ee74b0ca182a7f68cf742cefa4",
+      "requested_rotation_cw": 270,
+      "status": "PASS",
+      "same_sample": true,
+      "independent_pixel_comparison": true,
+      "rotation_cw": 270,
+      "presentation": {
+        "schema_version": 1,
+        "status": "known",
+        "rotation_cw": 270,
+        "mirrored": false,
+        "controller": {
+          "schema_version": 1,
+          "supported": true,
+          "apply_madctl": true,
+          "generation": 3,
+          "madctl": 108,
+          "glass_rotation": 0,
+          "memory_width": 240,
+          "memory_height": 320,
+          "width": 135,
+          "height": 240,
+          "offset_x": 52,
+          "offset_y": 40
+        }
+      },
+      "raw_size": [
+        135,
+        240
+      ],
+      "display_size": [
+        240,
+        135
+      ],
+      "raw_frame_sha256": "b1e0f980b332cee561a9af0fc322aaeb7c609ea4329eb9129f92e6c242106b40",
+      "display_frame_sha256": "8fe1e7f221b287022ba1ab099c4d59bc894daf45d41458cdd8f797d51c49fde5",
+      "evidence_zip_sha256": "d5381c2f2ad6b960c25b43c655b4c3ed30a2f6c2a7e12b7921e6006f91fa7d4b",
+      "evidence_has_presentation": true,
+      "evidence_before_stop": true,
+      "stopped": true,
+      "history_retained": true,
+      "firmware": "PulseOS",
+      "version": "1.4",
+      "visual_review": "PASS",
+      "lease_released": true,
+      "mutable_flash_released": true,
+      "service_capture_revision": "final"
+    },
+    {
+      "device_id": "sticks3",
+      "original_sha256": "bdb567de990ef5c2a0fd113c033b259acd17e49717c9fdb5e9cc9d3776b208d8",
+      "normalized_sha256": "08d4806570618bc41ab73a481d6a9d7f1e95833af735dc075344427950d8a03a",
+      "requested_rotation_cw": 180,
+      "status": "PASS",
+      "same_sample": true,
+      "independent_pixel_comparison": true,
+      "rotation_cw": 180,
+      "presentation": {
+        "schema_version": 1,
+        "status": "known",
+        "rotation_cw": 180,
+        "mirrored": false,
+        "controller": {
+          "schema_version": 1,
+          "supported": true,
+          "apply_madctl": true,
+          "generation": 3,
+          "madctl": 220,
+          "glass_rotation": 0,
+          "memory_width": 240,
+          "memory_height": 320,
+          "width": 135,
+          "height": 240,
+          "offset_x": 52,
+          "offset_y": 40
+        }
+      },
+      "raw_size": [
+        135,
+        240
+      ],
+      "display_size": [
+        135,
+        240
+      ],
+      "raw_frame_sha256": "cf2dc5f129235e4fec6fc765aca2b108b2330b62d600b5da810841f04c5c0241",
+      "display_frame_sha256": "de957bdb930227b171ce8414e2d0b4abcf88274e7fc1d4b91a1c618996023b68",
+      "evidence_zip_sha256": "e9509f33bb41642bf40d09b254459e78170555f8d26040dc984d167b9bd6ccd3",
+      "evidence_has_presentation": true,
+      "evidence_before_stop": true,
+      "stopped": true,
+      "history_retained": true,
+      "firmware": "AirMouseS3",
+      "version": "1.0",
+      "visual_review": "PASS",
+      "lease_released": true,
+      "mutable_flash_released": true,
+      "service_capture_revision": "final"
+    },
+    {
+      "device_id": "sticks3",
+      "original_sha256": "118b2afbea04832ee323e4e6edf9ea6b64bbdf9ba3ab7535660f09447ab32dba",
+      "normalized_sha256": "de7c9d86137f309ca8ff4205364801e2beda8045fa9527487f880b7c1b1b999c",
+      "requested_rotation_cw": 0,
+      "status": "PASS",
+      "same_sample": true,
+      "independent_pixel_comparison": true,
+      "rotation_cw": 0,
+      "presentation": {
+        "schema_version": 1,
+        "status": "known",
+        "rotation_cw": 0,
+        "mirrored": false,
+        "controller": {
+          "schema_version": 1,
+          "supported": true,
+          "apply_madctl": true,
+          "generation": 1,
+          "madctl": 0,
+          "glass_rotation": 0,
+          "memory_width": 240,
+          "memory_height": 320,
+          "width": 135,
+          "height": 240,
+          "offset_x": 52,
+          "offset_y": 40
+        }
+      },
+      "raw_size": [
+        135,
+        240
+      ],
+      "display_size": [
+        135,
+        240
+      ],
+      "raw_frame_sha256": "65d35cfc458af48945d1a0feb488a7bc6a91ddebaaeb02308635cea1c4a5656b",
+      "display_frame_sha256": "65d35cfc458af48945d1a0feb488a7bc6a91ddebaaeb02308635cea1c4a5656b",
+      "evidence_zip_sha256": "bf19af03fda913ee39134fadf406351ec9a3a14911e697e45baa32908185f739",
+      "evidence_has_presentation": true,
+      "evidence_before_stop": true,
+      "stopped": true,
+      "history_retained": true,
+      "firmware": "小智",
+      "version": "2.2.6",
+      "visual_review": "PASS",
+      "lease_released": true,
+      "mutable_flash_released": true,
+      "service_capture_revision": "final"
+    }
+  ],
+  "final_service_retained_replay": [
+    {
+      "name": "bruce",
+      "status": "PASS",
+      "same_sample": true,
+      "source": "persisted",
+      "rotation_cw": 90,
+      "raw_frame_sha256": "557887fdfb989618a32276d6fc51efd6d5f1dd513c63723e520dd2b4a62ae3b5",
+      "display_frame_sha256": "9e0b8d48923d88a37e7d398e0acda2f1b55aa83f49aede176f28c8bcb3095e67",
+      "lease_released": true,
+      "mutable_flash_released": true
+    },
+    {
+      "name": "launcher",
+      "status": "PASS",
+      "same_sample": true,
+      "source": "persisted",
+      "rotation_cw": 90,
+      "raw_frame_sha256": "5b6947fb30b461882cf700db90c9af4240f9fe3b725f925220e53009b42869f2",
+      "display_frame_sha256": "be5d1e4e35d2fe439be89c2ca0da617c777f3c5fc7000aad51cd917694e31270",
+      "lease_released": true,
+      "mutable_flash_released": true
+    },
+    {
+      "name": "pulse",
+      "status": "PASS",
+      "same_sample": true,
+      "source": "persisted",
+      "rotation_cw": 270,
+      "raw_frame_sha256": "b1e0f980b332cee561a9af0fc322aaeb7c609ea4329eb9129f92e6c242106b40",
+      "display_frame_sha256": "8fe1e7f221b287022ba1ab099c4d59bc894daf45d41458cdd8f797d51c49fde5",
+      "lease_released": true,
+      "mutable_flash_released": true
+    },
+    {
+      "name": "airmouse",
+      "status": "PASS",
+      "same_sample": true,
+      "source": "persisted",
+      "rotation_cw": 180,
+      "raw_frame_sha256": "cf2dc5f129235e4fec6fc765aca2b108b2330b62d600b5da810841f04c5c0241",
+      "display_frame_sha256": "de957bdb930227b171ce8414e2d0b4abcf88274e7fc1d4b91a1c618996023b68",
+      "lease_released": true,
+      "mutable_flash_released": true
+    },
+    {
+      "name": "xiaozhi",
+      "status": "PASS",
+      "same_sample": true,
+      "source": "persisted",
+      "rotation_cw": 0,
+      "raw_frame_sha256": "554158f11608dce3ff712c3252eb18834c8b5df4f1716d4dac88f648fb64c633",
+      "display_frame_sha256": "554158f11608dce3ff712c3252eb18834c8b5df4f1716d4dac88f648fb64c633",
+      "lease_released": true,
+      "mutable_flash_released": true
+    }
+  ],
+  "checks": [
+    {
+      "scope": "frame/API/cache/native C observer modules",
+      "tests": 51,
+      "status": "PASS"
+    },
+    {
+      "scope": "device_service/specs/API version modules",
+      "tests": 141,
+      "status": "PASS"
+    },
+    {
+      "scope": "native exact patch replay and reverse-check",
+      "status": "PASS"
+    },
+    {
+      "scope": "native source receipt check and complete isolated build",
+      "status": "PASS"
+    },
+    {
+      "scope": "git diff --check",
+      "status": "PASS"
+    },
+    {
+      "scope": "full platform suite and generated authority snapshot",
+      "status": "NOT RUN",
+      "reason": "parent integration gate; authority edits owned by parent"
+    }
+  ],
+  "preserved_unsuccessful_attempts": [
+    {
+      "stage": "original BIN session admission",
+      "status": "FAIL",
+      "reason": "isolated checkout lacked runtime adapter path; no guest allocated",
+      "private_log_sha256": "3be0b6c9ba26828818c7a167d798506956ec8cf54e536227dac60e19ec51fc8e"
+    },
+    {
+      "stage": "original BIN Flash initialization",
+      "status": "FAIL",
+      "reason": "isolated service lacked esptool import path; stopped and lease released",
+      "private_log_sha256": "b07439b928c8f1bdf21118a3eb96a0212b525a29db8d83c87f9bc6e611d8d71f"
+    },
+    {
+      "stage": "client service readiness",
+      "status": "FAIL",
+      "reason": "client contacted restarting service before it listened; no guest allocated",
+      "private_log_sha256": "b9eded7f379e17f33ea4ccc166a8d716bf6bc0f87e440cf2dfd2f77f0ea17dc0"
+    },
+    {
+      "stage": "optional UIFlow control probe uploaded-image UART admission",
+      "status": "REJECTED",
+      "reason": "existing source/reference-only UART transport contract preserved",
+      "private_log_sha256": "ccf06d0249621ac8231d355b516bbf861bb6e22ea0bef6f19770f97abc5851c5"
+    },
+    {
+      "stage": "optional untouched UIFlow reference UART control probe",
+      "status": "NOT VERIFIED",
+      "reason": "UART REPL synchronization returned 504 before any driver step; stopped and lease released; no mirror/reset guest claim",
+      "private_log_sha256": "c8d011617459fb267686effee83277cfaaf2438d281b0ef3f79d0e63b179bd1c",
+      "evidence_zip_sha256": "073229c2b7b1da7ef38ecd188ec17a4199bc1ac2e099ba72e9172777a84b2740",
+      "stopped": true,
+      "lease_released": true
+    }
+  ],
+  "limits": {
+    "browser_wasm": "NOT RUN; separate pinned recipe unchanged",
+    "physical_hardware": "NOT RUN; no optical/electrical claims",
+    "mirror_and_reset": "PASS actual C command-handler host control; guest control probe not verified",
+    "resident_deployment": "NOT RUN; parent owns deployment",
+    "other_firmware_features": "NOT RUN; direction and frame capture only",
+    "full_native_matrix": "pending separate issue-192 run on exact runtime hash"
+  },
+  "runtime_config": {
+    "runtime": "qemu",
+    "machine": "m5sticks3",
+    "flash_bytes": 8388608,
+    "capture": "QMP screendump",
+    "observer": "frame-presentation",
+    "application_input": "original startup only; no wireless feature invocation",
+    "physical_coordinates": "unchanged"
+  }
+}
