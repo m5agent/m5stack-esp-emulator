@@ -193,3 +193,11 @@ and waits for the guest's `STICKCPLUS2_BTN_A 1` marker before checking the
 green pixel. The
 [bounded evidence summary](rwbt-sleep-evidence-summary.json) binds each
 result to its original image, runtime, inputs, frame and retained ZIP.
+
+The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
+cases once under ambient host load using the new Xtensa runtime and the
+existing C6 runtime. Its execution source predates the adaptive argument and
+Plus2 fixture changes. The seven explicit icount cases all used the same
+fixed Core2 arguments before and after that change, and the other 62 cases
+had no explicit icount arguments. The Plus2 fixture ran separately with the
+corrected adaptive clock and virtual tap.
