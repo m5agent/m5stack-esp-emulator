@@ -70,7 +70,7 @@ class ClassicWifiRxCursorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary)
             subprocess.run(['git','init','-q',str(root)],check=True)
-            for patch in bootstrap_stack():
+            for patch in bootstrap_stack(full=True):
                 if patch == PATCH: break
                 subprocess.run(['git','apply','--include='+SOURCE,str(ROOT/patch)],cwd=root,check=True,capture_output=True)
             before=(root/SOURCE).read_text()
