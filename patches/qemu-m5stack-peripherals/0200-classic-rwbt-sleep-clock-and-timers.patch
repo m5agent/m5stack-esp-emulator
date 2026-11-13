@@ -1,0 +1,559 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index f628313..014961d 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -79,67 +79,386 @@ static const struct MemmapEntry {
+     /* Virtual Framebuffer, used for the graphical interface */
+     [ESP32_MEMREGION_FRAMEBUF] = { 0x20000000, ESP_RGB_MAX_VRAM_SIZE }
+ };
+ 
+ 
+ #define ESP32_SOC_RESET_PROCPU    0x1
+ #define ESP32_SOC_RESET_APPCPU    0x2
+ #define ESP32_SOC_RESET_PERIPH    0x4
+ #define ESP32_SOC_RESET_DIG       (ESP32_SOC_RESET_PROCPU | ESP32_SOC_RESET_APPCPU | ESP32_SOC_RESET_PERIPH)
+ #define ESP32_SOC_RESET_RTC       0x8
+ #define ESP32_SOC_RESET_ALL       (ESP32_SOC_RESET_RTC | ESP32_SOC_RESET_DIG)
+ 
++#define ESP32_RWBT_INT_MASK       0x00c
++#define ESP32_RWBT_INT_STATUS     0x010
++#define ESP32_RWBT_INT_RAW        0x014
++#define ESP32_RWBT_INT_ACK        0x018
++#define ESP32_RWBT_BASE_TIME      0x01c
++#define ESP32_RWBT_FINE_TIME      0x020
++#define ESP32_RWBT_SLEEP_CONTROL  0x030
++#define ESP32_RWBT_SLEEP_TARGET   0x034
++#define ESP32_RWBT_SLEEP_DURATION 0x038
++#define ESP32_RWBT_SLEEP_PRESET   0x03c
++#define ESP32_RWBT_FINE_CORRECTION 0x040
++#define ESP32_RWBT_BASE_CORRECTION 0x044
++#define ESP32_RWBT_GROSS_TARGET   0x0b4
++#define ESP32_RWBT_FINE_TARGET    0x0b8
++#define ESP32_RWBT_SLEEP_IRQ      (1U << 2)
++#define ESP32_RWBT_SLOT_IRQ       (1U << 0)
++#define ESP32_RWBT_FINE_IRQ       (1U << 9)
++#define ESP32_RWBT_GROSS_IRQ      (1U << 10)
++#define ESP32_RWBT_SLOT_MASK      ((1U << 27) - 1)
++#define ESP32_RWBT_GROSS_SHIFT    4
++#define ESP32_RWBT_GROSS_MASK     (ESP32_RWBT_SLOT_MASK >> ESP32_RWBT_GROSS_SHIFT)
++#define ESP32_RWBT_SAMPLE         (1U << 31)
++#define ESP32_RWBT_CLK_MASK       ((1U << 28) - 1)
++#define ESP32_RWBT_HALF_SLOT_NS   312500
++#define ESP32_RWBT_SLOT_NS        (2 * ESP32_RWBT_HALF_SLOT_NS)
++#define ESP32_RWBT_CORRECT_ON     (1U << 3)
++#define ESP32_RWBT_COARSE_CORRECT (1U << 31)
++#define ESP32_RWBT_SLEEP_ON       (1U << 2)
++#define ESP32_RWBT_SOFT_WAKE      (1U << 4)
++#define ESP32_RWBT_SLEEP_STATUS   (1U << 15)
++#define ESP32_RWBT_WAKE_DISABLE   (1U << 31)
++
+ #define ESP32_BLE_BASE_TIME_REG  0x21c
+ #define ESP32_BLE_FINE_TIME_REG  0x220
+ #define ESP32_BLE_TIME_SAMPLE    (1U << 31)
+ #define ESP32_BLE_BASE_TIME_MASK ((1U << 27) - 1)
+ #define ESP32_BLE_SLOT_US        625
+ 
+ struct Esp32BtState {
+     MemoryRegion iomem;
+     uint32_t regs[0x1000 / sizeof(uint32_t)];
+     uint64_t ble_clock_epoch_us;
++    Esp32SocState *soc;
++    qemu_irq rwbt_irq;
++    QEMUTimer sleep_timer;
++    QEMUTimer slot_timer;
++    QEMUTimer fine_timer;
++    QEMUTimer gross_timer;
++    uint64_t rwbt_time_base_ns;
++    uint64_t rwbt_time_at_base_ns;
++    uint64_t sleep_started_ns;
++    uint32_t sleep_input_hz;
++    uint32_t sleep_divisor;
++    uint32_t sleep_final_ticks;
++    uint32_t rwbt_int_raw;
++    bool sleeping;
++    bool rwbt_clock_stopped;
++    bool rwbt_slot_enabled;
++    bool rwbt_fine_armed;
++    bool rwbt_gross_armed;
++    bool wake_pending;
++    bool irq_high;
+ };
+ 
++static uint32_t esp32_rwbt_sleep_input_hz(const Esp32BtState *s)
++{
++    const Esp32SocState *soc = s->soc;
++    uint32_t clock = soc->dport.bt_lpck_div_frac;
++
++    switch (clock & (0xfU << 24)) {
++    case R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_RTC_SLOW_MASK:
++        return soc->rtc_cntl.rtc_slowclk_freq;
++    case R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_8M_MASK:
++        return 8000000;
++    case R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_XTAL_MASK:
++        return soc->rtc_cntl.xtal_apb_freq;
++    case R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_XTAL32K_MASK:
++        return 32768;
++    default:
++        return 0;
++    }
++}
++
++static uint32_t esp32_rwbt_sleep_ticks(const Esp32BtState *s, uint64_t now_ns)
++{
++    if (!s->sleeping) {
++        return s->sleep_final_ticks;
++    }
++    uint64_t elapsed_ns = now_ns - s->sleep_started_ns;
++    uint64_t ticks = muldiv64(elapsed_ns, s->sleep_input_hz,
++                              NANOSECONDS_PER_SECOND) / s->sleep_divisor;
++    return MIN(ticks, UINT32_MAX);
++}
++
++static void esp32_rwbt_update_irq(Esp32BtState *s)
++{
++    bool high = (s->rwbt_int_raw & s->regs[ESP32_RWBT_INT_MASK / 4]) != 0;
++    if (s->irq_high != high) {
++        s->irq_high = high;
++        qemu_set_irq(s->rwbt_irq, high);
++    }
++}
++
++static uint64_t esp32_rwbt_time_ns(const Esp32BtState *s, uint64_t now_ns)
++{
++    return s->rwbt_time_at_base_ns +
++           (s->rwbt_clock_stopped ? 0 : now_ns - s->rwbt_time_base_ns);
++}
++
++static void esp32_rwbt_sample(Esp32BtState *s)
++{
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    uint64_t time_ns = esp32_rwbt_time_ns(s, now_ns);
++
++    s->regs[ESP32_RWBT_BASE_TIME / 4] =
++        (time_ns / ESP32_RWBT_HALF_SLOT_NS) & ESP32_RWBT_CLK_MASK;
++    s->regs[ESP32_RWBT_FINE_TIME / 4] =
++        (ESP32_RWBT_SLOT_NS - 1 - time_ns % ESP32_RWBT_SLOT_NS) / 1000;
++}
++
++static void esp32_rwbt_set_slot_deadline(Esp32BtState *s)
++{
++    if (!s->rwbt_slot_enabled || s->rwbt_clock_stopped ||
++        (s->rwbt_int_raw & ESP32_RWBT_SLOT_IRQ)) {
++        return;
++    }
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    uint64_t phase_ns = esp32_rwbt_time_ns(s, now_ns) % ESP32_RWBT_SLOT_NS;
++
++    timer_mod_ns(&s->slot_timer, now_ns + ESP32_RWBT_SLOT_NS - phase_ns);
++}
++
++static void esp32_rwbt_slot_irq(void *opaque)
++{
++    Esp32BtState *s = opaque;
++
++    s->rwbt_int_raw |= ESP32_RWBT_SLOT_IRQ;
++    esp32_rwbt_update_irq(s);
++}
++
++static void esp32_rwbt_schedule_target(Esp32BtState *s, QEMUTimer *timer,
++                                      uint32_t target)
++{
++    if (s->rwbt_clock_stopped) {
++        return;
++    }
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    uint64_t time_ns = esp32_rwbt_time_ns(s, now_ns);
++    uint32_t slot = (time_ns / ESP32_RWBT_SLOT_NS) & ESP32_RWBT_SLOT_MASK;
++    uint32_t remaining = (target - slot) & ESP32_RWBT_SLOT_MASK;
++
++    /* A target equal to the active slot is reached immediately. */
++    uint64_t delay = remaining ? (uint64_t)remaining * ESP32_RWBT_SLOT_NS -
++                                 time_ns % ESP32_RWBT_SLOT_NS : 0;
++    timer_mod_ns(timer, now_ns + delay);
++}
++
++static void esp32_rwbt_set_fine_deadline(Esp32BtState *s)
++{
++    esp32_rwbt_schedule_target(s, &s->fine_timer,
++                               s->regs[ESP32_RWBT_FINE_TARGET / 4]);
++}
++
++static void esp32_rwbt_set_gross_deadline(Esp32BtState *s)
++{
++    /* Gross time compares CLK[27:5] when the low four slot bits are zero. */
++    uint32_t target = s->regs[ESP32_RWBT_GROSS_TARGET / 4];
++
++    esp32_rwbt_schedule_target(s, &s->gross_timer, target << ESP32_RWBT_GROSS_SHIFT);
++}
++
++static void esp32_rwbt_fine_irq(void *opaque)
++{
++    Esp32BtState *s = opaque;
++
++    s->rwbt_fine_armed = false;
++    s->rwbt_int_raw |= ESP32_RWBT_FINE_IRQ;
++    esp32_rwbt_update_irq(s);
++}
++
++static void esp32_rwbt_gross_irq(void *opaque)
++{
++    Esp32BtState *s = opaque;
++
++    s->rwbt_gross_armed = false;
++    s->rwbt_int_raw |= ESP32_RWBT_GROSS_IRQ;
++    esp32_rwbt_update_irq(s);
++}
++
++static void esp32_rwbt_correct_time(Esp32BtState *s, uint64_t now_ns)
++{
++    uint32_t coarse = s->regs[ESP32_RWBT_BASE_CORRECTION / 4];
++    uint32_t fine = s->regs[ESP32_RWBT_FINE_CORRECTION / 4] & 0x3ff;
++
++    if (coarse & ESP32_RWBT_COARSE_CORRECT) {
++        s->rwbt_time_at_base_ns +=
++            (uint64_t)(coarse & ESP32_RWBT_CLK_MASK) * ESP32_RWBT_HALF_SLOT_NS;
++    }
++    if (fine && fine < ESP32_RWBT_SLOT_NS / 1000) {
++        s->rwbt_time_at_base_ns += ESP32_RWBT_SLOT_NS - (uint64_t)fine * 1000;
++    }
++    s->rwbt_time_base_ns = now_ns;
++    s->rwbt_clock_stopped = false;
++    s->rwbt_slot_enabled = true;
++    esp32_rwbt_set_slot_deadline(s);
++    if (s->rwbt_fine_armed) {
++        esp32_rwbt_set_fine_deadline(s);
++    }
++    if (s->rwbt_gross_armed) {
++        esp32_rwbt_set_gross_deadline(s);
++    }
++}
++
++static void esp32_rwbt_finish_sleep(void *opaque)
++{
++    Esp32BtState *s = opaque;
++
++    s->sleep_final_ticks = esp32_rwbt_sleep_ticks(
++        s, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    s->sleeping = false;
++    s->wake_pending = false;
++    s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] &= ~ESP32_RWBT_SLEEP_ON;
++    s->rwbt_int_raw |= ESP32_RWBT_SLEEP_IRQ;
++    esp32_rwbt_update_irq(s);
++}
++
++static void esp32_rwbt_set_sleep_deadline(Esp32BtState *s, uint32_t ticks)
++{
++    uint64_t cycles = (uint64_t)ticks * s->sleep_divisor;
++    uint64_t ns = muldiv64(cycles, NANOSECONDS_PER_SECOND, s->sleep_input_hz);
++
++    if (muldiv64(ns, s->sleep_input_hz, NANOSECONDS_PER_SECOND) < cycles) {
++        ns++;
++    }
++    timer_mod_ns(&s->sleep_timer, s->sleep_started_ns + ns);
++}
++
++static void esp32_rwbt_sleep_control(Esp32BtState *s, uint32_t value)
++{
++    /* Status and action bits are not part of the stored control word. */
++    uint32_t control = value & (ESP32_RWBT_WAKE_DISABLE | 0x7);
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++
++    if (s->sleeping) {
++        /* DEEP_SLEEP_ON stays asserted until the end of the sleep phase. */
++        s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] = control | ESP32_RWBT_SLEEP_ON;
++        if ((value & ESP32_RWBT_SOFT_WAKE) && !s->wake_pending) {
++            uint32_t elapsed = esp32_rwbt_sleep_ticks(s, now_ns);
++            uint32_t target = s->regs[ESP32_RWBT_SLEEP_TARGET / 4];
++            if (elapsed < target) {
++                s->wake_pending = true;
++                esp32_rwbt_set_sleep_deadline(s, elapsed + 1);
++            }
++        }
++        return;
++    }
++    s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] = control;
++    if ((value & ESP32_RWBT_CORRECT_ON) && s->rwbt_clock_stopped) {
++        esp32_rwbt_correct_time(s, now_ns);
++    }
++    if (!(control & ESP32_RWBT_SLEEP_ON) || s->rwbt_clock_stopped) {
++        return;
++    }
++
++    /* Use the programmed low-power clock for this sleep interval. */
++    s->sleep_input_hz = esp32_rwbt_sleep_input_hz(s);
++    s->sleep_divisor = FIELD_EX32(s->soc->dport.bt_lpck_div_int,
++                                  DPORT_BT_LPCK_DIV_INT, DIV_NUM) + 1;
++    uint32_t frac = s->soc->dport.bt_lpck_div_frac;
++    if (!s->sleep_input_hz ||
++        (FIELD_EX32(frac, DPORT_BT_LPCK_DIV_FRAC, DIV_A) &&
++         FIELD_EX32(frac, DPORT_BT_LPCK_DIV_FRAC, DIV_B))) {
++        qemu_log_mask(LOG_UNIMP, "ESP32 RWBT: unsupported sleep clock configuration\n");
++        s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] &= ~ESP32_RWBT_SLEEP_ON;
++        return;
++    }
++    s->rwbt_time_at_base_ns = esp32_rwbt_time_ns(s, now_ns);
++    s->rwbt_clock_stopped = true;
++    timer_del(&s->slot_timer);
++    timer_del(&s->fine_timer);
++    timer_del(&s->gross_timer);
++    s->sleep_started_ns = now_ns;
++    s->sleeping = true;
++    esp32_rwbt_set_sleep_deadline(s, s->regs[ESP32_RWBT_SLEEP_TARGET / 4]);
++}
++
++static void esp32_rwbt_reset_sleep(Esp32BtState *s)
++{
++    timer_del(&s->sleep_timer);
++    timer_del(&s->slot_timer);
++    timer_del(&s->fine_timer);
++    timer_del(&s->gross_timer);
++    s->rwbt_time_base_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    s->rwbt_time_at_base_ns = 0;
++    s->rwbt_clock_stopped = false;
++    s->rwbt_slot_enabled = false;
++    s->rwbt_fine_armed = false;
++    s->rwbt_gross_armed = false;
++    s->sleeping = false;
++    s->wake_pending = false;
++    s->sleep_final_ticks = 0;
++    s->rwbt_int_raw = 0;
++    s->regs[ESP32_RWBT_INT_MASK / 4] = 0;
++    s->regs[ESP32_RWBT_FINE_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_GROSS_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_BASE_TIME / 4] = 0;
++    s->regs[ESP32_RWBT_FINE_TIME / 4] = 0;
++    s->regs[ESP32_RWBT_BASE_CORRECTION / 4] = 0;
++    s->regs[ESP32_RWBT_FINE_CORRECTION / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_PRESET / 4] = 0;
++    esp32_rwbt_update_irq(s);
++}
++
+ static void esp32_ble_sample_time(Esp32BtState *s, uint64_t now_us)
+ {
+     uint64_t elapsed_us = now_us - s->ble_clock_epoch_us;
+ 
+     /* One sample captures both parts of the BLE slot clock. The fine count
+      * is the remaining microsecond ticks within the current slot. */
+     s->regs[ESP32_BLE_BASE_TIME_REG / 4] =
+         (elapsed_us / ESP32_BLE_SLOT_US) & ESP32_BLE_BASE_TIME_MASK;
+     s->regs[ESP32_BLE_FINE_TIME_REG / 4] =
+         ESP32_BLE_SLOT_US - 1 - elapsed_us % ESP32_BLE_SLOT_US;
+ }
+ 
+ static void esp32_ble_reset_time(Esp32BtState *s)
+ {
+     s->ble_clock_epoch_us = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
+     s->regs[ESP32_BLE_BASE_TIME_REG / 4] = 0;
+     s->regs[ESP32_BLE_FINE_TIME_REG / 4] = 0;
+ }
+ 
+ static uint64_t esp32_bt_read(void *opaque, hwaddr offset, unsigned size)
+ {
+     Esp32BtState *s = opaque;
+ 
++    if (size == 4) {
++        switch (offset) {
++        case ESP32_RWBT_INT_STATUS:
++            return s->rwbt_int_raw & s->regs[ESP32_RWBT_INT_MASK / 4];
++        case ESP32_RWBT_INT_RAW:
++            return s->rwbt_int_raw;
++        case ESP32_RWBT_INT_ACK:
++            return 0;
++        case ESP32_RWBT_SLEEP_CONTROL:
++            return s->regs[offset / 4] |
++                   (s->sleeping ? ESP32_RWBT_SLEEP_STATUS : 0);
++        case ESP32_RWBT_SLEEP_DURATION:
++            return esp32_rwbt_sleep_ticks(s, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++        }
++    }
++
+     if ((offset == 0x000 || offset == 0x200) && size == 4) {
+         return s->regs[offset / sizeof(uint32_t)] & 0x3fffffff;
+     }
+     if (offset >= ESP32_BLE_BASE_TIME_REG &&
+         offset < ESP32_BLE_FINE_TIME_REG + sizeof(uint32_t)) {
+         return s->regs[offset / sizeof(uint32_t)] >> ((offset & 3) * 8);
+     }
+-    if ((offset & 0xff) == 0x01c && size == 4) {
++    if (offset != ESP32_RWBT_BASE_TIME && (offset & 0xff) == 0x01c && size == 4) {
+         /*
+          * The Bluetooth ROM clock helper requests a sample by setting the
+          * busy bit, then polls until hardware clears it.  Model that request
+          * as immediate and return the low half of a free-running microsecond
+          * counter in the remaining bits.
+          */
+         return ((uint64_t)qemu_clock_get_us(QEMU_CLOCK_VIRTUAL)) &
+                0x7fffffff;
+     }
+     return s->regs[offset / sizeof(uint32_t)];
+ }
+ 
+@@ -156,32 +475,72 @@ static void esp32_bt_write(void *opaque, hwaddr offset, uint64_t value,
+         }
+         return;
+     }
+     if (offset >= ESP32_BLE_BASE_TIME_REG &&
+         offset < ESP32_BLE_FINE_TIME_REG + sizeof(uint32_t)) {
+         if (offset == ESP32_BLE_BASE_TIME_REG && size == sizeof(uint32_t) &&
+             (value & ESP32_BLE_TIME_SAMPLE)) {
+             /* Virtual sampling finishes synchronously, so bit 31 reads 0. */
+             esp32_ble_sample_time(s, qemu_clock_get_us(QEMU_CLOCK_VIRTUAL));
+         }
+         return;
+     }
+-    if ((offset & 0xff) == 0x01c && size == 4) {
++    if (offset != ESP32_RWBT_BASE_TIME && (offset & 0xff) == 0x01c && size == 4) {
+         s->regs[offset / sizeof(uint32_t)] = (uint32_t)value & 0x7fffffff;
+         return;
+     }
+-    if (offset == 0x00c && size == 4) {
+-        s->regs[offset / sizeof(uint32_t)] =
+-            ((uint32_t)value & ~(1U << 9)) | (1U << 9);
+-        return;
++    if (size == 4) {
++        switch (offset) {
++        case ESP32_RWBT_INT_MASK:
++            s->regs[offset / 4] = value;
++            esp32_rwbt_update_irq(s);
++            return;
++        case ESP32_RWBT_INT_ACK:
++            s->rwbt_int_raw &= ~(uint32_t)value;
++            esp32_rwbt_update_irq(s);
++            if (value & ESP32_RWBT_SLOT_IRQ) {
++                esp32_rwbt_set_slot_deadline(s);
++            }
++            return;
++        case ESP32_RWBT_BASE_TIME:
++            if (value & ESP32_RWBT_SAMPLE) {
++                esp32_rwbt_sample(s);
++            }
++            return;
++        case ESP32_RWBT_FINE_TIME:
++            return;
++        case ESP32_RWBT_INT_STATUS:
++        case ESP32_RWBT_INT_RAW:
++        case ESP32_RWBT_SLEEP_DURATION:
++            return;
++        case ESP32_RWBT_FINE_TARGET:
++            s->regs[offset / 4] = value & ESP32_RWBT_SLOT_MASK;
++            s->rwbt_fine_armed = true;
++            esp32_rwbt_set_fine_deadline(s);
++            return;
++        case ESP32_RWBT_GROSS_TARGET:
++            s->regs[offset / 4] = value & ESP32_RWBT_GROSS_MASK;
++            s->rwbt_gross_armed = true;
++            esp32_rwbt_set_gross_deadline(s);
++            return;
++        case ESP32_RWBT_SLEEP_CONTROL:
++            esp32_rwbt_sleep_control(s, value);
++            return;
++        case ESP32_RWBT_SLEEP_TARGET:
++            /* Once sleeping, retain the interval programmed on entry. */
++            if (s->sleeping) {
++                return;
++            }
++            break;
++        }
+     }
+     s->regs[offset / sizeof(uint32_t)] = (uint32_t)value;
+ }
+ 
+ static const MemoryRegionOps esp32_bt_ops = {
+     .read = esp32_bt_read,
+     .write = esp32_bt_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+     .valid = {
+         .min_access_size = 1,
+         .max_access_size = 4,
+     },
+@@ -259,24 +618,25 @@ static void esp32_soc_reset(DeviceState *dev)
+ 
+     bool flash_boot_mode = ((strap_mode & 0x10) || (strap_mode & 0x1f) == 0x0c);
+     qemu_set_irq(qdev_get_gpio_in_named(DEVICE(&s->flash_enc), ESP32_FLASH_ENCRYPTION_DL_MODE_GPIO, 0), !flash_boot_mode);
+ 
+     if (s->requested_reset == 0) {
+         s->requested_reset = ESP32_SOC_RESET_ALL;
+     }
+     if (s->requested_reset & ESP32_SOC_RESET_RTC) {
+         device_cold_reset(DEVICE(&s->rtc_cntl));
+     }
+     if (s->requested_reset & ESP32_SOC_RESET_PERIPH) {
+         esp32_ble_reset_time(s->bt_state);
++        esp32_rwbt_reset_sleep(s->bt_state);
+         device_cold_reset(DEVICE(&s->dport));
+         device_cold_reset(DEVICE(&s->intmatrix));
+         device_cold_reset(DEVICE(&s->aes));
+         device_cold_reset(DEVICE(&s->rsa));
+         device_cold_reset(DEVICE(&s->gpio));
+         for (int i = 0; i < ESP32_UART_COUNT; ++i) {
+             device_cold_reset(DEVICE(&s->uart[i]));
+         }
+         for (int i = 0; i < ESP32_FRC_COUNT; ++i) {
+             device_cold_reset(DEVICE(&s->frc_timer[i]));
+         }
+         for (int i = 0; i < ESP32_TIMG_COUNT; ++i) {
+@@ -470,27 +830,35 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+     memory_region_add_subregion(&s->cpu_specific_mem[0], memmap[ESP32_MEMREGION_RTCFAST_I].base, rtcfast_i);
+ 
+     memory_region_init_alias(rtcfast_d, NULL, "esp32.rtcfast_d", rtcfast_i, 0, memmap[ESP32_MEMREGION_RTCFAST_D].size);
+     memory_region_add_subregion(&s->cpu_specific_mem[0], memmap[ESP32_MEMREGION_RTCFAST_D].base, rtcfast_d);
+ 
+     memory_region_init_ram(bt_ram_low, NULL, "esp32.bt.ram.low",
+                            0x1000, &error_fatal);
+     memory_region_add_subregion(sys_mem, memmap[ESP32_MEMREGION_BT].base,
+                                 bt_ram_low);
+ 
+     bt_state = g_new0(Esp32BtState, 1);
+     s->bt_state = bt_state;
++    bt_state->soc = s;
++    timer_init_ns(&bt_state->sleep_timer, QEMU_CLOCK_VIRTUAL,
++                  esp32_rwbt_finish_sleep, bt_state);
++    timer_init_ns(&bt_state->slot_timer, QEMU_CLOCK_VIRTUAL,
++                  esp32_rwbt_slot_irq, bt_state);
++    timer_init_ns(&bt_state->fine_timer, QEMU_CLOCK_VIRTUAL,
++                  esp32_rwbt_fine_irq, bt_state);
++    timer_init_ns(&bt_state->gross_timer, QEMU_CLOCK_VIRTUAL,
++                  esp32_rwbt_gross_irq, bt_state);
+     /* BT core identification checked by the classic ESP32 ROM. */
+     bt_state->regs[0x004 / sizeof(uint32_t)] = 0x08000b00;
+-    bt_state->regs[0x00c / sizeof(uint32_t)] = 1U << 9;
+     bt_state->regs[0x204 / sizeof(uint32_t)] = 0x08000900;
+     /* Fine timer-mask ready bit polled by ea_prog_timer(). */
+     bt_state->regs[0x000 / sizeof(uint32_t)] = 1U << 9;
+     memory_region_init_io(&bt_state->iomem, NULL, &esp32_bt_ops, bt_state,
+                           "esp32.bt.regs", 0x1000);
+     memory_region_add_subregion(sys_mem,
+                                 memmap[ESP32_MEMREGION_BT].base + 0x1000,
+                                 &bt_state->iomem);
+ 
+     memory_region_init_ram(bt_ram_high, NULL, "esp32.bt.ram.high",
+                            memmap[ESP32_MEMREGION_BT].size - 0x2000,
+                            &error_fatal);
+@@ -511,24 +879,25 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+     qdev_connect_gpio_out_named(DEVICE(&s->dport), ESP32_DPORT_APPCPU_STALL_GPIO, 0,
+                                 qdev_get_gpio_in_named(dev, ESP32_RTC_CPU_STALL_GPIO, 1));
+     qdev_connect_gpio_out_named(DEVICE(&s->rtc_cntl), ESP32_DPORT_CLK_UPDATE_GPIO, 0,
+                                 qdev_get_gpio_in_named(dev, ESP32_RTC_CLK_UPDATE_GPIO, 0));
+ 
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         char name[16];
+         snprintf(name, sizeof(name), "cpu%d", i);
+         object_property_set_link(OBJECT(&s->intmatrix), name, OBJECT(qemu_get_cpu(i)), &error_abort);
+     }
+     qdev_realize(DEVICE(&s->intmatrix), &s->periph_bus, &error_fatal);
+     DeviceState* intmatrix_dev = DEVICE(&s->intmatrix);
++    bt_state->rwbt_irq = qdev_get_gpio_in(intmatrix_dev, ETS_RWBT_INTR_SOURCE);
+     memory_region_add_subregion_overlap(
+         dport_mem, 0xec,
+         sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->intmatrix), 1), -1);
+     memory_region_add_subregion_overlap(dport_mem, ESP32_DPORT_PRO_INTMATRIX_BASE, sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->intmatrix), 0), -1);
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         qdev_connect_gpio_out_named(
+             DEVICE(&s->dport),
+             ESP32_DPORT_CACHE_READY_GPIO,
+             i,
+             qdev_get_gpio_in_named(
+                 intmatrix_dev,
+                 ESP32_INTMATRIX_CACHE_READY_GPIO,

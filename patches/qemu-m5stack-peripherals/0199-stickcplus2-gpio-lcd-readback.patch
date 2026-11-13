@@ -1,0 +1,286 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -61,6 +61,12 @@
+ /* Controller-local observer/bias state. The existing GPIO model is singleton. */
+ #define GPIO_PAD_OBSERVERS_PER_PIN 8
+ static uint64_t g_external_seen;
++static uint64_t g_peer_drive_mask, g_peer_drive_high;
++struct Esp32GpioPeerInput {
++    Esp32GpioState *gpio;
++    unsigned pin;
++};
++static Esp32GpioPeerInput g_peer_inputs[GPIO_NPINS];
+ static uint32_t g_iomux_regs[49];
+ static bool g_iomux_pull_known[49];
+ static bool g_iomux_written[49];
+@@ -167,6 +173,14 @@
+     out->od_origin = g_od_origin[pin];
+     out->external_seen = !!(g_external_seen & bit);
+     out->external_level = !!(g_ext_in & bit);
++    bool peer_drives = g_peer_drive_mask & bit;
++    bool peer_level = g_peer_drive_high & bit;
++    bool peer_conflict = peer_drives && out->external_seen &&
++                         peer_level != out->external_level;
++    if (peer_drives && !out->external_seen) {
++        out->external_seen = true;
++        out->external_level = peer_level;
++    }
+     out->force_enabled = !!(g_force_mask & bit);
+     out->force_level = !!(g_force_level & bit);
+     for (Esp32GpioBoardBias *b = g_board_biases; b; b = b->next) {
+@@ -290,6 +304,10 @@
+             }
+         }
+     }
++    if (peer_conflict) {
++        out->source_mask |= ESP32_GPIO_PAD_SOURCE_EXTERNAL;
++        out->conflict = true;
++    }
+     if (out->conflict) {
+         out->known = false;
+         out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_CONFLICT;
+@@ -513,6 +531,30 @@
+     else { g_ext_in &= ~(1ULL << pin); }
+ }
+ 
++Esp32GpioPeerInput *esp32_gpio_attach_peer_input(Esp32GpioState *s,
++                                                unsigned pin, Error **errp)
++{
++    if (!gpio_pad_valid(s, pin) || g_peer_inputs[pin].gpio) {
++        error_setg(errp, "GPIO%u cannot attach another peripheral driver", pin);
++        return NULL;
++    }
++    Esp32GpioPeerInput *peer = &g_peer_inputs[pin];
++    *peer = (Esp32GpioPeerInput){ .gpio = s, .pin = pin };
++    return peer;
++}
++
++void esp32_gpio_drive_peer_input_deferred(Esp32GpioPeerInput *peer, int level)
++{
++    assert(peer && peer->gpio == g_gpio_device && level >= -1 && level <= 1);
++    uint64_t bit = 1ULL << peer->pin;
++    if (level < 0) {
++        g_peer_drive_mask &= ~bit;
++    } else {
++        g_peer_drive_mask |= bit;
++        g_peer_drive_high = (g_peer_drive_high & ~bit) | (level ? bit : 0);
++    }
++}
++
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+@@ -622,6 +664,11 @@
+     uint64_t out = gpio_out64();
+     uint64_t en = gpio_en64();
+     uint64_t driven = out & en;
++    uint64_t peer_high = g_peer_drive_mask & g_peer_drive_high;
++    uint64_t peer_low = g_peer_drive_mask & ~g_peer_drive_high;
++    /* The pad reports disagreement between explicit external drivers. The
++     * compatibility receiver resolves that conflict to a low level. */
++    uint64_t external = (g_ext_in | (peer_high & ~g_external_seen)) & ~peer_low;
+ 
+     /*
+      * An open-drain output can only pull low: when its latch is high the
+@@ -630,8 +677,8 @@
+      * master while it is releasing SDA.
+      */
+     uint64_t line = (driven & ~g_open_drain)
+-                  | ((driven & g_ext_in) & g_open_drain)
+-                  | (~en & g_ext_in);
++                  | ((driven & external) & g_open_drain)
++                  | (~en & external);
+     return (line & ~g_force_mask) | (g_force_level & g_force_mask);
+ }
+ 
+@@ -852,6 +899,7 @@
+     esp32_gpio_capture_pads(s, observed);
+     memset(g_regs, 0, sizeof(g_regs));
+     g_open_drain = 0;
++    g_peer_drive_mask = 0;
+     memset(g_od_origin, ESP32_GPIO_OD_RESET, sizeof(g_od_origin));
+     gpio_iomux_reset();
+     if (g_gpio_s3) {
+@@ -930,6 +978,8 @@
+     g_pad_epoch = g_pad_sequence = 0;
+     memset(g_pad_revision, 0, sizeof(g_pad_revision));
+     g_external_seen = 0;
++    g_peer_drive_mask = g_peer_drive_high = 0;
++    memset(g_peer_inputs, 0, sizeof(g_peer_inputs));
+     gpio_iomux_reset();
+     if (g_gpio_s3) {
+         for (unsigned pin = 0; pin < 49; pin++) {
+diff --git a/hw/m5stopwatch/m5stickcplus2.c b/hw/m5stopwatch/m5stickcplus2.c
+--- a/hw/m5stopwatch/m5stickcplus2.c
++++ b/hw/m5stopwatch/m5stickcplus2.c
+@@ -150,6 +150,139 @@
+ }
+ type_init(plus2_hold_register)
+ 
++enum {
++    PLUS2_LCD_CS = 5,
++    PLUS2_LCD_SCK = 13,
++    PLUS2_LCD_DC = 14,
++    PLUS2_LCD_SDA = 15,
++    PLUS2_LCD_READ_ID = 0x04,
++    PLUS2_LCD_READ_BITS = 32,
++};
++
++typedef struct Plus2GpioLcd {
++    M5SpiPanelState *panel;
++    Esp32GpioPeerInput *sda;
++    Esp32GpioPadObserver *observers[4];
++    bool selected, clock, sda_driven, read_pending, reading;
++    uint8_t shift, write_bits, read_bits, read_byte;
++} Plus2GpioLcd;
++
++static bool plus2_lcd_gpio_output(const Esp32GpioPadSnapshot *pad)
++{
++    return pad->mux_path == ESP32_GPIO_MUX_GPIO_MATRIX && !pad->override_mask &&
++           pad->oe_known && pad->oe && pad->drive_known &&
++           (!pad->open_drain || !pad->drive_level);
++}
++
++static void plus2_lcd_release(Plus2GpioLcd *bus)
++{
++    if (bus->sda_driven) {
++        esp32_gpio_drive_peer_input_deferred(bus->sda, -1);
++        bus->sda_driven = false;
++    }
++}
++
++static void plus2_lcd_clear(Plus2GpioLcd *bus)
++{
++    plus2_lcd_release(bus);
++    bus->selected = false;
++    bus->clock = false;
++    bus->read_pending = false;
++    bus->reading = false;
++    bus->write_bits = 0;
++    bus->read_bits = 0;
++}
++
++static void plus2_lcd_gpio_change(void *opaque, const Esp32GpioPadEvent *event)
++{
++    Plus2GpioLcd *bus = opaque;
++    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
++    Esp32GpioPadSnapshot cs, sck, dc, sda;
++
++    if (event->cause == ESP32_GPIO_PAD_RESET ||
++        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_CS, &cs) ||
++        !plus2_lcd_gpio_output(&cs) || cs.drive_level ||
++        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SCK, &sck) ||
++        !plus2_lcd_gpio_output(&sck)) {
++        plus2_lcd_clear(bus);
++        return;
++    }
++    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_DC, &dc);
++    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SDA, &sda);
++    if (!bus->selected) {
++        bus->selected = true;
++        bus->clock = sck.drive_level;
++        return;
++    }
++
++    bool host_drives = plus2_lcd_gpio_output(&sda);
++    bool host_releases = !sda.oe ||
++                         (sda.drive_known && sda.open_drain && sda.drive_level);
++    bool host_receives = sda.mux_path == ESP32_GPIO_MUX_GPIO_MATRIX &&
++                         !sda.override_mask && sda.oe_known && host_releases &&
++                         sda.fun_ie;
++    bool data_phase = plus2_lcd_gpio_output(&dc) && dc.drive_level;
++    if (bus->reading && (!host_receives || !data_phase)) {
++        plus2_lcd_release(bus);
++        bus->reading = bus->read_pending = false;
++    }
++    if (bus->read_pending && data_phase && host_receives) {
++        bus->read_pending = false;
++        bus->reading = true;
++        bus->read_bits = 0;
++    }
++    if (bus->clock == sck.drive_level) {
++        return;
++    }
++    bus->clock = sck.drive_level;
++    if (bus->reading) {
++        /* The first rising edge is the ST7789V2 turnaround clock. Present
++         * each output bit on its following falling edge for the next sample. */
++        if (!bus->clock) {
++            if (bus->read_bits == PLUS2_LCD_READ_BITS) {
++                plus2_lcd_release(bus);
++                bus->reading = false;
++                return;
++            }
++            unsigned bit = bus->read_bits++ % 8;
++            if (bit == 0) {
++                m5_spi_panel_read(bus->panel, &bus->read_byte, 1);
++            }
++            esp32_gpio_drive_peer_input_deferred(bus->sda,
++                                                 (bus->read_byte >> (7 - bit)) & 1);
++            bus->sda_driven = true;
++        }
++        return;
++    }
++    if (!bus->clock || !host_drives || !plus2_lcd_gpio_output(&dc)) {
++        return;
++    }
++    bus->shift = (bus->shift << 1) | sda.drive_level;
++    if (++bus->write_bits == 8) {
++        m5_spi_panel_write(bus->panel, &bus->shift, 1, !data_phase);
++        bus->read_pending = !data_phase && bus->shift == PLUS2_LCD_READ_ID;
++        bus->write_bits = 0;
++    }
++}
++
++static void plus2_lcd_attach_gpio(M5SpiPanelState *panel)
++{
++    static Plus2GpioLcd bus;
++    static const unsigned pins[] = {
++        PLUS2_LCD_CS, PLUS2_LCD_SCK, PLUS2_LCD_DC, PLUS2_LCD_SDA,
++    };
++    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
++
++    bus.panel = panel;
++    bus.sda = esp32_gpio_attach_peer_input(gpio, PLUS2_LCD_SDA, &error_fatal);
++    for (unsigned i = 0; i < ARRAY_SIZE(pins); i++) {
++        Esp32GpioPadSnapshot initial;
++
++        bus.observers[i] = esp32_gpio_observe_pad(gpio, pins[i],
++                                plus2_lcd_gpio_change, &bus, &initial, &error_fatal);
++    }
++}
++
+ void m5stickcplus2_board_init(Esp32SocState *s)
+ {
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
+@@ -204,8 +337,9 @@
+ 
+     /* Autodetect probes SPI3; the initialized display uses SPI2. D/C is G14.
+      * Physical board pins: SCK13, MOSI15, CS5, reset12, backlight27. */
+-    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 14, 5);
+-    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 14, 5);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
++    plus2_lcd_attach_gpio(M5_SPI_PANEL(panel));
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+ }
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -150,6 +150,14 @@
+     Esp32GpioState *s, unsigned pin, Esp32GpioPadObserverFn cb, void *opaque,
+     Esp32GpioPadSnapshot *initial_out, Error **errp);
+ void esp32_gpio_unobserve_pad(Esp32GpioPadObserver *observer);
++
++/* Reserve one board peripheral driver per pin for this controller's lifetime.
++ * A deferred update can run inside a pad callback and does not dispatch
++ * nested pad events. Level -1 releases this driver, 0/1 drives the pin. */
++typedef struct Esp32GpioPeerInput Esp32GpioPeerInput;
++Esp32GpioPeerInput *esp32_gpio_attach_peer_input(Esp32GpioState *s,
++                                                unsigned pin, Error **errp);
++void esp32_gpio_drive_peer_input_deferred(Esp32GpioPeerInput *peer, int level);
+ /* One separately owned passive board bias. Multiple conflicting passive
+  * biases resolve unknown; do not silently overwrite external_input storage.
+  * Owner identity is opaque, never dereferenced; caller removes on unrealize.

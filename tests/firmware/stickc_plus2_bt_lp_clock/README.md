@@ -83,3 +83,105 @@ that each ZIP was saved before its session stopped. A separate native trace
 shows the original ROM crossing the BLE time wait and reaching a BR/EDR sleep
 and wake path. Application UI readiness, BLE HID pairing, and physical
 hardware remain unverified.
+## GPIO display identification and original JIGGLER animation
+
+JIGGLER's original image uses a GPIO-driven `RDDID` probe before selecting
+the StickC Plus2 display and power-button path. The firmware's own panel
+description selects CS5, SCK13, D/C14, and bidirectional SDA15. It sends
+command `0x04`, releases SDA, clocks one turnaround bit, and checks the
+returned ID under mask `0xfb`. This matches the [StickC Plus2 board pinout](https://docs.m5stack.com/en/core/StickC-Plus2)
+and the [ST7789V2 serial and RDDID specification](https://www.mouser.com/datasheet/2/744/ST7789V2-3314280.pdf).
+
+Before the GPIO attachment, the original application saw GPIO35 go low and
+high during its loop but resolved board ID 129, M5AtomPsram. Its branch for
+board ID 5, M5StickCPlus2, consumes GPIO35 as the power button. The probe
+did not enter the existing SPI2/3 controller, and the LCD received zero
+commands or pixels. Both the original image's own board records and actual
+guest MMIO confirmed the board mismatch. RTC and IMU reads were separately
+observed on the board's I²C bus.
+
+The same GPIO MMIO sequence reads `0xffffffff` on the frozen runtime and
+`0x00000085` on the GPIO candidate. CS, D/C, data direction, turnaround,
+reselection and GPIO-controller reset controls run through the actual GPIO
+data path. The final candidate retains separate SDA drive ownership and
+keeps SDA released while the host has an active but unresolved output route.
+The [host C ownership control](check_gpio_peer_ownership_actual_c.py) runs the
+actual GPIO receiver and verifies that LCD release preserves an independently
+driven input level.
+The existing VSPI FIFO read returns `0x85` on both runtimes. A Core2 with
+the same test-pin sequence does not expose the Plus2 panel. See the
+[bounded verification summary](gpio-lcd-evidence-summary.json).
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py \
+  --qemu /path/to/qemu-system-xtensa --rom-dir /path/to/pc-bios \
+  --expected-id 0x85
+```
+
+With the GPIO patch alone, the unchanged original displayed the JIGGLER
+animation after C. The default profile stayed on the animation and auto
+logged an IDLE0 task-watchdog reset. The short trials did not establish an
+A/B response.
+The UIFlow2 Plus2 fixture reported board 5, a 135×240 display and an actual
+A press. The separate Core2 fixture still reported board 2 and touch-driven
+frame output.
+
+## BR/EDR sleep, native clock and timer interrupts
+
+Patch 0200 adds controller timing to the classic ESP32 RWBT register bank at
+`0x3ff71000`. Use the GPIO-only runtime as the baseline and the GPIO and RWBT
+runtime as the candidate with the same ROMs.
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_sleep.py \
+  --qemu "$GPIO_ONLY_XTENSA_QEMU" --rom-dir "$XTENSA_ROM_DIR" --baseline
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_sleep.py \
+  --qemu "$XTENSA_QEMU_WITH_0200" --rom-dir "$XTENSA_ROM_DIR"
+```
+
+These qtest controls use aligned 32-bit MMIO and advance QEMU virtual time
+without running guest instructions. The baseline returns no active sleep
+state, elapsed count or IRQ. Its interrupt mask forces bit 9 high. The
+candidate tests status, clocks, correction and the actual DPORT source-6
+level, including masking a pending interrupt, unmasking it, clearing it
+with a write-one-to-clear acknowledgement, and resetting an armed timer.
+
+| RWBT offset | Modeled behavior |
+| --- | --- |
+| `0x00c`–`0x018` | Mask, masked status, raw status and write-one-to-clear. Slot, wake, fine and gross events drive source 6 through bits 0, 2, 9 and 10. |
+| `0x01c`, `0x020` | A SAMP write latches the 28-bit half-slot counter and descending microsecond slot phase together. Both reads retain their values until the next sample. |
+| `0x030`–`0x038` | Sleep request, software wake and read-only active status. The elapsed count runs on the integer-divided low-power clock selected at entry. Software wake finishes on the next tick when it precedes the deadline. |
+| `0x040`, `0x044` | Clock phase correction resumes the stopped BR/EDR clock and recomputes armed deadlines. |
+| `0x0b4`, `0x0b8` | The 23-bit gross comparator advances in 16-slot increments (10 ms). The 27-bit fine comparator advances in 625 µs slots. Both compare modulo their widths. |
+
+The [Bluetooth Core Specification BR/EDR clock section](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/br-edr-controller/baseband-specification.html)
+defines the 28-bit clock and 312.5 µs half-slot. The exact ESP32 ROM named in
+the evidence programs `0x3ff710b4` from `r_ke_timer_set` through
+`0x4001a948`, using the 23-bit clock divided by 16, and its ISR checks and
+acknowledges bit 10 at `0x40055621`. The original firmware also programs
+`0x0b8` and reads and acknowledges bit 9. The
+[pinned Espressif ROM symbol map](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_rom/esp32/ld/esp32.rom.ld)
+identifies `r_ke_timer_set`. The observed ROM sleep path programs `0x034`
+and `0x030`, polls bit 15, acknowledges bit 2, and computes 213 µs phase
+correction from 206 elapsed 2 µs ticks. The corresponding
+[Renesas RW-family sleep and correction registers](https://www.renesas.com/en/document/dst/da14535-datasheet#page=167)
+and [gross comparator](https://www.renesas.com/en/document/dst/da14535-datasheet#page=177)
+are from a separate BLE controller and inform the timer semantics. The
+BR/EDR fine phase and synchronous sample behavior are model choices
+consistent with these references and the observed driver sequence.
+
+The fixture covers integer division of XTAL and RC8M and samples changes to
+clock configuration on the next sleep entry. Fractional division with both
+ratio fields nonzero, physical clock-start timing, external early wake and
+wake preset pulse behavior remain unverified. The `0x03c` preset retains
+register storage. BLE pairing, HID delivery and RF require separate evidence.
+
+With 0199 and 0200 applied, the unchanged original reached its home screen
+after a C hold at the default `icount` shift 5. The 85-second capture recorded
+no watchdog or reset. An independent C-hold capture with `icount=auto`
+still triggered an IDLE0 task watchdog at 14.844 guest seconds and rebooted.
+The original's home screen was unobserved in that trial. A separate auto trial
+without any input reproduced the same IDLE0 watchdog and reset at 14.801
+guest seconds. The
+[bounded evidence summary](rwbt-sleep-evidence-summary.json) binds each
+result to its original image, runtime, inputs, frame and retained ZIP.

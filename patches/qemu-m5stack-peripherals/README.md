@@ -1545,3 +1545,34 @@ snapshot retention, byte/halfword accesses, wrap and reset, with an old-runtime
 negative control. Sources and original firmware progress are recorded in the
 fixture README. This does not implement the remaining BR/EDR low-power state
 machine, radio timing or Bluetooth HID; application readiness is independent.
+
+## StickC Plus2 software SPI display identification (0199)
+
+`0199-stickcplus2-gpio-lcd-readback.patch` connects the StickC Plus2 ST7789V2
+panel to software GPIO SPI on CS5, SCK13, D/C14 and bidirectional SDA15.
+The GPIO path samples command bytes on rising clock edges and uses the same
+panel read cursor as hardware SPI. Readback starts after the host releases
+SDA and the turnaround clock completes. Chip-select deassertion, host SDA
+reclaim and GPIO-controller reset release the display's dedicated SDA drive.
+The read path requires known host high impedance. The existing hardware
+SPI attachments continue to carry the normal display data path.
+
+The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
+executes real classic GPIO and SPI MMIO controls. The original image's GPIO
+display probe and initial animation are covered in the same fixture's README.
+
+## Classic BR/EDR sleep and native timer interrupts (0200)
+
+`0200-classic-rwbt-sleep-clock-and-timers.patch` uses the ESP32 DPORT-selected
+low-power clock and virtual time for the BR/EDR sleep counter, wake and clock
+correction. Coherent native clock snapshots and the slot, fine and gross
+compare events share the corrected clock. Pending events use RWBT source 6
+through the interrupt mask and write-one-to-clear registers. Digital reset
+cancels pending timers and clears the clock and IRQ state.
+
+The [RWBT regression](../../tests/firmware/stickc_plus2_bt_lp_clock/README.md#bredr-sleep-native-clock-and-timer-interrupts)
+covers baseline and candidate MMIO, sleep clock selection and changes, timer
+wrap, mask, acknowledgement and source-6 delivery. The unchanged original
+reaches home with the default profile. Its separate `icount=auto` trial
+still has an IDLE0 task-watchdog reset. Pairing, HID report delivery and
+physical timing remain unverified.
