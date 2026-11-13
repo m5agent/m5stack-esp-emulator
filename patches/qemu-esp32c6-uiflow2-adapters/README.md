@@ -83,6 +83,13 @@ SPI1 的 10-bit Flash 长度字段分开，保留 FIFO 字节并约束 DMA 缓�
 
 ## 当前开放边界
 
+`0018-c6-wifi-tsf-counter.patch` 补齐原 WiFi HAL 使用的四个 TSF
+计数器、门控、64 位加载与一致性快照。`0019-c6-efuse-lp-subregion.patch`
+修正被宽 LP 区域遮蔽的 eFuse MMIO 映射；NanoC6 的会话身份经实际
+eFuse backing/controller 和 guest API 读取。对应
+[同 BIN 控制与原版边界](../../tests/firmware/esp32c6_tsf_identity/README.md)
+不授予 802.15.4 数据面、RF 或 Honeypot 完整网络就绪。
+
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
 当前仍开放的模型缺口是 Zigbee/802.15.4 控制器未建模。C6
 `LP_SW_HPSYS` 后 chip id `13/12` 已定位为 16 MiB Flash legacy 写擦命令被

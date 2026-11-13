@@ -306,6 +306,7 @@
     {
       "id": "nanoc6",
       "backend": "qemu-esp32c6",
+      "efuse_driver": "nvram.esp32c6.efuse",
       "network_console": "usb-jtag",
       "network_status": "validated",
       "mode": "console",

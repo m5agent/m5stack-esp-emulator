@@ -37,6 +37,8 @@ PATCHES = (
     "patches/qemu-esp32c6-uiflow2-adapters/0015-c6-spi2-data-length.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0016-c6-spi2-chip-select-routing.patch",
     "patches/qemu-esp32c6-uiflow2-adapters/0017-c6-mwdt-pcr-clock.patch",
+    "patches/qemu-esp32c6-uiflow2-adapters/0018-c6-wifi-tsf-counter.patch",
+    "patches/qemu-esp32c6-uiflow2-adapters/0019-c6-efuse-lp-subregion.patch",
 )
 RECEIPT = ".m5-c6-runtime-source.json"
 
