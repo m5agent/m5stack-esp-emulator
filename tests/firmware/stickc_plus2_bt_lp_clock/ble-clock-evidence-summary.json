@@ -237,9 +237,10 @@
     "icount_shift": "5"
   },
   "limits": [
-    "Application UI remains black.",
+    "No-input controls yielded black frames. The firmware instructions describe automatic starts with the display off.",
+    "The GPIO35 manual C hold was accepted through Device Service; the welcome screen did not appear in this run. Application UI readiness remains unverified.",
     "BLE HID pairing, RF, and physical hardware were not exercised.",
-    "BR/EDR sleep and wake state machine remains a separate missing path."
+    "The BLE sampling trace reached a separate BR/EDR sleep and wake path."
   ],
   "fresh_build_qtest": {
     "power_on": [
@@ -340,5 +341,95 @@
       },
       "qemu_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26"
     }
-  }
+  },
+  "fresh_build_original_firmware_controls": [
+    {
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "initial_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "normalized_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "icount_shift": "5",
+      "watchdog_panics": 0,
+      "task_watchdog_panics": 0,
+      "bt_lp_clock_assertions": 0,
+      "phy_clock_assertions": 0,
+      "evidence_before_stop": true,
+      "retained_session_state": "stopped",
+      "owned_guest_pid_gone": true,
+      "case": "ble-clock-fresh-default",
+      "observed_seconds": 65.096,
+      "serial_bytes": 325,
+      "frames": 33,
+      "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "nonblack_frames": 0,
+      "inputs": [],
+      "watchdog_disabled": false,
+      "evidence_zip_sha256": "13ff7c1a56b1f9ef9d4f44537739a0ea9026ebf562e6936d3cc86c3a9689fc42",
+      "display_scope": "No-input observation. The original instructions describe automatic starts with the display off."
+    },
+    {
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "initial_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "normalized_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "icount_shift": "auto",
+      "watchdog_panics": 0,
+      "task_watchdog_panics": 0,
+      "bt_lp_clock_assertions": 0,
+      "phy_clock_assertions": 0,
+      "evidence_before_stop": true,
+      "retained_session_state": "stopped",
+      "owned_guest_pid_gone": true,
+      "case": "ble-clock-fresh-auto",
+      "observed_seconds": 65.092,
+      "serial_bytes": 325,
+      "frames": 33,
+      "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "nonblack_frames": 0,
+      "inputs": [],
+      "watchdog_disabled": false,
+      "evidence_zip_sha256": "60499b48193bd107fbde18b0373885893677f405ce4ed148f96fd9ae0865bdf4",
+      "display_scope": "No-input observation. The original instructions describe automatic starts with the display off."
+    },
+    {
+      "runtime_sha256": "35c35ef2427e121dcd232215339c5219b7e22bc6c63821c92e356c9573d42b26",
+      "firmware_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "initial_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "normalized_flash_sha256": "c5ce5ad2e1a1f33bf99bbc1e29574562e1f2dbe661b9aca554c052cdb6b6e401",
+      "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "icount_shift": "5",
+      "watchdog_panics": 0,
+      "task_watchdog_panics": 0,
+      "bt_lp_clock_assertions": 0,
+      "phy_clock_assertions": 0,
+      "evidence_before_stop": true,
+      "retained_session_state": "stopped",
+      "owned_guest_pid_gone": true,
+      "case": "ble-clock-fresh-manual-default",
+      "observed_seconds": 40.008,
+      "serial_bytes": 325,
+      "frames": 80,
+      "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "nonblack_frames": 0,
+      "inputs": [
+        {
+          "seconds": 0.337,
+          "key_action": "keydown:c",
+          "accepted": true
+        },
+        {
+          "seconds": 1.985,
+          "key_action": "keyup:c",
+          "accepted": true
+        }
+      ],
+      "watchdog_disabled": false,
+      "evidence_zip_sha256": "d994a2ec1fa6b0457a007dda2180cfb3130590e6bddcaafe90fea5f35762c4cf",
+      "power_key_gpio": 35,
+      "manual_welcome_visible": false,
+      "subsequent_a_b": "NOT RUN; no welcome or home screen was visible"
+    }
+  ]
 }

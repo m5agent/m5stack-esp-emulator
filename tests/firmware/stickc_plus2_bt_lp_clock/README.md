@@ -69,7 +69,17 @@ model. Physical timing of the sample request and the fine counter phase on
 ESP32 remain unmeasured.
 
 The [virtual-device evidence summary](ble-clock-evidence-summary.json) records
-both qtest binaries and the unchanged original BIN in Device Service. After
-the original BLE time wait clears, the application remains black and the
-controller reaches a separate BR/EDR sleep and wake path. BLE HID pairing and
-physical hardware remain unverified.
+both qtest binaries and the unchanged original BIN in Device Service. The
+final native build ran the original for 65 seconds each with default and auto
+icount. Both controls recorded black frames and no watchdog or clock
+assertions. The original instructions describe automatic startup with the
+display off.
+
+A separate 40-second default-icount session held and released C through
+the StickC Plus2 GPIO35 input. The welcome screen did not appear. All 80
+sampled frames were black, so the A/B controls were unexercised. The evidence
+includes the firmware, runtime, ROM, framebuffer and ZIP hashes and records
+that each ZIP was saved before its session stopped. A separate native trace
+shows the original ROM crossing the BLE time wait and reaching a BR/EDR sleep
+and wake path. Application UI readiness, BLE HID pairing, and physical
+hardware remain unverified.
