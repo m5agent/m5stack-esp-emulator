@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "issue": 226,
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "scope": "Classify the known absent Tab5 DWC controller; USB functionality is not repaired.",
+  "device": "tab5",
+  "session_runtime": "qemu",
+  "internal_service_kind": "tab5",
+  "firmware": {
+    "name": "Maker Fighter 1.4",
+    "original_sha256": "d96962362b262bcc4e5abcf6a720a2de1a53f0869c87916fd3f798eb845e08b6",
+    "normalized_sha256": "4da826b590d879ccb7728b20257c1847a8093868eb2752600994f1242438bdeb",
+    "app_partitions": [
+      {
+        "offset": 65536,
+        "size": 16580608,
+        "sha256": "13286ecccea67fac92f07c1947dc92b580316c4fae3f755f0004ffe771d4c5f9",
+        "unchanged": true
+      }
+    ],
+    "application_bytes_unchanged": true,
+    "application_ready": false
+  },
+  "execution": {
+    "service_source_head": "b7bc545b576359efcb6c93a47d55edca2abc1df4",
+    "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+    "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "c6_companion_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "observed_seconds": 40.199483291013166,
+    "actual_pid_runtime_binary_hash_verified": true,
+    "flash_verified": true,
+    "flash_session_isolated_copy": true,
+    "serial_sha256": "4ed7ce9acb741c9077844b8ccaba577699a6f3b5b3731abdf3f9e6ab23a471b0",
+    "serial_bytes": 100457,
+    "dwc_identity_assertions": 20,
+    "evidence_zip_sha256": "c108f2c838ab07fe227f5b7c78b31870a85a72351d167285bf14fb6ce6c645e6",
+    "evidence_zip_before_stop": true,
+    "frame_files_in_zip": 0,
+    "last_frame_available": false,
+    "symbols_status": "unavailable",
+    "note": "No application frame was captured; unmatched ELF also limits Tab5 framebuffer access. Panic evidence establishes failed USB initialization, not a black-pixel measurement."
+  },
+  "classification": {
+    "before": {
+      "classifier_sha256": "049c393361a5492e736825961f39193f1b1dfc350c25de317fda63d6600bfbd7",
+      "actual_metadata_runtime": "qemu",
+      "model_gaps": [],
+      "status": "FAIL",
+      "reason": "fatal_without_display"
+    },
+    "after": {
+      "classifier_sha256": "3f333ac82a6ad53a420160112d43fdb264a9e33fe719e44ab00c6d1967e3fdeb",
+      "actual_metadata_runtime": "qemu",
+      "model_gaps": [
+        {
+          "code": "tab5_usb_dwc_not_modeled",
+          "scope": "tab5-esp-emu",
+          "detail": "the guest failed the USB DWC core identity check while the Tab5 backend has no modeled USB host controller or endpoint attachment; USB initialization and application readiness remain unverified"
+        }
+      ],
+      "status": "PARTIAL",
+      "reason": "runtime_model_gap"
+    },
+    "same_final_zip_serial": true,
+    "guest_rerun_for_postprocessor_change": false,
+    "guard": "Exact Tab5 public qemu runtime, USB DWC core_id/GSNPSID initialization assertion and planned usb-host-p4-dwc catalog contract."
+  },
+  "retained_attempts": [
+    {
+      "name": "invalid-public-runtime-request",
+      "status": "INFRA_FAILED",
+      "http_status": 400,
+      "guest_started": false,
+      "summary_sha256": "9883c8efee0d6a0e43e04275e601ffca87229492e53c87cd631a702ded2632cd"
+    },
+    {
+      "name": "original-r2-reported-classification",
+      "summary_sha256": "37fb90b22fce6f2fb1102a94181e6af6a2f37c7b9c6371939d1221a9def6de37",
+      "actual_runtime": "qemu",
+      "original_runner_classifier_argument": "tab5",
+      "retained_unchanged": true,
+      "note": "The original report used the internal service kind as classifier input. Only the separate postprocessor replay uses actual session metadata."
+    }
+  ],
+  "source_identity": {
+    "executed_classifier_worktree_sha256": "049c393361a5492e736825961f39193f1b1dfc350c25de317fda63d6600bfbd7",
+    "executed_runner_sha256": "a294267bb46639b0006897089d76062c4c593c8aec5eb3d31cb72298627330d2",
+    "catalog_sha256": "382ef0c0b35d38b147d4d7bf7e8bd42a601d915386f6b91c15a3f0a34c714d99",
+    "classifier_after_sha256": "3f333ac82a6ad53a420160112d43fdb264a9e33fe719e44ab00c6d1967e3fdeb",
+    "tests_sha256": "938d9476cbdc0e780eea9cc721d39ae492b3c8a26b7a39b31646fd54035aa1b0",
+    "head_during_reclassification": "785c244d8fe4998e80637a1886d0be7a1e48d138",
+    "note": "The original guest source head and uncommitted classifier hash remain separate from the later postprocessor source."
+  },
+  "host_checks": {
+    "test_module": "platform/tests/test_user_firmware_matrix.py",
+    "tests": 35,
+    "status": "PASS",
+    "negative_scope": [
+      "other device",
+      "internal tab5 runtime alias",
+      "missing runtime",
+      "unrelated USB assertion",
+      "non-identity DWC assertion",
+      "nonfatal core-id text",
+      "catalog controller no longer planned"
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "session_state": "stopped",
+    "guest_pid_gone": true,
+    "owned_service_pid_not_live": true,
+    "lease_released": true,
+    "mutable_flash_released": true,
+    "history_retained": true,
+    "purge": 0
+  },
+  "limits": [
+    "P4 DWC register/controller, root port and endpoint attachment remain absent from the current backend contract.",
+    "No fake GSNPSID, register interception, guest modification, forced driver success or backend binary patch.",
+    "No HID/MSC enumeration or USB transfer validated.",
+    "No physical hardware validation.",
+    "Tab5 reference display/touch/RS-485 guest regressions were not repeated for this postprocessor-only change.",
+    "No Burner submission."
+  ]
+}

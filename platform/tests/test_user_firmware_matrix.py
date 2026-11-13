@@ -750,6 +750,37 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(reason, "runtime_model_gap")
         self.assertIn("zigbee_runtime_not_modeled", unmet[0])
 
+    def test_tab5_dwc_identity_assert_requires_missing_controller_contract(self):
+        serial = (
+            "assert failed: usb_dwc_hal_init components/hal/usb_dwc_hal.c:152 "
+            "(core_id == CORE_REG_GSNPSID_4_00a || core_id == CORE_REG_GSNPSID_4_30a)\n"
+        )
+        gaps = detect_runtime_model_gaps(serial, device_id="tab5", runtime="qemu")
+        self.assertEqual([gap["code"] for gap in gaps], ["tab5_usb_dwc_not_modeled"])
+        status, reason, _ = classify_result(
+            has_screenshot=False, nonblack=0, running=True, crash=True,
+            serial_bytes=len(serial), boot_error=None, input_observed=False,
+            runtime_model_gaps=gaps,
+        )
+        self.assertEqual((status, reason), ("PARTIAL", "runtime_model_gap"))
+        for device, runtime in (("cores3", "qemu"), ("tab5", "tab5"), ("tab5", None)):
+            with self.subTest(device=device, runtime=runtime):
+                self.assertEqual(detect_runtime_model_gaps(serial, device_id=device, runtime=runtime), [])
+        for unrelated in (
+            serial.replace("usb_dwc_hal_init", "usb_host_install"),
+            "assert failed: usb_dwc_hal_init usb_dwc_hal.c:152 (hal != NULL)\n",
+            "USB HOST: CORE_REG_GSNPSID_4_00a\n",
+        ):
+            self.assertEqual(detect_runtime_model_gaps(unrelated, device_id="tab5", runtime="qemu"), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / "platform/peripherals/catalog.json"
+            path.parent.mkdir(parents=True)
+            for state in ("partial", "simulated"):
+                path.write_text(json.dumps({"models": {"usb-host-p4-dwc": {"status": state}}}))
+                with mock.patch("user_firmware_matrix.ROOT", root):
+                    self.assertEqual(detect_runtime_model_gaps(serial, device_id="tab5", runtime="qemu"), [])
+
     def test_detect_runtime_model_gap_requires_c6_software_reset_context(self):
         generic = detect_runtime_model_gaps(
             "Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?"

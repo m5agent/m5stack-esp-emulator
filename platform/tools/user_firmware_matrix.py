@@ -1137,6 +1137,27 @@ def detect_runtime_model_gaps(
     """Identify stable runtime signatures and exact sample capability gaps."""
 
     gaps: list[dict[str, str]] = []
+    # The public session runtime is qemu; tab5 is the internal service kind.
+    if device_id == "tab5" and runtime == "qemu" and re.search(
+        r"assert failed:\s+usb_dwc_hal_init\b[^\r\n]*\bcore_id\b"
+        r"[^\r\n]*\bCORE_REG_GSNPSID_4_(?:00|30)a\b",
+        serial,
+    ):
+        # Retire this diagnosis when the actual controller contract changes;
+        # the same assertion alone is not proof of a missing model elsewhere.
+        catalog = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())
+        controller = catalog["models"].get("usb-host-p4-dwc", {})
+        if controller.get("status") == "planned":
+            gaps.append({
+                "code": "tab5_usb_dwc_not_modeled",
+                "scope": "tab5-esp-emu",
+                "detail": (
+                    "the guest failed the USB DWC core identity check while "
+                    "the Tab5 backend has no modeled USB host controller or "
+                    "endpoint attachment; USB initialization and application "
+                    "readiness remain unverified"
+                ),
+            })
     if "Zigbee_main" in serial and re.search(
         r"task_wdt: Task watchdog got triggered",
         serial,
