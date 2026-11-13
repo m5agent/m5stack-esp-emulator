@@ -15,6 +15,8 @@
 
 [2026-11-14 云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md)记录旧服务兼容性、真实网页默认身份与授权身份、观察器失败及独立复测。
 
+[2026-11-14 最终 main 与原生用户路径交付](evidence/2026-11-14-native-identity-delivery/README.md)连接部署后 C6/Cloud 复验、完整原生矩阵和原版应用边界；Cloud PONG 失败、不同输入合同下的 Mesh B 失败观察及浏览器独立资格仍保留。
+
 [2026-11-14 Tab5 稳定后端原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)保留两份原 BIN 在 v1.0.0 的旧 P4 CSR 故障；Maker Fighter 未到 USB 阶段，不据断言消失判修复。
 
 [2026-11-14 C6 普通 GPIO 中断设计](plans/2026-11-14-c6-gpio-irq-design.md)限定 source 30、共享 pad 与实际 ISR 验证路径；设计和 host 控制不代表 guest 已通过。
@@ -32,6 +34,8 @@
 [2026-11-13 main 与常驻服务交付](evidence/2026-11-13-native-resident-delivery/README.md)记录最终运行时、真实配对/编程、原版方向和 MP3/2048 dry-run，保留验收脚本失败、云端结果复用与未完成范围。
 
 [2026-11-13 经典 ESP32 时钟与 C6 USB 后续](evidence/2026-11-13-native-clock-usb-followup/README.md)记录原版 JIGGLER、最终 C6 原版与串口、Nesso 共享 pad、当前原版包身份和 69 项联合回归。交付与发布后复验单列。
+
+[2026-11-14 Pages 发布与 HTTPS 限定验收](evidence/2026-11-14-pages-local-qualification/README.md)记录同一导出的完整串行门禁、原版 CoreMatrix 前置验证、浏览器身份、发布包、正式 HTTPS 资产读回与两个 CoreS3 实际客体；本地完整资格、host 控制与线上限定验收分别计数，既有 WASM 不继承本轮原生 C6 修复。
 
 ## 五分钟阅读顺序
 
@@ -364,6 +368,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [C6 中断修复后完整原生回归](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md) | 日期化矩阵证据 | `2026-11-14` | 70/70、单 attempt、原执行分区与源码/运行时绑定；原版应用和部署另验 |
 | [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md) | 日期化控制器与原驱动验收 | `2026-11-14` | 同 BIN 新旧 ISR、原版 UIFlow 执行分区、复位及共享 pad；BMI/FT 精确时序仍开放 |
 | [云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md) | 日期化兼容性与网页验收 | `2026-11-14` | 默认与授权身份路径、真实旧服务控制及观察器失败；云端长连接仍 FAIL |
+| [最终 main 与原生用户路径交付](evidence/2026-11-14-native-identity-delivery/README.md) | 日期化交付证据 | `2026-11-14` | 原生 C6/Cloud 部署后验、原版应用与执行身份；云端 PONG 超时仍 FAIL |
+| [Pages 发布与 HTTPS 限定验收](evidence/2026-11-14-pages-local-qualification/README.md) | 日期化交付证据 | `2026-11-14` | 本地 72 例、正式资产与 HTTPS 两例独立验收；hosted 全量未重跑，既有 WASM 未重建 |
 | [UIFlow2 原版启动与云端配对](plans/2026-11-13-uiflow-cloud-startup.md) | 实施计划 | `2026-11-13` | 官方启动与本地编程分流；真实网络、NVS 与配对屏幕独立验收，保留浏览器网络边界 |
 | [C6 普通 GPIO 中断设计](plans/2026-11-14-c6-gpio-irq-design.md) | 实施计划 | `2026-11-14` | source 30、raw pending/CPU mask 与共享 pad；host 控制已完成，独立 IDF/UIFlow guest 验收待执行 |
 | [UIFlow2 原版云端配对证据](evidence/2026-11-13-uiflow-cloud-startup/README.md) | 证据/差异 | `2026-11-13` | 六款原版固件配对、网页入口、本地编程对照及原始失败；常驻交付独立验收 |
@@ -471,7 +477,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
-| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-09` | Xtensa 与 C61 两套固定源码构建、逐板准入、工作台和固定示例、完整客体门禁与管理员手动发布，源码配置和线上版本分别核验 |
+| [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-11-14` | Xtensa 与 C61 两套固定源码构建、逐板准入、工作台和固定示例、完整客体门禁与管理员手动发布；本轮 prepared 发布、资产与 HTTPS 两例限定验收分别核验 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
 | [运动、电源与复位修复](plans/2026-10-29-motion-power-device-adaptation.md) | 当前交付计划 | `2026-10-29` | Arduino/UIFlow 舵机输出、板级 PMIC 与保持供电、同实例复位、剩余 Atom/Stick 接入 |
 | [StackChan Arduino 浏览器兼容性](stackchan-arduino-browser.md) | 固件行为与实现边界 | `2026-10-29` | 固定 Dance 的扭矩策略、真实串口/位置诊断、S3 Flash QIOR 相位与同实例复位 |

@@ -23,7 +23,7 @@
 
 - UIFlow2 云端 WebREPL 心跳：授权设备身份被接受后，服务器未回复标准 WebSocket control Ping，原固件随后因 PONG 超时主动重连；独立宿主标准协议对照同样未收到 control Pong。需修云端协议处理并以原 BIN 跨多个超时周期复验；持久虚拟身份、配对码或文本心跳通过均不关闭此项。见[身份与心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)。
 
-本批经典 ESP32 / C6 已完成 main、常驻服务及发布后复验。这里保留未解决的固件和模型范围。 [最新交付证据](evidence/2026-11-13-native-clock-usb-followup/README.md) · [前一版交付](evidence/2026-11-13-native-resident-delivery/README.md)
+身份协商与 C6 普通 GPIO 修复已完成 main 和指定工作台后验。这里保留未解决的固件和模型范围；[最终交付证据](evidence/2026-11-14-native-identity-delivery/README.md)与[历史时钟/USB 交付](evidence/2026-11-13-native-clock-usb-followup/README.md)分开。
 
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。Meshtastic RFID 原版另有 IDLE 订阅未喂狗问题，Zigbee 无对应数据面，整项不关闭。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
@@ -32,6 +32,7 @@
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 身份剩余范围：NanoC6 真实 controller/drive 与 guest API 的隔离和复位稳定性已验证；802.15.4 extended-address 寄存器数据面仍需实现，再验收 Zigbee 身份及协议。不将 NanoC6 子路径转授其它板型或用报告字段伪造读值。
 - Nesso N1 中断剩余范围：[普通 CPU GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已通过实际 IDF ISR 和原版 UIFlow `Pin.irq`，共享 GPIO3 pad/扩展器锁存回归通过。仍需实现 BMI270 数据/运动事件与 IRQ 输出使能、FT6336 模式/脉冲/扫描时序，以及独立 NMI/source 31、睡眠唤醒/滤波；各自须经过原驱动、真实控制器输入和复位对照，不由普通 GPIO 结果关闭。
+- Honeypot 的 AP 关联及 HTTP 数据面需另行验收，配置控制台通过不转授联网能力。见[原版应用边界](evidence/2026-11-14-native-identity-delivery/README.md)。
 
 ## 新增主机剩余工作
 
@@ -382,7 +383,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `UI-02` | 进行中 | 扩展更多固定固件与长期稳定性，继续归因原始 StackChan 跳舞固件的 Core1 ROM 字面量启动异常及独立触摸证据缺口、官方 Factory 浏览器 WDT/异常、其它应用的 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化；分别验证 C6 RISC-V、P4 controller 数据面与 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC 及 StackChan 其它固件/运动模式边界 | 已满足前置：单一 C/QEMU 性能优化及精确固件正常时钟、新 producer 路径策略、完整本地固定示例门禁和应急 prepared-site 正式 HTTPS 更新已有独立证据；逐固件绑定 Flash/runtime/profile/input/frame，功能回归不等于逐板提速，native 或 compiled_profiles 不授浏览器/stock SDK PASS；同层 Worker 清场已在定向托管和本地完整门禁验证，正式托管全板验收由 `UI-03` 跟踪 |
-| `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及剩余独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放、初代 Cardputer 冷启动 PIF 及其它偶发启动和复位失败。逐板性能和长期稳定性分别验收 | 按原门禁保留真实输入、输出和清场断言。用同路径复现及回归确认修复，保留历次失败。 [设计](plans/2026-11-04-uiflow-browser-workbench-design.md) · [本地与托管验证](validation-ledger.md#2026-11-10) |
+| `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及剩余独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放、初代 Cardputer 冷启动 PIF 及其它偶发启动和复位失败。逐板性能和长期稳定性分别验收 | 本轮固定导出已完成本地完整资格、正式发布及两个 CoreS3 HTTPS 示例的输入/输出/清理；线上两例不覆盖 hosted 全量或其他设备。按原门禁保留真实输入、输出和清场断言，保留历次失败。[本轮限定交付](evidence/2026-11-14-pages-local-qualification/README.md) · [设计](plans/2026-11-04-uiflow-browser-workbench-design.md) · [历史本地与托管验证](validation-ledger.md#2026-11-10) |
 | `UNIT-01` | 已完成（virtual-device） | 视觉主机接入与 Unit 数据面战役 2026-11-03 收口：9 host 接入 + 5 boundary-only/composition-only；Unit 160 = 158 implemented/partial + 2 DEFER（`mini-bps-v11`/`mini-pdm`）+ 25 c 类边界，184/184；canonical 41 层（0120–0161，41/41 replay），PR #80–#161。 仅 `UNIT-DEFER-01` 保留 2 项 DEFER 的关闭条件；其余历史 UNIT-HOST 问题与逐型号边界保留在证据/研究页 | 仅剩 2 项 DEFER；所有 implemented 均为限定 virtual-device 证据，物理 RF/光学/电气/声学/机械语义 NOT RUN；DEFER 关闭前不升 implemented |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频和摄像头虚拟设备边界明确 |
 

@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "scope": "Exact local 72-case qualification, production deployment, HTTPS static-byte readback and two actual HTTPS CoreS3 examples; hosted full gate NOT RERUN",
+  "status": "LOCAL_QUALIFICATION_DEPLOYMENT_HTTPS_SUBSET_PASS",
+  "validation": "virtual-device validation",
+  "executed_source_commit": "70ef503fc2fb8b2c787fa9065e2952f525c40099",
+  "site_manifest_sha256": "54fc8d8fe023ef0d86e3bfdea3d3db37599a2f59404c54fdb8920d466bd14a8c",
+  "public_profiles": 23,
+  "public_candidates": [],
+  "firmware_bundled": false,
+  "service_url_empty": true,
+  "assets_including_manifest": 2179,
+  "gate": {
+    "planned": 72,
+    "completed": 72,
+    "passed": 72,
+    "not_run": 0,
+    "workers": 1,
+    "lane_counts": {
+      "uiflow-editor": 23,
+      "uiflow-buttons": 23,
+      "cardputer-keyboard": 1,
+      "stackchan-body-touch": 1,
+      "fixed": 24
+    },
+    "checks": 2993,
+    "all_actual_child_exit_codes_zero": true,
+    "all_actual_child_report_hashes_match": true,
+    "child_reports_with_browser_version": 72,
+    "child_reports_without_browser_version": 3,
+    "child_version_report_denominator": 75
+  },
+  "browser": {
+    "version": "157.0.8103.52",
+    "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+    "before_after_identical": true,
+    "samples": 393,
+    "all_samples_match": true,
+    "current_bytes_still_match": true,
+    "maximum_sample_gap_seconds": 10.011
+  },
+  "separate_prerequisites": {
+    "stock_original_corematrix_guest": 1,
+    "pixel_host_controls": 5,
+    "coi_host_controls": 13,
+    "guest_case_reports_total": 73,
+    "all_child_reports_with_host_prerequisites": 75
+  },
+  "package": {
+    "sha256": "8c25e92e124fc0d323afd51b13c8ce05719e54167c1cbc5d1a3507eab28b9b98",
+    "bytes": 186574444,
+    "original_receipt_sha256": "1bd5133d739606d554a071f60f2d80c182eb3b6ee6cb8896a2c76522c6e768ab",
+    "browser_bound_receipt_sha256": "d3cde26fe22acef9eb950ffef63fe70be830a15d4b600e52bebdde81ee168a35",
+    "current_archive_bytes_recomputed": true
+  },
+  "runtime": {
+    "assets_unchanged_from_prior_published_bundle": 42,
+    "rebuilt": false,
+    "native_c6_gpio_patch_in_browser_wasm": false
+  },
+  "worklog_archive": {
+    "public_commit": "6f06108d3b68b35f679e3c37aebeac60972434fe",
+    "record": "https://github.com/m5agent/agent-work-logs/tree/6f06108d3b68b35f679e3c37aebeac60972434fe/records/esp-emulator/2026-11-14-uiflow-cloud-websocket/followups/2026-11-14-pages-qualification"
+  },
+  "audit_sha256": "8aea1d1bab137549a2c7d204ebbed813602829a96703a72c19d87f510de90a9b",
+  "evidence_sha256": {
+    "prepared": "4a6647d072da5e955669db4fa7ebddfb343a6d0cb28a87dbd81acc934f2dd69e",
+    "aggregate": "327a657f6a69050e726de0a09326eb10854f6afe2d94802be910ecd111e24b40",
+    "original_qualification": "16de63677c430c0593c08bcec230e9efe1c17be19bc72508b8e135e5cd99a2bc",
+    "chrome_bound_qualification": "49320970818e19690ec9dfc6a78811d19d4fcd2632436ee1002d79eb70b56e23",
+    "before": "393cb50e57d72305c58a7ca49cb7654e66ec3aa936be567799e4aed1c543db14",
+    "after": "393cb50e57d72305c58a7ca49cb7654e66ec3aa936be567799e4aed1c543db14",
+    "browser_monitor": "7bca3b4d8573c651b23937e346d6b8072b139bab08823e262500991ef0398349",
+    "independent_completed": "be82c8d6be453e2d2020333e92b1ae1904cdef118c4d4523da85256702ffbcc1",
+    "independent_fixed": "0480e604c9530b788fd57f8bbefa4ccf5f7cf95a134daba7d157c2b4697c62f8",
+    "independent_contracts": "a070aa0cca45cd9cdbcb38dfefe421127e8d8869171297042a56c7d87eeb0a80",
+    "independent_prerequisites": "b7dd49e57766b2e2740515d7688ab6fa84fe6607245929f039c6c3ac7dabe7cc"
+  },
+  "limits": [
+    "This is the local 72-case browser-WASM gate; no hosted full gate is inferred.",
+    "The three reports without their own browser version retain NOT_RECORDED; outer before/after and 393 executable samples are separate provenance.",
+    "The stock CoreMatrix before-iframe pthread fence remains NOT CAPTURED; post-iframe CDP cleanup is recorded.",
+    "Prior hosted FAIL/PARTIAL, abandoned source attempts and running keyboard checkpoint observer correction are retained.",
+    "The 42 WASM/runtime assets are unchanged; native C6 IRQ changes are not included.",
+    "Physical hardware and RF/electrical behavior NOT RUN.",
+    "The two HTTPS examples passed 83 checks through four cold/reopened lifecycle substeps; this does not close the hosted full gate.",
+    "The two HTTPS child reports retain their own browser version as NOT_RECORDED; 20 matching outer executable samples and before/after records are separate provenance.",
+    "HTTPS firmware/ROM hashes identify actual launch receipts; mutable Flash postrun readback NOT RUN."
+  ],
+  "delivery": {
+    "workflow_run_id": 43511659965,
+    "workflow_conclusion": "success",
+    "workflow_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43511659965",
+    "workflow_receipt_sha256": "557d254d1f457ee70ecab2d0660295eb5fea5a00bd11334a4f0ca5d0b3462a75",
+    "deployment_id": 7776988548,
+    "deployment_state": "success",
+    "deployment_receipt_sha256": "2e97f40bdfbe3fa055ff516ebde5bef638c02b20f1832d536efedd02a2d1db52",
+    "deployment_statuses_sha256": "d102b0ee11d22a3593589a24a633d28c5ac71cde918f0d75497bfa712f59cdc4",
+    "https_assets": {
+      "status": "PASS",
+      "files_verified": 2179,
+      "runtime_assets_verified": 42,
+      "total_expected_bytes": 304564570,
+      "original_readback_sha256": "fcfc1d2fa6e63fa0a5b1b5c3085c4134a5509b2a122fa47f6323eee8cd0a2b67",
+      "initial_or_retry_errors_retained": 0,
+      "assets_requiring_retry": 0,
+      "started_at": "2026-11-13T21:34:36.564343+00:00",
+      "finished_at": "2026-11-13T21:37:31.994459+00:00"
+    },
+    "guest_scope": "Two actual HTTPS CoreS3 examples only; not a hosted 72-case gate"
+  },
+  "https_subset": {
+    "status": "PASS",
+    "cases": 2,
+    "checks": 83,
+    "rows": [
+      {
+        "example": "stock-reference",
+        "status": "PASS",
+        "checks": 49,
+        "report_sha256": "dc86150121a378c4d0e74774cdb89e05bc57e847d01f76fe59b55f603d821846",
+        "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+        "wasm_sha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+        "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+        "raw_snapshots": 6,
+        "raw_frame_hashes": 6,
+        "guest_lifecycles": 2,
+        "cold_input_events": 6,
+        "reopened_input_events": 2,
+        "actual_touch_pir_serial": true,
+        "no_local_service_requests": true,
+        "normal_worker_cleanup": true,
+        "child_browser_version": "NOT_RECORDED"
+      },
+      {
+        "example": "wallclock-candidate",
+        "status": "PASS",
+        "checks": 34,
+        "report_sha256": "48e5b3ec6442ec03c18c7772753b82460918c7bc14c6af5ef827d692c1f06e4d",
+        "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+        "wasm_sha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+        "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+        "raw_snapshots": 4,
+        "raw_frame_hashes": 4,
+        "guest_lifecycles": 2,
+        "cold_input_events": 6,
+        "reopened_input_events": 0,
+        "actual_touch_pir_serial": true,
+        "no_local_service_requests": true,
+        "normal_worker_cleanup": true,
+        "child_browser_version": "NOT_RECORDED"
+      }
+    ],
+    "browser": {
+      "version": "157.0.8103.52",
+      "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+      "before_after_identical": true,
+      "samples": 20,
+      "all_samples_match": true,
+      "child_versions_not_recorded": 2
+    },
+    "process_cleanup": {
+      "recorded_terminal": "PASS",
+      "current_stage_node_guest_count": 0,
+      "current_headless_desktop_chrome_count": 0
+    },
+    "evidence_sha256": {
+      "original_summary": "a66ce9ba0a48284f14f5be603cb655ffbf99d1345709d3b7dc7c2e506f7b963c",
+      "outer_qualification": "f1f9e80fb5091c2b0b579772e230edf1dda75ffdc4e7ae05919aa48aa515ad99",
+      "before": "6c3a9fef343db79d6e1ee6e0361c6d806bebf5eecb4c294e8f0e4e5a38135ab8",
+      "after": "6c3a9fef343db79d6e1ee6e0361c6d806bebf5eecb4c294e8f0e4e5a38135ab8",
+      "monitor": "786617774b776271d0c398e1b0ad603e94a89f6c0ad0f25c0011e4ee8d7dfd44",
+      "terminal_cleanup": "2694cad9ba8765a468a5d7c2df86790a836f38140be00c9f3249594c3301bd94",
+      "workflow": "557d254d1f457ee70ecab2d0660295eb5fea5a00bd11334a4f0ca5d0b3462a75",
+      "auditor": "c67b917ac9a0fe328dfe5a5dd5e8fcb91d938836b4043dab15636d2bb9ec7449"
+    },
+    "independent_audit_sha256": "dc34bfaded237a34b7542689421c2dcb85ca02208210896e4dbe6bac3c9fa8f9",
+    "root_visual_review_sha256": "f736bf3e145a2fbb06abe97ee96bd5dd47414574fb4a50d539f5fe2597d77cd5"
+  }
+}

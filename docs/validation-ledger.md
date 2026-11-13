@@ -16,6 +16,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-14
 
+[Pages 发布与 HTTPS 限定验收](evidence/2026-11-14-pages-local-qualification/README.md)：实际源码 `70ef503f…`、manifest `54fc8d8f…` 的完整串行 72/72、2,993 checks 及全部子进程 exit 0；另有原版 CoreMatrix 1 guest 与 Canvas/COI 18 host controls。75 份子报告闭集分别保留，Chrome `157.0.8103.52` 前后及 393 次 executable SHA 采样一致。发布包 `8c25e92e…`、186,574,444 字节已复算，导出 2,179 文件；42 份既有 runtime 字节未变。Prepared 工作流 `43511659965` 与 deployment `7776988548` 已成功，正式 HTTPS 全部 2,179 文件/304,564,570 字节匹配，0 错误/重试。其后 HTTPS CoreS3 原参考示例 49/49、SDK 候选 34/34，实际触摸、PIR、10 份帧哈希和正常退出通过，20 次外层浏览器采样一致；两个子报告版本缺项仍为 NOT_RECORDED。两例各冷启/重开，共四次生命周期，不扩大用例基数。hosted 全量 NOT RERUN，旧 FAIL/PARTIAL 保留；原生 C6 GPIO 未进入 WASM。
+
+[最终 main 与原生用户路径后验](evidence/2026-11-14-native-identity-delivery/README.md)：源码 `70ef503f…`、C6 `69493c4e…` / Xtensa `5ce7d9f5…`，主分支与同提交 CI 已完成。指定工作台上 Nesso 原执行分区加同一 VFS 探针 `16255a35…` 两轮 32/32、22 次输入与一次重置、APP 字节和 ZIP 8 成员核验及清理通过；原版 CoreS3 `5847a2bc…` 的独立 195 秒 UI/身份 30/30、5,870 次 frame 304、运行错误零。Cloud 仍为 7 次文本心跳、6 次控制 PING/0 PONG、120.047286 秒后 guest-first FIN，持续连接 FAIL。Cloud ZIP 无 Flash 成员，不声称 postrun APP 分区读回；两条执行均非 browser-WASM 或物理硬件。
+
+[同一新 C6 的原版应用复验](evidence/2026-11-14-native-identity-delivery/README.md)：实际执行源码 `0e00cdcb…`，不改写为最终 service HEAD。Mesh A 合同观察 150 秒、8/8 加视觉通过，Bruce 观察 150 秒、6/6 加触摸/复位视觉通过，Honeypot 观察 180 秒、7/7 配置控制台通过但联网范围 PARTIAL；单独 Mesh B 观察 150 秒、5/6，选择观察断言未满足的原始 FAIL 保留。原版选择合同为 A 长/短，不能由不同 B 观察推导按键缺陷。四窗口原应用分区不变、取证后清理，首轮横竖屏观察器基础设施失败保留；不授 RF、Honeypot AP/HTTP、其它 Mesh 路径或 Pages 通过。
+
 [C6 修复后完整原生矩阵](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md)：执行源码 `0e00cdcb…`、C6 `69493c4e…`、Xtensa `5ce7d9f5…`，70/70、每例一次且零自动重试，全部原应用分区保持一致并清场。与候选 `014841a8…` 的 523 个相关源码文件字节相同，明确不冒充同一提交执行；原 Mesh/Bruce/Honeypot 应用、部署与浏览器独立验收。
 
 [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md)：新 runtime `69493c4e…` 与旧 `80d92a6c…` 在同 BIN、输入和 ROM 上对照。Nano IDF 旧 12/21、新 21/21；Nesso IDF 旧 14/26、新 26/26；原版 Nesso UIFlow `fcbd588f…` 保留执行分区并组合 VFS 探针为 `16255a35…`，可见 Device Service 的两轮/一次复位为旧 20/32、新 32/32，真实回调由零变为每轮六次。ZIP、执行分区 SHA、画面及清场独立核验；初次前置依赖失败保留。新增矩阵 case 16/16 和可移植 IDF runner 21/21 分别通过。不是未改全 BIN、物理中断时序、浏览器 WASM 或部署后验收。

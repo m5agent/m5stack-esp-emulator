@@ -1,7 +1,9 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对 `2026-11-10`。本页说明部署流程，当前能力以
+最近核对 `2026-11-14`。本页说明部署流程，当前能力以
 [项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
+
+2026-11-14，执行源码 `70ef503f…` 的固定导出通过本地完整串行门禁后，已由 prepared 工作流 `43511659965` 发布，deployment `7776988548` 为 success。正式 HTTPS 全部资产字节匹配，两个 CoreS3 示例的实际触摸、串口、帧与正常清理独立通过。[本轮交付证据](evidence/2026-11-14-pages-local-qualification/README.md)分开记录本地 72 例完整资格与 HTTPS 两例限定验收；hosted 全量未重跑。以下旧部署保留其当时身份。
 
 2026-11-10 11:25:02 UTC，主线 `7edc2d11` 通过 prepared 工作流发布，部署 ID `7680759420`。该版本公开准入 23 款浏览器设备，导出不打包固件。发布前同一产物已通过本地完整串行门禁。此前正式托管 Cardputer ADV 的失败独立保留。 [正式站点](https://m5agent.github.io/m5stack-esp-emulator/) · [发布包](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261110-7edc2d11) · [部署任务](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/42807204507)
 
@@ -339,6 +341,18 @@ PaperMono 的 Bayer 四灰和 PaperColor 的 QUALITY pair quantizer 都要按
 刷新用 guest 虚拟时间记录，不作为物理波形或墙钟性能。
 
 ## 部署记录与适用范围
+
+2026-11-14 的[本地完整资格](evidence/2026-11-14-pages-local-qualification/README.md)绑定
+源码 `70ef503fc2fb8b2c787fa9065e2952f525c40099`、manifest `54fc8d8f…`；
+完整 72/72 及 2,993 项检查通过，另有原版 CoreMatrix guest 与两个 host 前置控制。
+包 `8c25e92e…` 长 186,574,444 字节，对应含 manifest 的 2,179 文件导出。
+Chrome 前后及 393 次采样一致，原始缺版本字段仍保留 `NOT_RECORDED`。
+Prepared 工作流 `43511659965`、deployment `7776988548` 已成功，正式 HTTPS
+2,179 个资产/304,564,570 字节逐项匹配，0 错误/重试。随后两例实际 HTTPS
+CoreS3 原参考示例与 SDK 候选分别通过 49/49、34/34；触摸、PIR、原始帧与四次冷启/重开
+生命周期的正常退出通过，20 次外层 Chrome 采样一致，两个子报告版本缺项保留。
+历史 hosted 全门禁 FAIL/PARTIAL 没有被本地资格或线上两例 subset 覆盖，
+完整 hosted 门禁 NOT RERUN。42 份既有 runtime 资产未重建，原生 C6 GPIO 变更没有进入 WASM。
 
 2026-11-03 的 [prepared-preview 部署](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/41629045946)
 已成功，release `pages-performance-20261103-10788607` 绑定 main

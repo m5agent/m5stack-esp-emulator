@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "scope": "Final source delivery and bounded native evidence; no browser publication claim",
+  "status": "PARTIAL",
+  "final_main_commit": "70ef503fc2fb8b2c787fa9065e2952f525c40099",
+  "main_ci": {
+    "run_id": 43496500912,
+    "conclusion": "success",
+    "source_commit": "70ef503fc2fb8b2c787fa9065e2952f525c40099"
+  },
+  "runtime_sha256": {
+    "c6": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+    "xtensa": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c"
+  },
+  "native_gpio_postdelivery": {
+    "source_commit": "70ef503fc2fb8b2c787fa9065e2952f525c40099",
+    "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+    "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+    "original_firmware_sha256": "fcbd588fa92bcd24c8d4ba8fcd8837b8df64a6d5be72771e520c1ed84af88c7a",
+    "composed_firmware_sha256": "16255a35d2142a7f68363c79d3a083bab207e6c104b6a91d3563f8646889a3aa",
+    "app_partition_sha256": [
+      "4743d8b5e3cf234b064dc01566fa1cce9e44b545ea72992081a2628b937a6ba4"
+    ],
+    "original_application_partitions_unchanged": true,
+    "guest_checks_rederived": 32,
+    "rounds": 2,
+    "actual_inputs": 22,
+    "actual_reset_count": 1,
+    "manifest_files_verified": 8,
+    "frame": [
+      135,
+      240
+    ],
+    "green_result_pixels_verified_in_zip_and_frame": true,
+    "flash_released": true,
+    "lease_released": true,
+    "summary_sha256": "88a42291eb6e1e0b911165afa1b6ea0414939210d466184c932a1cdd277fd5ea",
+    "evidence_zip_sha256": "072bea7113a79a323b4ad24d1ca4718a75c95cd6924ce142c89532cdb0095f33"
+  },
+  "cloud_postdelivery": {
+    "source_commit": "70ef503fc2fb8b2c787fa9065e2952f525c40099",
+    "site_manifest_sha256": "c9a3b79f45fdfeac7a4a8eb1eda1b521bea7a35a9da5538b1e35f52199cb0ca8",
+    "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+    "original_firmware_sha256": "5847a2bcae33d6bb8942de1c3ae92295a8441b6a3424c78e444fc748c9508ded",
+    "normalized_firmware_sha256": "480ca4a24c1c1b56deef1218f8533bf5b00c9e33a98f3b3f705e2569b53051c0",
+    "ui_and_identity": "PASS",
+    "cloud_sustained": "FAIL",
+    "mutable_app_partition_readback": "NOT CAPTURED: this ZIP has no Flash member; no post-run application-byte readback claim",
+    "manifest_files_verified": 10,
+    "authorized_request_receipt_efuse_ethernet_and_ws_identity_match": true,
+    "actual_nic_argv_and_efuse_drive_attachment": "Live helper checked; raw argv not retained for independent post-stop recomputation",
+    "identity_rejections": 0,
+    "text_heartbeat_roundtrips": 7,
+    "control_ping": 6,
+    "control_pong": 0,
+    "guest_first_fin": 1,
+    "server_first_fin": 0,
+    "first_control_ping_to_guest_fin_seconds": 120.047286,
+    "serial_exact_no_pong_120s_count": 1,
+    "browser_observation": {
+      "samples": 102,
+      "last_seconds": 202.8,
+      "first_handshake_seconds": 6,
+      "first_disconnect_seconds": 156.6,
+      "second_handshake_seconds": 160.6
+    },
+    "runtime_frame_304": 5870,
+    "runtime_http_errors": 0,
+    "runtime_network_errors": 0,
+    "browser": {
+      "executable_sha256": "5441ca699b9eff7763f2f10765e2e8409a4b05f38917826b5247f6f6bb3b0c6b",
+      "version": "157.0.8103.52"
+    },
+    "flash_released": true,
+    "lease_released": true,
+    "evidence_zip_sha256": "53b154de9ef8b89c7029a681b9835f8bc9d8ef22f24ce737244a3007acd7a5c2",
+    "summary_sha256": "30b8419e985041afa22cfb3a5ea2d27b07304565c7c2c3a43212a7c5f73993f7"
+  },
+  "native_matrix": {
+    "executed_source_commit": "0e00cdcbc99a8210af6485df1bcfd04a514bc8a1",
+    "integration_candidate_commit": "014841a8fe082cf8aaaa57de898e0ac0f665aedf",
+    "cases": 70,
+    "attempts_each": 1,
+    "retries": 0,
+    "runtime_case_counts": {
+      "xtensa": 64,
+      "c6": 6
+    },
+    "all_application_partitions_unchanged": true,
+    "executed_and_final_identical_files": 523,
+    "aggregate_sha256": "86720bcd58037e70b71b22a296d25ab308e80889696b4f7b079cdeb14967c42f",
+    "raw_summary_sha256": "86e6654904be9b63ac0198db2861620d9bea7e1f3a0266ca6fef59a14ed8de4b",
+    "limits": [
+      "Offline review; no new guest or service call by reviewer",
+      "523 source files match final candidate; actual matrix source HEAD remains distinct",
+      "Device Service source differs; native matrix does not qualify final service deployment",
+      "Original application non-regression, hosted browser-WASM and physical hardware are separate gates",
+      "Raw aggregate exceeds public evidence size budget; only this bounded audit summary is prepared for publication",
+      "Legacy per-case QMP input and QOM command records are not uniformly JSON traces; recorded argv/stdout and guest outputs provide their existing evidence boundary"
+    ]
+  },
+  "original_applications": {
+    "actual_executed_source_commit": "0e00cdcbc99a8210af6485df1bcfd04a514bc8a1",
+    "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+    "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+    "status": "PARTIAL",
+    "runs": [
+      {
+        "case": "meshtastic_a_positive",
+        "result_with_visual_review": "PASS",
+        "controls_passed": 8,
+        "controls_total": 8,
+        "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+        "normalized_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+        "observed_seconds": 150.1216948328074,
+        "limits": [
+          "No region selection commit or LoRa transmission claimed",
+          "A later black frame was observed without added wake input; one boot and no fatal marker across the window",
+          "Queued virtual 1200/450 ms holds are not host wall-clock press durations",
+          "Separate B selection FAIL is retained and is not converted into a PASS"
+        ],
+        "original_summary": {
+          "sha256": "fb6c600aed4c9545ed7604817056b0c9763dbdb193f53318e5d3deca3cce7750",
+          "bytes": 14835
+        }
+      },
+      {
+        "case": "bruce_touch_reset",
+        "result_with_visual_review": "PASS",
+        "controls_passed": 6,
+        "controls_total": 6,
+        "original_firmware_sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+        "normalized_firmware_sha256": "489472798deb5cb6424bb83a25921507742bc308c92fed8e66121f3177bcb940",
+        "observed_seconds": 150.11301383306272,
+        "limits": [
+          "No WiFi, attack, or RF operation claimed"
+        ],
+        "original_summary": {
+          "sha256": "c171e06dd792c2dfece8e2d5c1b158447cdae4d8fdfbd8567acd91299d2f08fd",
+          "bytes": 6850
+        }
+      },
+      {
+        "case": "honeypot_configuration_console",
+        "result_with_visual_review": "PARTIAL",
+        "controls_passed": 7,
+        "controls_total": 7,
+        "original_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "normalized_firmware_sha256": "4184ffc6b56f1742a926845d782f3b65c37246490cc6d3e1bfa067bff7b0c381",
+        "observed_seconds": 180.08409829204902,
+        "limits": [
+          "Configuration console path only",
+          "AP association, HTTP data plane and physical RF NOT RUN"
+        ],
+        "original_summary": {
+          "sha256": "e3c27ba26104c5a41e12fdb5b3f67804ba9e0724b829ad192866052b62347fd8",
+          "bytes": 3891
+        }
+      },
+      {
+        "case": "meshtastic_b_selection_negative_observation",
+        "result_with_visual_review": "FAIL",
+        "controls_passed": 5,
+        "controls_total": 6,
+        "original_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+        "normalized_firmware_sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+        "observed_seconds": 150.07236350001767,
+        "limits": [
+          "Selection assertion input_changed_frame remains FAIL",
+          "Does not establish a firmware bug or emulator bug",
+          "A-key positive test uses a separate session and does not replace this result"
+        ],
+        "original_summary": {
+          "sha256": "ba983869d53c8687afad265d42aacdad3ab13c1a39e04acf9012a6cac254f1ab",
+          "bytes": 11583
+        }
+      }
+    ],
+    "first_observer_failure_preserved": true,
+    "mesh_input_contract_boundary": "Actual selection contract uses A long/short; B did not satisfy a separate selection observation oracle. Retained raw B FAIL is not evidence of a product key defect."
+  },
+  "source_boundaries": [
+    "Native matrix and original-app executions remain bound to 0e00cdcb; final service postdelivery is bound to70ef503f",
+    "523 relevant matrix Git blobs match014841a8;014-to70ef is documentation-only",
+    "Native GPIO changes are not inherited by existing browser WASM assets"
+  ],
+  "not_run": [
+    "Physical hardware",
+    "Honeypot AP association and HTTP data plane",
+    "Remote WebREPL code execution",
+    "Burner submission"
+  ],
+  "separate_gate": "Pages results and delivery require their own finalized export and hosted evidence; not established here",
+  "worklog_archive": {
+    "public_commit": "02ecde371901c8f97d5746eaab0ee7182b56cf5c",
+    "c6_record": "https://github.com/m5agent/agent-work-logs/tree/02ecde371901c8f97d5746eaab0ee7182b56cf5c/records/esp-emulator/2026-11-14-c6-gpio-irq",
+    "cloud_followup": "https://github.com/m5agent/agent-work-logs/tree/02ecde371901c8f97d5746eaab0ee7182b56cf5c/records/esp-emulator/2026-11-14-uiflow-cloud-websocket/followups/2026-11-14-identity-capability"
+  },
+  "raw_receipt_sha256": {
+    "c6_postdelivery_audit": "6ce225bc5663025e0428db377dfd86a03e2fa7e8423e0f72cc7122f5b9d5d8c9",
+    "cloud_postdelivery_audit": "967a5cb6de7cf55eb1e1d848fc7f19dfb0748dd0c2a2b2278ec973275e37ab27",
+    "native70_audit": "d4a8c97f9f64193d20420ea9ecd328dc0363f3e0bb8c5928a0b0f098ab4c4482",
+    "original_applications_aggregate": "c4b4dd839fd22e1da936be36859d2888630e93f5d40f4cbc154902ee7a92c13d"
+  }
+}
