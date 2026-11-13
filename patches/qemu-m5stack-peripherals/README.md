@@ -1529,3 +1529,19 @@ patch selection.
 counter helper, compare interrupt callback and unchanged reset function with
 fixed deadline oracles. Original application, peripheral matrix and deployment
 acceptance remain distinct from these host controls.
+
+## Classic BLE sampled slot clock (0198)
+
+`0198-classic-ble-clock-snapshot.patch` replaces the BLE clock alias with a
+27-bit 625 microsecond slot counter and a 624-to-0 microsecond fine count.
+Writing SAMP takes one coherent snapshot; reads retain both values until the
+next sample. The hardware-visible busy bit clears synchronously, count fields
+ignore writes, and the peripheral reset clears the latch and clock epoch.
+The separate legacy BR/EDR clock behavior is unchanged.
+
+The [clock fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_ble_clock_snapshot.py)
+executes the real MMIO implementation under qtest across phase boundaries,
+snapshot retention, byte/halfword accesses, wrap and reset, with an old-runtime
+negative control. Sources and original firmware progress are recorded in the
+fixture README. This does not implement the remaining BR/EDR low-power state
+machine, radio timing or Bluetooth HID; application readiness is independent.

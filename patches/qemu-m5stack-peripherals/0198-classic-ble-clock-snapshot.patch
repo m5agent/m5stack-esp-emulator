@@ -1,0 +1,219 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index dfc110e..f628313 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -76,68 +76,107 @@ static const struct MemmapEntry {
+     [ESP32_MEMREGION_RTCFAST_I] = { 0x400C0000, 0x2000 },
+     [ESP32_MEMREGION_RTCFAST_D] = { 0x3ff80000, 0x2000 },
+     [ESP32_MEMREGION_BT] = { 0x3ff70000, 0x10000 },
+     /* Virtual Framebuffer, used for the graphical interface */
+     [ESP32_MEMREGION_FRAMEBUF] = { 0x20000000, ESP_RGB_MAX_VRAM_SIZE }
+ };
+ 
+ 
+ #define ESP32_SOC_RESET_PROCPU    0x1
+ #define ESP32_SOC_RESET_APPCPU    0x2
+ #define ESP32_SOC_RESET_PERIPH    0x4
+ #define ESP32_SOC_RESET_DIG       (ESP32_SOC_RESET_PROCPU | ESP32_SOC_RESET_APPCPU | ESP32_SOC_RESET_PERIPH)
+ #define ESP32_SOC_RESET_RTC       0x8
+ #define ESP32_SOC_RESET_ALL       (ESP32_SOC_RESET_RTC | ESP32_SOC_RESET_DIG)
+ 
+-typedef struct {
++#define ESP32_BLE_BASE_TIME_REG  0x21c
++#define ESP32_BLE_FINE_TIME_REG  0x220
++#define ESP32_BLE_TIME_SAMPLE    (1U << 31)
++#define ESP32_BLE_BASE_TIME_MASK ((1U << 27) - 1)
++#define ESP32_BLE_SLOT_US        625
++
++struct Esp32BtState {
+     MemoryRegion iomem;
+     uint32_t regs[0x1000 / sizeof(uint32_t)];
+-} Esp32BtState;
++    uint64_t ble_clock_epoch_us;
++};
++
++static void esp32_ble_sample_time(Esp32BtState *s, uint64_t now_us)
++{
++    uint64_t elapsed_us = now_us - s->ble_clock_epoch_us;
++
++    /* One sample captures both parts of the BLE slot clock. The fine count
++     * is the remaining microsecond ticks within the current slot. */
++    s->regs[ESP32_BLE_BASE_TIME_REG / 4] =
++        (elapsed_us / ESP32_BLE_SLOT_US) & ESP32_BLE_BASE_TIME_MASK;
++    s->regs[ESP32_BLE_FINE_TIME_REG / 4] =
++        ESP32_BLE_SLOT_US - 1 - elapsed_us % ESP32_BLE_SLOT_US;
++}
++
++static void esp32_ble_reset_time(Esp32BtState *s)
++{
++    s->ble_clock_epoch_us = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++    s->regs[ESP32_BLE_BASE_TIME_REG / 4] = 0;
++    s->regs[ESP32_BLE_FINE_TIME_REG / 4] = 0;
++}
+ 
+ static uint64_t esp32_bt_read(void *opaque, hwaddr offset, unsigned size)
+ {
+     Esp32BtState *s = opaque;
+ 
+     if ((offset == 0x000 || offset == 0x200) && size == 4) {
+         return s->regs[offset / sizeof(uint32_t)] & 0x3fffffff;
+     }
++    if (offset >= ESP32_BLE_BASE_TIME_REG &&
++        offset < ESP32_BLE_FINE_TIME_REG + sizeof(uint32_t)) {
++        return s->regs[offset / sizeof(uint32_t)] >> ((offset & 3) * 8);
++    }
+     if ((offset & 0xff) == 0x01c && size == 4) {
+         /*
+          * The Bluetooth ROM clock helper requests a sample by setting the
+          * busy bit, then polls until hardware clears it.  Model that request
+          * as immediate and return the low half of a free-running microsecond
+          * counter in the remaining bits.
+          */
+         return ((uint64_t)qemu_clock_get_us(QEMU_CLOCK_VIRTUAL)) &
+                0x7fffffff;
+     }
+     return s->regs[offset / sizeof(uint32_t)];
+ }
+ 
+ static void esp32_bt_write(void *opaque, hwaddr offset, uint64_t value,
+                            unsigned size)
+ {
+     Esp32BtState *s = opaque;
+ 
+     if ((offset == 0x000 || offset == 0x200) && size == 4) {
+         s->regs[offset / sizeof(uint32_t)] =
+             (uint32_t)value & 0x3fffffff;
+         if (offset == 0x000) {
+             s->regs[0] |= 1U << 9;
+         }
+         return;
+     }
++    if (offset >= ESP32_BLE_BASE_TIME_REG &&
++        offset < ESP32_BLE_FINE_TIME_REG + sizeof(uint32_t)) {
++        if (offset == ESP32_BLE_BASE_TIME_REG && size == sizeof(uint32_t) &&
++            (value & ESP32_BLE_TIME_SAMPLE)) {
++            /* Virtual sampling finishes synchronously, so bit 31 reads 0. */
++            esp32_ble_sample_time(s, qemu_clock_get_us(QEMU_CLOCK_VIRTUAL));
++        }
++        return;
++    }
+     if ((offset & 0xff) == 0x01c && size == 4) {
+         s->regs[offset / sizeof(uint32_t)] = (uint32_t)value & 0x7fffffff;
+         return;
+     }
+     if (offset == 0x00c && size == 4) {
+         s->regs[offset / sizeof(uint32_t)] =
+             ((uint32_t)value & ~(1U << 9)) | (1U << 9);
+         return;
+     }
+     s->regs[offset / sizeof(uint32_t)] = (uint32_t)value;
+ }
+ 
+ static const MemoryRegionOps esp32_bt_ops = {
+     .read = esp32_bt_read,
+     .write = esp32_bt_write,
+@@ -216,30 +255,31 @@ static void esp32_soc_reset(DeviceState *dev)
+ {
+     Esp32SocState *s = ESP32_SOC(dev);
+ 
+     uint32_t strap_mode = s->gpio.strap_mode;
+ 
+     bool flash_boot_mode = ((strap_mode & 0x10) || (strap_mode & 0x1f) == 0x0c);
+     qemu_set_irq(qdev_get_gpio_in_named(DEVICE(&s->flash_enc), ESP32_FLASH_ENCRYPTION_DL_MODE_GPIO, 0), !flash_boot_mode);
+ 
+     if (s->requested_reset == 0) {
+         s->requested_reset = ESP32_SOC_RESET_ALL;
+     }
+     if (s->requested_reset & ESP32_SOC_RESET_RTC) {
+         device_cold_reset(DEVICE(&s->rtc_cntl));
+     }
+     if (s->requested_reset & ESP32_SOC_RESET_PERIPH) {
++        esp32_ble_reset_time(s->bt_state);
+         device_cold_reset(DEVICE(&s->dport));
+         device_cold_reset(DEVICE(&s->intmatrix));
+         device_cold_reset(DEVICE(&s->aes));
+         device_cold_reset(DEVICE(&s->rsa));
+         device_cold_reset(DEVICE(&s->gpio));
+         for (int i = 0; i < ESP32_UART_COUNT; ++i) {
+             device_cold_reset(DEVICE(&s->uart[i]));
+         }
+         for (int i = 0; i < ESP32_FRC_COUNT; ++i) {
+             device_cold_reset(DEVICE(&s->frc_timer[i]));
+         }
+         for (int i = 0; i < ESP32_TIMG_COUNT; ++i) {
+             device_cold_reset(DEVICE(&s->timg[i]));
+         }
+         s->timg[0].flash_boot_mode = flash_boot_mode;
+@@ -426,30 +466,31 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+     /* RTC Fast memory is only accessible by the PRO CPU */
+ 
+     memory_region_init_ram(rtcfast_i, NULL, "esp32.rtcfast_i",
+                            memmap[ESP32_MEMREGION_RTCSLOW].size, &error_fatal);
+     memory_region_add_subregion(&s->cpu_specific_mem[0], memmap[ESP32_MEMREGION_RTCFAST_I].base, rtcfast_i);
+ 
+     memory_region_init_alias(rtcfast_d, NULL, "esp32.rtcfast_d", rtcfast_i, 0, memmap[ESP32_MEMREGION_RTCFAST_D].size);
+     memory_region_add_subregion(&s->cpu_specific_mem[0], memmap[ESP32_MEMREGION_RTCFAST_D].base, rtcfast_d);
+ 
+     memory_region_init_ram(bt_ram_low, NULL, "esp32.bt.ram.low",
+                            0x1000, &error_fatal);
+     memory_region_add_subregion(sys_mem, memmap[ESP32_MEMREGION_BT].base,
+                                 bt_ram_low);
+ 
+     bt_state = g_new0(Esp32BtState, 1);
++    s->bt_state = bt_state;
+     /* BT core identification checked by the classic ESP32 ROM. */
+     bt_state->regs[0x004 / sizeof(uint32_t)] = 0x08000b00;
+     bt_state->regs[0x00c / sizeof(uint32_t)] = 1U << 9;
+     bt_state->regs[0x204 / sizeof(uint32_t)] = 0x08000900;
+     /* Fine timer-mask ready bit polled by ea_prog_timer(). */
+     bt_state->regs[0x000 / sizeof(uint32_t)] = 1U << 9;
+     memory_region_init_io(&bt_state->iomem, NULL, &esp32_bt_ops, bt_state,
+                           "esp32.bt.regs", 0x1000);
+     memory_region_add_subregion(sys_mem,
+                                 memmap[ESP32_MEMREGION_BT].base + 0x1000,
+                                 &bt_state->iomem);
+ 
+     memory_region_init_ram(bt_ram_high, NULL, "esp32.bt.ram.high",
+                            memmap[ESP32_MEMREGION_BT].size - 0x2000,
+                            &error_fatal);
+diff --git a/include/hw/xtensa/esp32.h b/include/hw/xtensa/esp32.h
+index c0f8d47..13f9c53 100644
+--- a/include/hw/xtensa/esp32.h
++++ b/include/hw/xtensa/esp32.h
+@@ -18,33 +18,36 @@
+ #include "hw/misc/esp32_phya.h"
+ #include "hw/misc/esp32_unknown.h"
+ #include "hw/misc/esp32_wifi.h"
+ #include "hw/timer/esp32_frc_timer.h"
+ #include "hw/timer/esp32_timg.h"
+ #include "hw/misc/esp32_crosscore_int.h"
+ #include "hw/ssi/esp32_spi.h"
+ #include "hw/i2c/esp32_i2c.h"
+ #include "hw/nvram/esp32_efuse.h"
+ #include "hw/xtensa/esp32_intc.h"
+ #include "hw/misc/esp32_flash_enc.h"
+ #include "hw/net/can/esp32_twai.h"
+ #include "hw/sd/dwc_sdmmc.h"
+ #include "hw/display/esp_rgb.h"
+ 
++typedef struct Esp32BtState Esp32BtState;
++
+ typedef struct Esp32SocState {
+     /*< private >*/
+     DeviceState parent_obj;
++    Esp32BtState *bt_state;
+ 
+     /*< public >*/
+     XtensaCPU cpu[ESP32_CPU_COUNT];
+     Esp32DportState dport;
+     Esp32IntMatrixState intmatrix;
+     Esp32CrosscoreInt crosscore_int;
+     Esp32TWAIState twai;
+     ESP32UARTState uart[ESP32_UART_COUNT];
+     Esp32GpioState gpio;
+     Esp32RngState rng;
+     Esp32RtcCntlState rtc_cntl;
+     Esp32FrcTimerState frc_timer[ESP32_FRC_COUNT];
+     Esp32TimgState timg[ESP32_TIMG_COUNT];
+     Esp32SpiState spi[ESP32_SPI_COUNT];
+     Esp32I2CState i2c[ESP32_I2C_COUNT];
