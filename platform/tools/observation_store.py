@@ -19,7 +19,7 @@ SESSION_FIELDS = frozenset({
     "session_id", "device_id", "state", "created_at", "completed_at", "firmware_id",
     "firmware_sha256", "runtime", "units", "display", "serial_bytes", "last_frame_available",
     "last_frame_captured_at", "device_state_supported", "management_binding", "purged",
-    "interrupted", "restored",
+    "interrupted", "restored", "serial_channels",
 })
 
 
@@ -28,6 +28,14 @@ def display_projection(value: dict) -> dict:
     result = {key: value[key] for key in SESSION_FIELDS if key in value}
     result["purged"] = bool(result.get("purged", False))
     result["serial_bytes"] = max(0, int(result.get("serial_bytes", 0)))
+    if "serial_channels" in value:
+        result["serial_channels"] = [
+            {"channel": item["channel"], "transport": item["transport"],
+             "bytes": max(0, int(item.get("bytes", 0)))}
+            for item in value["serial_channels"] if isinstance(item, dict)
+            and item.get("channel") in {"console", "usb-serial-jtag"}
+            and item.get("transport") in {"console", "usb-serial-jtag"}
+        ]
     result["units"] = [
         {key: unit[key] for key in ("id", "unit_id", "port_id", "visual_port", "parent_id") if key in unit}
         for unit in value.get("units", []) if isinstance(unit, dict)

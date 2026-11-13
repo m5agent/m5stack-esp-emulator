@@ -3510,6 +3510,7 @@ class DeviceSession:
                     and self.virtual_flash.is_file()
                 ),
                 "serial_bytes": serial_size,
+                "serial_channels": self.serial_channels(),
                 "created_at": self.created_at,
                 "expires_at": datetime.fromtimestamp(
                     self.expires_at, timezone.utc
@@ -6137,12 +6138,42 @@ class DeviceSession:
             serial_markers=found_markers,
         )
 
-    def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
+    def serial_channels(self) -> list[dict]:
+        """Advertise retained streams, without treating the console as UART0."""
+        if not DeviceSession._runtime_permission_allowed(self, "serial.read"):
+            return []
+        profile = (self.network_config or {}).get("profile")
+        console_transport = ("usb-serial-jtag" if profile in {
+            NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE,
+        } else "console")
+        streams = [("console", console_transport, self.serial0)]
+        usb = self.dir / USB_SERIAL_JTAG_LOG_NAME
+        # A separate capture is advertised only once the launcher has created
+        # its file. HCI profiles already use USB as their default console.
+        if console_transport != "usb-serial-jtag" and usb.is_file():
+            streams.append(("usb-serial-jtag", "usb-serial-jtag", usb))
+        result = []
+        for channel, transport, path in streams:
+            try:
+                size = path.stat().st_size
+            except FileNotFoundError:
+                size = 0
+            result.append({"channel": channel, "transport": transport, "bytes": size})
+        return result
+
+    def serial_read(self, offset: int = 0, limit: int = 65536, *, channel: str = "console") -> dict:
         DeviceSession._require_runtime_permission(self, "serial.read")
+        if channel not in {"console", "usb-serial-jtag"}:
+            raise ServiceError("invalid_serial_channel", "unknown serial channel", 400)
+        if channel == "usb-serial-jtag" and not any(
+            item["channel"] == channel for item in self.serial_channels()
+        ):
+            raise ServiceError("serial_channel_unavailable", "separate USB Serial/JTAG capture is unavailable", 409)
+        path = self.serial0 if channel == "console" else self.dir / USB_SERIAL_JTAG_LOG_NAME
         limit = min(max(int(limit), 1), MAX_SERIAL_READ)
         with self._lock:
             try:
-                with self.serial0.open("rb") as stream:
+                with path.open("rb") as stream:
                     size = stream.seek(0, os.SEEK_END)
                     offset = min(max(int(offset), 0), size)
                     stream.seek(offset)
@@ -6150,6 +6181,7 @@ class DeviceSession:
             except FileNotFoundError:
                 return {
                     "session_id": self.id,
+                    "channel": channel,
                     "offset": offset,
                     "next_offset": offset,
                     "data": "",
@@ -6157,6 +6189,7 @@ class DeviceSession:
                 }
         return {
             "session_id": self.id,
+            "channel": channel,
             "offset": offset,
             "next_offset": offset + len(chunk),
             "data": chunk.decode("utf-8", errors="replace"),
@@ -10775,7 +10808,7 @@ class DeviceService:
                 "completed_at": session.completed_at, "firmware_id": session.firmware_id,
                 "firmware_sha256": session.firmware_sha, "runtime": session.runtime,
                 "units": session.units, "display": session.spec.display,
-                "serial_bytes": serial_bytes, "last_frame_available": session.last_frame_path.is_file() and not purged,
+                "serial_bytes": serial_bytes, "serial_channels": session.serial_channels(), "last_frame_available": session.last_frame_path.is_file() and not purged,
                 "last_frame_captured_at": frame_meta.get("captured_at") if isinstance(frame_meta, dict) else None,
                 "device_state_supported": bool(session.runtime in QEMU_QMP_RUNTIMES and session.spec.state_probes),
                 **({"management_binding": dict(session.management_binding)} if session.management_binding is not None else {}),

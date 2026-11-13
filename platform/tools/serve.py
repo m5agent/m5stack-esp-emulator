@@ -791,7 +791,8 @@ class Handler(SimpleHTTPRequestHandler):
                 session = service.get_session(parts[1])
                 offset = int(query.get("offset", ["0"])[0])
                 limit = int(query.get("limit", ["65536"])[0])
-                response = session.serial_read(offset=offset, limit=limit)
+                response = session.serial_read(offset=offset, limit=limit,
+                                               channel=query.get("channel", ["console"])[0])
             elif (
                 method == "GET"
                 and len(parts) == 3

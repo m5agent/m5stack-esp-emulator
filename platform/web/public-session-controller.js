@@ -1,3 +1,4 @@
+import {SerialChannelState} from './serial-channel-state.js';
 import { createUnitPanel } from './unit-panel.js';
 import {validateQemuServoOutputProfile, validateQemuServoState} from './public-qemu-servo.js';
 import {Sha256} from './sha256.js';
@@ -20,9 +21,9 @@ const PRECREATE_REJECTIONS = {
 
 /** Owns only the session it creates, never another user's Live session. */
 export class PublicSessionController {
-  constructor({service, shell = null, unitContainer = null, onSerial = () => {}, onState = () => {}, onError = () => {}, onFrame = () => {}, onDeviceState = () => {}, onOutputState = () => {}, outputProfile = null, pollIntervalMs = 350, frameIntervalMs = 33, outputIntervalMs = 50,
+  constructor({service, shell = null, unitContainer = null, onSerial = () => {}, onSerialView = () => {}, onState = () => {}, onError = () => {}, onFrame = () => {}, onDeviceState = () => {}, onOutputState = () => {}, outputProfile = null, pollIntervalMs = 350, frameIntervalMs = 33, outputIntervalMs = 50,
     createKey = () => `public-${globalThis.crypto.randomUUID()}`, createTimeoutMs = 30000, stopConfirmAttempts = 30, stopPollIntervalMs = 350, stopRequestTimeoutMs = 10000, onManagedStop = null}) {
-    Object.assign(this, {service, shell, unitContainer, onSerial, onState, onError, onFrame, onDeviceState, onOutputState, pollIntervalMs, frameIntervalMs, outputIntervalMs,
+    Object.assign(this, {service, shell, unitContainer, onSerial, onSerialView, onState, onError, onFrame, onDeviceState, onOutputState, pollIntervalMs, frameIntervalMs, outputIntervalMs,
       createKey, createTimeoutMs, stopConfirmAttempts, stopPollIntervalMs, stopRequestTimeoutMs});
     if (outputProfile) {
       validateQemuServoOutputProfile(outputProfile);
@@ -68,7 +69,7 @@ export class PublicSessionController {
     this.generation++; this.current = structuredClone(session); this.owned = owned;
     this.previewClient = previewClient; this.managedStop = stop;
     this.pendingManagedStop = null;
-    this.serialOffset = 0; this.frameReady = false; this.frameSequence = 0; this.etag = null;
+    this.serialOffset = 0; this.serialChannels = new SerialChannelState(session.session_id); this.serialChannels.update(session); this.frameReady = false; this.frameSequence = 0; this.etag = null;
     this.frameContextKey = null; this.pollAbort = new AbortController();
     const generation = this.generation, id = session.session_id;
     if (this.unitContainer && session.units?.length) {
@@ -117,6 +118,7 @@ export class PublicSessionController {
       // Keep ownership until DELETE succeeds, including a late create whose
       // cancellation cleanup fails. A later stop can retry the same identity.
       this.current = session;
+      this.serialChannels = new SerialChannelState(session.session_id); this.serialChannels.update(session);
       if (generation !== this.generation || this.disposed || signal?.aborted) {
         await this.stopOwnedSession(session);
         throw abortError();
@@ -164,10 +166,17 @@ export class PublicSessionController {
     } finally {clearTimeout(timer);}
   }
 
+  selectSerialChannel(channel) {
+    const view = this.serialChannels.select(channel);
+    this.serialOffset = view.bytes;
+    this.onSerialView(view);
+  }
+
   async poll(generation, id) {
     if (!this.matches(generation, id) || this.metadataFlight?.generation === generation) return;
     const flight = this.metadataFlight = {generation};
     const signal = this.pollAbort.signal;
+    let serialRequest = null;
     try {
       const session = await this.service.session(id, {signal});
       if (!this.matches(generation, id)) return;
@@ -179,14 +188,20 @@ export class PublicSessionController {
       this.previewClient?.updateSession(session);
       this.unitPanel?.updateSession(session);
       this.onState({status: session.state, sessionId: id, session, frameReady: this.frameReady});
-      const serial = await this.service.serial(id, this.serialOffset, {signal});
+      this.serialChannels.update(session);
+      this.onSerialView(this.serialChannels.view());
+      const request = serialRequest = this.serialChannels.request();
+      if (!request) return;
+      const serial = await this.service.serial(id, request.offset, {signal, channel: request.channel});
       if (!this.matches(generation, id)) return;
-      if (!Number.isSafeInteger(serial.next_offset) || typeof serial.data !== 'string') throw new Error('串口收据无效。');
-      if (serial.next_offset < this.serialOffset) this.onSerial('\n[串口已重置]\n');
-      this.serialOffset = serial.next_offset;
-      if (serial.data) this.onSerial(serial.data);
+      const accepted = this.serialChannels.accept(request, serial);
+      if (!accepted) return;
+      this.serialOffset = accepted.bytes;
+      if (accepted.reset) this.onSerial('\n[串口已重置]\n');
+      if (accepted.data) this.onSerial(accepted.data);
+      this.onSerialView(accepted);
     } catch (error) {
-      if (this.matches(generation, id) && error.name !== 'AbortError') this.onError(error);
+      if (this.matches(generation, id) && (!serialRequest || this.serialChannels.matches(serialRequest)) && error.name !== 'AbortError') this.onError(error);
     } finally {
       if (this.metadataFlight === flight) this.metadataFlight = null;
       if (this.matches(generation, id) && ACTIVE.has(this.current.state)) this.timer = setTimeout(() => void this.poll(generation, id), this.pollIntervalMs);

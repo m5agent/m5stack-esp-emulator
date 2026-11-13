@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.60.0
+  version: 1.61.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1997,8 +1997,9 @@ paths:
         "200":
           description: >-
             Evidence ZIP. The serial selection can include
-            usb-serial-jtag.log for opted-in native StickS3 sessions with
-            serial.read permission. UART0 remains in serial.log.
+            usb-serial-jtag.log when a separate native USB capture is present
+            and serial.read is allowed. serial.log remains the profile-defined
+            default console; C6 HCI profiles already route USB there.
           content:
             application/zip:
               schema:
@@ -2178,6 +2179,16 @@ paths:
       summary: Read serial output incrementally
       parameters:
         - $ref: "#/components/parameters/SessionId"
+        - name: channel
+          in: query
+          description: >
+            console preserves the primary log; it is not necessarily UART0.
+            usb-serial-jtag selects a separate retained USB capture when listed
+            in serial_channels. No streams are concatenated.
+          schema:
+            type: string
+            enum: [console, usb-serial-jtag]
+            default: console
         - name: offset
           in: query
           schema:
@@ -2198,6 +2209,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerialChunk"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
         "403":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/logs:
@@ -2578,6 +2593,9 @@ components:
               visual_port: {type: [string, 'null']}
               parent_id: {type: string}
         display: {type: [object, 'null']}
+        serial_channels:
+          type: array
+          items: {$ref: "#/components/schemas/SerialChannel"}
         serial_bytes: {type: integer, minimum: 0}
         last_frame_available: {type: boolean}
         last_frame_captured_at: {type: [string, 'null'], format: date-time}
@@ -5029,6 +5047,10 @@ components:
           description: >
             True while the session-private virtual flash file exists. It is
             released when a session stops unless retain_flash is requested.
+        serial_channels:
+          type: array
+          description: Readable retained streams; empty when serial.read is denied.
+          items: {$ref: "#/components/schemas/SerialChannel"}
         serial_bytes:
           type: integer
         created_at:
@@ -5129,12 +5151,23 @@ components:
         require_all:
           type: boolean
           default: true
+    SerialChannel:
+      type: object
+      required: [channel, transport, bytes]
+      properties:
+        channel: {type: string, enum: [console, usb-serial-jtag]}
+        transport:
+          type: string
+          enum: [console, usb-serial-jtag]
+          description: console is an unspecified primary transport, not a UART0 assertion.
+        bytes: {type: integer, minimum: 0}
     SerialChunk:
       type: object
-      required: [session_id, offset, next_offset, data, bytes]
+      required: [session_id, channel, offset, next_offset, data, bytes]
       properties:
         session_id:
           type: string
+        channel: {type: string, enum: [console, usb-serial-jtag]}
         offset:
           type: integer
         next_offset:

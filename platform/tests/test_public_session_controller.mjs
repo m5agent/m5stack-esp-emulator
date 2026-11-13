@@ -1,3 +1,4 @@
+import {SerialChannelState} from '../web/serial-channel-state.js';
 import assert from 'node:assert/strict';
 import {PublicDeviceService} from '../web/public-service.js';
 import {PublicSessionController} from '../web/public-session-controller.js';
@@ -747,3 +748,34 @@ for (const [status, code] of [[404, 'not_found'], [500, 'qmp_error'], [403, 'run
 }
 
 console.log('PUBLIC_SESSION_CONTROLLER_OK: independent single-flight frame/metadata/native-SCS lanes, fresh conditional frames, validated capability/receipt/firmware binding, unknown unsupported outputs, generation/shell/reset/stop fences and create recovery');
+
+// Stream ownership rejects delayed A/B/A responses and never combines logs.
+{
+  const channels = [{channel:'console',transport:'console',bytes:4},{channel:'usb-serial-jtag',transport:'usb-serial-jtag',bytes:3}];
+  const state = new SerialChannelState('own1'); state.update({...result('own1'),serial_channels:channels});
+  const consoleRequest=state.request(); state.select('usb-serial-jtag'); const usbRequest=state.request();
+  assert.equal(state.accept(consoleRequest,{session_id:'own1',channel:'console',data:'UART',next_offset:4}),null);
+  state.accept(usbRequest,{session_id:'own1',channel:'usb-serial-jtag',data:'USB',next_offset:3});
+  assert.equal(state.view().text,'USB');state.select('console');
+  assert.equal(state.accept(consoleRequest,{data:'late UART',next_offset:9}),null);
+  const request=state.request(); state.accept(request,{data:'UART',next_offset:4});
+  assert.equal(state.accept(request,{data:'UART',next_offset:4}),null,'duplicate concurrent response is discarded');
+  assert.equal(state.view().text,'UART');state.select('usb-serial-jtag');assert.equal(state.view().text,'USB');
+  assert.throws(()=>state.accept(state.request(),{session_id:'other',channel:'usb-serial-jtag',data:'x',next_offset:4}));
+  assert.throws(()=>state.accept(state.request(),{channel:'console',data:'x',next_offset:4}));
+  state.update({...result('own1'),serial_channels:[]});assert.equal(state.request(),null);
+}
+// The actual controller carries channel and cursor to the service, fences late
+// output on a switch, and restores the previous channel's separate cursor.
+{
+  const service=fakeService(), pending=deferred(), views=[], calls=[];
+  const session={...result('own1'),serial_channels:[{channel:'console',transport:'console',bytes:4},{channel:'usb-serial-jtag',transport:'usb-serial-jtag',bytes:3}]};
+  service.create=async()=>session;service.session=async()=>session;
+  service.serial=async(id,offset,options)=>{calls.push([id,offset,options.channel]);return calls.length===1?pending.promise:{session_id:id,channel:options.channel,data:offset?'':'USB',next_offset:3};};
+  const controller=new PublicSessionController({service,pollIntervalMs:1,onSerialView:view=>views.push(view)});
+  await controller.start({deviceId:'cores3'});await until(()=>calls.length===1);
+  controller.selectSerialChannel('usb-serial-jtag');pending.resolve({session_id:'own1',channel:'console',data:'UART',next_offset:4});
+  await until(()=>views.some(view=>view.text==='USB'));
+  assert.ok(calls.some(row=>row[2]==='usb-serial-jtag'&&row[1]===0));assert.ok(!views.some(view=>view.text.includes('UART')));
+  await controller.stop();
+}

@@ -1,3 +1,4 @@
+import {SerialChannelState, renderSerialChannelSelect} from './serial-channel-state.js';
 import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
 import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261028a';
 import { createProgramPanel } from './program-panel.js?v=20261027p';
@@ -620,6 +621,7 @@ function createSessionCard(session, allowThree) {
       </details>
       <details class="session-disclosure session-console">
         <summary>串口输出</summary>
+        <label>输出通道 <select data-field="serial-channel" aria-label="串口输出通道"></select></label>
         <pre class="session-serial" data-field="serial" tabindex="0" aria-label="串口输出">等待串口输出…</pre>
       </details>
     </div>`;
@@ -628,6 +630,13 @@ function createSessionCard(session, allowThree) {
     session.session_id,
     new SessionVisual(visualNode, session, allowThree)
   );
+  card.querySelector('[data-field="serial-channel"]').addEventListener('change', event => {
+    const stream = state.serial.get(session.session_id);
+    if (!stream) return;
+    stream.select(event.target.value);
+    card.querySelector('[data-field="serial"]').textContent = stream.view().text || '等待串口输出…';
+    void refreshSerial(state.sessions.find(row => row.session_id === session.session_id) || session);
+  });
   updateSessionCard(card, session);
   return card;
 }
@@ -643,6 +652,10 @@ function updateSessionCard(card, session) {
   field('device-id').textContent = session.device_id;
   field('firmware-source').textContent = session.firmware_source || 'firmware';
   field('firmware-sha').textContent = (session.firmware_sha256 || '').slice(0, 12);
+  let stream = state.serial.get(session.session_id);
+  if (!stream) {stream = new SerialChannelState(session.session_id, 120000); state.serial.set(session.session_id, stream);}
+  stream.update(session);
+  renderSerialChannelSelect(field('serial-channel'), stream, !!session.purged);
   field('serial-bytes').textContent = `${session.serial_bytes || 0} bytes`;
   const flash = session.flash || {};
   field('flash').textContent = flash.verified
@@ -873,7 +886,7 @@ async function refreshSessions() {
     render();
     showError('');
     const serialSessions = state.sessions.filter(
-      session => ACTIVE_STATES.has(session.state) || session.serial_bytes > 0
+      session => ACTIVE_STATES.has(session.state) || session.serial_bytes > 0 || session.serial_channels?.some(item => item.bytes > 0)
     );
     const stateSessions = state.sessions.filter(session => session.device_state_supported);
     await Promise.all([
@@ -889,27 +902,17 @@ async function refreshSessions() {
 }
 
 async function refreshSerial(session) {
-  const current = state.serial.get(session.session_id) || { offset: 0, text: '' };
+  const current = state.serial.get(session.session_id) || new SerialChannelState(session.session_id, 120000);
+  state.serial.set(session.session_id, current); current.update(session);
+  const request = current.request(); if (!request) return;
   try {
-    const chunk = await api(
-      `/api/v1/sessions/${encodeURIComponent(session.session_id)}/serial?offset=${current.offset}&limit=65536`
-    );
-    if (chunk.next_offset < current.offset) {
-      current.offset = 0;
-      current.text = '';
-    }
-    current.offset = chunk.next_offset;
-    current.text = (current.text + chunk.data).slice(-120000);
-    state.serial.set(session.session_id, current);
-    const node = document.querySelector(
-      `[data-session-id="${session.session_id}"] [data-field="serial"]`
-    );
-    if (node) {
-      node.textContent = current.text || '等待串口输出…';
-      node.scrollTop = node.scrollHeight;
-    }
+    const chunk = await api(`/api/v1/sessions/${encodeURIComponent(session.session_id)}/serial?offset=${request.offset}&limit=65536&channel=${encodeURIComponent(request.channel)}`);
+    if (state.serial.get(session.session_id) !== current) return;
+    const accepted = current.accept(request, chunk); if (!accepted) return;
+    const node = document.querySelector(`[data-session-id="${session.session_id}"] [data-field="serial"]`);
+    if (node) {node.textContent = accepted.text || '等待串口输出…'; node.scrollTop = node.scrollHeight;}
   } catch (error) {
-    showError(error.message);
+    if (state.serial.get(session.session_id) === current && current.matches(request)) showError(error.message);
   }
 }
 

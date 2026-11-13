@@ -52,7 +52,7 @@ export class PublicDeviceService {
   devices(options) { return this.request('/api/v1/devices', options); }
   units(id, options) { return this.request(`/api/v1/units?device_id=${encodeURIComponent(id)}`, options); }
   session(id, options) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}`, options); }
-  serial(id, offset = 0, options) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}/serial?offset=${offset}&limit=65536`, options); }
+  serial(id, offset = 0, {channel = "console", ...options} = {}) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}/serial?offset=${offset}&limit=65536&channel=${encodeURIComponent(channel)}`, options); }
   input(id, body, options) { return this.request(`/api/v1/sessions/${encodeURIComponent(id)}/input`, {...options, method: 'POST', body}); }
 
   async importFirmware(file, deviceId, {signal, onProgress} = {}) {
