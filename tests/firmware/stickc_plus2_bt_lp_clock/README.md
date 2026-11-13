@@ -207,6 +207,24 @@ the settings frame appeared. It separately logged a `LoadProhibited` panic
 after the first reboot. Both app partitions still matched the original.
 This longer failure remains open alongside the shorter C-only result.
 
+The original restart also pulses DPORT core reset `0x3ff000d0` with
+`0x7ff` followed by zero before requesting software CPU reset. Patch 0201
+connects the documented RWBT MAC and low-power reset domains. The baseline
+leaves the old source-6 level and an armed comparator across that pulse. The
+candidate clears them and accepts new timer programming afterward. Resetting
+only the CPU or the separate BT baseband leaves the RWBT state intact.
+The fixture uses aligned 32-bit MMIO. The combined pulse is the reproduced
+restart path. The LP-only native clock resume is a model of the surviving
+MAC clock reference. [Espressif reset fields](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/soc/esp32/register/soc/dport_reg.h#L1008-L1029)
+and [restart sequence](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_system/port/soc/esp32/system_internal.c#L28-L41).
+
+```sh
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_modem_reset.py \
+  --qemu "$XTENSA_QEMU_WITH_0200" --rom-dir "$XTENSA_ROM_DIR" --baseline
+python3 tests/firmware/stickc_plus2_bt_lp_clock/check_rwbt_modem_reset.py \
+  --qemu "$XTENSA_QEMU_WITH_0201" --rom-dir "$XTENSA_ROM_DIR"
+```
+
 The [native peripheral matrix](rwbt-native-matrix-summary.json) passed all 69
 cases once under ambient host load using the new Xtensa runtime and the
 existing C6 runtime. Its execution source predates the adaptive argument and

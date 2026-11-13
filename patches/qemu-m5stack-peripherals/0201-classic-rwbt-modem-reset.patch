@@ -1,0 +1,277 @@
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -142,6 +142,9 @@
+     case A_DPORT_WIFI_CLK_EN:
+         r = s->wifi_clk_en;
+         break;
++    case A_DPORT_CORE_RST_EN:
++        r = s->core_rst_en;
++        break;
+     case A_DPORT_BT_LPCK_DIV_INT:
+         r = s->bt_lpck_div_int;
+         break;
+@@ -269,6 +272,14 @@
+     case A_DPORT_WIFI_CLK_EN:
+         /* Retain guest modem clock enables for register readback. */
+         s->wifi_clk_en = value;
++        break;
++    case A_DPORT_CORE_RST_EN:
++        old_val = s->core_rst_en;
++        s->core_rst_en = value;
++        if ((value ^ old_val) & (R_DPORT_CORE_RST_EN_RW_BTMAC_RST_MASK |
++                                 R_DPORT_CORE_RST_EN_RW_BTLP_RST_MASK)) {
++            qemu_irq_pulse(s->rwbt_reset);
++        }
+         break;
+     case A_DPORT_BT_LPCK_DIV_INT:
+         s->bt_lpck_div_int = value &
+@@ -482,6 +493,8 @@
+     s->appcpu_stall_state = false;
+     s->cache_ill_trap_en_reg = 0;
+     s->wifi_clk_en = 0xfffce030;
++    s->core_rst_en = 0;
++    qemu_irq_pulse(s->rwbt_reset);
+     s->bt_lpck_div_int = FIELD_DP32(0, DPORT_BT_LPCK_DIV_INT, DIV_NUM, 255);
+     s->bt_lpck_div_frac =
+         R_DPORT_BT_LPCK_DIV_FRAC_LPCLK_SEL_8M_MASK |
+@@ -618,6 +631,7 @@
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->appcpu_stall_req, ESP32_DPORT_APPCPU_STALL_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->appcpu_reset_req, ESP32_DPORT_APPCPU_RESET_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->clk_update_req, ESP32_DPORT_CLK_UPDATE_GPIO, 1);
++    qdev_init_gpio_out_named(DEVICE(sbd), &s->rwbt_reset, ESP32_DPORT_RWBT_RESET_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cache_ill_irq, ESP32_DPORT_CACHE_ILL_IRQ_GPIO, 1);
+     qdev_init_gpio_out_named(
+         DEVICE(sbd),
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -149,6 +149,8 @@
+     bool rwbt_fine_armed;
+     bool rwbt_gross_armed;
+     bool wake_pending;
++    bool rwbt_mac_reset;
++    bool rwbt_lp_reset;
+     bool irq_high;
+ };
+ 
+@@ -291,7 +293,7 @@
+     }
+     s->rwbt_time_base_ns = now_ns;
+     s->rwbt_clock_stopped = false;
+-    s->rwbt_slot_enabled = true;
++    s->rwbt_slot_enabled = !s->rwbt_mac_reset;
+     esp32_rwbt_set_slot_deadline(s);
+     if (s->rwbt_fine_armed) {
+         esp32_rwbt_set_fine_deadline(s);
+@@ -422,6 +424,81 @@
+     s->regs[ESP32_BLE_FINE_TIME_REG / 4] = 0;
+ }
+ 
++
++static void esp32_rwbt_reset_mac(Esp32BtState *s)
++{
++    timer_del(&s->slot_timer);
++    timer_del(&s->fine_timer);
++    timer_del(&s->gross_timer);
++    s->rwbt_slot_enabled = false;
++    s->rwbt_fine_armed = false;
++    s->rwbt_gross_armed = false;
++    s->rwbt_int_raw &= ESP32_RWBT_SLEEP_IRQ;
++    s->regs[ESP32_RWBT_INT_MASK / 4] &= ESP32_RWBT_SLEEP_IRQ;
++    s->regs[ESP32_RWBT_FINE_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_GROSS_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_BASE_TIME / 4] = 0;
++    s->regs[ESP32_RWBT_FINE_TIME / 4] = 0;
++}
++
++static void esp32_rwbt_reset_low_power(Esp32BtState *s)
++{
++    bool clock_stopped = s->rwbt_clock_stopped;
++
++    timer_del(&s->sleep_timer);
++    s->sleeping = false;
++    s->wake_pending = false;
++    s->sleep_final_ticks = 0;
++    s->rwbt_int_raw &= ~ESP32_RWBT_SLEEP_IRQ;
++    s->regs[ESP32_RWBT_INT_MASK / 4] &= ~ESP32_RWBT_SLEEP_IRQ;
++    s->regs[ESP32_RWBT_BASE_CORRECTION / 4] = 0;
++    s->regs[ESP32_RWBT_FINE_CORRECTION / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_CONTROL / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_TARGET / 4] = 0;
++    s->regs[ESP32_RWBT_SLEEP_PRESET / 4] = 0;
++    if (clock_stopped) {
++        s->rwbt_time_base_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++        s->rwbt_clock_stopped = false;
++        esp32_rwbt_set_slot_deadline(s);
++        if (s->rwbt_fine_armed) {
++            esp32_rwbt_set_fine_deadline(s);
++        }
++        if (s->rwbt_gross_armed) {
++            esp32_rwbt_set_gross_deadline(s);
++        }
++    }
++}
++
++static void esp32_rwbt_modem_reset(void *opaque, int domain, int level)
++{
++    Esp32SocState *soc = ESP32_SOC(opaque);
++    Esp32BtState *s = soc->bt_state;
++
++    if (!level || !s) {
++        return;
++    }
++    uint32_t reset = soc->dport.core_rst_en;
++    bool mac = FIELD_EX32(reset, DPORT_CORE_RST_EN, RW_BTMAC_RST);
++    bool lp = FIELD_EX32(reset, DPORT_CORE_RST_EN, RW_BTLP_RST);
++    bool mac_asserted = mac && !s->rwbt_mac_reset;
++    bool lp_asserted = lp && !s->rwbt_lp_reset;
++
++    /* Both domain levels come from one write, including simultaneous swaps. */
++    s->rwbt_mac_reset = mac;
++    s->rwbt_lp_reset = lp;
++    if (mac_asserted) {
++        esp32_rwbt_reset_mac(s);
++        esp32_ble_reset_time(s);
++    }
++    if (lp_asserted) {
++        esp32_rwbt_reset_low_power(s);
++    }
++    if (mac && lp && (mac_asserted || lp_asserted)) {
++        esp32_rwbt_reset_sleep(s);
++    }
++    esp32_rwbt_update_irq(s);
++}
++
+ static uint64_t esp32_bt_read(void *opaque, hwaddr offset, unsigned size)
+ {
+     Esp32BtState *s = opaque;
+@@ -477,8 +554,8 @@
+     }
+     if (offset >= ESP32_BLE_BASE_TIME_REG &&
+         offset < ESP32_BLE_FINE_TIME_REG + sizeof(uint32_t)) {
+-        if (offset == ESP32_BLE_BASE_TIME_REG && size == sizeof(uint32_t) &&
+-            (value & ESP32_BLE_TIME_SAMPLE)) {
++        if (!s->rwbt_mac_reset && offset == ESP32_BLE_BASE_TIME_REG &&
++            size == sizeof(uint32_t) && (value & ESP32_BLE_TIME_SAMPLE)) {
+             /* Virtual sampling finishes synchronously, so bit 31 reads 0. */
+             esp32_ble_sample_time(s, qemu_clock_get_us(QEMU_CLOCK_VIRTUAL));
+         }
+@@ -491,6 +568,12 @@
+     if (size == 4) {
+         switch (offset) {
+         case ESP32_RWBT_INT_MASK:
++            if (s->rwbt_mac_reset) {
++                value &= ESP32_RWBT_SLEEP_IRQ;
++            }
++            if (s->rwbt_lp_reset) {
++                value &= ~ESP32_RWBT_SLEEP_IRQ;
++            }
+             s->regs[offset / 4] = value;
+             esp32_rwbt_update_irq(s);
+             return;
+@@ -502,7 +585,7 @@
+             }
+             return;
+         case ESP32_RWBT_BASE_TIME:
+-            if (value & ESP32_RWBT_SAMPLE) {
++            if (!s->rwbt_mac_reset && (value & ESP32_RWBT_SAMPLE)) {
+                 esp32_rwbt_sample(s);
+             }
+             return;
+@@ -513,21 +596,36 @@
+         case ESP32_RWBT_SLEEP_DURATION:
+             return;
+         case ESP32_RWBT_FINE_TARGET:
++            if (s->rwbt_mac_reset) {
++                return;
++            }
+             s->regs[offset / 4] = value & ESP32_RWBT_SLOT_MASK;
+             s->rwbt_fine_armed = true;
+             esp32_rwbt_set_fine_deadline(s);
+             return;
+         case ESP32_RWBT_GROSS_TARGET:
++            if (s->rwbt_mac_reset) {
++                return;
++            }
+             s->regs[offset / 4] = value & ESP32_RWBT_GROSS_MASK;
+             s->rwbt_gross_armed = true;
+             esp32_rwbt_set_gross_deadline(s);
+             return;
+         case ESP32_RWBT_SLEEP_CONTROL:
+-            esp32_rwbt_sleep_control(s, value);
++            if (!s->rwbt_lp_reset) {
++                esp32_rwbt_sleep_control(s, value);
++            }
+             return;
+         case ESP32_RWBT_SLEEP_TARGET:
+             /* Once sleeping, retain the interval programmed on entry. */
+-            if (s->sleeping) {
++            if (s->sleeping || s->rwbt_lp_reset) {
++                return;
++            }
++            break;
++        case ESP32_RWBT_SLEEP_PRESET:
++        case ESP32_RWBT_FINE_CORRECTION:
++        case ESP32_RWBT_BASE_CORRECTION:
++            if (s->rwbt_lp_reset) {
+                 return;
+             }
+             break;
+@@ -886,6 +984,8 @@
+         snprintf(name, sizeof(name), "cpu%d", i);
+         object_property_set_link(OBJECT(&s->intmatrix), name, OBJECT(qemu_get_cpu(i)), &error_abort);
+     }
++    qdev_connect_gpio_out_named(DEVICE(&s->dport), ESP32_DPORT_RWBT_RESET_GPIO, 0,
++                                qdev_get_gpio_in_named(dev, ESP32_DPORT_RWBT_RESET_GPIO, 0));
+     qdev_realize(DEVICE(&s->intmatrix), &s->periph_bus, &error_fatal);
+     DeviceState* intmatrix_dev = DEVICE(&s->intmatrix);
+     bt_state->rwbt_irq = qdev_get_gpio_in(intmatrix_dev, ETS_RWBT_INTR_SOURCE);
+@@ -1246,6 +1346,8 @@
+         object_initialize_child(obj, "rgb", &s->rgb, TYPE_ESP_RGB);
+     }
+ 
++    qdev_init_gpio_in_named(DEVICE(s), esp32_rwbt_modem_reset,
++                            ESP32_DPORT_RWBT_RESET_GPIO, 1);
+     qdev_init_gpio_in_named(DEVICE(s), esp32_dig_reset, ESP32_RTC_DIG_RESET_GPIO, 1);
+     qdev_init_gpio_in_named(DEVICE(s), esp32_cpu_reset, ESP32_RTC_CPU_RESET_GPIO, ESP32_CPU_COUNT);
+     qdev_init_gpio_in_named(DEVICE(s), esp32_cpu_stall, ESP32_RTC_CPU_STALL_GPIO, ESP32_CPU_COUNT);
+diff --git a/include/hw/misc/esp32_dport.h b/include/hw/misc/esp32_dport.h
+--- a/include/hw/misc/esp32_dport.h
++++ b/include/hw/misc/esp32_dport.h
+@@ -69,6 +69,7 @@
+     qemu_irq appcpu_stall_req;
+     qemu_irq appcpu_reset_req;
+     qemu_irq clk_update_req;
++    qemu_irq rwbt_reset;
+     qemu_irq cache_ill_irq;
+     qemu_irq cache_ready[ESP32_CPU_COUNT];
+     qemu_irq flash_enc_en_gpio;
+@@ -82,6 +83,7 @@
+     uint32_t cache_ill_trap_en_reg;
+     uint32_t slave_spi_config_reg;
+     uint32_t wifi_clk_en;
++    uint32_t core_rst_en;
+     uint32_t bt_lpck_div_int;
+     uint32_t bt_lpck_div_frac;
+ 
+@@ -92,6 +94,8 @@
+ #define ESP32_DPORT_APPCPU_STALL_GPIO   "appcpu-stall"
+ #define ESP32_DPORT_APPCPU_RESET_GPIO   "appcpu-reset"
+ #define ESP32_DPORT_CLK_UPDATE_GPIO     "clk-update"
++#define ESP32_DPORT_RWBT_RESET_GPIO     "rwbt-reset"
++
+ #define ESP32_DPORT_CACHE_ILL_IRQ_GPIO  "cache-ill-irq"
+ #define ESP32_DPORT_CACHE_READY_GPIO    "cache-ready"
+ #define ESP32_DPORT_FLASH_ENC_EN_GPIO   "flash-enc-en"
+@@ -139,6 +143,10 @@
+     FIELD(DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_DECRYPT_ENABLE, 12, 1)
+ 
+ REG32(DPORT_WIFI_CLK_EN, 0xcc)
++
++REG32(DPORT_CORE_RST_EN, 0xd0)
++    FIELD(DPORT_CORE_RST_EN, RW_BTMAC_RST, 9, 1)
++    FIELD(DPORT_CORE_RST_EN, RW_BTLP_RST, 10, 1)
+ 
+ REG32(DPORT_BT_LPCK_DIV_INT, 0xd4)
+     FIELD(DPORT_BT_LPCK_DIV_INT, DIV_NUM, 0, 12)

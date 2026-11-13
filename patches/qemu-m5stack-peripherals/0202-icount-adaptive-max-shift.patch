@@ -1,0 +1,612 @@
+diff --git a/accel/tcg/icount-common.c b/accel/tcg/icount-common.c
+--- a/accel/tcg/icount-common.c
++++ b/accel/tcg/icount-common.c
+@@ -157,81 +157,81 @@
+ {
+     return icount << qatomic_read(&timers_state.icount_time_shift);
+ }
+ 
+ /*
+  * Correlation between real and virtual time is always going to be
+  * fairly approximate, so ignore small variation.
+  * When the guest is idle real and virtual time will be aligned in
+  * the IO wait loop.
+  */
+ #define ICOUNT_WOBBLE (NANOSECONDS_PER_SECOND / 10)
+ 
+ static void icount_adjust(void)
+ {
+     int64_t cur_time;
+     int64_t cur_icount;
+     int64_t delta;
+ 
+     /* If the VM is not running, then do nothing.  */
+     if (!runstate_is_running()) {
+         return;
+     }
+ 
+     seqlock_write_lock(&timers_state.vm_clock_seqlock,
+                        &timers_state.vm_clock_lock);
+     cur_time = REPLAY_CLOCK_LOCKED(REPLAY_CLOCK_VIRTUAL_RT,
+                                    cpu_get_clock_locked());
+     cur_icount = icount_get_locked();
+ 
+     delta = cur_icount - cur_time;
+     /* FIXME: This is a very crude algorithm, somewhat prone to oscillation.  */
+     if (delta > 0
+         && timers_state.last_delta + ICOUNT_WOBBLE < delta * 2
+         && timers_state.icount_time_shift > 0) {
+         /* The guest is getting too far ahead.  Slow time down.  */
+         qatomic_set(&timers_state.icount_time_shift,
+                     timers_state.icount_time_shift - 1);
+     }
+     if (delta < 0
+         && timers_state.last_delta - ICOUNT_WOBBLE > delta * 2
+-        && timers_state.icount_time_shift < MAX_ICOUNT_SHIFT) {
++        && timers_state.icount_time_shift < timers_state.icount_max_shift) {
+         /* The guest is getting too far behind.  Speed time up.  */
+         qatomic_set(&timers_state.icount_time_shift,
+                     timers_state.icount_time_shift + 1);
+     }
+     timers_state.last_delta = delta;
+     qatomic_set_i64(&timers_state.qemu_icount_bias,
+                     cur_icount - (timers_state.qemu_icount
+                                   << timers_state.icount_time_shift));
+     seqlock_write_unlock(&timers_state.vm_clock_seqlock,
+                          &timers_state.vm_clock_lock);
+ }
+ 
+ static void icount_adjust_rt(void *opaque)
+ {
+     timer_mod(timers_state.icount_rt_timer,
+               qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL_RT) + 1000);
+     icount_adjust();
+ }
+ 
+ static void icount_adjust_vm(void *opaque)
+ {
+     timer_mod(timers_state.icount_vm_timer,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                    NANOSECONDS_PER_SECOND / 10);
+     icount_adjust();
+ }
+ 
+ int64_t icount_round(int64_t count)
+ {
+     int shift = qatomic_read(&timers_state.icount_time_shift);
+     return (count + (1 << shift) - 1) >> shift;
+ }
+ 
+ static void icount_warp_rt(void)
+ {
+     unsigned seq;
+     int64_t warp_start;
+ 
+     /*
+      * The icount_warp_timer is rescheduled soon after vm_clock_warp_start
+@@ -382,137 +382,158 @@
+             }
+             seqlock_write_unlock(&timers_state.vm_clock_seqlock,
+                                  &timers_state.vm_clock_lock);
+             timer_mod_anticipate(timers_state.icount_warp_timer,
+                                  clock + deadline);
+         }
+     } else if (deadline == 0) {
+         qemu_clock_notify(QEMU_CLOCK_VIRTUAL);
+     }
+ }
+ 
+ void icount_account_warp_timer(void)
+ {
+     if (!icount_sleep) {
+         return;
+     }
+ 
+     /*
+      * Nothing to do if the VM is stopped: QEMU_CLOCK_VIRTUAL timers
+      * do not fire, so computing the deadline does not make sense.
+      */
+     if (!runstate_is_running()) {
+         return;
+     }
+ 
+     replay_async_events();
+ 
+     /* warp clock deterministically in record/replay mode */
+     if (!replay_checkpoint(CHECKPOINT_CLOCK_WARP_ACCOUNT)) {
+         return;
+     }
+ 
+     timer_del(timers_state.icount_warp_timer);
+     icount_warp_rt();
+ }
+ 
+ bool icount_configure(QemuOpts *opts, Error **errp)
+ {
+     const char *option = qemu_opt_get(opts, "shift");
+     const char *max_percpu_ns = getenv("M5SW_ICOUNT_MAX_PERCPU_NS");
++    const char *max_shift = qemu_opt_get(opts, "max-shift");
+     bool sleep = qemu_opt_get_bool(opts, "sleep", true);
+     bool align = qemu_opt_get_bool(opts, "align", false);
+     long time_shift = -1;
++    long max_time_shift = MAX_ICOUNT_SHIFT;
+     unsigned long max_percpu_value = 0;
+ 
+     if (max_percpu_ns && *max_percpu_ns
+         && (qemu_strtoul(max_percpu_ns, NULL, 0, &max_percpu_value) < 0
+             || max_percpu_value < 1000
+             || max_percpu_value > NANOSECONDS_PER_SECOND)) {
+         error_setg(errp, "M5SW_ICOUNT_MAX_PERCPU_NS must be 1000..1000000000");
+         return false;
+     }
+     icount_max_percpu_ns = max_percpu_value;
+ 
++    if (max_shift) {
++        if (!option || strcmp(option, "auto") != 0) {
++            error_setg(errp, "icount max-shift requires shift=auto");
++            return false;
++        }
++        if (qemu_strtol(max_shift, NULL, 10, &max_time_shift) < 0 ||
++            max_time_shift < 0 || max_time_shift > MAX_ICOUNT_SHIFT) {
++            error_setg(errp, "icount max-shift must be 0..%d", MAX_ICOUNT_SHIFT);
++            return false;
++        }
++        if (align || !sleep || qemu_opt_get(opts, "rr")) {
++            error_setg(errp, "icount max-shift requires align=off, sleep=on, "
++                       "and no record/replay");
++            return false;
++        }
++    }
++
+     if (!option) {
+         if (qemu_opt_get(opts, "align") != NULL) {
+             error_setg(errp, "Please specify shift option when using align");
+             return false;
+         }
+         return true;
+     }
+ 
+     if (align && !sleep) {
+         error_setg(errp, "align=on and sleep=off are incompatible");
+         return false;
+     }
+ 
+     if (strcmp(option, "auto") != 0) {
+         if (qemu_strtol(option, NULL, 0, &time_shift) < 0
+             || time_shift < 0 || time_shift > MAX_ICOUNT_SHIFT) {
+             error_setg(errp, "icount: Invalid shift value");
+             return false;
+         }
+     } else if (icount_align_option) {
+         error_setg(errp, "shift=auto and align=on are incompatible");
+         return false;
+     } else if (!icount_sleep) {
+         error_setg(errp, "shift=auto and sleep=off are incompatible");
+         return false;
+     }
+ 
+     icount_sleep = sleep;
+     if (icount_sleep) {
+         timers_state.icount_warp_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL_RT,
+                                          icount_timer_cb, NULL);
+     }
+ 
+     icount_align_option = align;
+ 
+     if (time_shift >= 0) {
+         timers_state.icount_time_shift = time_shift;
+         icount_enable_precise();
+         return true;
+     }
+ 
++    timers_state.icount_shift_limited = max_shift != NULL;
++    timers_state.icount_max_shift = max_time_shift;
+     icount_enable_adaptive();
+ 
+     /*
+      * 125MIPS seems a reasonable initial guess at the guest speed.
+      * It will be corrected fairly quickly anyway.
+      */
+-    timers_state.icount_time_shift = 3;
++    timers_state.icount_time_shift = MIN(3, max_time_shift);
+ 
+     /*
+      * Have both realtime and virtual time triggers for speed adjustment.
+      * The realtime trigger catches emulated time passing too slowly,
+      * the virtual time trigger catches emulated time passing too fast.
+      * Realtime triggers occur even when idle, so use them less frequently
+      * than VM triggers.
+      */
+     timers_state.vm_clock_warp_start = -1;
+     timers_state.icount_rt_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL_RT,
+                                    icount_adjust_rt, NULL);
+     timer_mod(timers_state.icount_rt_timer,
+                    qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL_RT) + 1000);
+     timers_state.icount_vm_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                         icount_adjust_vm, NULL);
+     timer_mod(timers_state.icount_vm_timer,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                    NANOSECONDS_PER_SECOND / 10);
+     return true;
+ }
+ 
+ int64_t icount_get_max_percpu_ns(void)
+ {
+     return icount_max_percpu_ns;
+ }
+ 
+ void icount_notify_exit(void)
+ {
+     assert(icount_enabled());
+ 
+     if (current_cpu) {
+         qemu_cpu_kick(current_cpu);
+         qemu_clock_notify(QEMU_CLOCK_VIRTUAL);
+     }
+ }
+diff --git a/include/sysemu/cpu-timers-internal.h b/include/sysemu/cpu-timers-internal.h
+--- a/include/sysemu/cpu-timers-internal.h
++++ b/include/sysemu/cpu-timers-internal.h
+@@ -6,66 +6,69 @@
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in
+  * all copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  * THE SOFTWARE.
+  */
+ 
+ #ifndef TIMERS_STATE_H
+ #define TIMERS_STATE_H
+ 
+ /* timers state, for sharing between icount and cpu-timers */
+ 
+ typedef struct TimersState {
+     /* Protected by BQL.  */
+     int64_t cpu_ticks_prev;
+     int64_t cpu_ticks_offset;
+ 
+     /*
+      * Protect fields that can be respectively read outside the
+      * BQL, and written from multiple threads.
+      */
+     QemuSeqLock vm_clock_seqlock;
+     QemuSpin vm_clock_lock;
+ 
+     int16_t cpu_ticks_enabled;
+ 
+     /* Conversion factor from emulated instructions to virtual clock ticks.  */
+     int16_t icount_time_shift;
++    /* The local adaptive policy is selected at launch, not migrated. */
++    int16_t icount_max_shift;
++    bool icount_shift_limited;
+     /* Icount delta used for shift auto adjust. */
+     int64_t last_delta;
+ 
+     /* Compensate for varying guest execution speed.  */
+     aligned_int64_t qemu_icount_bias;
+ 
+     int64_t vm_clock_warp_start;
+     int64_t cpu_clock_offset;
+ 
+     /* Only written by TCG thread */
+     int64_t qemu_icount;
+ 
+     /* for adjusting icount */
+     QEMUTimer *icount_rt_timer;
+     QEMUTimer *icount_vm_timer;
+     QEMUTimer *icount_warp_timer;
+ } TimersState;
+ 
+ extern TimersState timers_state;
+ 
+ /*
+  * icount needs this internal from cpu-timers when adjusting the icount shift.
+  */
+ int64_t cpu_get_clock_locked(void);
+ 
+ #endif /* TIMERS_STATE_H */
+diff --git a/qemu-options.hx b/qemu-options.hx
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -4782,91 +4782,96 @@
+     QEMU_ARCH_ALL)
+ SRST
+ ``-option-rom file``
+     Load the contents of file as an option ROM. This option is useful to
+     load things like EtherBoot.
+ ERST
+ 
+ DEF("rtc", HAS_ARG, QEMU_OPTION_rtc, \
+     "-rtc [base=utc|localtime|<datetime>][,clock=host|rt|vm][,driftfix=none|slew]\n" \
+     "                set the RTC base and clock, enable drift fix for clock ticks (x86 only)\n",
+     QEMU_ARCH_ALL)
+ 
+ SRST
+ ``-rtc [base=utc|localtime|datetime][,clock=host|rt|vm][,driftfix=none|slew]``
+     Specify ``base`` as ``utc`` or ``localtime`` to let the RTC start at
+     the current UTC or local time, respectively. ``localtime`` is
+     required for correct date in MS-DOS or Windows. To start at a
+     specific point in time, provide datetime in the format
+     ``2006-06-17T16:01:21`` or ``2006-06-17``. The default base is UTC.
+ 
+     By default the RTC is driven by the host system time. This allows
+     using of the RTC as accurate reference clock inside the guest,
+     specifically if the host time is smoothly following an accurate
+     external reference clock, e.g. via NTP. If you want to isolate the
+     guest time from the host, you can set ``clock`` to ``rt`` instead,
+     which provides a host monotonic clock if host support it. To even
+     prevent the RTC from progressing during suspension, you can set
+     ``clock`` to ``vm`` (virtual clock). '\ ``clock=vm``\ ' is
+     recommended especially in icount mode in order to preserve
+     determinism; however, note that in icount mode the speed of the
+     virtual clock is variable and can in general differ from the host
+     clock.
+ 
+     Enable ``driftfix`` (i386 targets only) if you experience time drift
+     problems, specifically with Windows' ACPI HAL. This option will try
+     to figure out how many timer interrupts were not processed by the
+     Windows guest and will re-inject them.
+ ERST
+ 
+ DEF("icount", HAS_ARG, QEMU_OPTION_icount, \
+-    "-icount [shift=N|auto][,align=on|off][,sleep=on|off][,rr=record|replay,rrfile=<filename>[,rrsnapshot=<snapshot>]]\n" \
++    "-icount [shift=N|auto][,max-shift=N][,align=on|off][,sleep=on|off][,rr=record|replay,rrfile=<filename>[,rrsnapshot=<snapshot>]]\n" \
+     "                enable virtual instruction counter with 2^N clock ticks per\n" \
+     "                instruction, enable aligning the host and virtual clocks\n" \
+     "                or disable real time cpu sleeping, and optionally enable\n" \
+     "                record-and-replay mode\n", QEMU_ARCH_ALL)
+ SRST
+-``-icount [shift=N|auto][,align=on|off][,sleep=on|off][,rr=record|replay,rrfile=filename[,rrsnapshot=snapshot]]``
++``-icount [shift=N|auto][,max-shift=N][,align=on|off][,sleep=on|off][,rr=record|replay,rrfile=filename[,rrsnapshot=snapshot]]``
+     Enable virtual instruction counter. The virtual cpu will execute one
+     instruction every 2^N ns of virtual time. If ``auto`` is specified
+     then the virtual cpu speed will be automatically adjusted to keep
+-    virtual time within a few seconds of real time.
++    virtual time within a few seconds of real time. The optional
++    ``max-shift`` sets an upper bound from 0 through 10 for ``shift=auto``.
++    At the bound the virtual clock can fall behind host time. This option
++    requires ``align=off,sleep=on`` and cannot be combined with record or
++    replay. A destination configured with this bound rejects migrated
++    adaptive shifts outside its range.
+ 
+     Note that while this option can give deterministic behavior, it does
+     not provide cycle accurate emulation. Modern CPUs contain
+     superscalar out of order cores with complex cache hierarchies. The
+     number of instructions executed often has little or no correlation
+     with actual performance.
+ 
+     When the virtual cpu is sleeping, the virtual time will advance at
+     default speed unless ``sleep=on`` is specified. With
+     ``sleep=on``, the virtual time will jump to the next timer
+     deadline instantly whenever the virtual cpu goes to sleep mode and
+     will not advance if no timer is enabled. This behavior gives
+     deterministic execution times from the guest point of view.
+     The default if icount is enabled is ``sleep=off``.
+     ``sleep=on`` cannot be used together with either ``shift=auto``
+     or ``align=on``.
+ 
+     ``align=on`` will activate the delay algorithm which will try to
+     synchronise the host clock and the virtual clock. The goal is to
+     have a guest running at the real frequency imposed by the shift
+     option. Whenever the guest clock is behind the host clock and if
+     ``align=on`` is specified then we print a message to the user to
+     inform about the delay. Currently this option does not work when
+     ``shift`` is ``auto``. Note: The sync algorithm will work for those
+     shift values for which the guest clock runs ahead of the host clock.
+     Typically this happens when the shift value is high (how high
+     depends on the host machine). The default if icount is enabled
+     is ``align=off``.
+ 
+     When the ``rr`` option is specified deterministic record/replay is
+     enabled. The ``rrfile=`` option must also be provided to
+     specify the path to the replay log. In record mode data is written
+     to this file, and in replay mode it is read back.
+     If the ``rrsnapshot`` option is given then it specifies a VM snapshot
+     name. In record mode, a new VM snapshot with the given name is created
+     at the start of execution recording. In replay mode this option
+     specifies the snapshot name used to load the initial VM state.
+ ERST
+ 
+ DEF("watchdog-action", HAS_ARG, QEMU_OPTION_watchdog_action, \
+diff --git a/system/cpu-timers.c b/system/cpu-timers.c
+--- a/system/cpu-timers.c
++++ b/system/cpu-timers.c
+@@ -146,85 +146,99 @@
+ }
+ 
+ static bool adjust_timers_state_needed(void *opaque)
+ {
+     TimersState *s = opaque;
+     return s->icount_rt_timer != NULL;
+ }
+ 
+ static bool icount_shift_state_needed(void *opaque)
+ {
+     return icount_enabled() == ICOUNT_ADAPTATIVE;
+ }
+ 
+ /*
+  * Subsection for warp timer migration is optional, because may not be created
+  */
+ static const VMStateDescription icount_vmstate_warp_timer = {
+     .name = "timer/icount/warp_timer",
+     .version_id = 1,
+     .minimum_version_id = 1,
+     .needed = warp_timer_state_needed,
+     .fields = (const VMStateField[]) {
+         VMSTATE_INT64(vm_clock_warp_start, TimersState),
+         VMSTATE_TIMER_PTR(icount_warp_timer, TimersState),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+ 
+ static const VMStateDescription icount_vmstate_adjust_timers = {
+     .name = "timer/icount/timers",
+     .version_id = 1,
+     .minimum_version_id = 1,
+     .needed = adjust_timers_state_needed,
+     .fields = (const VMStateField[]) {
+         VMSTATE_TIMER_PTR(icount_rt_timer, TimersState),
+         VMSTATE_TIMER_PTR(icount_vm_timer, TimersState),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+ 
++static int icount_shift_post_load(void *opaque, int version_id)
++{
++    TimersState *s = opaque;
++
++    if (s->icount_shift_limited &&
++        (s->icount_time_shift < 0 || s->icount_time_shift > s->icount_max_shift)) {
++        error_report("incoming icount shift %d is outside local max-shift 0..%d",
++                     s->icount_time_shift, s->icount_max_shift);
++        return -EINVAL;
++    }
++    return 0;
++}
++
+ static const VMStateDescription icount_vmstate_shift = {
+     .name = "timer/icount/shift",
+     .version_id = 2,
+     .minimum_version_id = 2,
+     .needed = icount_shift_state_needed,
++    .post_load = icount_shift_post_load,
+     .fields = (const VMStateField[]) {
+         VMSTATE_INT16(icount_time_shift, TimersState),
+         VMSTATE_INT64(last_delta, TimersState),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+ 
+ /*
+  * This is a subsection for icount migration.
+  */
+ static const VMStateDescription icount_vmstate_timers = {
+     .name = "timer/icount",
+     .version_id = 1,
+     .minimum_version_id = 1,
+     .needed = icount_state_needed,
+     .fields = (const VMStateField[]) {
+         VMSTATE_INT64(qemu_icount_bias, TimersState),
+         VMSTATE_INT64(qemu_icount, TimersState),
+         VMSTATE_END_OF_LIST()
+     },
+     .subsections = (const VMStateDescription * const []) {
+         &icount_vmstate_warp_timer,
+         &icount_vmstate_adjust_timers,
+         &icount_vmstate_shift,
+         NULL
+     }
+ };
+ 
+ static const VMStateDescription vmstate_timers = {
+     .name = "timer",
+     .version_id = 2,
+     .minimum_version_id = 1,
+     .fields = (const VMStateField[]) {
+         VMSTATE_INT64(cpu_ticks_offset, TimersState),
+         VMSTATE_UNUSED(8),
+         VMSTATE_INT64_V(cpu_clock_offset, TimersState, 2),
+         VMSTATE_END_OF_LIST()
+     },
+     .subsections = (const VMStateDescription * const []) {
+         &icount_vmstate_timers,
+diff --git a/system/vl.c b/system/vl.c
+--- a/system/vl.c
++++ b/system/vl.c
+@@ -397,80 +397,83 @@
+             .help = "When enabled, name the individual threads; defaults off.\n"
+                     "NOTE: The thread names are for debugging and not a\n"
+                     "stable API.",
+         },
+         { /* End of list */ }
+     },
+ };
+ 
+ static QemuOptsList qemu_mem_opts = {
+     .name = "memory",
+     .implied_opt_name = "size",
+     .head = QTAILQ_HEAD_INITIALIZER(qemu_mem_opts.head),
+     .merge_lists = true,
+     .desc = {
+         {
+             .name = "size",
+             .type = QEMU_OPT_SIZE,
+         },
+         {
+             .name = "slots",
+             .type = QEMU_OPT_NUMBER,
+         },
+         {
+             .name = "maxmem",
+             .type = QEMU_OPT_SIZE,
+         },
+         { /* end of list */ }
+     },
+ };
+ 
+ static QemuOptsList qemu_icount_opts = {
+     .name = "icount",
+     .implied_opt_name = "shift",
+     .merge_lists = true,
+     .head = QTAILQ_HEAD_INITIALIZER(qemu_icount_opts.head),
+     .desc = {
+         {
+             .name = "shift",
+             .type = QEMU_OPT_STRING,
+         }, {
++            .name = "max-shift",
++            .type = QEMU_OPT_STRING,
++        }, {
+             .name = "align",
+             .type = QEMU_OPT_BOOL,
+         }, {
+             .name = "sleep",
+             .type = QEMU_OPT_BOOL,
+         }, {
+             .name = "rr",
+             .type = QEMU_OPT_STRING,
+         }, {
+             .name = "rrfile",
+             .type = QEMU_OPT_STRING,
+         }, {
+             .name = "rrsnapshot",
+             .type = QEMU_OPT_STRING,
+         },
+         { /* end of list */ }
+     },
+ };
+ 
+ static QemuOptsList qemu_fw_cfg_opts = {
+     .name = "fw_cfg",
+     .implied_opt_name = "name",
+     .head = QTAILQ_HEAD_INITIALIZER(qemu_fw_cfg_opts.head),
+     .desc = {
+         {
+             .name = "name",
+             .type = QEMU_OPT_STRING,
+             .help = "Sets the fw_cfg name of the blob to be inserted",
+         }, {
+             .name = "file",
+             .type = QEMU_OPT_STRING,
+             .help = "Sets the name of the file from which "
+                     "the fw_cfg blob will be loaded",
+         }, {
+             .name = "string",
+             .type = QEMU_OPT_STRING,
+             .help = "Sets content of the blob to be inserted from a string",
+         }, {
+             .name = "gen_id",
+             .type = QEMU_OPT_STRING,

@@ -177,6 +177,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0198-classic-ble-clock-snapshot.patch",
     "patches/qemu-m5stack-peripherals/0199-stickcplus2-gpio-lcd-readback.patch",
     "patches/qemu-m5stack-peripherals/0200-classic-rwbt-sleep-clock-and-timers.patch",
+    "patches/qemu-m5stack-peripherals/0201-classic-rwbt-modem-reset.patch",
+    "patches/qemu-m5stack-peripherals/0202-icount-adaptive-max-shift.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",
