@@ -17,7 +17,7 @@ oscillator/calibration measurement.
 
 ## Reproduce
 
-Run the actual-C host replay (23 cases, original and changed model, ASan/UBSan):
+Run the actual-C host replay (27 cases, original and changed model, ASan/UBSan):
 
 ```sh
 python3 platform/tests/test_c6_mwdt_clock_patch.py
@@ -67,7 +67,9 @@ and waits for native PID, Flash and lease release. Its output is private.
 
 `evidence-summary.json` binds the same probe BIN to the two runtimes. The old
 model passes only the 80 MHz case; the corrected model passes all six. The
-same-source host negative fails 18 of 23 cases; all 23 pass after the patch.
+first candidate host negative failed 18 of 23 cases; all 23 narrow cases passed.
+An independent review then found an OFF-stage progression error. Those runtime
+results remain historical candidate results, not final release acceptance.
 
 The original **Meshtastic RFID Demo 2.7.21 Landscape PN532/PN532Killer** BIN
 remains **FAIL** after a separate 150-second run. Its welcome prompt is now
@@ -93,3 +95,30 @@ physical hardware/RF and the complete native matrix on the new runtime are
 **NOT RUN** here. Broad regression is a separate integration gate. Earlier
 service setup errors and the first probe's missing inter-case feed remain
 retained as invalid attempts rather than accepted controls.
+
+## OFF-stage correction and zero-hold boundary
+
+An independent actual-C negative found that the first candidate could reschedule
+four Disabled stages at the same instant. [C6 TRM v1.2, page 547](https://documentation.espressif.com/esp32-c6_technical_reference_manual_en.pdf)
+requires every stage timeout to clear the counter before activating the next
+stage. Disabled specifies no system action, while stage progression still
+occurs. C6 now follows that rule; the older generic TIMG path is unchanged.
+
+A zero hold remains zero in its register. For bounded synchronous operation,
+the model advances it on the next MWDT counter edge, derived from the actual
+source, divider and gate. This is a model quantization inference: the TRM does
+not specify zero's exact silicon boundary, and no physical zero-value test was
+performed. There is no fixed host delay and nonzero holds are unchanged.
+
+The host controls cover all-OFF holds 1 and 0, OFF-to-interrupt elapsed time,
+clock-gated zero hold and source/divider dependence. The exact previous
+candidate code is separately restored and must fail these controls. Fresh
+runtime and affected guest revalidation after this correction are pending;
+do not reuse the historical d7a6/ef3c guest results as final acceptance.
+
+To build the extra guest stage control, repeat preparation with `--off-stages`
+in a separate output directory. Use the same `run.py` with `--mode after
+--off-stages`: it requires live guest output after all-Disabled holds 1 and 0,
+then a 200-tick Disabled stage followed by a 300-tick interrupt (250 ms total
+at 40 MHz / 20000). The historical negative for these stage cases is the
+bounded actual-C replay, avoiding an unbounded host timer loop.

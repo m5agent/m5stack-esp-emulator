@@ -238,5 +238,7 @@
     "PN532/RFID card reading",
     "full C6/native matrix on this new runtime; root integration gate pending"
   ],
-  "cleanup": "All probe/original/diagnostic sessions exported ZIP before stop with purge=0; mutable Flash and lease released. Owned diagnostic service stopped."
+  "cleanup": "All probe/original/diagnostic sessions exported ZIP before stop with purge=0; mutable Flash and lease released. Owned diagnostic service stopped.",
+  "status": "SUPERSEDED_CANDIDATE_HAS_OFF_STAGE_BUG",
+  "superseded_reason": "Independent actual-C review found same-instant OFF-stage re-entry. The listed successful subcases remain valid for their listed runtime only; the corrected stage model requires a new runtime and guest controls."
 }

@@ -133,7 +133,7 @@
  static void esp32c6_timg_register_types(void)
 --- a/hw/timer/esp_timg.c
 +++ b/hw/timer/esp_timg.c
-@@ -164,6 +164,81 @@
+@@ -164,6 +164,84 @@
  }
  
  
@@ -195,7 +195,10 @@
 +    wdt->counter.value = 0;
 +    wdt->source_cycles = 0;
 +    wdt->source_fraction = 0;
-+    wdt->target = ticks;
++    /* A zero hold must still wait for a synchronous MWDT counter edge.
++     * Keep the raw stage register zero; only the internal event target is
++     * quantized to one source/prescaler tick (not a host-time delay). */
++    wdt->target = MAX(ticks, 1);
 +    wdt->armed = true;
 +    esp_wdt_reschedule(wdt);
 +}
@@ -215,7 +218,7 @@
  static void esp_wdt_cb(void* opaque)
  {
      ESPWdtState* wdt = (ESPWdtState*) opaque;
-@@ -184,6 +259,7 @@
+@@ -184,6 +262,7 @@
              qemu_irq_raise(wdt->interrupt_irq);
          }
      } else if (conf == ESP_WDT_RESET_CPU || conf == ESP_WDT_RESET_SYS) {
@@ -223,25 +226,21 @@
          qemu_irq_raise(wdt->reset_irq);
          /* Do not schedule anything if we have to reset the machine */
          return;
-@@ -192,6 +268,17 @@
+@@ -192,6 +271,13 @@
      const int new_stage = (cur_stage + 1)  % ESP_WDT_STAGE_COUNT;
      wdt->current_stage = new_stage;
  
 +    if (wdt->external_clock) {
-+        if (conf == ESP_WDT_OFF) {
-+            esp_wdt_counter_update(wdt);
-+            wdt->target = wdt->stage[new_stage];
-+            esp_wdt_reschedule(wdt);
-+        } else {
-+            esp_wdt_alarm_in_ticks(wdt, wdt->stage[new_stage]);
-+        }
++        /* C6 TRM 15.2.2.2: every stage expiry resets the counter. Disabled
++         * suppresses the system action; it still advances to the next stage. */
++        esp_wdt_alarm_in_ticks(wdt, wdt->stage[new_stage]);
 +        return;
 +    }
 +
      if (conf == ESP_WDT_OFF) {
          /* If the current stage is disabled, the counter shall not be reset to 0!
           * Get the number of ticks elapsed to calculate the remaining ticks before the next stage alarm.
-@@ -204,8 +291,38 @@
+@@ -204,8 +290,38 @@
      }
  }
  
@@ -280,7 +279,7 @@
      if (FIELD_EX32(value, TIMG_WDTCONFIG1, DIVCNT_RST) || value == 0) {
          /* Avoid any divide-by-0 error in the code below */
          wdt->prescaler = 1;
-@@ -227,8 +344,16 @@
+@@ -227,8 +343,16 @@
      /* If the updated stage is the current one and the watchdog is enabled, reprogram the timer */
      if (esp_wdt_enabled(wdt) && wdt->current_stage == index && verify) {
          /* Update the counter of the running timer, so that we can adjust the alarm */
@@ -298,7 +297,7 @@
          if (diff <= 0) {
              /* On the real hardware, the WDT is simply disabled if the new comparator value for the current
               * stage is smaller than the current value. It will be restarted (not resumed) when fed.
-@@ -246,7 +371,7 @@
+@@ -246,7 +370,7 @@
  {
      if (esp_wdt_enabled(wdt)) {
          wdt->current_stage = 0;
@@ -307,7 +306,7 @@
      }
  }
  
-@@ -290,10 +415,11 @@
+@@ -290,10 +414,11 @@
          if (enabled) {
              wdt->config0 |= R_TIMG_WDTCONFIG0_EN_MASK;
              /* Timer has just been (re-)enabled, schedule the timer */
@@ -320,7 +319,7 @@
              timer_del(&wdt->counter.timer);
          }
      }
-@@ -672,7 +798,7 @@
+@@ -672,7 +797,7 @@
              esp_wdt_update_config(&s->wdt, value);
              break;
          case A_TIMG_WDTCONFIG1:
@@ -329,7 +328,7 @@
              break;
          case A_TIMG_WDTCONFIG2:
          case A_TIMG_WDTCONFIG3:
-@@ -762,6 +888,13 @@
+@@ -762,6 +887,13 @@
      s->wdt.stage[2] = 0x0FFFFFFF;
      s->wdt.stage[3] = 0x0FFFFFFF;
      s->wdt.prescaler = 1;

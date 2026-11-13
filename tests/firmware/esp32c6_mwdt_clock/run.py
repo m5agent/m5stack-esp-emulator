@@ -8,17 +8,26 @@ parser.add_argument('--firmware',required=True,type=Path)
 parser.add_argument('--firmware-sha256',required=True)
 parser.add_argument('--runtime-sha256',required=True)
 parser.add_argument('--out',required=True,type=Path)
-def validate_serial(serial, mode):
- assert 'MWDT_PROBE_READY' in serial
+def validate_serial(serial, mode, off=False):
+ assert ('OFF_PROBE_READY' if off else 'MWDT_PROBE_READY') in serial
  assert serial.count('ESP-ROM:esp32c6') == 1
  assert not any(x in serial for x in ('assert failed:', 'Guru Meditation Error', 'abort() was called', 'Task watchdog got triggered'))
+ if off:
+  assert 'OFF_PROBE_DONE' in serial
+  assert 'result=FAIL' not in serial
+  assert 'OFF_LIVE hold=1 ' in serial and 'OFF_LIVE hold=0 ' in serial
+  assert 'OFF_TO_INT ' in serial and serial.count('result=PASS')==3
+  return
  lines=[x for x in serial.splitlines() if x.startswith('MWDT_CASE ')]
  assert len(lines)==6,lines
  expect=1 if mode=='before' else 6
  assert sum('result=PASS' in x for x in lines)==expect,lines
  assert f'MWDT_PROBE_DONE passed={expect} total=6' in serial
 
+parser.add_argument('--off-stages',action='store_true')
 args=parser.parse_args()
+assert not args.off_stages or args.mode=='after', 'OFF guest probe is a positive control; use host replay for the historical negative'
+OFF=args.off_stages
 BASE=args.base_url.rstrip('/')+'/api/v1/'
 MODE=args.mode
 OUT=args.out.resolve();OUT.mkdir(exist_ok=False,parents=True)
@@ -52,11 +61,11 @@ try:
  while time.monotonic()-start<30:
   elapsed=time.monotonic()-start
   serial=api('GET','sessions/'+sid+'/serial?offset=0&limit=262144')['data'];(OUT/'serial-live.log').write_text(serial)
-  if 'MWDT_PROBE_READY' in serial:got_ready=True
-  if 'MWDT_PROBE_DONE' in serial:break
+  if ('OFF_PROBE_READY' if OFF else 'MWDT_PROBE_READY') in serial:got_ready=True
+  if ('OFF_PROBE_DONE' if OFF else 'MWDT_PROBE_DONE') in serial:break
   if any(x in serial for x in ('assert failed:', 'Guru Meditation Error', 'abort() was called')):raise AssertionError('Probe crashed')
   time.sleep(.25)
- validate_serial(serial,MODE)
+ validate_serial(serial,MODE,OFF)
 except BaseException as error:primary=error
 finally:
  if sid is None:
@@ -82,7 +91,7 @@ finally:
  result={'mode':MODE,'status':'FAIL' if primary or cleanup else 'EXPECTED_FAIL' if MODE=='before' else 'PASS','validation':'virtual-device validation','firmware_sha256':sha(image),'runtime_sha256':RUNTIME,'source_build':receipt,'observed_seconds':time.monotonic()-start if start else None,'inputs':events,'frames':frames,'error':str(primary) if primary else None,'cleanup_error':str(cleanup) if cleanup else None}
  if bundle:
   z=zipfile.ZipFile(io.BytesIO(bundle));raw=z.read('serial.log');(OUT/'serial.log').write_bytes(raw);flash=z.read('flash/virtual-flash.bin');parts=[]
-  try:validate_serial(raw.decode('utf-8',errors='replace'),MODE)
+  try:validate_serial(raw.decode('utf-8',errors='replace'),MODE,OFF)
   except AssertionError as error:
    if primary is None:primary=error
    result.update(status='FAIL',error=str(primary))

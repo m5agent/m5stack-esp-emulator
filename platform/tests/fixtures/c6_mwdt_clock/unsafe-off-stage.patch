@@ -1,0 +1,31 @@
+--- a/hw/timer/esp_timg.c
++++ b/hw/timer/esp_timg.c
+@@ -222,10 +222,7 @@
+     wdt->counter.value = 0;
+     wdt->source_cycles = 0;
+     wdt->source_fraction = 0;
+-    /* A zero hold must still wait for a synchronous MWDT counter edge.
+-     * Keep the raw stage register zero; only the internal event target is
+-     * quantized to one source/prescaler tick (not a host-time delay). */
+-    wdt->target = MAX(ticks, 1);
++    wdt->target = ticks;
+     wdt->armed = true;
+     esp_wdt_reschedule(wdt);
+ }
+@@ -272,9 +269,13 @@
+     wdt->current_stage = new_stage;
+ 
+     if (wdt->external_clock) {
+-        /* C6 TRM 15.2.2.2: every stage expiry resets the counter. Disabled
+-         * suppresses the system action; it still advances to the next stage. */
+-        esp_wdt_alarm_in_ticks(wdt, wdt->stage[new_stage]);
++        if (conf == ESP_WDT_OFF) {
++            esp_wdt_counter_update(wdt);
++            wdt->target = wdt->stage[new_stage];
++            esp_wdt_reschedule(wdt);
++        } else {
++            esp_wdt_alarm_in_ticks(wdt, wdt->stage[new_stage]);
++        }
+         return;
+     }
+ 

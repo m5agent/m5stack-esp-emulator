@@ -85,6 +85,22 @@ int main(int argc,char **argv) {
  case 20:now=1000000000;esp_wdt_update_config(&a.wdt,a.wdt.config0&~(1u<<31));choose(0,1,true);assert(!a.wdt.counter.timer.pending);esp_wdt_update_config(&a.wdt,a.wdt.config0|(1u<<31));deadline(&a,3500000000ULL);break;
  case 21:now=250001;esp_wdt_write_prescaler(&a.wdt,(20000u<<16)|1);assert(!(a.wdt.prescaler_mirror&1));deadline(&a,5000250001ULL);now=350002;esp_wdt_update_config(&a.wdt,a.wdt.config0|(1u<<22));deadline(&a,5000250001ULL);now=400003;esp_wdt_update_config(&a.wdt,a.wdt.config0|(1u<<22));deadline(&a,5000250001ULL);esp_wdt_write_prescaler(&a.wdt,(20000u<<16)|1);deadline(&a,5000400003ULL);break;
  case 22:a.wdt.wkey=0;now=250001;esp_wdt_write_prescaler(&a.wdt,(40000u<<16)|1);assert(a.wdt.prescaler_mirror==(20000u<<16));deadline(&a,5000000000ULL);break;
+ case 23: /* Disabled is an action; every stage still restarts counting. */
+  for(int i=0;i<4;i++)a.wdt.stage_mirror[i]=1;
+  esp_wdt_update_config(&a.wdt,(1u<<31)|(1u<<22));esp_wdt_feed(&a.wdt);
+  for(int i=0;i<16;i++){deadline(&a,(i+1)*500000ULL);now=(i+1)*500000ULL;esp_wdt_cb(&a.wdt);assert(!irq_count&&!reset_count);deadline(&a,now+500000ULL);assert(a.wdt.current_stage==(i+1)%4);}break;
+ case 24: /* OFF -> INT has independent 2 + 3 tick holds. */
+  for(int i=0;i<4;i++)a.wdt.stage_mirror[i]=i+2;
+  esp_wdt_update_config(&a.wdt,(1u<<31)|(1u<<27)|(1u<<22));esp_wdt_feed(&a.wdt);
+  deadline(&a,1000000);now=1000000;esp_wdt_cb(&a.wdt);assert(!irq_count);deadline(&a,2500000);now=2500000;esp_wdt_cb(&a.wdt);assert(irq_count==1);deadline(&a,4500000);break;
+ case 25: /* Zero is retained in registers but cannot loop at one instant. */
+  for(int i=0;i<4;i++)a.wdt.stage_mirror[i]=0;
+  esp_wdt_update_config(&a.wdt,(1u<<31)|(1u<<22));esp_wdt_feed(&a.wdt);
+  for(int i=0;i<16;i++){assert(a.wdt.stage[i%4]==0);deadline(&a,(i+1)*500000ULL);now=(i+1)*500000ULL;esp_wdt_cb(&a.wdt);deadline(&a,now+500000ULL);assert(!irq_count&&!reset_count);}break;
+ case 26: /* Zero hold follows actual divider/source and pauses at the gate. */
+  for(int i=0;i<4;i++)a.wdt.stage_mirror[i]=0;
+  esp_wdt_update_config(&a.wdt,(1u<<31)|(1u<<22));choose(0,1,true);esp_wdt_update_prescaler(&a.wdt,1u<<16);esp_wdt_feed(&a.wdt);deadline(&a,13);
+  choose(0,1,false);assert(!a.wdt.counter.timer.pending);now=1000000000;choose(0,1,true);deadline(&a,1000000013);break;
  default:abort();
  }
  printf("PASS actual C C6 MWDT %d\n",test);return 0;
@@ -128,7 +144,7 @@ class C6MwdtClockTests(unittest.TestCase):
    for label,is_after in [('before',False),('after',True)]:
     try:binary=build(after if is_after else before,out/label,is_after)
     except subprocess.CalledProcessError as error:self.fail(error.stderr)
-    for case in range(23):
+    for case in range(27):
      with self.subTest(version=label,case=case):
       result=subprocess.run([str(binary),str(case)],capture_output=True,text=True,timeout=10,
         env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
@@ -138,6 +154,21 @@ class C6MwdtClockTests(unittest.TestCase):
       else:
        self.assertNotEqual(result.returncode,0,result.stdout)
        self.assertIn('assert',result.stderr.lower())
+
+ def test_preceding_candidate_off_stage_negative(self):
+  with tempfile.TemporaryDirectory(prefix='m5-c6-wdt-off-') as temp:
+   out=Path(temp);source=out/'source';shutil.copytree(FIXTURE,source)
+   includes=['--include='+name for name in ('hw/timer/esp_timg.c','include/hw/timer/esp_timg.h','hw/misc/esp32c6_pcr.c','include/hw/misc/esp32c6_pcr.h')]
+   subprocess.run(['git','apply',*includes,str(PATCH)],cwd=source,check=True,capture_output=True)
+   subprocess.run(['git','apply',str(FIXTURE/'unsafe-off-stage.patch')],cwd=source,check=True,capture_output=True)
+   try:binary=build(source,out/'unsafe-off',True)
+   except subprocess.CalledProcessError as error:self.fail(error.stderr)
+   for case in (23,24,25,26):
+    with self.subTest(case=case):
+     result=subprocess.run([str(binary),str(case)],capture_output=True,text=True,timeout=10,
+       env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0',UBSAN_OPTIONS='halt_on_error=1'))
+     self.assertNotEqual(result.returncode,0,result.stdout)
+     self.assertIn('assert',result.stderr.lower())
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser()

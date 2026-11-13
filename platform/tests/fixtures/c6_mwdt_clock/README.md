@@ -13,3 +13,11 @@ nothing, matching the original PCR's unconnected write path; its prescaler
 write shim is the original register handler assignment. Before/after oracles
 are explicit deadlines, counter values, IRQs, gates and stages, not Python
 copies of the new timer logic. C3's legacy APB/XTAL controls remain included.
+
+`unsafe-off-stage.patch` restores only the two clock-event sections of the
+first 0017 candidate (source commit e31feb8f, runtime d7a6/ef3c). Its actual C
+negative proves the OFF-stage and zero-hold failures without depending on Git
+history or private evidence. The final positive checks use C6 TRM v1.2 p547:
+each expiry resets the count, including Disabled actions. Zero hold retains
+register value zero and is quantized to the next MWDT edge; exact silicon
+zero-value semantics were not measured.
