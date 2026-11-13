@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "classification": "virtual-device validation",
+  "scope": "Nesso N1 controller register state, real HP I2C0 transactions and modeled GPIO3 pad; synthetic SRAM wait fixture.",
+  "native_candidate": {
+    "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+    "native_recipe_commit": "60f13e41933a6664b8be2720d1feef7451dcc0c3",
+    "patch_count": 25,
+    "receipt_sha256": "1413fd5a2c93f947e9610d03c5e2c12a2410d9a83d4073309fa4ee155853fcd6"
+  },
+  "board_controls": {
+    "baseline_expected_failures": 9,
+    "baseline_other_behaviors_passed": 8,
+    "candidate_passed": 17,
+    "baseline": {
+      "status": "PASS",
+      "baseline": true,
+      "runtime_sha256": "8df537142dd8e8231f7d201772176f6460fdbe46a80b812e7796d213373b8b8d",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "synthetic_guest": "SRAM WFI/JAL loop",
+      "fixture_elf_sha256": "5338a4f974e6819cea35ae4c51cacc83e1ee6f8950d8f2906782230e1b3347fe",
+      "cpu_interrupt_delivery": "NOT RUN",
+      "observations": {
+        "unmasked_press_pulls_pad_low": false,
+        "input_status_is_live_and_does_not_clear_pad": false,
+        "status_read_returns_bit_and_releases_pad": true,
+        "same_level_does_not_retrigger": true,
+        "return_to_default_does_not_latch": false,
+        "second_away_transition_rearms": false,
+        "mask_gates_pad_without_destroying_pending": false,
+        "output_does_not_latch_external_transition": false,
+        "default_low_means_press_is_return_to_default": false,
+        "default_low_means_release_is_away_transition": true,
+        "touch_and_expander_share_active_low_pad": true,
+        "second_expander_does_not_consume_first_pending": true,
+        "reading_pi4ioe_cannot_release_active_touch": false,
+        "both_released_pull_pad_high": true,
+        "touch_release_cannot_clear_active_pi4ioe": false,
+        "second_expander_reset_and_read_do_not_release_touch": true,
+        "software_reset_clears_pending_and_restores_defaults": true
+      }
+    },
+    "candidate": {
+      "status": "PASS",
+      "baseline": false,
+      "runtime_sha256": "80d92a6c6c68137a7813b8b7c519725aac350258078d9b244098eaabf82f63bf",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "synthetic_guest": "SRAM WFI/JAL loop",
+      "fixture_elf_sha256": "5338a4f974e6819cea35ae4c51cacc83e1ee6f8950d8f2906782230e1b3347fe",
+      "cpu_interrupt_delivery": "NOT RUN",
+      "observations": {
+        "unmasked_press_pulls_pad_low": true,
+        "input_status_is_live_and_does_not_clear_pad": true,
+        "status_read_returns_bit_and_releases_pad": true,
+        "same_level_does_not_retrigger": true,
+        "return_to_default_does_not_latch": true,
+        "second_away_transition_rearms": true,
+        "mask_gates_pad_without_destroying_pending": true,
+        "output_does_not_latch_external_transition": true,
+        "default_low_means_press_is_return_to_default": true,
+        "default_low_means_release_is_away_transition": true,
+        "touch_and_expander_share_active_low_pad": true,
+        "second_expander_does_not_consume_first_pending": true,
+        "reading_pi4ioe_cannot_release_active_touch": true,
+        "both_released_pull_pad_high": true,
+        "touch_release_cannot_clear_active_pi4ioe": true,
+        "second_expander_reset_and_read_do_not_release_touch": true,
+        "software_reset_clears_pending_and_restores_defaults": true
+      }
+    }
+  },
+  "host_actual_c_controls": {
+    "compiler_clang": "Apple clang 21.0.0",
+    "compiler_gcc": "GCC 16.2.0",
+    "baseline-clang": {
+      "status": "PASS",
+      "baseline": true,
+      "controller_source_sha256": "08740faca19fa0dd08ecf5731d1203047edce88c1b9caed1eec83ac78261ac6e",
+      "observations": {
+        "b_press_pulls_pad_low": false,
+        "live_input_read_preserves_pending_pad": false,
+        "status_read_latches_b_and_releases_pad": true,
+        "repeat_level_does_not_retrigger": true,
+        "return_to_default_does_not_latch": false,
+        "second_away_transition_rearms": false,
+        "mask_gates_existing_status": false,
+        "output_excludes_input_and_interrupt": false,
+        "default_low_press_does_not_latch": false,
+        "default_low_release_does_latch": false,
+        "touch_and_expander_share_active_low_pad": true,
+        "reading_pi_cannot_release_touch": false,
+        "released_sources_return_high": true,
+        "touch_release_cannot_release_pi": false,
+        "secondary_pending_has_no_gpio3_connection": true,
+        "expander_reset_cannot_release_touch": false,
+        "reset_clears_pending_and_defaults": true
+      }
+    },
+    "candidate-clang": {
+      "status": "PASS",
+      "baseline": false,
+      "controller_source_sha256": "7c1fdf509cb24fba22b7746ca5a7731b93035943c29e0f77cbfd824637482e72",
+      "observations": {
+        "b_press_pulls_pad_low": true,
+        "live_input_read_preserves_pending_pad": true,
+        "status_read_latches_b_and_releases_pad": true,
+        "repeat_level_does_not_retrigger": true,
+        "return_to_default_does_not_latch": true,
+        "second_away_transition_rearms": true,
+        "mask_gates_existing_status": true,
+        "output_excludes_input_and_interrupt": true,
+        "default_low_press_does_not_latch": true,
+        "default_low_release_does_latch": true,
+        "touch_and_expander_share_active_low_pad": true,
+        "reading_pi_cannot_release_touch": true,
+        "released_sources_return_high": true,
+        "touch_release_cannot_release_pi": true,
+        "secondary_pending_has_no_gpio3_connection": true,
+        "expander_reset_cannot_release_touch": true,
+        "reset_clears_pending_and_defaults": true
+      }
+    },
+    "candidate-gcc": {
+      "status": "PASS",
+      "baseline": false,
+      "controller_source_sha256": "7c1fdf509cb24fba22b7746ca5a7731b93035943c29e0f77cbfd824637482e72",
+      "observations": {
+        "b_press_pulls_pad_low": true,
+        "live_input_read_preserves_pending_pad": true,
+        "status_read_latches_b_and_releases_pad": true,
+        "repeat_level_does_not_retrigger": true,
+        "return_to_default_does_not_latch": true,
+        "second_away_transition_rearms": true,
+        "mask_gates_existing_status": true,
+        "output_excludes_input_and_interrupt": true,
+        "default_low_press_does_not_latch": true,
+        "default_low_release_does_latch": true,
+        "touch_and_expander_share_active_low_pad": true,
+        "reading_pi_cannot_release_touch": true,
+        "released_sources_return_high": true,
+        "touch_release_cannot_release_pi": true,
+        "secondary_pending_has_no_gpio3_connection": true,
+        "expander_reset_cannot_release_touch": true,
+        "reset_clears_pending_and_defaults": true
+      }
+    }
+  },
+  "fixture_attempt": {
+    "status": "FAIL",
+    "mode": "separate qtest accelerator",
+    "first_failure": "SIGSEGV during esp_cpu_override_tcg_interrupts before QMP capability exchange or MMIO",
+    "resolution": "Use the qtest protocol with normal TCG and the generated two-instruction SRAM WFI/JAL fixture."
+  },
+  "not_run": [
+    "physical device",
+    "CPU GPIO interrupt matrix and ISR",
+    "BMI270 IRQ generation"
+  ]
+}

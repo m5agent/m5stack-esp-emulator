@@ -40,3 +40,9 @@ a pending bit on the second expander cannot drive GPIO3.
 python3 tests/firmware/esp32c6_nesso_pi4ioe_irq/check_controller_actual_c.py   --source "$C6_SOURCE_BEFORE_0023" --baseline
 python3 tests/firmware/esp32c6_nesso_pi4ioe_irq/check_controller_actual_c.py   --source "$C6_SOURCE_WITH_0023"
 ```
+
+The [before/after summary](shared-pad-evidence-summary.json) records 17
+real-board-model observations with the same synthetic fixture and ROM.
+The old runtime misses nine expected behaviors. The new runtime passes
+all 17. The separate host-C runs verify the controller callbacks with
+both Clang and GCC.
