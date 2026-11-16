@@ -1,0 +1,59 @@
+{
+  "repo_source_commit": "f2f26604a5e8c8df898aa5ba2354364e6f1911d5",
+  "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "source_bootstrap_status": "verified",
+  "patch_count": 152,
+  "source_files": 152,
+  "baseline_runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "base_patch_count": 150,
+  "patched_source_sha256": "ce4b2ad06658ced392304c7f94bff039ca891a6ff92ba2a3584536b4b9c103be",
+  "patches_last_two": [
+    {
+      "path": "patches/qemu-m5stack-peripherals/0203-s3-dcache-occupy-handshake.patch",
+      "sha256": "3e63e0062624d1ffe1c6aa6786a46109511f44d3175cc3dc1cd8ed1ce0271166"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0204-cardputer-gpio-board-detect.patch",
+      "sha256": "46d94e7148e689fbd79c41421ce1e2edad0c91a01be92222b0d6f7c939d1a5cb"
+    }
+  ],
+  "binary": {
+    "sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+    "bytes": 22388184
+  },
+  "roms": {
+    "esp32s3_rev0_rom.bin": {
+      "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "bytes": 393216
+    },
+    "esp32-v3-rom.bin": {
+      "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "bytes": 455722
+    },
+    "esp32-v3-rom-app.bin": {
+      "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "bytes": 455722
+    }
+  },
+  "build": {
+    "jobs": 4,
+    "steps": 1529,
+    "compiled_c": 1232,
+    "fresh_objects": {
+      "count": 1235,
+      "inventory_sha256": "692ec675f4a974738fbbf84d5962c5f8bec0204627abd5000fe6dc82c01b85e6"
+    },
+    "log_sha256": "1463582ce8d9c9229ac6719115d814d474c3670d15ace8676e6cc5ab24c687aa",
+    "compile_commands_sha256": "3c308148358e00ffe255434596ec94808ada2ea3dfab373458aded3b2fe3cc3a",
+    "reused_qemu_objects": false,
+    "dependency_reuse": "Reused pinned 146-patch build native dependency archives, headers and Python build venv, no QEMU objects. System-library resolution was via the recorded configure environment.",
+    "baseline_dependency_sha256": {
+      "lib/libpkgconf.a": "96d65a868e02daa2659c551d5164893768bd3038305a01674bfb89be9aeeeb78",
+      "lib/libgcrypt.a": "d00d988b592a92be90b53940ab25f1cd09bb2c85280fcac2a93c7db316365349",
+      "lib/libgpg-error.a": "6ed7c6f1b01c2c96278bf6b4ea6f79627c22a8bb9862d9194cdf5cd55a883267",
+      "lib/libslirp.a": "87edf45ed2daf0a68bb02d0e30b17a8bc71a9804f98edc8eee0fc5c35c034ec0"
+    }
+  },
+  "original_receipt_sha256": "ae1e5174e04b1982c1e530a731ec46d948fc59502e4fb1f56c5decb258b20731",
+  "original_receipt_bytes": 2654
+}

@@ -1,0 +1,397 @@
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -17,6 +17,7 @@
+ #include "qemu/main-loop.h"
+ #include "qapi/error.h"
+ #include "qemu/timer.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-core.h"
+ #include "hw/qdev-properties.h"
+ #include "ui/console.h"
+@@ -27,8 +28,18 @@
+ 
+ static void m5_panel_update(void *opaque);
+ 
++typedef struct M5SpiPanelGpio {
++    M5SpiPanelState *panel;
++    Esp32GpioState *gpio;
++    unsigned cs_pin, sck_pin, dc_pin, sda_pin;
++    Esp32GpioPeerInput *sda;
++    bool selected, clock, sda_driven, read_pending, reading;
++    uint8_t shift, write_bits, read_bits, read_byte;
++} M5SpiPanelGpio;
++
+ struct M5SpiPanelState {
+     DeviceState parent_obj;
++    M5SpiPanelGpio gpio;
+     QemuConsole *con;
+     QEMUTimer *refresh_timer;
+     QEMUBH *refresh_bh;
+@@ -507,6 +518,128 @@
+     return s->read_id;
+ }
+ 
++static bool m5_spi_panel_gpio_output(const Esp32GpioPadSnapshot *pad)
++{
++    return pad->mux_path == ESP32_GPIO_MUX_GPIO_MATRIX && !pad->override_mask &&
++           pad->oe_known && pad->oe && pad->drive_known &&
++           (!pad->open_drain || !pad->drive_level);
++}
++
++static void m5_spi_panel_gpio_release(M5SpiPanelGpio *bus)
++{
++    if (bus->sda_driven) {
++        esp32_gpio_drive_peer_input_deferred(bus->sda, -1);
++        bus->sda_driven = false;
++    }
++}
++
++static void m5_spi_panel_gpio_clear(M5SpiPanelGpio *bus)
++{
++    m5_spi_panel_gpio_release(bus);
++    bus->selected = false;
++    bus->clock = false;
++    bus->read_pending = false;
++    bus->reading = false;
++    bus->write_bits = 0;
++    bus->read_bits = 0;
++}
++
++static void m5_spi_panel_gpio_change(void *opaque, const Esp32GpioPadEvent *event)
++{
++    M5SpiPanelGpio *bus = opaque;
++    Esp32GpioState *gpio = bus->gpio;
++    Esp32GpioPadSnapshot cs, sck, dc, sda;
++
++    if (event->cause == ESP32_GPIO_PAD_RESET ||
++        !esp32_gpio_pad_snapshot(gpio, bus->cs_pin, &cs) ||
++        !m5_spi_panel_gpio_output(&cs) || cs.drive_level ||
++        !esp32_gpio_pad_snapshot(gpio, bus->sck_pin, &sck) ||
++        !m5_spi_panel_gpio_output(&sck)) {
++        m5_spi_panel_gpio_clear(bus);
++        return;
++    }
++    esp32_gpio_pad_snapshot(gpio, bus->dc_pin, &dc);
++    esp32_gpio_pad_snapshot(gpio, bus->sda_pin, &sda);
++    if (!bus->selected) {
++        bus->selected = true;
++        bus->clock = sck.drive_level;
++        return;
++    }
++
++    bool host_drives = m5_spi_panel_gpio_output(&sda);
++    bool host_releases = !sda.oe ||
++                         (sda.drive_known && sda.open_drain && sda.drive_level);
++    bool host_receives = sda.mux_path == ESP32_GPIO_MUX_GPIO_MATRIX &&
++                         !sda.override_mask && sda.oe_known && host_releases &&
++                         sda.fun_ie;
++    bool data_phase = m5_spi_panel_gpio_output(&dc) && dc.drive_level;
++    if (bus->reading && (!host_receives || !data_phase)) {
++        m5_spi_panel_gpio_release(bus);
++        bus->reading = bus->read_pending = false;
++    }
++    if (bus->read_pending && data_phase && host_receives) {
++        bus->read_pending = false;
++        bus->reading = true;
++        bus->read_bits = 0;
++    }
++    if (bus->clock == sck.drive_level) {
++        return;
++    }
++    bus->clock = sck.drive_level;
++    if (bus->reading) {
++        /* The first rising edge is the ST7789V2 turnaround clock. Present
++         * each output bit on its following falling edge for the next sample. */
++        if (!bus->clock) {
++            if (bus->read_bits == 32) {
++                m5_spi_panel_gpio_release(bus);
++                bus->reading = false;
++                return;
++            }
++            unsigned bit = bus->read_bits++ % 8;
++            if (bit == 0) {
++                m5_spi_panel_read(bus->panel, &bus->read_byte, 1);
++            }
++            esp32_gpio_drive_peer_input_deferred(bus->sda,
++                                                 (bus->read_byte >> (7 - bit)) & 1);
++            bus->sda_driven = true;
++        }
++        return;
++    }
++    if (!bus->clock || !host_drives || !m5_spi_panel_gpio_output(&dc)) {
++        return;
++    }
++    bus->shift = (bus->shift << 1) | sda.drive_level;
++    if (++bus->write_bits == 8) {
++        m5_spi_panel_write(bus->panel, &bus->shift, 1, !data_phase);
++        bus->read_pending = !data_phase && bus->shift == 0x04;
++        bus->write_bits = 0;
++    }
++}
++
++void m5_spi_panel_attach_gpio(M5SpiPanelState *panel, Esp32GpioState *gpio,
++                              unsigned cs, unsigned sck, unsigned dc,
++                              unsigned sda)
++{
++    M5SpiPanelGpio *bus = &panel->gpio;
++    const unsigned pins[] = { cs, sck, dc, sda };
++
++    assert(!bus->gpio);
++    bus->panel = panel;
++    bus->gpio = gpio;
++    bus->cs_pin = cs;
++    bus->sck_pin = sck;
++    bus->dc_pin = dc;
++    bus->sda_pin = sda;
++    bus->sda = esp32_gpio_attach_peer_input(gpio, sda, &error_fatal);
++    for (unsigned i = 0; i < ARRAY_SIZE(pins); i++) {
++        Esp32GpioPadSnapshot initial;
++
++        esp32_gpio_observe_pad(
++            gpio, pins[i], m5_spi_panel_gpio_change, bus, &initial,
++            &error_fatal);
++    }
++}
++
+ static void m5_panel_update(void *opaque)
+ {
+     M5SpiPanelState *s = opaque;
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+--- a/hw/m5stopwatch/m5cardputer.c
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -6,6 +6,7 @@
+ #include "qemu/osdep.h"
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/dma/esp_gdma.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
+ #include "qapi/qapi-types-ui.h"
+@@ -142,6 +143,9 @@
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
++    /* M5GFX first detects this panel through GPIO, before using GP-SPI. */
++    m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
++                             esp32_gpio_get_controller(true), 37, 36, 34, 35);
+ 
+     cardputer_spi(sys_mem, intmatrix, gdma, 0x60024000, GDMA_SPI2,
+                   M5_SPI_PANEL(panel));
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -12,8 +12,6 @@
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+ 
+-static const char cardputer_adv_i2c_bias_owner;
+-
+ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                ESPGdmaState *gdma)
+ {
+@@ -21,20 +19,6 @@
+     m5stopwatch_regi2c_init(sys_mem);
+     m5stopwatch_fe_init(sys_mem);
+     m5stopwatch_phy_init(sys_mem);
+-
+-    /* M5GFX distinguishes ADV from the matrix-keyboard Cardputer by the
+-     * external pull-ups on the ADV's internal SDA/SCL (G8/G9), while it
+-     * temporarily enables the ESP32's internal pull-downs. Model the board
+-     * wiring, not a forced input: I2C ACK/data must still be able to pull
+-     * either open-drain line low. The GPIO resolver retains its existing
+-     * unknown/conflict boundary for opposing weak biases; this is nominal
+-     * board identification, not a resistor/threshold or electrical model.
+-     */
+-    Esp32GpioState *gpio = esp32_gpio_get_controller(true);
+-    esp32_gpio_add_board_bias(gpio, 8, ESP32_GPIO_BIAS_PULL_UP,
+-                             &cardputer_adv_i2c_bias_owner, &error_fatal);
+-    esp32_gpio_add_board_bias(gpio, 9, ESP32_GPIO_BIAS_PULL_UP,
+-                             &cardputer_adv_i2c_bias_owner, &error_fatal);
+ 
+     DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
+@@ -52,6 +36,9 @@
+ 
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
+     esp32s3_i2c_set_bus(i2c1, bus);
++    /* The same G8/G9 bus supplies pull-ups and TCA8418 ACK during GPIO
++     * board detection, before the guest initializes hardware I2C. */
++    m5stopwatch_soft_i2c_init_pins(bus, 8, 9);
+ 
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "tca8418", 0x34 },
+@@ -85,6 +72,9 @@
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
++    /* M5GFX first detects this panel through GPIO, before using GP-SPI. */
++    m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
++                             esp32_gpio_get_controller(true), 37, 36, 34, 35);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 37);
+diff --git a/hw/m5stopwatch/m5stickcplus2.c b/hw/m5stopwatch/m5stickcplus2.c
+--- a/hw/m5stopwatch/m5stickcplus2.c
++++ b/hw/m5stopwatch/m5stickcplus2.c
+@@ -155,133 +155,7 @@
+     PLUS2_LCD_SCK = 13,
+     PLUS2_LCD_DC = 14,
+     PLUS2_LCD_SDA = 15,
+-    PLUS2_LCD_READ_ID = 0x04,
+-    PLUS2_LCD_READ_BITS = 32,
+ };
+-
+-typedef struct Plus2GpioLcd {
+-    M5SpiPanelState *panel;
+-    Esp32GpioPeerInput *sda;
+-    Esp32GpioPadObserver *observers[4];
+-    bool selected, clock, sda_driven, read_pending, reading;
+-    uint8_t shift, write_bits, read_bits, read_byte;
+-} Plus2GpioLcd;
+-
+-static bool plus2_lcd_gpio_output(const Esp32GpioPadSnapshot *pad)
+-{
+-    return pad->mux_path == ESP32_GPIO_MUX_GPIO_MATRIX && !pad->override_mask &&
+-           pad->oe_known && pad->oe && pad->drive_known &&
+-           (!pad->open_drain || !pad->drive_level);
+-}
+-
+-static void plus2_lcd_release(Plus2GpioLcd *bus)
+-{
+-    if (bus->sda_driven) {
+-        esp32_gpio_drive_peer_input_deferred(bus->sda, -1);
+-        bus->sda_driven = false;
+-    }
+-}
+-
+-static void plus2_lcd_clear(Plus2GpioLcd *bus)
+-{
+-    plus2_lcd_release(bus);
+-    bus->selected = false;
+-    bus->clock = false;
+-    bus->read_pending = false;
+-    bus->reading = false;
+-    bus->write_bits = 0;
+-    bus->read_bits = 0;
+-}
+-
+-static void plus2_lcd_gpio_change(void *opaque, const Esp32GpioPadEvent *event)
+-{
+-    Plus2GpioLcd *bus = opaque;
+-    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
+-    Esp32GpioPadSnapshot cs, sck, dc, sda;
+-
+-    if (event->cause == ESP32_GPIO_PAD_RESET ||
+-        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_CS, &cs) ||
+-        !plus2_lcd_gpio_output(&cs) || cs.drive_level ||
+-        !esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SCK, &sck) ||
+-        !plus2_lcd_gpio_output(&sck)) {
+-        plus2_lcd_clear(bus);
+-        return;
+-    }
+-    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_DC, &dc);
+-    esp32_gpio_pad_snapshot(gpio, PLUS2_LCD_SDA, &sda);
+-    if (!bus->selected) {
+-        bus->selected = true;
+-        bus->clock = sck.drive_level;
+-        return;
+-    }
+-
+-    bool host_drives = plus2_lcd_gpio_output(&sda);
+-    bool host_releases = !sda.oe ||
+-                         (sda.drive_known && sda.open_drain && sda.drive_level);
+-    bool host_receives = sda.mux_path == ESP32_GPIO_MUX_GPIO_MATRIX &&
+-                         !sda.override_mask && sda.oe_known && host_releases &&
+-                         sda.fun_ie;
+-    bool data_phase = plus2_lcd_gpio_output(&dc) && dc.drive_level;
+-    if (bus->reading && (!host_receives || !data_phase)) {
+-        plus2_lcd_release(bus);
+-        bus->reading = bus->read_pending = false;
+-    }
+-    if (bus->read_pending && data_phase && host_receives) {
+-        bus->read_pending = false;
+-        bus->reading = true;
+-        bus->read_bits = 0;
+-    }
+-    if (bus->clock == sck.drive_level) {
+-        return;
+-    }
+-    bus->clock = sck.drive_level;
+-    if (bus->reading) {
+-        /* The first rising edge is the ST7789V2 turnaround clock. Present
+-         * each output bit on its following falling edge for the next sample. */
+-        if (!bus->clock) {
+-            if (bus->read_bits == PLUS2_LCD_READ_BITS) {
+-                plus2_lcd_release(bus);
+-                bus->reading = false;
+-                return;
+-            }
+-            unsigned bit = bus->read_bits++ % 8;
+-            if (bit == 0) {
+-                m5_spi_panel_read(bus->panel, &bus->read_byte, 1);
+-            }
+-            esp32_gpio_drive_peer_input_deferred(bus->sda,
+-                                                 (bus->read_byte >> (7 - bit)) & 1);
+-            bus->sda_driven = true;
+-        }
+-        return;
+-    }
+-    if (!bus->clock || !host_drives || !plus2_lcd_gpio_output(&dc)) {
+-        return;
+-    }
+-    bus->shift = (bus->shift << 1) | sda.drive_level;
+-    if (++bus->write_bits == 8) {
+-        m5_spi_panel_write(bus->panel, &bus->shift, 1, !data_phase);
+-        bus->read_pending = !data_phase && bus->shift == PLUS2_LCD_READ_ID;
+-        bus->write_bits = 0;
+-    }
+-}
+-
+-static void plus2_lcd_attach_gpio(M5SpiPanelState *panel)
+-{
+-    static Plus2GpioLcd bus;
+-    static const unsigned pins[] = {
+-        PLUS2_LCD_CS, PLUS2_LCD_SCK, PLUS2_LCD_DC, PLUS2_LCD_SDA,
+-    };
+-    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
+-
+-    bus.panel = panel;
+-    bus.sda = esp32_gpio_attach_peer_input(gpio, PLUS2_LCD_SDA, &error_fatal);
+-    for (unsigned i = 0; i < ARRAY_SIZE(pins); i++) {
+-        Esp32GpioPadSnapshot initial;
+-
+-        bus.observers[i] = esp32_gpio_observe_pad(gpio, pins[i],
+-                                plus2_lcd_gpio_change, &bus, &initial, &error_fatal);
+-    }
+-}
+ 
+ void m5stickcplus2_board_init(Esp32SocState *s)
+ {
+@@ -339,7 +213,10 @@
+      * Physical board pins: SCK13, MOSI15, CS5, reset12, backlight27. */
+     esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
+     esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, PLUS2_LCD_DC, PLUS2_LCD_CS);
+-    plus2_lcd_attach_gpio(M5_SPI_PANEL(panel));
++    m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
++                             esp32_gpio_get_controller(false),
++                             PLUS2_LCD_CS, PLUS2_LCD_SCK,
++                             PLUS2_LCD_DC, PLUS2_LCD_SDA);
+     m5_unit_runtime_init(false);
+     m5_unit_classic_adc_init(get_system_memory());
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -122,6 +122,11 @@
+                         bool command_phase);
+ uint32_t m5_spi_panel_read_id(M5SpiPanelState *s);
+ void m5_spi_panel_read(M5SpiPanelState *s, uint8_t *data, uint32_t len);
++typedef struct Esp32GpioState Esp32GpioState;
++/* ST7789V2 software SPI probe on a shared SDA/MOSI wire. */
++void m5_spi_panel_attach_gpio(M5SpiPanelState *panel, Esp32GpioState *gpio,
++                              unsigned cs, unsigned sck, unsigned dc,
++                              unsigned sda);
+ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase);
+ void m5_lcd_cam_attach(DeviceState *dev, struct ESPGdmaState *gdma,

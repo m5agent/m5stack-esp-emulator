@@ -160,6 +160,8 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ### Tab5：最新原版应用的旧 P4 CLIC 与 DSI PHY
 
+[11 月 16 日同原版复验](evidence/2026-11-16-tab5-original-startup/README.md)在 0.50.0 确认 CarPlay 板型探测和 M5TabOS USB DWC 断言。两份原版在 1.0.0 的同 CSR 单步进入异常向量。新版 I2C part 可扩展板级器件，闭环仍需兼容旧 P4 CSR 的后端。USB device 模型及独立的触摸读取错误修复均未提供本路径所需的 guest USB host 或 BSP 探测数据面。
+
 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) 保持 OPEN。
 同一未改应用字节的 v2.5.4 在 esp-emu 0.51.0 中等待 DSI PHY PLL lock，
 1.0.0-rc2 和[正式 v1.0.0 原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)均在旧 P4 `mintstatus` CSR `0x346` 读取处触发非法指令；后者的 Maker Fighter 也未到 USB 初始化，不能据缺少 DWC 断言关闭 USB 缺口。已使用

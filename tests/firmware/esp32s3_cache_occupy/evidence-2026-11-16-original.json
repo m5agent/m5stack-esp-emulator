@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "issue": 229,
+  "source_commit": "057c0820dbcf5242acd4b31b3c07ea87a86b52fc",
+  "repository_base": "12c01eab89c41794ecea4b5b4d3eadf63999feab",
+  "qemu_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch": "0203-s3-dcache-occupy-handshake.patch",
+  "patch_sha256": "3e63e0062624d1ffe1c6aa6786a46109511f44d3175cc3dc1cd8ed1ce0271166",
+  "device": "cardputer",
+  "qemu_machine": "m5cardputer",
+  "psram_mib": 0,
+  "flash_mib": 8,
+  "firmware": {
+    "name": "M5Apps 2.7",
+    "file": "M5Apps_2.7_full.bin",
+    "bytes": 1517728,
+    "sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+    "application_modified": false
+  },
+  "status": "PASS: cache startup, rendered boot page, and key-to-source-menu transition; other app functions NOT RUN",
+  "lane": "virtual-device validation: dedicated native Device Service sessions",
+  "runs": [
+    {
+      "name": "baseline",
+      "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+      "verdict": "FAIL: stuck after Multicore app",
+      "spi_trace_enabled": false,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "e57ab2ca32bbd4a936159c447ac670e5d5b44e5b9cbbd4898cd4d2299fd465e6",
+      "serial_bytes": 437,
+      "serial_sha256": "ff9f7593460174c664472e77a3d7911c94173a21d30c6746f783cbbba0e917e4",
+      "boot_marker": false,
+      "reserved_heap_marker": false,
+      "launcher_marker": false,
+      "panic_or_backtrace": false,
+      "frame": {
+        "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+        "png_bytes": 174,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 0,
+        "unique_colors": 1
+      }
+    },
+    {
+      "name": "candidate",
+      "runtime_sha256": null,
+      "verdict": "FAIL: rejected status-only implementation; ROM memset PIF at 3c000000; binary hash not captured",
+      "spi_trace_enabled": false,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "a0ce2e3ce7484872b86050ced5fe42df05d10d7dc7324088a0190b56206aa750",
+      "serial_bytes": 3928,
+      "serial_sha256": "d3cb9e9ffa3db626fbafa63a3df958e821284fdaf0c7ef0074d0473ddb429bf6",
+      "boot_marker": true,
+      "reserved_heap_marker": false,
+      "launcher_marker": false,
+      "panic_or_backtrace": true,
+      "frame": {
+        "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+        "png_bytes": 174,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 0,
+        "unique_colors": 1
+      }
+    },
+    {
+      "name": "candidate2",
+      "runtime_sha256": "2ba0ee8807e86c1188c30d405fa4fe6070316c46b06a6b7b52b0dfb31538a343",
+      "verdict": "PARTIAL: boot/heap pass; frame black; movable SRAM implementation rejected",
+      "spi_trace_enabled": false,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "6aa619f0344170b4e46e440e48b9a4fd65acdcc69de241cfb14ee0070fed435e",
+      "serial_bytes": 5695,
+      "serial_sha256": "9a0661a619b059ef8305f6abd876574b716a6cde6661969b99ae42dc03cb65eb",
+      "boot_marker": true,
+      "reserved_heap_marker": true,
+      "launcher_marker": true,
+      "panic_or_backtrace": false,
+      "frame": {
+        "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+        "png_bytes": 174,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 0,
+        "unique_colors": 1
+      }
+    },
+    {
+      "name": "final",
+      "runtime_sha256": "2ba0ee8807e86c1188c30d405fa4fe6070316c46b06a6b7b52b0dfb31538a343",
+      "verdict": "PARTIAL: boot/heap pass; frame black after a; not the accepted final runtime",
+      "spi_trace_enabled": false,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "c541c84a9bd636a1cc0cdc65b71c1037b529b3b5654edc8de49d55876f6fddfc",
+      "serial_bytes": 5695,
+      "serial_sha256": "143cd25b32d2ea85dc4ebf1cf75c6a36857043cac6747003e5900c069fc2108a",
+      "boot_marker": true,
+      "reserved_heap_marker": true,
+      "launcher_marker": true,
+      "panic_or_backtrace": false,
+      "frame": {
+        "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+        "png_bytes": 174,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 0,
+        "unique_colors": 1
+      }
+    },
+    {
+      "name": "acceptance",
+      "runtime_sha256": "f060845164ee8a6c965260ba3f66e7078457992e6ff5deb9570efaca1007893d",
+      "verdict": "PASS: boot page and menu after a/ret",
+      "spi_trace_enabled": true,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "eb1a6828d2699bdcd15a8df102a1c5d5c1070cac3a9bda83c70013aec3b73a7f",
+      "serial_bytes": 5695,
+      "serial_sha256": "440325c081c8062ca260050687dd4969ac0a3086f589d05b4e30f9ab51b2b317",
+      "boot_marker": true,
+      "reserved_heap_marker": true,
+      "launcher_marker": true,
+      "panic_or_backtrace": false,
+      "frame": {
+        "sha256": "688ba619617eccbd82d605e0e9d240408fc5520c8c29facc102ed55a81b13a56",
+        "png_bytes": 3031,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 31931,
+        "unique_colors": 200
+      },
+      "input_events": [
+        {
+          "spec": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.45,
+            "hold_time_ms": 450,
+            "completion": "queued"
+          }
+        },
+        {
+          "spec": "key:ret",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.45,
+            "hold_time_ms": 450,
+            "completion": "queued"
+          }
+        }
+      ],
+      "before_key": {
+        "sha256": "c6c9d7a6f21f49f9fd6021893a3dad2147db41c9498c1e97ed38f91bb9816b5b",
+        "png_bytes": 3273,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 5983,
+        "unique_colors": 18
+      },
+      "after_keys": {
+        "sha256": "97df84c50a3ccfb00d5938027272afd4c3306938dab000336d2e08307caa37bf",
+        "png_bytes": 3005,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 31931,
+        "unique_colors": 200
+      },
+      "visual_observation": {
+        "before": "M5STACK Cardputer / M5Apps v2.7 / press any key",
+        "after": "Select Source menu: Cloud, SD Card, USB Drive"
+      }
+    },
+    {
+      "name": "default",
+      "runtime_sha256": "f060845164ee8a6c965260ba3f66e7078457992e6ff5deb9570efaca1007893d",
+      "verdict": "PASS: same boot/menu result without trace",
+      "spi_trace_enabled": false,
+      "observation_seconds": 60,
+      "artifact_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "virtual_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "evidence_zip_sha256": "41bc692c72d186ff7090b9d0e8d1717f024713889f5ff9f4afe5e866efdacc52",
+      "serial_bytes": 5695,
+      "serial_sha256": "9f5b483b29cc28ccd403c40f5ff9970bee86c4a5f29b3b98531ac248095701c0",
+      "boot_marker": true,
+      "reserved_heap_marker": true,
+      "launcher_marker": true,
+      "panic_or_backtrace": false,
+      "frame": {
+        "sha256": "6cb279fa26b4610513125687627b50831637f1bd9074197d519f2931939fcdcc",
+        "png_bytes": 3049,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 31931,
+        "unique_colors": 200
+      },
+      "input_events": [
+        {
+          "spec": "key:a",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.45,
+            "hold_time_ms": 450,
+            "completion": "queued"
+          }
+        },
+        {
+          "spec": "key:ret",
+          "action": "tap",
+          "timing": {
+            "clock": "virtual",
+            "hold_seconds": 0.45,
+            "hold_time_ms": 450,
+            "completion": "queued"
+          }
+        }
+      ],
+      "before_key": {
+        "sha256": "97e74bf3c7a066de4b0bc35e0bd70b5ab8159e8c01452f6bdcf2b8a60176a608",
+        "png_bytes": 3274,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 5979,
+        "unique_colors": 18
+      },
+      "after_keys": {
+        "sha256": "8a7669b54a74ccbb34e3a9e2c2011008afb9abe627544ad75ed2f31ae41692dd",
+        "png_bytes": 3008,
+        "width": 240,
+        "height": 135,
+        "nonblack_pixels": 31931,
+        "unique_colors": 200
+      },
+      "visual_observation": {
+        "before": "M5STACK Cardputer / M5Apps v2.7 / press any key",
+        "after": "Select Source menu: Cloud, SD Card, USB Drive"
+      }
+    }
+  ],
+  "controller_probe": {
+    "status": "PASS",
+    "lane": "QEMU qtest controller validation; CPUs stopped",
+    "qemu_sha256": "f060845164ee8a6c965260ba3f66e7078457992e6ff5deb9570efaca1007893d",
+    "flash_sha256": "1f5102ef9695a2af2cfdcd3bcbec644545080de7bfe2373dd164cdf5b0337da5",
+    "checks": [
+      "reset_done_address_size",
+      "done_read_only",
+      "flash_mmu_views",
+      "size_mask",
+      "command_done_ena_reserved",
+      "mapped_drom_stays_read_only",
+      "mapped_irom_preserved",
+      "reserved_sram_read_write",
+      "irom_not_sram",
+      "precise_16kb_boundary",
+      "neighbor_mapped_flash_preserved",
+      "repeat_preserves_sram",
+      "ordinary_mapped_drom_does_not_move_sram",
+      "outside_drom_does_not_move_sram",
+      "partial_range_does_not_move_sram",
+      "oversized_range_does_not_move_sram",
+      "misaligned_range_does_not_move_sram",
+      "empty_range_does_not_move_sram",
+      "other_occupied_flash_stays_read_only",
+      "new_mmu_mapping_removes_sram",
+      "same_range_mapped_flash_stays_read_only",
+      "unmapping_does_not_restore_stale_sram",
+      "64kb_mode_does_not_reserve_heap",
+      "line_count_conversion_and_ctrl_readback",
+      "reset_clears_command_state",
+      "reset_removes_sram_window",
+      "flash_image_unchanged"
+    ],
+    "guest_execution": "NOT RUN in this controller-only probe"
+  },
+  "negative_controller_probe": {
+    "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+    "status": "EXPECTED FAIL",
+    "assertion": "reset_done_address_size",
+    "observed": [
+      0,
+      0,
+      0
+    ],
+    "expected": [
+      2,
+      0,
+      0
+    ]
+  },
+  "source_replay": {
+    "status": "PASS",
+    "upstream": "40edccac415693c5130f91c01d84176ae6008566",
+    "method": "reverse0203; verify all pre0203 receipt files; forward-check/apply0203; compare all compiled-source bytes; verify extended receipt",
+    "patch_sha256": "3e63e0062624d1ffe1c6aa6786a46109511f44d3175cc3dc1cd8ed1ce0271166",
+    "runtime_sha256": "f060845164ee8a6c965260ba3f66e7078457992e6ff5deb9570efaca1007893d",
+    "source_file_count": 152
+  },
+  "static_validation": {
+    "bootstrap_recipe_unit_tests": "5 PASS",
+    "diff_check": "PASS",
+    "branch_scope": "PASS"
+  },
+  "diagnosis": {
+    "status_only_failure": "DONE alone lets ROM return but heap poison memset at 3c000000 needs actual writable SRAM",
+    "too_strict_candidate": "Requiring invalid MMU0 rejected original firmware and reproduced the same heap fault; retained diagnostic evidence, not shipped",
+    "measured_registers": {
+      "dcache_ctrl": "0x9",
+      "occupy_addr": "0x3c000000",
+      "occupy_items": "0x200",
+      "line_bytes": 32,
+      "length_bytes": 16384,
+      "mmu0": "0x6"
+    },
+    "mapping_reason": "IDF unified MMU maps IROM code in page 0; .flash_rodata_dummy keeps its DROM alias unused. Reserve only documented 16 KiB data-view region, preserving IROM and other mapped ranges."
+  },
+  "reporting_correction": "An interim message incorrectly carried forward the old candidate black-frame verdict to the acceptance run before inspecting its PNGs. Pixel statistics and visual inspection corrected it. A separate default/no-trace run independently confirmed boot/menu. Earlier genuine black runs remain above.",
+  "not_run": [
+    "physical hardware",
+    "browser-WASM",
+    "SD read or playback",
+    "cloud networking and USB source actions",
+    "general application functionality beyond startup/menu",
+    "cache timing, tags, replacement, security and dynamic cache reconfiguration",
+    "standalone ESP-IDF guest probe: local SDK checkout has missing mqtt submodule; replaced only for controller coverage by qtest, not labeled guest execution"
+  ],
+  "cleanup": {
+    "all_sessions": "evidence requested before stop with purge=0 for baseline/status-only/broad/accepted runs",
+    "accepted_default_session": "stopped; mutable flash released by default; history retained",
+    "owned_service": "stopped; owned test port confirmed unbound",
+    "protected_services": "untouched",
+    "burner": "NOT SUBMITTED"
+  },
+  "integration_note": "Combined build/native regression is performed separately by batch owner; this evidence binds only the stated runtime."
+}

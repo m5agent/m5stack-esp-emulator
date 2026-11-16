@@ -1591,3 +1591,30 @@ opt-in auto profile. Fixed shifts and auto profiles that omit the option
 retain their existing range. The bound lets virtual time lag the host to
 retain instruction progress per virtual-time interval. The local bound is
 validated on migration load and cannot be combined with record/replay.
+
+## ESP32-S3 DCache occupy SRAM (0203)
+
+`0203-s3-dcache-occupy-handshake.patch` implements the EXTMEM occupy
+registers and provides 16 KiB of data-side SRAM for the ESP-IDF cache
+reservation at the base of DROM. Other occupied ranges retain their existing
+MMU mapping and permissions. A replacement mapping of the first MMU page
+or a cache reset removes the reservation. The IROM alias remains on the MMU.
+
+Apply 0203 after 0202 and before 0204 in the native Xtensa recipe. The
+[cache fixture](../../tests/firmware/esp32s3_cache_occupy/README.md)
+covers register behavior, SRAM read/write, mapped Flash and reset. The
+[original firmware validation](../../docs/evidence/2026-11-16-cardputer-native-integration/README.md)
+covers M5Apps startup and keyboard wake on the combined build.
+
+## Cardputer family GPIO board detection (0204)
+
+Both Cardputer variants connect the ST7789V2 to the shared GPIO SPI path
+on CS37, SCK36, D/C34 and bidirectional SDA35. The adapter used by StickC
+Plus2 now lives in the panel model and shares its command and read cursor with
+hardware SPI. Cardputer ADV also connects GPIO8/9 to its existing internal
+I²C bus for the TCA8418 address probe before hardware I²C takes ownership.
+The GPIO I²C bridge supplies the board's passive pull-ups on those two pins.
+
+The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
+checks GPIO and hardware SPI ID, chip select, data direction, turnaround
+and reset on both Cardputer variants and the existing StickC Plus2.
