@@ -201,6 +201,8 @@ flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复�
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
 机械、电气或真机安全状态。
 
+原生 Cardputer 和 Cardputer ADV 已为运行时板型识别接入 ST7789V2 的 GPIO SPI 读回。ADV 也在 GPIO8/9 的板载总线上提供 TCA8418 确认。四份相关社区原版固件的显示和按键限定验证见 [#230 证据](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)。
+
 ## 当前工作与下一门禁
 
 `UNIT-01` 的历史外壳验证固定于公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：

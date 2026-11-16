@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-14`
+日期：`2026-11-16`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -17,6 +17,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 ## 2026-11-16
 
 [ESP32 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)：原版 `16cd916a…` 在旧服务误判有效，串口重复 19 次 ROM 读头错误并留下 135×240 全黑帧。同一 BIN 在修复候选 `1cb1975b…` 的合并、导入和历史镜像会话入口前被拒绝，静态审核为 `E_STATIC`。官方 UIFlow2 固件 `9b553277…` 的 `0x1000` 引导布局通过并进入 Cloud 画面。原生 Xtensa `5ce7d9f5…` 与 ROM 不变，保留首次观测失败和独立复验。
+
+[Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)：四份原版映像在基线 `5ce7d9f5…` 复现 61 秒黑帧和板型 136。定向候选 `1472f4ac…` 四份都显示并响应一次明确按键，两份 ADV 经 GPIO I²C 读到 TCA8418 ACK，并经硬件 I²C 读回 Enter 的按下和松开。两款 Cardputer 和 StickC Plus2 的 GPIO/ST7789 qtest 各 14/14。物理设备、浏览器和其它应用功能为 NOT RUN。
+
+[Tab5 原版启动对照](evidence/2026-11-16-tab5-original-startup/README.md)：CarPlay 4f3bb118… 和 M5TabOS 08aa10d0… 在 esp-emu 0.50.0 分别命中 BSP 板型探测及 USB DWC 自检断言。1.0.0 的两次同 CSR 单步进入异常向量，0.50.0 对照转到 PC+4。各会话使用 C6 伴生实例，原应用分区字节及清场通过。帧接口需要匹配 ELF，未获得 framebuffer。触摸及 USB 主机数据面仍开放。
 
 ## 2026-11-14
 

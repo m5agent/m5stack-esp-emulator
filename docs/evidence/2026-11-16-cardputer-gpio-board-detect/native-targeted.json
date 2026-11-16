@@ -1,0 +1,645 @@
+{
+  "date": "2026-11-16",
+  "validation_layer": "native virtual-device validation",
+  "issue": 230,
+  "device_service_source_commit": "12c01eab89c41794ecea4b5b4d3eadf63999feab",
+  "canonical_qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "baseline_runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "lcd_only_runtime_sha256": "8397d8bbc5b4fb5bcb26b22b349852a8cd509f1846413cdd7466aad443c11704",
+  "candidate_runtime_sha256": "1472f4ac61dc37ed783407ea7cec2805b6e87c1e5380214abed6a241d004e20c",
+  "candidate_build": "four touched objects recompiled and linked with other inputs from the verified baseline build; ad-hoc signed",
+  "cases": [
+    {
+      "sample": "tiny-journal",
+      "device": "cardputer",
+      "source_sha256": "b02460c9af14e499fe12c3018ff72740bbbeaaf362e7c51697d09e480824d707",
+      "flash_sha256": "b02460c9af14e499fe12c3018ff72740bbbeaaf362e7c51697d09e480824d707",
+      "baseline": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36,
+          61
+        ],
+        "frames": [
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          }
+        ],
+        "serial_signature": "Unsupported board type: 136",
+        "panel_ram_write": false,
+        "evidence_zip_sha256": "1b80d52adb1427fd7817b67a3863f70c16b1232d93639509acadc7473a65ce46"
+      },
+      "candidate": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36
+        ],
+        "frames": [
+          {
+            "sha256": "01e8b932ecf49a79f9d471b627c4c66352aa91597fbb4fa0e4a96eb0248cf74f",
+            "bytes": 471,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 368,
+            "unique_colors": 1
+          },
+          {
+            "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+            "bytes": 574,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4545,
+            "unique_colors": 2
+          },
+          {
+            "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+            "bytes": 574,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4545,
+            "unique_colors": 2
+          },
+          {
+            "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+            "bytes": 574,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4545,
+            "unique_colors": 2
+          }
+        ],
+        "panel_rddid_commands": 5,
+        "panel_ram_write": true,
+        "unsupported_board_messages": 0,
+        "observed_fatal_markers": 0,
+        "input": {
+          "command": "key:x",
+          "duration_ms": 220,
+          "accepted": true,
+          "frame": {
+            "sha256": "acb05b558bf047fc57a5d858d0ebb58b7c9dde36abc57c0bcb4d49aaa233ed6e",
+            "bytes": 568,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4539,
+            "unique_colors": 2
+          },
+          "before": "Note length 0",
+          "after": "Typed x, note length 1"
+        },
+        "tca8418": null,
+        "evidence_zip_sha256": "57f744bf658f9ddde4f6903bfea238d17a850c58383d6c8b07e0315b7a4d3d69",
+        "zip_crc_and_manifest_verified": true,
+        "session_stopped_retained": true,
+        "flash_released": true,
+        "qmp_socket_released": true
+      }
+    },
+    {
+      "sample": "macrocard",
+      "device": "cardputer",
+      "source_sha256": "f1732ab34f26b2341ed554aa2d0e8f996c014087c7e5dd2b651799bcfcde555b",
+      "flash_sha256": "2d793ad178e6df7c196e86ef5cd2e64dddda0d29e02e25a530b789a2e03489dd",
+      "baseline": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36,
+          61
+        ],
+        "frames": [
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          }
+        ],
+        "serial_signature": "Unsupported board type: 136",
+        "panel_ram_write": false,
+        "evidence_zip_sha256": "3a575ed89de2f9ca1aebdac8f90947d2ebbc52d0e89c570c3f5afe65938d3f82"
+      },
+      "candidate": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36
+        ],
+        "frames": [
+          {
+            "sha256": "baee8cc5ae4ff7e2507e8e91e0331ab5dd53cca88e8aaeb1e32dacdf8e871381",
+            "bytes": 426,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 2
+          },
+          {
+            "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+            "bytes": 1808,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12829,
+            "unique_colors": 5
+          },
+          {
+            "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+            "bytes": 1808,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12829,
+            "unique_colors": 5
+          },
+          {
+            "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+            "bytes": 1808,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12829,
+            "unique_colors": 5
+          }
+        ],
+        "panel_rddid_commands": 5,
+        "panel_ram_write": true,
+        "unsupported_board_messages": 0,
+        "observed_fatal_markers": 0,
+        "input": {
+          "command": "key:ret",
+          "duration_ms": 220,
+          "accepted": true,
+          "frame": {
+            "sha256": "6989b9f550cb7994e21968192ca02d3606c0c750c95218caebcf77a36c9c76c8",
+            "bytes": 1765,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12713,
+            "unique_colors": 4
+          },
+          "before": "Windows shortcut menu",
+          "after": "Enter not assigned"
+        },
+        "tca8418": null,
+        "evidence_zip_sha256": "f0fd5effdd113ccd3cf3c0e7a033deca960ad656ec8c9a9dc577bafed614e78a",
+        "zip_crc_and_manifest_verified": true,
+        "session_stopped_retained": true,
+        "flash_released": true,
+        "qmp_socket_released": true
+      }
+    },
+    {
+      "sample": "frequency",
+      "device": "cardputer-adv",
+      "source_sha256": "2ac8d0133c8bd75c8c3345e3aadca6f4d605b149f0a38549c93b1225286c1d32",
+      "flash_sha256": "4b977bc9b54f28cf0fe542c48a49c8c0579ae0bf829bd59844f304b651aaadc0",
+      "baseline": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36,
+          61
+        ],
+        "frames": [
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          }
+        ],
+        "serial_signature": "Unsupported board type: 136",
+        "panel_ram_write": false,
+        "evidence_zip_sha256": "b23e159ad7a135a4d6405e34d13d4bb9efd2434a0711ea550030e57323b8ad94"
+      },
+      "candidate": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36
+        ],
+        "frames": [
+          {
+            "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+            "bytes": 1766,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9497,
+            "unique_colors": 9
+          },
+          {
+            "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+            "bytes": 1766,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9497,
+            "unique_colors": 9
+          },
+          {
+            "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+            "bytes": 1766,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9497,
+            "unique_colors": 9
+          },
+          {
+            "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+            "bytes": 1766,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9497,
+            "unique_colors": 9
+          }
+        ],
+        "panel_rddid_commands": 1,
+        "panel_ram_write": true,
+        "unsupported_board_messages": 0,
+        "observed_fatal_markers": 0,
+        "input": {
+          "command": "key:ret",
+          "duration_ms": 220,
+          "accepted": true,
+          "frame": {
+            "sha256": "cdcbe68f5dc18336d341df29a2305e8b8c20cfe7823e609c4587f76aee77da38",
+            "bytes": 1762,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9405,
+            "unique_colors": 9
+          },
+          "before": "Stopped at 174 Hz preset",
+          "after": "174 Hz playing status"
+        },
+        "tca8418": {
+          "gpio_probe_address": "0x34",
+          "ack": true,
+          "hardware_i2c_key_event_fifo_hex": [
+            "c3",
+            "43"
+          ],
+          "lcd_only_negative": {
+            "presented_frame": {
+              "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+              "bytes": 1766,
+              "width": 240,
+              "height": 135,
+              "nonblack_pixels": 9497,
+              "unique_colors": 9
+            },
+            "changed_after_any_of_three_accepted_inputs": false
+          }
+        },
+        "evidence_zip_sha256": "4f229fdf396def0c016f2bfe808e9e625d26dc12d9e5a69c396efcb23d4736dc",
+        "zip_crc_and_manifest_verified": true,
+        "session_stopped_retained": true,
+        "flash_released": true,
+        "qmp_socket_released": true
+      }
+    },
+    {
+      "sample": "caplab",
+      "device": "cardputer-adv",
+      "source_sha256": "f02a6c47fd436f619f4394aa3b4b3df7c79fb5168636a357e2c8e584b0423c4f",
+      "flash_sha256": "60040bd70d15125c5502c80167c270368ea187eedca90c09512409c9d2265bc4",
+      "baseline": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36,
+          61
+        ],
+        "frames": [
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          },
+          {
+            "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+            "bytes": 174,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 0,
+            "unique_colors": 0
+          }
+        ],
+        "serial_signature": "Unsupported board type: 136",
+        "panel_ram_write": false,
+        "evidence_zip_sha256": "11e5b1cd19bab888a3eb7517413c6104c27dbad7a747ba8394cb0ed44e7e820a"
+      },
+      "candidate": {
+        "frame_sample_seconds": [
+          4,
+          10,
+          21,
+          36
+        ],
+        "frames": [
+          {
+            "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+            "bytes": 2852,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 10
+          },
+          {
+            "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+            "bytes": 2852,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 10
+          },
+          {
+            "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+            "bytes": 2852,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 10
+          },
+          {
+            "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+            "bytes": 2852,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 10
+          }
+        ],
+        "panel_rddid_commands": 1,
+        "panel_ram_write": true,
+        "unsupported_board_messages": 0,
+        "observed_fatal_markers": 0,
+        "input": {
+          "command": "key:ret",
+          "duration_ms": 220,
+          "accepted": true,
+          "frame": {
+            "sha256": "6f749a8c675ee5803fa60e67db38ea9a5c4218836571ffca7f76e6b52d31969e",
+            "bytes": 2110,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 9
+          },
+          "before": "Main menu",
+          "after": "Sampling and remote-control page"
+        },
+        "tca8418": {
+          "gpio_probe_address": "0x34",
+          "ack": true,
+          "hardware_i2c_key_event_fifo_hex": [
+            "c3",
+            "43"
+          ],
+          "lcd_only_negative": {
+            "presented_frame": {
+              "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+              "bytes": 2852,
+              "width": 240,
+              "height": 135,
+              "nonblack_pixels": 32400,
+              "unique_colors": 10
+            },
+            "changed_after_any_of_three_accepted_inputs": false
+          }
+        },
+        "evidence_zip_sha256": "17b837fc1ca046f3832372a9759583a52cbcc5eb24d025185a09090a27f2a70c",
+        "zip_crc_and_manifest_verified": true,
+        "session_stopped_retained": true,
+        "flash_released": true,
+        "qmp_socket_released": true
+      }
+    }
+  ],
+  "controller_qtests": [
+    {
+      "runtime_sha256": "1472f4ac61dc37ed783407ea7cec2805b6e87c1e5380214abed6a241d004e20c",
+      "machine": "m5cardputer",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 129,
+        "disabled_host_receiver_no_reply": 0,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 129,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 129
+      }
+    },
+    {
+      "runtime_sha256": "1472f4ac61dc37ed783407ea7cec2805b6e87c1e5380214abed6a241d004e20c",
+      "machine": "m5cardputeradv",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 129,
+        "disabled_host_receiver_no_reply": 0,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 129,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 129
+      }
+    },
+    {
+      "runtime_sha256": "1472f4ac61dc37ed783407ea7cec2805b6e87c1e5380214abed6a241d004e20c",
+      "machine": "m5stickcplus2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 133,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 133,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 133
+      }
+    },
+    {
+      "runtime_sha256": "1472f4ac61dc37ed783407ea7cec2805b6e87c1e5380214abed6a241d004e20c",
+      "machine": "m5core2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 4294967295,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 4294967295,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295
+      }
+    }
+  ],
+  "baseline_qtest_gpio_rddid": "0xffffffff",
+  "limits": [
+    "Device Service used the native QEMU and 8 MiB host-image lane.",
+    "The no-key first LCD-only capture used an invalid API request and is excluded from input claims; the independently accepted 3-key captures are used.",
+    "Physical devices, browser WASM, and the applications' broader audio, storage, USB, radio and NFC functions are NOT RUN."
+  ]
+}

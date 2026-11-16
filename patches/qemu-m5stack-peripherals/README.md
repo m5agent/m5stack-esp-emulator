@@ -1591,3 +1591,16 @@ opt-in auto profile. Fixed shifts and auto profiles that omit the option
 retain their existing range. The bound lets virtual time lag the host to
 retain instruction progress per virtual-time interval. The local bound is
 validated on migration load and cannot be combined with record/replay.
+
+## Cardputer family GPIO board detection (0204)
+
+Both Cardputer variants connect the ST7789V2 to the shared GPIO SPI path
+on CS37, SCK36, D/C34 and bidirectional SDA35. The adapter used by StickC
+Plus2 now lives in the panel model and shares its command and read cursor with
+hardware SPI. Cardputer ADV also connects GPIO8/9 to its existing internal
+I²C bus for the TCA8418 address probe before hardware I²C takes ownership.
+The GPIO I²C bridge supplies the board's passive pull-ups on those two pins.
+
+The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
+checks GPIO and hardware SPI ID, chip select, data direction, turnaround
+and reset on both Cardputer variants and the existing StickC Plus2.

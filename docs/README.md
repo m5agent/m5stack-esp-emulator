@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-14`
+日期：`2026-11-16`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -12,6 +12,10 @@
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
 [2026-11-16 ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)记录同一原 BIN 的错误放行、提前拒绝、审核状态和官方正对照。
+
+[2026-11-16 Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)记录四份原版映像的黑帧对照、按键和 ADV 的 GPIO I²C 应答。
+
+[2026-11-16 Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md)记录触摸探测、USB 断言和新版 P4 CSR 阻断。
 
 [2026-11-14 UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md)分开记录真实配对码、云端身份拒绝、授权身份及协议 PONG 超时；稳定身份不替代云端绑定。
 
@@ -367,6 +371,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
+| [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
+| [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |
 | [UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md) | 日期化协议诊断与身份验证 | `2026-11-14` | 区分配对码、身份拒绝、持久身份及云端 control Pong 缺失；不授长期连接通过 |
 | [C6 中断修复后完整原生回归](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md) | 日期化矩阵证据 | `2026-11-14` | 70/70、单 attempt、原执行分区与源码/运行时绑定；原版应用和部署另验 |
 | [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md) | 日期化控制器与原驱动验收 | `2026-11-14` | 同 BIN 新旧 ISR、原版 UIFlow 执行分区、复位及共享 pad；BMI/FT 精确时序仍开放 |
