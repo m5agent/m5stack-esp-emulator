@@ -1,0 +1,35 @@
+{
+  "state": "STARTED",
+  "source_commit": "12c01eab89c41794ecea4b5b4d3eadf63999feab",
+  "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "original_sha256": "16cd916ac688555171a6d00ebf877d71053fcd40148c493564ab70ca90992c82",
+  "original_size": 1676320,
+  "rom_offset_bytes": "40202004",
+  "merged_http": 201,
+  "import_http": 201,
+  "analysis": {
+    "valid": true,
+    "offset": 0,
+    "warnings": []
+  },
+  "observed_seconds": 62.41,
+  "frames": [],
+  "serial_marker": "invalid header: 0x04202040",
+  "serial_marker_count": 19,
+  "evidence_sha256": "486359948a9ebcc5d386e5e00622a4310a8665ebf078942e2806629cc0c6a421",
+  "session_stop_http": 200,
+  "final_session_state": "stopped",
+  "service_exited": true,
+  "frame_from_saved_evidence": {
+    "size": [
+      135,
+      240
+    ],
+    "bytes": 174,
+    "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+    "nonblack": 0,
+    "serial_marker_count": 19
+  },
+  "verification": "ROM reproduction PASS; initial observer assertion stopped because all display-oriented frame requests returned 409. Saved evidence ZIP was decoded independently."
+}

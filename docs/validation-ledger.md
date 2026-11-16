@@ -14,6 +14,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-16
+
+[ESP32 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)：原版 `16cd916a…` 在旧服务误判有效，串口重复 19 次 ROM 读头错误并留下 135×240 全黑帧。同一 BIN 在修复候选 `1cb1975b…` 的合并、导入和历史镜像会话入口前被拒绝，静态审核为 `E_STATIC`。官方 UIFlow2 固件 `9b553277…` 的 `0x1000` 引导布局通过并进入 Cloud 画面。原生 Xtensa `5ce7d9f5…` 与 ROM 不变，保留首次观测失败和独立复验。
+
 ## 2026-11-14
 
 [Pages 发布与 HTTPS 限定验收](evidence/2026-11-14-pages-local-qualification/README.md)：实际源码 `70ef503f…`、manifest `54fc8d8f…` 的完整串行 72/72、2,993 checks 及全部子进程 exit 0；另有原版 CoreMatrix 1 guest 与 Canvas/COI 18 host controls。75 份子报告闭集分别保留，Chrome `157.0.8103.52` 前后及 393 次 executable SHA 采样一致。发布包 `8c25e92e…`、186,574,444 字节已复算，导出 2,179 文件；42 份既有 runtime 字节未变。Prepared 工作流 `43511659965` 与 deployment `7776988548` 已成功，正式 HTTPS 全部 2,179 文件/304,564,570 字节匹配，0 错误/重试。其后 HTTPS CoreS3 原参考示例 49/49、SDK 候选 34/34，实际触摸、PIR、10 份帧哈希和正常退出通过，20 次外层浏览器采样一致；两个子报告版本缺项仍为 NOT_RECORDED。两例各冷启/重开，共四次生命周期，不扩大用例基数。hosted 全量 NOT RERUN，旧 FAIL/PARTIAL 保留；原生 C6 GPIO 未进入 WASM。

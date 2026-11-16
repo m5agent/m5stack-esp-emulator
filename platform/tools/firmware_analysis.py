@@ -134,6 +134,17 @@ CHIP_IDS = {
     0x001C: "esp32h4",
 }
 
+# ROM flash offsets for the target chips accepted by Device Service.
+BOOTLOADER_FLASH_OFFSETS = {
+    0x0000: 0x1000,  # ESP32
+    0x0005: 0,       # ESP32-C3
+    0x0009: 0,       # ESP32-S3
+    0x000D: 0,       # ESP32-C6
+    0x0010: 0,       # ESP32-H2
+    0x0012: 0x2000,  # ESP32-P4
+    0x0014: 0,       # ESP32-C61
+}
+
 
 def _u16(data: bytes, offset: int) -> int:
     return struct.unpack_from("<H", data, offset)[0]
@@ -715,6 +726,44 @@ def _next_power_of_two(value: int) -> int:
     return result
 
 
+def find_flash_bootloader(
+    data: bytes, expected_chip_id_value: int | None = None,
+) -> dict:
+    """Prefer the ROM location and retain a misplaced image for diagnostics."""
+    expected_offset = BOOTLOADER_FLASH_OFFSETS.get(expected_chip_id_value, 0)
+    primary = analyze_esp_image(data, expected_offset)
+    if primary["valid"] and (
+        expected_chip_id_value is not None
+        and primary["chip_id"] == expected_chip_id_value
+    ):
+        return primary
+    candidates = [primary]
+    for offset in (0, 0x1000, 0x2000):
+        if offset != expected_offset and data[offset:offset + 1] == b"\xe9":
+            candidates.append(analyze_esp_image(data, offset))
+    valid = [image for image in candidates if image["valid"]]
+    if expected_chip_id_value is not None:
+        matching = [image for image in valid if image["chip_id"] == expected_chip_id_value]
+        if matching:
+            return matching[0]
+    for image in valid:
+        if BOOTLOADER_FLASH_OFFSETS.get(image["chip_id"]) == image["offset"]:
+            return image
+    return valid[0] if valid else primary
+
+
+def bootloader_offset_error(image: dict) -> str | None:
+    if not image["valid"]:
+        return None
+    expected = BOOTLOADER_FLASH_OFFSETS.get(image["chip_id"])
+    if expected is None or image["offset"] == expected:
+        return None
+    return (
+        f"{image['chip']} requires a bootloader at flash offset 0x{expected:x}, "
+        f"found a valid image at 0x{image['offset']:x}"
+    )
+
+
 def analyze_firmware(
     path: Path,
     *,
@@ -727,21 +776,20 @@ def analyze_firmware(
         "valid": False,
         "errors": [],
         "warnings": [],
-        "bootloader": analyze_esp_image(data, 0),
+        "bootloader": find_flash_bootloader(data, expected_chip_id_value),
         "partition_table": {},
         "app_images": [],
         "app_descriptor": None,
     }
-    if not result["bootloader"]["valid"]:
-        for offset, warning in (
-            (0x1000, "classic ESP32 bootloader found at 0x1000"),
-            (0x2000, "ESP32-P4 bootloader found at 0x2000"),
-        ):
-            candidate = analyze_esp_image(data, offset)
-            if candidate["valid"]:
-                result["bootloader"] = candidate
-                result["warnings"].append(warning)
-                break
+    bootloader = result["bootloader"]
+    offset_error = bootloader_offset_error(bootloader)
+    if offset_error:
+        result["errors"].append(f"bootloader_offset_mismatch: {offset_error}")
+    elif bootloader["valid"]:
+        if bootloader["offset"] == 0x1000:
+            result["warnings"].append("classic ESP32 bootloader found at 0x1000")
+        elif bootloader["offset"] == 0x2000:
+            result["warnings"].append("ESP32-P4 bootloader found at 0x2000")
 
     structural_table = parse_partition_table(
         data,
@@ -823,7 +871,6 @@ def analyze_firmware(
             )
             if descriptor:
                 result["app_descriptor"] = descriptor
-    bootloader = result["bootloader"]
     bootloader["secure_boot_v2_signature"] = detect_secure_boot_v2_signature(
         data,
         bootloader,

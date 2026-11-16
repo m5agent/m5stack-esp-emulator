@@ -1,0 +1,95 @@
+{
+  "state": "PASS",
+  "source_commit": "1cb1975be1828ed72fad22dce1098a9565f78f86",
+  "runtime_sha256": "5ce7d9f5ce397ce87935626c0284955714e0ed286fcce0cd91ca47f4f326040c",
+  "rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "original_sha256": "16cd916ac688555171a6d00ebf877d71053fcd40148c493564ab70ca90992c82",
+  "original_size": 1676320,
+  "rom_offset_bytes": "40202004",
+  "merged_http": 422,
+  "import_http": 400,
+  "merged_error": {
+    "code": "bootloader_offset_mismatch",
+    "message": "esp32 requires a bootloader at flash offset 0x1000, found a valid image at 0x0"
+  },
+  "import_error": {
+    "code": "invalid_firmware_package",
+    "message": "normalized flash image failed structural validation: bootloader_offset_mismatch: esp32 requires a bootloader at flash offset 0x1000, found a valid image at 0x0"
+  },
+  "sessions_after_rejection": 0,
+  "analysis": {
+    "valid": false,
+    "offset": 0,
+    "errors": [
+      "bootloader_offset_mismatch: esp32 requires a bootloader at flash offset 0x1000, found a valid image at 0x0"
+    ]
+  },
+  "legacy_session_rejection_http": 422,
+  "review": {
+    "source_commit": "2846fe9b4ee73d4b4dbb9afaf31f439d0b6c34f2",
+    "status": "failed",
+    "lane": "FAIL",
+    "error_code": "E_STATIC",
+    "no_sessions": true,
+    "submit_requested": false,
+    "conclusion": "静态固件分析失败。引导加载程序（esp32 requires a bootloader at flash offset 0x1000, found a valid image at 0x0）"
+  },
+  "positive_analysis": {
+    "valid": true,
+    "offset": 4096,
+    "original_sha256": "9b553277331a2cbb61b3fd73188da05bd312c66edd5ad2f39adfa4e155abf254"
+  },
+  "frame_api_errors": [
+    {
+      "at": 3,
+      "status": 409,
+      "code": "session_not_running"
+    },
+    {
+      "at": 15,
+      "status": 409,
+      "code": "session_not_running"
+    },
+    {
+      "at": 30,
+      "status": 409,
+      "code": "session_not_running"
+    }
+  ],
+  "observed_seconds": 60.411,
+  "frames": [
+    {
+      "at": 45,
+      "size": [
+        135,
+        240
+      ],
+      "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "nonblack": 0
+    },
+    {
+      "at": 59,
+      "size": [
+        135,
+        240
+      ],
+      "sha256": "42958ec51c97b8d8f84b1f60adc72a5103a3a18f5017bad1df8079cb7febb5cb",
+      "nonblack": 32301
+    },
+    {
+      "at": "evidence-zip",
+      "size": [
+        135,
+        240
+      ],
+      "sha256": "42958ec51c97b8d8f84b1f60adc72a5103a3a18f5017bad1df8079cb7febb5cb",
+      "nonblack": 32301
+    }
+  ],
+  "serial_marker": "Startup with network type: WIFI",
+  "serial_marker_count": 1,
+  "evidence_sha256": "6e563d7f2997cf1913ff4002f670de2c8f11d63e838a897d81a101b99308326e",
+  "session_stop_http": 200,
+  "final_session_state": "stopped",
+  "service_exited": true
+}

@@ -1349,6 +1349,15 @@ bootloader_flash_size_too_small` before a session is allocated. For example,
 padding a 4 MiB build to an 8 MiB device is not sufficient when its bootloader
 was compiled for 4 MiB and its partition table requires the full 8 MiB.
 
+Static analysis checks the bootloader location for the image's chip. A classic
+ESP32 ROM loads the bootloader at `0x1000`, ESP32-P4 at `0x2000`, and ESP32-S3,
+C3, C6, H2 and C61 at `0x0`. A misplaced bootloader makes analysis return
+`valid: false` with a `bootloader_offset_mismatch` error specifying both
+offsets. Composition rejects such a merged layout with HTTP `422
+bootloader_offset_mismatch`. Package import returns HTTP `400
+invalid_firmware_package` with the offset diagnostic. Session creation also
+checks a previously stored firmware image before allocating a session.
+
 `POST /api/v1/firmware/import` accepts up to 64 canonicalized
 `required_capabilities` and 64 `optional_capabilities`. Aliases such as
 `screen` become `display`; malformed, non-string, empty or overlong entries

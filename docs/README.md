@@ -11,6 +11,8 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
+[2026-11-16 ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)记录同一原 BIN 的错误放行、提前拒绝、审核状态和官方正对照。
+
 [2026-11-14 UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md)分开记录真实配对码、云端身份拒绝、授权身份及协议 PONG 超时；稳定身份不替代云端绑定。
 
 [2026-11-14 云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md)记录旧服务兼容性、真实网页默认身份与授权身份、观察器失败及独立复测。
@@ -364,6 +366,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
 | [UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md) | 日期化协议诊断与身份验证 | `2026-11-14` | 区分配对码、身份拒绝、持久身份及云端 control Pong 缺失；不授长期连接通过 |
 | [C6 中断修复后完整原生回归](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md) | 日期化矩阵证据 | `2026-11-14` | 70/70、单 attempt、原执行分区与源码/运行时绑定；原版应用和部署另验 |
 | [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md) | 日期化控制器与原驱动验收 | `2026-11-14` | 同 BIN 新旧 ISR、原版 UIFlow 执行分区、复位及共享 pad；BMI/FT 精确时序仍开放 |
