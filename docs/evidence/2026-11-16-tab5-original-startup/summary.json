@@ -1,0 +1,616 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "validation": "virtual-device validation",
+  "overall_status": "PARTIAL; issues226 and227 remain open",
+  "source_commit": "55e5763eac90a8166a3b0c522fd5291b99810517",
+  "issues": [
+    226,
+    227
+  ],
+  "runtime_configuration": {
+    "backend": "native esp-emu selected through normal Device Service qemu Tab5 session",
+    "rom_revision": "esp32p4_rev0",
+    "efuse_fixture_revision": "Tab5 P4 1.0; session-owned copy",
+    "psram_mib": 32,
+    "console": "uart0",
+    "c6_companion": "present in every executed run; same runtime binary as P4",
+    "i2c_addresses": [
+      "0x32",
+      "0x41",
+      "0x43",
+      "0x44",
+      "0x68"
+    ],
+    "i2c_config_unchanged": true,
+    "firmware_instructions_modified": false,
+    "gdb": "Hardware breakpoints, read-only registers/memory; explicit single-instruction stepping only in CSR controls. No register or memory writes."
+  },
+  "upstream_inspection": {
+    "latest_stable_tag": "v1.0.0",
+    "published_at": "2026-11-13T07:14:03Z",
+    "tag_commit": "f77b06d76ec1c8323c21d3543ec86bf426567f22",
+    "release": "https://github.com/espressif/esp-emulator/releases/tag/v1.0.0",
+    "public_source_tree": "https://github.com/espressif/esp-emulator/tree/f77b06d76ec1c8323c21d3543ec86bf426567f22",
+    "core_source_available": false,
+    "maintainable_extension_source": "esp-part SDK and part ABI expose GPIO/I2C/SPI, available in1.0.0; no cosim-board flag in0.50.0",
+    "part_abi": "https://github.com/espressif/esp-emulator/blob/f77b06d76ec1c8323c21d3543ec86bf426567f22/proto/PART_ABI.md",
+    "usb_scope": "Published1.0.0 feature is USB device mode enumerated by a virtual host; does not establish guest-host root-port/endpoint support.",
+    "mmio_csr_extension": "No public CPU/CSR implementation or CSR/MMIO replacement extension was found in the public release tree/CLI/part ABI."
+  },
+  "cases": [
+    {
+      "case": "carplay-new-csr",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "firmware_bytes": 2221360,
+      "app_descriptor": {
+        "project_name": "carplay_tab5",
+        "version": "1.0.0",
+        "idf_version": "v5.5.3",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "runtime_version": "1.0.0",
+      "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.000646875007078,
+      "final_serial_bytes": 130139,
+      "final_serial_sha256": "57b9b8f4f9ed5514914c00df23e2e81bbbc46f1e0e7e7b204cb12c28af0d6e9f",
+      "rom_boot_markers_at_zip_collection": 32,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "2da7017b035cb69ef864d66dc66d894f21f20a9d46083f55c63f7fe7fa67abb0",
+      "stderr_bytes": 586,
+      "stderr_illegal_instruction_lines": [],
+      "gdb_sha256": "47cc605c54f5084af4bc088da3f4dab8aed8df1b50dc7dabffb9ec21a56ec431",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff014c0\t0x4ff014c0",
+        "ra             0x4ff014b4\t0x4ff014b4",
+        "a0             0x2\t2",
+        "=> 0x4ff014c0:\tcsrr\ta4,0x346",
+        "pc             0x4ff00000\t0x4ff00000",
+        "ra             0x4ff014b4\t0x4ff014b4",
+        "a0             0x2\t2",
+        "=> 0x4ff00000:\tj\t0x4ff00100"
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4194304,
+          "sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "e7cfce9a94bd9291e7dbdd68c8cb8ab4281ec32d060fc85265fc924aa0a9cd96",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "carplay-new-r2",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "firmware_bytes": 2221360,
+      "app_descriptor": {
+        "project_name": "carplay_tab5",
+        "version": "1.0.0",
+        "idf_version": "v5.5.3",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "runtime_version": "1.0.0",
+      "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.00006370898336,
+      "final_serial_bytes": 136816,
+      "final_serial_sha256": "0ab9b5b7b6a85f1c064462d9e46a3cdbdd473e9ffe6278081ff3bfcae486a9e7",
+      "rom_boot_markers_at_zip_collection": 34,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "0e2f72d5580cf1a2ae4ed6d659099981e43aeb3a6d426045192b6ca393c0efcf",
+      "stderr_bytes": 424,
+      "stderr_illegal_instruction_lines": [],
+      "gdb_sha256": "522051c8b373001a99988624287e1f45d50d074c99bab4fd2ce92f017e9fcf81",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4817fad6\t0x4817fad6",
+        "ra             0x481800cc\t0x481800cc",
+        "a0             0x186e640\t25617984",
+        "=> 0x4817fad6:\taddi\ta4,a4,-1366"
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4194304,
+          "sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "d1caf69779c80260533b94fdbc3a60b075a85276a84ddff9eb8685d0e70478db",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "carplay-new-r3",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "firmware_bytes": 2221360,
+      "app_descriptor": {
+        "project_name": "carplay_tab5",
+        "version": "1.0.0",
+        "idf_version": "v5.5.3",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "runtime_version": "1.0.0",
+      "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.00011791707948,
+      "final_serial_bytes": 197821,
+      "final_serial_sha256": "8fea7143dd4debc34411ead350611958ee6891f4b42751846f63c5c9c1ebbe7b",
+      "rom_boot_markers_at_zip_collection": 49,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "0e2f72d5580cf1a2ae4ed6d659099981e43aeb3a6d426045192b6ca393c0efcf",
+      "stderr_bytes": 424,
+      "stderr_illegal_instruction_lines": [],
+      "gdb_sha256": "07408ab5075c3d0b0a9b8c42873cbeeb4db3758dd05786ec89a2736a423b6c52",
+      "gdb_timeout": true,
+      "gdb_exit_code": null,
+      "gdb_observations": [],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4194304,
+          "sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "ff0f00004814b172bf0150b7d81af659bcac9a313d789436bb4f40711fb56812",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "carplay-old",
+      "status": "NOT RUN",
+      "infrastructure_error": "Harness used the wrong discovery response field; KeyError before upload or guest allocation. Corrected to device_id, then reran independently.",
+      "guest_started": false,
+      "owned_children_gone": true
+    },
+    {
+      "case": "carplay-old-csr",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "firmware_bytes": 2221360,
+      "app_descriptor": {
+        "project_name": "carplay_tab5",
+        "version": "1.0.0",
+        "idf_version": "v5.5.3",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "runtime_version": "0.50.0",
+      "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.005017458926886,
+      "final_serial_bytes": 120519,
+      "final_serial_sha256": "99efaf80011be342cb68e87d90daeddfd6d99abc7faf850d51306baf046335f1",
+      "rom_boot_markers_at_zip_collection": 29,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "3d2229931111fb671fd5da61290930c3bbbbbe1d71d54047dd3bb8e61bbdd4c2",
+      "stderr_bytes": 3079,
+      "stderr_illegal_instruction_lines": [
+        "Illegal instruction 0x00000000 at PC=0x4FF0CE9E hart=0 priv=Machine"
+      ],
+      "gdb_sha256": "585eb7f17278827289a4c0a15de6212a9673ed1544e15c1aaea5b7c14df0c3cd",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff014c0\t0x4ff014c0",
+        "ra             0x4ff014b4\t0x4ff014b4",
+        "a0             0x2\t2",
+        "=> 0x4ff014c0:\tcsrr\ta4,0x346",
+        "pc             0x4ff014c4\t0x4ff014c4",
+        "ra             0x4ff014b4\t0x4ff014b4",
+        "a0             0x2\t2",
+        "=> 0x4ff014c4:\tor\ta5,a5,a4"
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4194304,
+          "sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "aa5075485134c68829271725aa5a0422e1c86b9a5b2309e098979a1e62475fd0",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "carplay-old-r2",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "firmware_bytes": 2221360,
+      "app_descriptor": {
+        "project_name": "carplay_tab5",
+        "version": "1.0.0",
+        "idf_version": "v5.5.3",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "runtime_version": "0.50.0",
+      "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.000665333820507,
+      "final_serial_bytes": 120519,
+      "final_serial_sha256": "99efaf80011be342cb68e87d90daeddfd6d99abc7faf850d51306baf046335f1",
+      "rom_boot_markers_at_zip_collection": 29,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "97408beb44a8ae5bb3c9423fd6d119e8fc2c7871acae612e93d97b5982042d58",
+      "stderr_bytes": 3006,
+      "stderr_illegal_instruction_lines": [
+        "Illegal instruction 0x00000000 at PC=0x4FF0CE9E hart=0 priv=Machine"
+      ],
+      "gdb_sha256": "8ff465d9708ebc6b78d46c44ba0e204fb01b5cd0b75dbfdb51e81e3e947daf3f",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff0ce9e\t0x4ff0ce9e",
+        "ra             0x4ff0c9aa\t0x4ff0c9aa",
+        "a0             0x4ff2ad5c\t1341304156",
+        "0x4ff2ad5c:\t\"assert failed: bsp_get_board_version bsp_display.c:189 (NULL)\""
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 4194304,
+          "sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "64d0968c47b771ebdca52e15405d0d53d9168663709ad9a36a78826f63f38ff7",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "tabos-new-csr",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "firmware_bytes": 7439248,
+      "app_descriptor": {
+        "project_name": "M5tabOS",
+        "version": "0.9.1",
+        "idf_version": "5.5.5",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "runtime_version": "1.0.0",
+      "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.005027250153944,
+      "final_serial_bytes": 57580,
+      "final_serial_sha256": "a878676347611375da937d069c2bf6ef575023d17a62b6b91a8d9c4544e495d8",
+      "rom_boot_markers_at_zip_collection": 12,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "2da7017b035cb69ef864d66dc66d894f21f20a9d46083f55c63f7fe7fa67abb0",
+      "stderr_bytes": 586,
+      "stderr_illegal_instruction_lines": [],
+      "gdb_sha256": "604247321c4f9ebfc1570fc184379981fbacba6473efdc4614bfaf25477100ac",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff0255a\t0x4ff0255a",
+        "ra             0x4ff0254c\t0x4ff0254c",
+        "a0             0x2\t2",
+        "=> 0x4ff0255a:\tcsrr\ta4,0x346",
+        "pc             0x4ff00000\t0x4ff00000",
+        "ra             0x4ff0254c\t0x4ff0254c",
+        "a0             0x2\t2",
+        "=> 0x4ff00000:\tj\t0x4ff00100"
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "a54257c619ca2e059aa19e95d2741cab44ad6c4924ee5af7d66924787251759e",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "tabos-new-r2",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "firmware_bytes": 7439248,
+      "app_descriptor": {
+        "project_name": "M5tabOS",
+        "version": "0.9.1",
+        "idf_version": "5.5.5",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "runtime_version": "1.0.0",
+      "runtime_sha256": "cdfe1e8f3d447af4af12f0699457e958af0ea6ff8601d909079801c8655c6ef5",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.001398833934218,
+      "final_serial_bytes": 84942,
+      "final_serial_sha256": "65e71c0dae1945733da0991fcca1716e400ebf6e7df9a9bb50af570c22c91d57",
+      "rom_boot_markers_at_zip_collection": 18,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "0e2f72d5580cf1a2ae4ed6d659099981e43aeb3a6d426045192b6ca393c0efcf",
+      "stderr_bytes": 424,
+      "stderr_illegal_instruction_lines": [],
+      "gdb_sha256": "c849bf11283625313b2e7478aed568809344e965c090bb68decc9e2a4c698814",
+      "gdb_timeout": true,
+      "gdb_exit_code": null,
+      "gdb_observations": [],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "6d6e040b71a7bb2f574fba94ab3b21f8b96c2d5755a7f6609882b2a013f720e2",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "tabos-old-csr",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "firmware_bytes": 7439248,
+      "app_descriptor": {
+        "project_name": "M5tabOS",
+        "version": "0.9.1",
+        "idf_version": "5.5.5",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "runtime_version": "0.50.0",
+      "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.005013041896746,
+      "final_serial_bytes": 45887,
+      "final_serial_sha256": "8a7ac68b51cf00aacf41627ff7af439310263b82b54d81df3545a611c93e118a",
+      "rom_boot_markers_at_zip_collection": 10,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "13aa73e8e4a1803d94a4a330471e7da0a2f95d0357189a8f03ea694fe5690087",
+      "stderr_bytes": 2189,
+      "stderr_illegal_instruction_lines": [
+        "Illegal instruction 0x00000000 at PC=0x4FF10F12 hart=0 priv=Machine",
+        "Illegal instruction 0x00000000 at PC=0x4FF10F12 hart=1 priv=Machine"
+      ],
+      "gdb_sha256": "5a25b83d39b3c7b82f1c3b15d519e9b1aa375666faade01fb2993e82f23985b2",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff0255a\t0x4ff0255a",
+        "ra             0x4ff0254c\t0x4ff0254c",
+        "a0             0x2\t2",
+        "=> 0x4ff0255a:\tcsrr\ta4,0x346",
+        "pc             0x4ff0255e\t0x4ff0255e",
+        "ra             0x4ff0254c\t0x4ff0254c",
+        "a0             0x2\t2",
+        "=> 0x4ff0255e:\tor\ta5,a5,a4"
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "020ad7d7cbd4cf774e754114ee148bb1d68c303ed5a3c28009bdfc4d8678ef85",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    },
+    {
+      "case": "tabos-old-r2",
+      "status": "FAIL original application readiness",
+      "firmware_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "firmware_bytes": 7439248,
+      "app_descriptor": {
+        "project_name": "M5tabOS",
+        "version": "0.9.1",
+        "idf_version": "5.5.5",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "min_efuse_blk_rev_full": 0,
+        "max_efuse_blk_rev_full": 199
+      },
+      "execution_firmware_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "runtime_version": "0.50.0",
+      "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+      "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "efuse_seed_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+      "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "c6_companion_present": true,
+      "observation_seconds_before_gdb": 18.001243834150955,
+      "final_serial_bytes": 46355,
+      "final_serial_sha256": "09431034f677bfc2ab2859a81eab6eeb9b49f8d86d55d37521a7a8b79a45cec9",
+      "rom_boot_markers_at_zip_collection": 11,
+      "boot_count_window": "Final ZIP, including post-observation GDB time; not an 18-second rate.",
+      "stderr_sha256": "60df5dc46c95d0b387c5240da277dc36a0898c2f2232c0e02d29956519d51a66",
+      "stderr_bytes": 2205,
+      "stderr_illegal_instruction_lines": [
+        "Illegal instruction 0x00000000 at PC=0x4FF10F12 hart=0 priv=Machine",
+        "Illegal instruction 0x00000000 at PC=0x4FF10F12 hart=1 priv=Machine"
+      ],
+      "gdb_sha256": "904d156f404730878de2a5ed3a9f6cee32bd55b2ac893a9d1f5df74a6a3eeac8",
+      "gdb_timeout": false,
+      "gdb_exit_code": 0,
+      "gdb_observations": [
+        "pc             0x4ff10f00\t0x4ff10f00",
+        "ra             0x4ff10e7c\t0x4ff10e7c",
+        "a0             0x4ff2fbe4\t1341324260",
+        "0x4ff2fbe4:\t\"assert failed: usb_dwc_hal_init usb_dwc_hal.c:152 (core_id == CORE_REG_GSNPSID_4_00a || core_id == CORE_REG_GSNPSID_4_30a)\""
+      ],
+      "frame_observation": {
+        "http_status": 409,
+        "error_code": "screenshot_requires_matching_elf",
+        "meaning": "No framebuffer measured: this original application has no matching ELF configured. This response does not establish a black frame or the absence of guest drawing."
+      },
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 8388608,
+          "sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+          "unchanged": true
+        }
+      ],
+      "evidence_zip_sha256": "c1432863b6c5131db877f27ec84fbaf8013063888d5a6fcb314d88c71693d1f1",
+      "evidence_manifest_valid": true,
+      "cleanup": {
+        "evidence_before_stop": true,
+        "state": "stopped",
+        "mutable_flash_retained": false,
+        "p4_and_c6_exited": true
+      }
+    }
+  ],
+  "conclusions": {
+    "issue227_old_runtime": "With C6 attached, unchanged CarPlay hits bsp_get_board_version bsp_display.c:189(NULL), matching missing touch I2C probe path.",
+    "issue226_new_original_old_runtime": "With C6 attached, unchanged M5TabOS0.9.1 hits usb_dwc_hal_init usb_dwc_hal.c:152(GSNPSID), despite absent assertion text on captured UART0.",
+    "v1_original_compatibility": "Both original BINs execute csrr a4,0x346 then enter0x4ff00000 exception vector on1.0.0; the same instruction steps to PC+4 on0.50.0. No later touch/USB verdict is transferred to1.0.0.",
+    "patch_status": "No accepted emulator fix. A standalone touch part is feasible through new source SDK, but same-original acceptance first needs old-P4 CSR compatibility; P4 guest USB-host modeling needs a real controller/endpoint path.",
+    "matching_elf": "Not supplied for either original; application framebuffer/touch cannot be validated through current matching-symbol service path.",
+    "independent_m5gfx_issue": "M5GFX#417 concerns failed-read buffer parsing after touch access, not the earlier BSP address probe in#227; its host-only results do not repair or validate these original BINs."
+  },
+  "not_run": [
+    "physical hardware",
+    "browser WASM",
+    "application framebuffer",
+    "touch input",
+    "USB host enumeration or transfer",
+    "network data-plane acceptance",
+    "modified touch part validation"
+  ],
+  "cleanup": "Every executed session exported ZIP before purge=0 stop; mutable Flash released; all owned P4/C6 processes and isolated service exited.",
+  "privacy": "Derived summary only; no original BIN, ZIP, endpoints, local paths, MAC values, tokens or raw session identifiers."
+}
