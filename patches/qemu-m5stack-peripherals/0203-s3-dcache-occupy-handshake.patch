@@ -1,0 +1,177 @@
+--- a/hw/misc/esp32s3_cache.c
++++ b/hw/misc/esp32s3_cache.c
+@@ -95,6 +95,10 @@
+ #if CACHE_DEBUG
+     info_report("[CACHE] esp32s3_write_mmu_value 0x%lx = %08x, index=%d", reg_addr, value, index);
+ #endif
++    /* A new external-memory mapping supersedes the reserved SRAM view. */
++    if (index == 0 && !e.invalid) {
++        memory_region_set_enabled(&s->occupy_window, false);
++    }
+     if (former.val != e.val) {
+         /* The entry contains the index of the 64KB block from the flash memory */
+         const uint32_t physical_address = e.page_number * ESP32S3_PAGE_SIZE;
+@@ -118,6 +122,28 @@
+ }
+ 
+ 
++/* ESP-IDF's 16KB DCache configuration reserves the first 16KB of DROM
++ * as internal/DMA SRAM. The unified MMU can still map IROM code in that
++ * page; IDF keeps its DROM alias unused via .flash_rodata_dummy. Other
++ * occupied ranges retain their MMU backing/permissions: this functional
++ * model has no cache replacement or timing to pin. */
++static void esp32s3_cache_occupy(ESP32S3CacheState *s)
++{
++    uint32_t ctrl = s->regs[ESP32S3_CACHE_REG_IDX(A_EXTMEM_DCACHE_CTRL)];
++    uint32_t mode = FIELD_EX32(ctrl, EXTMEM_DCACHE_CTRL, BLOCKSIZE_MODE);
++    uint32_t addr = s->regs[ESP32S3_CACHE_REG_IDX(A_EXTMEM_DCACHE_OCCUPY_ADDR)];
++    uint32_t items = s->regs[ESP32S3_CACHE_REG_IDX(A_EXTMEM_DCACHE_OCCUPY_SIZE)];
++    uint32_t line_size = 16u << mode;
++    uint64_t length = (uint64_t)items * line_size;
++
++    if (mode > 2 || addr != ESP32S3_DCACHE_BASE || length != 0x4000 ||
++        (ctrl & R_EXTMEM_DCACHE_CTRL_SIZE_MODE_MASK)) {
++        return;
++    }
++    memory_region_set_enabled(&s->occupy_window, true);
++}
++
++
+ static uint64_t esp32s3_cache_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     ESP32S3CacheState *s = ESP32S3_CACHE(opaque);
+@@ -131,7 +157,7 @@
+ 
+     switch(addr) {
+         case A_EXTMEM_DCACHE_CTRL:
+-            r = s->dcache_enable;
++            r = s->regs[index];
+             break;
+         case A_EXTMEM_DCACHE_CTRL1:
+             r = s->regs[index];
+@@ -164,6 +190,11 @@
+                                     R_EXTMEM_ICACHE_AUTOLOAD_CTRL_AUTOLOAD_ENA_MASK,
+                                     R_EXTMEM_ICACHE_AUTOLOAD_CTRL_AUTOLOAD_DONE_MASK);
+             break;
++        case A_EXTMEM_DCACHE_OCCUPY_CTRL:
++        case A_EXTMEM_DCACHE_OCCUPY_ADDR:
++        case A_EXTMEM_DCACHE_OCCUPY_SIZE:
++            r = s->regs[index];
++            break;
+         case A_EXTMEM_DCACHE_PRELOAD_CTRL:
+             r = check_and_reset_ena(&s->regs[index],
+                                     R_EXTMEM_DCACHE_PRELOAD_CTRL_PRELOAD_ENA_MASK,
+@@ -221,6 +252,9 @@
+         switch (addr) {
+             case A_EXTMEM_DCACHE_CTRL:
+                 s->dcache_enable = value & 1;
++                s->regs[index] = value & (R_EXTMEM_DCACHE_CTRL_ENABLE_MASK |
++                                         R_EXTMEM_DCACHE_CTRL_SIZE_MODE_MASK |
++                                         R_EXTMEM_DCACHE_CTRL_BLOCKSIZE_MODE_MASK);
+                 break;
+             case A_EXTMEM_DCACHE_CTRL1:
+                 s->regs[index] = value;
+@@ -230,6 +264,21 @@
+                 break;
+             case A_EXTMEM_ICACHE_CTRL1:
+                 s->regs[index] = value;
++                break;
++            case A_EXTMEM_DCACHE_OCCUPY_CTRL:
++                /* DONE is read-only; publish it only after the SRAM window
++                 * has been installed. ENA self-clears on completion. */
++                if (value & R_EXTMEM_DCACHE_OCCUPY_CTRL_OCCUPY_ENA_MASK) {
++                    s->regs[index] = R_EXTMEM_DCACHE_OCCUPY_CTRL_OCCUPY_ENA_MASK;
++                    esp32s3_cache_occupy(s);
++                    s->regs[index] = R_EXTMEM_DCACHE_OCCUPY_CTRL_OCCUPY_DONE_MASK;
++                }
++                break;
++            case A_EXTMEM_DCACHE_OCCUPY_ADDR:
++                s->regs[index] = value;
++                break;
++            case A_EXTMEM_DCACHE_OCCUPY_SIZE:
++                s->regs[index] = value & R_EXTMEM_DCACHE_OCCUPY_SIZE_OCCUPY_SIZE_MASK;
+                 break;
+             case A_EXTMEM_ICACHE_FREEZE:
+                 if (value & R_EXTMEM_ICACHE_FREEZE_ICACHE_FREEZE_ENA_MASK) {
+@@ -272,12 +321,17 @@
+ static void esp32s3_cache_reset_hold(Object *obj, ResetType type)
+ {
+     ESP32S3CacheState *s = ESP32S3_CACHE(obj);
++    memory_region_set_enabled(&s->occupy_window, false);
++    s->dcache_enable = false;
+     memset(s->regs, 0, ESP32S3_CACHE_REG_COUNT * sizeof(*s->regs));
+ 
+     /* Initialize the MMU with invalid entries */
+     for (int i = 0; i < ESP32S3_MMU_TABLE_ENTRY_COUNT; i++) {
+         s->mmu[i].invalid = 1;
+     }
++
++    /* Occupy is idle after reset: DONE=1, ENA=0, address/size=0. */
++    s->regs[ESP32S3_CACHE_REG_IDX(A_EXTMEM_DCACHE_OCCUPY_CTRL)] = R_EXTMEM_DCACHE_OCCUPY_CTRL_OCCUPY_DONE_MASK;
+ 
+     /* On reset, autoload must be set to done (ready) */
+     s->regs[ESP32S3_CACHE_REG_IDX(A_EXTMEM_ICACHE_AUTOLOAD_CTRL)] = R_EXTMEM_ICACHE_AUTOLOAD_CTRL_AUTOLOAD_DONE_MASK;
+@@ -335,12 +389,20 @@
+                             OBJECT(s),
+                             "esp32s3_iommu", ESP32S3_EXTMEM_REGION_SIZE);
+ 
+-    /* The Dcache and the Icache are just aliases to the iommu memory region since all the accesses will require
+-     * to go through a translation. */
+-    memory_region_init_alias(&s->dcache, OBJECT(s), "esp32s3.dcache",
+-                           MEMORY_REGION(&s->iommu), 0, ESP32S3_EXTMEM_REGION_SIZE);
++    /* DCache adds occupied SRAM over the ordinary MMU view. ICache must
++     * keep its own MMU alias: DCache occupation must not turn IROM into RAM. */
++    memory_region_init(&s->dcache, OBJECT(s), "esp32s3.dcache", ESP32S3_EXTMEM_REGION_SIZE);
++    memory_region_init_alias(&s->dcache_backing, OBJECT(s), "esp32s3.dcache.backing",
++                            MEMORY_REGION(&s->iommu), 0, ESP32S3_EXTMEM_REGION_SIZE);
++    memory_region_add_subregion(&s->dcache, 0, &s->dcache_backing);
+     memory_region_init_alias(&s->icache, OBJECT(s), "esp32s3.icache",
+-                           &s->dcache, 0, ESP32S3_EXTMEM_REGION_SIZE);
++                            MEMORY_REGION(&s->iommu), 0, ESP32S3_EXTMEM_REGION_SIZE);
++    memory_region_init_ram(&s->occupy_ram, OBJECT(s), "esp32s3.dcache.occupy.ram",
++                           0x4000, &error_abort);
++    memory_region_init_alias(&s->occupy_window, OBJECT(s), "esp32s3.dcache.occupy",
++                            &s->occupy_ram, 0, 0x4000);
++    memory_region_set_enabled(&s->occupy_window, false);
++    memory_region_add_subregion_overlap(&s->dcache, 0, &s->occupy_window, 1);
+ 
+     sysbus_init_mmio(sbd, &s->iomem);
+ }
+--- a/include/hw/misc/esp32s3_cache.h
++++ b/include/hw/misc/esp32s3_cache.h
+@@ -101,6 +101,9 @@
+     bool         dcache_enable;
+     MemoryRegion dcache;
+     MemoryRegion icache;
++    MemoryRegion dcache_backing;
++    MemoryRegion occupy_ram;
++    MemoryRegion occupy_window;
+ 
+     IOMMUMemoryRegion iommu; // Translation region that will be part of the system address space
+ 
+@@ -125,6 +128,8 @@
+ 
+ 
+ REG32(EXTMEM_DCACHE_CTRL, 0x000)
++    FIELD(EXTMEM_DCACHE_CTRL, BLOCKSIZE_MODE, 3, 2)
++    FIELD(EXTMEM_DCACHE_CTRL, SIZE_MODE, 2, 1)
+     FIELD(EXTMEM_DCACHE_CTRL, ENABLE, 0, 1)
+ 
+ REG32(EXTMEM_DCACHE_CTRL1, 0x004)
+@@ -172,6 +177,16 @@
+ REG32(EXTMEM_DCACHE_SYNC_SIZE, 0x030)
+     FIELD(EXTMEM_DCACHE_SYNC_SIZE, SYNC_SIZE, 0, 23)
+ 
++
++REG32(EXTMEM_DCACHE_OCCUPY_CTRL, 0x034)
++    FIELD(EXTMEM_DCACHE_OCCUPY_CTRL, OCCUPY_DONE, 1, 1)
++    FIELD(EXTMEM_DCACHE_OCCUPY_CTRL, OCCUPY_ENA, 0, 1)
++
++REG32(EXTMEM_DCACHE_OCCUPY_ADDR, 0x038)
++    FIELD(EXTMEM_DCACHE_OCCUPY_ADDR, OCCUPY_ADDR, 0, 32)
++
++REG32(EXTMEM_DCACHE_OCCUPY_SIZE, 0x03C)
++    FIELD(EXTMEM_DCACHE_OCCUPY_SIZE, OCCUPY_SIZE, 0, 16)
+ 
+ REG32(EXTMEM_DCACHE_PRELOAD_CTRL, 0x040)
+     FIELD(EXTMEM_DCACHE_PRELOAD_CTRL, PRELOAD_ORDER, 2, 1)

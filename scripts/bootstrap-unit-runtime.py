@@ -179,6 +179,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0200-classic-rwbt-sleep-clock-and-timers.patch",
     "patches/qemu-m5stack-peripherals/0201-classic-rwbt-modem-reset.patch",
     "patches/qemu-m5stack-peripherals/0202-icount-adaptive-max-shift.patch",
+    "patches/qemu-m5stack-peripherals/0203-s3-dcache-occupy-handshake.patch",
     "patches/qemu-m5stack-peripherals/0204-cardputer-gpio-board-detect.patch",
 )
 DEPS = (
