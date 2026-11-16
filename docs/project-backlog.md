@@ -29,7 +29,7 @@
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
 - [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227)：原 CarPlay 在 0.50.0 的板型探测断言仍复现。1.0.0 的可扩展 I2C 器件接口可用于后续实现，但原 BIN 先遇到旧 P4 CSR 阻断。[对照](evidence/2026-11-16-tab5-original-startup/README.md)保留两套后端的实际边界。闭环须验证触摸寄存器、复位、IRQ、接触报告和原 BSP 输入。
-- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并归为模型缺口；[稳定后端复测](evidence/2026-11-14-tab5-stable-originals/README.md)被更早的旧 P4 CSR 故障阻断，仍需可重建或可扩展 P4 后端实现 DWC/root-port/endpoint，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
+- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 的 USB DWC 自检失败已复现并归为模型缺口；[稳定后端复测](evidence/2026-11-14-tab5-stable-originals/README.md)被更早的旧 P4 CSR 故障阻断，需上游提供兼容运行时及 P4 USB Host 支持，再验证真实枚举与传输。现有分类补齐不使原应用就绪。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 身份剩余范围：NanoC6 真实 controller/drive 与 guest API 的隔离和复位稳定性已验证；802.15.4 extended-address 寄存器数据面仍需实现，再验收 Zigbee 身份及协议。不将 NanoC6 子路径转授其它板型或用报告字段伪造读值。
 - Nesso N1 中断剩余范围：[普通 CPU GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已通过实际 IDF ISR 和原版 UIFlow `Pin.irq`，共享 GPIO3 pad/扩展器锁存回归通过。仍需实现 BMI270 数据/运动事件与 IRQ 输出使能、FT6336 模式/脉冲/扫描时序，以及独立 NMI/source 31、睡眠唤醒/滤波；各自须经过原驱动、真实控制器输入和复位对照，不由普通 GPIO 结果关闭。
@@ -359,7 +359,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
 | 按需需要真机/授权 | `FW-02` | 仅当结论明确要求 live eFuse、生产 key 或物理安全属性 | 测试/生产 key 不入库；纯软件/user-path 结论继续使用 validated virtual device |
 | 后端阻塞 | `RUNTIME-02` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
-| 决策或独立后端 | `TAB5-01`、`CZ-01` | P4 backend 重建/扩展决策；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
+| 上游或独立后端 | `TAB5-01`、`CZ-01` | Tab5 等待兼容上游运行时及公开器件接口；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
 
 ## 可执行任务板
 
@@ -381,7 +381,7 @@ setup/REPL 与任意 legacy application 继续由 `API-01` 覆盖。其余 P0 �
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
-| `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
+| `TAB5-01` | 阻塞 | 等待上游 P4 兼容与控制器支持 | 同原版越过 CSR/DSI 阻断后，以公开接口验证板级器件和数据面 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `UI-02` | 进行中 | 扩展更多固定固件与长期稳定性，继续归因原始 StackChan 跳舞固件的 Core1 ROM 字面量启动异常及独立触摸证据缺口、官方 Factory 浏览器 WDT/异常、其它应用的 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化；分别验证 C6 RISC-V、P4 controller 数据面与 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC 及 StackChan 其它固件/运动模式边界 | 已满足前置：单一 C/QEMU 性能优化及精确固件正常时钟、新 producer 路径策略、完整本地固定示例门禁和应急 prepared-site 正式 HTTPS 更新已有独立证据；逐固件绑定 Flash/runtime/profile/input/frame，功能回归不等于逐板提速，native 或 compiled_profiles 不授浏览器/stock SDK PASS；同层 Worker 清场已在定向托管和本地完整门禁验证，正式托管全板验收由 `UI-03` 跟踪 |
 | `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及剩余独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放、初代 Cardputer 冷启动 PIF 及其它偶发启动和复位失败。逐板性能和长期稳定性分别验收 | 本轮固定导出已完成本地完整资格、正式发布及两个 CoreS3 HTTPS 示例的输入/输出/清理；线上两例不覆盖 hosted 全量或其他设备。按原门禁保留真实输入、输出和清场断言，保留历次失败。[本轮限定交付](evidence/2026-11-14-pages-local-qualification/README.md) · [设计](plans/2026-11-04-uiflow-browser-workbench-design.md) · [历史本地与托管验证](validation-ledger.md#2026-11-10) |
@@ -806,7 +806,10 @@ HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何�
 
 当前缺口：动态 I2C/RTC/IMU/INA226/PI4IOE/IP2326、P4 I2S/PCM、MIPI-CSI、
 USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络。
-先决定重建或扩展 P4 backend，不能从 QEMU S3/C6/LX6 继承完成度。
+等待上游发布能执行旧 P4 CSR 且覆盖相应控制器的兼容后端。使用同一原版镜像
+先验启动，再通过上游支持的扩展接口逐项验证。缺少覆盖的审核保留静态结论及
+现有串口证据，画面、USB Host、触摸和端到端网络按实际观察标注。
+[原版对照](evidence/2026-11-16-tab5-original-startup/README.md)记录当前支持范围。
 
 ### UI-01（已完成收口；5 款仅视觉边界保留）
 

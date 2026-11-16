@@ -140,7 +140,7 @@
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
 | `SVC-03` | 进行中 | `ServiceError`、首批无状态 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
-| `TAB5-01` | 决策 | 重建或扩展 P4 backend |
+| `TAB5-01` | 阻塞 | 等待上游 P4 兼容与控制器支持 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
 | `UI-02` | 进行中 | 扩展更多固定固件与长期稳定性，继续归因原始 StackChan 跳舞固件的 Core1 ROM 字面量启动异常及独立触摸证据缺口、官方 Factory 浏览器 WDT/异常、其它应用的 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化；分别验证 C6 RISC-V、P4 controller 数据面与 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC 及 StackChan 其它固件/运动模式边界 |
 | `UI-03` | 进行中 | 完成同版本正式托管完整串行门禁及剩余独立 HTTPS 编辑器和输入验收。继续处理 Cardputer ADV 原厂键盘释放、初代 Cardputer 冷启动 PIF 及其它偶发启动和复位失败。逐板性能和长期稳定性分别验收 |
@@ -162,7 +162,7 @@
 
 - `tests/`：`177` 个可执行 Python 测试文件，分布在 `80` 个目录；`252` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`346` 个 patch 文件。
-- 文档：`706` 个 Markdown 页面；除本生成页外共 `76040` 行。
+- 文档：`706` 个 Markdown 页面；除本生成页外共 `76050` 行。
 
 ## 文档与测试
 

@@ -67,6 +67,13 @@ curl -fsS http://127.0.0.1:8787/api/v1/devices
 
 ## 部署 QEMU 设备服务
 
+工作台与固件审核可以连接不同的 Device Service。更新后应从审核服务的配置确认它实际使用的后端，再分别核对：
+
+- 运行进程使用的源码提交、QEMU、ROM 及参考固件哈希。原生 Xtensa、C6 和浏览器 WASM 分别记录。
+- `GET /api/v1/health` 的 worker 就绪状态，以及 `GET /api/v1/openapi.yaml` 的内容与部署提交一致。相同的 `v1` 路径仍可能提供不同的错误诊断。
+- `GET /api/v1/devices` 的 `creatable` 和具体功能。Tab5 等部分建模设备能创建会话，应用、截图和外设仍需各自的证据。
+- 以禁用提交的保存快照复审确认引导布局错误会在创建会话前拒绝，正常固件保留串口、画面和交互证据。若截图明确要求匹配 ELF，应记录证据不可用和实际观察时长。
+
 原生 Device Service 与浏览器构建使用不同运行时。原生部署应选择下面两种
 受控路径之一，不能假设 upstream
 `M5StopWatch-QEMU` 的通用 release 已包含本仓库的全部板型和外设补丁。

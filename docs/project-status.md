@@ -362,7 +362,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析；Device Service API `1.51.0` 的外部 runtime ACL/执行策略 | Guest filesystem 自身 ACL、完整许可/法律审批、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、service runtime ACL、签名数学和包内摘要自洽分别成立，均不等于 guest 文件权限、设备 trust root 或生产沙箱 |
 | `RUNTIME-02` 模型缺口 | C6 Zigbee 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP、`RUNTIME-04` ATECC608 初始化和 `RUNTIME-05` WPA2 已关闭 | commissioning/join | 观察到帧或读取地址不等于完整生命周期 |
 | `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery；`SVC-03` 已拆出 `ServiceError`、首批 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 语义，并保持 re-export | namespace-managed/Tab5/cross-host companion、warm pool、其余请求解析/runtime/evidence/session 拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
-| `TAB5-01` / `UI-01` / `CZ-01` | Tab5 与 Linux ARM64 有可用子集；StopWatch 为参考外壳 | P4 backend 决策、逐设备视觉回归、CardputerZero 收尾 | `partial` 是可运行子集，不是完整设备或全固件兼容 |
+| `TAB5-01` / `UI-01` / `CZ-01` | Tab5 与 Linux ARM64 有可用子集；StopWatch 为参考外壳 | 等待兼容上游 P4 后端、逐设备视觉回归、CardputerZero 收尾 | `partial` 是可运行子集，不是完整设备或全固件兼容 |
 
 ## 能力状态
 
