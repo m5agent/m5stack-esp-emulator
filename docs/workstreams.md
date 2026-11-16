@@ -76,7 +76,7 @@
 | `SVC-01` | 进行中 | 跨主机/namespace-managed/Tab5 companion 与跨主机幂等 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
 | `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME、设备规格/profile、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 边界已拆出；继续拆分 `device_service.py` 编排热区 |
-| `TAB5-01` | 决策 | 重建或扩展 P4 backend |
+| `TAB5-01` | 阻塞 | 等待上游 P4 兼容与控制器支持 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归；视觉主机接入已完成 9+5，保真仍开放 |
 | `UI-02` | 进行中 | 公众工作台、Pages 分享与浏览器执行可行性；边界见[调研](browser-runtime-feasibility.md)，范围见 Backlog |
 | `UI-03` | 进行中 | [全19默认工作台与声明输入的本地门禁](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)已验；继续逐板启动性能、长期稳定性和正式HTTPS，原策略07/08/09根因不由功能策略通过关闭 |
@@ -94,7 +94,7 @@ Task 的依赖、下一项最小交付和验收条件只在
 | 可并行工程 | `FW-01`、`FW-03`、`SVC-03`、`UI-01`、`CZ-01` | 当前仓库和现有虚拟设备即可推进；代码拆分遵守“一次只移动一个边界” |
 | 需要多机环境 | `NET-04` 以及依赖它的跨主机部分 | 两个可失联、可 drain、可独立寻址的节点；单机 namespace/container 不计为完成 |
 | 按需需要真机/授权 | `FW-02` | 只在结论明确要求 live eFuse、生产 key 或物理安全属性时进入 |
-| 后端阻塞 | `RUNTIME-02`、`TAB5-01` | 可重建 radio MAC 路径或明确的 P4 backend 决策；ATECC608 初始化与 ESP-NOW key fixture 已不再是外部 peer 阻塞 |
+| 后端阻塞 | `RUNTIME-02`、`TAB5-01` | 可重建 radio MAC 路径或兼容的上游 P4 运行时；ATECC608 初始化与 ESP-NOW key fixture 已不再是外部 peer 阻塞 |
 
 完成一轮工作后的固定顺序是：先落 evidence，再更新
 `validation-ledger.md`；只有能力或边界变化时才改 `project-status.md`；
