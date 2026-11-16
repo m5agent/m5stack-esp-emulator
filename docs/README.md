@@ -479,8 +479,8 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-11-03` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；新增“本轮收口”节（158 implemented/2 DEFER/41 层/模型 bug 入口）；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-11-03` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID；`UNIT-01` 标记为已完成（virtual-device），`UI-01` 外壳保真仍开放 |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-11-03` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-11-14` | 唯一维护当前能力和限制，区分浏览器/原生/模型/物理边界；Unit 160=158 implemented/partial+2 DEFER、25 c 类边界、canonical 41 层链；Core2 legacy stock startup 更广 setup/REPL 与任意应用继续开放 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-11-14` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Unit 仅剩 2 项 DEFER（mini-bps-v11/mini-pdm），`FW-03` 仍保留真实业务和更多固件族 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-11-16` | 唯一维护当前能力和限制，区分浏览器/原生/模型/物理边界；Unit 160=158 implemented/partial+2 DEFER、25 c 类边界、canonical 41 层链；Core2 legacy stock startup 更广 setup/REPL 与任意应用继续开放 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-11-16` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Unit 仅剩 2 项 DEFER（mini-bps-v11/mini-pdm），`FW-03` 仍保留真实业务和更多固件族 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-11-14` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-11-03` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
@@ -578,7 +578,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
 | [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-14` | `1.63.0`；显式身份能力协商和创建回执校验，保留持久身份、原版 SHA、幂等、网络策略与历史契约 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-16` | `1.63.0`；显式身份能力协商和创建回执校验，保留持久身份、原版 SHA、幂等、网络策略与历史契约 |
 | [本地虚拟设备实验室](local-observatory.md) | 使用指南 | `2026-11-06` | 无输入自动巡展、短任务与黑屏、日志跟随和资源预算；不进入静态托管导出 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-29` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，Relay/Relay2 hard-reset A/B 已限定闭环，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |

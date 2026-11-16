@@ -14,7 +14,7 @@
 
 此前2026-11-04 的[全19板默认UIFlow与输入验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)在V6本地静态站独立完成60/60例、2,564项检查，覆盖19完整编辑器、19普通按键、Card56、Stack三区和20固定示例。 19板均实际运行未改默认源码首/再Run；同轮224次raw-paste和200组输入试验绑定各自Flash、源码、控制器、帧及normal-QMP/CDP清场。普通按键/Card的held-iframe围栏未捕获，不能借其它case补齐。 11个S3仅对各自精确工作台Flash使用正常钟oneInsn/0027策略；原UART、观察器、PM1、finally与矩阵FAIL保留，`RUNTIME-07`、`RUNTIME-08`、`RUNTIME-09`根因仍OPEN。 `UI-03`保持`PARTIAL`：携已知失败部署后，继续修复当前MAIN/prod-prefix资格缺口并完成正式HTTPS独立验收；既有本地门禁不授逐板性能、长期稳定性、其它固件或新导出通过，功能并发不作性能样本。
 
-日期：`2026-11-14`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-11-16`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。 2026-11-13 [社区固件复测](evidence/2026-11-13-issue-triage/README.md)已验证异核 TLB flush、AtomS3 显示探测、PaperColor USB/主动关机、C6 AES 和 Classic 身份子路径；正常下电保留末帧并记 stopped/guest_poweroff，不能据此判应用就绪。[后续原驱动修复](evidence/2026-11-13-native-compatibility-followup/README.md)已验证 Matrix Wi-Fi/RMT、Core2 硬件片选与 SPI SD、旧 UIFlow 缓存同步优化和 C6 QIO/SX1262 子路径；StackChan 的公开源码对照定位并采用官方 I2C 修复，原 BIN 仍失败。最终组合回归与常驻交付已完成，未通过的 C6/Tab5 子项继续分别记录，原生结果不转授浏览器或物理硬件。 [重新构建后的原版复验](evidence/2026-11-13-native-runtime-recovery/README.md)另记录 IRQ 返回状态缺陷及 Launcher 的错误 mutex 释放链；新运行时资格按独立复验决定，不继承旧二进制通过。[最终原生高负载回归](evidence/2026-11-13-native-final-regression/README.md)两轮全量通过，零重试且正式采样全部达标；最终同一运行时的[常驻交付与发布后复验](evidence/2026-11-13-native-resident-delivery/README.md)已完成。 当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。 2026-11-09 [四款主机接入](evidence/2026-11-09-four-controller-integration/README.md)导入 PaperDIY、PaperS3、初代 Cardputer 和 CoreMatrix 的独立 3D 模型。前三款有独立 Xtensa QEMU 原生板型，原厂样本已验证画面和对应输入。CoreMatrix 的官方 UIFlow2 v2.5.4 黑屏已修复，原镜像在独立原生入口和 C61 浏览器 WASM 上验证离线启动、点阵、USB REPL 和 PM1 按键。四款均通过限定浏览器客体测试，源码默认公开配置包含这四款。默认 Device Service 仍仅提供 CoreMatrix 模型预览。8 MiB Quad PSRAM、Wi-Fi 实际收发及物理设备仍待验收。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2； [AtomU 主机接入](evidence/2026-11-02-atomu-host/README.md)另记录独立 `m5atomu` 的官方 UIFlow2 启动、板级识别 130、SK6812 RMT、QMP 按键回读与 Grove I2C 控制器扫描限定通过；PDM 麦克风、IR 与 Grove Unit 仍未覆盖。 [Atom Echo 主机接入](evidence/2026-11-02-atom-echo-host/README.md)记录独立 `m5atomecho` 的官方 UIFlow2 启动、板级识别 142、SK6812 RMT、QMP 按键回读、Grove I2C 扫描、NS4168 I2S1 非静音 PCM 与 SPM1423 PDM RX 注入路径；官方 C008-C 无板载 ES8311/I2C codec，模拟声学、IR 与 Grove Unit 仍未覆盖。浏览器准入独立取证，不从原生 PASS 继承。2026-11-06 的基线为 33 台运行登记，视觉主机 38 款中有 5 款仅视觉；Unit catalog 160 条（**158 implemented/partial + 2 planned** DEFER: `mini-bps-v11`/`mini-pdm`）+ 25 款 c 类边界，184/184 覆盖；150 款 Unit 目标已由 158 款 implemented 覆盖。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
@@ -200,8 +200,6 @@ flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复�
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
 机械、电气或真机安全状态。
-
-原生 Cardputer 和 Cardputer ADV 已为运行时板型识别接入 ST7789V2 的 GPIO SPI 读回。ADV 也在 GPIO8/9 的板载总线上提供 TCA8418 确认。四份相关社区原版固件的显示和按键限定验证见 [#230 证据](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)。
 
 ## 当前工作与下一门禁
 
@@ -394,7 +392,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | StickS3 | ESP32-S3 / QEMU | 显示、按键、电源、IMU、音频、IR、WiFi/BLE；Hat2-Bus 8Servos 控制器路径 | RF、舵机机械/电流和真机 `NOT RUN` |
 | CoreS3 | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、摄像头、USB Host；Port B 8Servos、双 Joystick2 和 NFC Unit 控制器路径 | 启动菜单透明/调色板图像仍有模拟条纹；新增 Unit 只覆盖寄存器与虚拟 fixture |
 | AtomS3R | ESP32-S3 / QEMU | 显示、按键、IMU、磁力计、RGB、IR | 高保真外观和真机 |
-| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SPI SD、IR；裸板默认，显式 Cap CC1101 提供 NFC 和 CC1101。原版 MP3 v1.0.0 经 FAT32、按键和扬声器 PCM 验证；保留精确 app-bound synthetic ADC calibration 与 `0x69` BMI270 官方 API 注入回读。[验证](evidence/2026-11-09-cardputer-adv-model-fix/summary.json) | 高保真外观、物理 IMU/ADC 精度、电气特性和真机 |
+| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SPI SD、IR；裸板默认，显式 Cap CC1101 提供 NFC 和 CC1101。原版 MP3 v1.0.0 经 FAT32、按键和扬声器 PCM 验证；保留精确 app-bound synthetic ADC calibration 与 `0x69` BMI270 官方 API 注入回读。[验证](evidence/2026-11-09-cardputer-adv-model-fix/summary.json) 初代与 ADV 的 GPIO SPI 读回以及 ADV 的 TCA8418 GPIO I2C 经四份原版固件验证。[板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 高保真外观、物理 IMU/ADC 精度、电气特性和真机 |
 | PaperColor | ESP32-S3 / QEMU | Spectra 6、按键、电源、SHT4X、音频、SD、RGB、IR | 刷新时序和光学真机表现 |
 | PaperMono | ESP32-S3 / QEMU | 灰度屏、触摸、电源、IMU、RTC、音频、NFC、LoRa、RGB | 刷新手感和显示真机表现 |
 | StackChan | ESP32-S3 / QEMU | 显示、触摸、摄像头、环境/运动传感器、音频、NFC、IR、舵机 | 机械运动、声学和光学 |
