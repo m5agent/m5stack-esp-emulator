@@ -63,11 +63,11 @@ def build_image(
     return bytes(header) + struct.pack("<II", 0x3FC00000, len(segment)) + bytes(segment)
 
 
-def build_flash(secure_version: int = 0) -> bytes:
+def build_flash(secure_version: int = 0, *, chip_id: int = 0x0009) -> bytes:
     image = bytearray(b"\xff" * 0x12000)
-    boot = build_image(descriptor=False)
+    boot = build_image(chip_id=chip_id, descriptor=False)
     image[:len(boot)] = boot
-    app = build_image(secure_version=secure_version)
+    app = build_image(chip_id=chip_id, secure_version=secure_version)
     image[0x10000:0x10000 + len(app)] = app
     entry = bytearray(32)
     struct.pack_into("<H", entry, 0, 0x50AA)
@@ -989,6 +989,32 @@ class FirmwareAnalysisTests(unittest.TestCase):
             "ESP32-P4 bootloader found at 0x2000",
             result["warnings"],
         )
+
+    def test_bootloader_at_non_rom_offset_is_rejected(self):
+        for chip_id, misplaced, required in (
+            (0x0000, 0, 0x1000),
+            (0x0012, 0, 0x2000),
+            (0x0009, 0x1000, 0),
+        ):
+            with self.subTest(chip_id=chip_id), tempfile.TemporaryDirectory() as tmp:
+                image = bytearray(build_flash(chip_id=chip_id))
+                boot = build_image(chip_id=chip_id, descriptor=False)
+                image[:0x8000] = b"\xff" * 0x8000
+                image[misplaced:misplaced + len(boot)] = boot
+                path = Path(tmp) / "misplaced.bin"
+                path.write_bytes(image)
+                for expected in (chip_id, None):
+                    result = analyze_firmware(path, expected_chip_id_value=expected)
+                    self.assertFalse(result["valid"])
+                    self.assertTrue(result["bootloader"]["valid"])
+                    self.assertEqual(result["bootloader"]["offset"], misplaced)
+                    self.assertIn("bootloader_offset_mismatch", result["errors"][0])
+                    self.assertIn(f"offset 0x{required:x}", result["errors"][0])
+                image[required:required + len(boot)] = boot
+                path.write_bytes(image)
+                result = analyze_firmware(path, expected_chip_id_value=chip_id)
+                self.assertTrue(result["valid"], result["errors"])
+                self.assertEqual(result["bootloader"]["offset"], required)
 
     def test_blank_ota_slot_does_not_invalidate_other_app(self):
         image = bytearray(b"\xff" * 0x22000)

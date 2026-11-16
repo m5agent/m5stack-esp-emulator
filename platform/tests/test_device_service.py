@@ -769,6 +769,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIn("0x670000", rejected.exception.message)
         self.assertIn("8388608-byte", rejected.exception.message)
 
+    def test_firmware_rejects_misplaced_classic_bootloader_before_session(self):
+        artifact = self.service.upload_artifact(build_flash(chip_id=0), name="misplaced.bin")
+        request = {"device_id": "stickc-plus2", "artifact_id": artifact["artifact_id"]}
+        with self.assertRaises(ServiceError) as rejected:
+            self.service.create_firmware(request)
+        self.assertEqual(rejected.exception.code, "bootloader_offset_mismatch")
+        self.assertEqual(rejected.exception.status, 422)
+        with self.assertRaises(ServiceError) as import_rejected:
+            self.service.import_firmware_package(request)
+        self.assertEqual(import_rejected.exception.code, "invalid_firmware_package")
+        self.assertIn("bootloader_offset_mismatch", import_rejected.exception.message)
+        self.assertEqual(self.service.firmware.list(), [])
+        self.assertEqual(self.service.list_sessions()["sessions"], [])
+
     def test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it(self):
         payload = {"device_id": "cores3", "files": {"main.py": "pass\n"},
                    "base_firmware_id": "a" * 64, "expected_base_sha256": "a" * 64}

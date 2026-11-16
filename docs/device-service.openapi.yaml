@@ -1602,6 +1602,8 @@ paths:
         A valid partition table extending beyond the SPI flash capacity
         declared by the bootloader image header returns 409
         bootloader_flash_size_too_small before session allocation.
+        A misplaced bootloader returns 400 invalid_firmware_package with
+        a bootloader_offset_mismatch diagnostic.
       requestBody:
         required: true
         content:
@@ -1632,6 +1634,8 @@ paths:
         partition table extending beyond the SPI flash capacity declared by
         the bootloader image header returns 409
         bootloader_flash_size_too_small before session allocation.
+        A misplaced bootloader in a merged layout returns 422
+        bootloader_offset_mismatch with expected and actual flash offsets.
       requestBody:
         required: true
         content:
@@ -1654,6 +1658,8 @@ paths:
         "409":
           $ref: "#/components/responses/Error"
         "413":
+          $ref: "#/components/responses/Error"
+        "422":
           $ref: "#/components/responses/Error"
         "500":
           $ref: "#/components/responses/Error"
@@ -1729,6 +1735,9 @@ paths:
   /firmware/analyze:
     post:
       summary: Analyze an existing firmware image
+      description: >
+        A bootloader at a position other than its chip's ROM flash offset
+        yields valid=false and a bootloader_offset_mismatch diagnostic.
       requestBody:
         required: true
         content:
@@ -1789,6 +1798,9 @@ paths:
                       $ref: "#/components/schemas/Session"
     post:
       summary: Create an asynchronous device lease
+      description: >
+        A previously stored firmware with a bootloader at the wrong flash
+        offset returns 422 bootloader_offset_mismatch before lease allocation.
       requestBody:
         required: true
         content:
@@ -1802,6 +1814,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "422":
+          $ref: "#/components/responses/Error"
         "507":
           $ref: "#/components/responses/Error"
         "429":

@@ -158,11 +158,14 @@ from uiflow_runtime import (  # noqa: E402
     UIFlowRuntimeError, live_bootstrap_files, run_mpy, run_source, synchronize_raw_repl,
 )
 from firmware_analysis import (  # noqa: E402
+    PARTITION_TABLE_OFFSET,
     analyze_esp_image,
     analyze_firmware,
+    bootloader_offset_error,
     detect_secure_boot_v2_signature,
     expected_chip_id,
     find_app_descriptor,
+    find_flash_bootloader,
     parse_partition_table,
 )
 from firmware_manifest import (  # noqa: E402
@@ -2259,13 +2262,10 @@ class FirmwareStore:
             image_bytes,
             image_size=spec.flash_size,
         )
-        bootloader = analyze_esp_image(image_bytes, 0)
-        if not bootloader["valid"]:
-            for offset in (0x1000, 0x2000):
-                candidate = analyze_esp_image(image_bytes, offset)
-                if candidate["valid"]:
-                    bootloader = candidate
-                    break
+        bootloader = find_flash_bootloader(image_bytes, expected_chip_id(spec.soc))
+        offset_error = bootloader_offset_error(bootloader)
+        if partition_table["valid"] and offset_error:
+            raise ServiceError("bootloader_offset_mismatch", offset_error, 422)
         bootloader_flash_size = bootloader.get("flash_size")
         partition_end = max(
             (
@@ -10193,6 +10193,13 @@ class DeviceService:
                     409,
                 )
             firmware_path = self.firmware.path(str(firmware_id))
+            # Older service versions could persist misplaced bootloaders.
+            with firmware_path.open("rb") as stream:
+                boot_region = stream.read(PARTITION_TABLE_OFFSET)
+            bootloader = find_flash_bootloader(boot_region, expected_chip_id(spec.soc))
+            offset_error = bootloader_offset_error(bootloader)
+            if offset_error:
+                raise ServiceError("bootloader_offset_mismatch", offset_error, 422)
             firmware_sha = firmware["sha256"]
             source = "uploaded"
             firmware_source = firmware.get("source", {})
@@ -12223,21 +12230,8 @@ def validate_complete_flash_image(
             409,
         )
 
-    bootloader_offset = next(
-        (
-            offset
-            for offset in (0, 0x1000)
-            if offset + 24 <= len(data) and data[offset] == 0xE9
-        ),
-        None,
-    )
-    if bootloader_offset is None:
-        raise ServiceError(
-            "direct_flash_layout_invalid",
-            "no ESP bootloader image found at flash offset 0 or 0x1000",
-            422,
-        )
-    bootloader = analyze_esp_image(data, bootloader_offset)
+    bootloader = find_flash_bootloader(data, expected_chip_id_value)
+    bootloader_offset = bootloader["offset"]
     if not bootloader["valid"]:
         raise ServiceError(
             "direct_flash_layout_invalid",
@@ -12255,6 +12249,10 @@ def validate_complete_flash_image(
             f"expected chip id 0x{expected_chip_id_value:04x}",
             422,
         )
+
+    offset_error = bootloader_offset_error(bootloader)
+    if offset_error:
+        raise ServiceError("bootloader_offset_mismatch", offset_error, 422)
 
     partition_table = parse_partition_table(data)
     if not partition_table["valid"]:
