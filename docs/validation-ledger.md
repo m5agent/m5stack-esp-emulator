@@ -16,6 +16,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-16
 
+[Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)：源码 f2f26604…、原生 Xtensa 06db397c…，独立验证原版 M5Apps 2.7 和 #230 的四个原版执行映像。M5Apps 实际首帧、默认空闲熄屏、A 唤醒、Enter 主菜单均在无跟踪及带跟踪下取证。#230 实际键盘响应与两份 ADV 的 ACK、键盘 FIFO 均通过。EXTMEM 27 项、显示三板各 14 项及 Core2 负控 13 项通过。
+
 [ESP32 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)：原版 `16cd916a…` 在旧服务误判有效，串口重复 19 次 ROM 读头错误并留下 135×240 全黑帧。同一 BIN 在修复候选 `1cb1975b…` 的合并、导入和历史镜像会话入口前被拒绝，静态审核为 `E_STATIC`。官方 UIFlow2 固件 `9b553277…` 的 `0x1000` 引导布局通过并进入 Cloud 画面。原生 Xtensa `5ce7d9f5…` 与 ROM 不变，保留首次观测失败和独立复验。
 
 [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)：四份原版映像在基线 `5ce7d9f5…` 复现 61 秒黑帧和板型 136。定向候选 `1472f4ac…` 四份都显示并响应一次明确按键，两份 ADV 经 GPIO I²C 读到 TCA8418 ACK，并经硬件 I²C 读回 Enter 的按下和松开。两款 Cardputer 和 StickC Plus2 的 GPIO/ST7789 qtest 各 14/14。物理设备、浏览器和其它应用功能为 NOT RUN。

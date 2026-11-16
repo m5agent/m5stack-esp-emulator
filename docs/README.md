@@ -11,6 +11,8 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
+[2026-11-16 Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)记录缓存 SRAM、板型探测和无跟踪的启动、休眠唤醒与按键。
+
 [2026-11-16 ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)记录同一原 BIN 的错误放行、提前拒绝、审核状态和官方正对照。
 
 [2026-11-16 Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md)记录四份原版映像的黑帧对照、按键和 ADV 的 GPIO I²C 应答。
@@ -370,6 +372,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md) | 证据/差异 | `2026-11-16` | 干净重建，原版启动、休眠唤醒、板型和按键 |
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
 | [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |

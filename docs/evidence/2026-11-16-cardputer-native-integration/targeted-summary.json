@@ -1,0 +1,689 @@
+{
+  "date": "2026-11-16",
+  "validation": "native virtual-device validation",
+  "source_commit": "f2f26604a5e8c8df898aa5ba2354364e6f1911d5",
+  "xtensa_runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "board_detection_originals": [
+    {
+      "sample": "tiny-journal",
+      "source_input_sha256": "b02460c9af14e499fe12c3018ff72740bbbeaaf362e7c51697d09e480824d707",
+      "firmware_flash_sha256": "b02460c9af14e499fe12c3018ff72740bbbeaaf362e7c51697d09e480824d707",
+      "device": "cardputer",
+      "serial_ansi_stripped_sha256": "32041676371a58a831a12451d17ae97f57462b4ac0cfc92c3a75ef274f914c76",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "01e8b932ecf49a79f9d471b627c4c66352aa91597fbb4fa0e4a96eb0248cf74f",
+          "bytes": 471,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 368,
+          "unique_colors": 1
+        },
+        "10": {
+          "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+          "bytes": 574,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 4545,
+          "unique_colors": 2
+        },
+        "21": {
+          "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+          "bytes": 574,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 4545,
+          "unique_colors": 2
+        },
+        "36": {
+          "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+          "bytes": 574,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 4545,
+          "unique_colors": 2
+        },
+        "61": {
+          "sha256": "91f2108620e8f2e3546f6c3d02e99865b2761494ec5f75d6495fa8527ee8660d",
+          "bytes": 574,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 4545,
+          "unique_colors": 2
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:x",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "acb05b558bf047fc57a5d858d0ebb58b7c9dde36abc57c0bcb4d49aaa233ed6e",
+            "bytes": 568,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4539,
+            "unique_colors": 2
+          }
+        },
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "54e7f96857b59e41b360be83d576f9cb638713443553f53255a9caa185aed25a",
+            "bytes": 570,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4539,
+            "unique_colors": 2
+          }
+        },
+        {
+          "key": "key:esc",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "54e7f96857b59e41b360be83d576f9cb638713443553f53255a9caa185aed25a",
+            "bytes": 570,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 4539,
+            "unique_colors": 2
+          }
+        }
+      ],
+      "zip_sha256": "d163b899ca78b1d6f192bfebbfecdda1179a0adbdc99d12086f0b44728dc903b",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "first_input_response": "Typed x, note length changed from 0 to 1"
+    },
+    {
+      "sample": "macrocard-merged",
+      "source_input_sha256": "2d793ad178e6df7c196e86ef5cd2e64dddda0d29e02e25a530b789a2e03489dd",
+      "firmware_flash_sha256": "2d793ad178e6df7c196e86ef5cd2e64dddda0d29e02e25a530b789a2e03489dd",
+      "device": "cardputer",
+      "serial_ansi_stripped_sha256": "89b1996f5b389e1cbada2139991d818d2016ae20ea9a0f2dfabb9690adb5c387",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "b9f943857122b344841cb490a52eb2535f92b3c8719e2bf0dd1718292991c75c",
+          "bytes": 1830,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 12793,
+          "unique_colors": 4
+        },
+        "10": {
+          "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+          "bytes": 1808,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 12829,
+          "unique_colors": 5
+        },
+        "21": {
+          "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+          "bytes": 1808,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 12829,
+          "unique_colors": 5
+        },
+        "36": {
+          "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+          "bytes": 1808,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 12829,
+          "unique_colors": 5
+        },
+        "61": {
+          "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+          "bytes": 1808,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 12829,
+          "unique_colors": 5
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "6989b9f550cb7994e21968192ca02d3606c0c750c95218caebcf77a36c9c76c8",
+            "bytes": 1765,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12713,
+            "unique_colors": 4
+          }
+        },
+        {
+          "key": "key:down",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+            "bytes": 1808,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12829,
+            "unique_colors": 5
+          }
+        },
+        {
+          "key": "key:esc",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "18df6921df180744aff3723e895a89650d3d31c980f542b475662d4b1883d2eb",
+            "bytes": 1808,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 12829,
+            "unique_colors": 5
+          }
+        }
+      ],
+      "zip_sha256": "2e37350be941c70dddf730bd7fc3b6d05f0165b617eb96ce7d148341d8c28f7a",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "first_input_response": "[enter] not assigned shown in the Windows shortcut menu"
+    },
+    {
+      "sample": "frequency",
+      "source_input_sha256": "2ac8d0133c8bd75c8c3345e3aadca6f4d605b149f0a38549c93b1225286c1d32",
+      "firmware_flash_sha256": "4b977bc9b54f28cf0fe542c48a49c8c0579ae0bf829bd59844f304b651aaadc0",
+      "device": "cardputer-adv",
+      "serial_ansi_stripped_sha256": "15980f7fcbd82873cb5e51ee2a8c524166d030d863c822276d849b13f550c113",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+          "bytes": 1766,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 9497,
+          "unique_colors": 9
+        },
+        "10": {
+          "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+          "bytes": 1766,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 9497,
+          "unique_colors": 9
+        },
+        "21": {
+          "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+          "bytes": 1766,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 9497,
+          "unique_colors": 9
+        },
+        "36": {
+          "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+          "bytes": 1766,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 9497,
+          "unique_colors": 9
+        },
+        "61": {
+          "sha256": "ff679ed9448421b992152266478406571429b282e39fc3f9b63d261b8c22ef8c",
+          "bytes": 1766,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 9497,
+          "unique_colors": 9
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "cdcbe68f5dc18336d341df29a2305e8b8c20cfe7823e609c4587f76aee77da38",
+            "bytes": 1762,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9405,
+            "unique_colors": 9
+          }
+        },
+        {
+          "key": "key:up",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "cdcbe68f5dc18336d341df29a2305e8b8c20cfe7823e609c4587f76aee77da38",
+            "bytes": 1762,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9405,
+            "unique_colors": 9
+          }
+        },
+        {
+          "key": "key:esc",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "cdcbe68f5dc18336d341df29a2305e8b8c20cfe7823e609c4587f76aee77da38",
+            "bytes": 1762,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 9405,
+            "unique_colors": 9
+          }
+        }
+      ],
+      "zip_sha256": "76bd45b524522b956a20f2ca18d0f7bfc9ce41aca04675ef6f9225f65495a636",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "first_input_response": "174 Hz playing status replaces Stopped",
+      "tca8418": {
+        "gpio_address": "0x34",
+        "ack": true,
+        "hardware_fifo_enter": [
+          "0xc3",
+          "0x43"
+        ]
+      }
+    },
+    {
+      "sample": "caplab",
+      "source_input_sha256": "f02a6c47fd436f619f4394aa3b4b3df7c79fb5168636a357e2c8e584b0423c4f",
+      "firmware_flash_sha256": "60040bd70d15125c5502c80167c270368ea187eedca90c09512409c9d2265bc4",
+      "device": "cardputer-adv",
+      "serial_ansi_stripped_sha256": "650998ae179177731c63cf28f1b80f27f2349004a4824d86fb2fc19bc7f2a18e",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+          "bytes": 2852,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 32400,
+          "unique_colors": 10
+        },
+        "10": {
+          "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+          "bytes": 2852,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 32400,
+          "unique_colors": 10
+        },
+        "21": {
+          "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+          "bytes": 2852,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 32400,
+          "unique_colors": 10
+        },
+        "36": {
+          "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+          "bytes": 2852,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 32400,
+          "unique_colors": 10
+        },
+        "61": {
+          "sha256": "a3506b424bbde95a71a7707a6ea32af9b2f0c74125836916ffae6f0ce312b32b",
+          "bytes": 2852,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 32400,
+          "unique_colors": 10
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "6f749a8c675ee5803fa60e67db38ea9a5c4218836571ffca7f76e6b52d31969e",
+            "bytes": 2110,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 9
+          }
+        },
+        {
+          "key": "key:spc",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "ebbdedcc05c5d896cd5b2605e3ad7ba3af85e61e3b193722f8924288fa9bead8",
+            "bytes": 1958,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 9
+          }
+        },
+        {
+          "key": "key:esc",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "ebbdedcc05c5d896cd5b2605e3ad7ba3af85e61e3b193722f8924288fa9bead8",
+            "bytes": 1958,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 32400,
+            "unique_colors": 9
+          }
+        }
+      ],
+      "zip_sha256": "c0335c280a99655056426fca8cf284ade3f7e133ee995b773b5db2ddc8b47a8d",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "first_input_response": "Main menu opens Sampling and Remote Control page",
+      "tca8418": {
+        "gpio_address": "0x34",
+        "ack": true,
+        "hardware_fifo_enter": [
+          "0xc3",
+          "0x43"
+        ]
+      }
+    }
+  ],
+  "m5apps_original": [
+    {
+      "sample": "m5apps",
+      "source_input_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "firmware_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "device": "cardputer",
+      "serial_ansi_stripped_sha256": "74cdd7d5969b96797361a0f30a8b1a3dfddb6bf9ecc880220cab51815e0ed9fa",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "c6c9d7a6f21f49f9fd6021893a3dad2147db41c9498c1e97ed38f91bb9816b5b",
+          "bytes": 3273,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5983,
+          "unique_colors": 17
+        },
+        "10": {
+          "sha256": "4198e04880a220d3c870b47093dc578e3bae5915b1e1ae65e673adac5fe8ee2d",
+          "bytes": 3272,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5979,
+          "unique_colors": 17
+        },
+        "21": {
+          "sha256": "c6c9d7a6f21f49f9fd6021893a3dad2147db41c9498c1e97ed38f91bb9816b5b",
+          "bytes": 3273,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5983,
+          "unique_colors": 17
+        },
+        "36": {
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "bytes": 174,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 0,
+          "unique_colors": 0
+        },
+        "61": {
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "bytes": 174,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 0,
+          "unique_colors": 0
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:a",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "ebd07763e3196d057621b0bc27b0eba89a7a335952eef0e6a60cc9a6e846982b",
+            "bytes": 3276,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 5979,
+            "unique_colors": 17
+          }
+        },
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "fc3ee1ea524daf6298df187a1d1d4650b9c5fa9239899cbe60b97831e5f4c9d4",
+            "bytes": 3805,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 31935,
+            "unique_colors": 188
+          }
+        }
+      ],
+      "zip_sha256": "8a8076db0331104dfac8d23f6e405edc4ec2986c15fc9a4a8c063a6211a70c6f",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "trace_configuration": "Panel/I2C/input traces enabled",
+      "serial_markers": [
+        "Pro cpu start user code",
+        "heap_init: At 3C000000 len 00004000 (16 KiB): DRAM",
+        "APP_LAUNCHER: No bootable app, waiting for any key",
+        "ST7789V2: init: ID: 0x00000000"
+      ],
+      "first_input_response": "A after 61s restored original boot prompt",
+      "second_input_response": "Enter opened Settings / Installer / FDISK"
+    },
+    {
+      "sample": "m5apps",
+      "source_input_sha256": "04a87f9352ad402ede9a7f683ccd657dc6b2ff7339aa9b0895fe69f01c47348f",
+      "firmware_flash_sha256": "cbe8405515ec192cfcaa35ca642d6f9aa316d91a4ed62730d9f23c0122a676dc",
+      "device": "cardputer",
+      "serial_ansi_stripped_sha256": "6bf6f56128ea695daecada69aac06ffc15acd51fc87515e91cb56920b7978b02",
+      "frames_at_seconds": {
+        "4": {
+          "sha256": "b5d754b7cac471c62784d767de22f500990a499d31cf640516fe79c99b810a88",
+          "bytes": 3269,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5979,
+          "unique_colors": 17
+        },
+        "10": {
+          "sha256": "97e74bf3c7a066de4b0bc35e0bd70b5ab8159e8c01452f6bdcf2b8a60176a608",
+          "bytes": 3274,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5979,
+          "unique_colors": 17
+        },
+        "21": {
+          "sha256": "b5d754b7cac471c62784d767de22f500990a499d31cf640516fe79c99b810a88",
+          "bytes": 3269,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 5979,
+          "unique_colors": 17
+        },
+        "36": {
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "bytes": 174,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 0,
+          "unique_colors": 0
+        },
+        "61": {
+          "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+          "bytes": 174,
+          "width": 240,
+          "height": 135,
+          "nonblack_pixels": 0,
+          "unique_colors": 0
+        }
+      },
+      "inputs": [
+        {
+          "key": "key:a",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "b5d754b7cac471c62784d767de22f500990a499d31cf640516fe79c99b810a88",
+            "bytes": 3269,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 5979,
+            "unique_colors": 17
+          }
+        },
+        {
+          "key": "key:ret",
+          "hold_ms": 220,
+          "frame": {
+            "sha256": "fc3ee1ea524daf6298df187a1d1d4650b9c5fa9239899cbe60b97831e5f4c9d4",
+            "bytes": 3805,
+            "width": 240,
+            "height": 135,
+            "nonblack_pixels": 31935,
+            "unique_colors": 188
+          }
+        }
+      ],
+      "zip_sha256": "d9f86394a784d51c0aaf0171b1df949f7edabf48c62776a79e27e3818dc88a3d",
+      "zip_crc_and_members_verified": true,
+      "stopped_history_retained": true,
+      "flash_qmp_and_process_released": true,
+      "trace_configuration": "Panel/I2C/input traces disabled",
+      "serial_markers": [
+        "Pro cpu start user code",
+        "heap_init: At 3C000000 len 00004000 (16 KiB): DRAM",
+        "APP_LAUNCHER: No bootable app, waiting for any key",
+        "ST7789V2: init: ID: 0x00000000"
+      ],
+      "first_input_response": "A after 61s restored original boot prompt",
+      "second_input_response": "Enter opened Settings / Installer / FDISK"
+    }
+  ],
+  "display_qtests": [
+    {
+      "runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+      "machine": "m5cardputer",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 129,
+        "disabled_host_receiver_no_reply": 0,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 129,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 129
+      }
+    },
+    {
+      "runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+      "machine": "m5cardputeradv",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 129,
+        "disabled_host_receiver_no_reply": 0,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 129,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 129
+      }
+    },
+    {
+      "runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+      "machine": "m5core2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 4294967295,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 4294967295,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295
+      }
+    },
+    {
+      "runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+      "machine": "m5stickcplus2",
+      "checks": {
+        "cs_high_ignores_command": 4294967295,
+        "different_command_no_id": 4294967295,
+        "data_phase_no_id": 4294967295,
+        "partial_command_discarded": 4294967295,
+        "host_still_drives_no_panel_response": 0,
+        "gpio_rddid": 133,
+        "disabled_host_receiver_no_reply": 4294967295,
+        "active_unknown_route_no_reply": 4294967295,
+        "without_turnaround_no_bit_yet": 1,
+        "reselected_rddid": 133,
+        "cs_release_mid_reply": 4294967295,
+        "host_reclaims_sda_mid_reply": 4294967295,
+        "reset_releases_active_reply": 4294967295,
+        "hardware_spi_rddid": 133
+      }
+    }
+  ],
+  "cache_qtest": {
+    "status": "PASS",
+    "lane": "QEMU qtest controller validation; CPUs stopped",
+    "qemu_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+    "flash_sha256": "1f5102ef9695a2af2cfdcd3bcbec644545080de7bfe2373dd164cdf5b0337da5",
+    "checks": [
+      "reset_done_address_size",
+      "done_read_only",
+      "flash_mmu_views",
+      "size_mask",
+      "command_done_ena_reserved",
+      "mapped_drom_stays_read_only",
+      "mapped_irom_preserved",
+      "reserved_sram_read_write",
+      "irom_not_sram",
+      "precise_16kb_boundary",
+      "neighbor_mapped_flash_preserved",
+      "repeat_preserves_sram",
+      "ordinary_mapped_drom_does_not_move_sram",
+      "outside_drom_does_not_move_sram",
+      "partial_range_does_not_move_sram",
+      "oversized_range_does_not_move_sram",
+      "misaligned_range_does_not_move_sram",
+      "empty_range_does_not_move_sram",
+      "other_occupied_flash_stays_read_only",
+      "new_mmu_mapping_removes_sram",
+      "same_range_mapped_flash_stays_read_only",
+      "unmapping_does_not_restore_stale_sram",
+      "64kb_mode_does_not_reserve_heap",
+      "line_count_conversion_and_ctrl_readback",
+      "reset_clears_command_state",
+      "reset_removes_sram_window",
+      "flash_image_unchanged"
+    ],
+    "guest_execution": "NOT RUN in this controller-only probe"
+  },
+  "physical_device_validation": "NOT RUN"
+}
