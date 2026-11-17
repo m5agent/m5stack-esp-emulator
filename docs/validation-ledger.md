@@ -37,6 +37,14 @@ abort 与中断 watchdog 分别有 6、5 个完整任务。两次崩溃任务均
 已用 1,696 字节、空闲 2,396 字节。两轮全部任务字段与独立离线工具一致。
 错误 ELF 与缺少解析依赖时保留原 PC/SP。停止和服务重启后仍可读。
 
+## 2026-11-18 Cardputer 原生 ST7789 地址方向
+
+[同一 K132 的原生候选](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)
+按 240×320 GRAM、(52,40) 玻璃窗口和固定横屏方向呈现。无追踪运行的原版
+NC1020 通过全部 28,800 个自编显示内容像素的三次比对，G0 保存通过，206 ROM bank
+和 512 KiB NOR 均逐字节匹配。三份未改动的原厂固件保留各自的画面和输入验收。
+首个串口心跳仍可早于来宾完成第一次 LCD 绘制。
+
 ## 2026-11-17 Cardputer SPI 空闲接收
 
 [原生 Cardputer 复验](../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)用同一

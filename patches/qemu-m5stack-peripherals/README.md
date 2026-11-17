@@ -1791,3 +1791,15 @@ GP-SPI controllers can route to either pad via the GPIO matrix. Only the
 controller routed to a device's clock can transfer its data. GPIO36 also
 supports the direct SPI2 FSPICLK function. The existing select and receive
 DMA behavior applies to devices on that controller's routed clock.
+
+## Cardputer native ST7789 GRAM (0223)
+
+K132 uses 240×320 controller GRAM, with 135×240 visible at native
+offset (52, 40). The board presents a fixed counterclockwise landscape
+scanout of that glass. The existing panel model applies each guest's
+MADCTL address order when writing GRAM. The native NC1020 window and
+portrait-to-landscape stock initialization both land inside that glass.
+
+The adjustment is scoped to the K132 board registration.
+[Untraced firmware controls and controller evidence](../../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)
+record the original NC1020 and three immutable stock controls.

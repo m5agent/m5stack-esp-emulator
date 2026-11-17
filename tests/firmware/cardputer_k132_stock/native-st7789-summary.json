@@ -1,0 +1,330 @@
+{
+  "validation": "virtual-device validation",
+  "device": "cardputer",
+  "source_service_commit": "bd1dca3c74f8b9c2654e1ba3590e1f282d2071b0",
+  "board_patch_sha256": "a6919bae3bf43fca292144a973fd2c849aee096e310898f71e9937cbceb726eb",
+  "observed_register_envelopes": {
+    "nc1020": {
+      "madctl": 0,
+      "caset": [
+        52,
+        186
+      ],
+      "raset": [
+        40,
+        279
+      ]
+    },
+    "stock_landscape": {
+      "madctl": 108,
+      "caset": [
+        40,
+        279
+      ],
+      "raset": [
+        53,
+        187
+      ]
+    }
+  },
+  "original_nc1020_frozen_traced": {
+    "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "runtime_sha256": "44d5b221e506c6b85dcc5d46d9d97a202eb6eca0a5713108a95f35676aed50f5",
+    "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+    "controller_presentation": {
+      "schema_version": 1,
+      "supported": true,
+      "apply_madctl": false,
+      "generation": 1,
+      "madctl": 0,
+      "glass_rotation": 0,
+      "memory_width": 320,
+      "memory_height": 240,
+      "width": 240,
+      "height": 135,
+      "offset_x": 40,
+      "offset_y": 53
+    },
+    "tracing": "bounded-dcs-plus-window",
+    "first_heartbeat_guest_ms": 26474,
+    "load_return_guest_ms": 26247,
+    "first_completed_draw_marker_guest_ms": null,
+    "heartbeat_samples": 427,
+    "g0_save_observed_same_guest": true,
+    "retained_save": {
+      "bytes": 99384,
+      "sha256": "6bcfa081643d239c2731d3b370ca3745af98b8f6e4458072637e0aa0ffe138e6"
+    },
+    "frame_checks": {
+      "frame_before": {
+        "sha256": "20ca9d6e485ff93a8e61828637ec105d759d2e2bb1606ef2cc85efb7ed5c3673",
+        "fit": 0,
+        "orientation": "landscape-clockwise",
+        "full_authored_pattern_match": false
+      },
+      "frame_before_second": {
+        "sha256": "20ca9d6e485ff93a8e61828637ec105d759d2e2bb1606ef2cc85efb7ed5c3673",
+        "fit": 0,
+        "orientation": "landscape-clockwise",
+        "full_authored_pattern_match": false
+      },
+      "frame_after": {
+        "sha256": "20ca9d6e485ff93a8e61828637ec105d759d2e2bb1606ef2cc85efb7ed5c3673",
+        "fit": 0,
+        "orientation": "landscape-clockwise",
+        "full_authored_pattern_match": false
+      }
+    },
+    "evidence_zip_sha256": "86b15b347338f4933ec0142d345fce98f6175e025838e0c42589c4c8fdfb52fc",
+    "cleanup": "stopped, released, zero leases"
+  },
+  "original_nc1020_candidate_traced": {
+    "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+    "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+    "controller_presentation": {
+      "schema_version": 1,
+      "supported": true,
+      "apply_madctl": true,
+      "generation": 1,
+      "madctl": 0,
+      "glass_rotation": 3,
+      "memory_width": 240,
+      "memory_height": 320,
+      "width": 240,
+      "height": 135,
+      "offset_x": 52,
+      "offset_y": 40
+    },
+    "tracing": "bounded-dcs-plus-window",
+    "first_heartbeat_guest_ms": 29250,
+    "load_return_guest_ms": 28985,
+    "first_completed_draw_marker_guest_ms": 29362,
+    "heartbeat_samples": 34,
+    "g0_save_observed_same_guest": true,
+    "retained_save": {
+      "bytes": 99384,
+      "sha256": "1afb2c0e237d5f409c0e3a0b9fd48c0020dd03053a3d2f78c0766048e36afef8"
+    },
+    "frame_checks": {
+      "frame_before": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      },
+      "frame_before_second": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      },
+      "frame_after": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      }
+    },
+    "evidence_zip_sha256": "099bed61b53f248a300acbfe5eab1a4b2a2ea066fbaa4609b31add6ea20b3ec8",
+    "cleanup": "stopped, released, zero leases",
+    "rom_banks": 206,
+    "nor_bytes": 524288,
+    "rom_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+    "nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+    "app_and_bootloader_unchanged": true
+  },
+  "original_nc1020_candidate_untraced": {
+    "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+    "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+    "controller_presentation": {
+      "schema_version": 1,
+      "supported": true,
+      "apply_madctl": true,
+      "generation": 1,
+      "madctl": 0,
+      "glass_rotation": 3,
+      "memory_width": 240,
+      "memory_height": 320,
+      "width": 240,
+      "height": 135,
+      "offset_x": 52,
+      "offset_y": 40
+    },
+    "tracing": "disabled",
+    "first_heartbeat_guest_ms": 26319,
+    "load_return_guest_ms": 26070,
+    "first_completed_draw_marker_guest_ms": 26423,
+    "heartbeat_samples": 37,
+    "g0_save_observed_same_guest": true,
+    "retained_save": {
+      "bytes": 99384,
+      "sha256": "30617649b6b5bc42d042d6d21704e9cb1a75f79bde85f10ea0206878e118a84d"
+    },
+    "frame_checks": {
+      "frame_before": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      },
+      "frame_before_second": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      },
+      "frame_after": {
+        "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+        "fit": 1.0,
+        "orientation": "landscape-counterclockwise",
+        "full_authored_pattern_match": true
+      }
+    },
+    "evidence_zip_sha256": "d452605573a879a79b4816336286fbe45f376ed2724d2869705684be865f3c46",
+    "cleanup": "stopped, released, zero leases",
+    "rom_banks": 206,
+    "nor_bytes": 524288,
+    "rom_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+    "nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+    "app_and_bootloader_unchanged": true
+  },
+  "untraced_stock_candidate": {
+    "factory-v09": {
+      "firmware_sha256": "5a80d85877ca82feb888d404fd0a22659f1f5049bbf6db7615bf9c5b722923cb",
+      "frozen_result": "PASS",
+      "candidate_result": "PASS",
+      "frozen_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": false,
+        "generation": 3,
+        "madctl": 108,
+        "glass_rotation": 0,
+        "memory_width": 320,
+        "memory_height": 240,
+        "width": 240,
+        "height": 135,
+        "offset_x": 40,
+        "offset_y": 53
+      },
+      "candidate_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": true,
+        "generation": 3,
+        "madctl": 108,
+        "glass_rotation": 3,
+        "memory_width": 240,
+        "memory_height": 320,
+        "width": 240,
+        "height": 135,
+        "offset_x": 52,
+        "offset_y": 40
+      },
+      "whole_frame_sha256_equal_at": [
+        "before"
+      ],
+      "candidate_frame_before_sha256": "681eb9870f3768823b4982dccfd08689bb02f11e3f44966e672aa7b57fd76564",
+      "candidate_frame_after_sha256": "fda829571021aa921f1d193458024da40b0d24f462b81096e7cc3a36f43a4f86",
+      "input": "a",
+      "candidate_evidence_zip_sha256": "3cb36a82c075760b77efe950711c1e15bfceef7cada8e0b0e22ce9882d9ce1e9",
+      "released": true
+    },
+    "factory-v08": {
+      "firmware_sha256": "76cfa4cb8b6ba639e35b8de2489c75c5a6d677fe22982cb926aaf6dbf651992e",
+      "frozen_result": "PASS",
+      "candidate_result": "PASS",
+      "frozen_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": false,
+        "generation": 3,
+        "madctl": 108,
+        "glass_rotation": 0,
+        "memory_width": 320,
+        "memory_height": 240,
+        "width": 240,
+        "height": 135,
+        "offset_x": 40,
+        "offset_y": 53
+      },
+      "candidate_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": true,
+        "generation": 3,
+        "madctl": 108,
+        "glass_rotation": 3,
+        "memory_width": 240,
+        "memory_height": 320,
+        "width": 240,
+        "height": 135,
+        "offset_x": 52,
+        "offset_y": 40
+      },
+      "whole_frame_sha256_equal_at": [
+        "before"
+      ],
+      "candidate_frame_before_sha256": "f2c8a547802c28b45c47842a2bbc62541820ce2d52b24e0cbf805796565780c8",
+      "candidate_frame_after_sha256": "8076ceeb648df0736faef740c4635fc32b42fc8d94db5af0f8c2ef58feeb1b70",
+      "input": "q",
+      "candidate_evidence_zip_sha256": "f4400800ffe54d3a0983517b3cde81814245da8e91577998c83ff2fb3e284606",
+      "released": true
+    },
+    "uiflow2-v254": {
+      "firmware_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "frozen_result": "PASS",
+      "candidate_result": "PASS",
+      "frozen_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": false,
+        "generation": 2,
+        "madctl": 108,
+        "glass_rotation": 0,
+        "memory_width": 320,
+        "memory_height": 240,
+        "width": 240,
+        "height": 135,
+        "offset_x": 40,
+        "offset_y": 53
+      },
+      "candidate_presentation": {
+        "schema_version": 1,
+        "supported": true,
+        "apply_madctl": true,
+        "generation": 2,
+        "madctl": 108,
+        "glass_rotation": 3,
+        "memory_width": 240,
+        "memory_height": 320,
+        "width": 240,
+        "height": 135,
+        "offset_x": 52,
+        "offset_y": 40
+      },
+      "whole_frame_sha256_equal_at": [
+        "after"
+      ],
+      "candidate_frame_before_sha256": "f67e7bff9793cd089066e195ea98b0960916851467b47f479f369d64854fbb95",
+      "candidate_frame_after_sha256": "50159c770d53f88af8c51b5a4fe596f937265c306f8b70be8cffa132cf07c5fe",
+      "input": "f12",
+      "candidate_evidence_zip_sha256": "0cf1d647ba08fe24c1bb13aa6a1dc087c392356958dc11048676b8d54d1f4c31",
+      "released": true
+    }
+  },
+  "native_stripes": {
+    "probe_sha256": "add10ed211400db1072c1c351f86ff39a008a4eb49d8f3522ba5800945c4cea7",
+    "status": "PASS",
+    "sampled_pixels": 32400,
+    "frame_sha256": "8babd06713431b3fd23e7ed90a5e71acc0146345fac63aef852b05824dfaf487",
+    "storage_and_idle_rx": "PASS"
+  },
+  "scope": "K132 native GRAM presentation and exact authored NC1020 output. Startup still includes the firmware black fill before its first completed LCD draw.",
+  "not_run": [
+    "physical hardware",
+    "browser-WASM"
+  ]
+}
