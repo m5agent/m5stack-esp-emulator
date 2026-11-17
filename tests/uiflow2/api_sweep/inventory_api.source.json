@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.70.0",
-  "contract_sha256": "dd5e1fdf282b8940b7696733fe50e995bcfb02413ce41a0506c0f9b75318a409",
+  "contract_sha256": "8fee237a2fa2ce4ef092c07a3654b62daed7e9057db6dd60575cd3ceac0326cc",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1210,6 +1210,22 @@
       "positive_status": "NOT RUN"
     },
     {
+      "operation_id": "GET /sessions/{session_id}/storage/sd/write-stamp",
+      "method": "GET",
+      "path": "/sessions/{session_id}/storage/sd/write-stamp",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "running-cardputer-native-qemu",
+        "writable-spi-sd-image",
+        "storage-read-permission"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/storage/sd/write-stamp missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
       "operation_id": "POST /sessions/{session_id}/storage/sd/export",
       "method": "POST",
       "path": "/sessions/{session_id}/storage/sd/export",
@@ -2409,6 +2425,16 @@
       "operation_id": "GET /sessions/{session_id}/storage/sd",
       "method": "GET",
       "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/sd",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/storage/sd/write-stamp missing-resource",
+      "operation_id": "GET /sessions/{session_id}/storage/sd/write-stamp",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/sd/write-stamp",
       "coverage": "rejection-only",
       "expected_status": [
         404

@@ -2204,6 +2204,46 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(self.service.artifacts.read(source_id), initial)
         self.assertEqual(session.sd_storage_export(), receipt)
 
+    def test_native_cardputer_sd_write_stamp_identifies_same_media(self):
+        session = self._stopped_session()
+        session.spec = self.service.specs["cardputer-adv"]
+        session.state = "running"
+        session.storage_info = {
+            "artifact_id": "e" * 64, "interface": "spi", "bytes": 512,
+            "session_isolated_copy": True, "writable": True,
+        }
+        session.sd_card_image.write_bytes(b"A" * 512)
+        with mock.patch.object(session, "_process_identity_matches", return_value=True):
+            before = session.sd_write_stamp()
+            self.assertEqual(session.sd_write_stamp(), before)
+            self.assertEqual(before["session_id"], session.id)
+            self.assertEqual(before["firmware_sha256"], session.firmware_sha)
+            self.assertEqual(before["source_artifact_id"], "e" * 64)
+            session.sd_card_image.write_bytes(b"B" * 512)
+            t = int(before["modified_ns"]) + 1_000_000_000
+            os.utime(session.sd_card_image, ns=(t, t))
+            after = session.sd_write_stamp()
+            self.assertEqual(after["media_id"], before["media_id"])
+            self.assertEqual(after["modified_ns"], str(t))
+
+            different = session.sd_card_image.with_suffix(".new")
+            different.write_bytes(b"C" * 512)
+            different.replace(session.sd_card_image)
+            self.assertNotEqual(session.sd_write_stamp()["media_id"], before["media_id"])
+            session.sd_card_image.unlink()
+            session.sd_card_image.symlink_to(session.firmware_path)
+            with self.assertRaises(ServiceError) as symlink:
+                session.sd_write_stamp()
+            self.assertEqual(symlink.exception.code, "invalid_storage_image")
+
+        with self.assertRaises(ServiceError) as dead:
+            session.sd_write_stamp()
+        self.assertEqual(dead.exception.code, "sd_session_not_running")
+        session.spec = self.service.specs["core2"]
+        with self.assertRaises(ServiceError) as unsupported:
+            session.sd_write_stamp()
+        self.assertEqual(unsupported.exception.code, "sd_write_stamp_unsupported")
+
     def test_sd_storage_rejects_active_or_unretained_session_media(self):
         session = self._stopped_session()
         self.assertIsNone(session.storage_info)

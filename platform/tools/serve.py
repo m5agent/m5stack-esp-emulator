@@ -724,6 +724,8 @@ class Handler(SimpleHTTPRequestHandler):
                         409,
                     )
                 response = network_evidence()
+            elif method == "GET" and len(parts) == 5 and parts[0] == "sessions" and parts[2:] == ["storage", "sd", "write-stamp"]:
+                response = service.get_session(parts[1]).sd_write_stamp()
             elif method == "GET" and len(parts) == 4 and parts[0] == "sessions" and parts[2:] == ["storage", "sd"]:
                 response = service.get_session(parts[1]).sd_storage_inventory()
             elif method == "POST" and len(parts) == 5 and parts[0] == "sessions" and parts[2:] == ["storage", "sd", "export"]:

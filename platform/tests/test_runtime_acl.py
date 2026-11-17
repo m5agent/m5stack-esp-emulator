@@ -485,9 +485,9 @@ class RuntimeACLHttpTests(unittest.TestCase):
         finally:
             connection.close()
 
-    def test_stopped_sd_api_requires_bearer_and_runtime_read_permission(self):
+    def test_sd_apis_require_bearer_and_runtime_read_permission(self):
         path = f"/api/v1/sessions/{self.session.id}/storage/sd"
-        for method, route in (("GET", path), ("POST", path + "/export")):
+        for method, route in (("GET", path), ("GET", path + "/write-stamp"), ("POST", path + "/export")):
             with self.subTest(method=method):
                 status, body = self.request(method, route, authenticated=False)
                 self.assertEqual((status, body["error"]["code"]), (401, "unauthorized"))

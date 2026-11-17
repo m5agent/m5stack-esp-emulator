@@ -2569,6 +2569,16 @@ before ejecting. Ejection clears SPI transaction state, raises GPIO48 and
 leaves the session-owned image available for reinsertion or stopped export.
 The session cannot swap to a different image at runtime.
 
+`GET /sessions/{id}/storage/sd/write-stamp` samples the metadata of a running
+Cardputer or Cardputer ADV native QEMU session's attached writable SPI SD
+image. It requires `storage.read` under a runtime ACL. The response binds a
+decimal nanosecond modification stamp to the session, composed firmware,
+source SD artifact and opaque media identity. A regular file, the expected
+size and a running guest are required. Compare a quiet baseline and a
+post-input sample with the same media identity to observe flushed writes
+in an input window. The stamp does not count blocks, identify file contents
+or distinguish independent writes in that window.
+
 Stop the guest with `purge=0` before inspecting or exporting its writable SD
 disk. Both endpoints require `storage.read` when runtime ACL is configured.
 `GET /sessions/{id}/storage/sd` reports the current disk SHA-256, original
@@ -2987,6 +2997,7 @@ and controller. Firmware behavior requires a session and the matching evidence.
 | POST | `/api/v1/sessions/{id}/flash-snapshot` | Store a virtual flash snapshot |
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | GET | `/api/v1/sessions/{id}/storage/sd` | Inventory retained SD after the guest stops |
+| GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to a running Cardputer-family SPI SD image |
 | POST | `/api/v1/sessions/{id}/storage/sd/export` | Export retained SD to a reusable media artifact |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |

@@ -2159,6 +2159,46 @@ paths:
           $ref: "#/components/responses/Error"
         "409":
           $ref: "#/components/responses/Error"
+  /sessions/{session_id}/storage/sd/write-stamp:
+    get:
+      summary: Sample the write stamp of a running Cardputer-family SPI SD image
+      description: >-
+        Requires storage.read when a runtime ACL is active. Returns metadata
+        for an attached session-owned SPI SD image on native QEMU.
+        Compare stamps around an accepted action only when the media identity
+        is unchanged and the pre-action baseline is quiet.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session-bound SD write stamp
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [session_id, firmware_sha256, source_artifact_id, media_id, modified_ns]
+                properties:
+                  session_id:
+                    type: string
+                  firmware_sha256:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  source_artifact_id:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  media_id:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  modified_ns:
+                    type: string
+                    pattern: "^[0-9]{1,20}$"
+                    description: Decimal nanosecond modification stamp of the session SD image.
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/storage/sd/export:
     post:
       summary: Export a stopped session's retained SD media as an artifact
