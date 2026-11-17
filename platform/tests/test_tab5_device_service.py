@@ -317,6 +317,18 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(hold["action"], "hold")
             self.assertEqual(hold["timing"], timing)
 
+    def test_st7123_power_state_does_not_reuse_previous_board_during_reset(self):
+        session = self.session()
+        session.flash_info = {"tab5": {"power_model": "esp-emu-tab5-standby-latch"}}
+        session.state = "booting"
+        touch = service_module.Tab5St7123Touch(1)
+        session._tab5_native_touch = touch
+        with mock.patch.object(touch, "power_state") as probe:
+            state = session.device_state()
+        self.assertTrue(state["supported"])
+        self.assertFalse(state["available"])
+        probe.assert_not_called()
+
     def test_st7123_drag_part_exposes_bounded_panel_trajectory(self):
         self.elf.write_bytes(b"wrong build")
         candidate = Path("/qualified/esp-emu")

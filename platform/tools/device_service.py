@@ -9664,10 +9664,11 @@ class Tab5DeviceSession(DeviceSession):
                 "components": {},
                 "errors": {},
             }
-            if not isinstance(self._tab5_native_touch, Tab5St7123Touch):
+            touch = self._tab5_native_touch
+            if self.state != "running" or not isinstance(touch, Tab5St7123Touch):
                 return response
             try:
-                power = self._tab5_native_touch.power_state()
+                power = touch.power_state()
             except ServiceError as error:
                 response["errors"]["power"] = {"probe": error.message}
                 return response

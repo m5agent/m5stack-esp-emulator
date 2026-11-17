@@ -597,6 +597,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-17` | `1.70.0`，含设备能力查询、原生 C6 当前 PC 与 RISC-V ELF32 崩溃符号、Tab5 GT911 滑动与 ST7123 单点与长按、Dial 默认编码器节奏、Cardputer ADV 本地 DNS/SNTP 夹具 |
 | [Tab5 ST7123 单点拖动](evidence/2026-11-17-tab5-st7123-drag/README.md) | 原生来宾证据 | `2026-11-17` | 来宾正反向轨迹、释放以及原版回归 |
+| [Tab5 ST7123 关机锁存](evidence/2026-11-17-tab5-power-latch/README.md) | 原生来宾证据 | `2026-11-17` | 原版关机脉冲、EN、重启和 ZIP 取证 |
 | [Tab5 ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md) | 原生来宾证据 | `2026-11-17` | 单触点持续、释放及原版关机总线请求 |
 | [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md) | 原生来宾证据 | `2026-11-17` | 同来宾关联、DHCP、ARP 和只读首页 |
 | [原版 Tab5 ST7123 输入](evidence/2026-11-17-tab5-st7123-touch/README.md) | 原生来宾证据 | `2026-11-17` | Arduventure 单点 A/B 和四方向、IRQ/I²C 来宾探针与 CarPlay GT911 对照 |
