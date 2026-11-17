@@ -29,3 +29,26 @@ UART transfer marker. The service records that marker and raw data; it does
 not validate the dump's internal CRC or reconstruct task state.
 
 [Bounded virtual-device evidence](summary.json).
+
+## Offline FreeRTOS task report
+
+Run locally on macOS with trusted Espressif `esp-coredump` 1.17.2 and Xtensa
+`xtensa-esp32-elf-gdb`. Provide the matching ELF used to generate the ZIP and
+the exact full-size merged image registered for the session.
+
+```sh
+python3 platform/tools/decode_esp32_coredump.py \
+  --evidence evidence.zip --firmware merged.bin --elf m5_crash_diagnostics.elf \
+  --decoder /path/to/esp-coredump --gdb /path/to/xtensa-esp32-elf-gdb
+```
+
+The CLI checks the manifest and receipt digests, selects a single UART dump
+following the reported panic, validates its CRC32 and Xtensa application ELF
+note, then verifies the full application ELF digest against the merged image.
+The vendor decoder runs in a network-denied macOS sandbox with writes limited
+to a temporary directory. The report includes task names, priority, stack
+usage and the crashed task. Keep it local if task names contain private data.
+
+[Watchdog and abort results](offline-task-summary.json) cover Core2 native QEMU
+with ESP-IDF 5.5.4 and the ELF CRC32 UART format `0x0102`. Other formats,
+RISC-V, live inspection, and HTTP task decoding remain outside this CLI.

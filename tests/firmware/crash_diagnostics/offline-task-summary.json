@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-17",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "guest_evidence": "summary.json",
+  "gdb_sha256": "84cadeb43a8e6288733937ac53f6ae019ec28ed3fdee2dbd353db13212f6b27d",
+  "cases": {
+    "watchdog": {
+      "schema_version": 1,
+      "status": "decoded",
+      "device_id": "core2",
+      "runtime": "qemu",
+      "evidence_sha256": "9bf510e2ea48b9cfdc46db3e277551f5528308ea08151a66e868f54b2e927134",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "console_sha256": "b7011697025547d216da0a64c11b169865e9de9e6fe301972fae02c95dae0c44",
+      "application_elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "dump_sha256": "31b8d9ef5a991ed2c0fc6e8be6c31e1f1f34026849ffe951dfc7c6541b183a26",
+      "dump_bytes": 7536,
+      "dump_crc32": "3c97c0a7",
+      "decoder_version": "espcoredump.py v1.17.2",
+      "tasks": [
+        {
+          "name": "fixture_fault",
+          "crashed": true,
+          "priority": 2,
+          "base_priority": 2,
+          "stack_used_bytes": 1696,
+          "stack_free_bytes": 2396
+        },
+        {
+          "name": "IDLE1",
+          "crashed": false,
+          "priority": 0,
+          "base_priority": 0,
+          "stack_used_bytes": 416,
+          "stack_free_bytes": 1104
+        },
+        {
+          "name": "IDLE0",
+          "crashed": false,
+          "priority": 0,
+          "base_priority": 0,
+          "stack_used_bytes": 416,
+          "stack_free_bytes": 1108
+        },
+        {
+          "name": "ipc0",
+          "crashed": false,
+          "priority": 24,
+          "base_priority": 24,
+          "stack_used_bytes": 432,
+          "stack_free_bytes": 588
+        },
+        {
+          "name": "ipc1",
+          "crashed": false,
+          "priority": 24,
+          "base_priority": 24,
+          "stack_used_bytes": 432,
+          "stack_free_bytes": 580
+        }
+      ],
+      "crashed_task": "fixture_fault"
+    },
+    "abort": {
+      "schema_version": 1,
+      "status": "decoded",
+      "device_id": "core2",
+      "runtime": "qemu",
+      "evidence_sha256": "5c3d4d70a1186bd05321faf41ad9edafe12d15834f5dc8cbad60ecc887f7bdc9",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "console_sha256": "38caa6802a6d571a837b73f44e8f03a74dc5175db7a6de52b3e2d9c7c1796c1b",
+      "application_elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "dump_sha256": "28c0a9bf0f981d00b8038ad5a3a70d51ef7659361d57db67ece5ee39019659f2",
+      "dump_bytes": 10388,
+      "dump_crc32": "c6b23dd2",
+      "decoder_version": "espcoredump.py v1.17.2",
+      "tasks": [
+        {
+          "name": "fixture_fault",
+          "crashed": true,
+          "priority": 2,
+          "base_priority": 2,
+          "stack_used_bytes": 1696,
+          "stack_free_bytes": 2396
+        },
+        {
+          "name": "main",
+          "crashed": false,
+          "priority": 1,
+          "base_priority": 1,
+          "stack_used_bytes": 1584,
+          "stack_free_bytes": 2504
+        },
+        {
+          "name": "IDLE1",
+          "crashed": false,
+          "priority": 0,
+          "base_priority": 0,
+          "stack_used_bytes": 416,
+          "stack_free_bytes": 1104
+        },
+        {
+          "name": "IDLE0",
+          "crashed": false,
+          "priority": 0,
+          "base_priority": 0,
+          "stack_used_bytes": 416,
+          "stack_free_bytes": 1108
+        },
+        {
+          "name": "ipc0",
+          "crashed": false,
+          "priority": 24,
+          "base_priority": 24,
+          "stack_used_bytes": 432,
+          "stack_free_bytes": 588
+        },
+        {
+          "name": "ipc1",
+          "crashed": false,
+          "priority": 24,
+          "base_priority": 24,
+          "stack_used_bytes": 432,
+          "stack_free_bytes": 580
+        }
+      ],
+      "crashed_task": "fixture_fault"
+    }
+  }
+}
