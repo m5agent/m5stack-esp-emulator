@@ -6677,6 +6677,25 @@ class DeviceServiceUnitTests(unittest.TestCase):
             raw = archive.read("serial.log")
             self.assertEqual(crash["sources"]["console"]["sha256"], hashlib.sha256(raw).hexdigest())
 
+    def test_conflicting_write_receipt_preserves_failure_and_same_zip_reports(self):
+        session = self._stopped_session()
+        session.serial0.write_bytes(
+            b"ESP-ROM:esp32p4-test\n"
+            b"I (39) esp_core_dump_flash: Save core dump to flash...\n"
+            b"E (39) esp_core_dump_common: Core dump write failed with error=-1\n"
+            b"I (39) esp_core_dump_flash: Core dump has been saved to flash.\n"
+            b"ESP-ROM:esp32p4-next\n"
+        )
+        crash = session.crash_diagnostics()
+        self.assertEqual(crash["status"], "observed")
+        self.assertIsNone(crash["panic"])
+        dump = crash["core_dump"]
+        self.assertEqual(dump["status"], "write_failed")
+        self.assertTrue(dump["last_terminal_write_attempt"]["saved_reported"])
+        self.assertTrue(dump["last_terminal_write_attempt"]["conflicting_reports"])
+        with zipfile.ZipFile(io.BytesIO(session.evidence_bundle({"serial"}))) as archive:
+            self.assertEqual(json.loads(archive.read("diagnostics/crash.json")), crash)
+
     def test_crash_prefix_observation_preserves_latest_status_in_same_evidence_zip(self):
         session = self._stopped_session()
         session.serial0.write_bytes(

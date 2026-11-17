@@ -6281,6 +6281,39 @@ components:
                 - flash_unavailable
                 - flash_read_denied
                 - unchanged_flash_dump
+    CoreDumpWriteAttempt:
+      type: object
+      additionalProperties: false
+      required: [ordinal, boot_ordinal, start_line, failure_line, saved_line, transport, status, saved_reported, conflicting_reports]
+      properties:
+        ordinal:
+          type: integer
+          minimum: 1
+          description: Write-report group ordinal within the captured console window.
+        boot_ordinal:
+          type: [integer, "null"]
+          minimum: 1
+        start_line:
+          type: [integer, "null"]
+          minimum: 1
+          description: Explicit Flash write-start line, null if not captured.
+        failure_line:
+          type: [integer, "null"]
+          minimum: 1
+          description: First explicit write-failure line within this group.
+        saved_line:
+          type: [integer, "null"]
+          minimum: 1
+        transport:
+          enum: [flash, unknown]
+        status:
+          enum: [incomplete, write_failed, flash_reported_saved]
+        saved_reported:
+          type: boolean
+          description: The guest printed a saved report; this does not verify a valid dump.
+        conflicting_reports:
+          type: boolean
+          description: The same group contains both an explicit write failure and a saved report.
     CrashDiagnostics:
       type: object
       required:
@@ -6404,11 +6437,25 @@ components:
           type: integer
         core_dump:
           type: object
-          required: [status]
+          required: [status, write_attempt_count, write_attempts, last_terminal_write_attempt]
           properties:
             status:
               type: string
               enum: [not_observed, uart_incomplete, uart_reported_complete, flash_reported_saved, flash_check_failed, write_failed]
+            write_attempt_count:
+              type: integer
+              minimum: 0
+            write_attempts:
+              type: array
+              maxItems: 16
+              description: Bounded write-report groups; failures cannot be promoted by a later saved report in the same group.
+              items:
+                $ref: "#/components/schemas/CoreDumpWriteAttempt"
+            last_terminal_write_attempt:
+              description: Latest failed or saved report, retained independently of a later incomplete boot or write and the last-16 limit.
+              oneOf:
+                - type: "null"
+                - $ref: "#/components/schemas/CoreDumpWriteAttempt"
             decoding:
               $ref: "#/components/schemas/UartCoreDumpDecoding"
         backend_observations:

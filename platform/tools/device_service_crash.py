@@ -38,6 +38,8 @@ APP_LOAD_LIMIT = 16
 DUMP_START = re.compile(r"=+ CORE DUMP START =+")
 DUMP_END = re.compile(r"=+ CORE DUMP END =+")
 FLASH_DUMP_SAVED = re.compile(r"I \(\s*\d+\) esp_core_dump_flash: Core dump has been saved to flash\.")
+FLASH_DUMP_START = re.compile(r"I \(\s*\d+\) esp_core_dump_flash: Save core dump to flash\.\.\.")
+WRITE_ATTEMPT_LIMIT = 16
 BACKEND_ILLEGAL = re.compile(
     r"Illegal instruction (0x[0-9a-fA-F]{8}) at PC=(0x[0-9a-fA-F]{8}) hart=([01])\b"
 )
@@ -260,7 +262,9 @@ def _crash_console_snapshot(
         observed["core_dump"]["decoding"] = _decode_uart_task_contexts(
             console, observed["panic"], core_dump_chip_id, capture_task_core=capture_task_core,
         )
-    elif decode_flash_dump is not None and observed["core_dump"]["status"] == "flash_reported_saved":
+    elif (decode_flash_dump is not None
+          and observed["core_dump"]["status"] == "flash_reported_saved"
+          and observed["core_dump"]["write_attempts"][-1]["status"] == "flash_reported_saved"):
         observed["core_dump"]["decoding"] = _decode_flash_after_panic(
             console, observed["panic"], decode_flash_dump,
         )
@@ -290,6 +294,10 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
     cpus = {}
     dump_status = "not_observed"
     dump_open = False
+    write_attempts = []
+    write_attempt_count = 0
+    write_attempt = None
+    last_terminal_write_attempt = None
     reset_reports = []
     application_loads = []
     application_load_count = 0
@@ -297,6 +305,20 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
     boot_stage = 3  # Unknown until a complete ROM banner is captured.
     rom_boots = idf_boots = reboot_requests = panic_count = 0
     task_watchdog_reports = 0
+
+    def begin_write(start_line: int | None, transport: str) -> dict:
+        nonlocal write_attempt_count
+        write_attempt_count += 1
+        attempt = {
+            "ordinal": write_attempt_count, "boot_ordinal": boot_ordinal,
+            "start_line": start_line, "failure_line": None, "saved_line": None,
+            "transport": transport, "status": "incomplete",
+            "saved_reported": False, "conflicting_reports": False,
+        }
+        write_attempts.append(attempt)
+        del write_attempts[:-WRITE_ATTEMPT_LIMIT]
+        return attempt
+
     for console_line, raw in enumerate(console.splitlines(), 1):
         line = raw.strip()
         reset = RESET.match(line)
@@ -323,6 +345,7 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
                 reset_reports = reset_reports[-16:]
             active = False
             dump_open = False
+            write_attempt = None
         app_load = APP_LOAD.fullmatch(line)
         if app_load and int(app_load[1]) <= (1 << 64) - 1:
             application_load_count += 1
@@ -338,6 +361,9 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
             task_watchdog_reports += 1
         opening = GURU.match(line) or ABORT.match(line) or ASSERT.match(line)
         if opening:
+            # A new panic is another possible write attempt, even when its
+            # console does not contain a ROM/reset boundary.
+            write_attempt = None
             if opening.re is GURU:
                 core, reason = int(opening[1]), opening[2]
             elif opening.re is ABORT:
@@ -378,17 +404,33 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
             elif elf:
                 panic["elf_sha256_prefix"] = elf[1].lower()
         if DUMP_START.fullmatch(line):
+            write_attempt = None
             dump_open = True
             dump_status = "uart_incomplete"
         elif dump_open and DUMP_END.fullmatch(line):
             dump_open = False
             dump_status = "uart_reported_complete"
+        elif FLASH_DUMP_START.fullmatch(line):
+            write_attempt = begin_write(console_line, "flash")
         elif "Core dump has been saved to flash" in line:
-            dump_status = "flash_reported_saved"
+            if write_attempt is None:
+                write_attempt = begin_write(None, "flash")
+            write_attempt.update(transport="flash", saved_reported=True, saved_line=console_line)
+            write_attempt["conflicting_reports"] = write_attempt["failure_line"] is not None
+            dump_status = "write_failed" if write_attempt["conflicting_reports"] else "flash_reported_saved"
+            write_attempt["status"] = dump_status
+            last_terminal_write_attempt = dict(write_attempt)
         elif "Core dump data check failed" in line:
             dump_status = "flash_check_failed"
         elif "Failed to write core dump" in line or "Core dump write failed" in line:
             dump_status = "write_failed"
+            if write_attempt is None:
+                write_attempt = begin_write(None, "unknown")
+            write_attempt.update(
+                failure_line=write_attempt["failure_line"] or console_line,
+                conflicting_reports=write_attempt["saved_reported"], status="write_failed",
+            )
+            last_terminal_write_attempt = dict(write_attempt)
 
     backend_observations = {}
     for line in stderr.splitlines():
@@ -414,7 +456,11 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
                  "application_load_count": application_load_count,
                  "application_loads": application_loads},
         "task_watchdog_reports": task_watchdog_reports,
-        "core_dump": {"status": dump_status},
+        "core_dump": {
+            "status": dump_status, "write_attempt_count": write_attempt_count,
+            "write_attempts": write_attempts,
+            "last_terminal_write_attempt": last_terminal_write_attempt,
+        },
         "backend_observations": backend,
     }
 

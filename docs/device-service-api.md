@@ -3389,6 +3389,26 @@ loading that offset: it does not establish application readiness, successful
 display output, an authenticated firmware identity or a reset cause. It does
 not by itself change the crash `status` from `no_evidence` to `observed`.
 
+`core_dump.write_attempts` retains at most 16 write-report groups, with
+`write_attempt_count` counting all groups observed in the same console window.
+An explicit `Save core dump to flash...` starts a new group with status
+`incomplete`; it does not overwrite the earlier top-level report. A failure or saved report without that start line
+creates a group with `start_line: null`; its transport is `unknown` until a
+Flash-specific report is seen. Line numbers and nullable `boot_ordinal` use the
+same capture-local coordinates as the application-loading records.
+
+An explicit write failure keeps that group's status `write_failed`, even if
+the guest later prints that it saved the dump. The independent
+`saved_reported` and `conflicting_reports` fields preserve both statements.
+A new write start, panic, boot/reset boundary or UART transfer starts a new
+association, so an earlier failure does not contaminate a later saved report.
+The bounded `last_terminal_write_attempt` preserves the latest group with a
+reported failure or saved outcome, even when a later boot or write is
+incomplete or the group has left the last-16 list. These are terminal *reports*,
+not proof that a valid dump exists. A conflicting saved report or a later
+incomplete write does not initiate Flash dump decoding. Neither the report nor the conflict establishes the reset
+cause, firmware readiness or physical Flash behavior.
+
 On native ESP32-S3, an instrumented QEMU started with host setting
 `M5SW_S3_IWDT_TRACE=1` can supply one `esp32s3_iwdt_stage0` entry in
 `backend_observations`. Its versioned `timing` object records virtual

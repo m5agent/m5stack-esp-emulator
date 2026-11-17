@@ -266,11 +266,15 @@ class OfflineCoreDumpTests(unittest.TestCase):
             )
             return observed["core_dump"]
 
-        self.assertEqual(receipt(dump, False), {"status": "uart_reported_complete"})
+        self.assertEqual(receipt(dump, False), {
+            "status": "uart_reported_complete", "write_attempt_count": 0,
+            "write_attempts": [], "last_terminal_write_attempt": None,
+        })
         self.assertEqual(receipt(dump, True)["decoding"]["status"], "decoded")
         corrupt = dump[:-1] + bytes([dump[-1] ^ 1])
         self.assertEqual(receipt(corrupt, True), {
             "status": "uart_reported_complete",
+            "write_attempt_count": 0, "write_attempts": [], "last_terminal_write_attempt": None,
             "decoding": {"status": "unavailable", "reason": "unsupported_or_invalid_dump"},
         })
 

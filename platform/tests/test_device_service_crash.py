@@ -109,6 +109,93 @@ class CpuPcSampleTests(unittest.TestCase):
 
 
 class CrashDiagnosticsTests(unittest.TestCase):
+    FLASH_START = "I (39) esp_core_dump_flash: Save core dump to flash...\n"
+    FLASH_FAILURE = "E (39) esp_core_dump_common: Core dump write failed with error=-1\n"
+    FLASH_SAVED = "I (39) esp_core_dump_flash: Core dump has been saved to flash.\n"
+
+    def test_failed_flash_attempt_preserves_saved_report_as_a_conflict(self):
+        console = "ESP-ROM:esp32p4-test\n" + self.FLASH_START + self.FLASH_FAILURE + self.FLASH_SAVED
+        dump = serial_crash_observations(console, "")["core_dump"]
+        self.assertEqual(dump["status"], "write_failed")
+        self.assertEqual(dump["write_attempt_count"], 1)
+        self.assertEqual(dump["write_attempts"], [{
+            "ordinal": 1, "boot_ordinal": 1, "start_line": 2,
+            "failure_line": 3, "saved_line": 4, "transport": "flash",
+            "status": "write_failed", "saved_reported": True, "conflicting_reports": True,
+        }])
+        self.assertEqual(dump["last_terminal_write_attempt"], dump["write_attempts"][0])
+
+    def test_conflicting_flash_reports_do_not_attempt_flash_decoding(self):
+        def unexpected_decode(_):
+            self.fail("a contradictory saved report must not initiate Flash decoding")
+
+        source, observed = crash_console_observations(
+            Path("unused"), "", (self.FLASH_START + self.FLASH_FAILURE + self.FLASH_SAVED).encode(),
+            decode_flash_dump=unexpected_decode,
+        )
+        self.assertEqual(source["status"], "available")
+        self.assertEqual(observed["core_dump"]["status"], "write_failed")
+        self.assertNotIn("decoding", observed["core_dump"])
+
+    def test_new_attempt_and_boot_do_not_inherit_an_earlier_write_failure(self):
+        for separator in (self.FLASH_START, "ESP-ROM:esp32p4-next\n", "Rebooting...\n",
+                          "abort() was called at PC 0x400d0000 on core 0\n"):
+            with self.subTest(separator=separator):
+                dump = serial_crash_observations(
+                    self.FLASH_START + self.FLASH_FAILURE + separator + self.FLASH_SAVED, "",
+                )["core_dump"]
+                self.assertEqual(dump["status"], "flash_reported_saved")
+                self.assertEqual(dump["write_attempt_count"], 2)
+                self.assertEqual(dump["write_attempts"][0]["status"], "write_failed")
+                self.assertFalse(dump["write_attempts"][1]["conflicting_reports"])
+                self.assertEqual(dump["last_terminal_write_attempt"]["ordinal"], 2)
+
+    def test_latest_incomplete_boot_preserves_last_terminal_attempt(self):
+        terminal = self.FLASH_START + self.FLASH_FAILURE + self.FLASH_SAVED
+        next_boot = "ESP-ROM:esp32p4-next\nI (10) boot: Loaded app from partition at offset 0x10000\n"
+        dump = serial_crash_observations(terminal + next_boot, "")["core_dump"]
+        self.assertEqual(dump["status"], "write_failed")
+        self.assertEqual(dump["last_terminal_write_attempt"]["status"], "write_failed")
+        pending = serial_crash_observations(terminal + next_boot + self.FLASH_START, "")["core_dump"]
+        self.assertEqual(pending["status"], "write_failed")
+        self.assertEqual(pending["write_attempts"][-1]["status"], "incomplete")
+        self.assertEqual(pending["last_terminal_write_attempt"]["ordinal"], 1)
+        self.assertTrue(pending["last_terminal_write_attempt"]["conflicting_reports"])
+
+    def test_new_incomplete_write_does_not_decode_an_earlier_saved_report(self):
+        def unexpected_decode(_):
+            self.fail("an earlier saved report must not decode an unfinished later write")
+
+        _, observed = crash_console_observations(
+            Path("unused"), "", (self.FLASH_SAVED + self.FLASH_START).encode(),
+            decode_flash_dump=unexpected_decode,
+        )
+        dump = observed["core_dump"]
+        self.assertEqual(dump["status"], "flash_reported_saved")
+        self.assertEqual(dump["write_attempts"][-1]["status"], "incomplete")
+        self.assertEqual(dump["last_terminal_write_attempt"]["ordinal"], 1)
+        self.assertNotIn("decoding", dump)
+
+    def test_unknown_start_and_bounded_pending_attempts_preserve_terminal_report(self):
+        dump = serial_crash_observations(self.FLASH_FAILURE + self.FLASH_SAVED + self.FLASH_START * 32, "")["core_dump"]
+        self.assertEqual(dump["write_attempt_count"], 33)
+        self.assertEqual(len(dump["write_attempts"]), 16)
+        self.assertEqual([item["ordinal"] for item in dump["write_attempts"]], list(range(18, 34)))
+        terminal = dump["last_terminal_write_attempt"]
+        self.assertIsNone(terminal["start_line"])
+        self.assertIsNone(terminal["boot_ordinal"])
+        self.assertEqual(terminal["ordinal"], 1)
+        self.assertTrue(terminal["saved_reported"])
+        self.assertTrue(terminal["conflicting_reports"])
+
+    def test_uart_transfer_starts_a_separate_write_context(self):
+        dump = serial_crash_observations(
+            self.FLASH_START + self.FLASH_FAILURE + "===== CORE DUMP START =====\n"
+            "===== CORE DUMP END =====\n", "",
+        )["core_dump"]
+        self.assertEqual(dump["status"], "uart_reported_complete")
+        self.assertEqual(dump["last_terminal_write_attempt"]["status"], "write_failed")
+
     def test_application_loads_retain_order_and_capture_local_boot_context(self):
         parsed = serial_crash_observations(
             "ESP-ROM:esp32p4-test\nrst:0x1 (POWERON)\n"
