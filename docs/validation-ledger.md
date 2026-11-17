@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 保存快照的本地 STA 应用断言
+
+[隔离 Linux 三板及负对照](../tests/network/native_sta_peers/saved-sta-operation-summary.json)
+通过真实保存快照队列完成同会话 DHCP、DNS、HTTP 和 UDP。ADV 只改回复最后一字节，
+保留双向流量，来宾拒绝数据且应用断言为 `FAIL`。缺 Linux 命名空间能力时，原生
+准入失败后仍完成离线板级观察，STA 断言为 `PARTIAL`。Core2 另核对了保存的
+历史网络设置与当前显式隔离计划。局部网络、画面就绪和云端应用分别取证。
+
 ## 2026-11-18 保存快照的原生隔离热点
 
 [同会话审核和最终抓包](../tests/network/native_open_softap/saved-review-summary.json)

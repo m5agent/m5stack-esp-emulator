@@ -132,3 +132,20 @@ Service advertises `native_network.sta.http_fixture=true` for this explicit
 fixture. Its absence on an older backend leaves the earlier Core2 DNS/UDP
 review path available. The reception result is limited to this fixed local
 HTTP service and does not cover arbitrary applications or HTTPS.
+
+## Saved-snapshot application review
+
+The Reviewer accepts a saved-snapshot `validation.native_sta_operation`.
+Use the exact local names and paths above, the UDP request and response
+bytes, and the firmware's literal terminal result lines. Supply no
+top-level `network` when requesting the fixture. The review derives the
+Open Wi-Fi and controlled DNS policy for the requested board. The
+final evidence ZIP must contain the same stopped guest's PCAP and UART.
+
+The [saved review comparison](saved-sta-operation-summary.json) covers
+Cardputer, ADV and Core2. On ADV, replacing the final byte of the fixture's
+UDP response preserves the DHCP and bidirectional flows. The guest
+reports that the response failed its application check and the scoped
+assertion becomes `FAIL`. A worker without namespace capability
+continues the offline board review and records an admission `PARTIAL`.
+The headless ESP-IDF probe leaves display readiness `PARTIAL`.
