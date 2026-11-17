@@ -2476,6 +2476,11 @@ paths:
   /sessions/{session_id}/input:
     post:
       summary: Inject native buttons, keyboard, chords, encoder or touch
+      description: >-
+        On the optional native Tab5 GT911 lane, touch accepts a single tap with
+        integer x and y pixel coordinates in the raw 720 by 1280 DSI frame
+        (top-left origin). HTTP 409 tab5_gt911_ack_timeout means the guest did
+        not acknowledge both tap edges.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -2497,6 +2502,9 @@ paths:
             For semantic native controls, an accepted receipt describes input
             submission; confirm guest response or controller delivery separately.
             Encoder requests return a controller target and prior physical state.
+            Native Tab5 GT911 taps return coordinate_space=panel-native,
+            controller=gt911, and controller_reports counts for produced and
+            acknowledged reports after the guest consumes both tap edges.
           content:
             application/json:
               schema:

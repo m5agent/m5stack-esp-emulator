@@ -170,6 +170,64 @@ class Tab5ServiceTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "tab5_dsi_runtime_unavailable")
         spawn.assert_not_called()
 
+    def test_dsi_board_and_part_are_scoped_to_admitted_firmware(self):
+        self.elf.write_bytes(b"wrong build")
+        self.service.tab5_dsi_emulator = "/missing/esp-emu"
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_gt911_part = "/missing/gt911.wasm"
+        self.service.tab5_dsi_firmware_sha256s = {"1" * 64}
+        session = self.session()
+        self.provision(session)
+        sidecar, p4 = self.launch_commands(session)
+        self.assertNotIn("--cosim-tcp", sidecar)
+        self.assertNotIn("--cosim-board", p4)
+        self.assertNotIn("--control-tcp", p4)
+        self.assertNotIn("touch_model", session.flash_info["tab5"])
+        self.assertIn("--i2c-dev", p4)
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.inject({"kind": "touch", "x": 640, "y": 160})
+        self.assertEqual(raised.exception.code, "input_requires_matching_elf")
+
+    def test_native_gt911_uses_panel_coordinates_and_records_controller_receipt(self):
+        self.elf.write_bytes(b"wrong build")
+        candidate = Path("/qualified/esp-emu")
+        self.service.tab5_dsi_emulator = str(candidate)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_gt911_part = "/qualified/gt911.wasm"
+        self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+        session = self.session()
+        board = session.dir / "tab5-cosim-board.json"
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
+                mock.patch.object(service_module, "stage_tab5_gt911_part", return_value=board) as stage, \
+                mock.patch.object(service_module, "Tab5DsiReceiver"), \
+                mock.patch.object(service_module, "Tab5Gt911Touch") as controller:
+            self.provision(session)
+            sidecar, p4 = self.launch_commands(session)
+            stage.assert_called_once_with(self.service.tab5_gt911_part, self.service.tab5_dsi_board, session.dir)
+            self.assertNotIn("--cosim-board", sidecar)
+            self.assertEqual(p4[p4.index("--cosim-board") + 1], str(board))
+            self.assertIn("--control-tcp", p4)
+            self.assertNotIn("--i2c-dev", p4)
+            self.assertEqual(session.flash_info["tab5"]["touch_model"], "esp-emu-gt911")
+            self.assertEqual(session.flash_info["tab5"]["touch_coordinate_space"], "panel-native")
+            for x, y in ((720, 160), (640, 1280), (False, 160), (640.5, 160), (640, None)):
+                with self.subTest(x=x, y=y), self.assertRaises(service_module.ServiceError) as raised:
+                    session.inject({"kind": "touch", "x": x, "y": y})
+                self.assertEqual(raised.exception.code, "invalid_input")
+            with self.assertRaises(service_module.ServiceError) as raised:
+                session.inject({"kind": "longpress", "x": 640, "y": 160})
+            self.assertEqual(raised.exception.code, "unsupported_input")
+            controller.return_value.tap.assert_not_called()
+            controller.return_value.tap.return_value = {"reports": 13, "acknowledged": 13}
+            receipt = session.inject({"kind": "touch", "x": 640, "y": 160})
+            controller.return_value.tap.assert_called_once_with(640, 160, session._check_cancelled)
+            self.assertEqual(receipt["raw"], [640, 160])
+            self.assertEqual(receipt["controller_reports"], {"reports": 13, "acknowledged": 13})
+            self.assertEqual(session.events[-1]["event"], "gt911_touch_acknowledged")
+            session._proc = session._c6_proc = None
+            session._terminate_tab5()
+            self.assertIsNone(session._tab5_gt911)
+
     def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
         self.elf.write_bytes(b"wrong build")
         self.service.tab5_dsi_emulator = str(self.root / "qualified")

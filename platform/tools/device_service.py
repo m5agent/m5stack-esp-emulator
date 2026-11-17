@@ -58,7 +58,11 @@ from device_service_encoder import rotate_encoder  # noqa: E402
 from device_service_tab5_dsi import (  # noqa: E402
     RGB565_LE,
     TAB5_DSI_RUNTIME_SHA256,
+    TAB5_GT911_PART_SHA256,
+    TAB5_GT911_SIZE,
     Tab5DsiReceiver,
+    Tab5Gt911Touch,
+    stage_tab5_gt911_part,
     tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
@@ -8963,6 +8967,8 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_dsi_emulator: Path | None = None
         self._tab5_dsi: Tab5DsiReceiver | None = None
         self._tab5_dsi_devices: tuple[str, ...] = ()
+        self._tab5_gt911_board: Path | None = None
+        self._tab5_gt911: Tab5Gt911Touch | None = None
 
     def _prepare_tab5_identity(self) -> dict:
         """Admit the actual session image before starting either companion."""
@@ -9010,6 +9016,14 @@ class Tab5DeviceSession(DeviceSession):
         # hand symbols from another build to either esp-emu or the GDB helpers.
         identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
         candidate = getattr(self.service, "tab5_dsi_emulator", "")
+        part = getattr(self.service, "tab5_gt911_part", "")
+        allowed_firmware = getattr(self.service, "tab5_dsi_firmware_sha256s", frozenset())
+        if allowed_firmware and self.firmware_sha not in allowed_firmware:
+            candidate = part = ""
+        if part and not candidate and self._tab5_elf is None:
+            raise ServiceError(
+                "tab5_gt911_part_unavailable", "Tab5 GT911 requires the native DSI runtime", 409
+            )
         if candidate and self._tab5_elf is None:
             self._tab5_dsi_emulator = tab5_dsi_runtime(candidate)
             identity.update(frame_capture="esp-emu-dsi", runtime_sha256=TAB5_DSI_RUNTIME_SHA256)
@@ -9017,6 +9031,13 @@ class Tab5DeviceSession(DeviceSession):
             self._tab5_dsi_devices = tab5_dsi_board_devices(board)
             if board:
                 identity.update(panel_board=board, touch_model="idle-identification-registers")
+            if part:
+                self._tab5_gt911_board = stage_tab5_gt911_part(part, board, self.dir)
+                identity.update(
+                    touch_model="esp-emu-gt911",
+                    touch_part_sha256=TAB5_GT911_PART_SHA256,
+                    touch_coordinate_space="panel-native",
+                )
         assert self.spec.efuse is not None
         seed = self.spec.efuse.read_bytes()
         self._tab5_efuse.write_bytes(seed)
@@ -9150,8 +9171,16 @@ class Tab5DeviceSession(DeviceSession):
         ]
         if elf:
             command.extend(["--elf", str(elf)])
-        for i2c_device in (*TAB5_I2C_DEVICES, *self._tab5_dsi_devices):
-            command.extend(["--i2c-dev", i2c_device])
+        gt911_port = None
+        if self._tab5_gt911_board is not None:
+            gt911_port = free_tcp_port()
+            command.extend([
+                "--cosim-board", str(self._tab5_gt911_board),
+                "--control-tcp", f"127.0.0.1:{gt911_port}",
+            ])
+        else:
+            for i2c_device in (*TAB5_I2C_DEVICES, *self._tab5_dsi_devices):
+                command.extend(["--i2c-dev", i2c_device])
         dsi_port = free_tcp_port() if self._tab5_dsi_emulator is not None else None
         if dsi_port is not None:
             command.extend(["--cosim-tcp", f"127.0.0.1:{dsi_port}"])
@@ -9174,6 +9203,9 @@ class Tab5DeviceSession(DeviceSession):
         self.pid = self._proc.pid
         self._persist_session()
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
+        if gt911_port is not None:
+            wait_for_tcp_port(gt911_port, self._proc, 8)
+            self._tab5_gt911 = Tab5Gt911Touch(gt911_port)
         self._check_cancelled()
 
     def _close_dsi_receiver(self) -> None:
@@ -9184,6 +9216,7 @@ class Tab5DeviceSession(DeviceSession):
             receiver.close()
 
     def _terminate_tab5(self) -> None:
+        self._tab5_gt911 = None
         self._close_dsi_receiver()
         for proc in (self._proc, self._c6_proc):
             if proc is not None and proc.poll() is None:
@@ -9305,6 +9338,8 @@ class Tab5DeviceSession(DeviceSession):
             )
         if not isinstance(payload, dict):
             raise ServiceError("invalid_input", "input must be an object", 400)
+        if self._tab5_gt911_board is not None:
+            return self._inject_gt911(payload)
         kind = payload.get("kind")
         if kind not in ("touch", "longpress") or str(payload.get("action", "tap")).lower() != "tap":
             raise ServiceError(
@@ -9347,6 +9382,32 @@ class Tab5DeviceSession(DeviceSession):
             "raw": [raw_x, raw_y],
             "accepted": True,
         }
+
+    def _inject_gt911(self, payload: dict) -> dict:
+        if payload.get("kind") != "touch" or str(payload.get("action", "tap")).lower() != "tap":
+            raise ServiceError("unsupported_input", "Native Tab5 GT911 supports a single touch tap", 409)
+        x, y = payload.get("x"), payload.get("y")
+        width, height = TAB5_GT911_SIZE
+        if type(x) is not int or type(y) is not int or not (0 <= x < width and 0 <= y < height):
+            raise ServiceError(
+                "invalid_input", f"Tab5 GT911 coordinates must be integers inside the {width}×{height} frame", 400
+            )
+        with self._lifecycle_operation():
+            if self.state != "running" or self._tab5_gt911 is None:
+                raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+            evidence = self._tab5_gt911.tap(x, y, self._check_cancelled)
+            receipt = {
+                "session_id": self.id,
+                "input": "touch",
+                "logical": [x, y],
+                "raw": [x, y],
+                "accepted": True,
+                "coordinate_space": "panel-native",
+                "controller": "gt911",
+                "controller_reports": evidence,
+            }
+            self._record_event("gt911_touch_acknowledged", raw=receipt["raw"], **evidence)
+            return receipt
 
     def qom_set(self, payload: dict) -> dict:
         self._check_cancelled()
@@ -9417,6 +9478,11 @@ class DeviceService:
         self.storage_policy = storage_policy or StoragePolicy.from_env()
         self.tab5_dsi_emulator = os.environ.get("M5_TAB5_DSI_EMULATOR", "").strip()
         self.tab5_dsi_board = os.environ.get("M5_TAB5_DSI_BOARD", "").strip()
+        self.tab5_gt911_part = os.environ.get("M5_TAB5_GT911_PART", "").strip()
+        hashes = os.environ.get("M5_TAB5_DSI_FIRMWARE_SHA256S", "").strip()
+        self.tab5_dsi_firmware_sha256s = frozenset(value.strip() for value in hashes.split(",")) if hashes else frozenset()
+        if any(re.fullmatch(r"[0-9a-f]{64}", value) is None for value in self.tab5_dsi_firmware_sha256s):
+            raise ValueError("M5_TAB5_DSI_FIRMWARE_SHA256S requires comma-separated lowercase SHA-256 hashes")
         self.specs = load_device_specs()
         self.runtime_acl = runtime_acl or RuntimeACL.unconfigured()
         self.runtime_acl.validate_device_ids(set(self.specs))

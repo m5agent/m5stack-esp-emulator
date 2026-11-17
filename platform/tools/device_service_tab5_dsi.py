@@ -15,6 +15,9 @@ from device_service_errors import ServiceError
 
 
 TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828"
+TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
+TAB5_GT911_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts" / "tab5-gt911"
+TAB5_GT911_SIZE = (720, 1280)
 MAX_MESSAGE_BYTES = 128 * 1024
 MAX_PIXELS = 2 * 1024 * 1024
 MAX_DIMENSION = 2048
@@ -51,6 +54,85 @@ def tab5_dsi_board_devices(board: str) -> tuple[str, ...]:
         # begins with ASCII "911" at 0x8140; zero touch status means idle.
         return ("1:0x14,width=2,fill=0,reg=0x8140=0x39,reg=0x8141=0x31,reg=0x8142=0x31",)
     raise ServiceError("tab5_dsi_board_unavailable", "unknown native DSI Tab5 board revision", 409)
+
+
+def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> Path:
+    """Bind the source board and exact ESP Part bytes to this guest."""
+    if board != "gt911-ili9881c":
+        raise ServiceError(
+            "tab5_gt911_part_unavailable", "Tab5 GT911 requires the gt911-ili9881c board revision", 409
+        )
+    try:
+        with Path(value).open("rb") as module:
+            part = module.read(128 * 1024 + 1)
+        if hashlib.sha256(part).hexdigest() != TAB5_GT911_PART_SHA256:
+            raise ValueError("unexpected ESP Part hash")
+        config = (TAB5_GT911_SOURCE / "board.json").read_bytes()
+        (session_dir / "m5_tab5_gt911.wasm").write_bytes(part)
+        path = session_dir / "tab5-cosim-board.json"
+        path.write_bytes(config)
+        return path
+    except (OSError, ValueError) as error:
+        raise ServiceError(
+            "tab5_gt911_part_unavailable", "configured Tab5 GT911 ESP Part could not be verified", 409
+        ) from error
+
+
+class Tab5Gt911Touch:
+    """Submit one tap through the native controller and observe guest ACKs."""
+
+    def __init__(self, port: int):
+        self.port = port
+
+    def _command(self, command: str) -> str:
+        try:
+            with socket.create_connection(("127.0.0.1", self.port), timeout=1) as sock:
+                sock.sendall((command + "\n").encode("ascii"))
+                with sock.makefile("rb") as stream:
+                    reply = stream.readline(1024)
+            if reply.endswith(b"\n"):
+                return reply.decode("ascii").strip()
+        except (OSError, UnicodeError):
+            pass
+        raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 control endpoint is unavailable", 409)
+
+    def _state(self) -> tuple[int, int, int, bool]:
+        response = self._command("part gt911 state")
+        try:
+            if response.startswith("ok "):
+                values = dict(item.split("=", 1) for item in response[3:].split())
+                if values["ready"] in {"true", "false"} and values["contact"] in {"true", "false"}:
+                    reports = int(values["reports"])
+                    acknowledged = int(values["acknowledged"])
+                    rejected = int(values["rejected_inputs"])
+                    if 0 <= acknowledged <= reports and rejected >= 0:
+                        idle = values["ready"] == values["contact"] == "false"
+                        return reports, acknowledged, rejected, idle
+        except (KeyError, ValueError):
+            pass
+        raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 state could not be read", 409)
+
+    def tap(self, x: int, y: int, check_cancelled, *, timeout: float = 12) -> dict:
+        reports, acknowledged, rejected, idle = self._state()
+        if not idle or reports != acknowledged:
+            raise ServiceError("tab5_gt911_busy", "Tab5 GT911 has a pending report", 409)
+        if self._command(f"part gt911 input tap:{x},{y}") != "ok":
+            raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 could not queue the tap", 409)
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            check_cancelled()
+            current_reports, current_acknowledged, current_rejected, idle = self._state()
+            if current_rejected != rejected:
+                raise ServiceError("tab5_gt911_busy", "Tab5 GT911 rejected the tap", 409)
+            if idle and current_reports == current_acknowledged and current_acknowledged - acknowledged >= 2:
+                return {
+                    "reports": current_reports - reports,
+                    "acknowledged": current_acknowledged - acknowledged,
+                }
+            time.sleep(0.05)
+        raise ServiceError(
+            "tab5_gt911_ack_timeout", "Tab5 guest did not acknowledge both GT911 tap reports", 409
+        )
 
 
 class DsiProtocolError(ValueError):

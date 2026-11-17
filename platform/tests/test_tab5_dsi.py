@@ -15,8 +15,10 @@ from device_service_tab5_dsi import (
     MAX_MESSAGE_BYTES,
     REGISTER_VC0,
     Tab5DsiReceiver,
+    Tab5Gt911Touch,
     _fields,
     _read_message,
+    stage_tab5_gt911_part,
     tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
@@ -35,6 +37,39 @@ def _rows(number: int, y: int, count: int, data: bytes) -> dict:
 
 
 class Tab5DsiTests(unittest.TestCase):
+    def test_gt911_part_rejects_wrong_artifact_or_board(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unrelated = root / "wrong.wasm"
+            unrelated.write_bytes(b"unqualified part")
+            for board in ("gt911-ili9881c", ""):
+                with self.subTest(board=board), self.assertRaises(ServiceError) as raised:
+                    stage_tab5_gt911_part(str(unrelated), board, root)
+                self.assertEqual(raised.exception.code, "tab5_gt911_part_unavailable")
+            self.assertFalse((root / "tab5-cosim-board.json").exists())
+
+    def test_gt911_tap_waits_for_idle_and_guest_acknowledgement(self):
+        touch = Tab5Gt911Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (1, 0, 0, False), (12, 11, 0, False), (12, 12, 0, True),
+        ]), mock.patch.object(touch, "_command", return_value="ok") as queue:
+            self.assertEqual(touch.tap(640, 160, lambda: None), {"reports": 12, "acknowledged": 12})
+        queue.assert_called_once_with("part gt911 input tap:640,160")
+
+    def test_gt911_tap_rejects_busy_input_and_unacknowledged_guest(self):
+        touch = Tab5Gt911Touch(1)
+        for first, timeout, code in (
+            ((1, 0, 0, False), 1, "tab5_gt911_busy"),
+            ((0, 0, 0, True), 0.06, "tab5_gt911_ack_timeout"),
+        ):
+            with self.subTest(code=code), mock.patch.object(
+                touch, "_state", return_value=first
+            ), mock.patch.object(touch, "_command", return_value="ok") as queue:
+                with self.assertRaises(ServiceError) as raised:
+                    touch.tap(640, 160, lambda: None, timeout=timeout)
+                self.assertEqual(raised.exception.code, code)
+                self.assertEqual(queue.call_count, int(code == "tab5_gt911_ack_timeout"))
+
     def test_idle_gt911_board_attaches_only_on_selected_controller(self):
         self.assertEqual(tab5_dsi_board_devices(""), ())
         self.assertEqual(tab5_dsi_board_devices("gt911-ili9881c"), (

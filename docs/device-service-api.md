@@ -1135,8 +1135,8 @@ Important fields:
   `native_network.sta` with `runtime=qemu-wifi`, `profile=generic-observe`
   and `operation_assertions=false`. This advertises the board's station path.
   Check worker and network-isolation admission when creating the lease.
-- Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
-  used by the validated Tab5 runtime.
+- Tab5 `features.qom` is `false`. The matching-ELF touch path uses a GDB mailbox.
+  Uploaded Tab5 images can use the optional native GT911 controller path.
 
 `backend_ready=false` is a deployment state, not evidence that the device model
 is broken. A fresh source clone has no ignored `.work/` runtime assets; see
@@ -2962,15 +2962,34 @@ selects that binary for the P4 guest and its C6 companion. Matched-ELF
 sessions continue to use the configured Tab5 runtime. The worker verifies the
 opt-in binary before starting the companions. An invalid selection fails
 session provisioning before either guest launches.
+On a shared worker, set `M5_TAB5_DSI_FIRMWARE_SHA256S` to a comma-separated
+list of exact admitted firmware hashes validated with this board. Use the
+`sha256` returned by `POST /firmware/import` for each image.
+Unlisted uploads keep the legacy path. This setting scopes the DSI runtime,
+board selection and GT911 Part together.
 
-For the original ILI9881C/GT911 board revision, also set
-`M5_TAB5_DSI_BOARD=gt911-ili9881c`. This places esp-emu's 16-bit register
-device at GT911's backup address on HP I²C controller 1. The register device
-supplies the stock BSP's probe acknowledgement, product ID, and idle status.
-Its scope ends at identification, so the input route still needs matching
-symbols. The session records `flash.tab5.panel_board` and
-`flash.tab5.touch_model`. Omit the board setting to use the existing wiring.
-An unknown board selection fails provisioning with no fallback.
+For the original ILI9881C/GT911 board revision, set
+`M5_TAB5_DSI_BOARD=gt911-ili9881c`. By default the board adds the stock BSP's
+GT911 probe acknowledgement, product ID and idle registers on HP I²C
+controller 1. This mode returns `409 input_requires_matching_elf` for touch.
+The session records `flash.tab5.panel_board` and `flash.tab5.touch_model`.
+Omit the board setting to use the existing wiring. An unknown board selection
+fails provisioning.
+
+To enable native taps for this board, build the [GT911 ESP Part](../platform/esp-parts/tab5-gt911/README.md)
+and set `M5_TAB5_GT911_PART` to the absolute path of `m5_tab5_gt911.wasm`.
+The worker verifies its SHA-256 and stages an owned copy with the board
+configuration. Touch reports go through GT911 I²C registers and GPIO INT.
+`POST /sessions/{id}/input` accepts `{"kind":"touch","x":640,"y":160}`
+and optional `"action":"tap"`. Coordinates in `panel-native` space start at
+the top left of the raw 720×1280 DSI frame. The response includes
+`controller="gt911"` and `controller_reports.reports` and
+`controller_reports.acknowledged` deltas after the guest acknowledges the
+contact and release reports. A controller acknowledgement proves guest driver
+consumption. Check the frame or another application output to verify the tap's
+effect. Invalid coordinates return `400 invalid_input`, and an unacknowledged
+tap returns `409 tab5_gt911_ack_timeout`. Long press, swipe and multitouch
+are outside this native input path.
 
 With native DSI enabled, `GET /sessions/{id}/frame.png` with default
 `orient=panel` returns the latest complete received DPI frame. A still
@@ -3368,8 +3387,8 @@ shells use this form so a model button is down only while the pointer is held:
 
 `hold_seconds` with key `down` or `up` returns HTTP 400 `invalid_input`.
 These immediate edges and browser pointer-held controls retain their existing
-timing. Touch, longpress and drag retain their existing host-timed injection;
-the virtual-clock guarantee above applies only to independent QMP key taps.
+timing. The existing QEMU touch, longpress and drag paths use host timing.
+The optional native Tab5 GT911 tap uses the controller's virtual scan clock.
 
 Touch:
 
@@ -3618,8 +3637,9 @@ restart.
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can execute without an ELF. Default screenshots and
-  touch input require matching symbols. The opt-in esp-emu DSI receiver can
-  capture an actual native frame without symbols;
+  touch input require matching symbols. The opt-in esp-emu DSI receiver
+  captures native frames and the optional GT911 ESP Part enables single taps
+  for the GT911/ILI9881C board without guest symbols;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
   StamPLC, plus environment-gated Core2; other devices expose session
