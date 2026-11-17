@@ -1,11 +1,14 @@
 """Guard postmortem attribution independently of any cached runtime assets."""
 
 import hashlib
+import io
 from pathlib import Path
 import tempfile
 import unittest
 
-from device_service_crash import CRASH_OUTPUT_LIMIT, output_tail, qmp_cpu_pc_sample, serial_crash_observations
+from device_service_crash import (
+    CRASH_OUTPUT_LIMIT, crash_console_observations, output_tail, qmp_cpu_pc_sample, serial_crash_observations,
+)
 from device_service_errors import ServiceError
 
 
@@ -104,6 +107,12 @@ class CpuPcSampleTests(unittest.TestCase):
 
 
 class CrashDiagnosticsTests(unittest.TestCase):
+    HISTORICAL_PANIC = (
+        b"Guru Meditation Error: Core  1 panic'ed (synthetic timeout).\n"
+        b"Core  1 register dump:\nPC : 0x400d1000\nELF file SHA256: 1916d0ba9\n"
+    )
+    LATE_LOG = b"synthetic boot progress\n" * (5 * 1024 * 1024 // len(b"synthetic boot progress\n"))
+
     def test_cpu_attribution_comes_from_panic_and_register_labels(self):
         parsed = serial_crash_observations(
             "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).\n"
@@ -171,3 +180,64 @@ class CrashDiagnosticsTests(unittest.TestCase):
             self.assertTrue(receipt["truncated"])
             self.assertEqual(body, "valid line\n")
             self.assertEqual((receipt,body), output_tail(path, content))
+
+    def test_earlier_console_panic_survives_a_long_latest_window(self):
+        content = self.HISTORICAL_PANIC + self.LATE_LOG + b"ESP-ROM:synthetic-test\n"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "serial.log"
+            path.write_bytes(content)
+            source, observed = crash_console_observations(path, "")
+            self.assertEqual(source, output_tail(path)[0])
+            # A pre-captured evidence bundle must never use the live file.
+            path.write_bytes(b"\nassert failed: current file differs\n")
+            self.assertEqual((source, observed), crash_console_observations(path, "", content))
+
+        self.assertIsNone(observed["panic"])
+        self.assertEqual(observed["cpus"], [])
+        self.assertEqual(observed["panic_count"], 0)
+        self.assertEqual(observed["boot"]["rom_banners"], 1)
+        earlier = observed["earlier_console"]
+        self.assertEqual(earlier["scope"], "console_prefix")
+        self.assertEqual(earlier["source"], {
+            "status": "available", "offset": 0, "bytes": CRASH_OUTPUT_LIMIT, "truncated": True,
+            "sha256": hashlib.sha256(content[:CRASH_OUTPUT_LIMIT]).hexdigest(),
+        })
+        self.assertEqual(earlier["panic"]["core"], 1)
+        self.assertEqual(earlier["panic"]["elf_sha256_prefix"], "1916d0ba9")
+        self.assertEqual(earlier["cpus"][0]["pc"], "0x400d1000")
+
+    def test_scan_never_reads_more_than_two_bounded_console_ranges(self):
+        reads = []
+
+        class CapturedStream(io.BytesIO):
+            def read(self, size=-1):
+                if not 0 <= size <= CRASH_OUTPUT_LIMIT:
+                    raise AssertionError("console crash read must use a bounded range")
+                reads.append((self.tell(), size))
+                return super().read(size)
+
+        class CapturedPath:
+            def open(self, mode):
+                return CapturedStream(content)
+
+        for latest in (b"", b"\nassert failed: later synthetic panic\n"):
+            with self.subTest(latest=latest):
+                content = self.HISTORICAL_PANIC + self.LATE_LOG + latest
+                reads.clear()
+                _, observed = crash_console_observations(CapturedPath(), "")
+                expected = [(len(content) - CRASH_OUTPUT_LIMIT, CRASH_OUTPUT_LIMIT)]
+                if latest:
+                    self.assertEqual(observed["panic"]["reason"], "later synthetic panic")
+                    self.assertNotIn("earlier_console", observed)
+                else:
+                    expected.append((0, CRASH_OUTPUT_LIMIT))
+                    self.assertIn("earlier_console", observed)
+                self.assertEqual(reads, expected)
+
+    def test_prefix_cutoff_never_completes_partial_or_middle_panic_lines(self):
+        header = self.HISTORICAL_PANIC.splitlines()[0]
+        incomplete = b"x" * (CRASH_OUTPUT_LIMIT - len(header) - 1) + b"\n" + header
+        content = incomplete + b"\n" + self.HISTORICAL_PANIC + self.LATE_LOG
+        _, observed = crash_console_observations(Path("unused"), "", content)
+        self.assertIsNone(observed["panic"])
+        self.assertNotIn("earlier_console", observed)

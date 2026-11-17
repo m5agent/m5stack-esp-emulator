@@ -3149,7 +3149,7 @@ from each primary console and runtime stderr by byte range and SHA-256. A
 separate USB stream remains available through the serial API. The runtime
 policy requires `serial.read`.
 
-`status: observed` means the bounded capture contains a recognized panic,
+`status: observed` means the latest bounded captures contain a recognized panic,
 watchdog report, repeated boot, core-dump event or backend report. Each has its
 own field. `no_evidence` means the available console window contains no
 recognized evidence. `observation_unavailable` means the console had no
@@ -3163,6 +3163,14 @@ reset reports remain in `boot`, including watchdog resets without a panic.
 A task watchdog warning alone is recorded under `task_watchdog_reports`.
 Core-dump status records guest-reported delimiters or Flash checks. These
 observations do not perform live register sampling or validate dump contents.
+
+When the console tail is truncated and its parsed lines contain no panic,
+the service also checks the first 512 KiB of the same console capture.
+If it finds a panic, optional `earlier_console` carries its own `panic`,
+`cpus`, and prefix byte offset, length and SHA-256. Top-level status,
+panic, registers, boot counts and ELF binding still describe the latest
+windows. The prefix checks complete lines. Console history between the
+two windows remains outside the capture used by this receipt.
 
 Pass an uploaded ELF's SHA-256 as `elf_artifact_id` to compare its exact bytes
 against the normalized firmware's valid application descriptor and the guest's

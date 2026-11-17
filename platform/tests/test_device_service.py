@@ -6417,6 +6417,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIsNone(crash["panic"])
         self.assertEqual(crash["backend_observations"][0]["pc"], "0x4ff10f12")
 
+    def test_crash_prefix_observation_preserves_latest_status_in_same_evidence_zip(self):
+        session = self._stopped_session()
+        session.serial0.write_bytes(
+            b"assert failed: synthetic earlier panic\n"
+            b"ELF file SHA256: 1916d0ba9\n"
+            + (b"synthetic console text " * 24 + b"\n") * 1200
+        )
+        crash = session.crash_diagnostics()
+        self.assertEqual(crash["status"], "no_evidence")
+        self.assertIsNone(crash["panic"])
+        self.assertEqual(crash["cpus"], [])
+        self.assertIsNone(crash["elf"]["reported_sha256_prefix"])
+        self.assertEqual(crash["symbols"]["status"], "not_decoded")
+        earlier = crash["earlier_console"]
+        self.assertEqual(earlier["panic"]["reason"], "synthetic earlier panic")
+        self.assertEqual(earlier["panic"]["elf_sha256_prefix"], "1916d0ba9")
+        with zipfile.ZipFile(io.BytesIO(session.evidence_bundle({"serial"}))) as archive:
+            self.assertEqual(json.loads(archive.read("diagnostics/crash.json")), crash)
+            raw = archive.read("serial.log")
+            span = earlier["source"]
+            self.assertEqual(span["sha256"], hashlib.sha256(raw[:span["bytes"]]).hexdigest())
+
     def test_qom_diff_uses_stored_snapshots(self):
         session = self._stopped_session()
         before = "1" * 32

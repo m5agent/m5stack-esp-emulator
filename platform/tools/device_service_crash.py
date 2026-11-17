@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from bisect import bisect_left
+from collections.abc import Callable
 import hashlib
 from pathlib import Path
 import re
@@ -126,6 +127,10 @@ def output_tail(path: Path, captured: bytes | None = None) -> tuple[dict, str]:
     else:
         offset = max(0, len(captured) - CRASH_OUTPUT_LIMIT)
         data = captured[offset:]
+    return _output_sample(data, offset, truncated=offset > 0)
+
+
+def _output_sample(data: bytes, offset: int, *, truncated: bool) -> tuple[dict, str]:
     # Ignore a potentially partial first line and unfinished current line.
     # Hash the full captured byte range for reproducibility.
     body = data.split(b"\n", 1)[-1] if offset and b"\n" in data else data
@@ -135,8 +140,55 @@ def output_tail(path: Path, captured: bytes | None = None) -> tuple[dict, str]:
         "offset": offset,
         "bytes": len(data),
         "sha256": hashlib.sha256(data).hexdigest(),
-        "truncated": offset > 0,
+        "truncated": truncated,
     }, ANSI_COLOR.sub("", body.decode("utf-8", errors="replace"))
+
+
+def crash_console_observations(
+    path: Path, stderr: str, captured: bytes | None = None,
+) -> tuple[dict, dict]:
+    """Use one bounded tail and, if useful, the fixed console prefix."""
+    if captured is not None:
+        return _crash_console_snapshot(
+            len(captured), lambda offset, size: captured[offset:offset + size], stderr,
+        )
+    try:
+        with path.open("rb") as stream:
+            size = stream.seek(0, 2)
+
+            def read(offset: int, length: int) -> bytes:
+                stream.seek(offset)
+                return stream.read(length)
+
+            return _crash_console_snapshot(size, read, stderr)
+    except OSError:
+        return {"status": "unavailable", "bytes": 0}, serial_crash_observations("", stderr)
+
+
+def _crash_console_snapshot(
+    size: int, read: Callable[[int, int], bytes], stderr: str,
+) -> tuple[dict, dict]:
+    offset = max(0, size - CRASH_OUTPUT_LIMIT)
+    tail = read(offset, size - offset)
+    source, console = _output_sample(tail, offset, truncated=offset > 0)
+    observed = serial_crash_observations(console, stderr)
+    if not offset or observed["panic"] is not None or len(tail) != size - offset:
+        return source, observed
+    try:
+        prefix = read(0, CRASH_OUTPUT_LIMIT)
+    except OSError:
+        return source, observed
+    if len(prefix) == CRASH_OUTPUT_LIMIT:
+        earlier_source, earlier_text = _output_sample(prefix, 0, truncated=True)
+        earlier = serial_crash_observations(earlier_text, "")
+        if earlier["panic"] is not None:
+            observed["earlier_console"] = {
+                "scope": "console_prefix",
+                "source": earlier_source,
+                "panic": earlier["panic"],
+                "cpus": earlier["cpus"],
+            }
+    return source, observed
 
 
 def serial_crash_observations(console: str, stderr: str) -> dict:
