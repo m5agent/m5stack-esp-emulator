@@ -2485,7 +2485,12 @@ image through `storage.sd_image_artifact_id` in the session request:
 The service validates that the target device has a modeled SD card, copies
 the artifact into the session directory and re-hashes the isolated copy.
 Core2, CoreS3, Cardputer, Cardputer-ADV, PaperColor and PaperS3 use
-the board-wired SPI SD endpoint and report `interface: spi`. SDMMC profiles
+the board-wired SPI SD endpoint and report `interface: spi`. PaperDIY also
+reports `interface: spi` when its native QEMU exposes the read-only
+`sd-card-detect-model` machine property. At startup its GPIO48 reads low
+with attached media and high with an empty slot. Older binaries advertise
+`features.storage: false` for PaperDIY and return `409 storage_not_supported`
+on SD attachment requests. Attach the image at session creation. SDMMC profiles
 report `interface: sdmmc` and attach the block backend with
 `-drive if=sd,format=raw`. SD fixtures require a QEMU guest runtime. The
 separate `runtime=network` diagnostic lane rejects them with `409

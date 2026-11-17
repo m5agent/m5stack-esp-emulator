@@ -19,6 +19,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)：ADV 原驱动 56 个物理键与旧 runtime 负对照，K132 Fn、StickS3 A+B/双击/4999 ms 长按和 Core2 两次接触均取得客体证据。Dial 默认对照控制器 9/9、原 RotaryIRQ 3/9，后续 35/50 ms 显式速度原驱动 6/6；StopWatch 原版复审提交关闭并保留应用行为 PARTIAL。
 [Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。 [导出复验](evidence/2026-11-17-spi-sd-admission/export-summary.json)在同一 FAT32 镜像校验目录时间戳修复、运行时拒绝、内容寻址导出和服务重启读回。
 
+[PaperDIY 原生 API 验证](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)使用同一 SDK 固件和 FAT32 镜像，在 `cbc0ea74…` 上确认 G48 有卡低、无卡高及读写重新挂载。旧二进制 `ba82940a…` 仍可无卡运行，有卡请求返回 `409 storage_not_supported` 且无会话分配。
+
 ## 2026-11-16
 
 [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)：源码 f2f26604…、原生 Xtensa 06db397c…，独立验证原版 M5Apps 2.7 和 #230 的四个原版执行映像。M5Apps 实际首帧、默认空闲熄屏、A 唤醒、Enter 主菜单均在无跟踪及带跟踪下取证。#230 实际键盘响应与两份 ADV 的 ACK、键盘 FIFO 均通过。EXTMEM 27 项、显示三板各 14 项及 Core2 负控 13 项通过。

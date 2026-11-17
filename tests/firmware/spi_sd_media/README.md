@@ -61,7 +61,14 @@ the FAT32 fixture. Require `PAPERDIY_CARD_DET gpio=48 level=1` and
 the same mount readback and remount markers as above, and real CMD17 and
 CMD24 transactions. A control build that omits native patch 0208 reports
 level 1 even with the same image attached and never reaches the mount.
-The [bounded results](paperdiy-sd-detect-summary.json) identify the private
-test admission setting and both native binaries. The mounting scope is
-media supplied at session creation. Physical hardware and hot-plug were
-outside the test.
+The [native model A/B](paperdiy-sd-detect-summary.json) identifies the
+admission override used to reproduce that old native behavior. For [normal
+API validation](paperdiy-sd-detect-api-summary.json), check
+`GET /api/v1/devices/paperdiy` before creating sessions. A binary with the
+model advertises `features.storage: true`. Its running session returns
+`true` for the `sd-card-detect-model` property of `/machine`. Repeat both
+requests against a binary built without patch 0208. Expect
+`features.storage: false` and `409 storage_not_supported` for the valid
+SD attachment request. Still boot the same merged firmware with an empty
+slot. The mounting scope is media supplied at session creation. Physical
+hardware and hot-plug were outside these tests.

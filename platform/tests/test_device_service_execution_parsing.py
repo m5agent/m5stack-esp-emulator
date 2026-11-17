@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 import device_service
+import device_service_specs
 from device_service_errors import ServiceError
 from device_service_execution_parsing import (
     parse_nvs_execution,
@@ -56,13 +58,28 @@ class DeviceServiceExecutionParsingTests(unittest.TestCase):
 
     def test_unsupported_card_slots_stay_unavailable(self) -> None:
         specs = device_service.load_device_specs()
-        for device in ("basic-v27", "dial", "paperdiy", "sticks3"):
+        for device in ("basic-v27", "dial", "sticks3"):
             with self.subTest(device=device):
                 spec = specs[device]
                 self.assertFalse(spec.has_sd_card)
                 with self.assertRaises(ServiceError) as result:
                     parse_storage_execution(spec, {"sd_image_artifact_id": ARTIFACT_ID})
                 self.assertEqual(result.exception.code, "storage_not_supported")
+
+    def test_paperdiy_spi_admission_requires_native_card_detect_marker(self) -> None:
+        spec = device_service.load_device_specs()["paperdiy"]
+        payload = {"sd_image_artifact_id": ARTIFACT_ID}
+        with mock.patch.object(device_service_specs, "qemu_has_qom_property", return_value=False) as probe:
+            self.assertFalse(spec.has_sd_card)
+            with self.assertRaises(ServiceError) as result:
+                parse_storage_execution(spec, payload)
+            self.assertEqual(result.exception.code, "storage_not_supported")
+            probe.return_value = True
+            self.assertTrue(spec.has_sd_card)
+            self.assertEqual(parse_storage_execution(spec, payload)["interface"], "spi")
+            probe.assert_called_with(
+                spec.qemu, "m5paperdiy-machine", "sd-card-detect-model", "bool"
+            )
 
     def test_storage_parser_fail_closed(self) -> None:
         no_sd = SimpleNamespace(id="core2", has_sd_card=False)

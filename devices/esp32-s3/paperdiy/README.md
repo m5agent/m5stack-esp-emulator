@@ -34,7 +34,7 @@ boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/�
 
 - Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.
 - The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.
-- The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated.
+- SPI SD supports an image supplied at session creation on a native runtime with CARD_DET; live insertion and removal are not modeled.
 
 ## 文件
 

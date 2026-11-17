@@ -44,7 +44,7 @@
    原生键位以控制器和 guest 驱动读回验收。Dial 仍需区分正交引脚实际交付和
    UIFlow2 RotaryIRQ 的应用计数；已验证显式 35/50 ms，默认高速应用计数仍开放。
 2. **P0 存储**。完成 Cardputer/ADV 的 FAT32 预置、会话私有读写、目录与写回镜像复用。
-   PaperDIY 还需接通 CARD_DET。无板载卡槽的 StickS3/Dial 先覆盖内部文件系统，
+   PaperDIY 如需会话内热插拔，要实现介质切换及 GPIO48 电平变化。无板载卡槽的 StickS3/Dial 先覆盖内部文件系统，
    外接卡需独立描述接线。LittleFS、SPIFFS 分别验证分区格式、预置路径、固件
    挂载和写后重启。原版 nc1020、CardputerDict 等使用具备再分发或本地测试权限的 fixture。
 3. **P0 同 guest 网络**。按板型验证 Wi-Fi STA/AP、配置顺序、DNS/HTTP/TCP/UDP

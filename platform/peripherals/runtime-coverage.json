@@ -140,6 +140,11 @@
       "device": "papers3",
       "test": "tests/firmware/spi_sd_media/main/main.c",
       "evidence": "docs/evidence/2026-11-17-spi-sd-admission/summary.json"
+    },
+    "paperdiy-spi-sd-media": {
+      "device": "paperdiy",
+      "test": "tests/firmware/spi_sd_media/main/main.c",
+      "evidence": "tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json"
     }
   },
   "case_models": {
@@ -574,6 +579,9 @@
       "sd-card-spi"
     ],
     "papers3-spi-sd-media": [
+      "sd-card-spi"
+    ],
+    "paperdiy-spi-sd-media": [
       "sd-card-spi"
     ]
   },
@@ -1069,10 +1077,12 @@
     },
     "paperdiy": {
       "external": [
-        "paperdiy-et047-factory"
+        "paperdiy-et047-factory",
+        "paperdiy-spi-sd-media"
       ],
       "models": [
-        "gpio-button"
+        "gpio-button",
+        "sd-card-spi"
       ]
     }
   },
@@ -1377,7 +1387,8 @@
       ],
       "external": [
         "cardputer-spi-sd-media",
-        "papers3-spi-sd-media"
+        "papers3-spi-sd-media",
+        "paperdiy-spi-sd-media"
       ]
     },
     "usb-host": {

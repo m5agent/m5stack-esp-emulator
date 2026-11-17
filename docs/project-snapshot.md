@@ -47,7 +47,7 @@
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `display-touch-peripherals-wifi-ble-pass` | Meshtastic remains PARTIAL after an independent post-application instruction access fault (RUNTIME-01 flash/PMP defect is fixed) |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-30` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer, TIMG WDT level delivery, classic WiFi and startup UI are fixed. Patches 0036-0042 add stateful SSI, unified timeline, exact-time pause/state sweep, BIN-bound setter trace, bounded register/object/stack dumps, and a partial SPI TRANS_DONE/TRANS_INTEN IRQ model. Patch 0064 fixes pending SPI source delivery when the interrupt matrix is remapped while the level is already high; an isolated ESP-IDF SPI3 guest probe changes from pre-fix callback timeout to fixed 3/3 PASS. Patch 0068 attaches the same ILI9342 panel sink to legacy HSPI/SPI2 and UIFlow2 VSPI/SPI3. Patch 0095 fixes legacy task-WDT level delivery: three independent normal-WDT Device Service runs of the same public firmware exceed the former 15.55-second stage-1 reset, complete boot and reconnect activity, and retain the nonempty API Key startup UI beyond 300 seconds virtual time. One additional normal-WDT run renders the real Wi-Fi Connect/Connecting to myssid page. Temporary bulk-read and watchdog-disable diagnostics are not product fixes; The historical WDT-off CPU1 0x40100049 LVGL wait is not reproduced in the corrected WiFi-backed lane and requires a new same-lane binding; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity of eight sessions per device; more-than-eight-instance stability is rejected after a reproducible NimBLE ACK panic at nine sessions, current-load eight-instance cold-start rebind, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
-| PaperDIY (`paperdiy`) | ESP32-S3-WROOM-1-N16R8 | `qemu-esp32s3` | `partial` | `2026-11-09` / `native-et047tc1-buttons-pass` | ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.; Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.; The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.; The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated. |
+| PaperDIY (`paperdiy`) | ESP32-S3-WROOM-1-N16R8 | `qemu-esp32s3` | `partial` | `2026-11-09` / `native-et047tc1-buttons-pass` | ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.; Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.; The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.; SPI SD supports an image supplied at session creation on a native runtime with CARD_DET; live insertion and removal are not modeled. |
 | PaperS3 (`papers3`) | ESP32-S3R8 | `qemu-esp32s3` | `partial` | `2026-11-09` / `native-et047tc1-touch-pass` | ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.; BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.; The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.; The GPIO3 battery-divider ADC data path and voltage injection are not modeled.; C139 PMS150G power-button, latch and wake behavior are not modeled.; The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled. |
 | StickC Plus2 (`stickc-plus2`) | ESP32-PICO-V3-02 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-display-buttons-imu-rtc-pass` | Device-local display, A/B/PWR, MPU6886 vectors and RTC real-I2C write/read/tick passed. Audio, IR/LED, battery ADC, power hold/wake and broader peripheral behavior remain open. |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
@@ -149,11 +149,11 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`83` 个 Python 模块，`50967` 行；规模最大的模块如下。
+- `platform/tools`：`83` 个 Python 模块，`51036` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 12571 |
+| `device_service.py` | 12577 |
 | `firmware_manifest.py` | 3640 |
 | `user_firmware_matrix.py` | 2348 |
 | `serve.py` | 1868 |
@@ -162,11 +162,11 @@
 
 - `tests/`：`177` 个可执行 Python 测试文件，分布在 `80` 个目录；`252` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`349` 个 patch 文件。
-- 文档：`710` 个 Markdown 页面；除本生成页外共 `76429` 行。
+- 文档：`710` 个 Markdown 页面；除本生成页外共 `76443` 行。
 
 ## 文档与测试
 
-- 平台测试：`2271` 项。
+- 平台测试：`2275` 项。
 - Docs 新鲜度登记：`261` 行；其中非历史页 `240` 行，历史固定页 `21` 行。
 - 文档职责分布：待办 `3`，契约 `9`，证据/差异 `114`，历史固定 `21`，实现/设计 `14`，参考 `96`，工作流/导航 `4`。
 - 全量文档盘点：`710` 个 Markdown 页面；职责分布：权威/专题页 `261`，设备档案 `40`，示例 `1`，治理/入口 `9`，文档导航 `1`，其他 `10`，补丁说明 `22`，平台说明 `23`，仓内历史记录 `5`，测试/用例说明 `230`，未登记 docs 页面 `4`，第三方来源说明 `104`。
