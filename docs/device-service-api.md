@@ -1349,6 +1349,15 @@ known, required capabilities, chip, flash and PSRAM are checked. The service
 returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
 must not be reported as a firmware crash.
 
+When the image contains a valid ESP partition table, composition rejects
+a partition end or a matching bootloader's declared capacity beyond the
+selected device's SPI Flash with HTTP `409 firmware_flash_contract_mismatch`.
+The error contains `device_flash_size`, `required_flash_size`,
+`bootloader_flash_size`, and `partition_end` in bytes. A sparse BIN may
+fit by file length while requiring a larger Flash. An uploaded firmware
+record is rechecked before allocating a session so older saved records
+cannot hit the same boot failure after an upgrade.
+
 Composition also checks that the bootloader image header declares enough SPI
 flash capacity for the partition table. If the highest partition end exceeds
 that declared capacity, the request returns `409

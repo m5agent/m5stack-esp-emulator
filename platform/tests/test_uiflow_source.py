@@ -18,7 +18,8 @@ try:
 except (ImportError, OSError):
     littlefs = None
 
-FLASH_SIZE = 0x40000
+# The service fixture wraps this image in an ESP header whose smallest size is 1 MiB.
+FLASH_SIZE = 1 << 20
 VFS_OFFSET = 0x20000
 VFS_SIZE = 0x10000
 

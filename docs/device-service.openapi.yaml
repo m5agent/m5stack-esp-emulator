@@ -1628,7 +1628,8 @@ paths:
         declared by the bootloader image header returns 409
         bootloader_flash_size_too_small before session allocation.
         A misplaced bootloader returns 400 invalid_firmware_package with
-        a bootloader_offset_mismatch diagnostic.
+        a bootloader_offset_mismatch diagnostic. A normalized image requiring
+        more SPI flash than the device returns 409 firmware_flash_contract_mismatch.
       requestBody:
         required: true
         content:
@@ -1659,6 +1660,10 @@ paths:
         partition table extending beyond the SPI flash capacity declared by
         the bootloader image header returns 409
         bootloader_flash_size_too_small before session allocation.
+        A valid partition layout or matching bootloader requiring more SPI
+        flash than the target returns 409 firmware_flash_contract_mismatch.
+        The error gives device_flash_size, required_flash_size,
+        bootloader_flash_size, and partition_end in bytes.
         A misplaced bootloader in a merged layout returns 422
         bootloader_offset_mismatch with expected and actual flash offsets.
       requestBody:
@@ -1826,6 +1831,8 @@ paths:
       description: >
         A previously stored firmware with a bootloader at the wrong flash
         offset returns 422 bootloader_offset_mismatch before lease allocation.
+        A stored image requiring more SPI flash than the device returns 409
+        firmware_flash_contract_mismatch before lease allocation.
       requestBody:
         required: true
         content:

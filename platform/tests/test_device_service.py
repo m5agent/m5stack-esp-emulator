@@ -769,6 +769,47 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIn("0x670000", rejected.exception.message)
         self.assertIn("8388608-byte", rejected.exception.message)
 
+    def test_flash_capacity_contract_rejects_header_and_sparse_partition_independently(self):
+        target = "cardputer-adv"
+        for flash_code, last_size, boot_size, partition_end in (
+            (4, 0x330000, 16 << 20, 0x670000),
+            (3, 0xCC0000, 8 << 20, 16 << 20),
+        ):
+            with self.subTest(flash_code=flash_code, last_size=last_size):
+                image = bytearray(build_flash_with_bootloader_flash_size(flash_code))
+                struct.pack_into("<I", image, 0x8000 + 32 + 8, last_size)
+                image[0x8000 + 64 + 16:0x8000 + 96] = hashlib.md5(image[0x8000:0x8040]).digest()
+                for kind in ("merged", "segmented"):
+                    artifact = self.service.upload_artifact(bytes(image))
+                    source = {"artifact_id": artifact["artifact_id"]}
+                    if kind == "segmented":
+                        source = {"segments": [{"offset": 0, **source}]}
+                    with self.assertRaises(ServiceError) as rejected:
+                        self.service.create_firmware({"kind": kind, "device_id": target, **source})
+                    self.assertEqual(rejected.exception.status, 409)
+                    self.assertEqual(rejected.exception.code, "firmware_flash_contract_mismatch")
+                    self.assertEqual(rejected.exception.extra, {
+                        "device_flash_size": 8 << 20,
+                        "required_flash_size": 16 << 20,
+                        "bootloader_flash_size": boot_size,
+                        "partition_end": partition_end,
+                    })
+        self.assertEqual(self.service.firmware.list(), [])
+        self.assertEqual(self.service.list_sessions()["sessions"], [])
+
+    def test_session_rejects_a_firmware_record_admitted_by_an_older_service(self):
+        image = build_flash_with_bootloader_flash_size(4)
+        artifact = self.service.upload_artifact(image)
+        with mock.patch.object(device_service_module, "validate_firmware_flash_capacity"):
+            old = self.service.create_firmware({
+                "device_id": "cardputer-adv", "artifact_id": artifact["artifact_id"],
+            })
+        with self.assertRaises(ServiceError) as rejected:
+            self.service.create_session({"device_id": "cardputer-adv", "firmware_id": old["firmware_id"]})
+        self.assertEqual(rejected.exception.code, "firmware_flash_contract_mismatch")
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+        self.assertEqual(self.service.list_sessions()["sessions"], [])
+
     def test_firmware_rejects_misplaced_classic_bootloader_before_session(self):
         artifact = self.service.upload_artifact(build_flash(chip_id=0), name="misplaced.bin")
         request = {"device_id": "stickc-plus2", "artifact_id": artifact["artifact_id"]}

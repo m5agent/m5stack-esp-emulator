@@ -14,6 +14,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer ADV Flash 容量准入
+
+[原版与官方正对照](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)证明同一 16 MiB
+原版先前在实际 8 MiB 来宾的 Flash probe 失败，随后在候选的组合和导入返回 409。
+审核保留静态容量原因，无来宾分配。官方 8 MiB 对照正常出帧，所有租约已释放。
+
 ## 2026-11-18 Core2 FreeRTOS 任务详情
 
 [同会话 API 与 ZIP](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)

@@ -1,0 +1,60 @@
+{
+  "validation": "virtual-device validation",
+  "baseline": {
+    "outcome": "PASS",
+    "source": "bd1dca3c74f8b9c2654e1ba3590e1f282d2071b0",
+    "firmware_sha256": "53d73494dc80c8ff3e6ae8a7a8a28b4130f0d2cfe6907f1fa569531932209826",
+    "firmware_bytes": 2041968,
+    "runtime_sha256": "44d5b221e506c6b85dcc5d46d9d97a202eb6eca0a5713108a95f35676aed50f5",
+    "intake_http": 201,
+    "admitted_8m_sha256": "34aebda915be227f88b3bdbd85d83b856997afd595c5ffd204ce6bd0cdc9c400",
+    "spi_flash_probe_rejected": true,
+    "runtime_flash_error": true,
+    "serial_sha256": "d21626db55cce09f2eaef0f8ad81e37e7c429e6da59c4b87033f4570a4adce13",
+    "evidence_zip_sha256": "5822748726f61e07ab2a372ba60e32291c77aa3158ed0a7bdd500b4ebf1cb565",
+    "worker_released": true,
+    "owned_process_exited": true
+  },
+  "candidate": {
+    "outcome": "PASS",
+    "firmware_sha256": "53d73494dc80c8ff3e6ae8a7a8a28b4130f0d2cfe6907f1fa569531932209826",
+    "firmware_bytes": 2041968,
+    "runtime_sha256": "44d5b221e506c6b85dcc5d46d9d97a202eb6eca0a5713108a95f35676aed50f5",
+    "intake_http": 409,
+    "error": {
+      "error": {
+        "code": "firmware_flash_contract_mismatch",
+        "message": "firmware requires 0x1000000 bytes of SPI flash, but cardputer-adv provides 0x800000 bytes",
+        "device_flash_size": 8388608,
+        "required_flash_size": 16777216,
+        "bootloader_flash_size": 16777216,
+        "partition_end": 16777216
+      }
+    },
+    "import_http": 409,
+    "import_error_code": "firmware_flash_contract_mismatch",
+    "reviewer": {
+      "status": "failed",
+      "error_code": "E_STATIC",
+      "detail_label": "Flash 容量",
+      "virtual_flash": "NOT RUN",
+      "guest_sessions": 0,
+      "submitted": false,
+      "candidate_app_py_sha256": "9a967663780e73a2b65218a087239eeb712977e02831ace92aaf0481b21358e3",
+      "baseline_reviewer_commit": "959c8fce00b918d62309f031eceaca4b0f41b113"
+    },
+    "reviewer_static_evidence_sha256": "46553cdf732fbe43ad9f88e677fd2aea375e04a53afd7ac63c469fe02d3d5a4c",
+    "positive_control": {
+      "source_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "normalized_flash_sha256": "f9d6026012b893409b33fde8be2e7b508f6c669db8b6d4f42d56522fe2b7c9d4",
+      "frame_sha256": "17f376bb334253f0ceff43dc1177c9fd9215c509514fd28da806f757b44307ff",
+      "serial_sha256": "3ead03ebe4d268f084a00b46d333e5b23107aed3dd05aeb21be99c60202ac8bf",
+      "evidence_zip_sha256": "943f88cd7eee7ef46543f817af75f599758cd47d9c946503b3e90a83dd719312",
+      "native_guest_booted": true
+    },
+    "worker_released": true,
+    "owned_process_exited": true,
+    "candidate_device_service_py_sha256": "f89c6f8ce64c0a6b87b26a43d2c94dced3969087500a3f0673c3cc04754bd548",
+    "baseline_source": "bd1dca3c74f8b9c2654e1ba3590e1f282d2071b0"
+  }
+}

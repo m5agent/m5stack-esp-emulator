@@ -217,6 +217,7 @@ from uiflow_runtime import (  # noqa: E402
 )
 from firmware_analysis import (  # noqa: E402
     PARTITION_TABLE_OFFSET,
+    PARTITION_TABLE_SIZE,
     analyze_esp_image,
     analyze_firmware,
     bootloader_offset_error,
@@ -1992,6 +1993,46 @@ class ArtifactStore:
         return {"artifact_id": artifact_id, "deleted": True, "record": record}
 
 
+def validate_firmware_flash_capacity(spec: DeviceSpec, bootloader: dict, partition_table: dict) -> None:
+    # Raw and partial images can have no standard partition table. A valid
+    # layout, however, is an authoritative requirement even when the uploaded
+    # file is sparse and its byte length would fit the device.
+    chip_id = expected_chip_id(spec.soc)
+    if chip_id is None or not partition_table["valid"]:
+        return
+    partition_end = max(
+        partition["offset"] + partition["size"]
+        for partition in partition_table["partitions"]
+    )
+    bootloader_flash_size = bootloader.get("flash_size") if bootloader["valid"] else None
+    matched_bootloader_size = bootloader_flash_size if bootloader.get("chip_id") == chip_id else None
+    required_flash_size = max(partition_end, matched_bootloader_size or 0)
+    if required_flash_size > spec.flash_size:
+        raise ServiceError(
+            "firmware_flash_contract_mismatch",
+            (
+                f"firmware requires 0x{required_flash_size:x} bytes of SPI flash, "
+                f"but {spec.id} provides 0x{spec.flash_size:x} bytes"
+            ),
+            409,
+            device_flash_size=spec.flash_size,
+            required_flash_size=required_flash_size,
+            bootloader_flash_size=matched_bootloader_size,
+            partition_end=partition_end,
+        )
+    if bootloader_flash_size is not None and partition_end > bootloader_flash_size:
+        raise ServiceError(
+            "bootloader_flash_size_too_small",
+            (
+                f"bootloader declares 0x{bootloader_flash_size:x} bytes "
+                f"of SPI flash, but the partition table requires "
+                f"0x{partition_end:x} bytes; rebuild the bootloader for "
+                f"the {spec.flash_size}-byte device flash"
+            ),
+            409,
+        )
+
+
 class FirmwareStore:
     """Build complete/flash-sized images from uploaded or segmented artifacts."""
 
@@ -2374,38 +2415,12 @@ class FirmwareStore:
         if not intervals:
             raise ServiceError("empty_firmware", "firmware has no data", 400)
         image_bytes = bytes(image)
-        partition_table = parse_partition_table(
-            image_bytes,
-            image_size=spec.flash_size,
-        )
+        partition_table = parse_partition_table(image_bytes, enforce_size=False)
         bootloader = find_flash_bootloader(image_bytes, expected_chip_id(spec.soc))
         offset_error = bootloader_offset_error(bootloader)
         if partition_table["valid"] and offset_error:
             raise ServiceError("bootloader_offset_mismatch", offset_error, 422)
-        bootloader_flash_size = bootloader.get("flash_size")
-        partition_end = max(
-            (
-                partition["offset"] + partition["size"]
-                for partition in partition_table.get("partitions", [])
-            ),
-            default=0,
-        )
-        if (
-            partition_table["valid"]
-            and bootloader["valid"]
-            and bootloader_flash_size is not None
-            and partition_end > bootloader_flash_size
-        ):
-            raise ServiceError(
-                "bootloader_flash_size_too_small",
-                (
-                    f"bootloader declares 0x{bootloader_flash_size:x} bytes "
-                    f"of SPI flash, but the partition table requires "
-                    f"0x{partition_end:x} bytes; rebuild the bootloader for "
-                    f"the {spec.flash_size}-byte device flash"
-                ),
-                409,
-            )
+        validate_firmware_flash_capacity(spec, bootloader, partition_table)
         firmware_id = hashlib.sha256(image_bytes).hexdigest()
         if kind == "uiflow" and base_manifest is not None and firmware_id == payload["base_firmware_id"]:
             raise ServiceError("uiflow_source_context_conflict", "source composition must not replace its base manifest context", 409)
@@ -11196,13 +11211,15 @@ class DeviceService:
                     409,
                 )
             firmware_path = self.firmware.path(str(firmware_id))
-            # Older service versions could persist misplaced bootloaders.
+            # Older service versions could persist incompatible layouts.
             with firmware_path.open("rb") as stream:
-                boot_region = stream.read(PARTITION_TABLE_OFFSET)
+                boot_region = stream.read(PARTITION_TABLE_OFFSET + PARTITION_TABLE_SIZE)
             bootloader = find_flash_bootloader(boot_region, expected_chip_id(spec.soc))
             offset_error = bootloader_offset_error(bootloader)
             if offset_error:
                 raise ServiceError("bootloader_offset_mismatch", offset_error, 422)
+            partition_table = parse_partition_table(boot_region, enforce_size=False)
+            validate_firmware_flash_capacity(spec, bootloader, partition_table)
             firmware_sha = firmware["sha256"]
             source = "uploaded"
             firmware_source = firmware.get("source", {})

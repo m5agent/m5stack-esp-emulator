@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-18 [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)按目标档案检查结构有效的 ESP 分区和 bootloader 容量，在分配会话前解释尺寸冲突。原 16 MiB 镜像及 8 MiB 官方正对照已复验。
+
 2026-11-14 [UIFlow2 身份、WebREPL 心跳与条件取帧](evidence/2026-11-14-uiflow-cloud-identity/README.md)已区分身份拒绝、标准 PONG 超时和 COI Worker 重建 304 失败；平台身份持久化及条件取帧已修复并经原版固件验证。[能力协商与回执](evidence/2026-11-14-cloud-identity-capability/README.md)限制旧服务的身份选择，默认持久 key 与授权 MAC 均须通过实际回执校验。[最终 main 交付与后验](evidence/2026-11-14-native-identity-delivery/README.md)已验证指定工作台上的原版 CoreS3 UI、身份、取证和清理；配对码与未绑定状态分别显示。新身份仍须真实云端绑定，授权身份仍复现标准 PONG 超时，持续连接保持 FAIL，远程代码执行未验证。原生结果不授予 browser-WASM 联网能力，Pages 按独立发布证据验收。
 
 2026-11-14 [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md)已覆盖普通 source 30 的边沿/电平模式、屏蔽、复位及 Nesso 共享 pad；IDF ISR、原版 UIFlow 执行分区配合 VFS 探针、[完整原生矩阵](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md)和最终部署后验分别取证。[新运行时原版应用复验](evidence/2026-11-14-native-identity-delivery/README.md)限定通过 Mesh A 键菜单、Bruce 触摸/复位和 Honeypot 配置控制台；Honeypot 网络数据面未验；另一次 B 输入未满足选择观察断言的 FAIL 与首次观察器故障保留，B 观察不属于已验证的 A 长/短选择合同，不能据此认定按键缺陷。BMI270 IRQ、FT6336 精确时序、NMI/唤醒及 C6 802.15.4 数据面继续开放。[经典 ESP32 时钟与 C6 USB 后续](evidence/2026-11-13-native-clock-usb-followup/README.md)中的 JIGGLER、云端配对/网页编程及 MP3 读卡播放、2048 四向滑动 dry-run 仍绑定各自历史固件与运行时，未提交 Burner；[前一版交付](evidence/2026-11-13-native-resident-delivery/README.md)不改写为本轮重跑。

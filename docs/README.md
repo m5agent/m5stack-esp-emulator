@@ -16,6 +16,8 @@
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
 [2026-11-17 CardputerDict 原版查词](evidence/2026-11-17-cardputerdict-stock/README.md)记录正常审核入口与两个同固件对照。
 
+[2026-11-18 Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)记录 16 MiB 原版的错误放行、提前拒绝和 8 MiB 官方固件正对照。
+
 [2026-11-18 StickS3 原版复位重连](evidence/2026-11-18-sticks3-station-rejoin/README.md)记录两次真实复位、保存设置和分代 DHCP/ARP。
 
 [2026-11-17 StickS3 原版配网与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)记录原版同会话配网表单、站点关联和隔离 DHCP/ARP。
