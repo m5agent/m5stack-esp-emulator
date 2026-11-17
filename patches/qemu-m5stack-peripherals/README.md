@@ -1657,3 +1657,15 @@ for both populated and empty sockets. Use `qom-list-properties` for
 Apply 0208 after 0206 in the native Xtensa recipe. The same [ESP-IDF probe
 and FAT fixture](../../tests/firmware/spi_sd_media/README.md) retain the
 control without 0208 and the candidate with and without media.
+
+## ESP32-S3 SoftAP receive interface matches (0209)
+
+When a virtual station joins a guest SoftAP, the ESP32-S3 DMA receive
+metadata preserves the receiver and BSSID matches from the guest's Wi-Fi
+filter registers for management frames. The guest driver uses the interface
+match bits to dispatch authentication and association to its SoftAP. The
+synthetic access-point fallback for station mode is retained.
+
+Apply 0209 after 0208 in the native Xtensa recipe. The Cardputer and
+Cardputer ADV ESP-IDF SoftAP cases reached the guest station-joined event.
+DHCP and portal traffic depend on additional virtual-station data handling.

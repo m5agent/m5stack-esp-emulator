@@ -1,0 +1,22 @@
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -182,11 +182,15 @@
+             rx_word0 |= 1u << 31;
+         }
+         /*
+-         * The synthetic AP is the only radio source in this model.  Report
+-         * destination and BSSID matches once the exact filter registers have
+-         * not yet been populated by the S3 PHY stub.
++         * Keep the programmed receiver/BSSID interface matches for a
++         * simulated station joining the guest's SoftAP. The guest routes
++         * unicast management frames to the AP using these bits.
++         * Retain the synthetic access-point fallback for station mode.
+          */
+-        rx_word0 |= 0xf0000000u;
++        if (s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED ||
++            frame->frame_control.type != IEEE80211_TYPE_MGT) {
++            rx_word0 |= 0xf0000000u;
++        }
+     }
+     memcpy(packet, &rx_word0, sizeof(rx_word0));
+     memcpy(packet + sizeof(*rx), frame, frame->frame_length);
