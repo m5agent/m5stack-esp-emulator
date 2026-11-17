@@ -2518,13 +2518,17 @@ with attached media and high with an empty slot. Older binaries advertise
 `features.storage: false` for PaperDIY and return `409 storage_not_supported`
 on SD attachment requests. Attach the image at session creation. SDMMC profiles
 report `interface: sdmmc` and attach the block backend with
-`-drive if=sd,format=raw`. SD fixtures require a QEMU guest runtime. The
+`-drive if=sd,format=raw`. QEMU SDMMC requires a power-of-two image size.
+SPI profiles attach the image only to the native SPI endpoint.
+SD fixtures require a QEMU guest runtime. The
 separate `runtime=network` diagnostic lane rejects them with `409
 storage_not_supported`. The source artifact is never mounted writable.
 Session snapshots, persisted records and evidence bundles
 expose the artifact SHA, size, interface and session-isolated copy boundary.
 `platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16
 superfloppy fixtures for reproducible storage-dependent firmware tests.
+FAT32 defaults to 512-byte clusters. For 66–96 MiB FAT32 images, use
+`--sectors-per-cluster 2` to create 1,024-byte clusters.
 
 Stop the guest with `purge=0` before inspecting or exporting its writable SD
 disk. Both endpoints require `storage.read` when runtime ACL is configured.

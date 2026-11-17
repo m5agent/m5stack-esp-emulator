@@ -72,3 +72,21 @@ requests against a binary built without patch 0208. Expect
 SD attachment request. Still boot the same merged firmware with an empty
 slot. The mounting scope is media supplied at session creation. Physical
 hardware and hot-plug were outside these tests.
+
+## SPI attachment and larger FAT32 fixtures
+
+The 96 MiB SPI mount proof uses two 512-byte sectors per cluster.
+Generate that geometry with
+`python3 platform/tools/sd_image.py --format fat32-mbr --size-mib 96 --sectors-per-cluster 2 --out "$TEST_MEDIA"`.
+Populate the card and run the same GPIO48 and SPI probe described above.
+Require the mounted guest to read and write the fixture, reset the same
+session, then confirm the persisted file hash from the stopped session's
+SD inventory and the original artifact hash.
+
+The earlier service also attached SPI media to the QEMU SDMMC backend,
+which rejected the exact 96 MiB image before the original NC1020 guest ran.
+The fixed service attaches that media to the board-wired SPI endpoint.
+The original guest mounts the card and begins reading the synthetic ROM.
+End-to-end NC1020 boot and save remain outside the bounded proof. The
+[observations](spi-capacity-summary.json) bind exact seed, firmware and runtime
+hashes and include the PaperDIY reset and no-ROM/no-media controls.

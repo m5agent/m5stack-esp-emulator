@@ -4841,7 +4841,8 @@ components:
         that expose the read-only sd-card-detect-model machine property.
         Older binaries report features.storage false for PaperDIY and reject
         SD fixtures with storage_not_supported. Attach at session creation.
-        SDMMC profiles use writable `if=sd`.
+        SPI profiles attach only to the native SPI endpoint. SDMMC profiles
+        use writable `if=sd` and require a power-of-two image size.
         Requires a QEMU guest runtime. The separate network diagnostic lane
         rejects SD fixtures with storage_not_supported. Storage metadata
         reports the selected interface. The source artifact is never mounted

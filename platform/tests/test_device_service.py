@@ -2154,6 +2154,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(bad_image.exception.code, "invalid_storage_image")
 
+        aligned_non_power_of_two = self.service.upload_artifact(b"\x00" * 1536)
+        with self.assertRaises(ServiceError) as bad_sdmmc_capacity:
+            self.service.create_session({
+                "device_id": "papermono",
+                "storage": {"sd_image_artifact_id": aligned_non_power_of_two["artifact_id"]},
+            })
+        self.assertEqual(bad_sdmmc_capacity.exception.code, "invalid_storage_image")
+        self.assertIn("power-of-two", str(bad_sdmmc_capacity.exception))
+
         with self.assertRaises(ServiceError) as unknown_field:
             self.service.create_session(
                 {

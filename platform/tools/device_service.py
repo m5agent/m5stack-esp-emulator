@@ -77,6 +77,7 @@ from device_service_identity import (  # noqa: E402
 from device_service_execution_parsing import (  # noqa: E402, F401
     parse_nvs_execution,
     parse_storage_execution,
+    storage_interface,
 )
 from device_service_native_hid import (  # noqa: E402
     AIRMOUSE_BLE_NAME,
@@ -5443,7 +5444,8 @@ class DeviceSession:
                     "PaperDIY requires a native SPI SD card-detect model",
                     409,
                 )
-            env["M5SW_SPI_SD_IMAGE"] = str(self.sd_card_image)
+            if storage_interface(self.spec) == "spi":
+                env["M5SW_SPI_SD_IMAGE"] = str(self.sd_card_image)
 
     def _apply_profile_qom(
         self,
@@ -5726,12 +5728,10 @@ class DeviceSession:
         if self.storage_config:
             if not self.sd_card_image.is_file():
                 raise RuntimeError("session SD image is unavailable")
-            command.extend(
-                [
-                    "-drive",
-                    f"file={self.sd_card_image},if=sd,format=raw",
-                ]
-            )
+            if storage_interface(self.spec) == "sdmmc":
+                command.extend([
+                    "-drive", f"file={self.sd_card_image},if=sd,format=raw",
+                ])
         plain_nanoc6_usb_capture = False
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
@@ -10978,6 +10978,12 @@ class DeviceService:
                 raise ServiceError(
                     "invalid_storage_image",
                     "SD image must be non-empty and a multiple of 512 bytes",
+                    400,
+                )
+            if storage_config["interface"] == "sdmmc" and size & (size - 1):
+                raise ServiceError(
+                    "invalid_storage_image",
+                    "The QEMU SDMMC backend requires an SD image with a power-of-two byte size",
                     400,
                 )
             artifact_id = storage_config["sd_image_artifact_id"]

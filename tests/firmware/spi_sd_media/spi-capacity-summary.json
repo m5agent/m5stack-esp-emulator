@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "baseline_service_source": "6da7ab20351d732c6738fe13311f686efc856db3",
+  "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+  "nc1020_original": {
+    "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "author_generated_media_sha256": "0eb24dad75f67f525bca009aeda08f2aa91dbf358c6cf95924c081b768e478d7",
+    "author_generated_rom_sha256": "9d0105170896737a6d8a0b2ad27b1be7c5ce5a0f2b932b78d3e3bb3140d6a5c1",
+    "author_generated_nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+    "media_geometry": {
+      "bytes": 100663296,
+      "sectors_per_cluster": 2,
+      "filesystem": "fat32"
+    },
+    "baseline": {
+      "status": "FAIL",
+      "stage": "qemu_start",
+      "diagnostic": "Invalid SD card size: 96 MiB",
+      "configured_interface": "spi",
+      "stderr_sha256": "77ecc2b15783346cc3fa3bed52da2263acb2d105bf870df0c78dc1f60036a98b"
+    },
+    "candidate": {
+      "mount": "PASS",
+      "rom_import": "PARTIAL",
+      "observed_banks": 16,
+      "expected_banks": 206,
+      "startup": "NOT RUN",
+      "save_restore": "NOT RUN",
+      "spi_cmd17_count": 1915,
+      "spi_cmd18_count": 0,
+      "console_sha256": "04f1ce8e737d2ca78b5dac124f41b01b433c4fd133a880c191e7b3f52681f1ea",
+      "zip_sha256": "e7c4434f21f102d50c304a5fcbcbd1273749ca7f457bf69cf2a9b6faa354c7a2",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "single_sector_cluster_observation": {
+      "media_bytes": 67108864,
+      "observed_banks": 80,
+      "expected_banks": 206,
+      "status": "PARTIAL",
+      "spi_cmd17_count": 21800,
+      "spi_cmd18_count": 0,
+      "zip_sha256": "1cffc4045f343aba7c4372f39a35205e1aca1b2675684060b2c3ccee769a0f99",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "controls": {
+      "missing-rom": {
+        "sd_image_sha256": "d01c4f4b416e0b54ce5a006b99848158b816722b6a453a05caeda576026f5546",
+        "spi_cmd17_count": 6,
+        "serial_sha256": "2f27765175e6df91070ce2acf6c56751849986780707baed7daab1a790a05537",
+        "evidence_sha256": "184c441d073cc56813ab356bd11e7d82693d6454027365ce1d2bf7268c1cb99d",
+        "cleanup": "stopped, released, zero leases"
+      },
+      "no-card": {
+        "sd_image_sha256": null,
+        "spi_cmd17_count": 0,
+        "serial_sha256": "2170cfced2f6dadc4db942933d0364353a3ce332eb3a07e13869f4629d0bd663",
+        "evidence_sha256": "50e0398458951aa5372328df8b656d70fabfac37e3ca6107ad235d96a0d32898",
+        "cleanup": "stopped, released, zero leases"
+      }
+    }
+  },
+  "paperdiy_seeded_96_mib": {
+    "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+    "media_sha256": "7a985558069bc9104d6aae3eb33d03a29cb9e2081d249e38435b6c6d71d43b1d",
+    "written_media_sha256": "66c5b65c54693b20325de494ffe31b93cc669312b3c804cb60ac3c7b675b05a6",
+    "source_media_hash_unchanged": true,
+    "events": [
+      "PAPERDIY_CARD_DET gpio=48 level=0",
+      "STORAGE_PROBE_MOUNT seed=1 prior=0",
+      "STORAGE_PROBE_REMOUNT write=1 restored=1",
+      "STORAGE_PROBE_DONE",
+      "PAPERDIY_CARD_DET gpio=48 level=0",
+      "STORAGE_PROBE_MOUNT seed=1 prior=1",
+      "STORAGE_PROBE_REMOUNT write=1 restored=1",
+      "STORAGE_PROBE_DONE"
+    ],
+    "spi_commands": {
+      "17": 35,
+      "18": 0,
+      "24": 14,
+      "25": 0
+    },
+    "qmp_running_readback": true,
+    "persisted_after_reset": true,
+    "zip_sha256": "167ec91eeac69dd65267235bd8524e1a7aa25b3eb4333bca9d0cfd9512444f27",
+    "zip_crc_verified": true,
+    "session_stopped": true,
+    "guest_process_exited": true,
+    "leases": 0,
+    "status": "PASS"
+  },
+  "hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN",
+  "burner": "NOT RUN"
+}

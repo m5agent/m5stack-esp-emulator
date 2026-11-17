@@ -155,6 +155,27 @@ class SdImageTests(unittest.TestCase):
             output = Path(temporary) / "fixture.img"
             with self.assertRaisesRegex(ValueError, "size_mib"):
                 create_fat32_mbr_image(output, size_mib=32)
+            with self.assertRaisesRegex(ValueError, "valid FAT32 cluster count"):
+                create_fat32_mbr_image(output, size_mib=64, sectors_per_cluster=2)
+            self.assertFalse(output.exists())
+
+    def test_fat32_geometry_accounts_for_fat_sectors_at_cluster_boundaries(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "fixture.img"
+            for size_mib, cluster_width in ((65, 1), (96, 2)):
+                with self.subTest(size_mib=size_mib, cluster_width=cluster_width):
+                    result = create_fat32_mbr_image(
+                        output, size_mib=size_mib, sectors_per_cluster=cluster_width,
+                    )
+                    data = output.read_bytes()
+                    offset = MBR_PARTITION_START * BYTES_PER_SECTOR
+                    boot = data[offset:offset + BYTES_PER_SECTOR]
+                    volume, = inventory_sd_filesystems(data)["filesystems"]
+                    self.assertEqual(volume["fat_type"], "fat32")
+                    self.assertEqual(boot[13], cluster_width)
+                    fat_sectors = result["fat_sectors"]
+                    self.assertGreaterEqual(fat_sectors * BYTES_PER_SECTOR, (result["clusters"] + 2) * 4)
+                    self.assertEqual(result["sha256"], hashlib.sha256(data).hexdigest())
 
 
 if __name__ == "__main__":

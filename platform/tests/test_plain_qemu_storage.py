@@ -33,6 +33,13 @@ class PlainQemuStorageTests(unittest.TestCase):
                 self.session(device)._qemu_storage_environment(environment)
                 self.assertNotIn("M5SW_SPI_SD_IMAGE", environment)
 
+    def test_sdmmc_session_does_not_wire_its_media_to_spi(self):
+        session = self.session("papermono")
+        session.storage_config = {"sd_image_artifact_id": "a" * 64}
+        env = {"M5SW_SPI_SD_IMAGE": "/host/private-disk.img"}
+        session._qemu_storage_environment(env)
+        self.assertNotIn("M5SW_SPI_SD_IMAGE", env)
+
     def test_paperdiy_rechecks_native_card_detect_model_when_wiring_media(self):
         session = self.session("paperdiy")
         session.storage_config = {"sd_image_artifact_id": "a" * 64}
