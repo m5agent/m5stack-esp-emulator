@@ -3,12 +3,14 @@ from __future__ import annotations
 
 from bisect import bisect_left
 from collections.abc import Callable
+import base64
 import hashlib
 import json
 from pathlib import Path
 import re
 
 from device_service_errors import ServiceError
+from esp32_uart_coredump import decode_task_contexts
 from firmware_analysis import analyze_esp_image, find_app_descriptor, parse_partition_table
 from xtensa_elf_symbols import EM_RISCV, EM_XTENSA, ElfSymbolError, parse_elf32_symbols
 
@@ -25,6 +27,8 @@ ELF_HASH = re.compile(r"^ELF file SHA256:\s+([0-9a-fA-F]{8,64})(?![0-9a-fA-F])")
 ROM_BOOT = re.compile(r"^(?:ESP-ROM:|ets [A-Z][a-z]{2} +\d+ \d{4})")
 IDF_BOOT = re.compile(r"^[ID] \(\s*\d+\) boot: ESP-IDF .+ bootloader")
 RESET = re.compile(r"^rst:(0x[0-9a-fA-F]+)\s*\(([^)]+)\)")
+DUMP_START = re.compile(r"=+ CORE DUMP START =+")
+DUMP_END = re.compile(r"=+ CORE DUMP END =+")
 BACKEND_ILLEGAL = re.compile(
     r"Illegal instruction (0x[0-9a-fA-F]{8}) at PC=(0x[0-9a-fA-F]{8}) hart=([01])\b"
 )
@@ -208,11 +212,13 @@ def _s3_iwdt_stage0_observation(stderr: str) -> dict | None:
 
 def crash_console_observations(
     path: Path, stderr: str, captured: bytes | None = None, *, native_s3: bool = False,
+    decode_core_dump: bool = False,
 ) -> tuple[dict, dict]:
     """Use one bounded tail and, if useful, the fixed console prefix."""
     if captured is not None:
         return _crash_console_snapshot(
-            len(captured), lambda offset, size: captured[offset:offset + size], stderr, native_s3=native_s3,
+            len(captured), lambda offset, size: captured[offset:offset + size], stderr,
+            native_s3=native_s3, decode_core_dump=decode_core_dump,
         )
     try:
         with path.open("rb") as stream:
@@ -222,18 +228,22 @@ def crash_console_observations(
                 stream.seek(offset)
                 return stream.read(length)
 
-            return _crash_console_snapshot(size, read, stderr, native_s3=native_s3)
+            return _crash_console_snapshot(
+                size, read, stderr, native_s3=native_s3, decode_core_dump=decode_core_dump,
+            )
     except OSError:
         return {"status": "unavailable", "bytes": 0}, serial_crash_observations("", stderr, native_s3=native_s3)
 
 
 def _crash_console_snapshot(
-    size: int, read: Callable[[int, int], bytes], stderr: str, *, native_s3: bool,
+    size: int, read: Callable[[int, int], bytes], stderr: str, *, native_s3: bool, decode_core_dump: bool,
 ) -> tuple[dict, dict]:
     offset = max(0, size - CRASH_OUTPUT_LIMIT)
     tail = read(offset, size - offset)
     source, console = _output_sample(tail, offset, truncated=offset > 0)
     observed = serial_crash_observations(console, stderr, native_s3=native_s3)
+    if decode_core_dump and observed["core_dump"]["status"] == "uart_reported_complete":
+        observed["core_dump"]["decoding"] = _decode_uart_task_contexts(console, observed["panic"])
     if not offset or observed["panic"] is not None or len(tail) != size - offset:
         return source, observed
     try:
@@ -320,10 +330,10 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
                     cpus.setdefault(core, {"core": core})["backtrace"] = frames
             elif elf:
                 panic["elf_sha256_prefix"] = elf[1].lower()
-        if re.fullmatch(r"=+ CORE DUMP START =+", line):
+        if DUMP_START.fullmatch(line):
             dump_open = True
             dump_status = "uart_incomplete"
-        elif dump_open and re.fullmatch(r"=+ CORE DUMP END =+", line):
+        elif dump_open and DUMP_END.fullmatch(line):
             dump_open = False
             dump_status = "uart_reported_complete"
         elif "Core dump has been saved to flash" in line:
@@ -358,6 +368,44 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
         "core_dump": {"status": dump_status},
         "backend_observations": backend,
     }
+
+
+def uart_dump_after_panic(console: str, panic: dict) -> tuple[bytes, str]:
+    """Select one completed transfer associated with the latest recognized panic."""
+    lines = [line.strip() for line in console.splitlines()]
+    panic_index = len(lines) - 1 - lines[::-1].index(panic["line"])
+    after_panic = []
+    for line in lines[panic_index + 1:]:
+        if line == "Rebooting..." or RESET.match(line) or ROM_BOOT.match(line) or IDF_BOOT.match(line):
+            break
+        after_panic.append(line)
+    starts = [i for i, line in enumerate(after_panic) if DUMP_START.fullmatch(line)]
+    ends = [i for i, line in enumerate(after_panic) if DUMP_END.fullmatch(line)]
+    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+        raise ValueError("serial does not contain one completed dump after the recorded panic")
+    prefix = panic["elf_sha256_prefix"]
+    if not re.fullmatch(r"[0-9a-f]{8,64}", prefix or ""):
+        raise ValueError("panic lacks an application ELF SHA-256 prefix")
+    reported = [match[1].lower() for line in after_panic[:starts[0]] if (match := ELF_HASH.match(line))]
+    if reported != [prefix]:
+        raise ValueError("UART dump is not associated with the panic ELF digest")
+    payload = after_panic[starts[0] + 1:ends[0]]
+    if not payload or any(not line or len(line) > 128 for line in payload):
+        raise ValueError("invalid UART Base64 dump lines")
+    return b"".join(base64.b64decode(line, validate=True) for line in payload), prefix
+
+
+def _decode_uart_task_contexts(console: str, panic: dict | None) -> dict:
+    if panic is None:
+        return {"status": "unavailable", "reason": "panic_unavailable"}
+    try:
+        dump, prefix = uart_dump_after_panic(console, panic)
+    except ValueError:
+        return {"status": "unavailable", "reason": "invalid_or_unbound_uart_transfer"}
+    try:
+        return decode_task_contexts(dump, prefix)
+    except ValueError:
+        return {"status": "unavailable", "reason": "unsupported_or_invalid_dump"}
 
 
 def firmware_elf_candidates(data: bytes, flash_size: int, chip_id: int | None, prefix: str) -> set[str]:
@@ -420,6 +468,7 @@ def identify_crash_elf(
 
 def crash_function_symbols(
     observed: dict, artifact: Path | None, *, expected_machine: int = EM_XTENSA,
+    artifact_sha256: str | None = None,
 ) -> dict:
     """Annotate guest-reported addresses after exact ELF admission."""
     if artifact is None:
@@ -430,17 +479,26 @@ def crash_function_symbols(
     pcs.update(frame["pc"] for row in observed["cpus"] for frame in row.get("backtrace", []))
     if panic.get("abort_call_site_pc"):
         pcs.add(panic["abort_call_site_pc"])
-    if not pcs:
+    decoded = observed["core_dump"].get("decoding")
+    task_pcs = set()
+    if decoded and decoded["status"] == "decoded" and artifact_sha256 and artifact_sha256.startswith(
+        decoded["dump_elf_sha256_prefix"]
+    ):
+        task_pcs = {row["pc"] for row in decoded["tasks"] if row["pc"]}
+    if not (pcs or task_pcs):
         return {"status": "no_addresses", "addresses": []}
     target = "riscv" if expected_machine == EM_RISCV else "xtensa"
+    source = f"matched_{target}_elf_function_ranges"
     try:
         if artifact.stat().st_size > SYMBOL_FILE_LIMIT:
-            return {"status": "unavailable", "reason": "elf_symbol_file_too_large", "addresses": []}
+            return _unavailable_symbols("elf_symbol_file_too_large", decoded if task_pcs else None)
         symbols = parse_elf32_symbols(artifact, expected_machine=expected_machine)
     except (OSError, ElfSymbolError):
-        return {"status": "unavailable", "reason": f"unsupported_or_unreadable_{target}_symbols", "addresses": []}
+        return _unavailable_symbols(f"unsupported_or_unreadable_{target}_symbols", decoded if task_pcs else None)
 
-    lookup = sorted(int(pc, 16) for pc in pcs)
+    observed_pcs = {int(pc, 16) for pc in pcs}
+    observed_task_pcs = {int(pc, 16) for pc in task_pcs}
+    lookup = sorted(observed_pcs | observed_task_pcs)
     matches: dict[int, set[tuple[str, int]]] = {pc: set() for pc in lookup}
     for named_symbols in symbols.values():
         for symbol in named_symbols:
@@ -451,8 +509,24 @@ def crash_function_symbols(
             for pc in lookup[start:end]:
                 matches[pc].add((symbol.name[:240], pc - symbol.value))
 
+    if task_pcs:
+        decoded["symbols"] = _symbol_receipt(observed_task_pcs, matches, source)
+    return _symbol_receipt(observed_pcs, matches, source)
+
+
+def _unavailable_symbols(reason: str, task_dump: dict | None) -> dict:
+    result = {"status": "unavailable", "reason": reason, "addresses": []}
+    if task_dump is not None:
+        task_dump["symbols"] = result
+    return result
+
+
+def _symbol_receipt(pcs: set[int], matches: dict[int, set[tuple[str, int]]], source: str) -> dict:
+    if not pcs:
+        return {"status": "no_addresses", "addresses": []}
     resolved = []
-    for pc, candidates in matches.items():
+    for pc in sorted(pcs):
+        candidates = matches[pc]
         row = {"pc": f"0x{pc:08x}", "status": "unresolved"}
         if len(candidates) == 1:
             name, offset = next(iter(candidates))
@@ -467,8 +541,4 @@ def crash_function_symbols(
         status = "partial"
     else:
         status = "unresolved"
-    return {
-        "status": status,
-        "source": f"matched_{target}_elf_function_ranges",
-        "addresses": resolved,
-    }
+    return {"status": status, "source": source, "addresses": resolved}

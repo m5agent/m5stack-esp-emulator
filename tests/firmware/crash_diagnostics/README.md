@@ -24,9 +24,15 @@ matching ELF requests should resolve `trigger_fault`.
 Request a ZIP with `include=serial,logs,crash&elf_artifact_id=<matching-id>`
 before stopping. Check the receipt's console-offset SHA-256 against the
 archived serial. Stop the guest with `purge=0&retain_flash=0` and check that
-the process and lease are released. The two guests produce a complete
-UART transfer marker. The service records that marker and raw data; it does
-not validate the dump's internal CRC or reconstruct task state.
+the process and lease are released. Both guests produce a complete UART transfer. Check that
+`core_dump.decoding` reports its CRC32, saved task contexts and crashed
+task handle. The watchdog fixture has five contexts. The abort fixture
+has six. Matching ELF requests resolve the saved crashed-task PC to
+`trigger_fault` and `panic_abort`, respectively. The original UART panic
+symbols remain separate from these saved task PCs. With a wrong or absent
+ELF the service still reports the checked contexts without task PC symbols.
+[Bounded session task contexts](session-task-context-summary.json) records
+both results and stop/restart readback.
 
 [Bounded virtual-device evidence](summary.json).
 
@@ -50,8 +56,8 @@ to a temporary directory. The report includes task names, priority, stack
 usage and the crashed task. Keep it local if task names contain private data.
 
 [Watchdog and abort results](offline-task-summary.json) cover Core2 native QEMU
-with ESP-IDF 5.5.4 and the ELF CRC32 UART format `0x0102`. Other formats,
-RISC-V, live inspection, and HTTP task decoding remain outside this CLI.
+with ESP-IDF 5.5.4 and the ELF CRC32 UART format `0x0102`. Task names, priorities and stack usage are reported by the offline tool.
+The HTTP receipt reports saved task contexts for this same UART format.
 
 ## Live Xtensa CPU PC sample
 

@@ -220,7 +220,8 @@ from firmware_analysis import (  # noqa: E402
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from device_service_crash import (  # noqa: E402
-    crash_console_observations, crash_function_symbols, identify_crash_elf, output_tail, qmp_cpu_pc_sample,
+    crash_console_observations, crash_function_symbols, identify_crash_elf,
+    output_tail, qmp_cpu_pc_sample,
 )
 from firmware_manifest import (  # noqa: E402
     ManifestError,
@@ -6532,6 +6533,9 @@ class DeviceSession:
             self.serial0, stderr, console_bytes, native_s3=(
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
+            ), decode_core_dump=(
+                self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6"
+                and self.spec.service_kind == "qemu" and self.runtime == "qemu"
             ),
         )
         panic = observed["panic"] or {}
@@ -6576,6 +6580,10 @@ class DeviceSession:
             if chip_id == 0x000D and self.spec.service_kind == "qemu" and self.runtime == "qemu"
             else EM_XTENSA
         )
+        symbols = crash_function_symbols(
+            observed, artifact if elf["symbolization_eligible"] else None,
+            expected_machine=expected_machine, artifact_sha256=elf_artifact_id,
+        )
         return {
             "schema_version": 1,
             "session_id": self.id,
@@ -6586,10 +6594,7 @@ class DeviceSession:
             "sources": {"console": console_source, "runtime_stderr": stderr_source},
             **observed,
             "elf": elf,
-            "symbols": crash_function_symbols(
-                observed, artifact if elf["symbolization_eligible"] else None,
-                expected_machine=expected_machine,
-            ),
+            "symbols": symbols,
         }
 
     def live_cpu_pcs(self) -> dict:

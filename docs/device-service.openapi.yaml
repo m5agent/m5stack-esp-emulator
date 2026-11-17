@@ -2296,8 +2296,9 @@ paths:
         observations and backend warnings are separate from guest panic.
         When the truncated console tail has no panic, a recognized panic
         in the bounded console prefix appears as separate earlier_console evidence.
-        A separate USB stream is not concatenated. No live register sampling
-        or core dump validation is performed.
+        A separate USB stream is not concatenated. The native Core2 qemu path
+        can validate one complete Xtensa ELF32 CRC32 UART dump and report
+        saved task contexts. No live register sampling is performed.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - $ref: "#/components/parameters/CrashElfArtifactId"
@@ -5818,6 +5819,48 @@ components:
             properties:
               machine_type: false
               cpu_model: false
+    UartCoreDumpDecoding:
+      description: >
+        Bounded native Core2 Xtensa task contexts from one verified UART dump
+        associated with the latest observed panic. Optional symbols require the
+        exact application ELF to match both firmware and dump.
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [status, format, source, dump_sha256, dump_bytes, dump_crc32, dump_elf_sha256_prefix, crashed_tcb, tasks]
+          properties:
+            status: {const: decoded}
+            format: {const: esp32_xtensa_elf32_crc32}
+            source: {const: console_tail}
+            dump_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+            dump_bytes: {type: integer, minimum: 1, maximum: 524288}
+            dump_crc32: {type: string, pattern: '^[0-9a-f]{8}$'}
+            dump_elf_sha256_prefix: {type: string, pattern: '^[0-9a-f]{8,64}$'}
+            crashed_tcb: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
+            tasks:
+              type: array
+              minItems: 1
+              maxItems: 64
+              items:
+                type: object
+                additionalProperties: false
+                required: [tcb, crashed, context_status, pc, sp]
+                properties:
+                  tcb: {type: string, pattern: '^0x[0-9a-f]{8}$'}
+                  crashed: {type: boolean}
+                  context_status: {enum: [captured, sdk_placeholder]}
+                  pc: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
+                  sp: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
+            symbols:
+              type: object
+              description: The same address symbol structure as CrashDiagnostics.symbols.
+              additionalProperties: true
+        - type: object
+          additionalProperties: false
+          required: [status, reason]
+          properties:
+            status: {const: unavailable}
+            reason: {enum: [panic_unavailable, invalid_or_unbound_uart_transfer, unsupported_or_invalid_dump]}
     CrashDiagnostics:
       type: object
       required:
@@ -5908,6 +5951,8 @@ components:
             status:
               type: string
               enum: [not_observed, uart_incomplete, uart_reported_complete, flash_reported_saved, flash_check_failed, write_failed]
+            decoding:
+              $ref: "#/components/schemas/UartCoreDumpDecoding"
         backend_observations:
           type: array
           description: >-
