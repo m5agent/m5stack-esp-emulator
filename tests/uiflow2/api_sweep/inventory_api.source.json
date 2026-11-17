@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.73.0",
-  "contract_sha256": "61b9c849216825c40464c0a725a942a05d03ea32688043c5fff76f00029f42fc",
+  "contract_version": "1.74.0",
+  "contract_sha256": "d50bb94e15b7ca1a32313491048f2ca38fbee87efc005c50be54c3692244c243",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1239,7 +1239,39 @@
         "POST /sessions/{session_id}/storage/sd/export missing-resource"
       ],
       "positive_status": "NOT RUN"
-    }
+    },
+      {
+        "operation_id": "GET /sessions/{session_id}/storage/filesystem",
+        "method": "GET",
+        "path": "/sessions/{session_id}/storage/filesystem",
+        "phase": "visible-session",
+        "required_fixtures": [
+          "owned-visible-test-session",
+          "retained-internal-filesystem-fixture",
+          "storage-read-permission",
+          "flash-read-permission"
+        ],
+        "case_ids": [
+          "GET /sessions/{session_id}/storage/filesystem missing-resource"
+        ],
+        "positive_status": "NOT RUN"
+      },
+      {
+        "operation_id": "POST /sessions/{session_id}/storage/filesystem/export",
+        "method": "POST",
+        "path": "/sessions/{session_id}/storage/filesystem/export",
+        "phase": "visible-session",
+        "required_fixtures": [
+          "owned-visible-test-session",
+          "retained-internal-filesystem-fixture",
+          "storage-read-permission",
+          "flash-read-permission"
+        ],
+        "case_ids": [
+          "POST /sessions/{session_id}/storage/filesystem/export missing-resource"
+        ],
+        "positive_status": "NOT RUN"
+      }
   ],
   "safe_cases": [
     {
@@ -2449,7 +2481,27 @@
       "expected_status": [
         404
       ]
-    }
+    },
+      {
+        "case_id": "GET /sessions/{session_id}/storage/filesystem missing-resource",
+        "operation_id": "GET /sessions/{session_id}/storage/filesystem",
+        "method": "GET",
+        "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/filesystem",
+        "coverage": "rejection-only",
+        "expected_status": [
+          404
+        ]
+      },
+      {
+        "case_id": "POST /sessions/{session_id}/storage/filesystem/export missing-resource",
+        "operation_id": "POST /sessions/{session_id}/storage/filesystem/export",
+        "method": "POST",
+        "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/filesystem/export",
+        "coverage": "rejection-only",
+        "expected_status": [
+          404
+        ]
+      }
   ],
   "joint_unit_fixtures": {
     "sensors": {

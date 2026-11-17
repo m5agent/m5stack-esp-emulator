@@ -2310,6 +2310,61 @@ class DeviceServiceUnitTests(unittest.TestCase):
             session.sd_storage_inventory()
         self.assertEqual(purge.exception.code, "sd_media_unavailable")
 
+    def test_stopped_filesystem_inventory_and_export_bind_only_the_fixture_partition(self):
+        try:
+            from littlefs import LittleFS, UserContext
+        except ImportError:
+            self.skipTest("LittleFS unavailable")
+        session = self._stopped_session()
+        context = UserContext(buffsize=4 * 4096)
+        volume = LittleFS(context=context, block_size=4096, block_count=4)
+        with volume.open("seed.txt", "wb") as file:
+            file.write(b"seed file")
+        seed = bytes(context.buffer)
+        source = self.service.upload_artifact(seed, name="original.littlefs.bin")
+        with volume.open("proof.txt", "wb") as file:
+            file.write(b"proof file")
+        saved = bytes(context.buffer)
+        start = 0x110000
+        session.virtual_flash.write_bytes((b"\xff" * start + saved).ljust(session.spec.flash_size, b"\xff"))
+        session.filesystem_info = {
+            "status": "PREPARED", "session_isolated_overlay": True, "offset": start, "size": len(saved),
+            "partition_label": "storage", "format": "littlefs", "subtype": 0x83,
+            "fixture_sha256": source["artifact_id"], "geometry": {"block_size": 4096, "block_count": 4},
+        }
+        receipt = session.filesystem_storage_inventory()
+        self.assertEqual(receipt["offset"], start)
+        self.assertEqual(receipt["source_artifact_id"], source["artifact_id"])
+        self.assertEqual(receipt["filesystem"]["file_count"], 2)
+        exported = session.filesystem_storage_export()
+        self.assertEqual(self.service.artifacts.read(exported["artifact_id"]), saved)
+        self.assertEqual(self.service.artifacts.read(source["artifact_id"]), seed)
+        self.assertEqual(session.filesystem_storage_export(), exported)
+        session.filesystem_info["geometry"] = {"block_size": 4096, "block_count": 5}
+        with self.assertRaises(ServiceError) as invalid:
+            session.filesystem_storage_export()
+        self.assertEqual(invalid.exception.code, "fs_fixture_geometry_mismatch")
+
+    def test_filesystem_snapshot_requires_stopped_lease_retained_flash_and_both_permissions(self):
+        session = self._stopped_session()
+        session._worker_lease_active = True
+        with self.assertRaises(ServiceError) as running:
+            session.filesystem_storage_inventory()
+        self.assertEqual(running.exception.code, "filesystem_session_active")
+        session._worker_lease_active = False
+        with self.assertRaises(ServiceError) as missing:
+            session.filesystem_storage_export()
+        self.assertEqual(missing.exception.code, "filesystem_snapshot_unavailable")
+        for allowed, denied in (("storage.read", "flash.read"), ("flash.read", "storage.read")):
+            with self.subTest(allowed=allowed):
+                self.service.runtime_acl = device_service_module.RuntimeACL.from_document({
+                    "schema_version": 1, "devices": {session.spec.id: {"allow": [allowed]}},
+                })
+                with self.assertRaises(ServiceError) as blocked:
+                    session.filesystem_storage_export()
+                self.assertEqual(blocked.exception.status, 403)
+                self.assertEqual(blocked.exception.extra["operation"], denied)
+
     def test_nvs_fixture_is_partition_bound_and_session_isolated(self):
         image = build_flash_with_nvs_partition()
         firmware_artifact = self.service.upload_artifact(image)

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.73.0
+  version: 1.74.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2234,6 +2234,71 @@ paths:
         "404":
           $ref: "#/components/responses/Error"
         "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/storage/filesystem:
+    get:
+      summary: Inventory a stopped session's retained internal filesystem fixture
+      description: >-
+        Stop with purge=0 and retain_flash=1 first. Requires storage.read and
+        flash.read under a runtime ACL. Only the previously applied partition
+        is read. The listing contains metadata and file hashes.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Partition identity and bounded filesystem inventory
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SessionFilesystemSnapshot"
+                  - type: object
+                    required: [filesystem]
+                    properties:
+                      filesystem:
+                        type: object
+                        additionalProperties: true
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/storage/filesystem/export:
+    post:
+      summary: Export the retained internal filesystem partition as an artifact
+      description: >-
+        Stop with purge=0 and retain_flash=1 first. Requires storage.read and
+        flash.read under a runtime ACL. Reuse artifact_id as
+        storage.filesystem.image_artifact_id for a new session. A repeated
+        export of identical bytes returns the same artifact ID.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Reusable immutable filesystem partition artifact
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SessionFilesystemSnapshot"
+                  - type: object
+                    required: [artifact_id]
+                    properties:
+                      artifact_id:
+                        type: string
+                        pattern: "^[0-9a-f]{64}$"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "503":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash:
     get:
@@ -5107,6 +5172,30 @@ components:
           maxLength: 16
           description: ESP partition label of at most 16 UTF-8 bytes.
         image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+    SessionFilesystemSnapshot:
+      type: object
+      required: [session_id, source_artifact_id, partition_label, format, offset, size, sha256]
+      properties:
+        session_id:
+          type: string
+        source_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        partition_label:
+          type: string
+        format:
+          type: string
+          enum: [littlefs, spiffs]
+        offset:
+          type: integer
+          minimum: 36864
+        size:
+          type: integer
+          minimum: 8192
+          maximum: 33554432
+        sha256:
           type: string
           pattern: "^[0-9a-f]{64}$"
     SessionSdSnapshot:

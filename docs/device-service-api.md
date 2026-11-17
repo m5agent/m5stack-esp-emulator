@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.73.0` and bounded
+Status: local MVP with unified-device runtime contract `1.74.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2608,6 +2608,24 @@ An unsupported board or older backend rejects the hot-plug request with
 before ejecting. Ejection clears SPI transaction state, raises GPIO48 and
 leaves the session-owned image available for reinsertion or stopped export.
 The session cannot swap to a different image at runtime.
+
+### Inspecting and reusing a written internal filesystem
+
+After the guest has flushed or unmounted the fixture, stop with `purge=0`
+and `retain_flash=1`. `GET /sessions/{id}/storage/filesystem` returns the
+retained partition's bounded directory and file-hash metadata, together with
+its label, original fixture artifact, offset, size, format and SHA-256.
+`POST /sessions/{id}/storage/filesystem/export` returns the same identity and
+an immutable `artifact_id` for only those partition bytes. Provide that ID in
+`storage.filesystem.image_artifact_id` on a later session. The later session
+receives a fresh mutable copy. The original firmware and original fixture
+are preserved.
+
+Both endpoints require `storage.read` and `flash.read` when the runtime ACL
+is configured. They read the partition bound during fixture admission and
+reject live guests, missing Flash, or an unverified filesystem geometry.
+Release retained Flash when the export is complete with
+`DELETE /sessions/{id}?purge=0&retain_flash=0`.
 
 `GET /sessions/{id}/storage/sd/write-stamp` samples the metadata of a running
 Cardputer or Cardputer ADV native QEMU session's attached writable SPI SD

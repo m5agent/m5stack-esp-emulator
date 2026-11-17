@@ -51,6 +51,8 @@ from ble_runtime_limits import (  # noqa: E402
 from device_service_errors import ServiceError  # noqa: E402
 from device_service_fs_fixture import (  # noqa: E402
     MAX_FS_FIXTURE_BYTES,
+    SECTOR_BYTES,
+    inspect_fs_snapshot,
     parse_fs_fixture,
     plan_fs_fixture,
 )
@@ -8153,6 +8155,67 @@ class DeviceSession:
             if error.code != "unknown_artifact":
                 raise
             self.service.upload_artifact(data, name="sd-card.img")
+        return {**metadata, "artifact_id": digest}
+
+    def _read_stopped_filesystem(self) -> tuple[bytes, dict, dict]:
+        self._require_runtime_permission("storage.read")
+        self._require_runtime_permission("flash.read")
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("filesystem_session_busy", "session lifecycle operation is in progress", 409)
+        try:
+            if (
+                self.state not in {"stopped", "failed"} or self._worker_lease_active
+                or (self._proc is not None and self._proc.poll() is None)
+                or self._process_identity_matches()
+            ):
+                raise ServiceError("filesystem_session_active", "stop the session with retained Flash before reading its filesystem", 409)
+            receipt = self.filesystem_info
+            flash = self.virtual_flash
+            if (self._stop_purge or not receipt or receipt.get("status") != "PREPARED"
+                    or receipt.get("session_isolated_overlay") is not True or flash is None or flash.is_symlink()):
+                raise ServiceError("filesystem_snapshot_unavailable", "an applied fixture and retained session Flash are required", 409)
+            start, size = receipt.get("offset"), receipt.get("size")
+            if (
+                type(start) is not int or type(size) is not int or start < PARTITION_TABLE_OFFSET + PARTITION_TABLE_SIZE
+                or not 2 * SECTOR_BYTES <= size <= MAX_FS_FIXTURE_BYTES or start + size > self.spec.flash_size
+                or start % SECTOR_BYTES or size % SECTOR_BYTES
+            ):
+                raise ServiceError("filesystem_snapshot_invalid", "recorded filesystem partition is outside the Flash contract", 409)
+            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+            try:
+                with os.fdopen(os.open(flash, flags), "rb") as disk:
+                    info = os.fstat(disk.fileno())
+                    if not stat.S_ISREG(info.st_mode) or info.st_size != self.spec.flash_size:
+                        raise ServiceError("filesystem_snapshot_invalid", "retained Flash has an invalid size or type", 409)
+                    disk.seek(start)
+                    data = disk.read(size)
+            except OSError as error:
+                raise ServiceError("filesystem_snapshot_unavailable", "retained session Flash could not be read", 409) from error
+            if len(data) != size:
+                raise ServiceError("filesystem_snapshot_invalid", "recorded partition changed while reading", 409)
+            metadata = {
+                "session_id": self.id, "source_artifact_id": receipt["fixture_sha256"],
+                "partition_label": receipt["partition_label"], "format": receipt["format"],
+                "offset": start, "size": size, "sha256": hashlib.sha256(data).hexdigest(),
+            }
+            return data, metadata, dict(receipt)
+        finally:
+            self._lifecycle_lock.release()
+
+    def filesystem_storage_inventory(self) -> dict:
+        data, metadata, receipt = self._read_stopped_filesystem()
+        return {**metadata, "filesystem": inspect_fs_snapshot(data, receipt)}
+
+    def filesystem_storage_export(self) -> dict:
+        data, metadata, receipt = self._read_stopped_filesystem()
+        inspect_fs_snapshot(data, receipt)
+        digest = metadata["sha256"]
+        try:
+            self.service.artifacts.path(digest)
+        except ServiceError as error:
+            if error.code != "unknown_artifact":
+                raise
+            self.service.upload_artifact(data, name="filesystem-" + metadata["format"] + ".bin")
         return {**metadata, "artifact_id": digest}
 
     def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:

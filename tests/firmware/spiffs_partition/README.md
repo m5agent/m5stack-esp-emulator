@@ -41,3 +41,9 @@ Collect evidence before stop. Stop with `purge=0&retain_flash=1` when a Flash
 comparison is needed, and independently verify both file digests after stop.
 The bytes outside `storage` and both uploaded inputs must keep their original
 hashes. Release the retained Flash afterward when a replay copy is unnecessary.
+
+The stopped internal filesystem inventory and export also preserve this
+probe's SPIFFS volume across leases. The
+[session persistence evidence](../littlefs_partition/session-persistence-summary.json)
+includes the original seed, a guest-written proof read after worker restart,
+and an independent new lease using the exported artifact ID.

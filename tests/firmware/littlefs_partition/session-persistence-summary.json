@@ -1,0 +1,509 @@
+{
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "initial_flash_slice_controls": [
+    {
+      "status": "PASS",
+      "device": "sticks3",
+      "sdk": "5.5.4",
+      "base_flash_sha256": "8346d6abd56135fe3e369d46f91cdaab63035f4ae416d6fab5e84ef54c5f5e00",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "fc18e4d8eb92921f6afa1fbbcf55e070637458f963b02016a3abf12a8a62e9b3",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "evidence_zip_sha256": "9146e3961d9dc2f08bfc417f15ad9a796cc6ce5e217bd5d5b003e79140c0a70e",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "56f3d673470dfd385659a7eb2ad2399307e68eb70346193d89d40bbb763c0030",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    },
+    {
+      "status": "PASS",
+      "device": "dial",
+      "sdk": "6.1.1",
+      "base_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "bd5503e6d7d14583f074b6e69585722b8489aa4da6e6aca101afd9d0168d5dec",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "evidence_zip_sha256": "fb1a1cb6e2676be569b7ef91ff12912caa4b7dfd2d4ba86370997b0cca23fb7f",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "cc08b1563eb442796445446c3bb5bd286ccf059030e124bc205326c2eb2b4ac5",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    },
+    {
+      "status": "PASS",
+      "device": "cardputer-adv",
+      "sdk": "6.1.1",
+      "base_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "deb86eef4d917780507ff822a45d9071c5904d85a62b2265f4a3f4809fb1e270",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "evidence_zip_sha256": "9ce15a5999e52fdae655a7d145223d65e677732e75ccd88ea1b78c69a6e9c84b",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "evidence_zip_sha256": "1dc9dc34aea5d41943565cb964e6e4d971d8ce905ac975dfad3f87b579d1b018",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    }
+  ],
+  "partition_export_cases": [
+    {
+      "status": "PASS",
+      "device": "sticks3",
+      "sdk": "5.5.4",
+      "base_flash_sha256": "8346d6abd56135fe3e369d46f91cdaab63035f4ae416d6fab5e84ef54c5f5e00",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "source_file_sha256": {
+        "device_service.py": "53ba2dc25c7d24134e319abb8cbb085e4f7a4c9d8d6463f042c0c3688e7ba122",
+        "device_service_fs_fixture.py": "f689b28eebc3cfaba6792a99c2dbd0825a5ac9c1803454b81f9a443d23542fb3",
+        "serve.py": "42f5b925904c0b21e8cea5b7725cc25802ea1006575581b4617cc356ec6d08fe"
+      },
+      "format": "littlefs",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "fa5f1b33321c5a3813250ff582e1a2364cbd719d3313e9a1790aedff601a7978",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "3ca0494fcd5c103e0509063bf5e1bb817dbcb4d34dc730a715eb1550c676895b",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "c022e2c060616a40574774908dcd19020c25200924fadc1ef7f3d0f16025143d",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    },
+    {
+      "status": "PASS",
+      "device": "dial",
+      "sdk": "6.1.1",
+      "base_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "source_file_sha256": {
+        "device_service.py": "53ba2dc25c7d24134e319abb8cbb085e4f7a4c9d8d6463f042c0c3688e7ba122",
+        "device_service_fs_fixture.py": "f689b28eebc3cfaba6792a99c2dbd0825a5ac9c1803454b81f9a443d23542fb3",
+        "serve.py": "42f5b925904c0b21e8cea5b7725cc25802ea1006575581b4617cc356ec6d08fe"
+      },
+      "format": "littlefs",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "6e536b45f7aa407c3ede70ad12b89584c6c42cef2293c690b42dd0198d935753",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "fd873e4e840945df4dac38e6a66994826aaf586ebaac4d8d1bb021f814521080",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "file_count_before": 1,
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "e1bd0816a685ccf74d098a9d75747602f510865fe7e37a7911b832a6d2fcea11",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    },
+    {
+      "status": "PASS",
+      "device": "cardputer-adv",
+      "sdk": "5.5.4",
+      "base_flash_sha256": "b943f008d663cad2ba316b566825e0f9171f9c5c02c28e805ddcfc4629e614e3",
+      "seed_sha256": "d53424b5735514fdab7a407eb30a22e6744b91a5a6db04610a756c1feff1a162",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "source_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+      "source_file_sha256": {
+        "device_service.py": "d9e3d9de5e87dcacc65cfcefe01a3feae1934bbf96430b84a35565f6cc40a760",
+        "device_service_fs_fixture.py": "f689b28eebc3cfaba6792a99c2dbd0825a5ac9c1803454b81f9a443d23542fb3",
+        "serve.py": "42f5b925904c0b21e8cea5b7725cc25802ea1006575581b4617cc356ec6d08fe"
+      },
+      "format": "spiffs",
+      "validation": "virtual-device validation",
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "SPIFFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "SPIFFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "SPIFFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "SPIFFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "d53424b5735514fdab7a407eb30a22e6744b91a5a6db04610a756c1feff1a162",
+          "outside_partition_unchanged": true,
+          "read_after_service_restart": true,
+          "filesystem_sha256": "01ebc2731adb27962ef33eb5891bb8533cf6cfc9fdbfd9738f2f2f5a8488f916",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "GEOMETRY_CHECK_FILE_LONG.BIN",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "a38e4e014b23df058a1504cef234e693bcf07895cc4ef769ed42d06c3b454a99",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "SPIFFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "SPIFFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "SPIFFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "SPIFFS_PROBE_DONE"
+          ],
+          "file_count_before": 3,
+          "fixture_sha256": "01ebc2731adb27962ef33eb5891bb8533cf6cfc9fdbfd9738f2f2f5a8488f916",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "5dd3576d972b16c68f850d132fab4c22a96b1688b02e775172da7e8cf85af55e",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "GEOMETRY_CHECK_FILE_LONG.BIN",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "0741b3c9933d490ee13ba11f81c406dfe950a59f53f96754a52320c1b1325003",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "SPIFFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "SPIFFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "SPIFFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "SPIFFS_PROBE_DONE"
+          ],
+          "file_count_before": 2,
+          "fixture_sha256": "d53424b5735514fdab7a407eb30a22e6744b91a5a6db04610a756c1feff1a162",
+          "outside_partition_unchanged": true,
+          "filesystem_sha256": "01ebc2731adb27962ef33eb5891bb8533cf6cfc9fdbfd9738f2f2f5a8488f916",
+          "exported_partition_bytes": 1048576,
+          "export_matches_pre_stop_zip": true,
+          "repeat_export_same_artifact": true,
+          "file_names": [
+            "FIXTURE.TXT",
+            "GEOMETRY_CHECK_FILE_LONG.BIN",
+            "PROOF.TXT"
+          ],
+          "evidence_zip_sha256": "04f0fa985170f106a7d0ee38fe7e8e76b576c01493bd524bd8da0c8cbf00d474",
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ],
+      "separate_leases": true,
+      "source_artifacts_unchanged": true,
+      "isolated_service_exited": true
+    }
+  ],
+  "physical": "NOT RUN",
+  "browser_wasm": "NOT RUN"
+}

@@ -215,6 +215,17 @@ def _geometry(result: dict, fmt: str, size: int) -> dict:
     raise ServiceError("fs_fixture_unverified_geometry", "filesystem geometry is unsupported or ambiguous", 409)
 
 
+def inspect_fs_snapshot(data: bytes, receipt: dict) -> dict:
+    """Verify a stopped fixture partition with the same rules as admission."""
+    partition = {"offset": 0, "label": receipt["partition_label"],
+                 "size": len(data), "subtype": receipt["subtype"]}
+    fmt = receipt["format"]
+    inventory = _inventory(data, partition, fmt, existing=True)
+    if _geometry(inventory, fmt, len(data)) != receipt["geometry"]:
+        raise ServiceError("fs_fixture_geometry_mismatch", "retained filesystem geometry differs from the fixture", 409)
+    return {**inventory, "offset": receipt["offset"]}
+
+
 def plan_fs_fixture(
     firmware: bytes,
     fixture: bytes,

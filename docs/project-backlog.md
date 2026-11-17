@@ -45,7 +45,8 @@
    并保留显式高速输入。[0220](evidence/2026-11-18-dial-fast-rotary/README.md)修正原生期限精度。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
    的快速整周应用计数仍开放，验收时同时检查引脚相序和来宾计数。Arduino 原版的旋转、触摸与按钮
    分别取证，见[原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
-2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，扩展 CardputerDict 的版本与设备范围。
+2. **P0 存储**。扩展 ESP-IDF LittleFS 到其他芯片及 SDK，并扩展 CardputerDict 的版本与设备范围。
+   [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
    继续验证内嵌 ROM/NOR 的跨会话加载后画面及首次绘制时间的重复性。StickS3/Dial 外接 SD
    需要独立接线模型。

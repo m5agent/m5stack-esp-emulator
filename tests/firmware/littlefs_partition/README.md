@@ -67,3 +67,19 @@ reference, `/crash/cpu-pc` and the matching app ELF identify the CPU0 load
 from `0x6000e040` followed by the bit-24 branch. On the candidate, require the
 usual LittleFS markers, same-session reset readback and unchanged Flash
 outside the partition. [Candidate and reference evidence](bbpll-6-1-summary.json)
+
+## Stopped partition inventory and cross-session export
+
+Use `DELETE /api/v1/sessions/{id}?purge=0&retain_flash=1` after the probe
+has unmounted. Read `/storage/filesystem` under the same session path and
+require `FIXTURE.TXT` and `PROOF.TXT`. POST to `/storage/filesystem/export`
+twice and require the same `artifact_id`, a 1 MiB partition digest equal to
+the same-session Flash evidence, and the original fixture identity. Start a
+new session with that ID as the internal filesystem image. The new guest
+reads the seed and emits `prior=1`; an independent session with the original
+seed emits `prior=0`. Release the retained Flash after export.
+
+[Cross-session evidence](session-persistence-summary.json) covers StickS3
+with ESP-IDF 5.5.4 and Dial with 6.1.1 through the new endpoint. Separate
+Cardputer ADV 6.1.1 evidence used a pre-stop Flash slice. The same export
+path also passed Cardputer ADV 5.5.4 SPIFFS, including a worker restart.
