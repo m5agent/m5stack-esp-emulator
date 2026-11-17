@@ -13,7 +13,8 @@ import zlib
 
 from decode_esp32_coredump import task_summary, uart_dump, validate_dump
 from device_service_crash import crash_console_observations, serial_crash_observations
-from esp32_freertos_task_details import annotate_xtensa_tasks
+from esp32_freertos_task_details import _read_layout, annotate_task_metadata
+from xtensa_elf_symbols import EM_RISCV, EM_XTENSA
 from esp32_uart_coredump import (
     ESP32C6_CHIP_ID, ESP32C6_ELF_CRC32, ESP32C6_ELF_SHA256, ESP32_ELF_CRC32,
     ESP32S3_CHIP_ID, ESP32S3_ELF_CRC32, ESP32S3_ELF_SHA256,
@@ -227,7 +228,7 @@ class OfflineCoreDumpTests(unittest.TestCase):
                 with patch.dict(sys.modules, {"elftools.elf.elffile": mock_module}), patch(
                     "esp32_freertos_task_details._read_layout", return_value=(36, fields),
                 ):
-                    annotate_xtensa_tasks(decoded, core[0], Path("test.elf"))
+                    annotate_task_metadata(decoded, core[0], Path("test.elf"), machine=EM_XTENSA)
                 if available:
                     self.assertEqual(decoded["task_metadata"]["status"], "decoded")
                     self.assertEqual(task.pop("metadata"), {
@@ -239,6 +240,23 @@ class OfflineCoreDumpTests(unittest.TestCase):
                         "status": "unavailable", "reason": "task_memory_unavailable",
                     })
                 self.assertEqual(task, before)
+
+    def test_task_layout_rejects_rv32_abi_and_cross_architecture_mismatch(self):
+        class Elf(dict):
+            elfclass = 32
+            little_endian = True
+
+            def num_sections(self):
+                return 0
+
+        with tempfile.TemporaryDirectory() as tmp:
+            artifact = Path(tmp) / "layout.elf"
+            artifact.write_bytes(b"bounded fixture")
+            unsupported = Elf(e_machine="EM_RISCV", e_type="ET_EXEC", e_flags=5)
+            with self.assertRaisesRegex(ValueError, "unsupported RV32 application ELF ABI"):
+                _read_layout(artifact, lambda _: unsupported, machine=EM_RISCV)
+            with self.assertRaisesRegex(ValueError, "matching executable"):
+                _read_layout(artifact, lambda _: unsupported, machine=EM_XTENSA)
 
     def test_same_core_capture_is_available_for_http_and_zip_console_sources(self):
         tcb = 0x3ffabc40

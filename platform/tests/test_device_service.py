@@ -6540,12 +6540,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
 
     def test_crash_uart_dump_admission_is_bound_to_qualified_native_routes(self):
         session = self._stopped_session()
-        for board, runtime, chip in (
-            ("cardputer-adv", "qemu", 0x0009),
-            ("cardputer-adv", "qemu-wifi", None),
-            ("sticks3", "qemu", None),
-            ("core2", "qemu", 0x0000),
-            ("nesso-n1", "qemu", 0x000D),
+        elf = self.service.upload_artifact(b"unmatched receipt test", name="test.elf")
+        for board, runtime, chip, capture in (
+            ("cardputer-adv", "qemu", 0x0009, True),
+            ("cardputer-adv", "qemu-wifi", None, False),
+            ("sticks3", "qemu", None, False),
+            ("core2", "qemu", 0x0000, True),
+            ("nesso-n1", "qemu", 0x000D, True),
+            ("nesso-n1", "qemu-wifi", None, False),
+            ("nanoc6", "qemu", 0x000D, False),
         ):
             with self.subTest(board=board, runtime=runtime), mock.patch.object(
                 device_service_module, "crash_console_observations",
@@ -6553,8 +6556,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ) as collect:
                 session.spec = self.service.specs[board]
                 session.runtime = runtime
-                session.crash_diagnostics()
+                session.crash_diagnostics(elf["artifact_id"])
                 self.assertEqual(collect.call_args.kwargs["core_dump_chip_id"], chip)
+                self.assertEqual(callable(collect.call_args.kwargs["capture_task_core"]), capture)
 
     def test_crash_diagnostics_retains_independent_backend_evidence(self):
         session = self._stopped_session()

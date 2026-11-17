@@ -3338,9 +3338,10 @@ panic register and backtrace symbols. Unsupported or damaged data returns
 `decoding.status=unavailable` with a reason, while the original delimiter
 observation is retained.
 
-For these Core2 and Cardputer ADV dumps, the exact matching application ELF
-can also provide the ESP-IDF 5.5 FreeRTOS TCB field layout from uncompressed
-DWARF 4.
+For these Core2, Cardputer ADV and Nesso N1 dumps, the exact matching application
+ELF can also provide the ESP-IDF 5.5 FreeRTOS TCB field layout from uncompressed
+DWARF 4. Nesso N1 supports little-endian RV32 ILP32 soft-float ELF32 for this
+lookup. Other ESP32-C6 native boards keep existing saved register contexts.
 With the optional `pyelftools` runtime dependency, the receipt combines
 that layout with unique captured TCB memory. A task may report `metadata.name`,
 `metadata.priority`, `metadata.base_priority` and optional

@@ -2300,6 +2300,8 @@ paths:
           $ref: "#/components/responses/Error"
         "503":
           $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash:
     get:
       summary: Read current virtual flash metadata or bytes
@@ -6062,7 +6064,7 @@ components:
                   metadata:
                     type: object
                     additionalProperties: false
-                    description: From captured Core2 or Cardputer ADV TCB bytes using the exact matching ELF layout.
+                    description: From captured Core2, Cardputer ADV or Nesso N1 TCB bytes using the exact matching ELF layout.
                     required: [name, priority, base_priority]
                     properties:
                       name: {type: string, minLength: 1, maxLength: 63, pattern: '^[ -~]+$'}
@@ -6080,7 +6082,7 @@ components:
             task_metadata:
               type: object
               additionalProperties: false
-              description: Optional Core2 or Cardputer ADV task metadata for an exact matching app ELF.
+              description: Optional Core2, Cardputer ADV or Nesso N1 task metadata for an exact matching app ELF.
               required: [status]
               properties:
                 status: {enum: [decoded, partial, unavailable]}

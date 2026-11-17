@@ -20,6 +20,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 原版先前在实际 8 MiB 来宾的 Flash probe 失败，随后在候选的组合和导入返回 409。
 审核保留静态容量原因，无来宾分配。官方 8 MiB 对照正常出帧，所有租约已释放。
 
+## 2026-11-18 Nesso N1 ESP32-C6 任务详情
+
+[两份 RV32 原生转储](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)
+用原有 CRC32 与 SHA-256 探针、同一内核分别跑基线与候选。匹配 ELF 时
+三项任务详情逐项与独立离线工具一致。两轮崩溃任务均为 main，优先级
+1/1，保存栈已用 288 字节、剩余 3,804 字节。省略和交换 ELF 均保留 PC/SP。
+会话 ZIP 与 API 一致，停止和重启服务后仍可读。
+
 ## 2026-11-18 Cardputer ADV ESP32-S3 UART 转储
 
 [原生会话对照](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)用

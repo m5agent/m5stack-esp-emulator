@@ -92,3 +92,22 @@ and restart the isolated service and read the retained receipt again.
 This path reports saved task contexts. It does not unwind the RISC-V stack or
 recover task names or priorities. The two tested builds use the same abort
 probe and ESP-IDF version.
+
+
+## Nesso N1 RV32 FreeRTOS task metadata
+
+Use the same two fixed native UART probe builds and their own matching
+application ELF. Include the optional `pyelftools` package in the Device
+Service Python environment. After the completed UART transfer, read the
+existing crash endpoint with each probe's owning ELF, no ELF, and the
+other ELF. The matching receipt reports names, priorities and saved stack
+distances for all three tasks. Compare the matching receipt to the same
+session's diagnostic ZIP and to `esp-coredump info_corefile` with the
+Espressif RV32 GDB. The crashed `main` task has priority 1/1 and saved stack
+distances of 288 bytes used and 3,804 bytes free for both builds. Retain the
+session history and recheck after stopping and restarting the service.
+
+[Scoped evidence](session-task-metadata-summary.json) records the
+same-artifact comparison. The metadata lookup exercises native
+`nesso-n1` and the two existing ELF32 UART integrity options. Other
+native ESP32-C6 boards keep the existing register-only task contexts.
