@@ -53,3 +53,8 @@ Obtain the same-session evidence ZIP before stop and compare the finalized
 PCAP. The guest marker and the UDP peer receipt serve separate purposes.
 
 [Bounded run summary](summary.json)
+
+The [original SkyCompass replay](original_skycompass/README.md) uses the
+unmodified v3.6 Cardputer ADV firmware to verify Wi-Fi UI, DHCP, DNS and SNTP
+on a dedicated Unix-only test peer. It withholds the NTP reply in the
+same-path negative case.

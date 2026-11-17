@@ -1,0 +1,104 @@
+{
+  "source_base": "cccc83b95d4c89f043d6d6d77d21161bc5ece106",
+  "validation": "virtual-device validation",
+  "device": "cardputer-adv",
+  "firmware_sha256": "7c8ddd56e87a3b3ef5a69721b0847eb8461cb1833eb68eade918290e21894bf3",
+  "effective_firmware_sha256": "bb779820e365a47f000416e0342ef922283d94014225813f5efd7d24533fd504",
+  "runtime_sha256": "66cc7956a4609c0e55e9b4fe9b29920eee86e64ab5d14d1b88db22be678b8723",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "positive": {
+    "evidence_zip_sha256": "5c55af5a1c7da65920882fcab5b1d22bbb1c999136f6b37f26ccf15b78daff27",
+    "transport": {
+      "machine": "m5cardputeradv",
+      "native_sta_nics": 1,
+      "backend": "one Unix stream",
+      "ipv6": "off",
+      "host_ip_egress": "denied by process sandbox",
+      "guest_forwards": 0
+    },
+    "native_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "65278abf042a1b3db2d19a6e3c0830d9f063703de26180937afc0afa3e808156",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 0
+      },
+      "udp": {
+        "bidirectional_payload_flows": 5
+      }
+    },
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "active_leases": 0
+    },
+    "dns_a_replies": 1,
+    "dns_nxdomain_replies": 2,
+    "ntp_responses": 2,
+    "ntp_requests_withheld": 0,
+    "fixture_released": true,
+    "serial_sha256": "d258db2c80cfaa0505843063a67e43bbfec9646af7d75274f6a6236298e55848",
+    "guest_utc": [
+      1795291200,
+      1795291200
+    ],
+    "guest_success": true,
+    "frames": {
+      "language": "23dbde85e9b6d09d71711a6d522c5960e6598fb4ca2d8a183dae4ead23e6cc9b",
+      "confirm_language": "ce8c1b80f4e9cc1164ba1a5fb5d1a0d140859f7e75553204412964eba02946d2",
+      "wifi_scan": "e8d1631dc4af3db588d5f8c4b79ca8e4f63cd6237f628afad0664c04d252e656",
+      "select_ap": "e19a89edaf2c5f9f7b81ee174a959e7d9bf4e2d98765539cb1ac2bce60296fd0",
+      "connect_ap": "8ffaa222c1a765ef2ff63eb7161277bbd451f7063abe185455621e34466e4c48"
+    }
+  },
+  "negative": {
+    "evidence_zip_sha256": "ad90c61f2de4fa99917759d932981d4353362b248431487c4cd2f3f0d66e4372",
+    "transport": {
+      "machine": "m5cardputeradv",
+      "native_sta_nics": 1,
+      "backend": "one Unix stream",
+      "ipv6": "off",
+      "host_ip_egress": "denied by process sandbox",
+      "guest_forwards": 0
+    },
+    "native_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "1d00d26a19d9ac58274a6bd405f6d47085a4d7d2531c6846282b4844fa55ab46",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 0
+      },
+      "udp": {
+        "bidirectional_payload_flows": 3
+      }
+    },
+    "cleanup": {
+      "state": "stopped",
+      "retained": false,
+      "leases": 0
+    },
+    "dns_a_replies": 2,
+    "dns_nxdomain_replies": 1,
+    "ntp_responses": 0,
+    "ntp_requests_withheld": 5,
+    "fixture_released": true,
+    "serial_sha256": "4e05b96f99ec5c875746e6071a233d47ab344299ed9cc33d5f07b8a98741e64c",
+    "guest_success": false
+  },
+  "public_http": "NOT RUN",
+  "hardware": "NOT RUN",
+  "browser": "NOT RUN",
+  "linux_namespace": "NOT RUN"
+}
