@@ -1,0 +1,114 @@
+{
+  "validation": "virtual-device validation",
+  "device": "Cardputer ADV",
+  "firmware": "Cardputer ADV MP3 Player v1.0.0",
+  "network": "none",
+  "input": {
+    "key": "key_ret",
+    "hold_seconds": 0.1,
+    "settle_seconds": 1.4
+  },
+  "firmware_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+  "normalized_flash_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+  "fat32_sha256": "6e7c003e532f2912b5a6841ea24b6ffbe1ca113caf0dd83b26d750d0cbd7f4a0",
+  "emulator_source": "731817add38c34e6d2a58f8dcde646cd7ded3f46",
+  "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+  "reviewer_source": "22c70e58306e2a5630167203e76923a47c5632ad",
+  "capture": {
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "sample_format": "s16le",
+    "window_frames": 8192,
+    "minimum_rms": 100,
+    "tolerance_hz": 8,
+    "consecutive_matches": 2
+  },
+  "results": {
+    "declared_524_hz": {
+      "review_status": "done",
+      "review_error": null,
+      "audio_status": "PASS",
+      "reason": "expected_tone_observed",
+      "expected_frequency_hz": 524,
+      "window_count": 2,
+      "matching_windows": 2,
+      "evidence_zip_sha256": "d2bec46fbc2ed0474a564e43036d1d01716e442b5049dbe4079365d7c29894c6",
+      "observed_seconds": 60.018,
+      "active_leases_after_cleanup": 0,
+      "flash_released": true,
+      "retained_pcm_sha256": "26e0a698766b35be3626e0c0c1f0112917bc6664769834b33ab492a21ad40820",
+      "first_two_windows": [
+        {
+          "offset": 0,
+          "next_offset": 16384,
+          "sha256": "db2870311a23d8f257d1443b85495f121365db361cf0fe6fd27f25493634264d",
+          "rms": 791.429,
+          "dominant_frequency_hz": 522.792
+        },
+        {
+          "offset": 16384,
+          "next_offset": 32768,
+          "sha256": "6e11eab1b019f0c78ae38da40742154ef577631b755de905d1994643d562c921",
+          "rms": 948.851,
+          "dominant_frequency_hz": 522.582
+        }
+      ]
+    },
+    "deliberately_expect_880_hz": {
+      "review_status": "manual_review",
+      "review_error": "E_SIM_AUDIO_ASSERTION_FAILED",
+      "audio_status": "FAIL",
+      "reason": "expected_tone_not_observed",
+      "expected_frequency_hz": 880,
+      "window_count": 14,
+      "matching_windows": 0,
+      "evidence_zip_sha256": "ab30449ea460953e18143d12baa84d7506765bd203c6fc186cb924d246b19015",
+      "observed_seconds": 60.018,
+      "active_leases_after_cleanup": 0,
+      "flash_released": true,
+      "retained_pcm_sha256": "a7ded550fa5298f87d42e5eaca1a3e922aba6d4ef3ac3a596b6edbce7df16a98",
+      "first_two_windows": [
+        {
+          "offset": 0,
+          "next_offset": 16384,
+          "sha256": "db2870311a23d8f257d1443b85495f121365db361cf0fe6fd27f25493634264d",
+          "rms": 791.429,
+          "dominant_frequency_hz": 522.792
+        },
+        {
+          "offset": 16384,
+          "next_offset": 32768,
+          "sha256": "6e11eab1b019f0c78ae38da40742154ef577631b755de905d1994643d562c921",
+          "rms": 948.851,
+          "dominant_frequency_hz": 522.582
+        }
+      ]
+    },
+    "audio_read_denied": {
+      "review_status": "manual_review",
+      "review_error": "E_SIM_AUDIO_PARTIAL",
+      "audio_status": "PARTIAL",
+      "reason": "audio_capture_baseline_unavailable",
+      "expected_frequency_hz": 524,
+      "window_count": 0,
+      "matching_windows": 0,
+      "evidence_zip_sha256": "801c28b537149ba7ba786082e13bfe90d54dbbfb3204921178a3072ae15fa758",
+      "observed_seconds": 60.021,
+      "active_leases_after_cleanup": 0,
+      "flash_released": true,
+      "service_code": "runtime_acl_denied"
+    }
+  },
+  "burner_submitted": false,
+  "earlier_attempts": {
+    "count": 2,
+    "status": "E_SIM_STARTUP_FAILED",
+    "reason": "isolated launcher machine-name assertion failed before QEMU started",
+    "firmware_evaluated": false
+  },
+  "not_run": [
+    "browser-WASM",
+    "physical device",
+    "acoustic measurements"
+  ]
+}

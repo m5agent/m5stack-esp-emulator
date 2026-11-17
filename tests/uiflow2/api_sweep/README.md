@@ -108,3 +108,15 @@ native TX。RMS 是数字采样值。浏览器、物理麦克风、扬声器声�
 扬声器主频约 660 Hz。停止后分段读取 `/audio.pcm`，比对同会话 ZIP 中的
 `audio/speaker.pcm` 和各段 SHA-256。最后一份暂存的麦克风 PCM 摘要位于
 `manifest.json`。两块板各一轮、所有租约释放的 [virtual-device 证据](cardputer-audio-api-summary.json)。
+
+### 原版 MP3 的审核播放断言
+
+通过审核服务载入 Cardputer ADV MP3 Player v1.0.0 原版 app BIN，准备含
+524 Hz 参考音轨的 FAT32 镜像。按[验证记录](cardputer-mp3-review-summary.json)
+核对原版、合成 Flash、镜像与运行时的 SHA-256。创建隔离的 dry-run 并保存
+验证方案。按键使用 `key_ret`，保持 0.1 秒、等待 1.4 秒。音频方案为
+`validation.audio_playback`，声明 `after_input=key_ret`、48 kHz、524 Hz、8 Hz
+容差和 RMS 下限 100。确认报告为 `PASS`，根据记录的偏移和 SHA-256 在同会话
+ZIP 回验 PCM。对照轮次分别将频率改为 880 Hz 和撤去会话的 `audio.read` 权限，
+报告分别给出 `E_SIM_AUDIO_ASSERTION_FAILED` 和 `E_SIM_AUDIO_PARTIAL`。每轮结束
+检查租约释放。此处为原生虚拟设备验证。

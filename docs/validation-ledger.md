@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer ADV 原版 MP3 播放审核
+
+[同一原版 BIN 与 FAT32 的三轮 dry-run](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)
+按下确认键后读到 522.792 Hz 和 522.582 Hz，524 Hz 参考断言通过。改用
+880 Hz 参考时，14 个 PCM 窗均未满足断言，审核报告明确标记断言失败。
+撤掉音频读取权限时报告取证不足。两个可读轮次的 PCM 块通过各自同会话 ZIP
+逐段回验。三轮均释放租约，未提交 Burner。
+
 ## 2026-11-18 Cardputer 与 ADV 同会话 WAV 和 PCM API
 
 [两款板原生验证](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)在同一来宾中依次
