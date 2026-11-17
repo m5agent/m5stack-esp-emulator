@@ -227,7 +227,8 @@ from firmware_analysis import (  # noqa: E402
     parse_partition_table,
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
-from esp32_freertos_task_details import annotate_core2_tasks  # noqa: E402
+from esp32_freertos_task_details import annotate_xtensa_tasks  # noqa: E402
+from esp32_uart_coredump import ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
     crash_console_observations, crash_function_symbols, identify_crash_elf,
     output_tail, qmp_cpu_pc_sample,
@@ -6603,7 +6604,8 @@ class DeviceSession:
         chip_id = expected_chip_id(self.spec.soc)
         native_qemu = self.spec.service_kind == "qemu" and self.runtime == "qemu"
         core_dump_chip_id = chip_id if native_qemu and (
-            (self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6" and chip_id == 0x0000)
+            (self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6" and chip_id == ESP32_CHIP_ID)
+            or (self.spec.id == "cardputer-adv" and self.spec.backend == "qemu-esp32s3" and chip_id == ESP32S3_CHIP_ID)
             or (self.spec.backend == "qemu-esp32c6" and chip_id == 0x000D)
         ) else None
         task_core: list[bytes] = []
@@ -6612,7 +6614,11 @@ class DeviceSession:
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
             ), core_dump_chip_id=core_dump_chip_id,
-            capture_task_core=task_core.append if core_dump_chip_id == 0 and artifact is not None else None,
+            capture_task_core=(
+                task_core.append
+                if core_dump_chip_id in {ESP32_CHIP_ID, ESP32S3_CHIP_ID} and artifact is not None
+                else None
+            ),
         )
         panic = observed["panic"] or {}
         reported = panic.get("elf_sha256_prefix")
@@ -6638,7 +6644,7 @@ class DeviceSession:
                    "symbolization_eligible": False}
         decoded = observed["core_dump"].get("decoding") or {}
         if task_core and elf["symbolization_eligible"] and elf_artifact_id.startswith(decoded["dump_elf_sha256_prefix"]):
-            annotate_core2_tasks(decoded, task_core[0], artifact)
+            annotate_xtensa_tasks(decoded, task_core[0], artifact)
         boot = observed["boot"]
         if (
             panic or observed["task_watchdog_reports"] or observed["backend_observations"]

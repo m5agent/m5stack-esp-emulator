@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer ADV ESP32-S3 UART 转储
+
+[原生会话对照](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)用
+同一组 8 MiB SDK 5.5.4 探针验证 CRC32 和 SHA-256。早期服务仅记录完整
+UART 转储，候选在相同内核上返回五个任务并以匹配 ELF 读取全部任务详情。
+两例独立离线结果、同会话 ZIP 和重启后读回一致。留存的 StickS3 原版
+watchdog 缺少 UART dump 与匹配 ELF，保留原判定和边界。
+
 ## 2026-11-18 Core2 FreeRTOS 任务详情
 
 [同会话 API 与 ZIP](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)

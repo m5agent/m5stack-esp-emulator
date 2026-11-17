@@ -161,7 +161,7 @@ ROM。覆盖不替代 eFuse、参考固件或 target smoke test；主机架构�
 - esptool、littlefs-python、Bumble 等 `.work/py` 依赖；
 - 每台设备的参考 UIFlow2 固件。
 
-Core2 UART 转储的可选 FreeRTOS 任务详情需要 `pyelftools`。将已验证的
+Core2 与 Cardputer ADV UART 转储的可选 FreeRTOS 任务详情需要 `pyelftools`。将已验证的
 包加入服务使用的 Python 依赖目录，并在冻结发布时一并保留。仓库默认依赖
 路径的安装和导入检查如下。
 

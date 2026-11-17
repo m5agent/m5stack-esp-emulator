@@ -164,7 +164,7 @@ def _task_fields(data: memoryview, fields: dict, *, captured_context: bool) -> d
     return result
 
 
-def annotate_core2_tasks(decoded: dict, checked_core: bytes, artifact: Path) -> None:
+def annotate_xtensa_tasks(decoded: dict, checked_core: bytes, artifact: Path) -> None:
     """Add metadata only from unique task memory and the checked application ELF."""
     try:
         from elftools.elf.elffile import ELFFile

@@ -13,9 +13,10 @@ import zlib
 
 from decode_esp32_coredump import task_summary, uart_dump, validate_dump
 from device_service_crash import crash_console_observations, serial_crash_observations
-from esp32_freertos_task_details import annotate_core2_tasks
+from esp32_freertos_task_details import annotate_xtensa_tasks
 from esp32_uart_coredump import (
     ESP32C6_CHIP_ID, ESP32C6_ELF_CRC32, ESP32C6_ELF_SHA256, ESP32_ELF_CRC32,
+    ESP32S3_CHIP_ID, ESP32S3_ELF_CRC32, ESP32S3_ELF_SHA256,
     decode_task_contexts,
 )
 
@@ -42,7 +43,7 @@ def make_dump(notes, *, version=ESP32_ELF_CRC32, machine=94, loads=()):
     elf.extend(notes)
     for _, data in loads:
         elf.extend(data)
-    trailer_size = 32 if version == ESP32C6_ELF_SHA256 else 4
+    trailer_size = 32 if version in {ESP32C6_ELF_SHA256, ESP32S3_ELF_SHA256} else 4
     data = struct.pack("<6I", 24 + len(elf) + trailer_size, version, 0, 0, 0, 0) + elf
     trailer = hashlib.sha256(data).digest() if trailer_size == 32 else struct.pack("<I", zlib.crc32(data))
     return data + trailer
@@ -118,6 +119,30 @@ class OfflineCoreDumpTests(unittest.TestCase):
             decode_task_contexts(make_dump(notes + task + make_extra_note(tcb)), "1916d0ba")
         with self.assertRaisesRegex(ValueError, "missing saved task context"):
             decode_task_contexts(make_dump(notes + make_extra_note(0x3FFABCC0)), "1916d0ba")
+
+    def test_s3_xtensa_layout_verifies_its_own_checksum_and_chip(self):
+        tcb = 0x3fceaa58
+        registers = make_task_note(tcb, 0x40379418, 0x3fcea820) + make_extra_note(tcb)
+        for version, kind, key in (
+            (ESP32S3_ELF_CRC32, "crc32", "dump_crc32"),
+            (ESP32S3_ELF_SHA256, "sha256", "dump_embedded_sha256"),
+        ):
+            with self.subTest(kind=kind):
+                dump = make_dump(make_app_note(version) + registers, version=version)
+                result = decode_task_contexts(dump, "1916d0ba", chip_id=ESP32S3_CHIP_ID)
+                self.assertEqual(result["format"], f"esp32s3_xtensa_elf32_{kind}")
+                self.assertIn(key, result)
+                self.assertEqual(result["tasks"][0]["pc"], "0x40379418")
+                self.assertEqual(result["tasks"][0]["sp"], "0x3fcea820")
+                for wrong_chip in (0, ESP32C6_CHIP_ID):
+                    with self.assertRaisesRegex(ValueError, "version"):
+                        decode_task_contexts(dump, "1916d0ba", chip_id=wrong_chip)
+                corrupted = dump[:-1] + bytes([dump[-1] ^ 1])
+                with self.assertRaisesRegex(ValueError, "mismatch"):
+                    decode_task_contexts(corrupted, "1916d0ba", chip_id=ESP32S3_CHIP_ID)
+                bad_note = make_dump(make_app_note() + registers, version=version)
+                with self.assertRaisesRegex(ValueError, "application ELF note"):
+                    decode_task_contexts(bad_note, "1916d0ba", chip_id=ESP32S3_CHIP_ID)
 
     def test_riscv_layout_and_checksum_follow_the_qualified_chip(self):
         tcb = 0x408117A8
@@ -202,7 +227,7 @@ class OfflineCoreDumpTests(unittest.TestCase):
                 with patch.dict(sys.modules, {"elftools.elf.elffile": mock_module}), patch(
                     "esp32_freertos_task_details._read_layout", return_value=(36, fields),
                 ):
-                    annotate_core2_tasks(decoded, core[0], Path("test.elf"))
+                    annotate_xtensa_tasks(decoded, core[0], Path("test.elf"))
                 if available:
                     self.assertEqual(decoded["task_metadata"]["status"], "decoded")
                     self.assertEqual(task.pop("metadata"), {
