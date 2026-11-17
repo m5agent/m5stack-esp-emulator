@@ -3594,7 +3594,7 @@ components:
           description: >
             Namespace, egress and cleanup state read from the sandbox evidence.
             cleanup_completed becomes PASS only after QEMU reap and controlled
-            DNS/HTTP fixture closure.
+            DNS/HTTP/UDP fixture closure.
         dns_requests:
           type: array
           items:
@@ -3611,6 +3611,13 @@ components:
           description: >
             Requests received by the controlled HTTP fixture in the same
             session.
+        udp_fixture:
+          type: object
+          additionalProperties: true
+          description: >-
+            Optional same-session lab peer receipt with configured payload SHA-256
+            values and sent or ignored counts. A sent reply requires separate
+            guest-side evidence to show application receipt.
         expected_markers:
           type: array
           items:
@@ -4955,7 +4962,29 @@ components:
             the qemu-wifi or qemu-unified guest uses its own peers and
             independent radio sessions must avoid competing for the
             profile-assigned host port. This does not disable the WiFi NIC,
-            framebuffer, serial, QOM or pcap.
+            framebuffer, serial, QOM or pcap. Native generic-observe defaults
+            to false and requires an explicit lab-only or allowlist namespace
+            when true. Its fixture uses guest address 10.0.2.2 and TCP port 18192.
+        udp_fixture:
+          type: object
+          additionalProperties: false
+          required: [port, request_hex, response_hex]
+          description: >-
+            Optional deterministic loopback peer for runtime=qemu-wifi with
+            a lab-only or allowlist namespace. The guest addresses 10.0.2.2.
+            The peer replies only to the exact expected datagram. An allowlist
+            request adds only this UDP fixture port, scoped to the guest gateway.
+          properties:
+            port:
+              type: integer
+              minimum: 1024
+              maximum: 65535
+            request_hex:
+              type: string
+              pattern: '^(?:[0-9A-Fa-f]{2}){1,512}$'
+            response_hex:
+              type: string
+              pattern: '^(?:[0-9A-Fa-f]{2}){1,512}$'
         cname_records:
           type: object
           maxProperties: 64

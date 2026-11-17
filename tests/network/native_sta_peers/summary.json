@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "scope": "native Device Service on bounded macOS test instance",
+  "raw_endpoint_constraints": "emulator process outbound access limited to three owned loopback fixture ports",
+  "linux_namespace_positive": "NOT RUN",
+  "probe_source_sha256": "b5c39b98f62b365585d6d774d152ff4db9241db7b554901f5c9e6e23b2953f69",
+  "cases": [
+    {
+      "device": "cardputer",
+      "firmware_sha256": "03689a2a462a03ed5652beb3dc97a289e7a2f5484be5d15d83539f6dbb1892af",
+      "runtime_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "bounded_macos_lab": "loopback-only fixed three ports",
+      "burner_submissions": 0,
+      "guest_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "dns": [
+        {
+          "name": "lab.test",
+          "qtype": "1",
+          "decision": "allow",
+          "status": "A",
+          "rule": "exact:lab.test"
+        },
+        {
+          "name": "off.test",
+          "qtype": "1",
+          "decision": "deny",
+          "status": "NXDOMAIN",
+          "rule": "none"
+        }
+      ],
+      "http": [
+        {
+          "path": "/native-sta",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "udp": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "before_stop_evidence_sha256": "eba9457c97b55641141b27aee00943384e27e8b34722e0c61f93a909732710b2",
+      "stopped_lease_released": true,
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "70746ceb22eeb521c33b47c63790939aa3bdec54d558d421f61e5ddd03a01232",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "pcap_sha256": "70746ceb22eeb521c33b47c63790939aa3bdec54d558d421f61e5ddd03a01232",
+      "separate_bidirectional_flows": {
+        "dns": 4,
+        "udp": 2
+      },
+      "cleanup": true,
+      "exact_udp_behavior_expected": true
+    },
+    {
+      "device": "cardputer-adv",
+      "firmware_sha256": "03689a2a462a03ed5652beb3dc97a289e7a2f5484be5d15d83539f6dbb1892af",
+      "runtime_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "bounded_macos_lab": "loopback-only fixed three ports",
+      "burner_submissions": 0,
+      "guest_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "dns": [
+        {
+          "name": "lab.test",
+          "qtype": "1",
+          "decision": "allow",
+          "status": "A",
+          "rule": "exact:lab.test"
+        },
+        {
+          "name": "off.test",
+          "qtype": "1",
+          "decision": "deny",
+          "status": "NXDOMAIN",
+          "rule": "none"
+        }
+      ],
+      "http": [
+        {
+          "path": "/native-sta",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "udp": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "before_stop_evidence_sha256": "a26f102003173b8256b2cbf14b9e4ee0c6d63aafb0316cd4ea35407b982d7148",
+      "stopped_lease_released": true,
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "58f07c9cdfb8d6cab583e153d0fd6d9f27b8333053f5b731a87fb18e626b641c",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "pcap_sha256": "58f07c9cdfb8d6cab583e153d0fd6d9f27b8333053f5b731a87fb18e626b641c",
+      "separate_bidirectional_flows": {
+        "dns": 4,
+        "udp": 2
+      },
+      "cleanup": true,
+      "exact_udp_behavior_expected": true
+    },
+    {
+      "device": "cardputer",
+      "firmware_sha256": "03689a2a462a03ed5652beb3dc97a289e7a2f5484be5d15d83539f6dbb1892af",
+      "runtime_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "bounded_macos_lab": "loopback-only fixed three ports",
+      "burner_submissions": 0,
+      "guest_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=0",
+      "dns": [
+        {
+          "name": "lab.test",
+          "qtype": "1",
+          "decision": "allow",
+          "status": "A",
+          "rule": "exact:lab.test"
+        },
+        {
+          "name": "off.test",
+          "qtype": "1",
+          "decision": "deny",
+          "status": "NXDOMAIN",
+          "rule": "none"
+        }
+      ],
+      "http": [
+        {
+          "path": "/native-sta",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "udp": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9d1aae1b4ddcfcecc414ff36d7f86b8240ff338a3fb36f1c2113fcf10b9ec73c",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "before_stop_evidence_sha256": "264ee5c441bfc824caa38ccdd60f1ade456a195fb15b1aee6ac0a6ef93587e13",
+      "stopped_lease_released": true,
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "2994a17301e7eaba46ccf4ad888857d7aa98979624e2e99a0196010affc7290b",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "pcap_sha256": "2994a17301e7eaba46ccf4ad888857d7aa98979624e2e99a0196010affc7290b",
+      "separate_bidirectional_flows": {
+        "dns": 4,
+        "udp": 2
+      },
+      "cleanup": true,
+      "exact_udp_behavior_expected": false
+    }
+  ]
+}

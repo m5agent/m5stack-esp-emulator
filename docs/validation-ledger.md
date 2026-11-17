@@ -23,6 +23,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [PaperDIY 原生 API 验证](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)使用同一 SDK 固件和 FAT32 镜像，在 `cbc0ea74…` 上确认 G48 有卡低、无卡高及读写重新挂载。旧二进制 `ba82940a…` 仍可无卡运行，有卡请求返回 `409 storage_not_supported` 且无会话分配。
 
+[Cardputer 原生 STA 夹具](../tests/network/native_sta_peers/README.md)在隔离 macOS 测试路径用初代 Cardputer 和 ADV 逐项完成 DHCP、HTTP 正文核对、DNS A/NXDOMAIN、UDP 精确字节校验及同会话 PCAP。错误 UDP 响应仍有双向流量，但来宾业务断言拒绝。Linux namespace 正向执行和 SoftAP 关联/门户仍待验收。
+
 ## 2026-11-16
 
 [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)：源码 f2f26604…、原生 Xtensa 06db397c…，独立验证原版 M5Apps 2.7 和 #230 的四个原版执行映像。M5Apps 实际首帧、默认空闲熄屏、A 唤醒、Enter 主菜单均在无跟踪及带跟踪下取证。#230 实际键盘响应与两份 ADV 的 ACK、键盘 FIFO 均通过。EXTMEM 27 项、显示三板各 14 项及 Core2 负控 13 项通过。

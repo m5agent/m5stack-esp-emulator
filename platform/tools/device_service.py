@@ -78,6 +78,7 @@ from device_service_native_hid import (  # noqa: E402
 from device_service_network import (  # noqa: E402
     parse_dns_cname_records,
     parse_network_policy,
+    parse_udp_fixture,
 )
 from device_service_network_execution import parse_network_execution  # noqa: E402, F401
 from device_service_qemu_wifi import (  # noqa: E402, F401
@@ -390,7 +391,9 @@ DEFAULT_NETWORK_EMULATOR = (
     / ".work/esp-emu-versions/0.50.0"
     / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
 )
+GENERIC_WIFI_PROFILE = "generic-observe"
 UNIFIED_HTTP_PORTS = {
+    GENERIC_WIFI_PROFILE: 18192,
     STICKS3_WIFI_PROFILE: 18080,
     NANOC6_HCI_BLE_PROFILE: 18090,
     NESSO_UNIFIED_PROFILE: 18091,
@@ -568,6 +571,7 @@ UNIFIED_READY_MARKERS = {
     CORE2_NATIVE_HCI_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
+    GENERIC_WIFI_PROFILE: b"M5_NATIVE_STA_BODY_V1\n",
     STICKS3_WIFI_PROFILE: b"STICKS3_WIFI_OK\n",
     NANOC6_HCI_BLE_PROFILE: b"UNIFIED_NANOC6_OK\n",
     NESSO_UNIFIED_PROFILE: b"UNIFIED_NESSO_OK\n",
@@ -1001,8 +1005,8 @@ def parse_qemu_wifi_execution(
         supported_profile = STICKS3_WIFI_PROFILE
         nic = "misc.esp32s3.wifi"
     elif spec.backend in {"qemu-esp32s3", "qemu-esp32lx6"}:
-        default_profile = "generic-observe"
-        supported_profile = "generic-observe"
+        default_profile = GENERIC_WIFI_PROFILE
+        supported_profile = GENERIC_WIFI_PROFILE
         nic = (
             "misc.esp32s3.wifi"
             if spec.backend == "qemu-esp32s3"
@@ -1028,7 +1032,7 @@ def parse_qemu_wifi_execution(
             f"unsupported qemu-wifi profile: {profile!r}",
             400,
         )
-    http_fixture = value.get("http_fixture", True)
+    http_fixture = value.get("http_fixture", profile != GENERIC_WIFI_PROFILE)
     if not isinstance(http_fixture, bool):
         raise ServiceError(
             "invalid_network",
@@ -1063,14 +1067,20 @@ def parse_qemu_wifi_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
-    policy = parse_network_policy(
-        value.get("policy"),
-        implicit_endpoints=(
-            implicit_allowlist_endpoints(profile)
-            if http_fixture
-            else ()
-        ),
-    )
+    udp_fixture = parse_udp_fixture(value.get("udp_fixture"))
+    endpoints = implicit_allowlist_endpoints(profile) if http_fixture else ()
+    if udp_fixture:
+        endpoints += (EgressEndpoint(protocol="udp", address="10.0.2.2", port=int(udp_fixture["port"])),)
+    policy = parse_network_policy(value.get("policy"), implicit_endpoints=endpoints)
+    generic_http_fixture = profile == GENERIC_WIFI_PROFILE and http_fixture
+    if (udp_fixture or generic_http_fixture) and (
+        policy.isolation != "namespace" or policy.egress not in {"lab-only", "allowlist"}
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "native UDP and generic HTTP fixtures require a lab-only or allowlist namespace",
+            400,
+        )
     cname_records = parse_dns_cname_records(
         value.get("cname_records"),
         policy,
@@ -1097,6 +1107,8 @@ def parse_qemu_wifi_execution(
         "attempts": attempts,
         "capture_pcap": capture_pcap,
         "http_fixture": http_fixture,
+        **({"generic_http_fixture": True} if generic_http_fixture else {}),
+        **({"udp_fixture": udp_fixture} if udp_fixture is not None else {}),
         "policy": policy.evidence(),
         "cname_records": cname_records,
     }
@@ -2729,6 +2741,7 @@ class DeviceSession:
         self.native_vhci_log = self.dir / "native-vhci-gdb.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.dns_fixture_log = self.dir / "dns-fixture.json"
+        self.udp_fixture_log = self.dir / "udp-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
@@ -3021,6 +3034,7 @@ class DeviceSession:
             and (
                 profile in UNIFIED_PROFILES
                 or profile == STICKS3_WIFI_PROFILE
+                or (profile == GENERIC_WIFI_PROFILE and self.network_config.get("generic_http_fixture") is True)
             )
         )
 
@@ -4504,6 +4518,13 @@ class DeviceSession:
             evidence["http_fixture_requests"] = self._read_json_list(
                 self.http_fixture_log
             )
+        if self.network_config.get("udp_fixture"):
+            try:
+                udp_receipt = json.loads(self.udp_fixture_log.read_text())
+            except (OSError, json.JSONDecodeError):
+                udp_receipt = None
+            if isinstance(udp_receipt, dict):
+                evidence["udp_fixture"] = udp_receipt
         evidence["packet_capture"] = self._network_capture_evidence()
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
@@ -4513,6 +4534,7 @@ class DeviceSession:
             previous.get("status") != evidence.get("status")
             or previous.get("checks") != evidence.get("checks")
             or previous.get("native_data_plane") != evidence.get("native_data_plane")
+            or previous.get("udp_fixture") != evidence.get("udp_fixture")
         ):
             self._persist_session()
         return evidence
@@ -5899,8 +5921,15 @@ class DeviceSession:
                     "cname_records": cname_records,
                     "log": str(self.dns_fixture_log),
                 }
+            udp_fixture = self.network_config.get("udp_fixture")
+            if udp_fixture:
+                self.udp_fixture_log.unlink(missing_ok=True)
+                sandbox_config["udp"] = udp_fixture
+                sandbox_config["udp_log"] = str(self.udp_fixture_log)
             http_profile = profile in UNIFIED_HTTP_PORTS
-            if http_profile:
+            if http_profile and self.network_config.get("http_fixture", True) and (
+                profile != GENERIC_WIFI_PROFILE or self.network_config.get("generic_http_fixture") is True
+            ):
                 http_body = UNIFIED_HTTP_BODIES.get(profile)
                 http_port = UNIFIED_HTTP_PORTS.get(profile)
                 if http_body is None or http_port is None:
@@ -8085,6 +8114,8 @@ class DeviceSession:
                 files["network/http-fixture.json"] = (
                     self.http_fixture_log.read_bytes()
                 )
+            if self.network_config.get("udp_fixture") and self.udp_fixture_log.is_file():
+                files["network/udp-fixture.json"] = self.udp_fixture_log.read_bytes()
             if self.network_isolation_path.is_file():
                 files["network/isolation.json"] = (
                     self.network_isolation_path.read_bytes()
@@ -10492,6 +10523,13 @@ class DeviceService:
         except UnitError as error:
             raise ServiceError(error.code, error.message, error.status) from error
         network_config = monitor_config
+        requested_network = payload.get("network")
+        if (
+            runtime != QEMU_WIFI_RUNTIME
+            and isinstance(requested_network, dict)
+            and requested_network.get("udp_fixture") is not None
+        ):
+            raise ServiceError("invalid_network", "UDP fixture requires runtime=qemu-wifi", 400)
         if runtime == "network":
             network_config = parse_network_execution(
                 spec,

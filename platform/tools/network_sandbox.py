@@ -5,9 +5,11 @@ from __future__ import annotations
 import argparse
 import ctypes
 import fcntl
+import hashlib
 import ipaddress
 import json
 import os
+import re
 import signal
 import socket
 import ssl
@@ -1002,6 +1004,96 @@ class ControlledDns:
             self.persist()
 
 
+
+def validate_udp_fixture(value: object) -> dict[str, int | str]:
+    if not isinstance(value, dict) or set(value) != {"port", "request_hex", "response_hex"}:
+        raise SandboxError("UDP fixture requires port, request_hex and response_hex")
+    port = value["port"]
+    if type(port) is not int or not 1024 <= port <= 65535:
+        raise SandboxError("UDP fixture port must be an integer between 1024 and 65535")
+    result: dict[str, int | str] = {"port": port}
+    for field in ("request_hex", "response_hex"):
+        encoded = value[field]
+        if not isinstance(encoded, str) or not re.fullmatch(r"(?:[a-fA-F0-9]{2}){1,512}", encoded):
+            raise SandboxError(f"UDP fixture {field} must contain 1–512 bytes encoded as hex")
+        result[field] = encoded.lower()
+    return result
+
+
+class ControlledUdp:
+    """Binary request/response fixture bound to the isolated worker loopback."""
+
+    def __init__(self, config: dict[str, Any], log_path: Path):
+        fixture = validate_udp_fixture(config)
+        self.expected = bytes.fromhex(str(fixture["request_hex"]))
+        self.reply = bytes.fromhex(str(fixture["response_hex"]))
+        self.log_path = log_path
+        self.stop_event = threading.Event()
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            self.socket.bind(("127.0.0.1", int(fixture["port"])))
+            self.socket.settimeout(0.2)
+        except OSError:
+            self.socket.close()
+            raise
+        self.matched = 0
+        self.ignored = 0
+        self.thread = threading.Thread(target=self.serve, daemon=True)
+
+    def persist(self) -> None:
+        record = {
+            "schema_version": 1,
+            "scope": "bound-udp-peer",
+            "request_sha256": hashlib.sha256(self.expected).hexdigest(),
+            "response_sha256": hashlib.sha256(self.reply).hexdigest(),
+            "responses_sent": self.matched,
+            "ignored_datagrams": self.ignored,
+        }
+        temporary = self.log_path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(record, indent=2) + "\n")
+        temporary.replace(self.log_path)
+
+    def start(self) -> None:
+        self.persist()
+        self.thread.start()
+
+    def serve(self) -> None:
+        changed = False
+        last_written = 0.0
+        while not self.stop_event.is_set():
+            try:
+                request, peer = self.socket.recvfrom(513)
+            except TimeoutError:
+                if changed:
+                    self.persist()
+                    changed = False
+                    last_written = time.monotonic()
+                continue
+            except OSError:
+                return
+            if request == self.expected:
+                try:
+                    self.socket.sendto(self.reply, peer)
+                    self.matched += 1
+                except OSError:
+                    self.ignored += 1
+            else:
+                self.ignored += 1
+            changed = True
+            now = time.monotonic()
+            if now - last_written >= 0.2:
+                self.persist()
+                changed = False
+                last_written = now
+
+    def close(self) -> None:
+        self.stop_event.set()
+        self.socket.close()
+        if self.thread.ident is not None:
+            self.thread.join(timeout=3)
+        self.persist()
+
+
 def start_logged_process(
     command: list[str],
     *,
@@ -1248,6 +1340,9 @@ def _loopback_ports(config: dict[str, Any]) -> tuple[set[int], set[int]]:
         if not 1 <= port <= 65535:
             raise SandboxError("sandbox DNS port is out of range")
         udp_ports.add(port)
+    udp = config.get("udp")
+    if udp is not None:
+        udp_ports.add(int(validate_udp_fixture(udp)["port"]))
     return tcp_ports, udp_ports
 
 
@@ -1332,6 +1427,14 @@ def run(
         if isinstance(policy, dict)
         else None
     )
+    udp_config = config.get("udp")
+    if udp_config is not None:
+        if not isinstance(policy, dict) or policy.get("isolation") != "namespace" or policy_egress not in {"lab-only", "allowlist"}:
+            raise SandboxError("UDP fixture requires a lab-only or allowlist namespace")
+        udp_config = validate_udp_fixture(udp_config)
+        udp_log = config.get("udp_log")
+        if not isinstance(udp_log, str) or not udp_log:
+            raise SandboxError("sandbox UDP fixture requires a session log path")
     allowed_domains = (
         normalize_domain_suffixes(policy.get("allowed_domains"))
         if isinstance(policy, dict)
@@ -1362,6 +1465,7 @@ def run(
 
     http_config = config.get("http")
     http: ControlledHttp | None = None
+    udp: ControlledUdp | None = None
     dns: ControlledDns | None = None
     ble_process: subprocess.Popen[str] | None = None
     qemu_process: subprocess.Popen | None = None
@@ -1499,6 +1603,10 @@ def run(
             )
             http.start()
 
+        if udp_config is not None:
+            udp = ControlledUdp(udp_config, Path(udp_log))
+            udp.start()
+
         ble_config = config.get("ble_probe")
         if ble_config is not None:
             if not isinstance(ble_config, dict):
@@ -1549,6 +1657,8 @@ def run(
             http.close()
         if dns is not None:
             dns.close()
+        if udp is not None:
+            udp.close()
         if resolv_path is not None:
             resolv_path.unlink(missing_ok=True)
         for signum, handler in previous.items():
@@ -1559,6 +1669,7 @@ def run(
             )
             dns_closed = dns is None or not dns.thread.is_alive()
             http_closed = http is None or not http.thread.is_alive()
+            udp_closed = udp is None or not udp.thread.is_alive()
             update_isolation_evidence(
                 Path(str(evidence_path)),
                 {
@@ -1566,10 +1677,12 @@ def run(
                         qemu_process_reaped
                         and dns_closed
                         and http_closed
+                        and udp_closed
                     ),
                     "qemu_process_reaped": qemu_process_reaped,
                     "dns_closed": dns_closed,
                     "http_closed": http_closed,
+                    "udp_closed": udp_closed,
                 },
             )
 
