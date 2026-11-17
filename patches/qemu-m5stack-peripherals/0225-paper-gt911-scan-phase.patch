@@ -1,0 +1,192 @@
+diff --git a/hw/m5stopwatch/m5paper_et047.c b/hw/m5stopwatch/m5paper_et047.c
+--- a/hw/m5stopwatch/m5paper_et047.c
++++ b/hw/m5stopwatch/m5paper_et047.c
+@@ -12,105 +12,123 @@
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
+ #include "ui/console.h"
+ #include "ui/input.h"
+ #include "m5stopwatch.h"
+ 
+ #define ET_COLUMNS 960
+ #define ET_ROWS 540
+ #define ET_BYTES (ET_COLUMNS / 4)
+ #define ET_SPV 17
+ #define ET_LE 15
+ #define ET_CKV 18
+ #define ET_OE 45
+ #define ET_BOOST 46
+ 
+ #define GT911_STATUS 0x814e
+ #define GT911_ID 0x8140
+ #define GT911_CONFIG 0x8047
+ #define GT911_CONFIG_SIZE 186
++#define GT911_REFRESH_RATE 0x8056
+ #define GT911_INT 48
+ #define TYPE_M5_GT911 "m5-gt911"
+ #define TYPE_M5_PAPER_ET047 "m5-paper-et047"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5Gt911, M5_GT911)
+ OBJECT_DECLARE_SIMPLE_TYPE(M5PaperET047, M5_PAPER_ET047)
+ 
+ struct M5Gt911 {
+     I2CSlave parent_obj;
+     uint16_t reg;
+     unsigned addr_bytes;
+     uint8_t config[GT911_CONFIG_SIZE];
+     bool ready;
+     bool down;
+     uint16_t x, y;
+     bool report_down;
+     uint16_t report_x, report_y;
++    int64_t scan_deadline_ns;
+     QEMUTimer *timer;
+ };
+ 
+ struct M5PaperET047 {
+     DeviceState parent_obj;
+     DeviceState *pm1;
+     M5Gt911 *touch;
+     M5SpiSdState *sd;
+     QemuConsole *con;
+     QemuInputHandlerState *input;
+     bool diy;
+     uint8_t *reflectance;
+     uint8_t pending[ET_BYTES];
+     bool pending_valid;
+     bool scanning;
+     bool dirty;
+     bool prev_le;
+     bool prev_spv;
+     uint32_t row;
+     uint32_t frames;
+     uint32_t lines;
+     bool mouse_down;
+     uint16_t mouse_x, mouse_y;
+ };
+ 
+ static void gt911_scan(void *opaque)
+ {
+     M5Gt911 *s = opaque;
+ 
+     if (!s->down && !s->report_down) {
++        s->scan_deadline_ns = 0;
+         return;
+     }
+     s->report_x = s->x;
+     s->report_y = s->y;
+     s->report_down = s->down;
+     s->ready = true;
++    if (!s->report_down) {
++        s->scan_deadline_ns = 0;
++    }
+     esp32_gpio_force_line(GT911_INT, 0);
+ }
+ 
+ static void gt911_schedule_scan(M5Gt911 *s)
+ {
++    if (s->ready || (!s->down && !s->report_down) || timer_pending(s->timer)) {
++        return;
++    }
++
++    const int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    const int64_t period =
++        (5 + (s->config[GT911_REFRESH_RATE - GT911_CONFIG] & 0xf)) *
++        SCALE_MS;
++
+     /*
+-     * Keep an unread report latched until the host acknowledges it. An idle
+-     * panel has no coordinate update to report. After a contact, publish one
+-     * final zero-point report so the guest observes the release.
++     * An unread report blocks new reports, but does not reset scan phase.
++     * Skip the elapsed periods without waking QEMU for each blocked scan.
+      */
+-    if (!s->ready && (s->down || s->report_down) && !timer_pending(s->timer)) {
+-        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
+-    }
++    if (!s->scan_deadline_ns) {
++        s->scan_deadline_ns = now + period;
++    } else if (s->scan_deadline_ns <= now) {
++        s->scan_deadline_ns = now + period -
++            (now - s->scan_deadline_ns) % period;
++    }
++    timer_mod_ns(s->timer, s->scan_deadline_ns);
+ }
+ 
+ static void gt911_acknowledge(M5Gt911 *s)
+ {
+     s->ready = false;
+     esp32_gpio_force_line(GT911_INT, 1);
+     gt911_schedule_scan(s);
+ }
+ 
+ static int gt911_event(I2CSlave *slave, enum i2c_event event)
+ {
+     if (event == I2C_START_SEND) {
+         M5_GT911(slave)->addr_bytes = 0;
+     }
+     return 0;
+ }
+ 
+ static int gt911_send(I2CSlave *slave, uint8_t value)
+ {
+     M5Gt911 *s = M5_GT911(slave);
+@@ -150,56 +168,57 @@
+         return s->report_x;
+     case 0x8151:
+         return s->report_x >> 8;
+     case 0x8152:
+         return s->report_y;
+     case 0x8153:
+         return s->report_y >> 8;
+     case 0x8154:
+         return 20;
+     default:
+         if (reg >= GT911_CONFIG && reg < GT911_CONFIG + GT911_CONFIG_SIZE) {
+             return s->config[reg - GT911_CONFIG];
+         }
+         return 0;
+     }
+ }
+ 
+ static void gt911_realize(DeviceState *dev, Error **errp)
+ {
+     M5Gt911 *s = M5_GT911(dev);
+-    s->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, gt911_scan, s);
++    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, gt911_scan, s);
+     s->config[1] = ET_ROWS & 0xff;
+     s->config[2] = ET_ROWS >> 8;
+     s->config[3] = ET_COLUMNS & 0xff;
+     s->config[4] = ET_COLUMNS >> 8;
+     s->config[5] = 2;
+     gt911_acknowledge(s);
+ }
+ 
+ static void gt911_reset(DeviceState *dev)
+ {
+     M5Gt911 *s = M5_GT911(dev);
+     s->reg = 0;
+     s->addr_bytes = 0;
+     s->down = false;
+     s->report_down = false;
++    s->scan_deadline_ns = 0;
+     timer_del(s->timer);
+     gt911_acknowledge(s);
+ }
+ 
+ static void gt911_unrealize(DeviceState *dev)
+ {
+     timer_free(M5_GT911(dev)->timer);
+ }
+ 
+ static void gt911_class_init(ObjectClass *oc, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(oc);
+     I2CSlaveClass *ic = I2C_SLAVE_CLASS(oc);
+     dc->realize = gt911_realize;
+     dc->user_creatable = false;
+     dc->unrealize = gt911_unrealize;
+     device_class_set_legacy_reset(dc, gt911_reset);
+     ic->event = gt911_event;
+     ic->send = gt911_send;
+     ic->recv = gt911_recv;

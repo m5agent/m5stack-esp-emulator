@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "device": "papers3",
+  "source_base": "65f40eac4521ceb2af9962298e1a26a6e07aae78",
+  "qemu_upstream": "40edccac415693c5130f91c01d84176ae6008566",
+  "candidate_patch_sha256": "a79d182ca33bc8cbfebe486b17cd9aa672876ebc41203456e674a4726de4851f",
+  "baseline_controller_sha256": "c7c3a380f1f6b1840e9952ba3e726083908a689b2dfa4f75a2b873a0780d32fa",
+  "candidate_controller_sha256": "e432a58adca0f3fe68d47afb1a17acaa011eca4687030d4374e3510b3e493650",
+  "original_factory_v0_5": {
+    "baseline": {
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "input_firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "imported_flash_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+      "evidence_zip_sha256": "bc71acd4f2f28814a2e171f14737aa96ebf5f4747ff8aef0ed49992f0ae47181",
+      "active_leases_after_stop": 0,
+      "flash_released": true,
+      "result": "PARTIAL",
+      "contact_xy": [
+        113,
+        347
+      ],
+      "requested_durations_ms": [
+        150,
+        300,
+        500,
+        500,
+        300,
+        150,
+        300,
+        500,
+        150,
+        500,
+        300,
+        500
+      ],
+      "stable_expected_icon": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "matching_icon_frames": 9
+    },
+    "phase": {
+      "runtime_sha256": "0b871bcd43a74d7c4d303e07ae496c0a673c9cc9d62911318de7d96bad1955be",
+      "input_firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "imported_flash_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+      "evidence_zip_sha256": "de461bde5ef83f5741afb5ddc8f1e3cba40bb5b5332743f69aa9d3949e718702",
+      "active_leases_after_stop": 0,
+      "flash_released": true,
+      "result": "PARTIAL",
+      "contact_xy": [
+        113,
+        347
+      ],
+      "requested_durations_ms": [
+        150,
+        300,
+        500,
+        500,
+        300,
+        150,
+        300,
+        500,
+        150,
+        500,
+        300,
+        500
+      ],
+      "stable_expected_icon": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "matching_icon_frames": 7
+    },
+    "instrumented_controller_readback": {
+      "runtime_sha256": "0259541892a8f9b8837b9cd8fa9dc6e2c56c3f051aa309401303a319abc5b635",
+      "input_firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "imported_flash_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+      "evidence_zip_sha256": "3d40d76eb00dd498fb5c408e29c120522bd944b0ae8193253fce2e4879fac22c",
+      "active_leases_after_stop": 0,
+      "flash_released": true,
+      "zip_qemu_stderr_sha256": "ce3371120373405fbeeee647eba16a9eee5cd2a4a544abd9cedf9d17083ccc71",
+      "role": "independent instrumented native build, I2C readback only",
+      "contact_report_sequences": [
+        {
+          "reported_positions": [
+            [
+              113,
+              347
+            ],
+            [
+              192,
+              353
+            ],
+            [
+              271,
+              359
+            ],
+            [
+              310,
+              362
+            ],
+            [
+              350,
+              366
+            ]
+          ],
+          "release_status": 128
+        },
+        {
+          "reported_positions": [
+            [
+              350,
+              366
+            ],
+            [
+              271,
+              359
+            ],
+            [
+              152,
+              350
+            ],
+            [
+              113,
+              347
+            ]
+          ],
+          "release_status": 128
+        },
+        {
+          "reported_positions": [
+            [
+              113,
+              347
+            ]
+          ],
+          "release_status": 128
+        }
+      ]
+    }
+  },
+  "not_run": [
+    "hardware",
+    "browser-WASM candidate",
+    "GT911 interrupt waveform and low-power scan mode"
+  ],
+  "esp_idf_uart_probe": {
+    "baseline": {
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "input_firmware_sha256": "25f06387ddc733eb4fbcf6f5e0e3e5ed50a9473932c8f20a410176a88d539768",
+      "imported_flash_sha256": "a8afe0857c9f1a85e8af1f00858c2f3656a2ac25d9f43df8013735ffa7157034",
+      "evidence_zip_sha256": "ca199a540a559a327ccfc7a2ff0590afbb092c9f1089713367f050ef2aa295e6",
+      "active_leases_after_stop": 0,
+      "flash_released": true,
+      "result": "FAIL",
+      "configured_refresh_rate_low_nibble": 15,
+      "ack_to_ready_guest_us": [
+        5534,
+        5297,
+        5390,
+        5414,
+        6003,
+        5404,
+        5401,
+        4447
+      ],
+      "samples_at_least_9000_us": 0,
+      "release_status": 128,
+      "idle_status": 0,
+      "zip_serial_sha256": "91818e810314ccdab6b60b878f11434bc9456011da49cc880a991dfc60c70c44"
+    },
+    "phase": {
+      "runtime_sha256": "0b871bcd43a74d7c4d303e07ae496c0a673c9cc9d62911318de7d96bad1955be",
+      "input_firmware_sha256": "25f06387ddc733eb4fbcf6f5e0e3e5ed50a9473932c8f20a410176a88d539768",
+      "imported_flash_sha256": "a8afe0857c9f1a85e8af1f00858c2f3656a2ac25d9f43df8013735ffa7157034",
+      "evidence_zip_sha256": "0d1b7a62fd2ac1884cdb1810861ff5a74da2c5deb1b3acef0a6998fe59576560",
+      "active_leases_after_stop": 0,
+      "flash_released": true,
+      "result": "PASS",
+      "configured_refresh_rate_low_nibble": 15,
+      "ack_to_ready_guest_us": [
+        19127,
+        20330,
+        19002,
+        20510,
+        18757,
+        20286,
+        19054,
+        20431
+      ],
+      "samples_at_least_9000_us": 8,
+      "release_status": 128,
+      "idle_status": 0,
+      "zip_serial_sha256": "38ac499e649ffcc2d279cc08837dee42c096e3509627520c57f49e71e7e6ccd5"
+    },
+    "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "stimulus": {
+      "kind": "longpress",
+      "x": 113,
+      "y": 347,
+      "hold_seconds": 1.4
+    },
+    "expected_spacing_count": 6
+  }
+}

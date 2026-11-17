@@ -1810,3 +1810,17 @@ K132's two controllers assert their own ESP32-S3 interrupt sources.
 An acknowledgement or idle transfer on SPI3 leaves a pending SPI2
 completion asserted, and the reverse holds. K132 peripheral clock routing and display geometry use earlier layers.
 See the [SPI interrupt routing regression](../../tests/firmware/spi_sd_media/cardputer_irq_route/README.md).
+
+## PaperS3 GT911 scan phase (0225)
+
+The next coordinate scan uses the virtual phase of the previous scan and the
+period configured at `0x8056[3:0]` (5 + N ms). While `0x814E` is ready, the
+device keeps the unread coordinates latched. Clearing it makes the next
+eligible scan available without starting a new period from the I²C write.
+The model skips timer callbacks for periods in which the unread report blocks
+new data. Release still produces one zero-point report.
+
+This native layer covers the report cadence in [Goodix's programming guide](https://www.lcd-module.de/fileadmin/eng/pdf/zubehoer/GT911_Programming_Guide_Rev.10.pdf),
+sections 3.2 and 5. Configurable INT waveforms and the low-power scan mode
+remain outside the patch. The existing browser runtime and Tab5 use
+independent patch recipes.
