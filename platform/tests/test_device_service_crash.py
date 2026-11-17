@@ -109,6 +109,74 @@ class CpuPcSampleTests(unittest.TestCase):
 
 
 class CrashDiagnosticsTests(unittest.TestCase):
+    def test_application_loads_retain_order_and_capture_local_boot_context(self):
+        parsed = serial_crash_observations(
+            "ESP-ROM:esp32p4-test\nrst:0x1 (POWERON)\n"
+            "I (6) boot: ESP-IDF test 2nd stage bootloader\n"
+            "I (610) boot: Loaded app from partition at offset 0x10000\n"
+            "ESP-ROM:esp32p4-test\nrst:0xc (SW_CPU_RESET)\n"
+            "I (6) boot: ESP-IDF test 2nd stage bootloader\n"
+            "I (493) boot: Loaded app from partition at offset 0x210000\n", "",
+        )
+        self.assertEqual(parsed["boot"]["application_load_count"], 2)
+        self.assertEqual(parsed["boot"]["application_loads"], [
+            {"console_line": 4, "boot_ordinal": 1, "idf_log_ms": 610, "offset": 65536},
+            {"console_line": 8, "boot_ordinal": 2, "idf_log_ms": 493, "offset": 2162688},
+        ])
+        self.assertIsNone(parsed["panic"])
+        self.assertEqual(parsed["cpus"], [])
+
+    def test_application_load_context_is_unknown_without_a_proven_rom_boundary(self):
+        load = "I (10) boot: Loaded app from partition at offset 0x10000\n"
+        parsed = serial_crash_observations(
+            load + "ESP-ROM:esp32p4-test\nrst:0x1 (POWERON)\n" + load
+            + "Rebooting...\n" + load
+            + "ESP-ROM:esp32p4-test\nrst:0x1 (POWERON)\n" + load
+            + "rst:0xc (SW_CPU_RESET)\n" + load
+            + "ESP-ROM:esp32p4-test\nI (0) boot: ESP-IDF test bootloader\n" + load
+            + "I (0) boot: ESP-IDF test bootloader\n" + load, "",
+        )
+        self.assertEqual(
+            [item["boot_ordinal"] for item in parsed["boot"]["application_loads"]],
+            [None, 1, None, 2, None, 3, None],
+        )
+
+    def test_application_load_count_survives_bounded_record_retention(self):
+        parsed = serial_crash_observations(
+            ("ESP-ROM:esp32p4-test\n"
+             "I (610) boot: Loaded app from partition at offset 0x10000\n") * 32, "",
+        )
+        boot = parsed["boot"]
+        self.assertEqual(boot["application_load_count"], 32)
+        self.assertEqual([item["boot_ordinal"] for item in boot["application_loads"]], list(range(17, 33)))
+        self.assertEqual([item["console_line"] for item in boot["application_loads"]], list(range(34, 65, 2)))
+
+    def test_application_load_marker_rejects_unbounded_or_unrelated_text(self):
+        lines = [
+            "application says I (10) boot: Loaded app from partition at offset 0x10000",
+            "I (-1) boot: Loaded app from partition at offset 0x10000",
+            "I (18446744073709551616) boot: Loaded app from partition at offset 0x10000",
+            "I (10) boot: Loaded app from partition at offset 0x100000000",
+            "I (10) boot: Loaded app from partition at offset 0x10000 trailing text",
+        ]
+        parsed = serial_crash_observations("\n".join(lines), "")
+        self.assertEqual(parsed["boot"]["application_load_count"], 0)
+        self.assertEqual(parsed["boot"]["application_loads"], [])
+
+    def test_application_load_tail_uses_complete_capture_lines_and_provenance(self):
+        marker = b"I (610) boot: Loaded app from partition at offset 0x10000\n"
+        content = b"ESP-ROM:discarded\n" + b"x" * CRASH_OUTPUT_LIMIT + b"\n" + b"\x1b[32m" + marker[:-1] + b"\x1b[0m\n" + marker[:-1]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "serial.log"
+            path.write_bytes(b"ESP-ROM:other-live-bytes\n")
+            source, parsed = crash_console_observations(path, "", content)
+        self.assertTrue(source["truncated"])
+        self.assertEqual(source["sha256"], hashlib.sha256(content[-CRASH_OUTPUT_LIMIT:]).hexdigest())
+        self.assertEqual(parsed["boot"]["application_load_count"], 1)
+        self.assertEqual(parsed["boot"]["application_loads"], [
+            {"console_line": 1, "boot_ordinal": None, "idf_log_ms": 610, "offset": 65536},
+        ])
+
     HISTORICAL_PANIC = (
         b"Guru Meditation Error: Core  1 panic'ed (synthetic timeout).\n"
         b"Core  1 register dump:\nPC : 0x400d1000\nELF file SHA256: 1916d0ba9\n"

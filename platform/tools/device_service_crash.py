@@ -31,6 +31,10 @@ ELF_HASH = re.compile(r"^ELF file SHA256:\s+([0-9a-fA-F]{8,64})(?![0-9a-fA-F])")
 ROM_BOOT = re.compile(r"^(?:ESP-ROM:|ets [A-Z][a-z]{2} +\d+ \d{4})")
 IDF_BOOT = re.compile(r"^[ID] \(\s*\d+\) boot: ESP-IDF .+ bootloader")
 RESET = re.compile(r"^rst:(0x[0-9a-fA-F]+)\s*\(([^)]+)\)")
+APP_LOAD = re.compile(
+    r"^[ID] \(\s*([0-9]{1,20})\) boot: Loaded app from partition at offset (0x[0-9a-fA-F]{1,8})$"
+)
+APP_LOAD_LIMIT = 16
 DUMP_START = re.compile(r"=+ CORE DUMP START =+")
 DUMP_END = re.compile(r"=+ CORE DUMP END =+")
 FLASH_DUMP_SAVED = re.compile(r"I \(\s*\d+\) esp_core_dump_flash: Core dump has been saved to flash\.")
@@ -287,14 +291,30 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
     dump_status = "not_observed"
     dump_open = False
     reset_reports = []
+    application_loads = []
+    application_load_count = 0
+    boot_ordinal = None
+    boot_stage = 3  # Unknown until a complete ROM banner is captured.
     rom_boots = idf_boots = reboot_requests = panic_count = 0
     task_watchdog_reports = 0
-    for raw in console.splitlines():
+    for console_line, raw in enumerate(console.splitlines(), 1):
         line = raw.strip()
         reset = RESET.match(line)
         rom_boot = ROM_BOOT.match(line)
         idf_boot = IDF_BOOT.match(line)
         if rom_boot or idf_boot or reset or line == "Rebooting...":
+            if rom_boot:
+                boot_ordinal, boot_stage = rom_boots + 1, 0
+            elif reset:
+                if boot_stage != 0:
+                    boot_ordinal = None
+                boot_stage = 1
+            elif idf_boot:
+                if boot_stage >= 2:
+                    boot_ordinal = None
+                boot_stage = 2
+            else:
+                boot_ordinal, boot_stage = None, 3
             rom_boots += bool(rom_boot)
             idf_boots += bool(idf_boot)
             reboot_requests += line == "Rebooting..."
@@ -303,6 +323,17 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
                 reset_reports = reset_reports[-16:]
             active = False
             dump_open = False
+        app_load = APP_LOAD.fullmatch(line)
+        if app_load and int(app_load[1]) <= (1 << 64) - 1:
+            application_load_count += 1
+            application_loads.append({
+                "console_line": console_line,
+                "boot_ordinal": boot_ordinal,
+                "idf_log_ms": int(app_load[1]),
+                "offset": int(app_load[2], 16),
+            })
+            application_loads = application_loads[-APP_LOAD_LIMIT:]
+            boot_stage = 3
         if "task_wdt: Task watchdog got triggered" in line:
             task_watchdog_reports += 1
         opening = GURU.match(line) or ABORT.match(line) or ASSERT.match(line)
@@ -379,7 +410,9 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
         "panic_count": panic_count,
         "cpus": sorted(cpus.values(), key=lambda item: item["core"]),
         "boot": {"rom_banners": rom_boots, "idf_banners": idf_boots,
-                 "reboot_requests": reboot_requests, "reset_reports": reset_reports},
+                 "reboot_requests": reboot_requests, "reset_reports": reset_reports,
+                 "application_load_count": application_load_count,
+                 "application_loads": application_loads},
         "task_watchdog_reports": task_watchdog_reports,
         "core_dump": {"status": dump_status},
         "backend_observations": backend,

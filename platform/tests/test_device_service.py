@@ -6607,6 +6607,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIsNone(crash["panic"])
         self.assertEqual(crash["backend_observations"][0]["pc"], "0x4ff10f12")
 
+    def test_application_load_observation_is_not_crash_or_readiness_and_survives_zip(self):
+        session = self._stopped_session()
+        session.serial0.write_bytes(
+            b"ESP-ROM:esp32p4-test\nrst:0x1 (POWERON)\n"
+            b"I (610) boot: Loaded app from partition at offset 0x10000\n"
+        )
+        crash = session.crash_diagnostics()
+        self.assertEqual(crash["status"], "no_evidence")
+        self.assertIsNone(crash["panic"])
+        self.assertEqual(crash["boot"]["application_load_count"], 1)
+        self.assertEqual(crash["boot"]["application_loads"][0]["offset"], 65536)
+        self.assertNotIn("ready", crash)
+        self.assertEqual(session.state, "stopped")
+        with zipfile.ZipFile(io.BytesIO(session.evidence_bundle({"serial"}))) as archive:
+            self.assertEqual(json.loads(archive.read("diagnostics/crash.json")), crash)
+            raw = archive.read("serial.log")
+            self.assertEqual(crash["sources"]["console"]["sha256"], hashlib.sha256(raw).hexdigest())
+
     def test_crash_prefix_observation_preserves_latest_status_in_same_evidence_zip(self):
         session = self._stopped_session()
         session.serial0.write_bytes(

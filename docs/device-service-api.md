@@ -3366,6 +3366,24 @@ A task watchdog warning alone is recorded under `task_watchdog_reports`.
 Core-dump status records guest-reported delimiters or Flash checks. The
 retained crash receipt does not perform live register sampling.
 
+`boot.application_load_count` counts complete ESP-IDF bootloader
+`Loaded app from partition at offset ...` lines in the same latest console
+window. `boot.application_loads` retains the last 16 in console order. Each
+record has a numeric Flash `offset`, the printed `idf_log_ms`, and a one-based
+`console_line` in the complete, ANSI-stripped lines used by the parser. Source
+byte ranges and hashes remain in `sources.console`; a truncated first line and
+unfinished last line are excluded from parsing. The IDF time is a guest log
+value which may restart on each boot, not a host elapsed-time measurement.
+
+`boot_ordinal` is the one-based ROM-banner ordinal within that captured window,
+or `null` when a preceding ROM boundary is unavailable. An explicit reboot or
+a later reset/bootloader boundary without a new ROM banner clears the known
+association. It is not a lifetime boot number. The count may exceed the 16
+retained records. An app-load line proves only that the bootloader reported
+loading that offset: it does not establish application readiness, successful
+display output, an authenticated firmware identity or a reset cause. It does
+not by itself change the crash `status` from `no_evidence` to `observed`.
+
 On native ESP32-S3, an instrumented QEMU started with host setting
 `M5SW_S3_IWDT_TRACE=1` can supply one `esp32s3_iwdt_stage0` entry in
 `backend_observations`. Its versioned `timing` object records virtual

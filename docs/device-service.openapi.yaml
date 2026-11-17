@@ -6356,6 +6356,44 @@ components:
                 additionalProperties: true
         boot:
           type: object
+          required: [application_load_count, application_loads]
+          properties:
+            application_load_count:
+              type: integer
+              minimum: 0
+              description: Complete app-loading markers in the same latest bounded console window.
+            application_loads:
+              type: array
+              maxItems: 16
+              description: >-
+                Last complete ESP-IDF bootloader application-load reports in console order.
+                These observations establish neither application readiness, firmware identity
+                nor reset cause and do not by themselves change crash status.
+              items:
+                type: object
+                additionalProperties: false
+                required: [console_line, boot_ordinal, idf_log_ms, offset]
+                properties:
+                  console_line:
+                    type: integer
+                    minimum: 1
+                    description: One-based line in the complete ANSI-stripped console window used by the parser.
+                  boot_ordinal:
+                    type: [integer, "null"]
+                    minimum: 1
+                    description: >-
+                      Capture-local ROM-banner ordinal, null without a proven preceding ROM
+                      boundary or after a later reboot/reset/bootloader boundary lacking one.
+                  idf_log_ms:
+                    type: integer
+                    minimum: 0
+                    maximum: 18446744073709551615
+                    description: Printed guest log milliseconds, not host elapsed time; may restart each boot.
+                  offset:
+                    type: integer
+                    minimum: 0
+                    maximum: 4294967295
+                    description: Flash application offset reported by the bootloader.
           additionalProperties: true
         task_watchdog_reports:
           type: integer
