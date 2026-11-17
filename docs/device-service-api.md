@@ -2511,6 +2511,39 @@ original upload, which remains unchanged. Session history and artifact
 retention use the existing service limits. Active, unavailable and absent media
 return 409. A session removed by purge returns 404.
 
+An internal data partition accepts an exact filesystem image through
+`storage.filesystem`. It can be used without a modeled SD-card slot.
+
+```json
+{
+  "device_id": "cardputer",
+  "firmware_id": "<firmware-id>",
+  "storage": {
+    "filesystem": {
+      "format": "spiffs",
+      "partition_label": "storage",
+      "image_artifact_id": "<sha256-artifact-id>"
+    }
+  }
+}
+```
+
+Use `littlefs` with a compatible ESP-IDF LittleFS data partition or a
+recognized UIFlow2 `vfs`, and `spiffs` with compatible SPIFFS data. The
+8-bit partition subtype, expected format and explicitly selected label
+must agree. The fixture must be the same size as the partition and its
+format and geometry must pass host validation. The service rejects signed
+or encrypted firmware, read-only targets, conflicting managed UIFlow
+bootstraps and unsupported lanes. When restoring a clean radio boot
+attempt, it reapplies the same fixture before NVS or Wi-Fi overrides.
+Rebooting the same running session retains guest writes in its own flash.
+
+The session and evidence `storage.filesystem` receipt binds the original
+firmware, target partition and fixture SHA-256, offset/size, geometry and
+effective preboot flash SHA-256. `status: PREPARED` confirms the overlay only.
+Observe the guest's mount, reads and writes separately. Additional fixture
+or guest bytes are not embedded in the receipt.
+
 Firmware that expects first-boot or provisioned NVS data can attach a complete
 NVS partition without changing the firmware artifact:
 
@@ -3148,7 +3181,8 @@ still has no native input mapping.
 - `button`, `keyboard` and explicit touch actions accept `click`, `hold`
   and `double_click`. A click is 120 ms. A double click submits two 120 ms
   presses with a 120 ms release gap. `seconds` is for a hold only, defaults
-  to 1 and accepts 0.001–5. A standalone QMP key uses the existing virtual
+  to 1. Semantic buttons accept 0.001–10, and keyboard and touch accept 0.001–5.
+  A standalone QMP key uses the existing virtual
   queue. Touch and the NanoC6 GPIO button use synchronous host timing.
 - A chord presses two to four distinct model controls in one QMP input
   batch, holds them for 0.45 host seconds by default, and releases them in

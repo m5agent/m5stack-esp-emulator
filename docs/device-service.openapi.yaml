@@ -4638,9 +4638,12 @@ components:
     StorageExecution:
       type: object
       additionalProperties: false
-      required: [sd_image_artifact_id]
+      minProperties: 1
       description: >
-        Attach a content-addressed raw SD-card image to a device profile with
+        Attach SD media, an internal filesystem partition fixture, or both
+        to an independent native QEMU guest. Internal filesystem fixtures
+        come from the admitted firmware's own ESP data partition table.
+        To attach a content-addressed raw SD-card image, use a device profile with
         a modeled SPI or SDMMC interface. The artifact is copied into the
         session directory and hashed again before QEMU starts. Core2, CoreS3,
         Cardputer, Cardputer-ADV, PaperColor and PaperS3 use their
@@ -4651,6 +4654,29 @@ components:
         directly.
       properties:
         sd_image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        filesystem:
+          $ref: "#/components/schemas/FilesystemFixture"
+    FilesystemFixture:
+      type: object
+      additionalProperties: false
+      required: [format, partition_label, image_artifact_id]
+      description: >
+        An exact partition image for LittleFS or SPIFFS, not a full firmware
+        image. The firmware must be unsigned and unencrypted, with a known
+        writable data partition, a supported filesystem geometry and a
+        matching artifact length. Applied to the session-owned flash only.
+      properties:
+        format:
+          type: string
+          enum: [littlefs, spiffs]
+        partition_label:
+          type: string
+          minLength: 1
+          maxLength: 16
+          description: ESP partition label of at most 16 UTF-8 bytes.
+        image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
     SessionSdSnapshot:
@@ -5439,7 +5465,7 @@ components:
             kind: {const: button}
             control: {type: string}
             action: {type: string, enum: [click, hold, double_click], default: click}
-            seconds: {type: number, minimum: 0.001, maximum: 5, description: "Hold only; defaults to 1."}
+            seconds: {type: number, minimum: 0.001, maximum: 10, description: "Hold only; defaults to 1."}
             settle_seconds: {type: number, minimum: 0, maximum: 5}
           allOf:
             - if:

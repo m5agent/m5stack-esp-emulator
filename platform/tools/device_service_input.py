@@ -35,13 +35,13 @@ def input_profiles():
     return {p["deviceId"]: p for p in json.loads(INPUT_PROFILES.read_text())["profiles"]}
 
 
-def action_seconds(payload, name, default, minimum=0.001):
+def action_seconds(payload, name, default, minimum=0.001, maximum=5):
     value = payload.get(name, default)
     if (
         type(value) not in (int, float)
-        or not minimum <= value <= 5
+        or not minimum <= value <= maximum
     ):
-        raise ServiceError("invalid_input", f"{name} must be between {minimum} and 5 seconds", 400)
+        raise ServiceError("invalid_input", f"{name} must be between {minimum} and {maximum} seconds", 400)
     return float(value)
 
 
@@ -122,7 +122,8 @@ def normalize_semantic_input(session, payload, *, native):
         if requested_action != "hold" and "seconds" in payload:
             raise ServiceError("invalid_input", "seconds requires action hold", 400)
         command["seconds"] = (
-            action_seconds(payload, "seconds", 1) if requested_action == "hold" else CLICK_SECONDS
+            action_seconds(payload, "seconds", 1, maximum=10 if kind == "button" else 5)
+            if requested_action == "hold" else CLICK_SECONDS
         )
 
     if kind == "touch":

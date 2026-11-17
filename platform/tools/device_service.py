@@ -49,6 +49,11 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from device_service_errors import ServiceError  # noqa: E402
+from device_service_fs_fixture import (  # noqa: E402
+    MAX_FS_FIXTURE_BYTES,
+    parse_fs_fixture,
+    plan_fs_fixture,
+)
 from device_service_encoder import rotate_encoder  # noqa: E402
 from device_service_input import (  # noqa: E402
     SEMANTIC_INPUT_KINDS,
@@ -2575,6 +2580,8 @@ class DeviceSession:
         network_config: dict | None = None,
         storage_config: dict | None = None,
         storage_info: dict | None = None,
+        filesystem_config: dict | None = None,
+        filesystem_info: dict | None = None,
         nvs_config: dict | None = None,
         nvs_info: dict | None = None,
         network_result: dict | None = None,
@@ -2654,6 +2661,8 @@ class DeviceSession:
         self.storage_info = (
             dict(storage_info) if isinstance(storage_info, dict) else None
         )
+        self.filesystem_config = dict(filesystem_config or {})
+        self.filesystem_info = dict(filesystem_info) if isinstance(filesystem_info, dict) else None
         self.nvs_config = dict(nvs_config or {})
         self.nvs_info = (
             dict(nvs_info) if isinstance(nvs_info, dict) else None
@@ -2960,6 +2969,8 @@ class DeviceSession:
             "network_result": self.network_result,
             "storage_config": dict(self.storage_config),
             "storage": self.storage_info,
+            "filesystem_config": dict(self.filesystem_config),
+            "filesystem": self.filesystem_info,
             "nvs_config": dict(self.nvs_config),
             "nvs": self.nvs_info,
             "flash": self.flash_info,
@@ -3544,7 +3555,7 @@ class DeviceSession:
                     if self.network_config
                     else None
                 ),
-                "storage": self.storage_info,
+                "storage": self._storage_snapshot(),
                 "units": self.units,
                 "nvs": self.nvs_info,
                 "flash": self.flash_info,
@@ -4502,6 +4513,69 @@ class DeviceSession:
             self._persist_session()
         return evidence
 
+    def _storage_snapshot(self) -> dict | None:
+        if self.filesystem_info is None:
+            return self.storage_info
+        return {**(self.storage_info or {}), "filesystem": self.filesystem_info}
+
+    def _apply_filesystem_fixture(self) -> None:
+        plan = self.filesystem_config
+        if not plan:
+            return
+        self._check_cancelled()
+        flash = self.virtual_flash
+        if flash is None or not flash.is_file():
+            raise RuntimeError("session flash is unavailable for filesystem fixture")
+        base = _padded(flash.read_bytes(), self.spec.flash_size)
+        if hashlib.sha256(base).hexdigest() != plan["base_flash_sha256"]:
+            raise ServiceError(
+                "filesystem_fixture_flash_mismatch",
+                "prepared flash differs from the validated filesystem fixture base",
+                409,
+            )
+        start, size = int(plan["offset"]), int(plan["size"])
+        end = start + size
+        if size <= 0 or start < PARTITION_TABLE_OFFSET + 4096 or end > len(base):
+            raise ServiceError("filesystem_fixture_flash_mismatch", "planned filesystem partition would exceed admitted flash bounds", 409)
+        if hashlib.sha256(base[start:end]).hexdigest() != plan["base_partition_sha256"]:
+            raise ServiceError(
+                "filesystem_fixture_flash_mismatch",
+                "prepared filesystem partition differs from the validated base",
+                409,
+            )
+        fixture = self.service.artifacts.read(plan["image_artifact_id"])
+        if len(fixture) != size or hashlib.sha256(fixture).hexdigest() != plan["fixture_sha256"]:
+            raise ServiceError("filesystem_fixture_mismatch", "filesystem fixture bytes changed before session apply", 409)
+        self._check_cancelled()
+        effective = base[:start] + fixture + base[end:]
+        temporary = flash.with_name(f".{flash.name}.{uuid.uuid4().hex}.tmp")
+        try:
+            temporary.write_bytes(effective)
+            temporary.chmod(flash.stat().st_mode & 0o777)
+            self._check_cancelled()
+            os.replace(temporary, flash)
+        finally:
+            temporary.unlink(missing_ok=True)
+        effective_sha256 = hashlib.sha256(effective).hexdigest()
+        self.filesystem_info = {
+            **plan,
+            "source_firmware_sha256": self.firmware_sha,
+            "effective_flash_sha256": effective_sha256,
+            "session_isolated_overlay": True,
+            "status": "PREPARED",
+        }
+        self.flash_info = {
+            **(self.flash_info or {}),
+            "effective_flash_sha256": effective_sha256,
+            "filesystem_partition": {
+                "label": plan["partition_label"],
+                "offset": start,
+                "size": size,
+                "fixture_sha256": plan["fixture_sha256"],
+            },
+        }
+        self._record_event("filesystem_fixture_prepared", **self.filesystem_info)
+
     def _apply_nvs_fixture(self) -> None:
         if not self.nvs_config:
             return
@@ -4608,10 +4682,8 @@ class DeviceSession:
                 self.storage_info,
             )
             self._record_event("storage_prepared", **self.storage_info)
-        if (
-            self.nvs_config
-            and self.runtime not in QEMU_RADIO_RUNTIMES
-        ):
+        if self.runtime not in QEMU_RADIO_RUNTIMES:
+            self._apply_filesystem_fixture()
             self._apply_nvs_fixture()
         self._persist_session()
         self._set_state("booting")
@@ -4642,6 +4714,7 @@ class DeviceSession:
                     self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
                 self._check_cancelled()
+            self._apply_filesystem_fixture()
             self._apply_legacy_wifi_config()
             self._apply_nvs_fixture()
             self._check_cancelled()
@@ -7956,17 +8029,10 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": error.message}
-        if self.storage_info:
-            storage_bytes = (
-                json.dumps(
-                    self.storage_info,
-                    ensure_ascii=False,
-                    indent=2,
-                )
-                + "\n"
-            ).encode()
-            files["storage/summary.json"] = storage_bytes
-            manifest["storage"] = self.storage_info
+        storage = self._storage_snapshot()
+        if storage:
+            files["storage/summary.json"] = (json.dumps(storage, ensure_ascii=False, indent=2) + "\n").encode()
+            manifest["storage"] = storage
         if self.nvs_info:
             nvs_bytes = (
                 json.dumps(
@@ -9620,6 +9686,8 @@ class DeviceService:
                 unit_contract=record.get("unit_contract"),
                 storage_config=storage_config,
                 storage_info=storage_info,
+                filesystem_config=record.get("filesystem_config"),
+                filesystem_info=record.get("filesystem"),
                 nvs_config=nvs_config,
                 nvs_info=nvs_info,
                 events=events,
@@ -10298,6 +10366,7 @@ class DeviceService:
                        "ready_marker": LIVE_READY_MARKER}
             program_transport = "uart-repl"
         firmware_id = payload.get("firmware_id")
+        firmware = None
         manifest_psram = None
         if firmware_id:
             firmware = self.firmware.get(str(firmware_id))
@@ -10471,10 +10540,14 @@ class DeviceService:
                 self.artifacts.get(str(elf_artifact_id))
                 if elf_artifact_id not in source_artifacts:
                     source_artifacts.append(str(elf_artifact_id))
-        storage_config = parse_storage_execution(
-            spec,
-            payload.get("storage"),
-        )
+        storage_payload = payload.get("storage")
+        filesystem_request = {}
+        if isinstance(storage_payload, dict) and "filesystem" in storage_payload:
+            if storage_payload["filesystem"] is None:
+                raise ServiceError("invalid_fs_fixture", "storage.filesystem must be an object", 400)
+            filesystem_request = parse_fs_fixture(storage_payload["filesystem"])
+            storage_payload = {name: value for name, value in storage_payload.items() if name != "filesystem"} or None
+        storage_config = parse_storage_execution(spec, storage_payload)
         if storage_config:
             if spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
                 raise ServiceError(
@@ -10505,6 +10578,46 @@ class DeviceService:
             fixture = self.upload_artifact(cloud_nvs_image(int(partition["size"])),
                                           name="uiflow-cloud-startup.nvs.bin")
             payload = {**payload, "nvs": {"partition_label": "nvs", "image_artifact_id": fixture["artifact_id"]}}
+        filesystem_config = {}
+        if filesystem_request:
+            if spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
+                raise ServiceError(
+                    "filesystem_fixture_not_supported",
+                    "filesystem fixtures require a native QEMU session with session-isolated flash",
+                    409,
+                )
+            if filesystem_request["partition_label"] == "vfs" and (is_uiflow_source or program_mode):
+                raise ServiceError(
+                    "filesystem_fixture_program_conflict",
+                    "a vfs fixture cannot replace an admitted UIFlow source or program bootstrap",
+                    409,
+                )
+            if (network_config or {}).get("profile") == STICKS3_NATIVE_HID_PROFILE:
+                raise ServiceError("filesystem_fixture_not_supported", "filesystem fixtures cannot modify the pinned native HID image", 409)
+            chip_id = expected_chip_id(spec.soc)
+            if chip_id is None:
+                raise ServiceError("filesystem_fixture_not_supported", "filesystem fixture boot layout is unavailable for this target", 409)
+            source_image = firmware_path.read_bytes()
+            if hashlib.sha256(source_image).hexdigest() != firmware_sha:
+                raise ServiceError("firmware_hash_mismatch", "firmware changed before filesystem fixture admission", 409)
+            canonical_image = _padded(source_image, spec.flash_size)
+            artifact_id = filesystem_request["image_artifact_id"]
+            meta = self.artifacts.get(artifact_id)
+            size = int(meta.get("size") or 0)
+            if not 0 < size <= MAX_FS_FIXTURE_BYTES:
+                raise ServiceError("invalid_fs_fixture", "filesystem fixture size is outside the supported bound", 400)
+            manifest = firmware and (firmware.get("manifest") or firmware.get("base_manifest"))
+            filesystem_config = plan_fs_fixture(
+                canonical_image,
+                self.artifacts.read(artifact_id),
+                filesystem_request,
+                firmware_sha256=hashlib.sha256(canonical_image).hexdigest(),
+                expected_chip_id=chip_id,
+                bootloader_offset=0x1000 if chip_id == 0 else 0,
+                security=manifest.get("security") if manifest else None,
+            )
+            if artifact_id not in source_artifacts:
+                source_artifacts.append(artifact_id)
         nvs_config = parse_nvs_execution(payload.get("nvs"))
         if nvs_config:
             if (
@@ -10923,6 +11036,7 @@ class DeviceService:
                     runtime=runtime,
                     network_config=network_config,
                     storage_config=storage_config,
+                    filesystem_config=filesystem_config,
                     nvs_config=nvs_config,
                     worker_id=self.worker.worker_id,
                     worker_generation=self.worker.generation,

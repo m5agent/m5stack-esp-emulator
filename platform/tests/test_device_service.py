@@ -6015,6 +6015,38 @@ class DeviceServiceUnitTests(unittest.TestCase):
             session._proc = None
             session._qmp = None
 
+    def test_internal_filesystem_overlay_targets_the_session_copy_only(self):
+        session = self._stopped_session()
+        session.state = "provisioning"
+        base = b"\xff" * session.spec.flash_size
+        session.virtual_flash.write_bytes(base)
+        source = session.firmware_path.read_bytes()
+        fixture = b"data" * 1024
+        artifact = self.service.upload_artifact(fixture, name="storage.bin")
+        start = 0x10000
+        digest = lambda value: device_service_module.hashlib.sha256(value).hexdigest()
+        session.filesystem_config = {
+            "image_artifact_id": artifact["artifact_id"],
+            "fixture_sha256": digest(fixture),
+            "base_flash_sha256": digest(base),
+            "base_partition_sha256": digest(base[start:start + len(fixture)]),
+            "offset": start,
+            "size": len(fixture),
+            "partition_label": "storage",
+        }
+        session._apply_filesystem_fixture()
+        expected = base[:start] + fixture + base[start + len(fixture):]
+        self.assertEqual(session.virtual_flash.read_bytes(), expected)
+        self.assertEqual(session.firmware_path.read_bytes(), source)
+        self.assertEqual(self.service.artifacts.read(artifact["artifact_id"]), fixture)
+        receipt = session.snapshot()["storage"]["filesystem"]
+        self.assertEqual((receipt["status"], receipt["effective_flash_sha256"]),
+                         ("PREPARED", digest(expected)))
+        with self.assertRaises(ServiceError) as second:
+            session._apply_filesystem_fixture()
+        self.assertEqual(second.exception.code, "filesystem_fixture_flash_mismatch")
+        self.assertEqual(session.virtual_flash.read_bytes(), expected)
+
     def test_semantic_buttons_queue_virtual_hold_and_two_presses(self):
         session = self._stopped_session()
         session.state = "running"
@@ -6030,6 +6062,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual((held["timing"]["clock"], held["timing"]["hold_time_ms"]), ("virtual", 5000))
         self.assertEqual(double["timing"]["presses"], 2)
         self.assertEqual(session.events[-1]["action"], "double_click")
+
+    def test_longer_semantic_button_is_bounded_and_queues_virtual_time(self):
+        session = self._stopped_session()
+        session.state = "running"
+        with mock.patch.object(session, "_qmp_call") as qmp:
+            payload = {"kind": "button", "control": "b", "action": "hold",
+                       "seconds": 6.2, "settle_seconds": 0}
+            self.assertEqual(session.inject(payload)["timing"]["hold_time_ms"], 6200)
+            qmp.assert_called_once_with("send-key", keys=[{"type": "qcode", "data": "b"}],
+                                        **{"hold-time": 6200})
+            with self.assertRaises(ServiceError):
+                session.inject({**payload, "seconds": 10.001})
 
     def test_semantic_button_chord_groups_edges_and_releases_on_cancel(self):
         session = self._stopped_session()
