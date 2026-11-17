@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "service_source_commit": "c53750bf0cc23e717943c6c3c79e49b11e1a227a",
+  "runtime_bundle_source_commit": "63472ab884dc2968904999c75eb6aca91c3f2517",
+  "esp_idf": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "esp_idf_version": "5.5.4",
+  "joltwallet_littlefs": "1.21.1",
+  "joltwallet_component_hash": "29eff7921c4e8bce021aeb7fff2723bfcafed661756de700646ea0f6223c2a32",
+  "partition": {
+    "label": "storage",
+    "offset": 1114112,
+    "size": 1048576,
+    "block_size": 4096,
+    "format": "littlefs"
+  },
+  "s3_assembler_old_output_identical": true,
+  "devices": {
+    "core2": {
+      "chip": "esp32",
+      "bundle_bootloader_offset": 4096,
+      "flash_bytes": 16777216,
+      "flash_freq": "40m",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "firmware_sha256": "9467f9a9c56cf19e8f88b9194d7dffd9f33bc2bd49bf8730105e8a3f8623a3e9",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "service_restart_before_first_export": true,
+      "duplicate_export_idempotent": true,
+      "inventory_before_stop_rejected": true,
+      "inventory_after_flash_release_rejected": true,
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "00c25f5cc83ab460782ad1c957079e527a2aa39b15533f3e87d9530790927257",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "cc671156ec835f76a0d303563375674f383b627d4fe523471beb7dca8bfc46ee",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "4c6209ee80abad914ab18f8ba6c374b29416c93af67a089aadb93dca8f41a53d",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ]
+    },
+    "nesso-n1": {
+      "chip": "esp32c6",
+      "bundle_bootloader_offset": 0,
+      "flash_bytes": 16777216,
+      "flash_freq": "80m",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "firmware_sha256": "66a94fe94a10ef19f0d60c57a42a8459ae49e9e88260d28582a79a47ca843a44",
+      "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "service_restart_before_first_export": true,
+      "duplicate_export_idempotent": true,
+      "inventory_before_stop_rejected": true,
+      "inventory_after_flash_release_rejected": true,
+      "cases": [
+        {
+          "name": "seed-first",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "a6d8df63756a0d95fbff569c5a686a7b1d8e1568443c1a6d0a2f49982cfcf011",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "snapshot-import",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "61e3388a2d72430844f192bd4048bb6ddd64a840c84afba42c102449ac7bd86c",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        },
+        {
+          "name": "seed-isolated-control",
+          "status": "PASS",
+          "markers": [
+            "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+            "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+            "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+            "LITTLEFS_PROBE_DONE"
+          ],
+          "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+          "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+          "exported_partition_bytes": 1048576,
+          "evidence_zip_sha256": "ff5793cc2b42e551c9303251680a35d173f35c9b87d89a91b0414825e849dddb",
+          "outside_partition_unchanged": true,
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      ]
+    }
+  },
+  "not_run": [
+    "physical hardware",
+    "browser-WASM",
+    "SPIFFS on these boards",
+    "complete firmware review verdict"
+  ]
+}

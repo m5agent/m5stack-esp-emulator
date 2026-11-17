@@ -10,7 +10,8 @@ import sys
 PARTITION_START = 0x110000
 PARTITION_END = 0x210000
 PARTITION_SIZE = PARTITION_END - PARTITION_START
-FLASH_SIZE = 0x800000
+BOOT_OFFSETS = {"esp32": "0x1000", "esp32s3": "0x0", "esp32c6": "0x0"}
+FLASH_SIZES = {"8MB": 8 * 1024 * 1024, "16MB": 16 * 1024 * 1024}
 
 
 def main():
@@ -19,6 +20,16 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     build, out = args.build.resolve(), args.out.resolve()
+    flasher = json.loads((build / "flasher_args.json").read_text())
+    chip = flasher["extra_esptool_args"]["chip"]
+    settings = flasher["flash_settings"]
+    flash_size = settings["flash_size"]
+    if chip not in BOOT_OFFSETS or flash_size not in FLASH_SIZES:
+        raise ValueError(f"unsupported LittleFS probe target {chip!r} with {flash_size!r}")
+    boot_offset = BOOT_OFFSETS[chip]
+    flash_files = flasher["flash_files"]
+    if set(flash_files) != {boot_offset, "0x8000", "0x10000"}:
+        raise ValueError("expected only bootloader, partition table and application in the build")
     out.mkdir(parents=True, exist_ok=False)
     empty_dir = out / "empty"
     empty_dir.mkdir()
@@ -30,17 +41,17 @@ def main():
         "--block-size=4096",
     ], check=True)
     subprocess.run([
-        sys.executable, "-m", "esptool", "--chip", "esp32s3", "merge_bin",
-        "--flash_mode", "dio", "--flash_freq", "80m", "--flash_size", "8MB",
-        "--fill-flash-size", "8MB", "-o", str(boot_image),
-        "0x0", str(build / "bootloader/bootloader.bin"),
-        "0x8000", str(build / "partition_table/partition-table.bin"),
-        "0x10000", str(build / "m5_littlefs_partition_probe.bin"),
+        sys.executable, "-m", "esptool", "--chip", chip, "merge_bin",
+        "--flash_mode", settings["flash_mode"], "--flash_freq", settings["flash_freq"],
+        "--flash_size", flash_size, "--fill-flash-size", flash_size, "-o", str(boot_image),
+        boot_offset, str(build / flash_files[boot_offset]),
+        "0x8000", str(build / flash_files["0x8000"]),
+        "0x10000", str(build / flash_files["0x10000"]),
     ], check=True)
     boot, empty = boot_image.read_bytes(), empty_image.read_bytes()
     seed = (build / "storage.bin").read_bytes()
     if (
-        len(boot) != FLASH_SIZE or len(seed) != PARTITION_SIZE
+        len(boot) != FLASH_SIZES[flash_size] or len(seed) != PARTITION_SIZE
         or len(empty) != PARTITION_SIZE
         or boot[PARTITION_START:PARTITION_END] != b"\xff" * PARTITION_SIZE
     ):

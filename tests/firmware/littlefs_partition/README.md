@@ -83,3 +83,23 @@ seed emits `prior=0`. Release the retained Flash after export.
 with ESP-IDF 5.5.4 and Dial with 6.1.1 through the new endpoint. Separate
 Cardputer ADV 6.1.1 evidence used a pre-stop Flash slice. The same export
 path also passed Cardputer ADV 5.5.4 SPIFFS, including a worker restart.
+
+## Core2 and Nesso N1 cross-session LittleFS
+
+Use a separate copy of this probe for each target and independent build and
+sdkconfig paths. With ESP-IDF v5.5.4 activated, build once for `esp32`
+(Core2) and once for `esp32c6` (Nesso N1).
+
+```sh
+idf.py -B "$TEST_BUILD" -DIDF_TARGET="$TEST_CHIP" -DSDKCONFIG="$TEST_CONFIG" build
+python3 prepare_images.py --build "$TEST_BUILD" --out "$TEST_OUTPUT"
+```
+
+The assembler reads SDK flash metadata and keeps the chip's bootloader
+offset. Both targets use 16 MiB Flash and the same 1 MiB seed partition.
+Perform the stopped export flow above and restart the isolated service
+after the first stop, before its first export. Verify the stopped inventory,
+two identical export IDs, and the source partition hash in its pre-stop ZIP.
+An independent session with the retained export must report `prior=1`; the
+same baseline with the original seed must still report `prior=0`.
+[Six-session evidence](cross-chip-persistence-summary.json)

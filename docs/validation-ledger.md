@@ -21,6 +21,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 经典 ESP32 探针与 Linux arm64 QEMU。审核执行计划、准入与回读覆盖显式 HTTP
 夹具。只有允许 Host 收到 HTTP 200 和准确正文，拒绝 Host 收到 403。两次 DHCP、
 DNS 和二进制 UDP 均通过。缺少命名空间能力在租约分配前拒绝。
+## 2026-11-18 Core2 与 Nesso N1 的原生内部 LittleFS
+
+[两种芯片的六个会话](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)
+各用 ESP-IDF 5.5.4 的来宾实际挂载并写入。停止且保留 Flash 后，重启隔离服务并
+导出同一分区，两次导出 ID 相同。新会话读到旧写入，原始种子对照无旧写入。
+同会话 ZIP 内分区哈希一致，分区外 Flash 不变，六个租约全部释放。
 
 ## 2026-11-18 经典 Core2 受控 STA
 
