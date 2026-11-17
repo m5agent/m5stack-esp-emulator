@@ -101,6 +101,7 @@ class Tab5ServiceTests(unittest.TestCase):
         session = self.session()
         self.provision(session)
         self.assertFalse(session.flash_info["tab5"]["gdb_app_identity_matched"])
+        self.assertEqual(session.flash_info["tab5"]["frame_capture_admission"], "native_dsi_not_configured")
         self.assertEqual(session.flash_info["tab5"]["symbols_status"], "unavailable")
         session._gdb_port = 12345
         for operation, code in ((session.frame_metrics, "screenshot_requires_matching_elf"),
@@ -108,6 +109,8 @@ class Tab5ServiceTests(unittest.TestCase):
             with self.assertRaises(service_module.ServiceError) as raised:
                 operation()
             self.assertEqual(raised.exception.code, code)
+            if code == "screenshot_requires_matching_elf":
+                self.assertEqual(raised.exception.extra["capture_admission"], "native_dsi_not_configured")
 
     def test_admitted_ota_upload_does_not_inherit_factory_symbols(self):
         data = bytearray(self.base)
@@ -175,6 +178,7 @@ class Tab5ServiceTests(unittest.TestCase):
         reference = self.session(source="reference")
         self.provision(reference)
         self.assertIsNone(reference._tab5_dsi_emulator)
+        self.assertEqual(reference.flash_info["tab5"]["frame_capture_admission"], "matching_elf")
         self.assertIn("--elf", self.launch_commands(reference)[1])
         self.elf.write_bytes(b"wrong build")
         upload = self.session()
@@ -198,6 +202,12 @@ class Tab5ServiceTests(unittest.TestCase):
         self.assertNotIn("--control-tcp", p4)
         self.assertNotIn("touch_model", session.flash_info["tab5"])
         self.assertIn("--i2c-dev", p4)
+        self.assertEqual(session.flash_info["tab5"]["frame_capture_admission"], "native_dsi_firmware_not_admitted")
+        session._gdb_port = 12345
+        with self.assertRaises(service_module.ServiceError) as missing_frame:
+            session.frame_metrics()
+        self.assertEqual(missing_frame.exception.code, "screenshot_requires_matching_elf")
+        self.assertEqual(missing_frame.exception.extra["capture_admission"], "native_dsi_firmware_not_admitted")
         with self.assertRaises(service_module.ServiceError) as raised:
             session.inject({"kind": "touch", "x": 640, "y": 160})
         self.assertEqual(raised.exception.code, "input_requires_matching_elf")
@@ -387,6 +397,7 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertIn("--cosim-tcp", p4)
             self.assertEqual(p4[0], sidecar[0])
             self.assertEqual(session.flash_info["tab5"]["frame_capture"], "esp-emu-dsi")
+            self.assertEqual(session.flash_info["tab5"]["frame_capture_admission"], "native_dsi")
             receiver.return_value.start.assert_called_once()
             receiver.return_value.snapshot.return_value = (None, "connected")
             with self.assertRaises(service_module.ServiceError) as raised:

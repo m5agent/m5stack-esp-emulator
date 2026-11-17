@@ -9695,7 +9695,16 @@ class Tab5DeviceSession(DeviceSession):
         candidate = getattr(self.service, "tab5_dsi_emulator", "")
         part = getattr(self.service, "tab5_gt911_part", "")
         allowed_firmware = getattr(self.service, "tab5_dsi_firmware_sha256s", frozenset())
-        if allowed_firmware and self.firmware_sha not in allowed_firmware:
+        excluded = bool(allowed_firmware and self.firmware_sha not in allowed_firmware)
+        if self._tab5_elf:
+            identity["frame_capture_admission"] = "matching_elf"
+        elif not candidate:
+            identity["frame_capture_admission"] = "native_dsi_not_configured"
+        elif excluded:
+            identity["frame_capture_admission"] = "native_dsi_firmware_not_admitted"
+        else:
+            identity["frame_capture_admission"] = "native_dsi"
+        if excluded:
             candidate = part = ""
         if part and not candidate and self._tab5_elf is None:
             raise ServiceError(
@@ -9761,8 +9770,11 @@ class Tab5DeviceSession(DeviceSession):
     def _require_tab5_symbols(self, code: str, operation: str) -> Path:
         identity = (self.flash_info or {}).get("tab5", {})
         if not self._tab5_elf or not identity.get("gdb_app_identity_matched"):
+            details = {}
+            if code == "screenshot_requires_matching_elf" and identity.get("frame_capture_admission"):
+                details["capture_admission"] = identity["frame_capture_admission"]
             raise ServiceError(
-                code, f"Tab5 {operation} requires an ELF matching this session's application", 409
+                code, f"Tab5 {operation} requires an ELF matching this session's application", 409, **details
             )
         try:
             actual_sha = hashlib.sha256(self._tab5_elf.read_bytes()).hexdigest()

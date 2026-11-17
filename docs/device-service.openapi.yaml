@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.83.0
+  version: 1.84.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2652,6 +2652,9 @@ paths:
         latest complete received DPI frame, with no matching ELF needed.
         Before a complete frame is received this backend replies with
         409 tab5_dsi_frame_unavailable and a capture_status detail.
+        A legacy Tab5 path without a matching ELF returns
+        screenshot_requires_matching_elf with capture_admission describing
+        the native DSI selection decision when recorded.
         The default orient=panel preserves raw physical coordinates. Native SPI
         TFT observers provide controller-derived orientation metadata bound to
         the capture; this is not text recognition or application readiness.
@@ -3632,6 +3635,14 @@ components:
               type: string
             message:
               type: string
+            capture_status:
+              description: Receiver status when a Tab5 native DSI frame is unavailable.
+              type: string
+              enum: [starting, connecting, connected, disconnected, protocol_error]
+            capture_admission:
+              description: Tab5 capture-path decision when returning screenshot_requires_matching_elf.
+              type: string
+              enum: [native_dsi_not_configured, native_dsi_firmware_not_admitted]
     RuntimeMemory:
       type: object
       additionalProperties: false
@@ -6007,8 +6018,9 @@ components:
           description: >
             Flash preparation metadata. Tab5 includes tab5.application (factory
             application, verified single OTA0 application, or null),
-            symbols_status (matched or unavailable),
-            gdb_app_identity_matched, elf_sha256, input_firmware_sha256,
+            symbols_status (matched or unavailable), frame_capture_admission
+            (matching_elf, native_dsi, native_dsi_not_configured, or
+            native_dsi_firmware_not_admitted), gdb_app_identity_matched, elf_sha256, input_firmware_sha256,
             execution_firmware_sha256, application_bytes_unchanged,
             efuse_input_sha256 and efuse_session_owned. These fields describe
             complete-image preservation and session-owned input copies, not

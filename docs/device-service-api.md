@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.83.0` and bounded
+Status: local MVP with unified-device runtime contract `1.84.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3150,6 +3150,13 @@ operations. A stale reference ELF fails with `tab5_elf_mismatch`. By default,
 an uploaded image without matching symbols may execute, with
 `screenshot_requires_matching_elf` for frames and
 `input_requires_matching_elf` for input (409).
+New sessions record `flash.tab5.frame_capture_admission` as `matching_elf`,
+`native_dsi`, `native_dsi_not_configured` or `native_dsi_firmware_not_admitted`.
+The last two report why symbol-only capture was selected for an upload without
+a matching ELF. The frame error repeats that decision as `error.capture_admission`.
+Admission evidence binds the selected capture path. Use `error.capture_status`
+or a received frame to observe the native DSI path after boot.
+
 The single-OTA0 identity is static Flash evidence. Symbolic frame and touch
 operations continue to require a matched factory ELF. The native DSI path uses
 an actual frame from the panel backend to determine availability.
