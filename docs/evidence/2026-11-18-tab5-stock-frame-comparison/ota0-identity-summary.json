@@ -1,0 +1,107 @@
+{
+  "source_commit": "d6a22054fbf6527f89845804d90ff5c1ef44d864",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "gt911_part_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+  "board": "gt911-ili9881c",
+  "validation": "virtual-device validation",
+  "input": "NONE",
+  "debugger_attached": false,
+  "external_network_requested": false,
+  "owned_service_exited": true,
+  "source_unchanged": true,
+  "cases": {
+    "98tab5": {
+      "original_sha256": "ea4fb0889e4a2c68d472947137908c52c25a663152d3ff78262ce2605440dc6d",
+      "padded_sha256": "35c636324ea1fcebd12f4752e458936c2ac151a9d171a67f1d624d944b96b0ff",
+      "observed_elapsed_seconds": 60.293,
+      "logged_selected_offsets": [
+        65536
+      ],
+      "boot_banners": 32,
+      "sw_resets": 31,
+      "serial_sha256": "16e1fa12061bd49f872bbc9bdb6f222c074509c4d6e5cfbcca24c16b9f22fe1d",
+      "evidence_zip_sha256": "e653f4c4de90f1c503e36be4b09f5dd7d7a35899bb5afb42d8e044574e604bba",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0,
+        "original_unchanged": true
+      },
+      "application": {
+        "offset": 65536,
+        "size": 12582912,
+        "segments_end": 9182832,
+        "partition_sha256": "c014aef2f61b447d798b2c4f66ff11ad2aae73b27d7f5228f019b84b2f7535dd",
+        "segments_sha256": "de0060c2a81290ba3b2883f055213786487f77ba2e82819b1363e978ae19e88d",
+        "elf_sha256": "9c4f145b8ff77deb36f82fc17083755139215288ab513a726cefe9699af20f4b",
+        "version": "1.3.0",
+        "partition_label": "app0",
+        "partition_subtype": 16,
+        "selection": "ota0_erased_otadata"
+      },
+      "frame_capture": "esp-emu-dsi",
+      "symbols_status": "unavailable",
+      "gdb_app_identity_matched": false,
+      "api_and_zip_identity_match": true,
+      "identity_result": "PASS",
+      "frame_counts": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 29
+      },
+      "display_result": "PARTIAL"
+    },
+    "carplay": {
+      "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "padded_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "observed_elapsed_seconds": 30.911,
+      "logged_selected_offsets": [
+        65536
+      ],
+      "boot_banners": 1,
+      "sw_resets": 0,
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "evidence_zip_sha256": "e5fae97d7863c0ec61dd58f4b585417ca063546b67c8849d73ff70f73c0401c8",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0,
+        "original_unchanged": true
+      },
+      "application": {
+        "offset": 65536,
+        "size": 4194304,
+        "segments_end": 2221312,
+        "partition_sha256": "6abf98807039706544f2f76c34851a9f50544f7852b60a89f129c47064315c8d",
+        "segments_sha256": "4ac24990f0d2ae7d66f156a01d7ee6aa8e9c597d4214de206c2e4caff8ee6ee5",
+        "elf_sha256": "5a9cecd71d5f3f3ec58e6c1d55cc5accc31f12c3af8a9b0a8072841e1e9de22b",
+        "version": "1.0.0"
+      },
+      "frame_capture": "esp-emu-dsi",
+      "symbols_status": "unavailable",
+      "gdb_app_identity_matched": false,
+      "api_and_zip_identity_match": true,
+      "identity_result": "PASS",
+      "frame_counts": {
+        "session_not_running": 1,
+        "captured": 14
+      },
+      "first_valid_frame": {
+        "wall_seconds": 2.004,
+        "size": [
+          720,
+          1280
+        ],
+        "frame_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+        "nonblack_pixels": 921600,
+        "unique_colors": 48
+      },
+      "display_result": "PASS"
+    }
+  },
+  "not_run": [
+    "physical hardware",
+    "browser-WASM",
+    "full application review",
+    "symbolic instrumentation"
+  ]
+}

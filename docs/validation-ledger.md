@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 单 OTA0 身份
+
+[同一原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/ota0-identity-summary.json)
+验证 98TAB5 的 OTA0 分区哈希、API 与 ZIP 身份一致，且串口加载偏移为
+`0x10000`。98TAB5 软件复位 31 次，仍无完整帧。CarPlay 的 factory
+身份和首帧哈希一致，同一原生 DSI 配置取得 14 个有效帧。
+
 ## 2026-11-18 Tab5 原版正常启动与无 ELF 取帧
 
 [同一原版 BIN 对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)固定

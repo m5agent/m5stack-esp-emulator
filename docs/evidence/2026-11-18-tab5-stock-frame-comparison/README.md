@@ -58,13 +58,25 @@ CarPlay 首个有效帧在 2.003 秒采样取得，PNG SHA-256 为
 ## 仍未解决的身份与启动边界
 
 98TAB5 的应用分区是 `app0`，type `0x00`、subtype `0x10`（OTA0），
-offset `0x10000`、size `0xc00000`，没有 factory 应用分区。当前 Tab5 符号
+offset `0x10000`、size `0xc00000`，没有 factory 应用分区。基线 Tab5 符号
 身份 helper 要求恰好一个 factory 应用，因此服务记录 `application=null` 和
 `Tab5 regression requires exactly one factory application`。缺少匹配 ELF 也限制了符号取帧，串口记录了原版实际启动。
 
-活动 OTA 应用身份解析、98TAB5 新配置下的重复复位原因、其正常应用画面与
-用户输入均仍待解决。本轮没有借用其他固件的 ELF，也没有改变断言、复位、
-控制器或固件来制造就绪证据。M5TabOS 没有在本轮重跑；此前独立问题仍保留。
+## 单 OTA0 应用身份复验
+
+`d6a22054fbf6527f89845804d90ff5c1ef44d864` 的 Device Service 读取同一
+98TAB5 Flash 中唯一应用 `app0`、两扇区空白 OTA 数据及 ESP32-P4 应用的
+尾部 SHA-256。API 和同会话 ZIP 均给出 `selection=ota0_erased_otadata`，
+启动日志实际加载 `0x10000`。符号状态为 `unavailable`。
+ESP-IDF 在擦除态 OTA 数据下的默认选择见[ESP32-P4 OTA 指南](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/system/ota.html#ota-data-partition)。
+
+同一 1.1.0 DSI 配置下，98TAB5 在 60.293 秒内再次记录 31 次软件复位，29 次
+会话运行后的帧请求均无完整帧。CarPlay 的 factory 字段一致，取得 14 个
+720×1280 有效帧，首帧哈希与基线一致。两会话均保存证据后释放 Flash 和租约。
+[OTA0 与 factory 复验摘要](ota0-identity-summary.json)
+
+多应用 OTA 身份、98TAB5 的重复复位原因、正常应用画面与用户输入仍开放。
+M5TabOS 的独立启动问题沿用此前记录。
 
 ## 复现入口与清理
 

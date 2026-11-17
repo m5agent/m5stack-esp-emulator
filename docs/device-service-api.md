@@ -3125,7 +3125,8 @@ Reset keeps the session's eFuse state. `flash.tab5` records the application
 identity, firmware/eFuse input hashes, byte preservation, and `symbols_status`
 (`matched` or `unavailable`). A single OTA0 upload with a verified app digest
 and erased OTA data has `application.selection=ota0_erased_otadata`, a
-partition label and subtype, and the app and descriptor hashes. Uploads with
+partition label and subtype, app hashes and the descriptor's declared ELF SHA.
+Uploads with
 multiple app partitions or unresolved OTA metadata report an unavailable
 identity with a reason.
 The ELF SHA must match the actual app descriptor before symbolic frame/touch
