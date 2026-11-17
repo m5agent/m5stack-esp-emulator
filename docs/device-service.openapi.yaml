@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.77.0
+  version: 1.78.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3888,8 +3888,8 @@ components:
         - required: [sta]
         - required: [portal_provisioning_fixture]
       description: >
-        Board-native WiFi paths on ready Cardputer, Cardputer ADV and StickS3
-        QEMU backends. Worker capabilities, firmware and lease admission are
+        Board-native WiFi paths on ready Cardputer, Cardputer ADV, StickS3
+        and configured classic Core2 QEMU backends. Worker capabilities, firmware and lease admission are
         checked independently when creating a session.
       properties:
         sta:
@@ -3904,6 +3904,9 @@ components:
             operation_assertions:
               const: false
               description: Application-operation assertions are unavailable in this passive transport path.
+            http_fixture:
+              const: true
+              description: Core2 backend can admit the optional fixed HTTP peer in an isolated Open STA session.
         sta_time_fixture:
           type: object
           additionalProperties: false
@@ -5523,9 +5526,11 @@ components:
             the qemu-wifi or qemu-unified guest uses its own peers and
             independent radio sessions must avoid competing for the
             profile-assigned host port. This does not disable the WiFi NIC,
-            framebuffer, serial, QOM or pcap. Native generic-observe defaults
-            to false and requires an explicit lab-only or allowlist namespace
-            when true. Its fixture uses guest address 10.0.2.2 and TCP port 18192.
+            framebuffer, serial, QOM or pcap. Native generic-observe and
+            core2-openmac default to false and require a lab-only or allowlist
+            namespace when true. Their fixed peer uses guest address 10.0.2.2
+            and TCP port 18192. Core2 additionally requires Open Wi-Fi and
+            only local fixture endpoints, with no forwarding or CNAME.
         udp_fixture:
           type: object
           additionalProperties: false

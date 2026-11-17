@@ -464,6 +464,7 @@ UNIX_WIFI_PEER_OPERATIONS = {
 UNIX_WIFI_PEER_PROFILES = frozenset(UNIX_WIFI_PEER_OPERATIONS)
 UNIFIED_HTTP_PORTS = {
     GENERIC_WIFI_PROFILE: 18192,
+    CORE2_WIFI_PROFILE: 18192,
     STICKS3_WIFI_PROFILE: 18080,
     NANOC6_HCI_BLE_PROFILE: 18090,
     NESSO_UNIFIED_PROFILE: 18091,
@@ -642,6 +643,7 @@ UNIFIED_READY_MARKERS = {
 }
 UNIFIED_HTTP_BODIES = {
     GENERIC_WIFI_PROFILE: b"M5_NATIVE_STA_BODY_V1\n",
+    CORE2_WIFI_PROFILE: b"M5_NATIVE_STA_BODY_V1\n",
     STICKS3_WIFI_PROFILE: b"STICKS3_WIFI_OK\n",
     NANOC6_HCI_BLE_PROFILE: b"UNIFIED_NANOC6_OK\n",
     NESSO_UNIFIED_PROFILE: b"UNIFIED_NESSO_OK\n",
@@ -1130,7 +1132,7 @@ def parse_qemu_wifi_execution(
             f"unsupported qemu-wifi profile: {profile!r}",
             400,
         )
-    http_fixture = value.get("http_fixture", profile != GENERIC_WIFI_PROFILE)
+    http_fixture = value.get("http_fixture", profile not in {GENERIC_WIFI_PROFILE, CORE2_WIFI_PROFILE})
     if not isinstance(http_fixture, bool):
         raise ServiceError(
             "invalid_network",
@@ -1171,12 +1173,23 @@ def parse_qemu_wifi_execution(
         endpoints += (EgressEndpoint(protocol="udp", address="10.0.2.2", port=int(udp_fixture["port"])),)
     policy = parse_network_policy(value.get("policy"), implicit_endpoints=endpoints)
     generic_http_fixture = profile == GENERIC_WIFI_PROFILE and http_fixture
-    if (udp_fixture or generic_http_fixture) and (
+    core2_http_fixture = profile == CORE2_WIFI_PROFILE and http_fixture
+    if (udp_fixture or generic_http_fixture or core2_http_fixture) and (
         policy.isolation != "namespace" or policy.egress not in {"lab-only", "allowlist"}
     ):
         raise ServiceError(
             "invalid_network",
-            "native UDP and generic HTTP fixtures require a lab-only or allowlist namespace",
+            "native UDP and contained HTTP fixtures require a lab-only or allowlist namespace",
+            400,
+        )
+    if core2_http_fixture and (
+        policy.allowed_domains or any(endpoint not in endpoints for endpoint in policy.allowed_endpoints)
+        or value.get("cname_records") or value.get("hostfwd")
+        or value.get("wifi_auth", "open") != "open" or value.get("wifi_password")
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "Core2 HTTP fixture requires Open Wi-Fi and only local fixture endpoints",
             400,
         )
     cname_records = parse_dns_cname_records(
@@ -1206,6 +1219,7 @@ def parse_qemu_wifi_execution(
         "capture_pcap": capture_pcap,
         "http_fixture": http_fixture,
         **({"generic_http_fixture": True} if generic_http_fixture else {}),
+        **({"core2_http_fixture": True} if core2_http_fixture else {}),
         **({"udp_fixture": udp_fixture} if udp_fixture is not None else {}),
         "policy": policy.evidence(),
         "cname_records": cname_records,
@@ -3151,6 +3165,7 @@ class DeviceSession:
                 profile in UNIFIED_PROFILES
                 or profile == STICKS3_WIFI_PROFILE
                 or (profile == GENERIC_WIFI_PROFILE and self.network_config.get("generic_http_fixture") is True)
+                or (profile == CORE2_WIFI_PROFILE and self.network_config.get("core2_http_fixture") is True)
             )
         )
 
@@ -6170,8 +6185,10 @@ class DeviceSession:
                 sandbox_config["udp"] = udp_fixture
                 sandbox_config["udp_log"] = str(self.udp_fixture_log)
             http_profile = profile in UNIFIED_HTTP_PORTS
-            if http_profile and self.network_config.get("http_fixture", True) and (
-                profile != GENERIC_WIFI_PROFILE or self.network_config.get("generic_http_fixture") is True
+            if (
+                http_profile and self.network_config.get("http_fixture", True)
+                and (profile != GENERIC_WIFI_PROFILE or self.network_config.get("generic_http_fixture") is True)
+                and (profile != CORE2_WIFI_PROFILE or self.network_config.get("core2_http_fixture") is True)
             ):
                 http_body = UNIFIED_HTTP_BODIES.get(profile)
                 http_port = UNIFIED_HTTP_PORTS.get(profile)

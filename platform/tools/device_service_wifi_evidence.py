@@ -32,6 +32,7 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
     ):
         return {"sta": {
             "runtime": "qemu-wifi", "profile": CORE2_WIFI_PROFILE, "operation_assertions": False,
+            "http_fixture": True,
         }}
     if spec.backend != "qemu-esp32s3":
         return {}

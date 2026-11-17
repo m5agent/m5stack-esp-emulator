@@ -177,6 +177,7 @@ class NativeStaCapabilityTests(unittest.TestCase):
         core2 = replace(load_device_specs()["core2"], network_profiles=("core2-openmac",))
         expected = {"sta": {
             "runtime": "qemu-wifi", "profile": "core2-openmac", "operation_assertions": False,
+            "http_fixture": True,
         }}
         self.assertEqual(native_sta_capability(core2, backend_ready=True), expected)
         self.assertEqual(native_sta_capability(core2, backend_ready=False), {})

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "source_base": "c53750bf",
+  "reviewer_source": "4537ea202bb51b0082fecb6c7cc271356d51aa8d",
+  "device_id": "core2",
+  "machine": "m5core2",
+  "runtime": "qemu-wifi",
+  "profile": "core2-openmac",
+  "firmware_sha256": "d21cc74379de402f374d18c7e1a8b79fd912a9b734bbc3eda41370333f5c855e",
+  "qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+  "firmware_sdk": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "expected_http_body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d",
+  "docker_outer_network": "none",
+  "cases": {
+    "review-http-positive": {
+      "marker": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "7c939e938aa0b265410851c6c4eb3fc185538218ca320d314a08881d6b8dce63",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "evidence_before_sha256": "875722c71eb174caeb18b389358fd0a7e777ae0c7c24bde4ff508eb343e163d8",
+      "evidence_after_sha256": "e3897855981c0127da50b5903c62c14b23886a2c94fd298082d11785caa986af",
+      "host_routes": 0,
+      "peer_http_status": 200,
+      "peer_host_policy": "allow",
+      "expected_body_seen_in_pcap": true,
+      "guest_accepted_http_response": true,
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0,
+      "external_route": false,
+      "egress_enforcement": "nftables-input-output-default-drop",
+      "reviewer_transport_status": "OBSERVED"
+    },
+    "http-host-deny": {
+      "marker": "STA_FIXTURE_PEERS http=0 dns_a=1 dns_nxdomain=1 udp=1",
+      "data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "42da3590d8a058750580da254904a6ec93ccd8e76dc95dbd719c7fd2d1ef0162",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "evidence_before_sha256": "1b3dc68b6df6330258efe1ae3f21d560f4b587b21e27dc148503019d5b574a1a",
+      "evidence_after_sha256": "be51201497228425c0094b38b6d4a78693e15869953da1dc1188edb7a2061d03",
+      "host_routes": 0,
+      "peer_http_status": 403,
+      "peer_host_policy": "deny",
+      "expected_body_seen_in_pcap": false,
+      "guest_accepted_http_response": false,
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0,
+      "external_route": false,
+      "egress_enforcement": "nftables-input-output-default-drop"
+    },
+    "no-namespace": {
+      "http_status": 503,
+      "error_code": "network_isolation_unavailable",
+      "leases_created": 0
+    }
+  },
+  "not_run": [
+    "complete firmware review verdict",
+    "original Core2 applications",
+    "TLS",
+    "WPA2",
+    "IPv6",
+    "physical hardware",
+    "browser WASM"
+  ]
+}

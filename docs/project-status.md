@@ -43,7 +43,7 @@ UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始
 - 网络覆盖受控 DNS/TLS、exact/domain/CNAME 应答绑定、Host 校验、有界 IPv4/IPv6 出站、
   WPA2、断线恢复、双 guest fabric、隔离 worker、任务领取的响应丢失重试和 pcap。
   同 guest CNAME→HTTP、专用测试构建的 IPv6 TCP/HTTP 和 S3 WPA2-PSK 成对密钥已验证。原厂 UIFlow2 默认未启用 IPv6 link-local。
-  [Cardputer 和 ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)在无外部路由的 Linux namespace 内验证 DHCP、固定 HTTP、受控 DNS 和二进制 UDP。 [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 使用原生 Open STA 和专用经典无线后端，在同一隔离条件下验证了 DHCP、受控 DNS、二进制 UDP 与审核准入。
+  [Cardputer 和 ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)在无外部路由的 Linux namespace 内验证 DHCP、固定 HTTP、受控 DNS 和二进制 UDP。 [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 使用原生 Open STA 和专用经典无线后端，在同一隔离条件下验证了 DHCP、受控 DNS、二进制 UDP 与审核准入。 [经典 Core2 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)同镜像通过固定正文正控和 Host 白名单拒绝负控。
   审核端可显式挂这些夹具，从同会话终态 pcap 记录传输观测；
 - 固件入口包含 FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、文件系统、session-isolated NVS/SD fixture、静态审查和 Secure Boot v2 镜像分析；
 - Tab5、CardputerZero 和视觉外壳仍是可用子集，不能继承 S3/C6/Core2 的

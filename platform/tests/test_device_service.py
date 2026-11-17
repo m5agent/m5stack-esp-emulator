@@ -2836,6 +2836,38 @@ class DeviceServiceUnitTests(unittest.TestCase):
             {"protocol": "udp", "address": "10.0.2.2", "port": 19192},
         ])
 
+    @mock.patch.object(device_service_module, "core2_radio_qemu_path")
+    @mock.patch.object(device_service_module, "require_network_capabilities")
+    def test_core2_http_is_explicit_and_contained(self, capabilities, radio):
+        parse = device_service_module.parse_qemu_wifi_execution
+        spec = self.service.specs["core2"]
+        core2 = "core2-openmac"
+        policy = {"isolation": "namespace", "egress": "allowlist", "dns": "controlled",
+                  "allowed_hosts": ["lab.test"]}
+        config = {"profile": core2, "http_fixture": True, "policy": policy}
+        self.assertFalse(parse(spec, {})["http_fixture"])
+        options = parse(spec, config)
+        self.assertTrue(options["core2_http_fixture"])
+        self.assertEqual(options["policy"]["allowed_endpoints"], [
+            {"protocol": "tcp", "address": "10.0.2.2", "port": 18192},
+        ])
+        session = mock.Mock(network_config=options)
+        self.assertTrue(device_service_module.DeviceSession._requires_http_fixture(session))
+        session.network_config = {"profile": core2, "http_fixture": True}
+        self.assertFalse(device_service_module.DeviceSession._requires_http_fixture(session))
+        for overrides in (
+            {"policy": {}},
+            {"policy": {"isolation": "namespace", "egress": "deny-all", "dns": "deny"}},
+            {"policy": {**policy, "allowed_endpoints": [{"protocol": "tcp", "address": "192.0.2.1", "port": 443}]}},
+            {"policy": {**policy, "allowed_domains": ["lab.test"]}},
+            {"hostfwd": ["unexpected"]},
+            {"cname_records": {"alias.test": "lab.test"}},
+            {"wifi_auth": "wpa2-psk", "wifi_password": "example-local-only"},
+        ):
+            with self.subTest(overrides=overrides), self.assertRaises(ServiceError) as refused:
+                parse(spec, {**config, **overrides})
+            self.assertEqual(refused.exception.code, "invalid_network")
+
     def test_qemu_wifi_binds_s3_efuse_mac_to_station_address(self):
         session_id = "a" * 32
         mac = device_service_module.qemu_station_mac(session_id)

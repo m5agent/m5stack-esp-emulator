@@ -111,3 +111,24 @@ reviewer's execution plan, session admission and finalized transport reader.
 This scoped result covers the local IPv4 probe and Open Wi-Fi on the native
 Core2 model. HTTP, WLAN security variants and original cloud applications
 require their own evidence.
+
+### Classic Core2 fixed HTTP
+
+Omit `M5_FIXTURE_UDP_ONLY` when building the same source for classic ESP32
+to exercise HTTP as well. On the isolated `core2-openmac` profile, set
+`network.http_fixture=true` and add exact host `native-sta.test` to the
+controlled allowlist alongside `lab.test`. The guest requires HTTP 200 and
+the exact fixed body, as well as DHCP, DNS and the binary UDP reply.
+
+In a second run with the same BIN, remove only `native-sta.test` from the
+allowlist. Require the peer's HTTP 403 receipt and guest `http=0`, while the
+other guest checks still pass. The passive PCAP retains one bidirectional TCP
+flow in both cases. Deny a third identical request before lease allocation
+when namespace capability is unavailable.
+
+The [Core2 HTTP Linux run](core2-http-linux-summary.json) exercises the
+reviewer's plan, admission and finalized transport reader. A newer Device
+Service advertises `native_network.sta.http_fixture=true` for this explicit
+fixture. Its absence on an older backend leaves the earlier Core2 DNS/UDP
+review path available. The reception result is limited to this fixed local
+HTTP service and does not cover arbitrary applications or HTTPS.

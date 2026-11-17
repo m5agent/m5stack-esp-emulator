@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.77.0` and bounded
+Status: local MVP with unified-device runtime contract `1.78.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2761,9 +2761,10 @@ Profiles are:
 #### Native STA fixture peers
 
 A `runtime=qemu-wifi` session can provision controlled peers in its private
-Linux namespace. Set `network.http_fixture=true` on `generic-observe` for a
+Linux namespace. Set `network.http_fixture=true` on `generic-observe` or
+`core2-openmac` for a
 fixed HTTP body of `M5_NATIVE_STA_BODY_V1\n` at guest address `10.0.2.2:18192`.
-The generic default leaves the HTTP peer off. To add a deterministic UDP peer,
+Both profiles leave the HTTP peer off by default. To add a deterministic UDP peer,
 set `network.udp_fixture` to an object with a high `port`, `request_hex` and
 `response_hex`. Each payload is 1–512 bytes of hex. The peer binds only the
 namespace loopback and replies only to an exact request. Both peers require
@@ -2773,9 +2774,11 @@ gateway. Controlled DNS remains available through `egress=allowlist` and
 `dns=controlled` with the existing allowed-name policy.
 
 On the exact native Core2 machine, the explicitly configured classic radio
-runtime advertises `native_network.sta.profile=core2-openmac`. Its contained
-Open STA fixture covers DHCP, controlled DNS and binary UDP with
-`http_fixture=false`. The board capability is not a worker namespace check.
+runtime advertises `native_network.sta.profile=core2-openmac` and
+`native_network.sta.http_fixture=true`. Core2 HTTP requires Open Wi-Fi and
+allows only the implicit local fixture endpoints, with no forwarding, CNAME
+or domain suffix rules. Session creation checks worker namespace capability
+independently from the board capability.
 
 The network response and evidence ZIP record the UDP peer's sent and ignored
 datagram counts and hashes of the two configured payloads. Check the same

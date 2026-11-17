@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+
+## 2026-11-18 经典 Core2 隔离 HTTP
+
+[隔离会话摘要](../tests/network/native_sta_peers/core2-http-linux-summary.json)绑定同一
+经典 ESP32 探针与 Linux arm64 QEMU。审核执行计划、准入与回读覆盖显式 HTTP
+夹具。只有允许 Host 收到 HTTP 200 和准确正文，拒绝 Host 收到 403。两次 DHCP、
+DNS 和二进制 UDP 均通过。缺少命名空间能力在租约分配前拒绝。
+
 ## 2026-11-18 经典 Core2 受控 STA
 
 [隔离会话摘要](../tests/network/native_sta_peers/core2-linux-summary.json)绑定同一经典 ESP32 探针与 Linux arm64 QEMU。Reviewer 通过原生 `core2-openmac`
