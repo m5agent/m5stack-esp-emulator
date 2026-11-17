@@ -5,7 +5,59 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from device_service_crash import CRASH_OUTPUT_LIMIT, output_tail, serial_crash_observations
+from device_service_crash import CRASH_OUTPUT_LIMIT, output_tail, qmp_cpu_pc_sample, serial_crash_observations
+from device_service_errors import ServiceError
+
+
+class CpuPcSampleTests(unittest.TestCase):
+    def sample(self, registers, *, states=("running", "running"), targets=("xtensa", "xtensa")):
+        queued_states = iter(states)
+        calls = []
+
+        def qmp(command, **arguments):
+            calls.append((command, arguments))
+            if command == "query-status":
+                status = next(queued_states)
+                return {"return": {"status": status, "running": status == "running"}}
+            if command == "query-cpus-fast":
+                return {"return": [
+                    {"cpu-index": i, "target": target, "thread-id": i + 100}
+                    for i, target in enumerate(targets)
+                ]}
+            return {"return": registers}
+
+        self.calls = calls
+        return qmp_cpu_pc_sample(qmp)
+
+    def test_binds_two_pcs_to_qmp_indices_and_reads_paused_state_without_cont(self):
+        result = self.sample(
+            "\r\nCPU#1\r\nPC=400D1234\r\nPS=60001000\r\nCPU#0\r\nPC=4000ABCD\r\n",
+            states=("paused", "paused"),
+        )
+        self.assertEqual(result["cpus"], [
+            {"cpu_index": 0, "pc": "0x4000abcd"}, {"cpu_index": 1, "pc": "0x400d1234"},
+        ])
+        self.assertEqual((result["run_state_before"], result["run_state_after"]), ("paused", "paused"))
+        self.assertEqual(self.calls, [
+            ("query-status", {}), ("query-cpus-fast", {}),
+            ("human-monitor-command", {"command-line": "info registers -a"}), ("query-status", {}),
+        ])
+
+    def test_rejects_non_xtensa_before_reading_registers(self):
+        with self.assertRaises(ServiceError) as failure:
+            self.sample("CPU#0\nPC=400abcd0", targets=("riscv32",))
+        self.assertEqual(failure.exception.code, "cpu_pc_not_supported")
+        self.assertEqual([name for name, _ in self.calls], ["query-status", "query-cpus-fast"])
+
+    def test_rejects_state_transition_and_ambiguous_or_incomplete_register_output(self):
+        valid = "CPU#0\nPC=400abcd0\nCPU#1\nPC=400abcd1\n"
+        with self.assertRaises(ServiceError) as failure:
+            self.sample(valid, states=("running", "paused"))
+        self.assertEqual(failure.exception.code, "cpu_pc_state_changed")
+        for report in (valid + "PC=400abcd1\n", valid.rsplit("PC=", 1)[0], "é" + valid, valid * 2000):
+            with self.subTest(size=len(report)), self.assertRaises(ServiceError) as failure:
+                self.sample(report)
+            self.assertEqual(failure.exception.code, "cpu_pc_unavailable")
 
 
 class CrashDiagnosticsTests(unittest.TestCase):

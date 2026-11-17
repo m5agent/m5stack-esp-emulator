@@ -249,6 +249,7 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
     def test_guest_facing_operations_are_denied_before_runtime_io(self):
         self.assert_denied("serial.read", lambda: self.session.serial_read())
         self.assert_denied("serial.read", self.session.crash_diagnostics)
+        self.assert_denied("serial.read", self.session.live_cpu_pcs)
         self.assert_denied(
             "input.write",
             lambda: self.session.inject({"kind": "key", "key": "a"}),

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.63.0` and bounded
+Status: local MVP with unified-device runtime contract `1.64.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2875,6 +2875,7 @@ display journal is not a replacement for same-session validation evidence.
 | GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus runtime stdout/stderr tail |
 | GET | `/api/v1/sessions/{id}/frame.png` | Live or last-known framebuffer as PNG |
 | GET | `/api/v1/sessions/{id}/crash` | Retained panic, watchdog, PC and core-dump observations |
+| GET | `/api/v1/sessions/{id}/crash/cpu-pc` | Explicit live PC sample for native Xtensa vCPUs |
 | POST | `/api/v1/sessions/{id}/input` | Buttons, keyboard, chords, encoder, touch and drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
 | GET | `/api/v1/sessions/{id}/qom?path=...&property=...` | Read a QOM property |
@@ -3071,6 +3072,23 @@ function names to addresses that fall within supported Xtensa ELF32 function
 ranges. Unsupported, ambiguous and unresolved addresses are explicit.
 DWARF line decoding, task reconstruction and RISC-V symbol decoding are
 outside this endpoint's supported observations.
+
+### Live native CPU PCs
+
+`GET /api/v1/sessions/{id}/crash/cpu-pc` samples the current program counter
+of each vCPU on a live native Xtensa QEMU session. The ACL requires
+`serial.read`. The API uses the session's existing local QMP monitor and
+returns only CPU index, current PC, the session and firmware identity, the
+sample time, and the two QEMU run-state checks. It issues no pause, resume,
+reset, or register writes. Running samples are sequential and the two status
+checks do not detect a transient guest reset that completes between them.
+A QEMU guest that was already paused remains paused.
+
+Unsupported runtimes or targets, a stopped session, an inconsistent state
+or incomplete register output return HTTP 409 with a specific code. The
+read is on demand and is independent of the captured guest panic PCs and
+evidence ZIP. Save the sample response beside the same session ZIP when
+retaining evidence.
 
 ### Evidence bundle
 

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.63.0
+  version: 1.64.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2281,6 +2281,34 @@ paths:
         "403":
           $ref: "#/components/responses/Error"
         "404":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/crash/cpu-pc:
+    get:
+      summary: Sample the current PC for each native Xtensa vCPU
+      description: >
+        Requires serial.read when runtime ACL is configured. Uses an existing
+        QEMU QMP monitor with a fixed register read. The sampling call does
+        not pause or resume the guest. Running CPUs are sampled sequentially.
+        If the run-state checks disagree, no sample is returned. This live
+        view is independent of the panic and retained evidence APIs.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Live same-session current PC sample
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CpuPcSample"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+        "504":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/serial:
     get:
@@ -5559,6 +5587,32 @@ components:
           enum: [console, usb-serial-jtag]
           description: console is an unspecified primary transport, not a UART0 assertion.
         bytes: {type: integer, minimum: 0}
+    CpuPcSample:
+      type: object
+      additionalProperties: false
+      required: [schema_version, session_id, firmware_sha256, device_id, runtime, sampled_at, source, target, run_state_before, run_state_after, cpus]
+      properties:
+        schema_version: {type: integer, const: 1}
+        session_id: {type: string}
+        firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        device_id: {type: string}
+        runtime: {type: string}
+        sampled_at: {type: string, format: date-time}
+        source: {type: string, const: qmp_hmp_info_registers}
+        target: {type: string, const: xtensa}
+        run_state_before: {type: string, enum: [running, paused]}
+        run_state_after: {type: string, enum: [running, paused]}
+        cpus:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            type: object
+            additionalProperties: false
+            required: [cpu_index, pc]
+            properties:
+              cpu_index: {type: integer, minimum: 0, maximum: 1}
+              pc: {type: string, pattern: '^0x[0-9a-f]{8}$'}
     CrashDiagnostics:
       type: object
       required:

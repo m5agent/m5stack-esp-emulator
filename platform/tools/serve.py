@@ -798,6 +798,15 @@ class Handler(SimpleHTTPRequestHandler):
                 response = session.crash_diagnostics(query.get("elf_artifact_id", [None])[0])
             elif (
                 method == "GET"
+                and len(parts) == 4
+                and parts[0] == "sessions"
+                and parts[2:] == ["crash", "cpu-pc"]
+            ):
+                session = service.get_session(parts[1])
+                response = session.live_cpu_pcs()
+                headers["Cache-Control"] = "no-store"
+            elif (
+                method == "GET"
                 and len(parts) == 3
                 and parts[0] == "sessions"
                 and parts[2] == "serial"

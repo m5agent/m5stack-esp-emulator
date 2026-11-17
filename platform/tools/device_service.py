@@ -193,7 +193,8 @@ from firmware_analysis import (  # noqa: E402
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from device_service_crash import (  # noqa: E402
-    crash_function_symbols, identify_crash_elf, output_tail, serial_crash_observations,
+    crash_function_symbols, identify_crash_elf, output_tail, qmp_cpu_pc_sample,
+    serial_crash_observations,
 )
 from firmware_manifest import (  # noqa: E402
     ManifestError,
@@ -6438,6 +6439,22 @@ class DeviceSession:
             "elf": elf,
             "symbols": crash_function_symbols(observed, artifact if elf["symbolization_eligible"] else None),
         }
+
+    def live_cpu_pcs(self) -> dict:
+        DeviceSession._require_runtime_permission(self, "serial.read")
+        if self.spec.service_kind != "qemu" or self.runtime not in QEMU_QMP_RUNTIMES:
+            raise ServiceError("cpu_pc_not_supported", "live PC sampling requires native QEMU", 409)
+        with self._lock:
+            if self.state != "running" or self._stop_event.is_set():
+                raise ServiceError("session_not_running", "device process is not running", 409)
+            sample = qmp_cpu_pc_sample(self._qmp_call)
+            if self._stop_event.is_set():
+                raise ServiceError("session_not_running", "device process is stopping", 409)
+            return {
+                "schema_version": 1, "session_id": self.id, "device_id": self.spec.id,
+                "firmware_sha256": self.firmware_sha, "runtime": self.runtime,
+                "sampled_at": iso_now(), **sample,
+            }
 
     def _program_identity(self) -> dict:
         return {"session_id": self.id, "device_id": self.spec.id,

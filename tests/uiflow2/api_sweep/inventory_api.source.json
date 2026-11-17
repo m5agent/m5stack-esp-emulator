@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.63.0",
-  "contract_sha256": "aee33388ad00bfd47f464f962d2d7b0835d56403707de78541f1706ffd9b29fd",
+  "contract_version": "1.64.0",
+  "contract_sha256": "5d15db8daf8195d4ee065cbf02aeda4ccb1e73099d79417c7aaa67c17ecdf222",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1064,6 +1064,20 @@
       "positive_status": "NOT RUN"
     },
     {
+      "operation_id": "GET /sessions/{session_id}/crash/cpu-pc",
+      "method": "GET",
+      "path": "/sessions/{session_id}/crash/cpu-pc",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "native-xtensa-qmp"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/crash/cpu-pc missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
       "operation_id": "GET /sessions/{session_id}/serial",
       "method": "GET",
       "path": "/sessions/{session_id}/serial",
@@ -2053,6 +2067,16 @@
       "operation_id": "GET /sessions/{session_id}/crash",
       "method": "GET",
       "path": "/sessions/ffffffffffffffffffffffffffffffff/crash",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/crash/cpu-pc missing-resource",
+      "operation_id": "GET /sessions/{session_id}/crash/cpu-pc",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/crash/cpu-pc",
       "coverage": "rejection-only",
       "expected_status": [
         404

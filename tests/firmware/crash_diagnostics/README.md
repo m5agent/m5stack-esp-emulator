@@ -52,3 +52,28 @@ usage and the crashed task. Keep it local if task names contain private data.
 [Watchdog and abort results](offline-task-summary.json) cover Core2 native QEMU
 with ESP-IDF 5.5.4 and the ELF CRC32 UART format `0x0102`. Other formats,
 RISC-V, live inspection, and HTTP task decoding remain outside this CLI.
+
+## Live Xtensa CPU PC sample
+
+With the watchdog fixture and an owned native Core2 session, wait for
+`CRASH_PROBE_BOOT` and read `GET /api/v1/sessions/{id}/crash/cpu-pc`. Confirm
+both vCPU indices, the firmware SHA-256 and `running` on both sides of the
+read. In an isolated test harness that owns QMP, pause the VM, take two API
+samples and compare their PCs. Both receipts must report `paused` twice.
+Resume from the harness and confirm `running`; the HTTP API itself has
+no pause or resume control. The latest UART crash receipt must still be
+empty at this point.
+
+After the guest interrupt WDT and `CORE DUMP END`, inspect both the new live
+sample and the separate panic-time PCs. Save the sample response alongside
+the same-session evidence ZIP before stopping. The live endpoint must return
+`409 session_not_running` after stop. Verify the ZIP and that the session
+process, writable Flash and lease are released. See the
+[bounded virtual-device result](live-cpu-pc-summary.json).
+
+The Nesso N1 MWDT fixture reached its UART readiness marker on native C6.
+The endpoint returned `409 cpu_pc_not_supported`. The Espressif RISC-V
+`addr2line` tool separately resolved the known `setup()` symbol address
+with the app ELF exactly matched to the normalized ESP32-C6 Flash descriptor.
+That known address came from the ELF symbol table. Live RISC-V PC sampling
+and crash-time RISC-V frame attribution remain unvalidated.
