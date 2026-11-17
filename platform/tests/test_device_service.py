@@ -2324,6 +2324,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertNotEqual(second["media_id"], first["media_id"])
             self.assertEqual(session.sd_write_stamp(), second)
 
+            prior_frame_generation = session._frame_generation()
+            session.worker_generation += 1
+            session._sd_attachment_generation = 0
+            self.assertEqual(session._frame_generation(), prior_frame_generation)
+            restored = session.sd_write_stamp()
+            self.assertEqual(restored["modified_ns"], first["modified_ns"])
+            self.assertNotIn(restored["media_id"], {first["media_id"], second["media_id"]})
+
         with mock.patch("device_service_specs.qemu_has_qom_property", return_value=False):
             with self.assertRaises(ServiceError) as unsupported:
                 session.sd_write_stamp()

@@ -8272,7 +8272,7 @@ class DeviceSession:
                 # Include the runtime and inode identities without exposing host process metadata.
                 media_identity = (self.id, generation, info.st_dev, info.st_ino)
                 if self.spec.id == "paperdiy":
-                    media_identity += (self._sd_attachment_generation,)
+                    media_identity += (self.worker_generation, self._sd_attachment_generation)
                 media_id = hashlib.sha256(repr(media_identity).encode()).hexdigest()
             return {
                 "session_id": self.id,
