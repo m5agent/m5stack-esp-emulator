@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer 与 ADV 隔离 STA
+
+[同会话 Linux 证据](../tests/network/native_sta_peers/linux-session-summary.json)验证两款板的
+ESP-IDF 夹具完成 DHCP、DNS A 与 NXDOMAIN、固定 HTTP 正文和二进制 UDP。同一包在仅更换
+一个 UDP 回复字节时报告 `udp=0`。缺少命名空间权限的对照在租约分配前拒绝。审核服务
+使用实际会话准入和完成后的 PCAP 读回报告传输观测。五个来宾会话均释放租约。
+
 ## 2026-11-18 Cardputer ADV ESP32-S3 Flash 转储
 
 [原生会话对照](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)中，旧版对同一 CRC32

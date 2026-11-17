@@ -40,9 +40,27 @@ isolated `qemu-wifi` session with a complete `network` object:
 }
 ```
 
-The Linux path routes DNS through the guest's SLiRP resolver. This live
-namespace case requires a Linux worker with the existing admission controls
-available. The firmware diagnostics are terminal and do not start a portal.
+The Linux path routes DNS through the guest's SLiRP resolver. Use a Linux
+arm64 worker with the native Xtensa patch series through 0224, the S3 ROM,
+`iproute2`, `nftables`, and Python 3.12 namespace support. For the contained
+probe, the outer Linux container runs with no network and has NET_ADMIN and
+SYS_ADMIN for its own namespace and DNS mount. No host ports are published.
+Start an isolated Device Service with its own token and state. Upload and
+register the same merged fixture separately for Cardputer and ADV. The
+firmware diagnostics are terminal and do not start a portal.
+
+Wait for the complete guest assertion and collect the session ZIP before
+stopping. At stop, use `purge=false` and the default Flash release. Verify
+`/network` and the retained ZIP both bind the finalized pcap hash, one DORA,
+one bidirectional TCP payload flow and three bidirectional UDP payload flows.
+Inspect the namespace receipt for explicit default-drop, no external route and
+no gateway. The reviewer exercises the same Device Service via the real
+execution-plan, session admission and finalized transport reader.
+Repeat with only the last response byte changed from `42` to `43`.
+The guest should still receive HTTP and both DNS results and report `udp=0`.
+The same namespace request on a worker without the capabilities should return
+`503 network_isolation_unavailable` before any lease is allocated.
+[Linux virtual-device evidence](linux-session-summary.json).
 
 For a bounded macOS diagnostic build, omit `M5_NAMESPACE_DNS`. The same
 stock driver sends direct DNS queries to the controlled test peer on port

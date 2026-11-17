@@ -40,11 +40,11 @@ UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始
   pcap、evidence、历史恢复和 worker 生命周期； StickS3 原生 PM1、ROM 下载、USB CDC、隔离 Wi-Fi raw RX/TX 与 BLE HID 的证据和待验收范围见[运行时模型缺口](runtime-model-gap-register.md#runtime-10sticks3-固件审查中的-pm1usbble-hid-与-wi-fi-monitor)。
 - S3/C6/Core2 的规范整机路径是 `qemu-unified`，同一 lease 和同一 guest
   内组合板级、WiFi、BLE 与 evidence；Core2 使用 `core2-native-hci`；
-- 网络路径包含 controlled DNS/TLS、exact/domain/CNAME answer binding、
-  严格 Host authority、有界 IPv4/IPv6 egress、WPA2、断线恢复、双 guest
-  fabric、namespace/container worker、durable claim response-loss idempotency 和 pcap。
-  同 guest CNAME→HTTP 与专用测试构建的 IPv6 TCP/HTTP 已覆盖，原厂 UIFlow2 默认未启用
-  IPv6 link-local；`RUNTIME-05` 的 S3 WPA2-PSK 成对密钥路径已关闭；
+- 网络覆盖受控 DNS/TLS、exact/domain/CNAME 应答绑定、Host 校验、有界 IPv4/IPv6 出站、
+  WPA2、断线恢复、双 guest fabric、隔离 worker、任务领取的响应丢失重试和 pcap。
+  同 guest CNAME→HTTP、专用测试构建的 IPv6 TCP/HTTP 和 S3 WPA2-PSK 成对密钥已验证。原厂 UIFlow2 默认未启用 IPv6 link-local。
+  [Cardputer 和 ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)在无外部路由的 Linux namespace 内验证 DHCP、固定 HTTP、受控 DNS 和二进制 UDP。
+  审核端可显式挂这些夹具，从同会话终态 pcap 记录传输观测；
 - 固件入口包含 FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、文件系统、session-isolated NVS/SD fixture、静态审查和 Secure Boot v2 镜像分析；
 - Tab5、CardputerZero 和视觉外壳仍是可用子集，不能继承 S3/C6/Core2 的
   完整度。

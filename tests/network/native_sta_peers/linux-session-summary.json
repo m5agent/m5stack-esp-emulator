@@ -1,0 +1,276 @@
+{
+  "validation": "virtual-device validation",
+  "service_source": "63472ab884dc2968904999c75eb6aca91c3f2517",
+  "reviewer_source": "212843e7753195b8878943c97429b00c6d385995",
+  "qemu_source_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "qemu_patch_series": "native Xtensa through 0224",
+  "qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+  "firmware_sha256": "f67e0a7a8e2805b01b3c2f9d1607ef6505467a60f4dd678d20a4576e56765db6",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "firmware_sdk": "ESP-IDF v5.5.4 735507283d5b2f9fb363a1901172dbd9e847945d, M5_NAMESPACE_DNS=ON",
+  "linux_arch": "arm64",
+  "docker_outer_network": "none",
+  "denied_namespace_control": "503 network_isolation_unavailable before lease allocation",
+  "cases": {
+    "cardputer-a2": {
+      "device": "cardputer",
+      "outcome": "PASS",
+      "firmware_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "qemu_in_dedicated_namespace": true,
+      "external_route_present": false,
+      "gateway_present": false,
+      "namespace_rules": "nftables-input-output-default-drop",
+      "dns_results": [
+        {
+          "name": "lab.test",
+          "decision": "allow",
+          "status": "A"
+        },
+        {
+          "name": "off.test",
+          "decision": "deny",
+          "status": "NXDOMAIN"
+        }
+      ],
+      "http_status": "200",
+      "finalized_transport": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "91d491a80149a4e5c70133292d480a96f7cd5802074a6e363d937c3ab6c25423",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "udp_fixture": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "evidence_before_sha256": "d3079f9989646767cd4a60dde9a8c0505db6263cfd376ef14c6fdda226d4ee71",
+      "evidence_after_sha256": "ae2766c807028a49ae18758f1204857b3758ec3da0a5671d89f3fdb783ac7871",
+      "lease_count_after_stop": 0
+    },
+    "adv": {
+      "device": "cardputer-adv",
+      "outcome": "PASS",
+      "firmware_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "qemu_in_dedicated_namespace": true,
+      "external_route_present": false,
+      "gateway_present": false,
+      "namespace_rules": "nftables-input-output-default-drop",
+      "dns_results": [
+        {
+          "name": "lab.test",
+          "decision": "allow",
+          "status": "A"
+        },
+        {
+          "name": "off.test",
+          "decision": "deny",
+          "status": "NXDOMAIN"
+        }
+      ],
+      "http_status": "200",
+      "finalized_transport": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "b2d12300fa68760b598ec45452c662aa203a9d5c0b717e1a559d494d74c11148",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "udp_fixture": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "evidence_before_sha256": "470aac6f5ff3dd7cc66da3b4aeba0e670f6adb5416ae5fd2d4126de6fe8cea7c",
+      "evidence_after_sha256": "b1a69eab2369a66cb099f33ff86a28752c57b475e453874e8db851e2a1329484",
+      "lease_count_after_stop": 0
+    },
+    "wrong-udp": {
+      "device": "cardputer-adv",
+      "outcome": "PASS_NEGATIVE_CONTROL",
+      "firmware_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=0",
+      "qemu_in_dedicated_namespace": true,
+      "external_route_present": false,
+      "gateway_present": false,
+      "namespace_rules": "nftables-input-output-default-drop",
+      "dns_results": [
+        {
+          "name": "lab.test",
+          "decision": "allow",
+          "status": "A"
+        },
+        {
+          "name": "off.test",
+          "decision": "deny",
+          "status": "NXDOMAIN"
+        }
+      ],
+      "http_status": "200",
+      "finalized_transport": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "1f16c086f33800108907b744fa6f42fdd3aecbff1c64563ae19e37eaed0121cc",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "udp_fixture": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "cc6cf5c4ae0e725e768486dcdbb1b995879490df2cec1f307aaaf1c77a38255f",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "evidence_before_sha256": "e9f823c9950f2c17913f814e30987d9f017dfcaa91f22c7fb55457f151402251",
+      "evidence_after_sha256": "cdeea2a113a927fc44be9c4dba530e3d7880d3a37f7f5b585985bd2009d44789",
+      "lease_count_after_stop": 0
+    },
+    "review-cardputer": {
+      "device": "cardputer",
+      "outcome": "PASS",
+      "firmware_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "qemu_in_dedicated_namespace": true,
+      "external_route_present": false,
+      "gateway_present": false,
+      "namespace_rules": "nftables-input-output-default-drop",
+      "dns_results": [
+        {
+          "name": "lab.test",
+          "decision": "allow",
+          "status": "A"
+        },
+        {
+          "name": "off.test",
+          "decision": "deny",
+          "status": "NXDOMAIN"
+        }
+      ],
+      "http_status": "200",
+      "finalized_transport": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "ea529b3107b47a7d66d3f52e6d1af6ca1cdba3da3645aaceb1702ffe6bc0d8ad",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "udp_fixture": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "evidence_before_sha256": "f641179275944174500d139201017dad2246f8885cee2a4275dbf287163a2b9f",
+      "evidence_after_sha256": "34ef98eaa8a7e4d4fdf2025bc245aedb36cc5b388ef42b867126283b7b4cb93f",
+      "lease_count_after_stop": 0,
+      "review_native_sta_admission": "admitted",
+      "review_transport_status": "OBSERVED"
+    },
+    "review-adv-a2": {
+      "device": "cardputer-adv",
+      "outcome": "PASS",
+      "firmware_assertion": "STA_FIXTURE_PEERS http=1 dns_a=1 dns_nxdomain=1 udp=1",
+      "qemu_in_dedicated_namespace": true,
+      "external_route_present": false,
+      "gateway_present": false,
+      "namespace_rules": "nftables-input-output-default-drop",
+      "dns_results": [
+        {
+          "name": "lab.test",
+          "decision": "allow",
+          "status": "A"
+        },
+        {
+          "name": "off.test",
+          "decision": "deny",
+          "status": "NXDOMAIN"
+        }
+      ],
+      "http_status": "200",
+      "finalized_transport": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "dba045feec45172acb6a12199f133f7cab218752693fdbe6d1cd74f461fdc6b2",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "udp_fixture": {
+        "schema_version": 1,
+        "scope": "bound-udp-peer",
+        "request_sha256": "da372558b8df251549f39cca70bafab1e2273c58ad7bcf26af5fef4510c7d22b",
+        "response_sha256": "9bf9df3db0f4169f2edadff628e6bfb6b85781c798738999b2b6ca9f4a154d7e",
+        "responses_sent": 1,
+        "ignored_datagrams": 0
+      },
+      "evidence_before_sha256": "fdc9c61797dc78bd6e2088c40682813aeb1ee7bf680a4fdf047abfe74af68bc2",
+      "evidence_after_sha256": "d8bfee5b6604749e993de185fb674d092eaf356a9b7475c04378ab693fddb4ec",
+      "lease_count_after_stop": 0,
+      "review_native_sta_admission": "admitted",
+      "review_transport_status": "OBSERVED"
+    }
+  },
+  "not_run": [
+    "physical board or RF",
+    "browser runtime",
+    "external egress",
+    "arbitrary application protocol verdict"
+  ]
+}
