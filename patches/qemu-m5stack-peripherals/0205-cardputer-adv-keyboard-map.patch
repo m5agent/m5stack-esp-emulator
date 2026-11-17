@@ -1,0 +1,111 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] Cardputer ADV: restore the complete physical keyboard matrix
+
+Use the explicit 56-key map from the audited browser layer. Native letter
+ranges used QKeyCode ordinals, which are arranged in scan-code order.
+Preserve mechanical events through the TCA8418 FIFO/I2C/IRQ path. Expose a
+board-local, read-only QOM capability so callers can reject older runtimes
+before injecting semantic keyboard commands.
+
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -851,34 +851,54 @@
+     return value | (down ? 0x80 : 0);
+ }
+ 
++/* QKeyCode follows PC scan-code order, not an A..Z numeric range.
++ * Positions follow UIFlow2 2.5.3 KeyboardI2C's 4x14 physical key map.
++ */
+ static bool tca8418_key_pos(int qcode, int *row, int *col)
+ {
+-    if (qcode >= Q_KEY_CODE_A && qcode <= Q_KEY_CODE_Z) {
+-        int index = qcode - Q_KEY_CODE_A;
+-        *row = index < 10 ? 2 : 3;
+-        *col = index < 10 ? 2 + index : 3 + index - 10;
+-        return true;
+-    }
++#define KEY(name) Q_KEY_CODE_##name
++    static const QKeyCode keys[4][14] = {
++        { KEY(GRAVE_ACCENT), KEY(1), KEY(2), KEY(3), KEY(4), KEY(5), KEY(6),
++          KEY(7), KEY(8), KEY(9), KEY(0), KEY(MINUS), KEY(EQUAL),
++          KEY(BACKSPACE) },
++        { KEY(TAB), KEY(Q), KEY(W), KEY(E), KEY(R), KEY(T), KEY(Y), KEY(U),
++          KEY(I), KEY(O), KEY(P), KEY(BRACKET_LEFT), KEY(BRACKET_RIGHT),
++          KEY(BACKSLASH) },
++        { KEY(COMPOSE), KEY(SHIFT), KEY(A), KEY(S), KEY(D), KEY(F), KEY(G),
++          KEY(H), KEY(J), KEY(K), KEY(L), KEY(SEMICOLON), KEY(APOSTROPHE),
++          KEY(RET) },
++        { KEY(CTRL), KEY(META_L), KEY(ALT), KEY(Z), KEY(X), KEY(C), KEY(V),
++          KEY(B), KEY(N), KEY(M), KEY(COMMA), KEY(DOT), KEY(SLASH), KEY(SPC) },
++    };
++#undef KEY
++
+     switch (qcode) {
+-    case Q_KEY_CODE_RET:
+-        *row = 2;
+-        *col = 13;
+-        return true;
+-    case Q_KEY_CODE_SPC:
+-        *row = 3;
+-        *col = 13;
+-        return true;
+-    case Q_KEY_CODE_TAB:
+-        *row = 1;
+-        *col = 0;
+-        return true;
+-    case Q_KEY_CODE_BACKSPACE:
+-        *row = 0;
+-        *col = 13;
+-        return true;
++    case Q_KEY_CODE_SHIFT_R:
++        qcode = Q_KEY_CODE_SHIFT;
++        break;
++    case Q_KEY_CODE_CTRL_R:
++        qcode = Q_KEY_CODE_CTRL;
++        break;
++    case Q_KEY_CODE_META_R:
++        qcode = Q_KEY_CODE_META_L;
++        break;
++    case Q_KEY_CODE_ALT_R:
++        qcode = Q_KEY_CODE_ALT;
++        break;
+     default:
+-        return false;
+-    }
++        break;
++    }
++
++    for (unsigned r = 0; r < ARRAY_SIZE(keys); r++) {
++        for (unsigned c = 0; c < ARRAY_SIZE(keys[r]); c++) {
++            if (keys[r][c] == qcode) {
++                *row = r;
++                *col = c;
++                return true;
++            }
++        }
++    }
++    return false;
+ }
+ 
+ static void m5_panel_keyboard_event(int qcode, bool down)
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -12,9 +12,16 @@
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+ 
++static bool m5cardputeradv_keyboard_full_map(Object *obj, Error **errp)
++{
++    return true;
++}
++
+ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                ESPGdmaState *gdma)
+ {
++    object_property_add_bool(qdev_get_machine(), "keyboard-full-map",
++                             m5cardputeradv_keyboard_full_map, NULL);
+     m5stopwatch_sens_init(sys_mem);
+     m5stopwatch_regi2c_init(sys_mem);
+     m5stopwatch_fe_init(sys_mem);

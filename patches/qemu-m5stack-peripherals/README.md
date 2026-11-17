@@ -1618,3 +1618,15 @@ The GPIO I²C bridge supplies the board's passive pull-ups on those two pins.
 The [GPIO LCD fixture](../../tests/firmware/stickc_plus2_bt_lp_clock/check_gpio_lcd_readback.py)
 checks GPIO and hardware SPI ID, chip select, data direction, turnaround
 and reset on both Cardputer variants and the existing StickC Plus2.
+
+## Cardputer ADV physical keyboard map (0205)
+
+The ADV SPI panel's input handler maps 56 symbolic QKeyCodes onto the same
+4×14 matrix as the stock UIFlow2 keyboard. Fn uses `compose`. The TCA8418
+event encoding, FIFO, interrupt, hardware I²C path and the K132 GPIO
+keyboard stay independent. The ADV machine exposes the read-only
+`keyboard-full-map` property at `/machine` so the service can detect
+runtimes with the complete map.
+
+Apply 0205 after 0204 in the native Xtensa recipe. Its mapping comes from
+the independently maintained [browser mapping patch](../qemu-wasm-probe/0016-cardputer-keyboard-qcode-map.patch).
