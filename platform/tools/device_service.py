@@ -7971,6 +7971,46 @@ class DeviceSession:
             "changed": changed,
         }
 
+    def sd_write_stamp(self) -> dict:
+        """Observe flushed writes to an owned, running guest's SPI SD image."""
+        self._require_runtime_permission("storage.read")
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("sd_session_busy", "session lifecycle operation is in progress", 409)
+        try:
+            storage = self.storage_info or {}
+            if (
+                self.runtime != "qemu"
+                or self.spec.id not in {"cardputer", "cardputer-adv"}
+                or storage.get("interface") != "spi"
+                or storage.get("session_isolated_copy") is not True
+                or storage.get("writable") is not True
+            ):
+                raise ServiceError("sd_write_stamp_unsupported", "a session-owned Cardputer SPI SD fixture is required", 409)
+            generation = self._frame_generation()
+            if generation[0] != "running" or generation[1] or not self._process_identity_matches():
+                raise ServiceError("sd_session_not_running", "a live guest is required for an SD write stamp", 409)
+            try:
+                info = self.sd_card_image.lstat()
+            except OSError as error:
+                raise ServiceError("sd_media_unavailable", "the session SD medium is unavailable", 409) from error
+            if not stat.S_ISREG(info.st_mode) or info.st_size != storage["bytes"]:
+                raise ServiceError("invalid_storage_image", "the session SD medium changed size or type", 409)
+            if self._frame_generation() != generation:
+                raise ServiceError("sd_session_busy", "session changed during the SD sample", 409)
+            # Include the runtime and inode identities without exposing host process metadata.
+            media_id = hashlib.sha256(
+                repr((self.id, generation, info.st_dev, info.st_ino)).encode()
+            ).hexdigest()
+            return {
+                "session_id": self.id,
+                "firmware_sha256": self.firmware_sha,
+                "source_artifact_id": storage["artifact_id"],
+                "media_id": media_id,
+                "modified_ns": str(info.st_mtime_ns),
+            }
+        finally:
+            self._lifecycle_lock.release()
+
     def _read_stopped_sd_media(self) -> tuple[bytes, dict]:
         self._require_runtime_permission("storage.read")
         if not self._lifecycle_lock.acquire(blocking=False):
