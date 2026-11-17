@@ -58,8 +58,8 @@
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
 5. **P0 崩溃与任务观测**。在 Core2 离线 UART dump 的基础上，补会话自动解码、
-   其他 dump 格式和 RISC-V 匹配 ELF。原生 Xtensa 实时 CPU PC 已以 Core2 两核验证，
-   后续验证 RISC-V 运行时采样。按原序列复现 All day watch
+   其他 dump 格式和 RISC-V 栈展开。原生 C6 已验证匹配 ELF 的 abort 地址和 MEPC 符号，
+   Core2 已验证两核实时 PC。后续验证 RISC-V 运行时采样。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
 6. **P1 外设**。优先审查侧 Unit 挂载，按 UART/I2C/SPI 数据面验证 AudioPlayer、
    NFC、Joystick 和外接收发控制器。之后分别验收 PCM 播放/录音、IMU/Camera/IR、

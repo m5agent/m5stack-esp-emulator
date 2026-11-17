@@ -286,6 +286,8 @@ from worker_directory import (  # noqa: E402
 from worker_queue import WorkerJobQueue, WorkerQueueError  # noqa: E402
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
+    EM_RISCV,
+    EM_XTENSA,
     ElfSymbolError,
     core2_native_hci_device_args,
     core2_native_vhci_addresses,
@@ -6478,9 +6480,10 @@ class DeviceSession:
                     data = payload
             except (OSError, ServiceError):
                 pass
+        chip_id = expected_chip_id(self.spec.soc)
         try:
             elf = identify_crash_elf(
-                reported, data, self.spec.flash_size, expected_chip_id(self.spec.soc),
+                reported, data, self.spec.flash_size, chip_id,
                 artifact, elf_artifact_id,
             )
         except OSError:
@@ -6500,6 +6503,12 @@ class DeviceSession:
             status = "no_evidence"
         else:
             status = "observation_unavailable"
+        # RISC-V symbols are qualified for the native ESP32-C6 guest path.
+        expected_machine = (
+            EM_RISCV
+            if chip_id == 0x000D and self.spec.service_kind == "qemu" and self.runtime == "qemu"
+            else EM_XTENSA
+        )
         return {
             "schema_version": 1,
             "session_id": self.id,
@@ -6510,7 +6519,10 @@ class DeviceSession:
             "sources": {"console": console_source, "runtime_stderr": stderr_source},
             **observed,
             "elf": elf,
-            "symbols": crash_function_symbols(observed, artifact if elf["symbolization_eligible"] else None),
+            "symbols": crash_function_symbols(
+                observed, artifact if elf["symbolization_eligible"] else None,
+                expected_machine=expected_machine,
+            ),
         }
 
     def live_cpu_pcs(self) -> dict:

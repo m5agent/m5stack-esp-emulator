@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.65.0
+  version: 1.66.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2687,7 +2687,9 @@ components:
         Optional uploaded application ELF. Function names are emitted only
         for a byte-identical artifact whose full SHA-256 is in a verified
         application descriptor and uniquely agrees with the crash-reported
-        hash prefix. Xtensa ELF32 function ranges are supported.
+        hash prefix. Xtensa ELF32 function ranges and native ESP32-C6
+        RISC-V ELF32 little-endian ILP32 soft-float executable ranges are
+        supported. This symbolization uses guest-reported addresses.
       schema:
         type: string
         pattern: "^[0-9a-f]{64}$"

@@ -8,7 +8,7 @@ import re
 
 from device_service_errors import ServiceError
 from firmware_analysis import analyze_esp_image, find_app_descriptor, parse_partition_table
-from xtensa_elf_symbols import ElfSymbolError, parse_elf32_symbols
+from xtensa_elf_symbols import EM_RISCV, EM_XTENSA, ElfSymbolError, parse_elf32_symbols
 
 CRASH_OUTPUT_LIMIT = 512 * 1024
 SYMBOL_FILE_LIMIT = 64 * 1024 * 1024
@@ -280,8 +280,10 @@ def identify_crash_elf(
     return {**result, "status": "matched", "expected_sha256": expected, "symbolization_eligible": True}
 
 
-def crash_function_symbols(observed: dict, artifact: Path | None) -> dict:
-    """Annotate only guest-reported Xtensa addresses, after exact ELF admission."""
+def crash_function_symbols(
+    observed: dict, artifact: Path | None, *, expected_machine: int = EM_XTENSA,
+) -> dict:
+    """Annotate guest-reported addresses after exact ELF admission."""
     if artifact is None:
         return {"status": "not_decoded", "addresses": []}
     panic = observed["panic"]
@@ -292,12 +294,13 @@ def crash_function_symbols(observed: dict, artifact: Path | None) -> dict:
         pcs.add(panic["abort_call_site_pc"])
     if not pcs:
         return {"status": "no_addresses", "addresses": []}
+    target = "riscv" if expected_machine == EM_RISCV else "xtensa"
     try:
         if artifact.stat().st_size > SYMBOL_FILE_LIMIT:
             return {"status": "unavailable", "reason": "elf_symbol_file_too_large", "addresses": []}
-        symbols = parse_elf32_symbols(artifact)
+        symbols = parse_elf32_symbols(artifact, expected_machine=expected_machine)
     except (OSError, ElfSymbolError):
-        return {"status": "unavailable", "reason": "unsupported_or_unreadable_xtensa_symbols", "addresses": []}
+        return {"status": "unavailable", "reason": f"unsupported_or_unreadable_{target}_symbols", "addresses": []}
 
     lookup = sorted(int(pc, 16) for pc in pcs)
     matches: dict[int, set[tuple[str, int]]] = {pc: set() for pc in lookup}
@@ -328,6 +331,6 @@ def crash_function_symbols(observed: dict, artifact: Path | None) -> dict:
         status = "unresolved"
     return {
         "status": status,
-        "source": "matched_xtensa_elf_function_ranges",
+        "source": f"matched_{target}_elf_function_ranges",
         "addresses": resolved,
     }

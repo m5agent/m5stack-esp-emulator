@@ -24,6 +24,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [ESP32-S3 BBPLL 校准完成](../tests/firmware/littlefs_partition/bbpll-6-1-summary.json)：同一 ESP-IDF 6.1.1 Cardputer 镜像在参考运行时停于 `0x6000e040` bit 24 读取。0211 候选完成 LittleFS 读写、重挂载和复位，ESP-IDF 5.5.4 两板及空卷对照通过。
 
+[原生 C6 RISC-V 崩溃符号](../tests/firmware/crash_diagnostics/riscv_c6/summary.json)保留同一 Nesso N1 abort 固件的旧、新 API 对照。精确匹配 ELF 解出 guest MEPC `panic_abort` 与 abort 调用点 `trigger_riscv_abort`，与 Espressif 工具一致；错 ELF、未上传 ELF 均不解码。
+
 [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)：Cardputer/StickS3 的 UIFlow2 LittleFS 与 Cardputer/StickS3/Dial 的 ESP-IDF SPIFFS 都通过真实数据分区夹具路径。保留原 artifact 和以有效 Flash SHA 核对区间外字节的结果。SD 另有停止后清单、哈希导出、重启复用及活动状态拒绝的证据。
 
 [ESP-IDF LittleFS](../tests/firmware/littlefs_partition/summary.json) 在初代 Cardputer、ADV 上用 5.5.4 通过 subtype `0x83` 预置、读取、写入、重新挂载及同会话复位。两份源镜像和可写区间外字节一致，空分区对照未读到预置文件。6.1.1 对照未到应用入口，LittleFS 未执行。

@@ -15,6 +15,8 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from xtensa_elf_symbols import (  # noqa: E402
     CORE2_NATIVE_HCI_SYMBOLS,
     ELF_HEADER,
+    EM_RISCV,
+    EM_XTENSA,
     SECTION_HEADER,
     SYMBOL_ENTRY,
     ElfSymbolError,
@@ -24,7 +26,10 @@ from xtensa_elf_symbols import (  # noqa: E402
 )
 
 
-def build_elf(symbols: list[tuple[str, int, int, int, int]]) -> bytes:
+def build_elf(
+    symbols: list[tuple[str, int, int, int, int]], *, machine: int = EM_XTENSA,
+    flags: int = 0, elf_type: int = 2,
+) -> bytes:
     strings = bytearray(b"\0")
     offsets = {}
     for name, *_rest in symbols:
@@ -59,13 +64,13 @@ def build_elf(symbols: list[tuple[str, int, int, int, int]]) -> bytes:
 
     header = ELF_HEADER.pack(
         b"\x7fELF" + bytes([1, 1, 1]) + bytes(9),
-        2,
-        94,
+        elf_type,
+        machine,
         1,
         0x40000000,
         0,
         section_offset,
-        0,
+        flags,
         ELF_HEADER.size,
         0,
         0,
@@ -171,6 +176,30 @@ class XtensaElfSymbolTests(unittest.TestCase):
         self.assertTrue(device_args.startswith("esp32-native-hci,"))
         self.assertIn("hli-c2h=on", device_args)
         self.assertIn("trace-l2cap-rx-pc=", device_args)
+
+    def test_riscv_elf32_compatibility_requires_explicit_target(self):
+        rows = [("abort_probe", 0x4200A5B6, 0x30, 0x12, 1)]
+        with tempfile.TemporaryDirectory() as tmp:
+            elf_path = Path(tmp) / "rv32.elf"
+            elf_path.write_bytes(build_elf(rows, machine=EM_RISCV, flags=1))
+            self.assertEqual(parse_elf32_symbols(
+                elf_path, expected_machine=EM_RISCV,
+            )["abort_probe"][0].value, 0x4200A5B6)
+            with self.assertRaisesRegex(ElfSymbolError, "not Xtensa"):
+                parse_elf32_symbols(elf_path)
+            elf_path.write_bytes(build_elf(rows))
+            with self.assertRaisesRegex(ElfSymbolError, "not RISC-V"):
+                parse_elf32_symbols(elf_path, expected_machine=EM_RISCV)
+
+    def test_riscv_rejects_other_abis_and_relocatable_objects(self):
+        rows = [("abort_probe", 0x4200A5B6, 0x30, 0x12, 1)]
+        with tempfile.TemporaryDirectory() as tmp:
+            elf_path = Path(tmp) / "unsupported.elf"
+            for elf_type, flags in ((2, 0x02), (2, 0x08), (2, 0x20), (1, 0x01)):
+                with self.subTest(elf_type=elf_type, flags=flags):
+                    elf_path.write_bytes(build_elf(rows, machine=EM_RISCV, flags=flags, elf_type=elf_type))
+                    with self.assertRaisesRegex(ElfSymbolError, "ILP32 soft-float executable"):
+                        parse_elf32_symbols(elf_path, expected_machine=EM_RISCV)
 
     def test_rejects_missing_and_ambiguous_symbols(self):
         with tempfile.TemporaryDirectory() as tmp:

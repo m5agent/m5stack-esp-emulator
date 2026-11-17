@@ -12,6 +12,10 @@ from pathlib import Path
 ELF_MAGIC = b"\x7fELF"
 ELFCLASS32 = 1
 ELFDATA2LSB = 1
+ET_EXEC = 2
+EM_XTENSA = 94
+EM_RISCV = 243
+EF_RISCV_RVC = 0x01
 ELF_HEADER = struct.Struct("<16sHHIIIIIHHHHHH")
 SECTION_HEADER = struct.Struct("<IIIIIIIIII")
 SYMBOL_ENTRY = struct.Struct("<IIIBBH")
@@ -108,7 +112,11 @@ def _cstring(table: bytes, offset: int) -> str:
     return table[offset:end].decode("utf-8", errors="replace")
 
 
-def parse_elf32_symbols(path: Path) -> dict[str, list[ElfSymbol]]:
+def parse_elf32_symbols(
+    path: Path, *, expected_machine: int = EM_XTENSA,
+) -> dict[str, list[ElfSymbol]]:
+    if expected_machine not in {EM_XTENSA, EM_RISCV}:
+        raise ElfSymbolError("ELF symbol target is unsupported")
     with path.open("rb") as source:
         source.seek(0, 2)
         file_size = source.tell()
@@ -121,13 +129,13 @@ def parse_elf32_symbols(path: Path) -> dict[str, list[ElfSymbol]]:
         )
         (
             ident,
-            _elf_type,
+            elf_type,
             machine,
             _version,
             _entry,
             _program_offset,
             section_offset,
-            _flags,
+            flags,
             header_size,
             _program_entry_size,
             _program_count,
@@ -141,8 +149,11 @@ def parse_elf32_symbols(path: Path) -> dict[str, list[ElfSymbol]]:
             raise ElfSymbolError("only ELF32 inputs are supported")
         if ident[5] != ELFDATA2LSB:
             raise ElfSymbolError("only little-endian ELF inputs are supported")
-        if machine != 94:
-            raise ElfSymbolError(f"ELF machine {machine} is not Xtensa")
+        if machine != expected_machine:
+            target = "Xtensa" if expected_machine == EM_XTENSA else "RISC-V"
+            raise ElfSymbolError(f"ELF machine {machine} is not {target}")
+        if machine == EM_RISCV and (elf_type != ET_EXEC or flags & ~EF_RISCV_RVC):
+            raise ElfSymbolError("RISC-V requires an ILP32 soft-float executable with optional RVC")
         if header_size != ELF_HEADER.size:
             raise ElfSymbolError(
                 f"unsupported ELF header size {header_size}"

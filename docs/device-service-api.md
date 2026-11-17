@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.65.0` and bounded
+Status: local MVP with unified-device runtime contract `1.66.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3091,10 +3091,14 @@ observations do not perform live register sampling or validate dump contents.
 Pass an uploaded ELF's SHA-256 as `elf_artifact_id` to compare its exact bytes
 against the normalized firmware's valid application descriptor and the guest's
 panic-time hash prefix. With a unique exact match, the service can attach
-function names to addresses that fall within supported Xtensa ELF32 function
-ranges. Unsupported, ambiguous and unresolved addresses are explicit.
-DWARF line decoding, task reconstruction and RISC-V symbol decoding are
-outside this endpoint's supported observations.
+function names to addresses that fall within Xtensa ELF32 function ranges.
+The native ESP32-C6 `qemu` path also accepts little-endian RISC-V ELF32
+ILP32 soft-float executables, with optional compressed instructions. It
+reports `matched_riscv_elf_function_ranges` and keeps the guest `MEPC`
+separate from `panic.abort_call_site_pc`. Unsupported, ambiguous and
+unresolved addresses are explicit. This endpoint reports symbol ranges.
+DWARF line decoding, task reconstruction and stack unwinding are outside
+its supported observations.
 
 ### Live native CPU PCs
 

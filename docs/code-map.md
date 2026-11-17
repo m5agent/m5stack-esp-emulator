@@ -104,7 +104,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_qemu_wifi.py` | QEMU WiFi open/WPA2 解析与 runtime-env projection | `device_service.py` 兼容 re-export、QEMU WiFi tests |
 | `platform/tools/device_service_wifi_evidence.py` | Cardputer/ADV 原生 STA 能力声明与同会话 Ethernet pcap 的被动 DHCPv4、TCP、UDP 传输计数 | Device Service 设备目录和 network evidence、`test_device_service_wifi_evidence.py` |
 | `platform/tools/device_service_softap_peer.py` | Cardputer/ADV 开放 SoftAP 的每会话 UNIX socketpair、固定 DHCP/ARP/HTTP 客户端和世代回执 | Device Service 原生 SoftAP profile、`test_device_service_softap_peer.py` |
-| `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告；按完整 ELF 哈希和应用描述符核对后解析 Xtensa 函数地址；按需采样原生 Xtensa CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
+| `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告；按完整 ELF 哈希和应用描述符核对后解析 Xtensa、原生 C6 RISC-V 函数地址；按需采样原生 Xtensa CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
 | `platform/tools/decode_esp32_coredump.py` | 离线核对 Core2 同会话 ZIP、合并 Flash、应用 ELF 和 UART dump 的 CRC 与 ELF note，在 macOS 受限进程内解析 FreeRTOS 任务摘要 | Core2 崩溃探针、`test_decode_esp32_coredump.py` |
 | `platform/tools/device_service_execution_parsing.py` | 无状态 storage/NVS execution request 解析，保持 artifact、字段和 partition-label 契约 | `device_service.py` 兼容 re-export、execution parser tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
@@ -139,7 +139,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/worker_discovery_seed.py` | 独立 unicast seed HTTP service；每次请求重新读取 token 并返回当前 signed beacon | cross-subnet worker bootstrap、deployment |
 | `platform/tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA 和 mTLS 客户端证书 | `serve.py`、`worker_agent.py`、TLS tests |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
-| `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 调用地址和 native-HCI hook/HLI 地址 | Device Service、Core2 runners |
+| `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表解析 Core2 native-VHCI 和 native-HCI 地址；显式启用时解析原生 C6 RISC-V ILP32 soft-float 函数 | Device Service、Core2 runners |
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
 | `platform/tools/firmware_manifest.py` | merged/segmented/ZIP/WebBurner 导入和 manifest | CLI、Device Service |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
