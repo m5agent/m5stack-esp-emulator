@@ -34,16 +34,18 @@ UART1_PONG = b"TAB5_RS485_PONG"
 
 
 def admit_image(base: bytes, image: bytes, elf: Path | None,
-                *, probe_only: bool) -> dict:
+                *, probe_only: bool, allow_ota0: bool = False) -> dict:
     """Bind GDB symbols to this app before starting either virtual device."""
     if not 0 < len(base) <= FLASH_SIZE or len(image) != FLASH_SIZE:
         raise ValueError("Tab5 requires a complete 16 MiB execution image")
-    expected = application_identity(base + b"\xff" * (FLASH_SIZE - len(base)))
-    application = application_identity(image)
+    expected = application_identity(base + b"\xff" * (FLASH_SIZE - len(base)), allow_ota0=allow_ota0)
+    application = application_identity(image, allow_ota0=allow_ota0)
     if application != expected:
         raise ValueError("prebuilt image changed the declared base application")
     if not probe_only and elf is None:
         raise ValueError("framebuffer/touch validation requires the matching emulator ELF")
+    if elf and application.get("selection") == "ota0_erased_otadata":
+        raise ValueError("Tab5 source ELF binding requires a factory application")
     actual_elf = hashlib.sha256(elf.read_bytes()).hexdigest() if elf else None
     if elf and (not application["elf_sha256"]
                 or actual_elf != application["elf_sha256"]):

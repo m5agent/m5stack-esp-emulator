@@ -47,6 +47,23 @@ def p4_base(*, blank=False):
     return bytes(data)
 
 
+def p4_ota_base(*, selected=False, extra_app=False):
+    data = bytearray(p4_base(blank=True))
+    parts = (fixture.entry("app0", 0x10000, 0x990000, 0, 0x10)
+             + fixture.entry("otadata", 0xe000, 0x2000, 1, 0)
+             + fixture.entry("vfs", VFS, VFS_SIZE))
+    if extra_app:
+        parts += fixture.entry("app1", 0x9a0000, 0x10000, 0, 0x11)
+    table = parts + struct.pack("<H", 0xEBEB) + b"\0" * 14 + hashlib.md5(parts).digest()
+    data[0x8000:0x8000 + len(table)] = table
+    data[0x10017] = 1  # ESP image has appended SHA-256.
+    checksum_end = (0x10020 + 0x620000 + 16) & ~15
+    data[checksum_end:checksum_end + 32] = hashlib.sha256(data[0x10000:checksum_end]).digest()
+    if selected:
+        data[0xf000] = 1
+    return bytes(data)
+
+
 @unittest.skipIf(fixture.littlefs is None, "littlefs-python is required")
 class CompositionTests(unittest.TestCase):
     def test_actual_partition_preserves_app_and_existing_files(self):
@@ -129,6 +146,28 @@ class AdmissionTests(unittest.TestCase):
                                            probe_only=True)['gdb_app_identity_matched'])
         with self.assertRaisesRegex(ValueError, 'matching emulator ELF'):
             runner.admit_image(self.base, self.base, None, probe_only=False)
+
+    def test_single_ota0_has_static_identity_only_for_uploads(self):
+        raw = p4_ota_base()
+        receipt = runner.admit_image(raw, raw, None, probe_only=True, allow_ota0=True)
+        self.assertEqual(receipt["application"]["selection"], "ota0_erased_otadata")
+        self.assertEqual(receipt["application"]["offset"], 0x10000)
+        self.assertEqual(receipt["application"]["elf_sha256"], hashlib.sha256(ELF_BYTES).hexdigest())
+        self.assertFalse(receipt["gdb_app_identity_matched"])
+        with self.assertRaisesRegex(ValueError, "factory application"):
+            runner.admit_image(raw, raw, self.elf, probe_only=False, allow_ota0=True)
+        with self.assertRaisesRegex(ValueError, "factory application"):
+            application_identity(raw)
+
+    def test_ota0_ambiguous_or_corrupt_image_does_not_acquire_identity(self):
+        damaged = bytearray(p4_ota_base())
+        damaged[0x11000] ^= 1
+        for raw, message in (
+                (p4_ota_base(selected=True), "erased OTA data"),
+                (p4_ota_base(extra_app=True), "one application partition"),
+                (bytes(damaged), "appended image digest")):
+            with self.subTest(message=message), self.assertRaisesRegex(ValueError, message):
+                application_identity(raw, allow_ota0=True)
 
     def test_prebuilt_old_vfs_overwrite_is_rejected_as_app_change(self):
         damaged = bytearray(self.base)

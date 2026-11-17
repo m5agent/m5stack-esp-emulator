@@ -123,6 +123,20 @@ class Tab5ServiceTests(unittest.TestCase):
         self.assertEqual(session.flash_info["tab5"]["symbols_status"], "unavailable")
         self.assertNotIn("--elf", self.launch_commands(session)[1])
 
+    def test_single_ota0_identity_is_reported_without_binding_reference_elf(self):
+        self.base = image_fixture.p4_ota_base()
+        self.image.write_bytes(self.base)
+        self.image_sha = hashlib.sha256(self.base).hexdigest()
+        session = self.session()
+        self.provision(session)
+        identity = session.flash_info["tab5"]
+        self.assertEqual(identity["application"]["partition_subtype"], 0x10)
+        self.assertEqual(identity["application"]["selection"], "ota0_erased_otadata")
+        self.assertEqual(identity["application"]["elf_sha256"], hashlib.sha256(self.elf.read_bytes()).hexdigest())
+        self.assertEqual(identity["symbols_status"], "unavailable")
+        self.assertIsNone(identity["elf_sha256"])
+        self.assertNotIn("--elf", self.launch_commands(session)[1])
+
     def launch_commands(self, session):
         commands = []
         def spawn(command, **kwargs):

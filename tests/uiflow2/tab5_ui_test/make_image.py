@@ -16,27 +16,57 @@ from uiflow_source import FS_CONFIG, build_uiflow_source_image, uiflow_vfs_layou
 FLASH_SIZE = 16 << 20
 
 
-def application_identity(data: bytes) -> dict:
+def application_identity(data: bytes, *, allow_ota0: bool = False) -> dict:
     table = parse_partition_table(data, image_size=FLASH_SIZE)
     if not table["valid"] or table["warnings"]:
         raise ValueError("Tab5 requires a complete valid partition table")
-    factory = [p for p in table["partitions"] if p["type"] == 0 and p["subtype"] == 0]
-    if len(factory) != 1:
+    partitions = table["partitions"]
+    apps = [p for p in partitions if p["type"] == 0]
+    if allow_ota0 and len(apps) != 1:
+        raise ValueError("Tab5 upload requires one application partition to identify the boot image")
+    factory = [p for p in apps if p["subtype"] == 0]
+    ota0 = allow_ota0 and apps[0]["subtype"] == 0x10
+    if ota0:
+        part = apps[0]
+        ota = [p for p in partitions if p["type"] == 1 and p["subtype"] == 0]
+        if len(ota) != 1:
+            raise ValueError("Tab5 OTA0 identity requires exactly one OTA data partition")
+        metadata = ota[0]
+        offset = metadata["offset"]
+        if (metadata["flags"] or metadata["size"] != 0x2000 or offset < 0x9000
+                or offset % 0x1000 or offset + 0x2000 > len(data)
+                or data.count(0xFF, offset, offset + 0x2000) != 0x2000
+                or any(p is not metadata and p["offset"] < offset + 0x2000
+                       and p["offset"] + p["size"] > offset for p in partitions)):
+            raise ValueError("Tab5 OTA0 identity requires valid erased OTA data")
+    elif len(factory) == 1:
+        part = factory[0]
+    else:
         raise ValueError("Tab5 regression requires exactly one factory application")
-    part = factory[0]
     start, end = part["offset"], part["offset"] + part["size"]
     info = analyze_esp_image(data, start)
     if (not info["valid"] or info.get("chip_id") != 0x12
             or info["image_end"] > end or end > len(data)):
-        raise ValueError("Tab5 factory application is truncated, corrupt or not ESP32-P4")
+        raise ValueError("Tab5 application is truncated, corrupt or not ESP32-P4")
     descriptor = find_app_descriptor(data, start, info["image_end"])
-    return {
+    identity = {
         "offset": start, "size": part["size"], "segments_end": info["image_end"],
         "partition_sha256": hashlib.sha256(data[start:end]).hexdigest(),
         "segments_sha256": hashlib.sha256(data[start:info["image_end"]]).hexdigest(),
         "elf_sha256": descriptor["elf_sha256"] if descriptor else None,
         "version": descriptor["version"] if descriptor else None,
     }
+    if ota0:
+        checksum_end = start + ((info["image_end"] - start + 16) & ~15)
+        if (part["flags"] or start < 0x10000 or start % 0x10000
+                or any(p is not part and p["offset"] < end
+                       and p["offset"] + p["size"] > start for p in partitions)
+                or not info["hash_appended"] or checksum_end + 32 > end
+                or hashlib.sha256(data[start:checksum_end]).digest() != data[checksum_end:checksum_end + 32]):
+            raise ValueError("Tab5 OTA0 application layout or appended image digest could not be verified")
+        identity.update(partition_label=part["label"], partition_subtype=part["subtype"],
+                        selection="ota0_erased_otadata")
+    return identity
 
 
 def compose_image(base: bytes, files: dict[str, str], *,

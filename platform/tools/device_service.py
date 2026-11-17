@@ -9560,12 +9560,15 @@ class Tab5DeviceSession(DeviceSession):
                 "Tab5 execution image changed the admitted firmware bytes", 409,
             )
         try:
-            identity = admit_tab5_image(original, actual, None, probe_only=True)
+            identity = admit_tab5_image(
+                original, actual, None, probe_only=True,
+                allow_ota0=self.firmware_source != "reference",
+            )
         except ValueError as error:
             if self.firmware_source == "reference":
                 raise ServiceError("invalid_tab5_image", str(error), 400) from error
-            # Generic intake already admits uploaded P4 images. The regression
-            # ELF contract only identifies one factory app, not an OTA selection.
+            # Generic intake already admits uploaded P4 images. Identity can
+            # remain unresolved while the native DSI lane observes the guest.
             identity = {
                 "application": None, "elf_sha256": None,
                 "gdb_app_identity_matched": False,
@@ -9576,7 +9579,9 @@ class Tab5DeviceSession(DeviceSession):
         elf_bytes = configured.read_bytes() if configured and configured.is_file() else None
         elf_sha = hashlib.sha256(elf_bytes).hexdigest() if elf_bytes is not None else None
         application = identity["application"] or {}
-        if elf_sha and elf_sha == application.get("elf_sha256"):
+        if application.get("selection") == "ota0_erased_otadata":
+            identity["symbols_unavailable_reason"] = "Tab5 source ELF binding requires a factory application"
+        elif elf_sha and elf_sha == application.get("elf_sha256"):
             self._tab5_elf = self.dir / "runtime.elf"
             self._tab5_elf.write_bytes(elf_bytes)
             identity.update(elf_sha256=elf_sha, gdb_app_identity_matched=True)
