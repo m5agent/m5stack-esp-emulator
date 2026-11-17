@@ -386,8 +386,6 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 ## 设备矩阵
 
-初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载。[限定 guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 目录、预置文件读、写入和重新挂载，初代 Cardputer 也通过跨会话读回。PaperDIY 的 G48 卡检测还需跟随实际介质。
-
 | 设备 | SoC / 后端 | 当前可执行范围 | 主要边界 |
 | --- | --- | --- | --- |
 | StopWatch | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、振动和外设数据面 | 高保真外观、RF 和真机 `NOT RUN` |
@@ -405,7 +403,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
-以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。
+初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载，[guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 读写及初代 Cardputer 的跨会话读回。PaperDIY 的 G48 卡检测还需跟随实际介质。以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。
 
 ## 当前风险
 
