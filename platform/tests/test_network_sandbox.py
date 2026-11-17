@@ -636,6 +636,40 @@ class NetworkSandboxTests(unittest.TestCase):
                 )
             )
 
+    def test_controlled_udp_requires_exact_binary_and_counts_sent_vs_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            log_path = Path(tmp) / "udp-fixture.json"
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+                probe.bind(("127.0.0.1", 0))
+                port = probe.getsockname()[1]
+            request = b"\0\xff" * 256
+            response = b"\xffM5\0"
+            config = {"port": port, "request_hex": request.hex(), "response_hex": response.hex()}
+            for invalid in ({**config, "port": True}, {**config, "request_hex": "000"},
+                            {**config, "response_hex": "00" * 513}, {**config, "host": "0.0.0.0"}):
+                with self.subTest(invalid=invalid):
+                    with self.assertRaises(network_sandbox.SandboxError):
+                        network_sandbox.validate_udp_fixture(invalid)
+            self.assertEqual(network_sandbox._loopback_ports({"udp": config}), (set(), {port}))
+            peer = network_sandbox.ControlledUdp(config, log_path)
+            try:
+                peer.start()
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client:
+                    client.connect(("127.0.0.1", port))
+                    client.settimeout(.15)
+                    client.send(request + b"\0")
+                    with self.assertRaises(TimeoutError):
+                        client.recv(16)
+                    client.settimeout(1)
+                    client.send(request)
+                    self.assertEqual(client.recv(16), response)
+            finally:
+                peer.close()
+            self.assertFalse(peer.thread.is_alive())
+            receipt = json.loads(log_path.read_bytes())
+            self.assertEqual(receipt["responses_sent"], 1)
+            self.assertEqual(receipt["ignored_datagrams"], 1)
+
     def test_non_linux_refuses_to_run(self):
         with mock.patch.object(network_sandbox.sys, "platform", "darwin"):
             with self.assertRaisesRegex(

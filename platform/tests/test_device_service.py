@@ -2663,6 +2663,34 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "unsupported_wifi_security",
         )
 
+    def test_native_network_fixtures_require_namespace_and_pin_allowlist_ports(self):
+        spec = self.service.specs["cardputer-adv"]
+        parse = device_service_module.parse_qemu_wifi_execution
+        self.assertFalse(parse(spec, {})["http_fixture"])
+        fixture = {"port": 19192, "request_hex": "00ABFF", "response_hex": "0102"}
+        for policy in (
+            {},
+            {"isolation": "namespace", "egress": "deny-all", "dns": "deny"},
+        ):
+            with self.subTest(policy=policy):
+                with self.assertRaises(ServiceError) as invalid:
+                    parse(spec, {"http_fixture": True, "udp_fixture": fixture, "policy": policy})
+                self.assertEqual(invalid.exception.code, "invalid_network")
+        with mock.patch.object(device_service_module, "require_network_capabilities") as admission:
+            options = parse(spec, {
+                "http_fixture": True,
+                "udp_fixture": fixture,
+                "policy": {"isolation": "namespace", "egress": "allowlist",
+                           "dns": "controlled", "allowed_hosts": ["lab.test"]},
+            })
+        admission.assert_called_once()
+        self.assertTrue(options["generic_http_fixture"])
+        self.assertEqual(options["udp_fixture"], {**fixture, "request_hex": "00abff"})
+        self.assertCountEqual(options["policy"]["allowed_endpoints"], [
+            {"protocol": "tcp", "address": "10.0.2.2", "port": 18192},
+            {"protocol": "udp", "address": "10.0.2.2", "port": 19192},
+        ])
+
     def test_qemu_wifi_binds_s3_efuse_mac_to_station_address(self):
         session_id = "a" * 32
         mac = device_service_module.qemu_station_mac(session_id)

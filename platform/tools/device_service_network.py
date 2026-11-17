@@ -6,7 +6,7 @@ from typing import Any
 from device_service_errors import ServiceError
 from network_egress import EgressEndpoint
 from network_policy import NetworkPolicy, NetworkPolicyError
-from network_sandbox import SandboxError, validate_cname_record_bindings
+from network_sandbox import SandboxError, validate_cname_record_bindings, validate_udp_fixture
 
 
 def parse_network_policy(
@@ -66,3 +66,12 @@ def parse_dns_cname_records(
             str(error),
             400,
         ) from error
+
+
+def parse_udp_fixture(value: Any) -> dict[str, int | str] | None:
+    if value is None:
+        return None
+    try:
+        return validate_udp_fixture(value)
+    except SandboxError as error:
+        raise ServiceError("invalid_network", str(error), 400) from error
