@@ -55,6 +55,12 @@ from device_service_fs_fixture import (  # noqa: E402
     plan_fs_fixture,
 )
 from device_service_encoder import rotate_encoder  # noqa: E402
+from device_service_tab5_dsi import (  # noqa: E402
+    RGB565_LE,
+    TAB5_DSI_RUNTIME_SHA256,
+    Tab5DsiReceiver,
+    tab5_dsi_runtime,
+)
 from device_service_input import (  # noqa: E402
     SEMANTIC_INPUT_KINDS,
     normalize_semantic_input,
@@ -8841,7 +8847,7 @@ class NetworkDeviceSession(DeviceSession):
 
 
 class Tab5DeviceSession(DeviceSession):
-    """Tab5 esp-emu session with serial, GDB framebuffer and touch support."""
+    """Tab5 esp-emu session with native DSI or matching-ELF framebuffer capture."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -8850,6 +8856,8 @@ class Tab5DeviceSession(DeviceSession):
         self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
         self._tab5_elf: Path | None = None
         self._tab5_efuse = self.dir / "runtime.efuse"
+        self._tab5_dsi_emulator: Path | None = None
+        self._tab5_dsi: Tab5DsiReceiver | None = None
 
     def _prepare_tab5_identity(self) -> dict:
         """Admit the actual session image before starting either companion."""
@@ -8896,6 +8904,10 @@ class Tab5DeviceSession(DeviceSession):
         # An uploaded image may boot without the service reference's ELF. Never
         # hand symbols from another build to either esp-emu or the GDB helpers.
         identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
+        candidate = self.service.tab5_dsi_emulator
+        if candidate and self._tab5_elf is None:
+            self._tab5_dsi_emulator = tab5_dsi_runtime(candidate)
+            identity.update(frame_capture="esp-emu-dsi", runtime_sha256=TAB5_DSI_RUNTIME_SHA256)
         assert self.spec.efuse is not None
         seed = self.spec.efuse.read_bytes()
         self._tab5_efuse.write_bytes(seed)
@@ -8963,6 +8975,9 @@ class Tab5DeviceSession(DeviceSession):
         assert self.spec.rom is not None
         assert self.spec.efuse is not None
         assert self.spec.c6_firmware is not None
+        emulator = self.spec.emulator
+        if self._tab5_dsi_emulator is not None:
+            emulator = tab5_dsi_runtime(str(self._tab5_dsi_emulator))
         elf = (
             self._require_tab5_symbols("tab5_elf_mismatch", "launch")
             if self._tab5_elf else None
@@ -8994,7 +9009,7 @@ class Tab5DeviceSession(DeviceSession):
             self._check_cancelled()
             self._c6_proc = subprocess.Popen(
                 [
-                    str(self.spec.emulator),
+                    str(emulator),
                     "--chip", "esp32c6",
                     "--firmware", str(self.spec.c6_firmware),
                     "--hosted", f"bridge:slave:{self._hosted_socket}",
@@ -9011,7 +9026,7 @@ class Tab5DeviceSession(DeviceSession):
         p4_stdout = self.serial0.open("wb")
         p4_stderr = self.stderr_path.open("wb")
         command = [
-            str(self.spec.emulator),
+            str(emulator),
             "--chip", "esp32p4",
             "--firmware", str(self.virtual_flash),
             "--rom", str(self.spec.rom),
@@ -9028,6 +9043,9 @@ class Tab5DeviceSession(DeviceSession):
             command.extend(["--elf", str(elf)])
         for i2c_device in TAB5_I2C_DEVICES:
             command.extend(["--i2c-dev", i2c_device])
+        dsi_port = free_tcp_port() if self._tab5_dsi_emulator is not None else None
+        if dsi_port is not None:
+            command.extend(["--cosim-tcp", f"127.0.0.1:{dsi_port}"])
         try:
             self._check_cancelled()
             self._proc = subprocess.Popen(
@@ -9037,6 +9055,9 @@ class Tab5DeviceSession(DeviceSession):
                 stdout=p4_stdout,
                 stderr=p4_stderr,
             )
+            if dsi_port is not None:
+                self._tab5_dsi = Tab5DsiReceiver(dsi_port)
+                self._tab5_dsi.start()
             self._check_cancelled()
         finally:
             p4_stdout.close()
@@ -9046,7 +9067,15 @@ class Tab5DeviceSession(DeviceSession):
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
         self._check_cancelled()
 
+    def _close_dsi_receiver(self) -> None:
+        with self._lock:
+            receiver = self._tab5_dsi
+            self._tab5_dsi = None
+        if receiver is not None:
+            receiver.close()
+
     def _terminate_tab5(self) -> None:
+        self._close_dsi_receiver()
         for proc in (self._proc, self._c6_proc):
             if proc is not None and proc.poll() is None:
                 try:
@@ -9078,6 +9107,8 @@ class Tab5DeviceSession(DeviceSession):
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
+        if self._tab5_dsi_emulator is not None:
+            return self._dsi_frame_metrics(analyze=analyze, force_persist=force_persist)
         elf = self._require_tab5_symbols("screenshot_requires_matching_elf", "screenshot capture")
         name = f"api-frame-{uuid.uuid4().hex}"
         raw_width, raw_height, raw565, _ = capture_framebuffer(
@@ -9108,6 +9139,50 @@ class Tab5DeviceSession(DeviceSession):
         finally:
             png.unlink(missing_ok=True)
             (self.dir / f"{name}.rgb565").unlink(missing_ok=True)
+
+    def _dsi_frame_metrics(self, *, analyze: bool, force_persist: bool) -> dict:
+        with self._lock:
+            if self.state not in {"booting", "running"}:
+                persisted = self.persisted_frame_metrics()
+                if persisted is not None:
+                    return persisted
+                raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+            receiver = self._tab5_dsi
+            frame, capture_status = receiver.snapshot() if receiver else (None, "starting")
+            if frame is None:
+                raise ServiceError(
+                    "tab5_dsi_frame_unavailable", "Tab5 has not delivered a complete native DSI frame", 409,
+                    capture_status=capture_status,
+                )
+            if frame.pixel_format == RGB565_LE:
+                pixels = rgb565_to_rgb(frame.pixels)
+            else:
+                rgb = bytearray(len(frame.pixels))
+                rgb[0::3], rgb[1::3], rgb[2::3] = frame.pixels[2::3], frame.pixels[1::3], frame.pixels[0::3]
+                pixels = bytes(rgb)
+            png = self.dir / f"dsi-frame-{uuid.uuid4().hex}.png"
+            try:
+                write_rgb_png(png, frame.width, frame.height, pixels)
+                png_bytes = png.read_bytes()
+                metrics = {
+                    "png": png_bytes,
+                    "width": frame.width,
+                    "height": frame.height,
+                    "png_bytes": len(png_bytes),
+                    "source": "live",
+                    "capture_backend": "esp-emu-dsi",
+                    "capture_frame_number": frame.number,
+                    "capture_guest_time_ns": frame.guest_time_ns,
+                    "captured_at": datetime.fromtimestamp(frame.captured_at, timezone.utc).isoformat(),
+                }
+                if analyze:
+                    nonblack, unique_colors = rgb_metrics(pixels)
+                    metrics.update(nonblack_pixels=nonblack, unique_colors=unique_colors)
+                if force_persist or time.monotonic() - self._last_frame_persisted_at >= 1:
+                    self._persist_frame(metrics)
+                return metrics
+            finally:
+                png.unlink(missing_ok=True)
 
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics(analyze=False)
@@ -9187,7 +9262,13 @@ class Tab5DeviceSession(DeviceSession):
                     "session_not_running", f"session state is {self.state}", 409
                 )
             try:
-                self._set_state("booting")
+                with self._lock:
+                    self._set_state("booting")
+                    if self._tab5_dsi_emulator is not None:
+                        self._close_dsi_receiver()
+                        self.last_frame_path.unlink(missing_ok=True)
+                        self.last_frame_meta_path.unlink(missing_ok=True)
+                        self._last_frame_persisted_at = 0
                 self.serial0.write_bytes(b"")
                 self._terminate_tab5()
                 self._launch_tab5()
@@ -9225,6 +9306,7 @@ class DeviceService:
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.storage_policy = storage_policy or StoragePolicy.from_env()
+        self.tab5_dsi_emulator = os.environ.get("M5_TAB5_DSI_EMULATOR", "").strip()
         self.specs = load_device_specs()
         self.runtime_acl = runtime_acl or RuntimeACL.unconfigured()
         self.runtime_acl.validate_device_ids(set(self.specs))

@@ -107,6 +107,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |
 | `platform/tools/device_service_specs.py` | 设备 catalog/matrix/profile 解析、QEMU backend 路径和 runtime profile 选择 | `device_service.py` 兼容 re-export、device-spec tests |
+| `platform/tools/device_service_tab5_dsi.py` | 指定 esp-emu 版本身份校验、原生 DSI co-sim 协议接收、同世代完整帧与增量行重建 | Tab5 Device Service、`test_tab5_dsi.py` |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/uiflow_cloud_startup.py` | 原版 UIFlow2 cloud startup 的逐镜像 SHA 准入、标准 Flash 尾部补齐、完整 NVS 配置和真实 Wi-Fi 默认值；保留调用者网络策略，不生成配对码或改写应用 | `test_uiflow_cloud_startup.py`；Device Service 原生 stock startup |

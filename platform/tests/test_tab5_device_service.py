@@ -156,6 +156,42 @@ class Tab5ServiceTests(unittest.TestCase):
         self.provision(session)
         self.assertNotIn("--elf", self.launch_commands(session)[1])
 
+    def test_dsi_candidate_runtime_is_explicit_and_does_not_replace_reference(self):
+        self.service.tab5_dsi_emulator = "/missing/esp-emu"
+        reference = self.session(source="reference")
+        self.provision(reference)
+        self.assertIsNone(reference._tab5_dsi_emulator)
+        self.assertIn("--elf", self.launch_commands(reference)[1])
+        self.elf.write_bytes(b"wrong build")
+        upload = self.session()
+        with mock.patch.object(service_module.subprocess, "Popen") as spawn:
+            with self.assertRaises(service_module.ServiceError) as raised:
+                upload._provision_runtime()
+        self.assertEqual(raised.exception.code, "tab5_dsi_runtime_unavailable")
+        spawn.assert_not_called()
+
+    def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
+        self.elf.write_bytes(b"wrong build")
+        self.service.tab5_dsi_emulator = str(self.root / "qualified")
+        session = self.session()
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=Path(self.service.tab5_dsi_emulator)), \
+                mock.patch.object(service_module, "Tab5DsiReceiver") as receiver:
+            self.provision(session)
+            sidecar, p4 = self.launch_commands(session)
+            self.assertNotIn("--cosim-tcp", sidecar)
+            self.assertNotIn("--elf", p4)
+            self.assertIn("--cosim-tcp", p4)
+            self.assertEqual(p4[0], sidecar[0])
+            self.assertEqual(session.flash_info["tab5"]["frame_capture"], "esp-emu-dsi")
+            receiver.return_value.start.assert_called_once()
+            receiver.return_value.snapshot.return_value = (None, "connected")
+            with self.assertRaises(service_module.ServiceError) as raised:
+                session.frame_png()
+            self.assertEqual(raised.exception.code, "tab5_dsi_frame_unavailable")
+            self.assertEqual(raised.exception.extra["capture_status"], "connected")
+            session._close_dsi_receiver()
+            receiver.return_value.close.assert_called_once()
+
     def test_modified_session_elf_is_rejected_before_any_launch(self):
         session = self.session()
         self.provision(session)

@@ -2336,6 +2336,10 @@ paths:
         reuse. Captured program context is not application readiness or an atomic
         snapshot with Unit/serial state. Tab5/network do not admit shared capture;
         omit max_age_ms to retain their existing capture behavior.
+        Tab5 sessions on the explicitly enabled native DSI backend return the
+        latest complete received DPI frame, with no matching ELF needed.
+        Before a complete frame is received this backend replies with
+        409 tab5_dsi_frame_unavailable and a capture_status detail.
         The default orient=panel preserves raw physical coordinates. Native SPI
         TFT observers provide controller-derived orientation metadata bound to
         the capture; this is not text recognition or application readiness.

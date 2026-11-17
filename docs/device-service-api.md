@@ -2926,12 +2926,33 @@ Reset keeps the session's eFuse state. `flash.tab5` records the application
 identity when a single factory app can be identified, firmware/eFuse input
 hashes, byte preservation, and `symbols_status` (`matched` or `unavailable`).
 The ELF SHA must match the actual app descriptor before symbolic frame/touch
-operations. A stale reference ELF fails with `tab5_elf_mismatch`; an uploaded
-image without matching symbols may execute, but frame/input return
-`screenshot_requires_matching_elf` / `input_requires_matching_elf` (409).
+operations. A stale reference ELF fails with `tab5_elf_mismatch`. By default,
+an uploaded image without matching symbols may execute, with
+`screenshot_requires_matching_elf` for frames and
+`input_requires_matching_elf` for input (409).
 An OTA-only upload retains its complete image and has no factory-symbol binding.
 These integrity checks do not establish application readiness or controller
 coverage. The current matching-ELF touch path is a diagnostic GDB mailbox.
+
+For isolated diagnostics, start the worker with `M5_TAB5_DSI_EMULATOR` set
+to the absolute path of the tested macOS arm64 esp-emu 1.1.0 binary
+(SHA-256 `633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828`).
+The override applies to uploaded Tab5 images without matching symbols. It
+selects that binary for the P4 guest and its C6 companion. Matched-ELF
+sessions continue to use the configured Tab5 runtime. The worker verifies the
+opt-in binary before starting the companions. An invalid selection fails with
+`tab5_dsi_runtime_unavailable`.
+
+With native DSI enabled, `GET /sessions/{id}/frame.png` with default
+`orient=panel` returns the latest complete received DPI frame. A still
+screen can return the same capture repeatedly. Before a complete frame,
+the endpoint returns `409 tab5_dsi_frame_unavailable` with
+`error.capture_status` of `starting`, `connecting`, `connected`,
+`disconnected` or `protocol_error`. The evidence records the selected
+runtime SHA and `flash.tab5.frame_capture=esp-emu-dsi`. Retained frames are
+served through the same route. Reset discards the previous process's frame.
+The receiver captures raw DPI pixels, including RGB565 and BGR888. Application
+readiness, panel brightness, orientation and touch require separate evidence.
 
 Core2 board inventory and the QEMU machine both expose 8 MiB PSRAM.
 Native-controller profiles request CLI `-m 0`, and the current `m5core2`
@@ -3532,8 +3553,9 @@ restart.
   one C6 guest. Stock Nesso UIFlow2 `hardware.RGB()` remains `NOT RUN`;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
-- uploaded Tab5 firmware can execute without an ELF, but screenshot/input require
-  the configured ELF to match that session's actual factory application;
+- uploaded Tab5 firmware can execute without an ELF. Default screenshots and
+  touch input require matching symbols. The opt-in esp-emu DSI receiver can
+  capture an actual native frame without symbols;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
   StamPLC, plus environment-gated Core2; other devices expose session
