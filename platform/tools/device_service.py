@@ -168,6 +168,7 @@ from firmware_analysis import (  # noqa: E402
     find_flash_bootloader,
     parse_partition_table,
 )
+from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from firmware_manifest import (  # noqa: E402
     ManifestError,
     canonical_json_sha256,
@@ -7530,6 +7531,65 @@ class DeviceSession:
             "removed": removed,
             "changed": changed,
         }
+
+    def _read_stopped_sd_media(self) -> tuple[bytes, dict]:
+        self._require_runtime_permission("storage.read")
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("sd_session_busy", "session lifecycle operation is in progress", 409)
+        try:
+            if (
+                self.state not in {"stopped", "failed"}
+                or self._worker_lease_active
+                or (self._proc is not None and self._proc.poll() is None)
+                or self._process_identity_matches()
+            ):
+                raise ServiceError(
+                    "sd_session_active",
+                    "stop the session and wait for its writable SD media to close",
+                    409,
+                )
+            if self._stop_purge or not self.storage_info or self.sd_card_image.is_symlink():
+                raise ServiceError("sd_media_unavailable", "session SD media is not retained", 409)
+            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+            try:
+                with os.fdopen(os.open(self.sd_card_image, flags), "rb") as disk:
+                    info = os.fstat(disk.fileno())
+                    if (
+                        not stat.S_ISREG(info.st_mode)
+                        or not 0 < info.st_size <= MAX_ARTIFACT_BYTES
+                        or info.st_size % 512
+                        or info.st_size != self.storage_info["bytes"]
+                    ):
+                        raise ServiceError("invalid_storage_image", "retained SD media has an invalid size or type", 409)
+                    data = disk.read(info.st_size + 1)
+            except OSError as error:
+                raise ServiceError("sd_media_unavailable", "session SD media could not be read", 409) from error
+            if len(data) != info.st_size:
+                raise ServiceError("invalid_storage_image", "retained SD media size changed while reading", 409)
+            return data, {
+                "session_id": self.id,
+                "source_artifact_id": self.storage_info["artifact_id"],
+                "interface": self.storage_info["interface"],
+                "size": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        finally:
+            self._lifecycle_lock.release()
+
+    def sd_storage_inventory(self) -> dict:
+        data, metadata = self._read_stopped_sd_media()
+        return {**metadata, **inventory_sd_filesystems(data)}
+
+    def sd_storage_export(self) -> dict:
+        data, metadata = self._read_stopped_sd_media()
+        digest = metadata["sha256"]
+        try:
+            self.service.artifacts.path(digest)
+        except ServiceError as error:
+            if error.code != "unknown_artifact":
+                raise
+            self.service.upload_artifact(data, name="sd-card.img")
+        return {**metadata, "artifact_id": digest}
 
     def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
         DeviceSession._require_runtime_permission(self, "flash.read")

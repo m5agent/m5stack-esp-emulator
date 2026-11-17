@@ -16,7 +16,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-17
 
-[Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。
+[Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。 [导出复验](evidence/2026-11-17-spi-sd-admission/export-summary.json)在同一 FAT32 镜像校验目录时间戳修复、运行时拒绝、内容寻址导出和服务重启读回。
 
 ## 2026-11-16
 

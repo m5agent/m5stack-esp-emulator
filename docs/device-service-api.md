@@ -137,6 +137,7 @@ override the optional `"*"` fallback. The supported operations are:
 - `program.interrupt`
 - `filesystem.write`
 - `flash.read`
+- `storage.read`
 
 `program.execute` additionally requires an explicit `main.py`/`main.mpy`
 entrypoint allowlist. Package execution requires `filesystem.write`; every
@@ -2494,6 +2495,22 @@ expose the artifact SHA, size, interface and session-isolated copy boundary.
 `platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16
 superfloppy fixtures for reproducible storage-dependent firmware tests.
 
+Stop the guest with `purge=0` before inspecting or exporting its writable SD
+disk. Both endpoints require `storage.read` when runtime ACL is configured.
+`GET /sessions/{id}/storage/sd` reports the current disk SHA-256, original
+artifact ID, and bounded FAT directory and file-hash metadata. It recognizes a
+whole-card FAT volume or FAT primary partitions in an MBR. Unsupported formats
+return an explicit inventory error. File contents are absent from the listing.
+
+`POST /sessions/{id}/storage/sd/export` stores the stopped session's SD bytes
+as an immutable artifact. Set a later session's `storage.sd_image_artifact_id`
+to the returned `artifact_id` to attach a fresh writable copy. Repeated
+exports of identical bytes return the same artifact ID. The published
+`sha256` identifies exported bytes and `source_artifact_id` identifies the
+original upload, which remains unchanged. Session history and artifact
+retention use the existing service limits. Active, unavailable and absent media
+return 409. A session removed by purge returns 404.
+
 Firmware that expects first-boot or provisioned NVS data can attach a complete
 NVS partition without changing the firmware artifact:
 
@@ -2778,6 +2795,8 @@ display journal is not a replacement for same-session validation evidence.
 | GET | `/api/v1/sessions/{id}/flash?format=sha256\|bin` | Read virtual flash hash or bytes |
 | POST | `/api/v1/sessions/{id}/flash-snapshot` | Store a virtual flash snapshot |
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
+| GET | `/api/v1/sessions/{id}/storage/sd` | Inventory retained SD after the guest stops |
+| POST | `/api/v1/sessions/{id}/storage/sd/export` | Export retained SD to a reusable media artifact |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |
 | POST | `/api/v1/sessions/{id}/stop` | Stop; full Flash is released unless `retain_flash=true` |

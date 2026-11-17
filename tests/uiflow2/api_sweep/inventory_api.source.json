@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.63.0",
-  "contract_sha256": "9008fd6e65fffd817c7073db0bba482d744af3fd60d2e136e7958d5bd9d66534",
+  "contract_sha256": "4c01d662b363cbdcc9aeff44db2224a357569eb03f9ea9bc1c8d98e83cb577b7",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1153,6 +1153,36 @@
         "POST /sessions/{session_id}/renew missing-resource"
       ],
       "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/storage/sd",
+      "method": "GET",
+      "path": "/sessions/{session_id}/storage/sd",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "retained-sd-image",
+        "storage-read-permission"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/storage/sd missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/storage/sd/export",
+      "method": "POST",
+      "path": "/sessions/{session_id}/storage/sd/export",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "retained-sd-image",
+        "storage-read-permission"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/storage/sd/export missing-resource"
+      ],
+      "positive_status": "NOT RUN"
     }
   ],
   "safe_cases": [
@@ -2287,6 +2317,26 @@
         200
       ],
       "authenticated": false
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/storage/sd missing-resource",
+      "operation_id": "GET /sessions/{session_id}/storage/sd",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/sd",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/storage/sd/export missing-resource",
+      "operation_id": "POST /sessions/{session_id}/storage/sd/export",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/sd/export",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
     }
   ],
   "joint_unit_fixtures": {

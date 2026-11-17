@@ -35,12 +35,12 @@ STORAGE_PROBE_REMOUNT write=1 restored=1
 Request the evidence ZIP before stopping the same session with `purge=0`.
 Setting `M5SW_SPI_SD_TRACE=1` on the owned service process records SPI command
 counts in QEMU stderr.
-Read only the stopped session's owned SD media. Parse the FAT partition
-independently, verify that both files match their exact payloads, and verify
-that the original uploaded image still matches its artifact digest. Upload
-the stopped session's SD image as a new artifact and repeat the Cardputer case
-with the same firmware. Require `STORAGE_PROBE_MOUNT seed=1 prior=1` as the
-pre-write marker. Omitting SD media must produce `STORAGE_PROBE_MOUNT_ERROR
+Inventory the stopped session with `GET /sessions/{id}/storage/sd`.
+Verify both file hashes and independently parse the retained FAT partition.
+Confirm that the original uploaded artifact still matches its digest.
+Export with `POST /sessions/{id}/storage/sd/export` and repeat the Cardputer
+case with its returned artifact ID and the same firmware. Require
+`STORAGE_PROBE_MOUNT seed=1 prior=1` as the pre-write marker. Omitting SD media must produce `STORAGE_PROBE_MOUNT_ERROR
 ESP_ERR_TIMEOUT` on the tested Cardputer. Require guest exit for each case.
 
 [Observed virtual-device results](../../../docs/evidence/2026-11-17-spi-sd-admission/summary.json).

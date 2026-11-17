@@ -37,7 +37,7 @@ info:
     separate application authentication layer.
     An optional operator-owned runtime ACL file can restrict serial reads,
     input/reset operations, program execution and interruption, package file
-    writes and virtual-flash reads per device. When configured, undeclared
+    writes and virtual-flash or SD reads per device. When configured, undeclared
     devices and operations are denied. Every session and capacity response
     exposes the active policy hash and effective rights; the file is never
     inferred from guest metadata. SIGHUP validates and reloads the file during
@@ -2089,6 +2089,72 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+  /sessions/{session_id}/storage/sd:
+    get:
+      summary: Inventory a stopped session's retained SD media
+      description: >-
+        Requires storage.read when a runtime ACL is active. Returns bounded
+        FAT metadata for whole-card volumes and MBR primary partitions.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Retained SD identity and filesystem inventory
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SessionSdSnapshot"
+                  - type: object
+                    required: [layout, filesystems, errors]
+                    properties:
+                      layout:
+                        type: string
+                        enum: [superfloppy, mbr, unknown]
+                      filesystems:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                      errors:
+                        type: array
+                        items:
+                          type: string
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/storage/sd/export:
+    post:
+      summary: Export a stopped session's retained SD media as an artifact
+      description: >-
+        Requires storage.read when a runtime ACL is active. An identical
+        snapshot returns the same artifact ID. A later session can attach it
+        through storage.sd_image_artifact_id.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Reusable immutable SD artifact receipt
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SessionSdSnapshot"
+                  - type: object
+                    required: [artifact_id]
+                    properties:
+                      artifact_id:
+                        type: string
+                        pattern: "^[0-9a-f]{64}$"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash:
     get:
       summary: Read current virtual flash metadata or bytes
@@ -4584,6 +4650,24 @@ components:
         sd_image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+    SessionSdSnapshot:
+      type: object
+      required: [session_id, source_artifact_id, interface, size, sha256]
+      properties:
+        session_id:
+          type: string
+        source_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        interface:
+          type: string
+          enum: [spi, sdmmc]
+        size:
+          type: integer
+          minimum: 512
+        sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
     NvsExecution:
       type: object
       additionalProperties: false
@@ -5489,6 +5573,7 @@ components:
         - program.interrupt
         - filesystem.write
         - flash.read
+        - storage.read
     WorkerSummary:
       type: object
       additionalProperties: false

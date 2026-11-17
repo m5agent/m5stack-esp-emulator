@@ -721,6 +721,12 @@ class Handler(SimpleHTTPRequestHandler):
                         409,
                     )
                 response = network_evidence()
+            elif method == "GET" and len(parts) == 4 and parts[0] == "sessions" and parts[2:] == ["storage", "sd"]:
+                response = service.get_session(parts[1]).sd_storage_inventory()
+            elif method == "POST" and len(parts) == 5 and parts[0] == "sessions" and parts[2:] == ["storage", "sd", "export"]:
+                if self._read_json(required=False, max_bytes=512):
+                    raise ServiceError("invalid_request", "SD export does not accept options", 400)
+                response = service.get_session(parts[1]).sd_storage_export()
             elif (
                 method == "GET"
                 and len(parts) == 3

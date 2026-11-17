@@ -1,0 +1,123 @@
+{
+  "validation": "virtual-device validation",
+  "qemu_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+  "seed_artifact_sha256": "d4e80553711589e0656902e0e10eaa8b60492c962efdf93ec29ef759ab9c5057",
+  "guest_stock_sdk": "ESP-IDF 5.5.4 735507283d5b2f9fb363a1901172dbd9e847945d",
+  "service_exited": true,
+  "restored_export_after_service_restart": true,
+  "configured_storage_read_permission": true,
+  "cases": [
+    {
+      "scenario": "seeded",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "099c4472140a351786b400ece56f2ba2039b945370f9e78100328c37d9712901",
+      "cleanup": true,
+      "session_state": "stopped",
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "active_media_api_rejected": true,
+      "api_inventory": {
+        "layout": "mbr",
+        "files": 2,
+        "directories": 1
+      },
+      "exported_artifact_id": "0911f77f0b836bfaabf131571c77354f16d12a45686fcb29e28be988e6a74cf4"
+    },
+    {
+      "scenario": "second-session",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "fff5dfd4bd04bcd77048f80e61799818a6a5a38f3453a0985e9d527cb0caf6db",
+      "cleanup": true,
+      "session_state": "stopped",
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=1",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "active_media_api_rejected": true,
+      "api_inventory": {
+        "layout": "mbr",
+        "files": 2,
+        "directories": 1
+      },
+      "exported_artifact_id": "0911f77f0b836bfaabf131571c77354f16d12a45686fcb29e28be988e6a74cf4"
+    },
+    {
+      "scenario": "empty",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "e1936da70d5efc6e2e83ec1c9605a62039da8857614a17e4e733c5646b245118",
+      "cleanup": true,
+      "session_state": "stopped",
+      "events": [
+        "STORAGE_PROBE_MOUNT_ERROR ESP_ERR_TIMEOUT",
+        "STORAGE_PROBE_DONE"
+      ],
+      "active_media_api_rejected": true,
+      "missing_media_api_rejected": true
+    },
+    {
+      "scenario": "seeded",
+      "device_id": "cardputer-adv",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "fd0c33656adb702c9d44b0151aeaf9b235472876af4aaf0606e21f9ad528ae2f",
+      "cleanup": true,
+      "session_state": "stopped",
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "active_media_api_rejected": true,
+      "api_inventory": {
+        "layout": "mbr",
+        "files": 2,
+        "directories": 1
+      },
+      "exported_artifact_id": "0911f77f0b836bfaabf131571c77354f16d12a45686fcb29e28be988e6a74cf4"
+    },
+    {
+      "scenario": "seeded",
+      "device_id": "papers3",
+      "firmware_sha256": "d35ccc58c382e56b0e0e41f398336deb727a782064df8bd07692779b7ae990a5",
+      "bundle_sha256": "ece14df76e21a483e4b9093ed606ed1b343fbaa40199826964012941134e1067",
+      "cleanup": true,
+      "session_state": "stopped",
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "active_media_api_rejected": true,
+      "api_inventory": {
+        "layout": "mbr",
+        "files": 2,
+        "directories": 1
+      },
+      "exported_artifact_id": "0911f77f0b836bfaabf131571c77354f16d12a45686fcb29e28be988e6a74cf4"
+    }
+  ],
+  "scope": "Retained SD inventory, export, reuse and service restart",
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "pre_fix_control": {
+    "same_seed_artifact_sha256": "d4e80553711589e0656902e0e10eaa8b60492c962efdf93ec29ef759ab9c5057",
+    "guest_read_and_written_file_verified": true,
+    "inventory_directory_count": 0,
+    "inventory_file_count": 1,
+    "expected_directory_count": 1,
+    "expected_file_count": 2,
+    "cause": "DIR_LstAccDate at bytes 18 and 19 was treated as reserved zero bytes"
+  },
+  "service_source_sha256": {
+    "platform/tools/device_service.py": "9c6fe077f3fd360b6d1b2a788a7f95c8c59aeb152db1ed9a3e0f3ddd85c1df4f",
+    "platform/tools/firmware_filesystems.py": "fd989d4ba39276f88e4f9d4e339c5079165013ed66ce6988673ea9eaefb166e3",
+    "platform/tools/runtime_acl.py": "b2bfe622d5a4280c274fba26bdf7ebb28052d5e87804f72a225aff506598aa03",
+    "platform/tools/serve.py": "6fb9e7805be04510e1c60f1ccb832242d1e5eabf1e561f580637bdd10b22780d"
+  }
+}

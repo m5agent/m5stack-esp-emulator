@@ -23,3 +23,18 @@ a guest. The recorded run used the isolated worker's trace configuration.
 PaperDIY keeps its existing scope until GPIO48 card detect follows actual media.
 The internal filesystem overlay and reviewer fixture intake are separate paths.
 Physical hardware and browser WASM were not run.
+
+The [export follow-up](export-summary.json) replays the exact FAT32 fixture
+through the two HTTP endpoints. The first inventory omitted a valid seeded
+directory and file even though the guest and the independent FAT reader
+read them successfully. Bytes 18–19 of a short directory entry hold the
+last-access date. The parser now accepts real directory entries carrying this
+date. [Microsoft FAT specification](https://www.pcjs.org/documents/papers/microsoft/MS_FAT_OVERVIEW_103-2000-12-06.pdf)
+
+The final test grants `storage.read` in the isolated runtime ACL. The active
+guest rejects both inventory and export. After stop, the inventory returns
+both file hashes, two export requests yield the same artifact ID, and the
+second Cardputer guest accepts that ID directly and reads the previous write.
+The source SD hash stays unchanged. Restarting the isolated Device Service
+preserves the first stopped session's inventory and export. The no-media
+session returns an unavailable-media error.
