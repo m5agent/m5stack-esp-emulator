@@ -1,0 +1,211 @@
+{
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "qemu_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch_sha256": "88bd9ce8c2db4d2c75fc84c3d5be40dd21ce2260e0a374b608c01ece9a7c35b7",
+  "qemu_changed_compilable_source": "hw/m5stopwatch/esp32s3_regi2c.c",
+  "build_scope": "clean native Xtensa QEMU build with the retained configure flags and dependency assets",
+  "reference": {
+    "runtime_sha256": "eecf42ad4b393a76a9208c644abc2606030b585824b24ae53e5e9ecad2b4d4ed",
+    "baseline_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+    "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+    "sdk": {
+      "version": "v6.1.1",
+      "source": "051e4c4eb20346e043cdd47bc388fde75ff8af63"
+    },
+    "observation": "ESP-IDF sleep GPIO initialization logged; app_main and LittleFS guest markers absent after 50 seconds",
+    "console_sha256": "5cbe3a2f9ba8e2c9ed6600a3576c5f71a74de7987a2877d673c9c51c405720f9",
+    "console_bytes": 2648,
+    "filesystem_runtime_status": "NOT RUN",
+    "status": "FAIL",
+    "pre_app_main_live_samples": [
+      {
+        "target": "xtensa",
+        "run_state_before": "running",
+        "run_state_after": "running",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x403794f7"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40041a76"
+          }
+        ]
+      },
+      {
+        "target": "xtensa",
+        "run_state_before": "running",
+        "run_state_after": "running",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x403794f7"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40041a76"
+          }
+        ]
+      },
+      {
+        "target": "xtensa",
+        "run_state_before": "running",
+        "run_state_after": "running",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x403794f7"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40041a76"
+          }
+        ]
+      }
+    ]
+  },
+  "root_cause": {
+    "application_elf_sha256": "735488e45e98364ebb58cbb9ee547ee89bea83eb0ab8048d44e721366e4ce8bb",
+    "cpu0_poll_pc": "0x403794f7",
+    "cpu0_symbol": "clk_ll_bbpll_calibration_is_done in rtc_clk_bbpll_configure",
+    "cpu1_rom_symbol": "ets_delay_us",
+    "read": "l32i.n a8, a8, 0",
+    "branch": "bbci a8, 24, 0x403794f1",
+    "mmio": "0x6000e040",
+    "cal_done_bit": 24,
+    "stop_force_high_bit": 2,
+    "stop_force_low_bit": 3
+  },
+  "candidate_idf_v6_1_1": {
+    "service_source": "803e0a0500494d44e65586f8fc79e089b92ee1a0",
+    "runtime_sha256": "21755b0c95f0456e80ad3a1242a86a0214ab0f8136bae08507dc2093ee6d095c",
+    "baseline_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+    "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+    "status": "PASS",
+    "cases": [
+      {
+        "device": "cardputer",
+        "name": "cardputer-fixture",
+        "status": "PASS",
+        "first_end_marker_seconds": 4.246,
+        "executed_runtime_sha256_verified": true,
+        "prepared_flash_sha256": "c8268b45fc4ee3e204fdb1299114281459305b3797d5bc305920026afd8b0f7a",
+        "reset_restored": true,
+        "boot_markers": [
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE",
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE"
+        ],
+        "post_write_flash_sha256": "86a14a7ffe66004561223b31b75c5d03626ceb38338efd96f64367e7303f9cff",
+        "outside_partition_unchanged": true,
+        "zip_sha256": "4d0e9d83a6b1df8f45842d14a7f45e02afe6e73ec0a058347abf5fc63ba5c184",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      }
+    ],
+    "validation": "virtual-device validation",
+    "source_artifacts_unchanged": true,
+    "isolated_service_closed": true
+  },
+  "candidate_idf_v5_5_4_controls": {
+    "service_source": "803e0a0500494d44e65586f8fc79e089b92ee1a0",
+    "runtime_sha256": "21755b0c95f0456e80ad3a1242a86a0214ab0f8136bae08507dc2093ee6d095c",
+    "baseline_flash_sha256": "8346d6abd56135fe3e369d46f91cdaab63035f4ae416d6fab5e84ef54c5f5e00",
+    "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+    "status": "PASS",
+    "cases": [
+      {
+        "device": "cardputer",
+        "name": "cardputer-fixture",
+        "status": "PASS",
+        "first_end_marker_seconds": 4.141,
+        "executed_runtime_sha256_verified": true,
+        "prepared_flash_sha256": "39f06fa29b112c173febbca21e37e784596e48c66a8741286b5cf7addf0b9f03",
+        "reset_restored": true,
+        "boot_markers": [
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE",
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE"
+        ],
+        "post_write_flash_sha256": "ddc896ca90b29474d9bfa4654cdeeee550702fb60c81591fb6fbb15c9fff1eef",
+        "outside_partition_unchanged": true,
+        "zip_sha256": "9dc180ae477cb99f9c18a3cbde45cf0687e43a1d8fcc41af0ba234c656e010b0",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      },
+      {
+        "device": "cardputer-adv",
+        "name": "cardputer-adv-fixture",
+        "status": "PASS",
+        "first_end_marker_seconds": 3.887,
+        "executed_runtime_sha256_verified": true,
+        "prepared_flash_sha256": "39f06fa29b112c173febbca21e37e784596e48c66a8741286b5cf7addf0b9f03",
+        "reset_restored": true,
+        "boot_markers": [
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE",
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE"
+        ],
+        "post_write_flash_sha256": "ddc896ca90b29474d9bfa4654cdeeee550702fb60c81591fb6fbb15c9fff1eef",
+        "outside_partition_unchanged": true,
+        "zip_sha256": "c455fa856aab059de7d2d647e66149f3ff4d8fbaeb9226fee00bc3c8c5c9995d",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      },
+      {
+        "device": "cardputer",
+        "name": "cardputer-empty-control",
+        "status": "PASS",
+        "first_end_marker_seconds": 0.28,
+        "executed_runtime_sha256_verified": true,
+        "boot_markers": [
+          "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+          "LITTLEFS_PROBE_READ seeded=0 listed=0 prior=0",
+          "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+          "LITTLEFS_PROBE_DONE"
+        ],
+        "post_write_flash_sha256": "114c99fefb05209ed4469941c724fcb7d7f810b3894c7051ceca3daea4e6ae9c",
+        "outside_partition_unchanged": true,
+        "zip_sha256": "71bac0b9c93a2314383a503d025c99239a94fa0a4f50fa50ca33914aeb427c76",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      }
+    ],
+    "validation": "virtual-device validation",
+    "source_artifacts_unchanged": true,
+    "isolated_service_closed": true
+  },
+  "analog_calibration_timing": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN"
+}

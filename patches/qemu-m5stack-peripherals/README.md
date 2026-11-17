@@ -1683,3 +1683,18 @@ The Device Service binds this profile to a service-owned UNIX socketpair.
 The default station-mode synthetic AP remains available through its original
 profile. Frame handling keeps the open peer scoped to its associated BSSID,
 clears its state on reset, and discards protected SoftAP frames.
+
+## ESP32-S3 BBPLL calibration completion (0211)
+
+ESP-IDF v6.1.1 polls the calibration status at analog I²C master register
+`0x6000e040`, bit 24. The previous model retained the writable control
+fields but supplied no completion status at this offset. On the exact
+Cardputer fixture, CPU0 remained at the 32-bit load leading into the bit-24
+loop and the application never started.
+
+The analog I²C model now reports immediate digital completion while the
+calibration control has STOP_FORCE_LOW set and STOP_FORCE_HIGH clear. The
+other register offsets retain their previous behavior. This models the
+firmware-visible handshake without modeling analog lock timing. Apply 0211
+after 0209 in the native recipe, and after 0210 when the open SoftAP peer is
+also selected. [Same-artifact validation](../../tests/firmware/littlefs_partition/bbpll-6-1-summary.json)

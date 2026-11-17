@@ -50,3 +50,20 @@ reached ESP-IDF sleep GPIO initialization but did not reach the application
 marker in 50 seconds. Three repeat samples of the same image placed CPU0 in
 `rtc_clk_bbpll_configure` while reading the calibration status, with CPU1 in
 ROM `ets_delay_us`. Browser WASM and physical storage were not tested.
+
+## ESP-IDF v6.1.1 BBPLL startup follow-up
+
+The unchanged v6.1.1 baseline and seed passed the same Cardputer session
+checks on native Xtensa with patch 0211. The probe read and listed the seed,
+wrote and remounted its proof, and read it after a same-session reset. The
+same candidate passed the exact v5.5.4 seeded Cardputer and ADV controls
+and the empty-baseline Cardputer control. The previous v6.1.1 startup result
+remains recorded on the reference runtime.
+
+Use the v6.1.1 SDK pinned in `summary.json` and replay the test with the exact
+retained artifacts on the reference and patched QEMU builds. If rebuilding,
+record a new baseline SHA and use the same new bytes for both runs. On the
+reference, `/crash/cpu-pc` and the matching app ELF identify the CPU0 load
+from `0x6000e040` followed by the bit-24 branch. On the candidate, require the
+usual LittleFS markers, same-session reset readback and unchanged Flash
+outside the partition. [Candidate and reference evidence](bbpll-6-1-summary.json)

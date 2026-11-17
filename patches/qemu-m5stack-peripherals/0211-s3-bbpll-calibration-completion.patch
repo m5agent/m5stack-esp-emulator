@@ -1,0 +1,46 @@
+diff --git a/hw/m5stopwatch/esp32s3_regi2c.c b/hw/m5stopwatch/esp32s3_regi2c.c
+--- a/hw/m5stopwatch/esp32s3_regi2c.c
++++ b/hw/m5stopwatch/esp32s3_regi2c.c
+@@ -13,11 +13,10 @@
+  * The master-reset path additionally polls the RTC-I2C state field in
+  * word 20 (0x6000e050), bits [26:24], until it reads 7 (idle).
+  *
+- * This model keeps the register file and reports every transaction as
+- * immediately idle.  It is a bring-up model: it does not emulate the
+- * analog blocks or their calibration values, but it lets the ROM finish
+- * its clock/PHY setup instead of spinning forever on an unimplemented
+- * address.
++ * This model keeps the register file and reports each transaction as
++ * immediately idle. BBPLL calibration completion is digital and immediate
++ * while the caller enables calibration. Analog values and timing are not
++ * modelled.
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+@@ -31,6 +30,10 @@
+ #define REGI2C_BUSY       (1u << 25)
+ #define REGI2C_STATE_MASK (7u << 24)
+ #define REGI2C_STATE_IDLE (7u << 24)
++#define REGI2C_ANA_CONF0   0x40
++#define BBPLL_STOP_FORCE_HIGH (1u << 2)
++#define BBPLL_STOP_FORCE_LOW  (1u << 3)
++#define BBPLL_CAL_DONE        (1u << 24)
+ 
+ typedef struct M5StopwatchRegi2cState {
+     uint32_t regs[REGI2C_SIZE / sizeof(uint32_t)];
+@@ -55,7 +58,14 @@
+      * both terminate.
+      */
+     value &= ~REGI2C_BUSY;
+-    if (addr == 0x4c) {
++    if (addr == REGI2C_ANA_CONF0) {
++        /* ANA_CONF0.CAL_DONE is read-only, independent of bus busy. */
++        value &= ~BBPLL_CAL_DONE;
++        if ((value & (BBPLL_STOP_FORCE_HIGH | BBPLL_STOP_FORCE_LOW)) ==
++            BBPLL_STOP_FORCE_LOW) {
++            value |= BBPLL_CAL_DONE;
++        }
++    } else if (addr == 0x4c) {
+         /* Analog-block command/status word: report completion. */
+         value |= (1u << 24);
+     } else if (addr == 0x50) {

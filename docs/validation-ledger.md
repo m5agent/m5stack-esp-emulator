@@ -22,6 +22,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [Core2 实时 CPU PC](../tests/firmware/crash_diagnostics/live-cpu-pc-summary.json)使用同一份 watchdog 探针，在原生 QEMU `eecf42ad…` 读取两核 PC。运行状态保持，测试夹具暂停后的两次读取一致，恢复后在同会话重现 CPU1 WDT 与 UART dump。停止后拒绝实时读数。
 
+[ESP32-S3 BBPLL 校准完成](../tests/firmware/littlefs_partition/bbpll-6-1-summary.json)：同一 ESP-IDF 6.1.1 Cardputer 镜像在参考运行时停于 `0x6000e040` bit 24 读取。0211 候选完成 LittleFS 读写、重挂载和复位，ESP-IDF 5.5.4 两板及空卷对照通过。
+
 [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)：Cardputer/StickS3 的 UIFlow2 LittleFS 与 Cardputer/StickS3/Dial 的 ESP-IDF SPIFFS 都通过真实数据分区夹具路径。保留原 artifact 和以有效 Flash SHA 核对区间外字节的结果。SD 另有停止后清单、哈希导出、重启复用及活动状态拒绝的证据。
 
 [ESP-IDF LittleFS](../tests/firmware/littlefs_partition/summary.json) 在初代 Cardputer、ADV 上用 5.5.4 通过 subtype `0x83` 预置、读取、写入、重新挂载及同会话复位。两份源镜像和可写区间外字节一致，空分区对照未读到预置文件。6.1.1 对照未到应用入口，LittleFS 未执行。
