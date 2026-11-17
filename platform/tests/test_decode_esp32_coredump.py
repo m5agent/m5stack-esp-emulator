@@ -12,8 +12,11 @@ from unittest.mock import patch
 import zlib
 
 from decode_esp32_coredump import task_summary, uart_dump, validate_dump
-from device_service_crash import crash_console_observations, serial_crash_observations
+from device_service_crash import (
+    FLASH_DUMP_LIMIT, crash_console_observations, decode_flash_task_contexts, serial_crash_observations,
+)
 from esp32_freertos_task_details import _read_layout, annotate_task_metadata
+from firmware_analysis import PARTITION_TABLE_OFFSET
 from xtensa_elf_symbols import EM_RISCV, EM_XTENSA
 from esp32_uart_coredump import (
     ESP32C6_CHIP_ID, ESP32C6_ELF_CRC32, ESP32C6_ELF_SHA256, ESP32_ELF_CRC32,
@@ -65,6 +68,75 @@ def make_task_note(tcb, pc, sp):
 
 def make_extra_note(crashed_tcb):
     return make_note(b"ESP_EXTRA_INFO\0", 677, struct.pack("<I", crashed_tcb).ljust(152, b"\0"))
+
+
+class FlashCoreDumpTests(unittest.TestCase):
+    def test_only_one_flash_completion_after_latest_panic_triggers_read(self):
+        panic = b"abort() was called at PC 0x4037948c on core 1\nELF file SHA256: 1916d0ba\n"
+        saved = b"I (123) esp_core_dump_flash: Core dump has been saved to flash.\n"
+        for lines, available in (
+            (panic + saved, True),
+            (panic + saved + b"Rebooting...\n", True),
+            (panic + b"Rebooting...\n" + saved, False),
+            (panic + saved + panic, False),
+            (panic + saved + saved, False),
+            (panic + saved.replace(b"esp_core_dump_flash", b"application"), False),
+            (saved, False),
+        ):
+            with self.subTest(lines=lines):
+                read = unittest.mock.Mock(return_value={"status": "decoded"})
+                _, observed = crash_console_observations(Path("unused"), "", lines, decode_flash_dump=read)
+                self.assertEqual(observed["core_dump"]["status"], "flash_reported_saved")
+                if available:
+                    read.assert_called_once_with("1916d0ba")
+                    self.assertEqual(observed["core_dump"]["decoding"], {"status": "decoded"})
+                else:
+                    read.assert_not_called()
+                    self.assertEqual(observed["core_dump"]["decoding"]["status"], "unavailable")
+
+    def test_flash_decode_uses_admitted_layout_and_rejects_stale_or_corrupt_data(self):
+        offset, size = 0x20000, FLASH_DUMP_LIMIT + 4096
+        flash_size = 1024 * 1024
+        version = ESP32S3_ELF_CRC32
+        notes = make_app_note(version) + make_task_note(0x3fceaa58, 0x40379418, 0x3fcea820)
+        dump = make_dump(notes + make_extra_note(0x3fceaa58), version=version)
+
+        def part(start=offset, flags=0):
+            return struct.pack("<HBBII16sI", 0x50AA, 1, 3, start, size, b"core_a", flags)
+
+        with tempfile.TemporaryDirectory() as directory:
+            firmware, flash = (Path(directory) / name for name in ("firmware.bin", "virtual-flash.bin"))
+
+            def evaluate(live_dump, *, parts=part(), baseline=b"", live_parts=None, prefix="1916d0ba"):
+                image = bytearray(b"\xff" * flash_size)
+                image[PARTITION_TABLE_OFFSET:PARTITION_TABLE_OFFSET + len(parts)] = parts
+                image[offset:offset + len(baseline)] = baseline
+                firmware.write_bytes(image)
+                if live_parts is not None:
+                    image[PARTITION_TABLE_OFFSET:PARTITION_TABLE_OFFSET + len(live_parts)] = live_parts
+                image[offset:offset + len(live_dump)] = live_dump
+                flash.write_bytes(image)
+                return decode_flash_task_contexts(
+                    flash, firmware, flash_size, prefix, chip_id=ESP32S3_CHIP_ID, capture_task_core=None,
+                )
+
+            decoded = evaluate(dump)
+            self.assertEqual((decoded["status"], decoded["source"], decoded["flash_offset"]),
+                             ("decoded", "virtual_flash", offset))
+            self.assertEqual(decoded["dump_sha256"], hashlib.sha256(dump).hexdigest())
+            self.assertEqual(evaluate(dump, baseline=dump)["reason"], "unchanged_flash_dump")
+            for result in (
+                evaluate(dump[:-1] + bytes([dump[-1] ^ 1])),
+                evaluate(struct.pack("<I", FLASH_DUMP_LIMIT + 4)),
+                evaluate(dump, prefix="10000000"),
+            ):
+                self.assertEqual(result["reason"], "unsupported_or_invalid_dump")
+            for result in (
+                evaluate(dump, parts=part(flags=1)),
+                evaluate(dump, parts=part() + part(offset + 4096)),
+                evaluate(dump, live_parts=part(offset + 4096)),
+            ):
+                self.assertEqual(result["reason"], "invalid_or_unsupported_flash_layout")
 
 
 class OfflineCoreDumpTests(unittest.TestCase):

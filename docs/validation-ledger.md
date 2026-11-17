@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer ADV ESP32-S3 Flash 转储
+
+[原生会话对照](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)中，旧版对同一 CRC32
+探针仅报告已保存。候选从同一原生 Xtensa 内核上的虚拟 Flash 读取 CRC32 和 SHA-256
+转储，各返回五个保存任务。精确匹配 ELF 时，全部任务详情与 Espressif 离线解码一致。
+无 ELF 与错配 ELF 均保留 PC/SP。ZIP 与 API 的有界 JSON 一致。默认停止释放 Flash。
+显式保留后可读回，只有串口权限时返回 `flash_read_denied`，并保留 panic 符号。
+
 ## 2026-11-18 Cardputer ADV Flash 容量准入
 
 [原版与官方正对照](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)证明同一 16 MiB

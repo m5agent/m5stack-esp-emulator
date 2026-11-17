@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.74.0
+  version: 1.75.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2410,9 +2410,11 @@ paths:
         observations and backend warnings are separate from guest panic.
         When the truncated console tail has no panic, a recognized panic
         in the bounded console prefix appears as separate earlier_console evidence.
-        A separate USB stream is not concatenated. The native Core2 and
-        ESP32-C6 qemu paths can validate a complete ELF32 UART dump and
-        report saved task contexts. No live register sampling is performed.
+        A separate USB stream is not concatenated. Native Core2, Cardputer ADV
+        and ESP32-C6 qemu paths validate supported ELF32 UART dumps and report
+        saved task contexts. Plain native Cardputer ADV also reads a completed
+        dump from its available virtual Flash when flash.read is allowed.
+        No live register sampling is performed.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - $ref: "#/components/parameters/CrashElfArtifactId"
@@ -6017,27 +6019,38 @@ components:
     UartCoreDumpDecoding:
       description: >
         Bounded native Core2 Xtensa, Cardputer ADV Xtensa or ESP32-C6 RISC-V
-        task contexts from one verified UART dump associated with the latest
-        observed panic. Optional
+        task contexts from one verified UART dump or a native Cardputer ADV
+        virtual Flash dump associated with the latest observed panic. Optional
         symbols require the exact application ELF to match both firmware and dump.
       oneOf:
         - type: object
           additionalProperties: false
           required: [status, format, source, dump_sha256, dump_bytes, dump_elf_sha256_prefix, crashed_tcb, tasks]
-          if:
-            properties:
-              format: {enum: [esp32s3_xtensa_elf32_sha256, esp32c6_riscv_elf32_sha256]}
-          then:
-            required: [dump_embedded_sha256]
-            not: {required: [dump_crc32]}
-          else:
-            required: [dump_crc32]
-            not: {required: [dump_embedded_sha256]}
+          allOf:
+            - if:
+                properties:
+                  format: {enum: [esp32s3_xtensa_elf32_sha256, esp32c6_riscv_elf32_sha256]}
+              then:
+                required: [dump_embedded_sha256]
+                not: {required: [dump_crc32]}
+              else:
+                required: [dump_crc32]
+                not: {required: [dump_embedded_sha256]}
+            - if:
+                properties:
+                  source: {const: virtual_flash}
+              then:
+                required: [flash_offset]
+                properties:
+                  format: {enum: [esp32s3_xtensa_elf32_crc32, esp32s3_xtensa_elf32_sha256]}
+              else:
+                not: {required: [flash_offset]}
           properties:
             status: {const: decoded}
             format:
               enum: [esp32_xtensa_elf32_crc32, esp32s3_xtensa_elf32_crc32, esp32s3_xtensa_elf32_sha256, esp32c6_riscv_elf32_crc32, esp32c6_riscv_elf32_sha256]
-            source: {const: console_tail}
+            source: {enum: [console_tail, virtual_flash]}
+            flash_offset: {type: integer, minimum: 36864, multipleOf: 4096}
             dump_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
             dump_bytes: {type: integer, minimum: 1, maximum: 524288}
             dump_crc32: {type: string, pattern: '^[0-9a-f]{8}$'}
@@ -6098,7 +6111,16 @@ components:
           required: [status, reason]
           properties:
             status: {const: unavailable}
-            reason: {enum: [panic_unavailable, invalid_or_unbound_uart_transfer, unsupported_or_invalid_dump]}
+            reason:
+              enum:
+                - panic_unavailable
+                - invalid_or_unbound_uart_transfer
+                - unsupported_or_invalid_dump
+                - invalid_or_unbound_flash_write
+                - invalid_or_unsupported_flash_layout
+                - flash_unavailable
+                - flash_read_denied
+                - unchanged_flash_dump
     CrashDiagnostics:
       type: object
       required:

@@ -8,13 +8,17 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import struct
 
 from device_service_errors import ServiceError
 from esp32_uart_coredump import decode_task_contexts
-from firmware_analysis import analyze_esp_image, find_app_descriptor, parse_partition_table
+from firmware_analysis import (
+    PARTITION_TABLE_OFFSET, PARTITION_TABLE_SIZE, analyze_esp_image, find_app_descriptor, parse_partition_table,
+)
 from xtensa_elf_symbols import EM_RISCV, EM_XTENSA, ElfSymbolError, parse_elf32_symbols
 
 CRASH_OUTPUT_LIMIT = 512 * 1024
+FLASH_DUMP_LIMIT = 512 * 1024
 SYMBOL_FILE_LIMIT = 64 * 1024 * 1024
 ANSI_COLOR = re.compile(r"\x1b\[[0-9;]*m")
 GURU = re.compile(r"^Guru Meditation Error: Core\s+([01]) panic'ed \(([^)]+)\)")
@@ -29,6 +33,7 @@ IDF_BOOT = re.compile(r"^[ID] \(\s*\d+\) boot: ESP-IDF .+ bootloader")
 RESET = re.compile(r"^rst:(0x[0-9a-fA-F]+)\s*\(([^)]+)\)")
 DUMP_START = re.compile(r"=+ CORE DUMP START =+")
 DUMP_END = re.compile(r"=+ CORE DUMP END =+")
+FLASH_DUMP_SAVED = re.compile(r"I \(\s*\d+\) esp_core_dump_flash: Core dump has been saved to flash\.")
 BACKEND_ILLEGAL = re.compile(
     r"Illegal instruction (0x[0-9a-fA-F]{8}) at PC=(0x[0-9a-fA-F]{8}) hart=([01])\b"
 )
@@ -213,12 +218,14 @@ def _s3_iwdt_stage0_observation(stderr: str) -> dict | None:
 def crash_console_observations(
     path: Path, stderr: str, captured: bytes | None = None, *, native_s3: bool = False,
     core_dump_chip_id: int | None = None, capture_task_core: Callable[[bytes], None] | None = None,
+    decode_flash_dump: Callable[[str], dict] | None = None,
 ) -> tuple[dict, dict]:
     """Use one bounded tail and, if useful, the fixed console prefix."""
     if captured is not None:
         return _crash_console_snapshot(
             len(captured), lambda offset, size: captured[offset:offset + size], stderr,
             native_s3=native_s3, core_dump_chip_id=core_dump_chip_id, capture_task_core=capture_task_core,
+            decode_flash_dump=decode_flash_dump,
         )
     try:
         with path.open("rb") as stream:
@@ -230,7 +237,7 @@ def crash_console_observations(
 
             return _crash_console_snapshot(
                 size, read, stderr, native_s3=native_s3, core_dump_chip_id=core_dump_chip_id,
-                capture_task_core=capture_task_core,
+                capture_task_core=capture_task_core, decode_flash_dump=decode_flash_dump,
             )
     except OSError:
         return {"status": "unavailable", "bytes": 0}, serial_crash_observations("", stderr, native_s3=native_s3)
@@ -239,6 +246,7 @@ def crash_console_observations(
 def _crash_console_snapshot(
     size: int, read: Callable[[int, int], bytes], stderr: str, *, native_s3: bool,
     core_dump_chip_id: int | None, capture_task_core: Callable[[bytes], None] | None,
+    decode_flash_dump: Callable[[str], dict] | None,
 ) -> tuple[dict, dict]:
     offset = max(0, size - CRASH_OUTPUT_LIMIT)
     tail = read(offset, size - offset)
@@ -247,6 +255,10 @@ def _crash_console_snapshot(
     if core_dump_chip_id is not None and observed["core_dump"]["status"] == "uart_reported_complete":
         observed["core_dump"]["decoding"] = _decode_uart_task_contexts(
             console, observed["panic"], core_dump_chip_id, capture_task_core=capture_task_core,
+        )
+    elif decode_flash_dump is not None and observed["core_dump"]["status"] == "flash_reported_saved":
+        observed["core_dump"]["decoding"] = _decode_flash_after_panic(
+            console, observed["panic"], decode_flash_dump,
         )
     if not offset or observed["panic"] is not None or len(tail) != size - offset:
         return source, observed
@@ -374,8 +386,7 @@ def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = Fa
     }
 
 
-def uart_dump_after_panic(console: str, panic: dict) -> tuple[bytes, str]:
-    """Select one completed transfer associated with the latest recognized panic."""
+def _lines_after_panic(console: str, panic: dict) -> list[str]:
     lines = [line.strip() for line in console.splitlines()]
     panic_index = len(lines) - 1 - lines[::-1].index(panic["line"])
     after_panic = []
@@ -383,20 +394,108 @@ def uart_dump_after_panic(console: str, panic: dict) -> tuple[bytes, str]:
         if line == "Rebooting..." or RESET.match(line) or ROM_BOOT.match(line) or IDF_BOOT.match(line):
             break
         after_panic.append(line)
+    return after_panic
+
+
+def _panic_digest(lines: list[str], panic: dict) -> str:
+    prefix = panic["elf_sha256_prefix"]
+    if not re.fullmatch(r"[0-9a-f]{8,64}", prefix or ""):
+        raise ValueError("panic lacks an application ELF SHA-256 prefix")
+    reported = [match[1].lower() for line in lines if (match := ELF_HASH.match(line))]
+    if reported != [prefix]:
+        raise ValueError("dump is not associated with the panic ELF digest")
+    return prefix
+
+
+def uart_dump_after_panic(console: str, panic: dict) -> tuple[bytes, str]:
+    """Select one completed transfer associated with the latest recognized panic."""
+    after_panic = _lines_after_panic(console, panic)
     starts = [i for i, line in enumerate(after_panic) if DUMP_START.fullmatch(line)]
     ends = [i for i, line in enumerate(after_panic) if DUMP_END.fullmatch(line)]
     if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
         raise ValueError("serial does not contain one completed dump after the recorded panic")
-    prefix = panic["elf_sha256_prefix"]
-    if not re.fullmatch(r"[0-9a-f]{8,64}", prefix or ""):
-        raise ValueError("panic lacks an application ELF SHA-256 prefix")
-    reported = [match[1].lower() for line in after_panic[:starts[0]] if (match := ELF_HASH.match(line))]
-    if reported != [prefix]:
-        raise ValueError("UART dump is not associated with the panic ELF digest")
+    prefix = _panic_digest(after_panic[:starts[0]], panic)
     payload = after_panic[starts[0] + 1:ends[0]]
     if not payload or any(not line or len(line) > 128 for line in payload):
         raise ValueError("invalid UART Base64 dump lines")
     return b"".join(base64.b64decode(line, validate=True) for line in payload), prefix
+
+
+def _decode_flash_after_panic(console: str, panic: dict | None, decode: Callable[[str], dict]) -> dict:
+    if panic is None:
+        return {"status": "unavailable", "reason": "panic_unavailable"}
+    try:
+        lines = _lines_after_panic(console, panic)
+        markers = [index for index, line in enumerate(lines) if FLASH_DUMP_SAVED.fullmatch(line)]
+        if len(markers) != 1:
+            raise ValueError("no unique Flash write completion after the panic")
+        prefix = _panic_digest(lines[:markers[0]], panic)
+    except ValueError:
+        return {"status": "unavailable", "reason": "invalid_or_unbound_flash_write"}
+    return decode(prefix)
+
+
+def decode_flash_task_contexts(
+    flash_path: Path | None, firmware_path: Path, flash_size: int, panic_prefix: str, *,
+    chip_id: int, capture_task_core: Callable[[bytes], None] | None,
+) -> dict:
+    """Decode a new plaintext ESP-IDF dump within the admitted Flash layout."""
+    if flash_path is None:
+        return {"status": "unavailable", "reason": "flash_unavailable"}
+    try:
+        with firmware_path.open("rb") as firmware, flash_path.open("rb") as flash:
+            if flash.seek(0, 2) != flash_size:
+                return {"status": "unavailable", "reason": "invalid_or_unsupported_flash_layout"}
+            firmware.seek(PARTITION_TABLE_OFFSET)
+            flash.seek(PARTITION_TABLE_OFFSET)
+            table = firmware.read(PARTITION_TABLE_SIZE)
+            area = _flash_dump_partition(table, flash_size) if flash.read(PARTITION_TABLE_SIZE) == table else None
+            if area is None:
+                return {"status": "unavailable", "reason": "invalid_or_unsupported_flash_layout"}
+            offset, size = area
+            flash.seek(offset)
+            header = flash.read(4)
+            if len(header) != 4:
+                return {"status": "unavailable", "reason": "unsupported_or_invalid_dump"}
+            length, = struct.unpack("<I", header)
+            if not 80 <= length <= min(size, FLASH_DUMP_LIMIT):
+                return {"status": "unavailable", "reason": "unsupported_or_invalid_dump"}
+            dump = header + flash.read(length - 4)
+            firmware.seek(offset)
+            baseline = firmware.read(length)
+            if dump == baseline.ljust(length, b"\xff"):
+                return {"status": "unavailable", "reason": "unchanged_flash_dump"}
+    except OSError:
+        return {"status": "unavailable", "reason": "flash_unavailable"}
+    try:
+        decoded = decode_task_contexts(dump, panic_prefix, chip_id=chip_id, capture_core=capture_task_core)
+    except ValueError:
+        return {"status": "unavailable", "reason": "unsupported_or_invalid_dump"}
+    return {**decoded, "source": "virtual_flash", "flash_offset": offset}
+
+
+def _flash_dump_partition(table: bytes, flash_size: int) -> tuple[int, int] | None:
+    if len(table) != PARTITION_TABLE_SIZE:
+        return None
+    layout = parse_partition_table(table, offset=0, image_size=flash_size)
+    if not layout["valid"] or layout["warnings"]:
+        return None
+    parts = layout["partitions"]
+    matches = [part for part in parts if (part["type"], part["subtype"]) == (1, 3)]
+    if len(matches) != 1:
+        return None
+    partition = matches[0]
+    offset, size = partition["offset"], partition["size"]
+    if (
+        partition["flags"] or offset < PARTITION_TABLE_OFFSET + PARTITION_TABLE_SIZE
+        or offset % 4096 or size < 4096 or size % 4096
+        or any(
+            part is not partition and part["offset"] < offset + size
+            and offset < part["offset"] + part["size"] for part in parts
+        )
+    ):
+        return None
+    return offset, size
 
 
 def _decode_uart_task_contexts(

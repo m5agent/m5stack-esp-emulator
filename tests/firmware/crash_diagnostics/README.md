@@ -117,6 +117,40 @@ checksums, the matching app artifacts, equivalent API/ZIP receipts,
 and stopped history after an isolated service restart. Other S3 boards
 and the diagnostic network lane remain outside this qualification.
 
+## Cardputer ADV ESP32-S3 Flash ELF32 core dump
+
+Use the same ESP-IDF 5.5.4 S3 abort fixture and 8 MiB merge recipe.
+In a private copy of the project, replace `CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE`
+with `CONFIG_PARTITION_TABLE_CUSTOM=y`, and switch
+`CONFIG_ESP_COREDUMP_ENABLE_TO_UART` to `CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`.
+Use this `partitions.csv` with the default custom partition filename:
+
+```csv
+nvs,      data, nvs,     , 0x6000,
+phy_init, data, phy,     , 0x1000,
+factory,  app,  factory, , 1500K,
+core_a,   data, coredump,, 384K,
+```
+
+Build CRC32 and SHA-256 in separate directories. Register each merged BIN
+through an owned native Cardputer ADV Device Service. Wait for the CPU1 abort
+and the SDK's `Core dump has been saved to flash.` line. Request
+`/crash` and the same-session `/evidence?include=crash` before stopping,
+with and without the matching ELF ID. The receipt reports `virtual_flash`,
+the partition offset and digest, and five saved task contexts. The wrong ELF
+must also return the same raw contexts and withhold names and symbols.
+The ZIP contains the decoded receipt without the binary range. To verify
+against Espressif independently in the owned fixture, use the offset and size
+from the receipt to extract the range from `/flash?format=bin`. Verify the
+range SHA-256 and pass it with the matching application ELF and S3 GDB to
+`esp-coredump info_corefile --core-format raw --core dump.bin`.
+
+With a runtime ACL that allows only `serial.read`, confirm that Flash decoding
+reports `flash_read_denied` and panic symbolization still works. Default stop
+releases Flash and a later read reports `flash_unavailable`. For a stopped
+read, send `{"purge":false,"retain_flash":true}` to the stop endpoint.
+[Bounded virtual-device results](s3-flash-task-summary.json).
+
 ## ESP32-S3 watchdog timing
 
 Prepare a fresh native Xtensa build with `scripts/bootstrap-unit-runtime.py`.

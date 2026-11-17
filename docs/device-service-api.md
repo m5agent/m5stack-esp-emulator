@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.74.0` and bounded
+Status: local MVP with unified-device runtime contract `1.75.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3350,9 +3350,19 @@ metadata leaves saved PC/SP and symbolization intact. An absent or
 mismatched ELF does not expose metadata. The
 [local offline decoder](../tests/firmware/crash_diagnostics/README.md)
 remains available for independently checking the same Core2 artifacts.
-Flash dumps, other chips and the remaining UART formats have status observations only.
-Cardputer ADV task decoding is qualified for plain native QEMU. Other ESP32-S3
-boards and diagnostic network lanes keep their existing panic observations.
+Plain native Cardputer ADV also decodes ELF32 CRC32 and SHA-256 dumps from
+virtual Flash. In addition to `serial.read`, this path requires
+`flash.read`. One ESP-IDF completion line must follow the latest panic and
+its application ELF hash before a reboot. The service checks for one
+unflagged core-dump partition in the admitted layout and reads at most
+512 KiB. It checks that the data changed from the admitted image, then
+verifies length, checksum, chip, and application digest. The receipt adds
+`source: virtual_flash` and `flash_offset`. A matching ELF can still
+provide symbols and task details. Keep the crash receipt or download the
+ZIP before stopping. Default teardown releases the writable Flash, while
+`retain_flash=1` allows a subsequent read. The crash ZIP includes the
+bounded JSON receipt and leaves the binary dump in session Flash. Other
+ESP32-S3 boards and diagnostic network lanes keep their existing coverage.
 
 ### Live native CPU PCs
 

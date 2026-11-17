@@ -233,7 +233,7 @@ from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
-    crash_console_observations, crash_function_symbols, identify_crash_elf,
+    crash_console_observations, crash_function_symbols, decode_flash_task_contexts, identify_crash_elf,
     output_tail, qmp_cpu_pc_sample,
 )
 from firmware_manifest import (  # noqa: E402
@@ -6631,12 +6631,23 @@ class DeviceSession:
             or (core_dump_chip_id == ESP32C6_CHIP_ID and self.spec.id == "nesso-n1")
         )
         task_core: list[bytes] = []
+        capture_task_core = task_core.append if dump_has_qualified_task_layout and artifact is not None else None
+
+        def decode_flash(prefix: str) -> dict:
+            if not DeviceSession._runtime_permission_allowed(self, "flash.read"):
+                return {"status": "unavailable", "reason": "flash_read_denied"}
+            return decode_flash_task_contexts(
+                self.virtual_flash, self.firmware_path, self.spec.flash_size, prefix,
+                chip_id=ESP32S3_CHIP_ID, capture_task_core=capture_task_core,
+            )
+
         console_source, observed = crash_console_observations(
             self.serial0, stderr, console_bytes, native_s3=(
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
             ), core_dump_chip_id=core_dump_chip_id,
-            capture_task_core=task_core.append if dump_has_qualified_task_layout and artifact is not None else None,
+            capture_task_core=capture_task_core,
+            decode_flash_dump=decode_flash if core_dump_chip_id == ESP32S3_CHIP_ID else None,
         )
         panic = observed["panic"] or {}
         reported = panic.get("elf_sha256_prefix")

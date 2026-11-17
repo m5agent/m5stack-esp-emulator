@@ -1,0 +1,73 @@
+{
+  "validation": "virtual-device validation",
+  "result": "PASS",
+  "device_id": "cardputer-adv",
+  "runtime": "native QEMU ESP32-S3, plain qemu",
+  "qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+  "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "offline_tool": "esp-coredump 1.17.2 with Espressif Xtensa GDB",
+  "baseline_source_commit": "a2148953f1c22a2b2b066780f9c501b3daddcdf0",
+  "baseline_crc32_result": "same firmware reports flash_reported_saved without decoding",
+  "crc32_retained_stop_result": "same-session Flash decoding still available after stop with retain_flash: true",
+  "crc32_serial_only_acl_result": "flash_read_denied; existing panic symbolization succeeds",
+  "cases": {
+    "esp32s3_xtensa_elf32_crc32": {
+      "firmware_sha256": "56dd958a616169eb8daf6670dadcd4b5be44c04ecbde91539e166f1b301bdcc1",
+      "matched_elf_sha256": "c68c964ceb7ebe115bdbf9b11d79fabc69e48e571f4e60d12ba5eed7e0f3d77d",
+      "panic_kind": "panic",
+      "panic_core": 1,
+      "source": "virtual_flash",
+      "flash_offset": 1601536,
+      "dump_bytes": 8932,
+      "dump_sha256": "92d670f27f153aa80253544cfd5f2f690a21d030f432a78bbe13851f2f7299bd",
+      "dump_checksum": "d033fc2e",
+      "task_count": 5,
+      "crashed_task": "fixture_fault",
+      "crashed_task_pc_sp": [
+        "0x4037948c",
+        "0x3fcea820"
+      ],
+      "crashed_task_priority": 2,
+      "crashed_task_stack_bytes_used_free": [
+        512,
+        3580
+      ],
+      "missing_and_wrong_elf_preserve_raw_contexts": true,
+      "api_zip_match_without_binary_payload": true,
+      "offline_report_matches_all_task_metadata": true,
+      "default_stop": "flash_unavailable"
+    },
+    "esp32s3_xtensa_elf32_sha256": {
+      "firmware_sha256": "9429f9c6442b2688969ebfb48492e24c5f646c802d0ea1293d72e53b6bb42622",
+      "matched_elf_sha256": "5675f0e1da50746e7b5725ece8b8b9c2bbe91052ba7d05d08660abf60049782e",
+      "panic_kind": "panic",
+      "panic_core": 1,
+      "source": "virtual_flash",
+      "flash_offset": 1601536,
+      "dump_bytes": 8960,
+      "dump_sha256": "1b253737f060b7626c58fd172794ba3f92e332c2f64adaac46f58566c94fa89a",
+      "dump_checksum": "ec23038c0239c3803e9aa7f1eedbb5ce39954a734f6f4cfe58aacd603a201734",
+      "task_count": 5,
+      "crashed_task": "fixture_fault",
+      "crashed_task_pc_sp": [
+        "0x4037948c",
+        "0x3fcea820"
+      ],
+      "crashed_task_priority": 2,
+      "crashed_task_stack_bytes_used_free": [
+        512,
+        3580
+      ],
+      "missing_and_wrong_elf_preserve_raw_contexts": true,
+      "api_zip_match_without_binary_payload": true,
+      "offline_report_matches_all_task_metadata": true,
+      "default_stop": "flash_unavailable"
+    }
+  },
+  "not_run": [
+    "physical device",
+    "other board or runtime",
+    "encrypted Flash",
+    "other ESP-IDF dump versions"
+  ]
+}
