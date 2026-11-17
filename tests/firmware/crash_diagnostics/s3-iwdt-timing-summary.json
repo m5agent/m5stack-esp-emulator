@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "project_runtime_source": "cccc83b95d4c89f043d6d6d77d21161bc5ece106",
+  "qemu_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "baseline_executable_sha256": "66cc7956a4609c0e55e9b4fe9b29920eee86e64ab5d14d1b88db22be678b8723",
+  "patch_sha256": "e7935418bbe781d01a0bb80d6050a395150727601a2e71d6d9bc3c1dc55af419",
+  "candidate_executable_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+  "probe_source": "tests/firmware/crash_diagnostics/main/main.c",
+  "probe_sdk": "ESP-IDF v6.1.1",
+  "scope": "ESP32-S3 Cardputer isolated native service; controlled CPU1 interrupt masking watchdog; original NC1020 NOT RUN with candidate",
+  "config": {
+    "trace_env": "M5SW_S3_IWDT_TRACE=1",
+    "freertos_tick": "SYSTIMER level 1, 100 Hz",
+    "interrupt_watchdog_timeout_ms": 300,
+    "checks_cpu1": true
+  },
+  "cases": {
+    "on": {
+      "status": "PASS",
+      "trace": "on",
+      "firmware_sha256": "d7aa5dabf4470d8f18a8a3ddc8a014f5d23bc664a92c8d11d91c76699e437392",
+      "runtime_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+      "timing": {
+        "schema_version": 1,
+        "now_ns": 981700000,
+        "feed_attempts": 38,
+        "feeds": 36,
+        "feed_cpu": 0,
+        "last_feed_ns": 681140000,
+        "last_feed_deadline_ns": 981140000,
+        "stage0_ticks": 600,
+        "stage1_ticks": 1200,
+        "wdt_config0": 3089072128,
+        "wdt_prescaler": 40000,
+        "wdt_hz": 2000,
+        "wdt_irq_enabled": 1,
+        "alarms": [
+          72,
+          73
+        ],
+        "coalesced": [
+          0,
+          30
+        ],
+        "last_alarm_ns": [
+          979331000,
+          979342000
+        ],
+        "last_expire_ns": [
+          977798000,
+          977798000
+        ],
+        "acks": [
+          [
+            72,
+            0
+          ],
+          [
+            0,
+            42
+          ]
+        ],
+        "last_ack_ns": [
+          [
+            981212000,
+            0
+          ],
+          [
+            0,
+            671680000
+          ]
+        ],
+        "irq_sources": [
+          55,
+          57,
+          58
+        ],
+        "irq_rises": [
+          1,
+          72,
+          43
+        ],
+        "irq_falls": [
+          0,
+          72,
+          42
+        ],
+        "irq_level": [
+          1,
+          0,
+          1
+        ],
+        "routes": [
+          [
+            24,
+            24
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            6,
+            1
+          ]
+        ],
+        "cpu_irq_snapshot_available": true,
+        "cpu_ps": [
+          395808,
+          396835
+        ],
+        "cpu_intenable": [
+          318767150,
+          318767107
+        ],
+        "cpu_intset": [
+          0,
+          2
+        ]
+      },
+      "normalized_sha256": "d7aa5dabf4470d8f18a8a3ddc8a014f5d23bc664a92c8d11d91c76699e437392",
+      "guest_panic": {
+        "kind": "watchdog",
+        "reason": "Interrupt wdt timeout on CPU1",
+        "core": 1
+      },
+      "trace_lines": 1,
+      "bundle_sha256": "b48a59851247f392aef152afff9c444a3bd4f0146e21875362e43fc298c28d6a",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    },
+    "off": {
+      "status": "PASS",
+      "trace": "off",
+      "firmware_sha256": "d7aa5dabf4470d8f18a8a3ddc8a014f5d23bc664a92c8d11d91c76699e437392",
+      "runtime_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+      "normalized_sha256": "d7aa5dabf4470d8f18a8a3ddc8a014f5d23bc664a92c8d11d91c76699e437392",
+      "guest_panic": {
+        "kind": "watchdog",
+        "reason": "Interrupt wdt timeout on CPU1",
+        "core": 1
+      },
+      "trace_lines": 0,
+      "bundle_sha256": "e5ef3da029900c53426b7902fba076c5fb59f4471f01cac8e99c4749ffaa190e",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    }
+  },
+  "tracked_source_base": "dc6853453a64f315a09b691c3631d9c2d4b3c08e",
+  "ordered_stack_replay": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_patch_count": 160,
+    "changed_file_count": 155,
+    "ordered_forward_and_reverse_apply": "PASS",
+    "prepared_source_verification": "PASS",
+    "built_qemu_source_bytes_match": "PASS",
+    "changes_restored_to_pinned_tree": "PASS",
+    "final_patch_sha256": "e7935418bbe781d01a0bb80d6050a395150727601a2e71d6d9bc3c1dc55af419",
+    "before_reverse_recipe_sha256": "bad3dc3a327200716874764834c6af4dc73de35accf5e2448142009206369eed"
+  }
+}

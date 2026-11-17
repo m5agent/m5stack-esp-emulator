@@ -77,3 +77,39 @@ the Nesso N1 MWDT fixture reached its UART readiness marker on native C6. The Es
 with the app ELF exactly matched to the normalized ESP32-C6 Flash descriptor.
 That known address came from the ELF symbol table. The newer native C6 live PC
 and same-session panic probes have their own [receipt](riscv_c6/live-cpu-pc-summary.json).
+
+## ESP32-S3 watchdog timing
+
+Prepare a fresh native Xtensa build with `scripts/bootstrap-unit-runtime.py`.
+Copy this probe's `CMakeLists.txt`, `main/` and `sdkconfig.defaults` to owned
+scratch space. Use ESP-IDF v6.1.1 with `-DIDF_TARGET=esp32s3` and
+`-DCRASH_PROBE_WATCHDOG=ON`. Remove the ESP32 target assignment from the
+copied defaults and select an 8 MiB flash. From the configured build directory
+merge `@flash_args` with `esptool --chip esp32s3 merge-bin --fill-flash-size
+8MB -o merged.bin @flash_args`.
+
+Use separate owned Cardputer Device Service instances with the same patched
+QEMU, ROM and firmware. Start the tracing instance with host environment
+`M5SW_S3_IWDT_TRACE=1`. Wait for `CRASH_PROBE_ARMED cpu=1` and the guest's
+CPU1 watchdog panic. Collect `include=serial,logs,crash` before stopping.
+The tracing instance emits one `M5_S3_IWDT_STAGE0` line in native stderr
+with `schema_version=1`. The default instance produces the same guest panic
+without a timing receipt. Both test sessions release Flash and their lease.
+
+`acks` and `last_ack_ns` are indexed by vCPU and alarm target, in that order.
+An acknowledgement counts a write that clears a pending raw alarm. It confirms
+that the guest reached the acknowledgement, while execution of the later tick
+hook is a separate event. `coalesced` counts callbacks that find the raw bit
+already set. Feed timestamps and deadlines come from the model's existing
+accepted-feed timer arm. An unavailable guest I/O timestamp is `-1`. CPU
+register and route snapshots accompany observed WDT matrix assertion.
+
+In ESP-IDF v5.4.1 the S3 FreeRTOS tick uses SYSTIMER. When the interrupt
+watchdog checks both cores, CPU1's hook sets the pending tick flag and CPU0
+feeds TIMERGROUP1 after seeing that flag.
+[Tick selection](https://github.com/espressif/esp-idf/blob/v5.4.1/components/freertos/Kconfig)
+· [Watchdog hook](https://github.com/espressif/esp-idf/blob/v5.4.1/components/esp_system/int_wdt.c)
+
+[Bounded on/off proof](s3-iwdt-timing-summary.json) uses one harmless probe and
+one patched native executable. The original NC1020, other backends and
+physical hardware were outside these runs.

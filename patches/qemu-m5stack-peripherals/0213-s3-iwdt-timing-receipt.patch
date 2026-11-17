@@ -1,0 +1,286 @@
+diff --git a/hw/timer/esp_systimer.c b/hw/timer/esp_systimer.c
+--- a/hw/timer/esp_systimer.c
++++ b/hw/timer/esp_systimer.c
+@@ -19,7 +19,10 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/registerfields.h"
+ #include "hw/boards.h"
++#include "hw/core/cpu.h"
++#include "hw/timer/esp32s3_iwdt_trace.h"
+ #include "hw/timer/esp_systimer.h"
++#include "sysemu/cpu-timers.h"
+ 
+ 
+ #define TICKS_TO_NS(ticks) (((ticks) / ESP_SYSTIMER_CNT_PER_US) * 1000)
+@@ -66,6 +69,15 @@
+     const uint32_t counter_idx = comparator->counter;
+     ESPSysTimerState *s = comparator->systimer;
+     ESPSysTimerCounter* counter = &s->counter[counter_idx];
++    ESPS3IwdtTrace *trace = s->iwdt_trace;
++    int target = comparator - s->comparators;
++
++    if (trace && !trace->dumped && target < 2) {
++        trace->alarms[target]++;
++        trace->coalesced[target] += comparator->raw_st;
++        trace->last_alarm_ns[target] = now;
++        trace->last_expire_ns[target] = comparator->expire_time;
++    }
+ 
+     if (counter->enabled) {
+         esp_systimer_update_counter(counter);
+@@ -532,6 +544,20 @@
+             break;
+ 
+         case A_SYSTIMER_INT_CLR:
++            if (s->iwdt_trace && !s->iwdt_trace->dumped && (value & 3) &&
++                current_cpu && current_cpu->cpu_index >= 0 && current_cpu->cpu_index < 2) {
++                int cpu = current_cpu->cpu_index;
++                int64_t now = -1;
++                if (!icount_enabled() || current_cpu->neg.can_do_io) {
++                    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++                }
++                for (int target = 0; target < 2; target++) {
++                    if ((value & (1u << target)) && s->comparators[target].raw_st) {
++                        s->iwdt_trace->acknowledgements[cpu][target]++;
++                        s->iwdt_trace->last_ack_ns[cpu][target] = now;
++                    }
++                }
++            }
+             /* The formula (RAW & !CLR) results in 0 if both CLR and RAW were 1, else it keeps
+              * RAW unchanged. */
+             s->comparators[0].raw_st &= ! FIELD_EX32(value, SYSTIMER_INT_CLR, TARGET0);
+diff --git a/hw/timer/esp_timg.c b/hw/timer/esp_timg.c
+--- a/hw/timer/esp_timg.c
++++ b/hw/timer/esp_timg.c
+@@ -18,6 +18,8 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/registerfields.h"
+ #include "hw/boards.h"
++#include "hw/core/cpu.h"
++#include "hw/timer/esp32s3_iwdt_trace.h"
+ #include "hw/timer/esp_timg.h"
+ 
+ #define TIMG_DEBUG      0
+@@ -163,6 +165,52 @@
+     return FIELD_EX32(wdt->config0, TIMG_T0CONFIG, EN) ? 1 : 0;
+ }
+ 
++
++static void esp_s3_iwdt_trace_dump(ESPS3IwdtTrace *trace, ESPWdtState *wdt)
++{
++    g_autoptr(GString) line = g_string_new("M5_S3_IWDT_STAGE0 ");
++
++    trace->dumped = true;
++    g_string_append_printf(line, "{\"schema_version\":1,\"now_ns\":%" PRId64
++            ",\"feed_attempts\":%" PRIu64 ",\"feeds\":%" PRIu64
++            ",\"feed_cpu\":%d,\"last_feed_ns\":%" PRId64
++            ",\"last_feed_deadline_ns\":%" PRId64
++            ",\"stage0_ticks\":%u,\"stage1_ticks\":%u"
++            ",\"wdt_config0\":%u,\"wdt_prescaler\":%u"
++            ",\"wdt_hz\":%" PRIu64 ",\"wdt_irq_enabled\":%u",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), trace->feed_attempts,
++            trace->feeds, trace->feeds ? trace->feed_cpu : -1,
++            trace->last_feed_ns, trace->last_feed_deadline_ns,
++            wdt->stage[0], wdt->stage[1], wdt->config0, wdt->prescaler,
++            (uint64_t)wdt->counter.frequency, wdt->int_enabled);
++    g_string_append_printf(line, ",\"alarms\":[%" PRIu64 ",%" PRIu64 "]"
++            ",\"coalesced\":[%" PRIu64 ",%" PRIu64 "]"
++            ",\"last_alarm_ns\":[%" PRId64 ",%" PRId64 "]"
++            ",\"last_expire_ns\":[%" PRId64 ",%" PRId64 "]"
++            ",\"acks\":[[%" PRIu64 ",%" PRIu64 "],[%" PRIu64 ",%" PRIu64 "]]"
++            ",\"last_ack_ns\":[[%" PRId64 ",%" PRId64 "],[%" PRId64 ",%" PRId64 "]]",
++            trace->alarms[0], trace->alarms[1],
++            trace->coalesced[0], trace->coalesced[1],
++            trace->last_alarm_ns[0], trace->last_alarm_ns[1],
++            trace->last_expire_ns[0], trace->last_expire_ns[1],
++            trace->acknowledgements[0][0], trace->acknowledgements[0][1],
++            trace->acknowledgements[1][0], trace->acknowledgements[1][1],
++            trace->last_ack_ns[0][0], trace->last_ack_ns[0][1],
++            trace->last_ack_ns[1][0], trace->last_ack_ns[1][1]);
++    g_string_append_printf(line, ",\"irq_sources\":[55,57,58],\"irq_rises\":[%" PRIu64 ",%" PRIu64 ",%" PRIu64 "]"
++            ",\"irq_falls\":[%" PRIu64 ",%" PRIu64 ",%" PRIu64 "]"
++            ",\"irq_level\":[%u,%u,%u],\"routes\":[[%u,%u],[%u,%u],[%u,%u]]"
++            ",\"cpu_irq_snapshot_available\":%s,\"cpu_ps\":[%u,%u],\"cpu_intenable\":[%u,%u],\"cpu_intset\":[%u,%u]}\n",
++            trace->irq_rises[0], trace->irq_rises[1], trace->irq_rises[2],
++            trace->irq_falls[0], trace->irq_falls[1], trace->irq_falls[2],
++            trace->irq_level[0], trace->irq_level[1], trace->irq_level[2],
++            trace->routes[0][0], trace->routes[0][1], trace->routes[1][0],
++            trace->routes[1][1], trace->routes[2][0], trace->routes[2][1],
++            trace->cpu_irq_snapshot_available ? "true" : "false",
++            trace->cpu_ps[0], trace->cpu_ps[1], trace->cpu_intenable[0],
++            trace->cpu_intenable[1], trace->cpu_intset[0], trace->cpu_intset[1]);
++    fputs(line->str, stderr);
++}
+ 
+ static void esp_wdt_cb(void* opaque)
+ {
+@@ -201,6 +249,10 @@
+         esp_virtual_counter_alarm_in_ticks(&wdt->counter, wdt->stage[new_stage] - elapsed);
+     } else {
+         esp_virtual_counter_alarm_in_ticks(&wdt->counter, wdt->stage[new_stage]);
++    }
++    if (state->iwdt_trace && cur_stage == 0 && conf == ESP_WDT_INTERRUPT &&
++        !state->iwdt_trace->dumped) {
++        esp_s3_iwdt_trace_dump(state->iwdt_trace, wdt);
+     }
+ }
+ 
+@@ -702,6 +754,15 @@
+             break;
+         case A_TIMG_WDTFEED:
+             esp_wdt_feed(&s->wdt);
++            if (s->iwdt_trace && !s->iwdt_trace->dumped) {
++                s->iwdt_trace->feed_attempts++;
++                if (esp_wdt_enabled(&s->wdt)) {
++                    s->iwdt_trace->feeds++;
++                    s->iwdt_trace->feed_cpu = current_cpu ? current_cpu->cpu_index : -1;
++                    s->iwdt_trace->last_feed_ns = s->wdt.counter.base;
++                    s->iwdt_trace->last_feed_deadline_ns = timer_expire_time_ns(&s->wdt.counter.timer);
++                }
++            }
+             break;
+         case A_TIMG_WDTWPROTECT:
+             s->wdt.wkey = value;
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -61,6 +61,7 @@
+ #include "hw/misc/esp32s3_hmac.h"
+ #include "hw/misc/esp32s3_ds.h"
+ #include "hw/timer/esp32s3_timg.h"
++#include "hw/timer/esp32s3_iwdt_trace.h"
+ #include "hw/timer/esp32s3_systimer.h"
+ #include "hw/gpio/esp32s3_gpio.h"
+ #include "hw/gpio/esp32s3_gpio_pad_aux.h"
+@@ -154,6 +155,7 @@
+     ESP32S3XtsAesState xts_aes;
+     ESP32S3TimgState timg[2];
+     ESP32S3SysTimerState systimer;
++    ESPS3IwdtTrace iwdt_trace;
+ 
+     ESP32C3UsbJtagState jtag;
+     ESPRgbState rgb;
+@@ -746,6 +748,11 @@
+     object_initialize_child(OBJECT(ss), "timg0", &ss->timg[0], TYPE_ESP32S3_TIMG);
+     object_initialize_child(OBJECT(ss), "timg1", &ss->timg[1], TYPE_ESP32S3_TIMG);
+     object_initialize_child(OBJECT(ss), "systimer", &ss->systimer, TYPE_ESP32S3_SYSTIMER);
++    if (g_strcmp0(g_getenv("M5SW_S3_IWDT_TRACE"), "1") == 0) {
++        ss->systimer.parent.iwdt_trace = &ss->iwdt_trace;
++        ss->timg[1].iwdt_trace = &ss->iwdt_trace;
++        ss->intmatrix.iwdt_trace = &ss->iwdt_trace;
++    }
+     if (m5_board == M5_BOARD_NONE) {
+         object_initialize_child(OBJECT(ss), "rgb", &ss->rgb, TYPE_ESP_RGB);
+     }
+diff --git a/hw/xtensa/esp32s3_intc.c b/hw/xtensa/esp32s3_intc.c
+--- a/hw/xtensa/esp32s3_intc.c
++++ b/hw/xtensa/esp32s3_intc.c
+@@ -17,6 +17,7 @@
+ #include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/misc/esp32s3_reg.h"
++#include "hw/timer/esp32s3_iwdt_trace.h"
+ #include "hw/xtensa/esp32s3_intc.h"
+ 
+ #define INTMATRIX_UNINT_VALUE   6
+@@ -79,6 +80,33 @@
+ {
+     Esp32s3IntMatrixState *s = ESP32S3_INTMATRIX(opaque);
+ 
++    ESPS3IwdtTrace *trace = s->iwdt_trace;
++    if (trace && !trace->dumped && (n == ETS_TG1_WDT_LEVEL_INTR_SOURCE ||
++                  n == ETS_SYSTIMER_TARGET0_INTR_SOURCE ||
++                  n == ETS_SYSTIMER_TARGET1_INTR_SOURCE)) {
++        int slot = n == ETS_TG1_WDT_LEVEL_INTR_SOURCE ? 0 :
++                   n - ETS_SYSTIMER_TARGET0_INTR_SOURCE + 1;
++        if (!!level != s->input_levels[n]) {
++            if (level) {
++                trace->irq_rises[slot]++;
++            } else {
++                trace->irq_falls[slot]++;
++            }
++        }
++        trace->irq_level[slot] = !!level;
++        for (int i = 0; i < ESP32S3_CPU_COUNT; i++) {
++            trace->routes[slot][i] = IRQ_MAP(i, n);
++            if (n == ETS_TG1_WDT_LEVEL_INTR_SOURCE && level && s->cpu[i]) {
++                trace->cpu_irq_snapshot_available = true;
++                trace->routes[1][i] = IRQ_MAP(i, ETS_SYSTIMER_TARGET0_INTR_SOURCE);
++                trace->routes[2][i] = IRQ_MAP(i, ETS_SYSTIMER_TARGET1_INTR_SOURCE);
++                CPUXtensaState *env = &s->cpu[i]->env;
++                trace->cpu_ps[i] = env->sregs[PS];
++                trace->cpu_intenable[i] = env->sregs[INTENABLE];
++                trace->cpu_intset[i] = env->sregs[INTSET];
++            }
++        }
++    }
+     s->input_levels[n] = !!level;
+     if (getenv("M5SW_INTMATRIX_TRACE") &&
+         (n == 22 || n == 30 || n == 31)) {
+diff --git a/include/hw/timer/esp_systimer.h b/include/hw/timer/esp_systimer.h
+--- a/include/hw/timer/esp_systimer.h
++++ b/include/hw/timer/esp_systimer.h
+@@ -113,6 +113,7 @@
+     uint32_t conf;
+     ESPSysTimerCounter counter[ESP_SYSTIMER_COUNTER_COUNT];
+     ESPSysTimerComp comparators[ESP_SYSTIMER_COMP_COUNT];
++    struct ESPS3IwdtTrace *iwdt_trace;
+ };
+ 
+ 
+diff --git a/include/hw/timer/esp_timg.h b/include/hw/timer/esp_timg.h
+--- a/include/hw/timer/esp_timg.h
++++ b/include/hw/timer/esp_timg.h
+@@ -155,6 +155,7 @@
+     ESPT0State t1;
+     ESPWdtState wdt;
+     ESPRtcState rtc;
++    struct ESPS3IwdtTrace *iwdt_trace;
+ 
+     /* Property used to disable the watchdog from command line */
+     bool wdt_disable;
+diff --git a/include/hw/xtensa/esp32s3_intc.h b/include/hw/xtensa/esp32s3_intc.h
+--- a/include/hw/xtensa/esp32s3_intc.h
++++ b/include/hw/xtensa/esp32s3_intc.h
+@@ -147,6 +147,7 @@
+ 
+     /* properties */
+     XtensaCPU *cpu[ESP32S3_CPU_COUNT];
++    struct ESPS3IwdtTrace *iwdt_trace;
+ } Esp32s3IntMatrixState;
+ 
+ #define ETS_ETH_MAC_INTR_SOURCE     ETS_WIFI_MAC_INTR_SOURCE
+diff --git a/include/hw/timer/esp32s3_iwdt_trace.h b/include/hw/timer/esp32s3_iwdt_trace.h
+new file mode 100644
+--- /dev/null
++++ b/include/hw/timer/esp32s3_iwdt_trace.h
+@@ -0,0 +1,29 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef HW_TIMER_ESP32S3_IWDT_TRACE_H
++#define HW_TIMER_ESP32S3_IWDT_TRACE_H
++
++/* Host diagnostics only. No field is visible to the guest or migrates. */
++typedef struct ESPS3IwdtTrace {
++    bool dumped;
++    uint64_t alarms[2];
++    uint64_t coalesced[2];
++    int64_t last_alarm_ns[2];
++    int64_t last_expire_ns[2];
++    uint64_t acknowledgements[2][2]; /* [vCPU][target] */
++    int64_t last_ack_ns[2][2];
++    uint64_t irq_rises[3]; /* WDT, TARGET0, TARGET1 */
++    uint64_t irq_falls[3];
++    bool irq_level[3];
++    uint8_t routes[3][2];
++    bool cpu_irq_snapshot_available;
++    uint32_t cpu_ps[2];
++    uint32_t cpu_intenable[2];
++    uint32_t cpu_intset[2];
++    uint64_t feed_attempts;
++    uint64_t feeds;
++    int feed_cpu;
++    int64_t last_feed_ns;
++    int64_t last_feed_deadline_ns;
++} ESPS3IwdtTrace;
++
++#endif

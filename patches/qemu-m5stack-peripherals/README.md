@@ -1,5 +1,16 @@
 # M5Stack peripheral models and data planes
 
+## ESP32-S3 interrupt watchdog timing
+
+Native layer `0213-s3-iwdt-timing-receipt.patch` follows `0212`. A host
+process started with `M5SW_S3_IWDT_TRACE=1` collects per-target SYSTIMER
+alarms, per-vCPU acknowledgements, interrupt-matrix transitions for sources
+55/57/58, and TIMERGROUP1 watchdog feeds. The first stage-0 interrupt action
+emits a single JSON line in QEMU stderr after existing IRQ and timer actions.
+The normal build starts with this diagnostic disabled. The native replay
+order is defined by `scripts/bootstrap-unit-runtime.py`.
+[Reproduction and validation](../../tests/firmware/crash_diagnostics/README.md#esp32-s3-watchdog-timing).
+
 ## ESP32-S3 native VHCI delivery
 
 `0178-s3-vhci-idle-callback-dispatch.patch` adds opt-in ESP32-S3 delivery
