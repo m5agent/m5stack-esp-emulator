@@ -59,6 +59,7 @@ from device_service_tab5_dsi import (  # noqa: E402
     RGB565_LE,
     TAB5_DSI_RUNTIME_SHA256,
     Tab5DsiReceiver,
+    tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
 from device_service_input import (  # noqa: E402
@@ -8858,6 +8859,7 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_efuse = self.dir / "runtime.efuse"
         self._tab5_dsi_emulator: Path | None = None
         self._tab5_dsi: Tab5DsiReceiver | None = None
+        self._tab5_dsi_devices: tuple[str, ...] = ()
 
     def _prepare_tab5_identity(self) -> dict:
         """Admit the actual session image before starting either companion."""
@@ -8904,10 +8906,14 @@ class Tab5DeviceSession(DeviceSession):
         # An uploaded image may boot without the service reference's ELF. Never
         # hand symbols from another build to either esp-emu or the GDB helpers.
         identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
-        candidate = self.service.tab5_dsi_emulator
+        candidate = getattr(self.service, "tab5_dsi_emulator", "")
         if candidate and self._tab5_elf is None:
             self._tab5_dsi_emulator = tab5_dsi_runtime(candidate)
             identity.update(frame_capture="esp-emu-dsi", runtime_sha256=TAB5_DSI_RUNTIME_SHA256)
+            board = getattr(self.service, "tab5_dsi_board", "")
+            self._tab5_dsi_devices = tab5_dsi_board_devices(board)
+            if board:
+                identity.update(panel_board=board, touch_model="idle-identification-registers")
         assert self.spec.efuse is not None
         seed = self.spec.efuse.read_bytes()
         self._tab5_efuse.write_bytes(seed)
@@ -9041,7 +9047,7 @@ class Tab5DeviceSession(DeviceSession):
         ]
         if elf:
             command.extend(["--elf", str(elf)])
-        for i2c_device in TAB5_I2C_DEVICES:
+        for i2c_device in (*TAB5_I2C_DEVICES, *self._tab5_dsi_devices):
             command.extend(["--i2c-dev", i2c_device])
         dsi_port = free_tcp_port() if self._tab5_dsi_emulator is not None else None
         if dsi_port is not None:
@@ -9307,6 +9313,7 @@ class DeviceService:
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.storage_policy = storage_policy or StoragePolicy.from_env()
         self.tab5_dsi_emulator = os.environ.get("M5_TAB5_DSI_EMULATOR", "").strip()
+        self.tab5_dsi_board = os.environ.get("M5_TAB5_DSI_BOARD", "").strip()
         self.specs = load_device_specs()
         self.runtime_acl = runtime_acl or RuntimeACL.unconfigured()
         self.runtime_acl.validate_device_ids(set(self.specs))

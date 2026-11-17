@@ -2940,8 +2940,17 @@ to the absolute path of the tested macOS arm64 esp-emu 1.1.0 binary
 The override applies to uploaded Tab5 images without matching symbols. It
 selects that binary for the P4 guest and its C6 companion. Matched-ELF
 sessions continue to use the configured Tab5 runtime. The worker verifies the
-opt-in binary before starting the companions. An invalid selection fails with
-`tab5_dsi_runtime_unavailable`.
+opt-in binary before starting the companions. An invalid selection fails
+session provisioning before either guest launches.
+
+For the original ILI9881C/GT911 board revision, also set
+`M5_TAB5_DSI_BOARD=gt911-ili9881c`. This places esp-emu's 16-bit register
+device at GT911's backup address on HP I²C controller 1. The register device
+supplies the stock BSP's probe acknowledgement, product ID, and idle status.
+Its scope ends at identification, so the input route still needs matching
+symbols. The session records `flash.tab5.panel_board` and
+`flash.tab5.touch_model`. Omit the board setting to use the existing wiring.
+An unknown board selection fails provisioning with no fallback.
 
 With native DSI enabled, `GET /sessions/{id}/frame.png` with default
 `orient=panel` returns the latest complete received DPI frame. A still

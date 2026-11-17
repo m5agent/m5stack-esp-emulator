@@ -42,6 +42,17 @@ def tab5_dsi_runtime(value: str) -> Path:
     )
 
 
+def tab5_dsi_board_devices(board: str) -> tuple[str, ...]:
+    """Select the stock board's idle touch-identification register device."""
+    if not board:
+        return ()
+    if board == "gt911-ili9881c":
+        # GT911 backup address on Tab5 HP I2C controller 1. The product ID
+        # begins with ASCII "911" at 0x8140; zero touch status means idle.
+        return ("1:0x14,width=2,fill=0,reg=0x8140=0x39,reg=0x8141=0x31,reg=0x8142=0x31",)
+    raise ServiceError("tab5_dsi_board_unavailable", "unknown native DSI Tab5 board revision", 409)
+
+
 class DsiProtocolError(ValueError):
     pass
 

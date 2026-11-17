@@ -17,6 +17,7 @@ from device_service_tab5_dsi import (
     Tab5DsiReceiver,
     _fields,
     _read_message,
+    tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
 
@@ -34,6 +35,15 @@ def _rows(number: int, y: int, count: int, data: bytes) -> dict:
 
 
 class Tab5DsiTests(unittest.TestCase):
+    def test_idle_gt911_board_attaches_only_on_selected_controller(self):
+        self.assertEqual(tab5_dsi_board_devices(""), ())
+        self.assertEqual(tab5_dsi_board_devices("gt911-ili9881c"), (
+            "1:0x14,width=2,fill=0,reg=0x8140=0x39,reg=0x8141=0x31,reg=0x8142=0x31",
+        ))
+        with self.assertRaises(ServiceError) as unknown:
+            tab5_dsi_board_devices("unsupported-board")
+        self.assertEqual(unknown.exception.code, "tab5_dsi_board_unavailable")
+
     def test_claim_names_virtual_channel_zero(self):
         registration = _fields(_fields(REGISTER_VC0)[4])
         self.assertEqual(registration[1], 1)
