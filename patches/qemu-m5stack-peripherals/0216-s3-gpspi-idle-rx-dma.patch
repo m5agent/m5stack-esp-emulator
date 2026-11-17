@@ -1,0 +1,69 @@
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -304,37 +304,40 @@
+         if (s->active_slave >= 0) {
+             s->last_slave = s->active_slave;
+             gpspi_forward_slave(s, xfer, copy, s->rx, true);
+-            bool rx_dma = s->regs[R_DMA_CONF / 4] & DMA_RX_ENA;
+-            if (getenv("M5SW_SPI_XFER_TRACE")) {
+-                fprintf(stderr, "[spi-dma] conf=%08x gdma=%p rx_dma=%d\n",
+-                        s->regs[R_DMA_CONF / 4], (void *)s->gdma, rx_dma);
+-            }
+-            if (s->gdma && rx_dma) {
+-                uint32_t ch;
+-                const uint32_t periph = gpspi_active_dma_periph(s);
+-                if (esp_gdma_get_channel_periph(s->gdma, periph,
+-                                                ESP_GDMA_IN_IDX, &ch)) {
+-                    bool ok = esp_gdma_write_channel(s->gdma, ch,
+-                                                     s->rx, copy);
+-                    if (getenv("M5SW_SPI_XFER_TRACE")) {
+-                        fprintf(stderr,
+-                                "[spi-dma-rx] ch=%u len=%u ok=%d\n",
+-                                ch, copy, ok);
+-                    }
+-                } else {
+-                    if (getenv("M5SW_SPI_XFER_TRACE")) {
+-                        fprintf(stderr, "[spi-dma-rx] no in channel\n");
+-                    }
+-                    qemu_log_mask(LOG_GUEST_ERROR,
+-                                  "gpspi: no GDMA in channel\n");
+-                }
+-            }
+             if (getenv("M5SW_SPI_XFER_TRACE") && copy) {
+                 fprintf(stderr,
+                         "[spi-rx] len=%u first=%02x last=%02x"
+                         " tx0=%02x tx1=%02x tx2=%02x tx3=%02x\n",
+                         copy, s->rx[0], s->rx[copy - 1],
+                         xfer[0], xfer[1], xfer[2], xfer[3]);
++            }
++        }
++        /* DMA receives the sampled MISO bus even with every chip select
++         * inactive. An idle transfer must update the destination just as
++         * the shared FIFO below does. */
++        bool rx_dma = s->regs[R_DMA_CONF / 4] & DMA_RX_ENA;
++        if (getenv("M5SW_SPI_XFER_TRACE")) {
++            fprintf(stderr, "[spi-dma] conf=%08x gdma=%p rx_dma=%d\n",
++                    s->regs[R_DMA_CONF / 4], (void *)s->gdma, rx_dma);
++        }
++        if (s->gdma && rx_dma) {
++            uint32_t ch;
++            const uint32_t periph = gpspi_active_dma_periph(s);
++            if (esp_gdma_get_channel_periph(s->gdma, periph,
++                                            ESP_GDMA_IN_IDX, &ch)) {
++                bool ok = esp_gdma_write_channel(s->gdma, ch,
++                                                 s->rx, copy);
++                if (getenv("M5SW_SPI_XFER_TRACE")) {
++                    fprintf(stderr,
++                            "[spi-dma-rx] ch=%u len=%u ok=%d\n",
++                            ch, copy, ok);
++                }
++            } else {
++                if (getenv("M5SW_SPI_XFER_TRACE")) {
++                    fprintf(stderr, "[spi-dma-rx] no in channel\n");
++                }
++                qemu_log_mask(LOG_GUEST_ERROR,
++                              "gpspi: no GDMA in channel\n");
+             }
+         }
+         /* W0..W15 are the physical shared TX/RX FIFO. Latch the bus

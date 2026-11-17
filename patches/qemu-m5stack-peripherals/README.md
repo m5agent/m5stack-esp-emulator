@@ -1735,3 +1735,15 @@ leaves MISO undriven, drops partial transactions and drives the active-low
 GPIO48 switch through the GPIO input and interrupt controller. The backing
 image stays attached to the isolated session for reinsertion and export.
 [GPIO48 and FAT32 regression](../../tests/firmware/spi_sd_media/README.md#paperdiy-sd-hot-plug).
+
+## ESP32-S3 GP-SPI idle receive DMA (0216)
+
+Apply after 0215 in the native recipe. A GP-SPI master transaction samples
+MISO even when all modeled chip selects are high. The model already puts
+the idle bus bytes in the shared FIFO. Deliver those same bytes to the
+configured RX DMA channel after sampling MISO. Selected-card and panel
+sampling continue through the existing devices.
+
+The [Cardputer A/B probe](../../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)
+uses the same merged firmware and SD fixture for selected-card, select-high
+DMA and FIFO checks. Original NC1020 cold-import performance remains open.

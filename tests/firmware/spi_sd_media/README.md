@@ -47,6 +47,25 @@ ESP_ERR_TIMEOUT` on the tested Cardputer. Require guest exit for each case.
 Physical hardware, browser WASM, PaperDIY G48 detect and community applications
 were outside that first run.
 
+## Cardputer SPI receive with chip select high
+
+Build the same project with ESP-IDF v5.5.4 and
+`-DPROBE_CARDPUTER_IDLE_RX=ON` in a separate build and sdkconfig path.
+Use the seeded 64 MiB FAT32+MBR fixture above. The probe reads the expected
+file over SPI3 with SD selected, unmounts it, and holds its select high.
+It clocks one, four, sixteen and sixty-four bytes using the normal driver,
+first with GDMA and then with the non-DMA FIFO. It also tests the one-byte
+inline receive form used by the SDSPI busy check.
+
+Request `M5SW_SPI_XFER_TRACE=1` in the test session's `runtime_env`.
+Require real selected-card DMA reads in the trace and
+`SPI_IDLE_RX_DONE selected=1 dma=1 fifo=1` on the patched runtime. Use the
+same firmware and SD image against the baseline and require
+`SPI_IDLE_RX_DONE selected=1 dma=0 fifo=1` as the negative control.
+Request the evidence ZIP before stop and confirm the worker lease count
+returns to zero. The [virtual-device A/B](idle-rx-dma-summary.json) includes
+the controller trace and an independent limit on original NC1020 import.
+
 ## PaperDIY CARD_DET
 
 PaperDIY uses the PaperS3 SPI pins and a GPIO48 card-detect input. The

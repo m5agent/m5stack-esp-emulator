@@ -1,5 +1,7 @@
 if(PROBE_PAPERDIY_HOTPLUG)
     set(probe_source "hotplug.c")
+elseif(PROBE_CARDPUTER_IDLE_RX)
+    set(probe_source "idle_rx.c")
 else()
     set(probe_source "main.c")
 endif()
