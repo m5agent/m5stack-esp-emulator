@@ -5,7 +5,11 @@ import math
 from functools import lru_cache
 from pathlib import Path
 
-from device_service_encoder import supports_rotary_encoder, validate_encoder_delta
+from device_service_encoder import (
+    supports_rotary_encoder,
+    validate_encoder_delta,
+    validate_encoder_edge_period_ms,
+)
 from device_service_errors import ServiceError
 
 INPUT_PROFILES = Path(__file__).resolve().parents[1] / "web/qemu-browser-profiles.json"
@@ -13,7 +17,7 @@ SEMANTIC_FIELDS = {
     "button": {"control", "action", "seconds"},
     "keyboard": {"key", "action", "seconds"},
     "chord": {"keys", "target", "seconds"},
-    "encoder": {"delta"},
+    "encoder": {"delta", "edge_period_ms"},
     "touch": {"x", "y", "action", "seconds"},
 }
 SEMANTIC_INPUT_KINDS = SEMANTIC_FIELDS.keys() - {"touch"}
@@ -93,7 +97,10 @@ def normalize_semantic_input(session, payload, *, native):
     if kind == "encoder":
         if not supports_rotary_encoder(session.spec, session.runtime):
             raise unavailable("encoder requires a native Dial session")
-        return {**command, "action": "rotate", "delta": validate_encoder_delta(payload.get("delta"))}
+        command.update(action="rotate", delta=validate_encoder_delta(payload.get("delta")))
+        if "edge_period_ms" in payload:
+            command["edge_period_ms"] = validate_encoder_edge_period_ms(payload["edge_period_ms"])
+        return command
 
     controls = board_controls(session.spec)
     if kind == "chord":

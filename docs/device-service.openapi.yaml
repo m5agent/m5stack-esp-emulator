@@ -5401,6 +5401,12 @@ components:
               minimum: -128
               maximum: 128
               not: {const: 0}
+            edge_period_ms:
+              type: integer
+              minimum: 5
+              maximum: 100
+              default: 5
+              description: Per-motion physical quadrature edge interval; explicit values require a paced Dial runtime.
             settle_seconds: {type: number, minimum: 0, maximum: 5}
         - type: object
           required: [kind, x, y]

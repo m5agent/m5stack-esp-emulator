@@ -3119,7 +3119,7 @@ still has no native input mapping.
 {"kind":"button","control":"a","action":"double_click"}
 {"kind":"chord","target":"button","keys":["a","b"]}
 {"kind":"chord","target":"keyboard","keys":["fn","semicolon"]}
-{"kind":"encoder","delta":3}
+{"kind":"encoder","delta":3,"edge_period_ms":50}
 {"kind":"touch","x":67,"y":160,"action":"hold","seconds":1}
 ```
 
@@ -3139,8 +3139,12 @@ still has no native input mapping.
   changes the native quadrature controller's detent target. A second
   request while movement is pending returns HTTP 409 `input_busy`. A
   successful response gives the new target and the prior controller
-  state. Poll `/machine/encoder` `delivered-detents` and `gpio-edges` to
-  observe physical delivery; confirm the firmware's output separately.
+  state. `edge_period_ms` optionally selects 5–100 ms per physical edge
+  for that motion, four edges per detent. Omitting it keeps the 5 ms
+  default. Explicit pacing requires `paced-detents` in the native encoder
+  model, otherwise the request returns HTTP 409 `unsupported_input`.
+  Poll `/machine/encoder` `delivered-detents` and `gpio-edges` to observe
+  physical delivery; confirm the firmware's output separately.
 
 Semantic inputs accept `settle_seconds` between 0 and 5 as a host wait
 after dispatch. Acceptance and timings do not establish an application

@@ -6031,6 +6031,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(error.exception.code, code)
                 qmp.assert_not_called()
 
+    def test_semantic_encoder_forwards_pace_and_rejects_explicit_null(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session.spec = self.service.specs["dial"]
+        with mock.patch.object(device_service_module, "rotate_encoder",
+                               return_value={"delta": 3, "edge_period_ms": 50}) as rotate:
+            request = {"kind": "encoder", "delta": 3, "edge_period_ms": 50, "settle_seconds": 0}
+            result = session.inject(request)
+            self.assertEqual(result["controller"], {"delta": 3, "edge_period_ms": 50})
+            rotate.assert_called_once_with(session, 3, edge_period_ms=50)
+            with self.assertRaises(ServiceError) as error:
+                session.inject({**request, "edge_period_ms": None})
+            self.assertEqual(error.exception.code, "invalid_input")
+            self.assertEqual(rotate.call_count, 1)
+
     def test_semantic_touch_double_click_sends_two_pointer_press_release_pairs(self):
         session = self._stopped_session()
         session.state = "running"

@@ -7301,7 +7301,9 @@ class DeviceSession:
             if self.state != "running":
                 raise ServiceError("session_not_running", f"session state is {self.state}", 409)
             if kind == "encoder":
-                controller = rotate_encoder(self, command["delta"])
+                controller = rotate_encoder(
+                    self, command["delta"], edge_period_ms=command.get("edge_period_ms")
+                )
                 observation = {"controller": controller}
             else:
                 timing = send_semantic_input(self, command, pointer_events)
