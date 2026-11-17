@@ -22,6 +22,27 @@ Original CarPlay independently passed its GT911 drag and confirmation dialog,
 which was left unaccepted. Both sessions stopped with Flash released and zero
 active worker leases.
 
+## Concurrent DSI readback
+
+The receiver batches bounded socket reads and skips unrelated GPIO broadcasts
+and idle heartbeats. It still consumes the clock watermark for a pending
+sparse diff. Device Service retains one PNG encoding for the exact immutable
+frame it received. Reset clears that rendering before the next generation.
+
+With four loopback clients requesting uncached PNGs after the title screen
+and waiting 125 ms between requests, the original firmware passed the EN,
+shutdown PNG, ZIP, and restart-title checks on both builds. The baseline
+served 96 successful image reads and the candidate served 237 over their
+respective runs. Neither emitted a native TCP drop warning at that pacing.
+At 25 ms pacing, the candidate passed those checks with 946 successful image
+reads in 13.101 seconds, and the runtime reported at least 4,194,304 advisory
+messages dropped. The warning supplies one count for all message types on the
+connection. An earlier 25 ms run
+captured the shutdown PNG and power ZIP, then timed out waiting for the
+restart title. Reliable readback under arbitrary host load remains open.
+All these tests used the identical original upload and qualified runtime and
+Part. [Bounded concurrency evidence](dsi-receiver-summary.json)
+
 The latch is qualified for this ST7123 configuration. Other Tab5 profiles,
 physical power rails and standby current, backlight power, and panel behavior
 on a physical power button remain outside the result. No Burner submission

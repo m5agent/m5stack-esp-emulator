@@ -21,6 +21,11 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 复位后恢复原版帧。短按和图标外长按均保持运行，CarPlay GT911 单指拖动
 与确认页回归通过。[运行配置与精确摘要](evidence/2026-11-17-tab5-power-latch/README.md)
 
+同一原版的 [DSI 并发读取复验](evidence/2026-11-17-tab5-power-latch/dsi-receiver-summary.json)
+覆盖四个无缓存 HTTP 客户端。按 125 ms 节奏，基线与候选均通过关机图和重启图的哈希校验，
+候选该次复验返回 237 张 PNG。25 ms 对照保留了一次重启画面超时和一次原版全流程通过，
+原生推送的通用丢包警告仍可复现。
+
 ## 2026-11-17
 
 [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)使用原版应用 `5c7c0b74…`、合成 Flash `9627c7bc…` 和新原生 QEMU `eca4ab4b…`。同一隔离会话取得真实关联、DORA、ARP 和 HTTP 200 完整首页。保留仅允许夹具 SSID 的同镜像负对照和来宾 HTTP 开启前拒绝连接的观察。

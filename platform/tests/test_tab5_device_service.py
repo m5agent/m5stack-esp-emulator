@@ -382,6 +382,35 @@ class Tab5ServiceTests(unittest.TestCase):
             session._close_dsi_receiver()
             receiver.return_value.close.assert_called_once()
 
+    def test_dsi_reuses_only_the_current_immutable_observation(self):
+        session = self.session()
+        session.state = "running"
+        receiver = mock.Mock()
+        session._tab5_dsi = receiver
+        first = service_module.DsiFrame(1, 1, service_module.RGB565_LE, b"\xff\xff", 1, 2, 3)
+        receiver.snapshot.return_value = (first, "connected")
+        with mock.patch.object(service_module, "write_rgb_png", wraps=service_module.write_rgb_png) as encode, \
+                mock.patch.object(service_module, "rgb_metrics", wraps=service_module.rgb_metrics) as analyze:
+            original = session._dsi_frame_metrics(analyze=False, force_persist=True)
+            observed = session._dsi_frame_metrics(analyze=True, force_persist=True)
+            self.assertNotIn("nonblack_pixels", original)
+            self.assertEqual(observed["nonblack_pixels"], 1)
+            self.assertEqual(observed["png"], original["png"])
+            observed["width"] = 99
+            self.assertEqual(session._dsi_frame_metrics(analyze=True, force_persist=False)["width"], 1)
+            self.assertNotIn("nonblack_pixels", session._dsi_frame_metrics(analyze=False, force_persist=False))
+            encode.assert_called_once()
+            analyze.assert_called_once()
+            session._close_dsi_receiver()
+            replacement = mock.Mock()
+            session._tab5_dsi = replacement
+            # In a new timeline the frame sequence and timestamp can repeat.
+            replacement.snapshot.return_value = (replace(first, pixels=b"\0\0"), "connected")
+            current = session._dsi_frame_metrics(analyze=True, force_persist=True)
+            self.assertEqual(current["nonblack_pixels"], 0)
+            self.assertNotEqual(current["png"], original["png"])
+            self.assertEqual(encode.call_count, 2)
+
     def test_modified_session_elf_is_rejected_before_any_launch(self):
         session = self.session()
         self.provision(session)

@@ -56,6 +56,7 @@ from device_service_fs_fixture import (  # noqa: E402
 )
 from device_service_encoder import rotate_encoder  # noqa: E402
 from device_service_tab5_dsi import (  # noqa: E402
+    DsiFrame,
     RGB565_LE,
     TAB5_DSI_RUNTIME_SHA256,
     TAB5_GT911_PART_SHA256,
@@ -9189,6 +9190,7 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_efuse = self.dir / "runtime.efuse"
         self._tab5_dsi_emulator: Path | None = None
         self._tab5_dsi: Tab5DsiReceiver | None = None
+        self._tab5_rendered_frame: tuple[DsiFrame, dict] | None = None
         self._tab5_dsi_devices: tuple[str, ...] = ()
         self._tab5_gt911_board: Path | None = None
         self._tab5_st7123_board: Path | None = None
@@ -9475,6 +9477,7 @@ class Tab5DeviceSession(DeviceSession):
         with self._lock:
             receiver = self._tab5_dsi
             self._tab5_dsi = None
+            self._tab5_rendered_frame = None
         if receiver is not None:
             receiver.close()
 
@@ -9559,16 +9562,16 @@ class Tab5DeviceSession(DeviceSession):
                     "tab5_dsi_frame_unavailable", "Tab5 has not delivered a complete native DSI frame", 409,
                     capture_status=capture_status,
                 )
-            if frame.pixel_format == RGB565_LE:
-                pixels = rgb565_to_rgb(frame.pixels)
-            else:
-                rgb = bytearray(len(frame.pixels))
-                rgb[0::3], rgb[1::3], rgb[2::3] = frame.pixels[2::3], frame.pixels[1::3], frame.pixels[0::3]
-                pixels = bytes(rgb)
-            png = self.dir / f"dsi-frame-{uuid.uuid4().hex}.png"
-            try:
-                write_rgb_png(png, frame.width, frame.height, pixels)
-                png_bytes = png.read_bytes()
+            rendered = self._tab5_rendered_frame
+            pixels = None
+            if rendered is None or rendered[0] is not frame:
+                pixels = self._dsi_rgb_pixels(frame)
+                png = self.dir / f"dsi-frame-{uuid.uuid4().hex}.png"
+                try:
+                    write_rgb_png(png, frame.width, frame.height, pixels)
+                    png_bytes = png.read_bytes()
+                finally:
+                    png.unlink(missing_ok=True)
                 metrics = {
                     "png": png_bytes,
                     "width": frame.width,
@@ -9580,14 +9583,27 @@ class Tab5DeviceSession(DeviceSession):
                     "capture_guest_time_ns": frame.guest_time_ns,
                     "captured_at": datetime.fromtimestamp(frame.captured_at, timezone.utc).isoformat(),
                 }
-                if analyze:
-                    nonblack, unique_colors = rgb_metrics(pixels)
-                    metrics.update(nonblack_pixels=nonblack, unique_colors=unique_colors)
-                if force_persist or time.monotonic() - self._last_frame_persisted_at >= 1:
-                    self._persist_frame(metrics)
-                return metrics
-            finally:
-                png.unlink(missing_ok=True)
+                self._tab5_rendered_frame = frame, metrics
+            else:
+                metrics = rendered[1]
+            if analyze and "nonblack_pixels" not in metrics:
+                nonblack, unique_colors = rgb_metrics(pixels if pixels is not None else self._dsi_rgb_pixels(frame))
+                metrics.update(nonblack_pixels=nonblack, unique_colors=unique_colors)
+            result = dict(metrics)
+            if not analyze:
+                result.pop("nonblack_pixels", None)
+                result.pop("unique_colors", None)
+            if force_persist or time.monotonic() - self._last_frame_persisted_at >= 1:
+                self._persist_frame(result)
+            return result
+
+    @staticmethod
+    def _dsi_rgb_pixels(frame: DsiFrame) -> bytes:
+        if frame.pixel_format == RGB565_LE:
+            return rgb565_to_rgb(frame.pixels)
+        rgb = bytearray(len(frame.pixels))
+        rgb[0::3], rgb[1::3], rgb[2::3] = frame.pixels[2::3], frame.pixels[1::3], frame.pixels[0::3]
+        return bytes(rgb)
 
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics(analyze=False)

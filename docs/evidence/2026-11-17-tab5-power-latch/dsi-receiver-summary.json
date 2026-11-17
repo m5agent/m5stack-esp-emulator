@@ -1,0 +1,233 @@
+{
+  "baseline_commit": "5a87913bf60dcde84420661d279ab5e0c9c9154c",
+  "verification": "virtual-device validation",
+  "scenarios": {
+    "baseline_control": {
+      "returncode": 0,
+      "reads": [
+        [
+          23,
+          {
+            "409:starting": 2,
+            "409:connected": 5
+          }
+        ],
+        [
+          25,
+          {
+            "409:starting": 2,
+            "409:connected": 5
+          }
+        ],
+        [
+          25,
+          {
+            "409:starting": 1,
+            "409:connected": 5
+          }
+        ],
+        [
+          23,
+          {
+            "409:starting": 2,
+            "409:connected": 5
+          }
+        ]
+      ],
+      "leases": 0,
+      "isolated_service_exited": true,
+      "max_reported_native_tcp_drops": 0,
+      "replay": {
+        "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+        "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+        "status": "PASS",
+        "power": {
+          "latched": true,
+          "chip_enabled": false,
+          "latched_at_guest_ns": 13060160687
+        },
+        "power_off_frame_sha256": "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "evidence_zip_sha256": "5453a2477ce8e4f426ae591633bb5ce1551a7a2ac67cb9498aea5a2116dc82cc",
+        "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+        "part_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+        "restart_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "cleaned": true
+      },
+      "concurrent_clients": 4,
+      "pause_after_each_request_ms": 125,
+      "power_frame": {
+        "width": 720,
+        "height": 1280,
+        "capture_backend": "esp-emu-dsi",
+        "capture_frame_number": 800,
+        "capture_guest_time_ns": 12820864937
+      }
+    },
+    "buffered_control": {
+      "returncode": 0,
+      "reads": [
+        [
+          59,
+          {
+            "409:starting": 1,
+            "409:connecting": 1,
+            "409:connected": 4
+          }
+        ],
+        [
+          59,
+          {
+            "409:starting": 1,
+            "409:connecting": 1,
+            "409:connected": 4
+          }
+        ],
+        [
+          60,
+          {
+            "409:starting": 1,
+            "409:connecting": 1,
+            "409:connected": 4
+          }
+        ],
+        [
+          59,
+          {
+            "409:starting": 1,
+            "409:connecting": 1,
+            "409:connected": 4
+          }
+        ]
+      ],
+      "leases": 0,
+      "isolated_service_exited": true,
+      "max_reported_native_tcp_drops": 0,
+      "replay": {
+        "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+        "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+        "status": "PASS",
+        "power": {
+          "latched": true,
+          "chip_enabled": false,
+          "latched_at_guest_ns": 7264160687
+        },
+        "power_off_frame_sha256": "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "evidence_zip_sha256": "9d291c1d72f56b184719fb0cd28018040a5c357bc52010734d9474a0c553d083",
+        "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+        "part_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+        "restart_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "cleaned": true
+      },
+      "concurrent_clients": 4,
+      "pause_after_each_request_ms": 125,
+      "power_frame": {
+        "width": 720,
+        "height": 1280,
+        "capture_backend": "esp-emu-dsi",
+        "capture_frame_number": 417,
+        "capture_guest_time_ns": 7023106687
+      }
+    },
+    "buffered_flood": {
+      "clients": 4,
+      "interval_ms": 25,
+      "returncode": 0,
+      "reads": [
+        [
+          234,
+          {
+            "409:starting": 4,
+            "409:connecting": 2,
+            "409:connected": 19
+          }
+        ],
+        [
+          238,
+          {
+            "409:starting": 4,
+            "409:connecting": 2,
+            "409:connected": 18
+          }
+        ],
+        [
+          237,
+          {
+            "409:starting": 4,
+            "409:connecting": 2,
+            "409:connected": 18
+          }
+        ],
+        [
+          237,
+          {
+            "409:starting": 4,
+            "409:connecting": 2,
+            "409:connected": 19
+          }
+        ]
+      ],
+      "wall_seconds": 13.101,
+      "leases": 0,
+      "isolated_service_exited": true,
+      "max_reported_native_tcp_drops": 4194304,
+      "replay": {
+        "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+        "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+        "status": "PASS",
+        "power": {
+          "latched": true,
+          "chip_enabled": false,
+          "latched_at_guest_ns": 6677160687
+        },
+        "power_off_frame_sha256": "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "evidence_zip_sha256": "c78a54a1e30e885bdcdf42243e29e5d281071deebe0c73c8f4c9b59cd80a3f91",
+        "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+        "part_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+        "restart_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "cleaned": true
+      },
+      "concurrent_clients": 4,
+      "pause_after_each_request_ms": 25,
+      "power_frame": {
+        "width": 720,
+        "height": 1280,
+        "capture_backend": "esp-emu-dsi",
+        "capture_frame_number": 378,
+        "capture_guest_time_ns": 6432734437
+      }
+    },
+    "earlier_candidate_flood": {
+      "returncode": 1,
+      "reads": [
+        [
+          243,
+          976
+        ],
+        [
+          246,
+          983
+        ],
+        [
+          243,
+          975
+        ],
+        [
+          242,
+          976
+        ]
+      ],
+      "leases": 0,
+      "isolated_service_exited": true,
+      "replay": {
+        "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+        "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+        "status": "FAIL",
+        "cleaned": true
+      },
+      "concurrent_clients": 4,
+      "pause_after_each_request_ms": 25,
+      "failure": "restart title frame not captured before runner deadline",
+      "pre_reset_native_tcp_drops": "NOT OBSERVED (runtime stderr was overwritten by reset)"
+    }
+  }
+}

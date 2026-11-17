@@ -12,6 +12,7 @@ import socket
 import struct
 import threading
 import time
+from typing import BinaryIO
 
 from device_service_errors import ServiceError
 
@@ -27,6 +28,8 @@ TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_PART_BYTES = 144 * 1024
 MAX_MESSAGE_BYTES = 128 * 1024
+DSI_READ_BUFFER_BYTES = 256 * 1024
+DSI_SOCKET_BUFFER_BYTES = 4 * 1024 * 1024
 MAX_PIXELS = 2 * 1024 * 1024
 MAX_DIMENSION = 2048
 RGB565_LE = 1
@@ -374,24 +377,26 @@ def _bytes(fields: dict[int, int | bytes], number: int) -> bytes:
     return value
 
 
-def _read_exact(sock: socket.socket, size: int) -> bytes:
-    frame = bytearray()
-    while len(frame) < size:
-        chunk = sock.recv(size - len(frame))
-        if not chunk:
-            raise EOFError("co-sim disconnected")
-        frame.extend(chunk)
-    return bytes(frame)
+def _read_exact(reader: BinaryIO, size: int) -> bytes:
+    data = reader.read(size)
+    if len(data) != size:
+        raise EOFError("co-sim disconnected")
+    return data
 
 
-def _read_message(sock: socket.socket) -> dict[int, int | bytes]:
-    (size,) = struct.unpack("<I", _read_exact(sock, 4))
+def _read_message(reader: BinaryIO, *, need_clock: bool = True) -> dict[int, int | bytes] | None:
+    (size,) = struct.unpack("<I", _read_exact(reader, 4))
     if not 2 <= size <= MAX_MESSAGE_BYTES:
         raise DsiProtocolError("invalid co-sim packet size")
-    data = _read_exact(sock, size)
+    data = _read_exact(reader, size)
     (topic_length,) = struct.unpack_from("<H", data)
     if topic_length > size - 2:
         raise DsiProtocolError("invalid co-sim topic size")
+    topic = data[2:2 + topic_length]
+    # The native subscriber also receives unrelated GPIO broadcasts and idle
+    # heartbeats. A heartbeat is needed while a sparse DSI diff awaits commit.
+    if topic.startswith(b"HW/GPIO/") or (topic == b"SIM/CLOCK" and not need_clock):
+        return None
     return _fields(data[2 + topic_length:])
 
 
@@ -522,7 +527,20 @@ class Tab5DsiReceiver:
         until = time.monotonic() + 8
         while not self._stop.is_set() and time.monotonic() < until:
             try:
-                return socket.create_connection(("127.0.0.1", self._port), timeout=0.25)
+                # Size before connect so TCP negotiates a receive window
+                # that can absorb a burst of DPI rows.
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                try:
+                    try:
+                        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, DSI_SOCKET_BUFFER_BYTES)
+                    except OSError:
+                        pass  # Keep working on hosts that limit socket memory.
+                    sock.settimeout(0.25)
+                    sock.connect(("127.0.0.1", self._port))
+                    return sock
+                except OSError:
+                    sock.close()
+                    raise
             except OSError:
                 self._stop.wait(0.05)
         raise OSError("co-sim endpoint unavailable")
@@ -536,16 +554,19 @@ class Tab5DsiReceiver:
                         return
                 sock.sendall(struct.pack("<I", len(REGISTER_VC0)) + REGISTER_VC0)
                 sock.settimeout(2)
-                ack = _fields(_bytes(_read_message(sock), 5))
-                if _integer(ack, 5) != 1:
-                    raise DsiProtocolError("DSI registration refused")
-                sock.settimeout(None)
-                with self._lock:
-                    self._state = "connected"
-                while not self._stop.is_set():
-                    message = _read_message(sock)
+                with sock.makefile("rb", buffering=DSI_READ_BUFFER_BYTES) as reader:
+                    message = _read_message(reader)
+                    ack = _fields(_bytes(message or {}, 5))
+                    if _integer(ack, 5) != 1:
+                        raise DsiProtocolError("DSI registration refused")
+                    sock.settimeout(None)
                     with self._lock:
-                        self._buffer.receive(message)
+                        self._state = "connected"
+                    while not self._stop.is_set():
+                        message = _read_message(reader, need_clock=self._buffer.pending_number is not None)
+                        if message is not None:
+                            with self._lock:
+                                self._buffer.receive(message)
         except (OSError, EOFError, DsiProtocolError) as error:
             with self._lock:
                 self._state = "protocol_error" if isinstance(error, DsiProtocolError) else "disconnected"
