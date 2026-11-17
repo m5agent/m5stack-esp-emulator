@@ -16,6 +16,8 @@
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
 [2026-11-17 CardputerDict 原版查词](evidence/2026-11-17-cardputerdict-stock/README.md)记录正常审核入口与两个同固件对照。
 
+[2026-11-17 StickS3 原版配网与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)记录原版同会话配网表单、站点关联和隔离 DHCP/ARP。
+
 [2026-11-17 SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)记录初代 Cardputer 与 PaperS3 的 FAT32 读写和初代 Cardputer 的跨会话读回。
 
 [2026-11-16 Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)记录缓存 SRAM、板型探测和无跟踪的启动、休眠唤醒与按键。
@@ -600,6 +602,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Tab5 ST7123 关机锁存](evidence/2026-11-17-tab5-power-latch/README.md) | 原生来宾证据 | `2026-11-17` | 原版关机脉冲、EN、重启和 ZIP 取证 |
 | [Tab5 ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md) | 原生来宾证据 | `2026-11-17` | 单触点持续、释放及原版关机总线请求 |
 | [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md) | 原生来宾证据 | `2026-11-17` | 同来宾关联、DHCP、ARP 和只读首页 |
+| [StickS3 原版同会话配网与 STA](evidence/2026-11-17-sticks3-portal-station/README.md) | 原生来宾证据 | `2026-11-17` | 固定表单、两次 DHCP 和站点 ARP |
 | [原版 Tab5 ST7123 输入](evidence/2026-11-17-tab5-st7123-touch/README.md) | 原生来宾证据 | `2026-11-17` | Arduventure 单点 A/B 和四方向、IRQ/I²C 来宾探针与 CarPlay GT911 对照 |
 | [Tab5 ST7123 与 GT911](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md) | 原生来宾证据 | `2026-11-17` | 原版 Arduventure 无 ELF 取帧、原版 CarPlay GT911 确认页与独立滑动协议的早期验证 |
 | [本地虚拟设备实验室](local-observatory.md) | 使用指南 | `2026-11-06` | 无输入自动巡展、短任务与黑屏、日志跟随和资源预算；不进入静态托管导出 |

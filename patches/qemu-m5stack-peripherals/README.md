@@ -1747,3 +1747,13 @@ sampling continue through the existing devices.
 The [Cardputer A/B probe](../../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)
 uses the same merged firmware and SD fixture for selected-card, select-high
 DMA and FIFO checks. Original NC1020 cold-import performance remains open.
+
+## StickS3 portal to infrastructure station (0217)
+
+The opt-in native portal profile advertises one isolated infrastructure AP.
+An actual guest station authentication request switches the native receive
+path from its synthetic SoftAP client to that AP. During AP+STA setup,
+the S3 DMA descriptor marks incoming infrastructure data for the guest STA
+interface. The original read-only portal and other Wi-Fi profiles retain
+their existing radio and socket configuration. See the pinned guest
+[execution evidence](../../docs/evidence/2026-11-17-sticks3-portal-station/README.md).

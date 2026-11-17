@@ -107,9 +107,14 @@ from device_service_softap_peer import (  # noqa: E402
     ACL_OPERATION as SOFTAP_ACL_OPERATION,
     NIC as SOFTAP_NIC,
     PORTAL_QOM_PROPERTY as SOFTAP_PORTAL_QOM_PROPERTY,
+    PROVISION_ACL_OPERATION,
+    PROVISION_SSID,
     PROFILE_BOARDS as SOFTAP_PROFILE_BOARDS,
     QOM_PROPERTY as SOFTAP_QOM_PROPERTY,
+    STATION_QOM_PROPERTY as SOFTAP_STATION_QOM_PROPERTY,
     STICKS3_PORTAL_PROFILE,
+    STICKS3_PROVISION_PROFILE,
+    PortalStationPeer,
     SoftAPPeer,
     require_softap_backend,
 )
@@ -440,7 +445,12 @@ DEFAULT_NETWORK_EMULATOR = (
     / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
 )
 GENERIC_WIFI_PROFILE = "generic-observe"
-UNIX_WIFI_PEER_PROFILES = frozenset(SOFTAP_PROFILE_BOARDS) | {STA_TIME_PROFILE}
+UNIX_WIFI_PEER_OPERATIONS = {
+    **dict.fromkeys(SOFTAP_PROFILE_BOARDS, SOFTAP_ACL_OPERATION),
+    STICKS3_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
+    STA_TIME_PROFILE: STA_TIME_ACL_OPERATION,
+}
+UNIX_WIFI_PEER_PROFILES = frozenset(UNIX_WIFI_PEER_OPERATIONS)
 UNIFIED_HTTP_PORTS = {
     GENERIC_WIFI_PROFILE: 18192,
     STICKS3_WIFI_PROFILE: 18080,
@@ -1096,10 +1106,13 @@ def parse_qemu_wifi_execution(
                 "open SoftAP fixture accepts only profile and capture_pcap=true",
                 400,
             )
-        return {
+        config = {
             "profile": profile, "net_mode": "unix-socketpair",
             "nic": SOFTAP_NIC, "capture_pcap": True, "http_fixture": False,
         }
+        if profile == STICKS3_PROVISION_PROFILE:
+            config.update(wifi_ssid=PROVISION_SSID, wifi_auth="open")
+        return config
     if profile != supported_profile:
         raise ServiceError(
             "unsupported_network_profile",
@@ -4629,9 +4642,12 @@ class DeviceSession:
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
         if self.network_config.get("profile") in SOFTAP_PROFILE_BOARDS:
+            provisioning = self.network_config["profile"] == STICKS3_PROVISION_PROFILE
             peer = self._softap_receipt()
             evidence["softap_fixture"] = peer
-            evidence["kind"] = "m5stack-qemu-open-softap-proof"
+            evidence["kind"] = (
+                "m5stack-qemu-sticks3-provisioning" if provisioning else "m5stack-qemu-open-softap-proof"
+            )
             evidence["isolation"] = {
                 "mode": "unix-socketpair",
                 "host_ip_backends": 0,
@@ -4645,6 +4661,13 @@ class DeviceSession:
                 "captured_dora": data_plane["dhcpv4"]["completed_dora_transactions"] > 0,
                 "captured_http": data_plane["tcp"]["bidirectional_payload_flows"] > 0,
             }
+            if provisioning:
+                evidence["checks"].update(
+                    peer_save_form=peer.get("save_http") is True,
+                    guest_station_lease=peer.get("station_dhcp") is True and peer.get("station_arp") is True,
+                    both_dhcp_flows=data_plane["dhcpv4"]["completed_dora_transactions"] >= 2,
+                    both_portal_requests=data_plane["tcp"]["bidirectional_payload_flows"] >= 2,
+                )
             evidence["status"] = (
                 "PASS" if peer.get("status") == "PASS" and all(evidence["checks"].values()) else "PARTIAL"
             )
@@ -5929,18 +5952,24 @@ class DeviceSession:
                 )
             if profile in SOFTAP_PROFILE_BOARDS:
                 peer_mac = qemu_station_mac(f"softap-peer:{self.id}")
-                self._unix_wifi_peer = SoftAPPeer(
-                    peer_mac, lambda receipt: atomic_write_json(self.softap_fixture_receipt, receipt),
-                    portal=profile == STICKS3_PORTAL_PROFILE,
-                )
+                def persist(receipt):
+                    atomic_write_json(self.softap_fixture_receipt, receipt)
+                if profile == STICKS3_PROVISION_PROFILE:
+                    self._unix_wifi_peer = PortalStationPeer(peer_mac, wifi_mac, persist)
+                else:
+                    self._unix_wifi_peer = SoftAPPeer(peer_mac, persist, portal=profile == STICKS3_PORTAL_PROFILE)
                 peer_fd = self._unix_wifi_peer.child.fileno()
                 command.extend([
                     "-global", f"driver={SOFTAP_NIC},property={SOFTAP_QOM_PROPERTY},value=on",
                     "-nic", f"socket,fd={peer_fd},model={nic},mac={peer_mac},id=wifi0",
                 ])
-                if profile == STICKS3_PORTAL_PROFILE:
+                if profile in {STICKS3_PORTAL_PROFILE, STICKS3_PROVISION_PROFILE}:
                     command.extend([
                         "-global", f"driver={SOFTAP_NIC},property={SOFTAP_PORTAL_QOM_PROPERTY},value=on",
+                    ])
+                if profile == STICKS3_PROVISION_PROFILE:
+                    command.extend([
+                        "-global", f"driver={SOFTAP_NIC},property={SOFTAP_STATION_QOM_PROPERTY},value=on",
                     ])
             elif profile == STA_TIME_PROFILE:
                 self._unix_wifi_peer = StationTimePeer(
@@ -8509,10 +8538,7 @@ class DeviceSession:
             lifecycle = self._lifecycle_operation() if peer is not None else nullcontext()
             with lifecycle, self._lock:
                 if peer is not None:
-                    operation = (
-                        STA_TIME_ACL_OPERATION if self.network_config.get("profile") == STA_TIME_PROFILE
-                        else SOFTAP_ACL_OPERATION
-                    )
+                    operation = UNIX_WIFI_PEER_OPERATIONS[self.network_config["profile"]]
                     self._require_runtime_permission(operation)
                     peer.invalidate_for_reset()
                 self._frame_epoch += 1
@@ -11253,10 +11279,8 @@ class DeviceService:
                 payload.get("network"),
             )
             if network_config["profile"] in UNIX_WIFI_PEER_PROFILES:
-                operation = (
-                    STA_TIME_ACL_OPERATION if network_config["profile"] == STA_TIME_PROFILE
-                    else SOFTAP_ACL_OPERATION
-                )
+                profile = network_config["profile"]
+                operation = UNIX_WIFI_PEER_OPERATIONS[profile]
                 try:
                     self.runtime_acl.check(spec.id, operation)
                 except RuntimeACLError as error:
@@ -11264,12 +11288,15 @@ class DeviceService:
                         error.code, str(error), error.status,
                         operation=error.operation, reason=error.reason, policy_id=error.policy_id,
                     ) from error
-                if network_config["profile"] == STA_TIME_PROFILE:
-                    if identity_request is not None:
+                if identity_request is not None:
+                    if profile == STA_TIME_PROFILE:
                         raise ServiceError("invalid_network", "the local time fixture uses generated device identity", 400)
-                else:
+                    if profile == STICKS3_PROVISION_PROFILE:
+                        raise ServiceError("invalid_network", "the provisioning fixture uses generated device identity", 400)
+                if profile != STA_TIME_PROFILE:
                     require_softap_backend(
-                        spec.qemu, portal=network_config["profile"] == STICKS3_PORTAL_PROFILE,
+                        spec.qemu, portal=profile == STICKS3_PORTAL_PROFILE,
+                        station=profile == STICKS3_PROVISION_PROFILE,
                     )
         elif runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}:
             network_config = parse_qemu_ble_execution(

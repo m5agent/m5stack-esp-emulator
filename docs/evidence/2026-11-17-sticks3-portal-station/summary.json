@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "device": "sticks3",
+  "author_tag": "v0.2.4",
+  "author_source": "5faf4efaec9b9aa0d36fcb9514030cb9de649862",
+  "source_firmware_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+  "composed_firmware_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+  "segments": [
+    {
+      "offset": 0,
+      "name": "bootloader.bin",
+      "sha256": "1776e4dd896a69d0a5c2e79957b0e2a88aa4129b1381d6478683515a1f6af343"
+    },
+    {
+      "offset": 32768,
+      "name": "partitions.bin",
+      "sha256": "a388634787e6301eb31711138e4dc4012483b79b140d63f2519acf41fd59d02d"
+    },
+    {
+      "offset": 57344,
+      "name": "boot_app0.bin",
+      "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+    },
+    {
+      "offset": 65536,
+      "name": "author app",
+      "sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6"
+    }
+  ],
+  "original_confirmed_at_flash_offset": "0x10000",
+  "release_candidate": {
+    "profile": "sticks3-open-softap-provisioning",
+    "runtime_sha256": "e565b98f032b05321b74369426908c40ad72e5459157fef875359b8a20a37f00",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "e5818ef9f36926c1b46d7a7f58b54cefc3eb94728ed50856ce254be68299c376",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 2
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "ea9d72d91e5aeb10b68b21ba4fc7662ce54c47414a73a5869eb1a7df9eb38b0e",
+    "frame_sha256": "0a8498edd5f79036224018a3642df176685989ff1962e3e1a9dca5bf9691c509",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "status": "PASS",
+    "trace_enabled": false,
+    "source_file_sha256": {
+      "serve.py": "19cc838091e97d3b33620947fc88cf88d3fb1463e931351b3dfccafa8a369a38",
+      "device_service.py": "1a8116298c5d68991a48614cca6f371f734fb54c759e67f51e449f2591878bdd",
+      "device_service_softap_peer.py": "57ad6c3496f9e2c5eb1065c9e6b385260a051dafd8020f9ba7d2e4daf7fb3c8e"
+    },
+    "peer": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 1,
+      "status": "PASS",
+      "released": true,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "save_http": true,
+      "save_body_sha256": "0982190388fef17e1120651b46904d84d43d3f220f4224cbefe0f33ca3f501bf",
+      "station_dhcp": true,
+      "station_arp": true,
+      "stage": "station",
+      "http_body_sha256": "155b87edfafcd2bdf6142868c48b1bdc94c8b4b6a8ac7f4576baa68bbdae7854",
+      "http_request_sha256": "10e9746b99051679209d136b5650fb45345c18190233817f05d06853096666ae"
+    },
+    "independent_packet_readback": {
+      "status": "PASS",
+      "captured_http_200_body_bytes": [
+        5448,
+        5347
+      ],
+      "captured_requests": [
+        "GET /",
+        "POST /wifisave"
+      ],
+      "completed_dora_exchanges": 2,
+      "station_arp_from_assigned_address_after_ack": true,
+      "pcap_matches_finalized_report": true,
+      "peer_matches_pre_stop_zip": true,
+      "flash_released": true
+    }
+  },
+  "trace_control": {
+    "profile": "sticks3-open-softap-provisioning",
+    "runtime_sha256": "1507134733c256781d916236b2c0e45cd29e8cb8936c5ea348452fbd22628208",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "0269b099662e9957626950aecfab6742ad4a4b0beb87a18aa97827ce02bee8c8",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 2
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "d1e8314f4a2f1ecd33522a16fa779dec217e6ce8aad884441c9011413c02e9c3",
+    "frame_sha256": "0a8498edd5f79036224018a3642df176685989ff1962e3e1a9dca5bf9691c509",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "status": "PASS",
+    "guest_sta_association_requests": 1
+  },
+  "old_runtime_fixed_form_control": {
+    "profile": "sticks3-open-softap-portal",
+    "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "19b0ae858cdc9ec4b100e18ed194e42ffb92d8b2fc55277347156db0687aa41a",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 2
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "c6fe5bb5b67255ee3d9e7766869d3392ff54da70279df8909bc990b33ec96276",
+    "frame_sha256": "aaa288018447c3ca4fa8335e89dce4e8d6f95f74ff8dca74e68a290aaf430468",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "status": "PARTIAL",
+    "portal_save_http": true,
+    "guest_sta_probe_requests": 55,
+    "guest_sta_association_requests": 0
+  },
+  "read_only_profile_control": {
+    "profile": "sticks3-open-softap-portal",
+    "runtime_sha256": "e565b98f032b05321b74369426908c40ad72e5459157fef875359b8a20a37f00",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "061f1cdbf6b32662bd2f5eda6ec2d7c8d9458d156ace3205614c2034c9b766d6",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 1
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "e741eef5e102bcf7cec1af016955d834dec3ea2f28e52c71000a45059e66ced1",
+    "frame_sha256": "aaa288018447c3ca4fa8335e89dce4e8d6f95f74ff8dca74e68a290aaf430468",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "status": "PASS",
+    "captures_portal_only": true
+  }
+}

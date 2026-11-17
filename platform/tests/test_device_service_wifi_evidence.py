@@ -160,4 +160,9 @@ class NativeStaCapabilityTests(unittest.TestCase):
                     replace(spec, service_kind="tab5"),
                 ):
                     self.assertEqual(native_sta_capability(unsupported, backend_ready=True), {})
-        self.assertEqual(native_sta_capability(specs["sticks3"], backend_ready=True), {})
+        self.assertEqual(native_sta_capability(specs["sticks3"], backend_ready=True), {
+            "portal_provisioning_fixture": {
+                "runtime": "qemu-wifi", "profile": "sticks3-open-softap-provisioning",
+                "host_ip_backends": 0, "scope": "portal-to-station",
+            },
+        })
