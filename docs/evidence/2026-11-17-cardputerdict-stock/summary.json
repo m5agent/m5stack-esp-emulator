@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-17",
+  "evidence_kind": "sanitized observation summary",
+  "validation": "virtual-device validation",
+  "device": "Cardputer",
+  "firmware_name": "CardputerDict",
+  "version": "0.6.4",
+  "input_firmware_bytes": 3619312,
+  "input_firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+  "executed_flash_sha256": "dd5ae9b2d1af6dce97adfd27d55a2097fff9920cee5f7e2771c67e05011b2929",
+  "runtime": "M5Stack Xtensa QEMU",
+  "runtime_sha256": "eecf42ad4b393a76a9208c644abc2606030b585824b24ae53e5e9ecad2b4d4ed",
+  "device_service_commit": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+  "reviewer_commit": "55ffc80e7c9ec5e5280a267e875b4c042b54fde3",
+  "thresholds": {
+    "full_media_expected_definition": "MINT CACHE 7319. An invented test word.",
+    "missing_body_or_no_card_excludes_expected_definition": true
+  },
+  "same_firmware_controls": [
+    {
+      "mode": "positive",
+      "status": "PASS",
+      "before_frame_sha256": "19b40a6988ccb3f3c0d4fdb27388fd5dc832c5788dc50841cc3aebddccc683b1",
+      "after_frame_sha256": "d446a5e25e5c369a32c30824f3a42b3c0bcd1f9e1ef8518fa342fa7029ea4013",
+      "unique_definition_rendered": true,
+      "spi_cmd17_count": 131,
+      "key_receipts_virtual": true,
+      "zip_sha256": "319adf73ada485edc4b8a6f697a7122a126c62782ef0430d581410b0af1da634",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "storage_receipt": {
+        "sha256": "8b6f3995b15074994bd5c8707ab047e3c66e2774bf3f716469ec03b3c52027ed",
+        "bytes": 67108864,
+        "writable": true
+      }
+    },
+    {
+      "mode": "missing-body",
+      "status": "PASS",
+      "before_frame_sha256": "dd34c36ca5db9cbd0f4c5c3b0dbb0637f1648666fe11aae0cd8508a9550c4757",
+      "after_frame_sha256": "845f3c7d07c3fb5b020dc99b963f61b0cf3edc4f9b2e560aaa03b35fd3316955",
+      "unique_definition_rendered": false,
+      "spi_cmd17_count": 82,
+      "key_receipts_virtual": true,
+      "zip_sha256": "0bd80f8679733c174d50991dddd2ef2bf36ac8cbf3755765c232e5bdf2fa6c04",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "storage_receipt": {
+        "sha256": "74aa2d618d8969a68ce5a91e67156bb0a3bc7a3d116f2f01720a4c9c8a4cfb5c",
+        "bytes": 67108864,
+        "writable": true
+      }
+    },
+    {
+      "mode": "no-card",
+      "status": "PASS",
+      "before_frame_sha256": "3c0c15683e35844e7065edef2bba8744a263ba2c9786701cf2d3646de54a3f43",
+      "after_frame_sha256": "845f3c7d07c3fb5b020dc99b963f61b0cf3edc4f9b2e560aaa03b35fd3316955",
+      "unique_definition_rendered": false,
+      "spi_cmd17_count": 0,
+      "key_receipts_virtual": true,
+      "zip_sha256": "03b9b3adde351199f162dada29426626c1b3cb79b5fc81dc5fc83e58b090584c",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "storage_receipt": null
+    }
+  ],
+  "saved_snapshot": {
+    "boot_and_ui": "PASS",
+    "observation": {
+      "status": "PASS",
+      "elapsed_seconds": 60.01404058399999,
+      "sample_count": 13
+    },
+    "lookup": "PASS",
+    "headword": "zorbax",
+    "definition_frame": [
+      240,
+      135
+    ],
+    "definition_frame_sha256": "d446a5e25e5c369a32c30824f3a42b3c0bcd1f9e1ef8518fa342fa7029ea4013",
+    "media_sha256": "8b6f3995b15074994bd5c8707ab047e3c66e2774bf3f716469ec03b3c52027ed",
+    "evidence_zip_sha256": "328b54f2d7c09e1b9096af5733d146bce5b4ed346469e5c2e7692b57510be948",
+    "overall_review": "SIM_PARTIAL",
+    "review_error_code": "E_INTERACTION_CLAIM_PARTIAL",
+    "mutable_flash_released": true,
+    "burner": "NOT SUBMITTED"
+  },
+  "requested_historical_version": {
+    "version": "0.3.0",
+    "catalog_state": "PUBLIC / PUBLISHED",
+    "status": "NOT RUN",
+    "published_download_http_status": 400,
+    "published_download_reason": "verification challenge required",
+    "legacy_cdn_http_status": 404,
+    "publisher_release_http_status": 404
+  },
+  "not_run": [
+    "Cardputer ADV",
+    "physical hardware",
+    "pronunciation",
+    "Wi-Fi",
+    "Wikipedia corpus"
+  ]
+}

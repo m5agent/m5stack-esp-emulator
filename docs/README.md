@@ -14,6 +14,8 @@
 [2026-11-17 会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)记录 UIFlow2 LittleFS、ESP-IDF SPIFFS 与实际复位读回。
 
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
+[2026-11-17 CardputerDict 原版查词](evidence/2026-11-17-cardputerdict-stock/README.md)记录正常审核入口与两个同固件对照。
+
 [2026-11-17 SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)记录初代 Cardputer 与 PaperS3 的 FAT32 读写和初代 Cardputer 的跨会话读回。
 
 [2026-11-16 Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)记录缓存 SRAM、板型探测和无跟踪的启动、休眠唤醒与按键。

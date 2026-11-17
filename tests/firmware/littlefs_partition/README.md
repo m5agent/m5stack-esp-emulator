@@ -47,4 +47,6 @@ artifacts and live Flash outside the partition, then stop with `purge=0` and
 [Exact virtual-device summary](summary.json) includes both boards, the empty
 volume control, and a separate ESP-IDF v6.1.1 Cardputer attempt. The latter
 reached ESP-IDF sleep GPIO initialization but did not reach the application
-marker in 50 seconds. Browser WASM and physical storage were not tested.
+marker in 50 seconds. Three repeat samples of the same image placed CPU0 in
+`rtc_clk_bbpll_configure` while reading the calibration status, with CPU1 in
+ROM `ets_delay_us`. Browser WASM and physical storage were not tested.

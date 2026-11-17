@@ -115,7 +115,30 @@
     "observation": "ESP-IDF sleep GPIO initialization logged; app_main and LittleFS guest markers absent after 50 seconds",
     "filesystem_runtime_status": "NOT RUN",
     "console_sha256": "5cbe3a2f9ba8e2c9ed6600a3576c5f71a74de7987a2877d673c9c51c405720f9",
-    "console_bytes": 2648
+    "console_bytes": 2648,
+    "running_cpu_pc_repeat": {
+      "service_source": "803e0a0500494d44e65586f8fc79e089b92ee1a0",
+      "samples": 3,
+      "run_state_before_and_after": "running",
+      "pc": [
+        {
+          "cpu_index": 0,
+          "pc": "0x403794f7"
+        },
+        {
+          "cpu_index": 1,
+          "pc": "0x40041a76"
+        }
+      ],
+      "application_elf_sha256": "735488e45e98364ebb58cbb9ee547ee89bea83eb0ab8048d44e721366e4ce8bb",
+      "cpu0_symbol": "rtc_clk_bbpll_configure / clk_ll_bbpll_calibration_is_done",
+      "cpu1_rom_symbol": "ets_delay_us",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "leases": 0
+      }
+    }
   },
   "browser_wasm": "NOT RUN",
   "hardware": "NOT RUN"
