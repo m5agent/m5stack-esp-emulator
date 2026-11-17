@@ -130,6 +130,16 @@
       "device": "nanoc6",
       "test": "tests/firmware/esp32c6_usb_serial_jtag/run.py",
       "evidence": "tests/firmware/esp32c6_usb_serial_jtag/evidence-summary.json"
+    },
+    "cardputer-spi-sd-media": {
+      "device": "cardputer",
+      "test": "tests/firmware/spi_sd_media/main/main.c",
+      "evidence": "docs/evidence/2026-11-17-spi-sd-admission/summary.json"
+    },
+    "papers3-spi-sd-media": {
+      "device": "papers3",
+      "test": "tests/firmware/spi_sd_media/main/main.c",
+      "evidence": "docs/evidence/2026-11-17-spi-sd-admission/summary.json"
     }
   },
   "case_models": {
@@ -559,6 +569,12 @@
       "gpio-button",
       "pi4ioe5v6408",
       "touch-ft5x06"
+    ],
+    "cardputer-spi-sd-media": [
+      "sd-card-spi"
+    ],
+    "papers3-spi-sd-media": [
+      "sd-card-spi"
     ]
   },
   "device_case_groups": {
@@ -658,10 +674,12 @@
     "cardputer": {
       "matrix": [],
       "external": [
-        "cardputer-k132-stock"
+        "cardputer-k132-stock",
+        "cardputer-spi-sd-media"
       ],
       "models": [
-        "gpio-keyboard-matrix"
+        "gpio-keyboard-matrix",
+        "sd-card-spi"
       ]
     },
     "cardputer-adv": {
@@ -1041,10 +1059,12 @@
     },
     "papers3": {
       "external": [
-        "papers3-et047-factory"
+        "papers3-et047-factory",
+        "papers3-spi-sd-media"
       ],
       "models": [
-        "touch-gt911"
+        "touch-gt911",
+        "sd-card-spi"
       ]
     },
     "paperdiy": {
@@ -1354,6 +1374,10 @@
         "cardputer-adv-sd",
         "cores3-sd",
         "core2-sd"
+      ],
+      "external": [
+        "cardputer-spi-sd-media",
+        "papers3-spi-sd-media"
       ]
     },
     "usb-host": {

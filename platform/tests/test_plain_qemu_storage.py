@@ -11,7 +11,7 @@ class PlainQemuStorageTests(unittest.TestCase):
 
     def test_selected_boards_route_only_their_owned_sd_image(self):
         paths = []
-        for device in ("cores3", "cardputer-adv", "core2"):
+        for device in ("cores3", "cardputer", "cardputer-adv", "core2", "papers3"):
             with self.subTest(device=device):
                 session = self.session(device)
                 self.assertTrue(session.spec.has_sd_card)
@@ -24,7 +24,7 @@ class PlainQemuStorageTests(unittest.TestCase):
         self.assertEqual(len(set(paths)), len(paths))
 
     def test_no_fixture_cannot_inherit_a_host_spi_disk(self):
-        for device in ("cores3", "cardputer-adv", "core2", "atoms3r"):
+        for device in ("cores3", "cardputer", "cardputer-adv", "core2", "papers3", "atoms3r"):
             with self.subTest(device=device):
                 environment = {"M5SW_SPI_SD_IMAGE": "/host/private-disk.img"}
                 self.session(device)._qemu_storage_environment(environment)

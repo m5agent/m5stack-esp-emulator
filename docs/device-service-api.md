@@ -2483,10 +2483,13 @@ image through `storage.sd_image_artifact_id` in the session request:
 
 The service validates that the target device has a modeled SD card, copies
 the artifact into the session directory and re-hashes the isolated copy.
-Core2, CoreS3, Cardputer-ADV and PaperColor use the board-wired SPI SD endpoint
-and report `interface: spi`; SDMMC profiles report `interface: sdmmc` and
-attach the block backend with `-drive if=sd,format=raw`. The source artifact is never
-mounted writable. Session snapshots, persisted records and evidence bundles
+Core2, CoreS3, Cardputer, Cardputer-ADV, PaperColor and PaperS3 use
+the board-wired SPI SD endpoint and report `interface: spi`. SDMMC profiles
+report `interface: sdmmc` and attach the block backend with
+`-drive if=sd,format=raw`. SD fixtures require a QEMU guest runtime. The
+separate `runtime=network` diagnostic lane rejects them with `409
+storage_not_supported`. The source artifact is never mounted writable.
+Session snapshots, persisted records and evidence bundles
 expose the artifact SHA, size, interface and session-isolated copy boundary.
 `platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16
 superfloppy fixtures for reproducible storage-dependent firmware tests.

@@ -386,6 +386,8 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 ## 设备矩阵
 
+初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载。[限定 guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 目录、预置文件读、写入和重新挂载，初代 Cardputer 也通过跨会话读回。PaperDIY 的 G48 卡检测还需跟随实际介质。
+
 | 设备 | SoC / 后端 | 当前可执行范围 | 主要边界 |
 | --- | --- | --- | --- |
 | StopWatch | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、振动和外设数据面 | 高保真外观、RF 和真机 `NOT RUN` |

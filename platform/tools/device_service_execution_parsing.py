@@ -5,7 +5,7 @@ from typing import Any
 
 from device_service_errors import ServiceError
 from device_service_parsing import is_sha256
-from device_service_specs import DeviceSpec
+from device_service_specs import DeviceSpec, SPI_SD_DEVICE_IDS
 
 
 def storage_interface(spec: DeviceSpec) -> str:
@@ -14,7 +14,7 @@ def storage_interface(spec: DeviceSpec) -> str:
     These native boards use the GP-SPI SD endpoint; other supported storage
     profiles retain their SDMMC block attachment.
     """
-    return "spi" if spec.id in {"core2", "cores3", "cardputer-adv", "papercolor"} else "sdmmc"
+    return "spi" if spec.id in SPI_SD_DEVICE_IDS else "sdmmc"
 
 
 def parse_storage_execution(

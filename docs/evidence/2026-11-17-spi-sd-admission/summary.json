@@ -1,0 +1,139 @@
+{
+  "validation": "virtual-device validation",
+  "qemu_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+  "seed_artifact_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+  "guest_stock_sdk": "ESP-IDF 5.5.4 735507283d5b2f9fb363a1901172dbd9e847945d",
+  "service_exited": true,
+  "cases": [
+    {
+      "scenario": "seeded",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "713059b266aa54e495a9d5a6368d19b6d7306407f1905fc94df6a80a6c09f660",
+      "session_state": "stopped",
+      "cleanup": true,
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "updated_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "disk_guest_contents_verified": true,
+      "bundle_crc_ok": true,
+      "spi_selected_command_counts": {
+        "0": 4,
+        "17": 16,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      }
+    },
+    {
+      "scenario": "second-session",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "52004b27c238aeb4a7c7c30946eba81eba46305709b8f2406a89c5fee26bab81",
+      "session_state": "stopped",
+      "cleanup": true,
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=1",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "updated_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "disk_guest_contents_verified": true,
+      "bundle_crc_ok": true,
+      "spi_selected_command_counts": {
+        "0": 4,
+        "17": 19,
+        "18": 0,
+        "24": 8,
+        "25": 0
+      }
+    },
+    {
+      "scenario": "empty",
+      "device_id": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "7e80702b314f35b73a1da398476358633bfc496c07c721a61359c4f7e7a27f84",
+      "session_state": "stopped",
+      "cleanup": true,
+      "events": [
+        "STORAGE_PROBE_MOUNT_ERROR ESP_ERR_TIMEOUT",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_crc_ok": true,
+      "spi_selected_command_counts": {
+        "0": 0,
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      }
+    },
+    {
+      "scenario": "seeded",
+      "device_id": "cardputer-adv",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "bundle_sha256": "7a851dedef186819cc0dbc0316cc64dda729130b46e7ac6bc175899b43be7d0f",
+      "session_state": "stopped",
+      "cleanup": true,
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "updated_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "disk_guest_contents_verified": true,
+      "bundle_crc_ok": true,
+      "spi_selected_command_counts": {
+        "0": 4,
+        "17": 16,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      }
+    },
+    {
+      "scenario": "seeded",
+      "device_id": "papers3",
+      "firmware_sha256": "d35ccc58c382e56b0e0e41f398336deb727a782064df8bd07692779b7ae990a5",
+      "bundle_sha256": "20354525fb9cc8f6f97e01ff6af23098aba1bc3c00b2c81341edc2ca2acb8260",
+      "session_state": "stopped",
+      "cleanup": true,
+      "events": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "updated_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "disk_guest_contents_verified": true,
+      "bundle_crc_ok": true,
+      "spi_selected_command_counts": {
+        "0": 4,
+        "17": 16,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      }
+    }
+  ],
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "source_base": "98bd8ea359b1003f71919d7ba17e8a3c8a8b72be",
+  "machine_profiles": {
+    "cardputer": "m5cardputer",
+    "cardputer-adv": "m5cardputeradv",
+    "papers3": "m5papers3"
+  },
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "sd_filesystem": "FAT32+MBR, 64 MiB",
+  "guest_source_sha256": "9527800917cb6521b50d4c0be61330f84fdd244efac8fa5ce2f6f01567d29a96",
+  "not_run": [
+    "PaperDIY GPIO48 card detect",
+    "browser WASM",
+    "physical hardware",
+    "automatic reviewer fixture intake"
+  ],
+  "worker_active_leases_after_stop": 0
+}

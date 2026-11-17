@@ -2166,6 +2166,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(unknown_field.exception.code, "invalid_storage")
 
+    def test_sd_fixture_is_rejected_by_the_diagnostic_network_lane(self):
+        artifact = self.service.upload_artifact(b"\x00" * 512)
+        with self.assertRaises(ServiceError) as wrong_runtime:
+            self.service.create_session({
+                "device_id": "cardputer-adv",
+                "runtime": "network",
+                "network": {"profile": "generic-observe"},
+                "storage": {"sd_image_artifact_id": artifact["artifact_id"]},
+            })
+        self.assertEqual(wrong_runtime.exception.code, "storage_not_supported")
+        self.assertEqual(wrong_runtime.exception.status, 409)
+
     def test_nvs_fixture_is_partition_bound_and_session_isolated(self):
         image = build_flash_with_nvs_partition()
         firmware_artifact = self.service.upload_artifact(image)

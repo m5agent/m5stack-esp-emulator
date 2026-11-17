@@ -10361,6 +10361,12 @@ class DeviceService:
             payload.get("storage"),
         )
         if storage_config:
+            if spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
+                raise ServiceError(
+                    "storage_not_supported",
+                    f"{spec.id}/{runtime} cannot attach a session-owned SD image",
+                    409,
+                )
             storage_artifact = self.artifacts.get(
                 storage_config["sd_image_artifact_id"]
             )

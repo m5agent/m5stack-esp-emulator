@@ -20,6 +20,12 @@ PROFILES = ROOT / "platform/qemu/profiles.json"
 DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
 
 SERVICE_MEMORY_OVERRIDES = {"core2": "8"}
+# These boards wire SD media to the GP-SPI controller. A profile may list
+# an SD peripheral that is still planned or lacks card-detect support.
+SPI_SD_DEVICE_IDS = frozenset({
+    "core2", "cores3", "cardputer", "cardputer-adv", "papercolor",
+    "papers3",
+})
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -174,6 +180,8 @@ class DeviceSpec:
 
     @property
     def has_sd_card(self) -> bool:
+        if self.id in SPI_SD_DEVICE_IDS:
+            return any(model in self.peripherals for model in ("sd", "sd-card-spi"))
         return "sd" in self.peripherals
 
     @property

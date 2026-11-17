@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-16`
+日期：`2026-11-17`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-17
+
+[Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。
 
 ## 2026-11-16
 
