@@ -188,6 +188,9 @@ from firmware_analysis import (  # noqa: E402
     parse_partition_table,
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
+from device_service_crash import (  # noqa: E402
+    crash_function_symbols, identify_crash_elf, output_tail, serial_crash_observations,
+)
 from firmware_manifest import (  # noqa: E402
     ManifestError,
     canonical_json_sha256,
@@ -6373,6 +6376,65 @@ class DeviceSession:
             "bytes": len(chunk),
         }
 
+    def crash_diagnostics(
+        self, elf_artifact_id: str | None = None, *, console_bytes: bytes | None = None,
+        stderr_bytes: bytes | None = None,
+    ) -> dict:
+        DeviceSession._require_runtime_permission(self, "serial.read")
+        if elf_artifact_id is not None and not _is_sha256(elf_artifact_id):
+            raise ServiceError("invalid_elf_artifact_id", "elf_artifact_id must be a SHA-256 artifact id", 400)
+        artifact = self.service.artifacts.path(elf_artifact_id) if elf_artifact_id else None
+        console_source, console = output_tail(self.serial0, console_bytes)
+        stderr_source, stderr = output_tail(self.stderr_path, stderr_bytes)
+        observed = serial_crash_observations(console, stderr)
+        panic = observed["panic"] or {}
+        reported = panic.get("elf_sha256_prefix")
+        data = None
+        if artifact is not None and reported:
+            try:
+                path = self.firmware_path
+                if not path.is_file() and self.firmware_source == "uploaded":
+                    path = self.service.firmware.path(self.firmware_id)
+                payload = path.read_bytes()
+                if hashlib.sha256(payload).hexdigest() == self.firmware_sha:
+                    data = payload
+            except (OSError, ServiceError):
+                pass
+        try:
+            elf = identify_crash_elf(
+                reported, data, self.spec.flash_size, expected_chip_id(self.spec.soc),
+                artifact, elf_artifact_id,
+            )
+        except OSError:
+            elf = {"status": "artifact_unavailable", "reported_sha256_prefix": reported,
+                   "artifact_sha256": elf_artifact_id, "expected_sha256": None,
+                   "symbolization_eligible": False}
+        boot = observed["boot"]
+        if (
+            panic or observed["task_watchdog_reports"] or observed["backend_observations"]
+            or observed["core_dump"]["status"] != "not_observed"
+            or max(boot["rom_banners"], boot["idf_banners"], len(boot["reset_reports"])) > 1
+            or boot["reboot_requests"]
+            or any("WDT" in item["reason"].upper() for item in boot["reset_reports"])
+        ):
+            status = "observed"
+        elif console_source["status"] == "available":
+            status = "no_evidence"
+        else:
+            status = "observation_unavailable"
+        return {
+            "schema_version": 1,
+            "session_id": self.id,
+            "firmware_sha256": self.firmware_sha,
+            "device_id": self.spec.id,
+            "runtime": self.runtime,
+            "status": status,
+            "sources": {"console": console_source, "runtime_stderr": stderr_source},
+            **observed,
+            "elf": elf,
+            "symbols": crash_function_symbols(observed, artifact if elf["symbolization_eligible"] else None),
+        }
+
     def _program_identity(self) -> dict:
         return {"session_id": self.id, "device_id": self.spec.id,
                 "firmware_sha256": self.firmware_sha, "runtime": self.runtime,
@@ -7859,7 +7921,9 @@ class DeviceSession:
             "truncated_ranges": len(ranges) > 1000,
         }
 
-    def evidence_bundle(self, include: set[str] | None = None) -> bytes:
+    def evidence_bundle(
+        self, include: set[str] | None = None, *, elf_artifact_id: str | None = None,
+    ) -> bytes:
         include = include or {
             "manifest",
             "serial",
@@ -7961,8 +8025,16 @@ class DeviceSession:
             ):
                 if path.is_file():
                     files[name] = path.read_bytes()
+        if {"serial", "crash"} & include and serial_read_allowed:
+            diagnostics = self.crash_diagnostics(
+                elf_artifact_id, console_bytes=files.get("serial.log"),
+                stderr_bytes=files.get("network-runner.stderr", files.get("qemu.stderr")),
+            )
+            files["diagnostics/crash.json"] = json.dumps(
+                diagnostics, ensure_ascii=False, indent=2,
+            ).encode("utf-8")
         if (
-            {"serial", "logs"} & include
+            {"serial", "logs", "crash"} & include
             and not serial_read_allowed
         ):
             manifest["runtime_output_redaction"] = {

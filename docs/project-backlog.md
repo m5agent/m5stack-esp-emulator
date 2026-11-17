@@ -54,9 +54,9 @@
    的控制器路径，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
-5. **P0 崩溃与任务观测**。先保存原始 panic、WDT 原因、CPU0/CPU1 PC 和 core dump
-   状态；匹配 ELF 后再解码调用栈和任务。用按键后的 CPU1 WDT、Tab5 core dump 循环、
-   启动停滞验证分类，分别记录未上传 ELF、匹配失败和模型缺口。
+5. **P0 崩溃与任务观测**。原生 Core2 探针已验证同会话 panic、WDT、双核 PC、
+   UART core dump 状态及匹配 ELF 的 Xtensa 函数解析。继续用原版按键 WDT、Tab5
+   重启与启动停滞核对分类，补充已匹配 core dump 的任务和 RISC-V 调用栈解码。
 6. **P1 外设**。优先审查侧 Unit 挂载，按 UART/I2C/SPI 数据面验证 AudioPlayer、
    NFC、Joystick 和外接收发控制器。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY

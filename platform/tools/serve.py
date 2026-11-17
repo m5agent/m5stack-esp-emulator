@@ -792,6 +792,14 @@ class Handler(SimpleHTTPRequestHandler):
                 method == "GET"
                 and len(parts) == 3
                 and parts[0] == "sessions"
+                and parts[2] == "crash"
+            ):
+                session = service.get_session(parts[1])
+                response = session.crash_diagnostics(query.get("elf_artifact_id", [None])[0])
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
                 and parts[2] == "serial"
             ):
                 session = service.get_session(parts[1])
@@ -834,8 +842,12 @@ class Handler(SimpleHTTPRequestHandler):
                     )[0].split(",")
                     if item.strip()
                 }
+                elf_artifact_id = query.get("elf_artifact_id", [None])[0]
+                evidence = session.evidence_bundle(include) if elf_artifact_id is None else session.evidence_bundle(
+                    include, elf_artifact_id=elf_artifact_id,
+                )
                 self._send_bytes(
-                    session.evidence_bundle(include),
+                    evidence,
                     "application/zip",
                     extra_headers={
                         "X-Request-ID": request_id,

@@ -248,6 +248,7 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
 
     def test_guest_facing_operations_are_denied_before_runtime_io(self):
         self.assert_denied("serial.read", lambda: self.session.serial_read())
+        self.assert_denied("serial.read", self.session.crash_diagnostics)
         self.assert_denied(
             "input.write",
             lambda: self.session.inject({"kind": "key", "key": "a"}),
@@ -341,6 +342,7 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
         self.assertNotIn("serial.log", names)
         self.assertNotIn("usb-serial-jtag.log", names)
         self.assertNotIn("qemu.stdout", names)
+        self.assertNotIn("diagnostics/crash.json", names)
         self.assertNotIn("flash/virtual-flash.bin", names)
         self.assertEqual(
             manifest["program_redaction"]["reason"],
