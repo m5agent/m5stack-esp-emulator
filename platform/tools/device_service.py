@@ -218,8 +218,7 @@ from firmware_analysis import (  # noqa: E402
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from device_service_crash import (  # noqa: E402
-    crash_function_symbols, identify_crash_elf, output_tail, qmp_cpu_pc_sample,
-    serial_crash_observations,
+    crash_console_observations, crash_function_symbols, identify_crash_elf, output_tail, qmp_cpu_pc_sample,
 )
 from firmware_manifest import (  # noqa: E402
     ManifestError,
@@ -6522,10 +6521,9 @@ class DeviceSession:
         if elf_artifact_id is not None and not _is_sha256(elf_artifact_id):
             raise ServiceError("invalid_elf_artifact_id", "elf_artifact_id must be a SHA-256 artifact id", 400)
         artifact = self.service.artifacts.path(elf_artifact_id) if elf_artifact_id else None
-        console_source, console = output_tail(self.serial0, console_bytes)
         stderr_source, stderr = output_tail(self.stderr_path, stderr_bytes)
-        observed = serial_crash_observations(
-            console, stderr, native_s3=(
+        console_source, observed = crash_console_observations(
+            self.serial0, stderr, console_bytes, native_s3=(
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
             ),

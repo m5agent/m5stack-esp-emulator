@@ -2289,6 +2289,8 @@ paths:
         Requires serial.read when runtime ACL is configured. Reads bounded
         tails from this session's console and runtime stderr. Boot loop
         observations and backend warnings are separate from guest panic.
+        When the truncated console tail has no panic, a recognized panic
+        in the bounded console prefix appears as separate earlier_console evidence.
         A separate USB stream is not concatenated. No live register sampling
         or core dump validation is performed.
       parameters:
@@ -5857,6 +5859,34 @@ components:
           items:
             type: object
             additionalProperties: true
+        earlier_console:
+          type: object
+          description: >
+            Panic from complete lines in the first 512 KiB of the same
+            console capture, present when the truncated latest console allows
+            this fallback and contains no recognized panic. Top-level fields
+            retain their latest-window scope.
+          required: [scope, source, panic, cpus]
+          properties:
+            scope:
+              const: console_prefix
+            source:
+              type: object
+              required: [status, offset, bytes, sha256, truncated]
+              properties:
+                status: { const: available }
+                offset: { const: 0 }
+                bytes: { type: integer, minimum: 1, maximum: 524288 }
+                sha256: { type: string, pattern: "^[0-9a-f]{64}$" }
+                truncated: { const: true }
+            panic:
+              type: object
+              additionalProperties: true
+            cpus:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
         boot:
           type: object
           additionalProperties: true
