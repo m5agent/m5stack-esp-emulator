@@ -96,6 +96,37 @@
         "sha256": "68c74c470887488e90ddcd3022cf90fc907eeff4036a4688d35fc14711ac772d",
         "bytes": 12297
       }
+    },
+    {
+      "date": "2026-11-18",
+      "status": "PARTIAL",
+      "checks": [
+        {
+          "case": "Stable icon changed in initial complete render-service comparison",
+          "matches": 1,
+          "total": 12
+        },
+        {
+          "case": "Late GT911 clear and no scanout in targeted flat controls",
+          "matches": 3,
+          "total": 3
+        },
+        {
+          "case": "RTC and BMI270 service inside scanning controls with no touch report consumption",
+          "matches": 3,
+          "total": 3
+        },
+        {
+          "case": "Browser frame requests during disabled controls",
+          "matches": 0,
+          "total": 3
+        }
+      ],
+      "evidence": {
+        "path": "render-service-summary.json",
+        "sha256": "c906bb8203dd0f7a1b989d63faaf95b9029f75552399b9d61b0c128729241ef1",
+        "bytes": 18726
+      }
     }
   ]
 }
