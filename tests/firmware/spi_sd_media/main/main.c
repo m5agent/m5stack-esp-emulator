@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include "driver/gpio.h"
 #include "driver/sdspi_host.h"
 #include "driver/spi_common.h"
 #include "esp_err.h"
@@ -56,6 +57,21 @@ static bool contains_file(void)
 
 void app_main(void)
 {
+#if defined(PROBE_PAPERDIY)
+    const gpio_config_t card_detect = {
+        .pin_bit_mask = 1ULL << GPIO_NUM_48,
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&card_detect));
+    int card_detect_level = gpio_get_level(GPIO_NUM_48);
+    printf("PAPERDIY_CARD_DET gpio=48 level=%d\n", card_detect_level);
+    if (card_detect_level != 0) {
+        puts("STORAGE_PROBE_NO_CARD");
+        puts("STORAGE_PROBE_DONE");
+        return;
+    }
+#endif
     const spi_bus_config_t spi = {
         .mosi_io_num = PIN_MOSI,
         .miso_io_num = PIN_MISO,

@@ -45,4 +45,23 @@ ESP_ERR_TIMEOUT` on the tested Cardputer. Require guest exit for each case.
 
 [Observed virtual-device results](../../../docs/evidence/2026-11-17-spi-sd-admission/summary.json).
 Physical hardware, browser WASM, PaperDIY G48 detect and community applications
-were outside this test.
+were outside that first run.
+
+## PaperDIY CARD_DET
+
+PaperDIY uses the PaperS3 SPI pins and a GPIO48 card-detect input. The
+`PROBE_PAPERDIY=ON` build samples the detect input with the normal ESP-IDF
+driver and mounts the card only when it reads low. Use the same 16 MiB build
+procedure as for PaperS3, substituting this CMake option for `PROBE_PAPER`.
+[PaperDIY pin map](https://docs.m5stack.com/en/core/PaperDIY_Complete_Kit#microsd)
+
+Run the same exact merged image first with an empty socket and then with
+the FAT32 fixture. Require `PAPERDIY_CARD_DET gpio=48 level=1` and
+`STORAGE_PROBE_NO_CARD` without media. With media, require level 0,
+the same mount readback and remount markers as above, and real CMD17 and
+CMD24 transactions. A control build that omits native patch 0208 reports
+level 1 even with the same image attached and never reaches the mount.
+The [bounded results](paperdiy-sd-detect-summary.json) identify the private
+test admission setting and both native binaries. The mounting scope is
+media supplied at session creation. Physical hardware and hot-plug were
+outside the test.
