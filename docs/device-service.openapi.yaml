@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.70.0
+  version: 1.71.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3670,10 +3670,12 @@ components:
     NativeNetworkCapability:
       type: object
       additionalProperties: false
-      required: [sta]
+      anyOf:
+        - required: [sta]
+        - required: [portal_provisioning_fixture]
       description: >
-        Board-native WiFi station path on ready Cardputer and Cardputer ADV
-        QEMU backends. Worker isolation, firmware and lease admission are
+        Board-native WiFi paths on ready Cardputer, Cardputer ADV and StickS3
+        QEMU backends. Worker capabilities, firmware and lease admission are
         checked independently when creating a session.
       properties:
         sta:
@@ -3698,6 +3700,15 @@ components:
             profile: {const: cardputer-adv-local-time-fixture}
             host_ip_backends: {const: 0}
             scope: {const: local-dns-and-sntp}
+        portal_provisioning_fixture:
+          type: object
+          additionalProperties: false
+          required: [runtime, profile, host_ip_backends, scope]
+          properties:
+            runtime: {const: qemu-wifi}
+            profile: {const: sticks3-open-softap-provisioning}
+            host_ip_backends: {const: 0}
+            scope: {const: portal-to-station}
     NativeStaDataPlane:
       type: object
       additionalProperties: false
@@ -3838,6 +3849,13 @@ components:
             arp:
               type: boolean
             http:
+              type: boolean
+            save_http:
+              type: boolean
+              description: The expected WiFiManager form response was received.
+            station_dhcp:
+              type: boolean
+            station_arp:
               type: boolean
             http_body_sha256:
               type: [string, "null"]
@@ -5087,6 +5105,11 @@ components:
         sticks3-open-softap-portal also requires open-softap-sticks3-portal
         and uses that same transport and ACL to read the fixed StickS3-Setup
         guest portal homepage with a bounded GET.
+        sticks3-open-softap-provisioning also requires open-softap-sticks3-station
+        and the network.softap.provision ACL operation when ACL is enabled.
+        It reads the guest portal, submits one fixed open lab SSID, and
+        verifies the guest's station DHCP and ARP in the same session.
+        It accepts only profile and optional capture_pcap=true.
         cardputer-adv-local-time-fixture requires runtime=qemu-wifi and a configured
         ACL grant of network.sta.time.probe when ACL is enabled. It serves fixed DNS
         and SNTP on one private Unix socketpair. It accepts only profile,
@@ -5094,7 +5117,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, sticks3-open-softap-portal, cardputer-adv-local-time-fixture]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, sticks3-open-softap-portal, sticks3-open-softap-provisioning, cardputer-adv-local-time-fixture]
         withhold_ntp:
           type: boolean
           default: false
@@ -6318,6 +6341,7 @@ components:
         - input.write
         - guest.reset
         - network.softap.probe
+        - network.softap.provision
         - program.read
         - program.execute
         - program.interrupt

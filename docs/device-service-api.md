@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.70.0` and bounded
+Status: local MVP with unified-device runtime contract `1.71.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1897,6 +1897,19 @@ and reads the guest's bounded HTML at `GET /` on port 80. The
 `softap_fixture` receipt records DHCP, ARP and request/body digests.
 The verified scope ends at the setup page. See the
 [original firmware evidence](evidence/2026-11-17-sticks3-portal-page/README.md).
+
+For a cold-boot setup and connection to an isolated infrastructure AP, use
+`runtime=qemu-wifi` with `network={"profile":"sticks3-open-softap-provisioning"}`.
+This StickS3 profile requires the native `open-softap-sticks3-station`
+property and the `network.softap.provision` operation. It keeps one guest
+and one private Unix socketpair. After reading the expected portal HTML,
+the peer submits the fixed open lab SSID `fixturetest` through the device's
+WiFiManager form. The native model changes direction on a guest STA
+authentication request addressed to that AP. The profile accepts only
+`profile` and optional `capture_pcap:true`, with a generated device identity.
+It reports `PASS` only after two captured DHCP DORA exchanges, both portal
+HTTP flows, the form response, and a station ARP reply from the assigned
+address. See the [original same-session result](evidence/2026-11-17-sticks3-portal-station/README.md).
 
 Cardputer ADV can use `runtime=qemu-wifi` with
 `network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins

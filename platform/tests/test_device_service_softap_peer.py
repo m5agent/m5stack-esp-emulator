@@ -7,8 +7,10 @@ from device_service import parse_qemu_wifi_execution
 from device_service_errors import ServiceError
 from device_service_softap_peer import (
     ACL_OPERATION,
+    PROVISION_ACL_OPERATION,
     PROFILE,
     STICKS3_PORTAL_PROFILE,
+    STICKS3_PROVISION_PROFILE,
     STICKS3_PROFILE,
     SoftAPPeer,
     _portal_http_body,
@@ -87,6 +89,25 @@ class SoftAPAdmissionTests(unittest.TestCase):
             self.assertEqual(raised.exception.code, "softap_fixture_backend_unavailable")
             run.return_value.stdout += "\n  open-softap-sticks3-portal=<bool> - (default: false)"
             require_softap_backend(Path("qemu"), portal=True)
+
+    def test_provisioning_requires_separate_grant_and_backend_property(self):
+        sticks = SimpleNamespace(id="sticks3", backend="qemu-esp32s3")
+        config = parse_qemu_wifi_execution(sticks, {"profile": STICKS3_PROVISION_PROFILE})
+        self.assertEqual((config["wifi_ssid"], config["wifi_auth"]), ("fixturetest", "open"))
+        for key in ("wifi_ssid", "path", "password", "hostfwd", "policy"):
+            with self.subTest(key=key), self.assertRaises(ServiceError):
+                parse_qemu_wifi_execution(sticks, {"profile": STICKS3_PROVISION_PROFILE, key: "custom"})
+        policy = RuntimeACL.from_document({"schema_version": 1, "devices": {
+            "sticks3": {"allow": [ACL_OPERATION]},
+        }})
+        with self.assertRaises(RuntimeACLError):
+            policy.check("sticks3", PROVISION_ACL_OPERATION)
+        with patch("device_service_softap_peer.subprocess.run") as run:
+            run.return_value.stdout = "open-softap-peer=<bool>\nopen-softap-sticks3-portal=<bool>\n"
+            with self.assertRaises(ServiceError):
+                require_softap_backend(Path("qemu"), station=True)
+            run.return_value.stdout += "open-softap-sticks3-station=<bool>\n"
+            require_softap_backend(Path("qemu"), station=True)
 
     def test_configured_acl_requires_explicit_permission(self):
         policy = RuntimeACL.from_document({"schema_version": 1, "devices": {

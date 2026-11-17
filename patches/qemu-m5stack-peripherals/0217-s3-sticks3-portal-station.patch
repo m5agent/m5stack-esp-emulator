@@ -1,0 +1,145 @@
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -54,6 +54,8 @@
+     bool s3_raw_fixture;
+     bool s3_softap_peer;
+     bool s3_softap_sticks3_portal;
++    bool s3_portal_station;
++    bool s3_portal_station_active;
+     uint64_t s3_raw_tx_sequence;
+     Esp32S3RawTxFrame s3_raw_tx_window[ESP32S3_RAW_TX_WINDOW_SIZE];
+     unsigned int inject_sequence_number;
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -164,7 +164,17 @@
+     };
+     memcpy(&rx_word0, packet, sizeof(rx_word0));
+     rx_word0 |= (frame->frame_length & 0xfff) << 16;
+-    if (s->s3_softap_peer &&
++    if (s->s3_portal_station_active && frame->frame_control.type == IEEE80211_TYPE_DATA &&
++        frame->frame_control.from_ds && !frame->frame_control.to_ds) {
++        /* During AP+STA setup, infrastructure traffic belongs to the STA
++         * interface only, including broadcast DHCP replies. */
++        if (!memcmp(s->station_macaddr, (uint8_t *)s->mem + 0x40, 6)) {
++            rx_word0 |= BIT(28) | BIT(30);
++        }
++        if (!memcmp(s->station_macaddr, (uint8_t *)s->mem + 0x48, 6)) {
++            rx_word0 |= BIT(29) | BIT(31);
++        }
++    } else if (s->s3_softap_peer && !s->s3_portal_station_active &&
+         frame->frame_control.to_ds && !frame->frame_control.from_ds) {
+         const uint8_t *rx_address = frame->receiver_address;
+ 
+@@ -197,7 +207,7 @@
+          * unicast management frames to the AP using these bits.
+          * Retain the synthetic access-point fallback for station mode.
+          */
+-        if ((!s->s3_softap_peer &&
++        if (((!s->s3_softap_peer || s->s3_portal_station_active) &&
+              s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED) ||
+             frame->frame_control.type != IEEE80211_TYPE_MGT) {
+             rx_word0 |= 0xf0000000u;
+@@ -496,6 +506,10 @@
+         error_setg(errp, "StickS3 portal requires the open SoftAP peer");
+         return;
+     }
++    if (s->s3_portal_station && !s->s3_softap_sticks3_portal) {
++        error_setg(errp, "StickS3 station handoff requires the open portal");
++        return;
++    }
+     s->rx_frame_us = 5000;
+     s->access_points = true;
+     s->is_s3 = true;
+@@ -523,6 +537,8 @@
+     DEFINE_PROP_BOOL("open-softap-peer", Esp32WifiState, s3_softap_peer, false),
+     DEFINE_PROP_BOOL("open-softap-sticks3-portal", Esp32WifiState,
+                      s3_softap_sticks3_portal, false),
++    DEFINE_PROP_BOOL("open-softap-sticks3-station", Esp32WifiState,
++                     s3_portal_station, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -674,8 +674,11 @@
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
+     if (!s->radio_enabled || s->wlan_closed ||
+-        s->s3_raw_fixture || s->s3_softap_peer) {
++        s->s3_raw_fixture || (s->s3_softap_peer && !s->s3_portal_station)) {
+         return;
++    }
++    if (s->s3_portal_station) {
++        s->beacon_ap = 1; /* The single isolated infrastructure AP. */
+     }
+     // only send a beacon if we are an access point
+     if(s->ap_state!=Esp32_WLAN__STATE_STA_ASSOCIATED) {
+@@ -902,6 +905,7 @@
+ void Esp32_WLAN_reset_softap_peer(Esp32WifiState *s)
+ {
+     if (s->s3_softap_peer) {
++        s->s3_portal_station_active = false;
+         s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
+         memset(s->associated_ap_macaddr, 0, ETH_ALEN);
+         wlan_drop_inject_queue(s);
+@@ -1418,9 +1422,39 @@
+         }
+     }
+ 
+-    if(frame->frame_control.type == IEEE80211_TYPE_MGT) {
+-        if (s->s3_softap_peer) {
+-            softap_fixture_manage(s, frame);
++
++    if (s->s3_portal_station) {
++        ap_info = esp32_wifi_channel == access_points[1].channel ?
++            &access_points[1] : NULL;
++    }
++    if (frame->frame_control.type == IEEE80211_TYPE_MGT) {
++        if (s->s3_softap_peer && !s->s3_portal_station_active) {
++            const unsigned subtype = frame->frame_control.sub_type;
++            bool associated = s->s3_portal_station && ap_info &&
++                s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED;
++            const uint8_t *ap = associated ? ap_info->mac_address : NULL;
++
++            if (associated && subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
++                frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++                !memcmp(frame->receiver_address, ap, ETH_ALEN) &&
++                !memcmp(frame->address_3, ap, ETH_ALEN) &&
++                !memcmp(frame->data_and_fcs, (const uint8_t[]) { 0, 0, 1, 0, 0, 0 }, 6)) {
++                /* A guest STA chose the lab AP. Process its actual auth request
++                 * using the infrastructure AP path. */
++                memcpy(s->station_macaddr, frame->transmitter_address, ETH_ALEN);
++                s->s3_portal_station_active = true;
++                s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++            } else if (!associated || subtype != IEEE80211_TYPE_MGT_SUBTYPE_PROBE_REQ) {
++                softap_fixture_manage(s, frame);
++                return;
++            }
++        }
++        if (s->s3_portal_station_active &&
++            frame->frame_control.sub_type != IEEE80211_TYPE_MGT_SUBTYPE_PROBE_REQ &&
++            (memcmp(frame->transmitter_address, s->station_macaddr, ETH_ALEN) ||
++             frame->frame_control.sub_type == IEEE80211_TYPE_MGT_SUBTYPE_ASSOCIATION_RESP ||
++             frame->frame_control.sub_type == IEEE80211_TYPE_MGT_SUBTYPE_PROBE_RESP ||
++             frame->frame_control.sub_type == IEEE80211_TYPE_MGT_SUBTYPE_BEACON)) {
+             return;
+         }
+         switch(frame->frame_control.sub_type) {
+@@ -1562,7 +1596,13 @@
+         }
+         return;
+     }
+-    if (s->s3_softap_peer) {
++    if (s->s3_softap_peer && !s->s3_portal_station_active) {
++        return;
++    }
++    if (s->s3_portal_station_active && frame->frame_control.type == IEEE80211_TYPE_DATA &&
++        (!frame->frame_control.to_ds || frame->frame_control.from_ds ||
++         memcmp(frame->transmitter_address, s->station_macaddr, ETH_ALEN) ||
++         memcmp(frame->receiver_address, s->associated_ap_macaddr, ETH_ALEN))) {
+         return;
+     }
+     if (frame->frame_control.type == IEEE80211_TYPE_DATA &&

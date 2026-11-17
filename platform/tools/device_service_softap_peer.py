@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import secrets
 import socket
 import struct
@@ -13,24 +14,44 @@ from collections.abc import Callable
 from pathlib import Path
 
 from device_service_errors import ServiceError
-from network_fabric import DHCP_MAGIC, _dhcp_options, _internet_checksum
+from network_fabric import (
+    DHCP_MAGIC, LabDhcp, _dhcp_options, _internet_checksum,
+    build_dhcp_ethernet_reply, parse_dhcp_request,
+)
 
 PROFILE = "cardputer-open-softap-fixture"
 STICKS3_PROFILE = "sticks3-open-softap-fixture"
 STICKS3_PORTAL_PROFILE = "sticks3-open-softap-portal"
+STICKS3_PROVISION_PROFILE = "sticks3-open-softap-provisioning"
 PROFILE_BOARDS = {
     PROFILE: frozenset({"cardputer", "cardputer-adv"}),
     STICKS3_PROFILE: frozenset({"sticks3"}),
     STICKS3_PORTAL_PROFILE: frozenset({"sticks3"}),
+    STICKS3_PROVISION_PROFILE: frozenset({"sticks3"}),
 }
 ACL_OPERATION = "network.softap.probe"
+PROVISION_ACL_OPERATION = "network.softap.provision"
 QOM_PROPERTY = "open-softap-peer"
 PORTAL_QOM_PROPERTY = "open-softap-sticks3-portal"
+STATION_QOM_PROPERTY = "open-softap-sticks3-station"
 NIC = "misc.esp32s3.wifi"
 HTTP_REQUEST = b"GET /proof HTTP/1.0\r\n\r\n"
 HTTP_BODY = b"AP_FIXTURE_OK"
 HTTP_RESPONSE = b"HTTP/1.0 200 OK\r\nContent-Length: 13\r\n\r\n" + HTTP_BODY
 PORTAL_REQUEST = b"GET / HTTP/1.0\r\nHost: 192.168.4.1\r\nConnection: close\r\n\r\n"
+PROVISION_SSID = "fixturetest"
+_FORM = f"s={PROVISION_SSID}&p=".encode()
+_SAVE_REQUEST = (
+    b"POST /wifisave HTTP/1.0\r\nHost: 192.168.4.1\r\nConnection: close\r\n"
+    b"Content-Type: application/x-www-form-urlencoded\r\nContent-Length: "
+    + str(len(_FORM)).encode() + b"\r\n\r\n" + _FORM
+)
+_ROOT_MARKERS = (b"<h3>StickS3-Setup</h3>", b"<form action='/wifi'")
+_SAVE_MARKERS = (b"Saving Credentials", b"Trying to connect ESP to network")
+_STATION_GATEWAY = ipaddress.IPv4Address("10.0.2.2")
+_STATION_LEASE = ipaddress.IPv4Address("10.0.2.15")
+_STATION_GATEWAY_MAC = bytes.fromhex("02f100000001")
+_ARP_HEADER = b"\x08\x06\0\x01\x08\0\x06\x04"
 _PORTAL_MAX_HEADER = 2048
 _PORTAL_MAX_BODY = 8192
 _BROADCAST = b"\xff" * 6
@@ -39,13 +60,17 @@ _BROADCAST_IP = b"\xff" * 4
 _MAX_ETHERNET = 1514
 
 
-def require_softap_backend(qemu: Path, *, portal: bool = False) -> None:
+def require_softap_backend(qemu: Path, *, portal: bool = False, station: bool = False) -> None:
     try:
         result = subprocess.run(
             [str(qemu), "-device", f"{NIC},help"],
             check=True, capture_output=True, text=True, timeout=3,
         )
-        required = (QOM_PROPERTY, PORTAL_QOM_PROPERTY) if portal else (QOM_PROPERTY,)
+        required = [QOM_PROPERTY]
+        if portal or station:
+            required.append(PORTAL_QOM_PROPERTY)
+        if station:
+            required.append(STATION_QOM_PROPERTY)
         options = result.stdout.splitlines()
         if all(any(line.strip().startswith(f"{prop}=<bool>") for line in options)
                for prop in required):
@@ -63,7 +88,7 @@ class _PeerStopped(Exception):
     pass
 
 
-def _portal_http_body(response: bytes) -> bytes | None:
+def _portal_http_body(response: bytes, markers: tuple[bytes, ...] = _ROOT_MARKERS) -> bytes | None:
     header, separator, body = response.partition(b"\r\n\r\n")
     if len(header) > _PORTAL_MAX_HEADER:
         raise ValueError("portal HTTP header exceeded the limit")
@@ -89,10 +114,7 @@ def _portal_http_body(response: bytes) -> bytes | None:
     size = int(length)
     if len(body) < size:
         return None
-    if (
-        len(body) != size or b"<h3>StickS3-Setup</h3>" not in body
-        or b"<form action='/wifi'" not in body
-    ):
+    if len(body) != size or not all(marker in body for marker in markers):
         raise ValueError("portal HTML did not match the expected setup page")
     return body
 
@@ -150,7 +172,7 @@ class SoftAPPeer:
     def invalidate_for_reset(self) -> None:
         self.pause()
         self._record(
-            status="INTERRUPTED", stage="reset", dhcp=False, arp=False, http=False,
+            status="INTERRUPTED", stage="reset", **self._initial_protocol_state(),
             http_body_sha256=None, http_request_sha256=None,
         )
 
@@ -281,7 +303,10 @@ class SoftAPPeer:
             elif frame[20:22] == b"\0\x02" and frame[:6] == self.mac and frame[32:38] == self.mac:
                 return mac
 
-    def _http(self, lease: bytes, server: bytes, mac: bytes, request: bytes) -> bytes:
+    def _http(
+        self, lease: bytes, server: bytes, mac: bytes, request: bytes,
+        *, markers: tuple[bytes, ...] = _ROOT_MARKERS,
+    ) -> bytes:
         port = 49152 + secrets.randbelow(16384)
         initial = secrets.randbits(31)
 
@@ -327,15 +352,16 @@ class SoftAPPeer:
                 continue
             response.extend(payload)
             if self._portal:
-                body = _portal_http_body(bytes(response))
+                body = _portal_http_body(bytes(response), markers)
             else:
                 if not HTTP_RESPONSE.startswith(response):
                     raise ValueError("HTTP response differed from the fixed fixture")
                 body = HTTP_BODY if len(response) == len(HTTP_RESPONSE) else None
             next_remote = (next_remote + len(payload) + bool(flags & 1)) & 0xffffffff
-            send(0x10, end_local, next_remote)
             if body is not None:
+                send(0x11, end_local, next_remote)
                 return body
+            send(0x10, end_local, next_remote)
 
     def _run(self) -> None:
         stage = "dhcp"
@@ -359,12 +385,100 @@ class SoftAPPeer:
                         raise
                     if self._stop.wait(0.5):
                         raise _PeerStopped
-            self._record(
-                http=True, status="PASS",
-                http_body_sha256=hashlib.sha256(body).hexdigest(),
-                http_request_sha256=hashlib.sha256(request).hexdigest(),
-            )
+            self._complete_http(lease, server, mac, {
+                "http": True, "http_body_sha256": hashlib.sha256(body).hexdigest(),
+                "http_request_sha256": hashlib.sha256(request).hexdigest(),
+            })
         except _PeerStopped:
             self._record(status="INTERRUPTED", stage=stage)
         except (EOFError, OSError, ValueError):
             self._record(status="PARTIAL", stage=stage)
+
+    def _complete_http(self, lease: bytes, server: bytes, mac: bytes, evidence: dict) -> None:
+        self._record(status="PASS", **evidence)
+
+
+class PortalStationPeer(SoftAPPeer):
+    """Submit the owned lab SSID, then observe its lease on the same socketpair."""
+
+    def __init__(self, mac: str, station_mac: str, persist: Callable[[dict], None]):
+        super().__init__(mac, persist, portal=True)
+        self._station_mac = bytes.fromhex(station_mac.replace(":", ""))
+
+    @staticmethod
+    def _initial_protocol_state() -> dict:
+        return {
+            **SoftAPPeer._initial_protocol_state(),
+            "save_http": False, "save_body_sha256": None,
+            "station_dhcp": False, "station_arp": False,
+        }
+
+    def _complete_http(self, lease: bytes, server: bytes, mac: bytes, evidence: dict) -> None:
+        stage = "submit"
+        self._record(stage=stage, **evidence)
+        try:
+            # This is the ordinary WiFiManager form with the fixed, open lab SSID.
+            # It is sent at most once per peer run.
+            body = self._http(lease, server, mac, _SAVE_REQUEST, markers=_SAVE_MARKERS)
+            stage = "station"
+            self._record(stage=stage, save_http=True, save_body_sha256=hashlib.sha256(body).hexdigest())
+            self._await_station()
+        except _PeerStopped:
+            self._record(status="INTERRUPTED", stage=stage)
+        except (EOFError, OSError, ValueError):
+            self._record(status="PARTIAL", stage=stage)
+
+    def _await_station(self) -> None:
+        station = self._station_mac
+        mac = station.hex(":")
+        gateway = _STATION_GATEWAY.packed
+        lease = _STATION_LEASE.packed
+        router = _STATION_GATEWAY_MAC
+        dhcp = LabDhcp({
+            "interface": "unix", "server_address": str(_STATION_GATEWAY),
+            "reservations": {mac: str(_STATION_LEASE)},
+        })
+        arp_request = (
+            _BROADCAST + router + _ARP_HEADER + b"\0\x01"
+            + router + gateway + b"\0" * 6 + lease
+        )
+        arp_reply = router + station + _ARP_HEADER + b"\0\x02" + station + lease + router + gateway
+        deadline = time.monotonic() + 28
+        probe_at = None
+        while time.monotonic() < deadline:
+            if probe_at is not None and time.monotonic() >= probe_at:
+                self._send(arp_request)
+                probe_at = time.monotonic() + 0.5
+            try:
+                frame = self._next_frame(min(deadline, probe_at or deadline))
+            except TimeoutError:
+                continue
+            if frame[6:12] != station:
+                continue
+            if probe_at is not None and frame[:42] == arp_reply:
+                self._record(station_arp=True, status="PASS")
+                return
+            reply = self._station_dhcp_reply(frame, dhcp, mac)
+            if reply is None:
+                continue
+            self._send(build_dhcp_ethernet_reply(
+                reply, source_mac=station, server_mac=router,
+                server_address=str(_STATION_GATEWAY),
+            ))
+            if _dhcp_options(reply).get(53) == b"\x05":
+                self._record(station_dhcp=True)
+                probe_at = time.monotonic()
+        raise TimeoutError
+
+    def _station_dhcp_reply(self, frame: bytes, dhcp: LabDhcp, mac: str) -> bytes | None:
+        ip = self._ip_payload(frame, socket.IPPROTO_UDP)
+        if ip is None or len(ip[2]) < 8:
+            return None
+        _, _, udp = ip
+        if struct.unpack_from("!HHH", udp) != (68, 67, len(udp)):
+            return None
+        packet = udp[8:]
+        parsed = parse_dhcp_request(packet)
+        if parsed is None or parsed["mac"] != mac or parsed["message_type"] not in (1, 3):
+            return None
+        return dhcp.handle(packet, source_mac=mac)

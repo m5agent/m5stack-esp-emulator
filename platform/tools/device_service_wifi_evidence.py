@@ -6,6 +6,7 @@ from ipaddress import IPv4Address
 from typing import TYPE_CHECKING
 
 from device_service_parsing import is_sha256
+from device_service_softap_peer import STICKS3_PROVISION_PROFILE
 from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
 
 if TYPE_CHECKING:
@@ -19,13 +20,18 @@ _CARDPUTER_STA_MACHINES = {
 
 
 def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
-    """Advertise only board/native-machine combinations with exercised STA."""
-    machine = _CARDPUTER_STA_MACHINES.get(spec.id)
+    """Advertise exercised native Wi-Fi paths for the exact board machine."""
     if (
-        not backend_ready or not spec.supported or machine is None
-        or spec.machine != machine or spec.service_kind != "qemu"
+        not backend_ready or not spec.supported or spec.service_kind != "qemu"
         or spec.backend != "qemu-esp32s3"
     ):
+        return {}
+    if spec.id == "sticks3" and spec.machine == "m5sticks3":
+        return {"portal_provisioning_fixture": {
+            "runtime": "qemu-wifi", "profile": STICKS3_PROVISION_PROFILE,
+            "host_ip_backends": 0, "scope": "portal-to-station",
+        }}
+    if spec.id not in _CARDPUTER_STA_MACHINES or spec.machine != _CARDPUTER_STA_MACHINES[spec.id]:
         return {}
     capability = {"sta": {
         "runtime": "qemu-wifi",

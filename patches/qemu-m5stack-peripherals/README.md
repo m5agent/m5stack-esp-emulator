@@ -1735,3 +1735,13 @@ leaves MISO undriven, drops partial transactions and drives the active-low
 GPIO48 switch through the GPIO input and interrupt controller. The backing
 image stays attached to the isolated session for reinsertion and export.
 [GPIO48 and FAT32 regression](../../tests/firmware/spi_sd_media/README.md#paperdiy-sd-hot-plug).
+
+## StickS3 portal to infrastructure station (0217)
+
+The opt-in native portal profile advertises one isolated infrastructure AP.
+An actual guest station authentication request switches the native receive
+path from its synthetic SoftAP client to that AP. During AP+STA setup,
+the S3 DMA descriptor marks incoming infrastructure data for the guest STA
+interface. The original read-only portal and other Wi-Fi profiles retain
+their existing radio and socket configuration. See the pinned guest
+[execution evidence](../../docs/evidence/2026-11-17-sticks3-portal-station/README.md).
