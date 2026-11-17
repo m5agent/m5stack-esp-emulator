@@ -51,6 +51,8 @@
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    [Core2 与 Nesso N1](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)已在 ESP-IDF 5.5.4 验证 LittleFS 停止后导出、服务重启与新会话复用。
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
+   [审核复验](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)
+   已对同一原版核验 G0 动作写入、指定文件和缺失文件对照。
    [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。原版仍有 LCD 绘制停顿，继续定位完成路径并验证内嵌 ROM/NOR 的跨会话画面。StickS3/Dial 外接 SD
    需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "firmware": "original NC1020",
+  "device": "cardputer",
+  "input": {
+    "name": "key_f12",
+    "device_control": "G0",
+    "hold_seconds": 0.85,
+    "settle_seconds": 0.3
+  },
+  "basis": "saved snapshot review",
+  "cases": {
+    "named_retained_file": {
+      "review_status": "manual_review",
+      "review_error_code": "E_INTERACTION_CLAIM_PARTIAL",
+      "evidence_zip_sha256": "0472f65a6310acac4e1168df4a57947842b087cab759bfb2a67e80d5e7e69924",
+      "cleanup": {
+        "session_stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "burner_submitted": false,
+      "assertion": {
+        "status": "PASS",
+        "write_status": "PASS",
+        "reason": "sd_write_and_retained_file_observed",
+        "retained_sd_sha256": "918bbcb78f150fce5c0fffebfa1a119bb8f3884ced8de70c76a8066d9f81d4a3",
+        "expected_file": "/nc1020.state",
+        "retained_file": {
+          "path": "/nc1020.state",
+          "size": 99384,
+          "sha256": "a39b9edaaa6ecb57a95de39c84a47463956bc5e291760d5ee9d060149a7a92ac"
+        }
+      },
+      "observed_seconds": 60.006
+    },
+    "missing_named_file": {
+      "review_status": "manual_review",
+      "review_error_code": "E_SIM_SD_WRITE_PARTIAL",
+      "evidence_zip_sha256": "41733337cd889367921347828390c107f5918ffd7d8a86c82d0799e5a7e843a2",
+      "cleanup": {
+        "session_stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "burner_submitted": false,
+      "assertion": {
+        "status": "PARTIAL",
+        "write_status": "PASS",
+        "reason": "sd_retained_file_missing_or_ambiguous",
+        "retained_sd_sha256": "8f74e524a484eb42bcd8591fc247060d096c0bbcced66938e1d2b40580f3585e",
+        "expected_file": "/missing.state"
+      },
+      "observed_seconds": 60.009
+    }
+  },
+  "source_revision": "5f8e2f8fe97d2d76553efdf03068a8c3dcf83727",
+  "reviewer_revision": "4e195d89ee767e51e9e11969c8f1e75ee6bf3f66",
+  "original_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+  "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+  "input_sd_sha256": "d01c4f4b416e0b54ce5a006b99848158b816722b6a453a05caeda576026f5546",
+  "not_run": [
+    "physical hardware",
+    "browser-WASM",
+    "Burner submission"
+  ]
+}

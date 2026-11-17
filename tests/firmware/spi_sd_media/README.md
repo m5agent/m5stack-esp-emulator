@@ -135,6 +135,20 @@ The 64 MiB FAT16 comparison card uses
 The exact original mounts that card and reaches bank 96 before a CPU1
 interrupt watchdog reset.
 
+### Named save file in the reviewer
+
+For a saved-snapshot review of this original, use the same FAT32 seed and
+set `input_assertions.key_f12` to
+`{"type":"sd_write","retained_file":"/nc1020.state"}`. Set the action to hold
+G0 for 0.85 seconds and settle for 0.3 seconds. The reviewer binds the live
+write stamp to this action and retrieves the file inventory after stopping
+the same Device Service session. The retained file in the passing run was
+99,384 bytes. With only the expected path changed to `/missing.state`, the
+write stamp still passed and the retained-file assertion returned
+`E_SIM_SD_WRITE_PARTIAL`. Both were dry-runs. The positive SD result is
+recorded separately from the overall firmware review.
+[Exact review evidence](nc1020-retained-file-review-summary.json)
+
 ## PaperDIY SD hot-plug
 
 Use the same PaperDIY 16 MiB defaults with `-DPROBE_PAPERDIY_HOTPLUG=ON` and

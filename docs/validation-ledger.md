@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 NC1020 审核保存文件读回
+
+[原版同一 SD 种子的两轮 dry-run](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)
+均观察到 G0 动作后的实际写入，审核停机后核验文件名、大小及哈希。
+预期 `/nc1020.state` 时保存文件为 99,384 字节，SD 断言通过。
+只改成 `/missing.state` 时报告 `E_SIM_SD_WRITE_PARTIAL`。两轮均释放租约。
+
 ## 2026-11-18 Tab5 单 OTA0 身份
 
 [同一原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/ota0-identity-summary.json)
