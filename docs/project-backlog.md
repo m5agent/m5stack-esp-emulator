@@ -59,8 +59,7 @@
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
-5. **P0 崩溃与任务观测**。在 Core2 离线 UART dump 的基础上，补会话自动解码、
-   其他 dump 格式和 RISC-V 栈展开。原生 C6 已验证匹配 ELF 的 abort 地址和 MEPC 符号，
+5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。继续补会话内的任务名称、优先级和栈用量、其他 dump 格式及 RISC-V 栈展开。原生 C6 已验证匹配 ELF 的 abort 地址和 MEPC 符号，
    Core2 和原生 C6 已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)

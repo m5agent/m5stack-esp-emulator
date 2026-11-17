@@ -417,7 +417,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
    非空 API Key startup UI 到 guest virtual `300 s` 以上。setup/REPL 与
    完整 factory application 转入 `API-01`；仍不能把 I2C ACK、RMT
    初始化、probe/UIFlow2 PASS、关闭 WDT、accelerator 或 host 假值当作
-   任意 legacy application PASS。同会话崩溃 API 已用 [Core2 探针](../tests/firmware/crash_diagnostics/summary.json) 验证双核 PC、UART dump 状态和匹配 ELF 的函数解析。[原生 Nesso N1](../tests/firmware/crash_diagnostics/riscv_c6/summary.json)已验证精确匹配的 RISC-V ELF32 可解析 abort 地址和 MEPC。实时接口验证了运行和暂停状态下的 Core2 双核 PC 与 [Nesso N1 单核 PC](../tests/firmware/crash_diagnostics/riscv_c6/live-cpu-pc-summary.json)。串口诊断在最新窗口缺少 panic 时可独立保留同会话前缀中的早期故障。Core2 ELF CRC32 UART dump 可按[离线流程](../tests/firmware/crash_diagnostics/README.md)核对后提取 FreeRTOS 任务、优先级和栈用量。
+   任意 legacy application PASS。同会话崩溃 API 已用 [Core2 探针](../tests/firmware/crash_diagnostics/summary.json) 验证双核 PC、UART dump 状态和匹配 ELF 的函数解析。[原生 Nesso N1](../tests/firmware/crash_diagnostics/riscv_c6/summary.json)已验证精确匹配的 RISC-V ELF32 可解析 abort 地址和 MEPC。实时接口验证了运行和暂停状态下的 Core2 双核 PC 与 [Nesso N1 单核 PC](../tests/firmware/crash_diagnostics/riscv_c6/live-cpu-pc-summary.json)。串口诊断在最新窗口缺少 panic 时可独立保留同会话前缀中的早期故障。Core2 ELF CRC32 UART dump 已经由[同会话 API](../tests/firmware/crash_diagnostics/session-task-context-summary.json)自动核验并提取 FreeRTOS 保存的任务 PC/SP。[离线流程](../tests/firmware/crash_diagnostics/README.md)可额外提取任务名称、优先级和栈用量。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import hashlib
 import io
 import json
@@ -18,29 +17,23 @@ import sys
 import tempfile
 import time
 import zipfile
-import zlib
 from pathlib import Path
 
 from device_service_crash import (
     CRASH_OUTPUT_LIMIT,
-    ELF_HASH,
-    IDF_BOOT,
-    RESET,
-    ROM_BOOT,
     SYMBOL_FILE_LIMIT,
     identify_crash_elf,
     output_tail,
     serial_crash_observations,
+    uart_dump_after_panic,
 )
+from esp32_uart_coredump import app_note_digest, core_notes, verify_container
 
 FLASH_SIZE = 16 * 1024 * 1024
 ARCHIVE_LIMIT = 32 * 1024 * 1024
 OUTPUT_LIMIT = 256 * 1024
 DECODE_TIMEOUT = 45
 DECODER_VERSION = "espcoredump.py v1.17.2"
-DUMP_START = re.compile(r"=+ CORE DUMP START =+")
-DUMP_END = re.compile(r"=+ CORE DUMP END =+")
-APP_NOTE_TYPE = 8266  # ESPCoreDumpElfFile.PT_ESP_INFO
 TASK_NAME = r"[A-Za-z0-9_.-]{1,16}"
 TASK_ROW = re.compile(
     rf"\s*(0x[0-9a-f]{{1,8}})\s+({TASK_NAME})\s+(\d{{1,3}})/(\d{{1,3}})"
@@ -100,70 +93,15 @@ def uart_dump(console: str, receipt: dict) -> tuple[bytes, str]:
     observed = serial_crash_observations(console, "")
     panic = observed["panic"]
     if (observed["core_dump"]["status"] != "uart_reported_complete"
-            or observed["core_dump"] != receipt["core_dump"] or panic != receipt["panic"]):
+            or observed["core_dump"]["status"] != receipt["core_dump"]["status"]
+            or panic is None or panic != receipt["panic"]):
         raise ValueError("serial does not confirm the recorded panic and completed UART dump")
-    lines = [line.strip() for line in console.splitlines()]
-    panic_index = len(lines) - 1 - lines[::-1].index(panic["line"])
-    after_panic = []
-    for line in lines[panic_index + 1:]:
-        if line == "Rebooting..." or RESET.match(line) or ROM_BOOT.match(line) or IDF_BOOT.match(line):
-            break
-        after_panic.append(line)
-    starts = [i for i, line in enumerate(after_panic) if DUMP_START.fullmatch(line)]
-    ends = [i for i, line in enumerate(after_panic) if DUMP_END.fullmatch(line)]
-    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
-        raise ValueError("serial does not contain one completed dump after the recorded panic")
-    prefix = panic["elf_sha256_prefix"]
-    if not re.fullmatch(r"[0-9a-f]{8,64}", prefix or ""):
-        raise ValueError("panic lacks an application ELF SHA-256 prefix")
-    reported = [match[1].lower() for line in after_panic[:starts[0]] if (match := ELF_HASH.match(line))]
-    if reported != [prefix]:
-        raise ValueError("UART dump is not associated with the panic ELF digest")
-    payload = after_panic[starts[0] + 1:ends[0]]
-    if not payload or any(not line or len(line) > 128 for line in payload):
-        raise ValueError("invalid UART Base64 dump lines")
-    return b"".join(base64.b64decode(line, validate=True) for line in payload), prefix
-
-
-def app_note_digest(elf: bytes) -> str:
-    if len(elf) < 52 or elf[:7] != b"\x7fELF\x01\x01\x01" or elf[16:20] != b"\x04\x00\x5e\x00":
-        raise ValueError("dump does not contain an Xtensa ELF32 core file")
-    table_offset, = struct.unpack_from("<I", elf, 28)
-    entry_size, count = struct.unpack_from("<HH", elf, 42)
-    if entry_size != 32 or count > 256 or table_offset + count * entry_size > len(elf):
-        raise ValueError("invalid ELF program header table")
-    app_notes = []
-    for index in range(count):
-        kind, offset, _, _, size = struct.unpack_from("<5I", elf, table_offset + index * entry_size)
-        if offset + size > len(elf):
-            raise ValueError("invalid ELF segment extent")
-        if kind != 4:  # PT_NOTE
-            continue
-        stop = offset + size
-        while offset + 12 <= stop:
-            name_size, desc_size, note_type = struct.unpack_from("<3I", elf, offset)
-            name = offset + 12
-            desc = name + ((name_size + 3) & ~3)
-            offset = desc + ((desc_size + 3) & ~3)
-            if offset > stop:
-                raise ValueError("invalid ELF note extent")
-            if note_type == APP_NOTE_TYPE and elf[name:name + name_size] == b"ESP_CORE_DUMP_INFO\0":
-                app_notes.append(elf[desc:desc + desc_size])
-    if len(app_notes) != 1 or len(app_notes[0]) < 68 or app_notes[0][:4] != b"\x02\x01\0\0":
-        raise ValueError("missing, ambiguous or unsupported dump application ELF note")
-    digest = app_notes[0][4:68].rstrip(b"\0")
-    if not re.fullmatch(rb"[0-9a-f]{8,64}", digest):
-        raise ValueError("invalid ELF note digest")
-    return digest.decode("ascii")
+    return uart_dump_after_panic(console, panic)
 
 
 def validate_dump(dump: bytes, elf_sha: str) -> int:
-    if len(dump) < 80 or struct.unpack_from("<II", dump) != (len(dump), 0x0102):
-        raise ValueError("unsupported ESP32 ELF CRC32 dump version or declared length")
-    checksum, = struct.unpack_from("<I", dump, len(dump) - 4)
-    if zlib.crc32(dump[:-4]) != checksum:
-        raise ValueError("UART dump CRC32 mismatch")
-    if not elf_sha.startswith(app_note_digest(dump[24:-4])):
+    checksum, elf = verify_container(dump)
+    if not elf_sha.startswith(app_note_digest(list(core_notes(elf)))):
         raise ValueError("dump ELF note digest differs from the application ELF")
     return checksum
 

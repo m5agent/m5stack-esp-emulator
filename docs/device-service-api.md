@@ -3181,8 +3181,8 @@ An abort call-site address belongs to `panic.abort_call_site_pc`. Stderr
 backend hart/PC warnings belong to `backend_observations`. Boot banners and
 reset reports remain in `boot`, including watchdog resets without a panic.
 A task watchdog warning alone is recorded under `task_watchdog_reports`.
-Core-dump status records guest-reported delimiters or Flash checks. These
-observations do not perform live register sampling or validate dump contents.
+Core-dump status records guest-reported delimiters or Flash checks. The
+retained crash receipt does not perform live register sampling.
 
 On native ESP32-S3, an instrumented QEMU started with host setting
 `M5SW_S3_IWDT_TRACE=1` can supply one `esp32s3_iwdt_stage0` entry in
@@ -3212,8 +3212,23 @@ ILP32 soft-float executables, with optional compressed instructions. It
 reports `matched_riscv_elf_function_ranges` and keeps the guest `MEPC`
 separate from `panic.abort_call_site_pc`. Unsupported, ambiguous and
 unresolved addresses are explicit. This endpoint reports symbol ranges.
-DWARF line decoding, task reconstruction and stack unwinding are outside
-its supported observations.
+DWARF line decoding and stack unwinding remain outside this symbol lookup.
+
+On Core2 native `runtime=qemu`, a completed ESP-IDF UART transfer within the
+latest console window adds `core_dump.decoding`. The service binds one transfer
+to the latest observed panic, verifies the ESP32 Xtensa ELF32 CRC32 container
+and its application note, and reports a decoded byte count, CRC32 and SHA-256.
+It records the crashed task handle and up to 64 captured task contexts with
+saved PC and SP. An SDK placeholder is labeled `sdk_placeholder` and has null
+registers. A skipped crashed task has a null handle. If a matching ELF artifact
+also agrees with the dump application note, task PC symbol ranges appear
+under `core_dump.decoding.symbols`. This symbol lookup is separate from the
+panic register and backtrace symbols. Unsupported or damaged data returns
+`decoding.status=unavailable` with a reason, while the original delimiter
+observation is retained. Task names, priorities and stack usage are available
+via the [local offline decoder](../tests/firmware/crash_diagnostics/README.md).
+Flash dumps, other chips and other UART formats have status observations
+only.
 
 ### Live native CPU PCs
 

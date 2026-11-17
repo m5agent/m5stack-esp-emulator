@@ -28,6 +28,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [原生崩溃验收](../tests/firmware/crash_diagnostics/summary.json)在 `cbc0ea74…` 的 Core2 来宾分别触发 CPU1 abort 与真实中断 WDT。后者报告双核寄存器 PC。两个会话均输出 UART core dump 标记，匹配 ELF 能解析探针函数，其他 ELF 保持未解码。已验证同会话证据 ZIP 和停止后重启服务读回。
 
+[Core2 会话任务上下文](../tests/firmware/crash_diagnostics/session-task-context-summary.json)用同一 watchdog、abort 固件的两次新原生会话验证。API 和 ZIP 对两份 UART dump 核验 CRC32，分别读出 5、6 个保存上下文。匹配 ELF 将两次故障任务的 PC 分别解析为 `trigger_fault`、`panic_abort`，并经停止与服务重启后读回。
+
 [Core2 离线任务解码](../tests/firmware/crash_diagnostics/offline-task-summary.json)复用了上述两份同会话 ZIP、合并 Flash 和应用 ELF。真实中断 WDT 与 abort 的 UART dump 分别通过 CRC32 校验并读出 5、6 个 FreeRTOS 任务，均定位 `fixture_fault`。交换 ELF 后在调用解码器前拒绝。
 
 [Core2 实时 CPU PC](../tests/firmware/crash_diagnostics/live-cpu-pc-summary.json)使用同一份 watchdog 探针，在原生 QEMU `eecf42ad…` 读取两核 PC。运行状态保持，测试夹具暂停后的两次读取一致，恢复后在同会话重现 CPU1 WDT 与 UART dump。停止后拒绝实时读数。
