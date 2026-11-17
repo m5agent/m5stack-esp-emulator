@@ -146,6 +146,11 @@
       "test": "tests/firmware/spi_sd_media/main/main.c",
       "evidence": "docs/evidence/2026-11-17-spi-sd-admission/summary.json"
     },
+    "cardputer-spi-idle-rx-dma": {
+      "device": "cardputer",
+      "test": "tests/firmware/spi_sd_media/main/idle_rx.c",
+      "evidence": "tests/firmware/spi_sd_media/idle-rx-dma-summary.json"
+    },
     "papers3-spi-sd-media": {
       "device": "papers3",
       "test": "tests/firmware/spi_sd_media/main/main.c",
@@ -599,6 +604,9 @@
     "cardputer-spi-sd-media": [
       "sd-card-spi"
     ],
+    "cardputer-spi-idle-rx-dma": [
+      "sd-card-spi"
+    ],
     "papers3-spi-sd-media": [
       "sd-card-spi"
     ],
@@ -707,7 +715,8 @@
       "matrix": [],
       "external": [
         "cardputer-k132-stock",
-        "cardputer-spi-sd-media"
+        "cardputer-spi-sd-media",
+        "cardputer-spi-idle-rx-dma"
       ],
       "models": [
         "gpio-keyboard-matrix",

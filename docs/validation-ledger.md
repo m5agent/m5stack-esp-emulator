@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-17 Cardputer SPI 空闲接收
+
+[原生 Cardputer 复验](../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)用同一
+ESP-IDF 探针和 FAT32 卡验证 SPI3。基线在 SD 片选为高时漏写接收 DMA，
+补齐后按 1、4、16、64 字节均读回 `0xff`。两边都通过片选为低的 FAT
+文件读回和片选为高的非 DMA FIFO 接收。原版 NC1020 的首个 ROM bank
+仍耗时约 5.9 秒，继续触发任务 watchdog，完整 ROM/NOR 冷导入保持 PARTIAL。
+
 ## 2026-11-17 PaperDIY 原生 SD 热插拔
 
 ESP-IDF 驱动在同一 Device Service 会话收到四次 GPIO48 中断。首次

@@ -1,0 +1,124 @@
+{
+  "validation": "virtual-device validation",
+  "scope": "native Cardputer SPI3 with actual ESP-IDF driver, GPIO12 chip select, FAT file read, GDMA and non-DMA FIFO",
+  "service_source": "2db3851c0b7a4980210034d05130224a2ecf6455",
+  "qemu_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "qemu_layer": "native layers through 0215 plus 0216 on the candidate",
+  "patch_sha256": "70629499a8bf26231ea5fbe06a08cff3ed05e0f11919bd9e0c29d095275a675a",
+  "probe_sdk": "ESP-IDF v5.5.4",
+  "probe_pass_rule": "exact selected-card file, all idle RX bytes 0xff with GDMA and FIFO, plus SPI transcript and lease cleanup",
+  "baseline": {
+    "result": "FAIL",
+    "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+    "firmware_sha256": "a02b866bc4f7607c4772a7cb641c0371c4c1cf5472aaaa5e1734ae7e7b8873ae",
+    "sd_sha256": "c90e3138fc6b9a433fd0015263acff186042c65d743ca4b0e70e3aab2fec1689",
+    "serial": [
+      "SPI_IDLE_RX selected_sd_match=1",
+      "SPI_IDLE_RX mode=dma sd_cs=1",
+      "SPI_IDLE_RX mode=dma bytes=1 ones=0",
+      "SPI_IDLE_RX mode=dma bytes=4 ones=0",
+      "SPI_IDLE_RX mode=dma bytes=16 ones=0",
+      "SPI_IDLE_RX mode=dma bytes=64 ones=0",
+      "SPI_IDLE_RX mode=dma inline_byte=24",
+      "SPI_IDLE_RX mode=fifo sd_cs=1",
+      "SPI_IDLE_RX mode=fifo bytes=1 ones=1",
+      "SPI_IDLE_RX mode=fifo bytes=4 ones=4",
+      "SPI_IDLE_RX mode=fifo bytes=16 ones=16",
+      "SPI_IDLE_RX mode=fifo bytes=64 ones=64",
+      "SPI_IDLE_RX mode=fifo inline_byte=ff",
+      "SPI_IDLE_RX_DONE selected=1 dma=0 fifo=1"
+    ],
+    "controller": {
+      "sd_select_low_successful_rx_dma_by_length": {
+        "4": 2,
+        "12": 2,
+        "15": 9,
+        "16": 19,
+        "19": 3,
+        "60": 1,
+        "508": 6
+      },
+      "sd_select_high_successful_rx_dma_by_length": {},
+      "sd_select_high_ff_one_byte_transfers": 97
+    },
+    "evidence_zip_sha256": "1d744e4cfd57b8e9f71a5da0fca8ced5c5c6be315f1b03e3e62a0048cc5d261f",
+    "cleanup": "stopped, released, zero leases"
+  },
+  "candidate": {
+    "result": "PASS",
+    "runtime_sha256": "6d4213979c6d504031c20a3c4ff6943d922743ef739a35b2147d78278eb8ec38",
+    "firmware_sha256": "a02b866bc4f7607c4772a7cb641c0371c4c1cf5472aaaa5e1734ae7e7b8873ae",
+    "sd_sha256": "c90e3138fc6b9a433fd0015263acff186042c65d743ca4b0e70e3aab2fec1689",
+    "serial": [
+      "SPI_IDLE_RX selected_sd_match=1",
+      "SPI_IDLE_RX mode=dma sd_cs=1",
+      "SPI_IDLE_RX mode=dma bytes=1 ones=1",
+      "SPI_IDLE_RX mode=dma bytes=4 ones=4",
+      "SPI_IDLE_RX mode=dma bytes=16 ones=16",
+      "SPI_IDLE_RX mode=dma bytes=64 ones=64",
+      "SPI_IDLE_RX mode=dma inline_byte=ff",
+      "SPI_IDLE_RX mode=fifo sd_cs=1",
+      "SPI_IDLE_RX mode=fifo bytes=1 ones=1",
+      "SPI_IDLE_RX mode=fifo bytes=4 ones=4",
+      "SPI_IDLE_RX mode=fifo bytes=16 ones=16",
+      "SPI_IDLE_RX mode=fifo bytes=64 ones=64",
+      "SPI_IDLE_RX mode=fifo inline_byte=ff",
+      "SPI_IDLE_RX_DONE selected=1 dma=1 fifo=1"
+    ],
+    "controller": {
+      "sd_select_low_successful_rx_dma_by_length": {
+        "4": 2,
+        "12": 2,
+        "15": 9,
+        "16": 19,
+        "19": 3,
+        "60": 1,
+        "508": 6
+      },
+      "sd_select_high_successful_rx_dma_by_length": {
+        "1": 95,
+        "4": 1,
+        "10": 2,
+        "16": 1,
+        "64": 1
+      },
+      "sd_select_high_ff_one_byte_transfers": 97
+    },
+    "evidence_zip_sha256": "7d2819fe54d0540ecb784c7f44fa278576ae9ea3a0e6cdd1315213c993e4a434",
+    "cleanup": "stopped, released, zero leases"
+  },
+  "nc1020_cold_import": {
+    "result": "PARTIAL",
+    "original_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "authored_sd_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+    "baseline": {
+      "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "wall_seconds": 620.356,
+      "first_bank_from_population_log_guest_ms": 5874,
+      "completed_rom_banks_flash_readback": 103,
+      "total_required_rom_banks": 206,
+      "nor_unchanged": true,
+      "task_watchdog_warnings": 104,
+      "evidence_zip_sha256": "02ef28824a4714be9ba10a5e15710e28666872590f9bda7a59ab200ba5d2176c",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "candidate": {
+      "runtime_sha256": "6d4213979c6d504031c20a3c4ff6943d922743ef739a35b2147d78278eb8ec38",
+      "wall_seconds": 180.465,
+      "first_bank_from_population_log_guest_ms": 5862,
+      "completed_rom_banks_flash_readback": 30,
+      "total_required_rom_banks": 206,
+      "nor_unchanged": true,
+      "task_watchdog_warnings": 29,
+      "evidence_zip_sha256": "088ea0ab389d8c59d12d280eba0fc1ba513ad2c4078d66d041131160303c0bc9",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "candidate_select_high_ff_single_bytes_with_rx_dma_success": 119162,
+    "candidate_short_trace_evidence_zip_sha256": "bb746c90f82bbf14395d5cc5eb1e478fa6249d5be5a596d998aeeb85b667d912",
+    "limit": "The old SDK still repeatedly polls select-high MISO after modeled DMA completion. Full import, NOR seed, and post-import frame are unverified."
+  },
+  "not_run": [
+    "physical Cardputer comparison",
+    "browser-WASM"
+  ]
+}
