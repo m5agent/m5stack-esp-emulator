@@ -1,0 +1,269 @@
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -52,6 +52,7 @@
+     bool radio_enabled;
+     bool wlan_closed;
+     bool s3_raw_fixture;
++    bool s3_softap_peer;
+     uint64_t s3_raw_tx_sequence;
+     Esp32S3RawTxFrame s3_raw_tx_window[ESP32S3_RAW_TX_WINDOW_SIZE];
+     unsigned int inject_sequence_number;
+@@ -93,6 +94,7 @@
+ 
+ void Esp32_WLAN_handle_frame(Esp32WifiState *s, struct mac80211_frame *frame);
+ void Esp32_WLAN_setup_ap(DeviceState *dev,Esp32WifiState *s);
++void Esp32_WLAN_reset_softap_peer(Esp32WifiState *s);
+ void Esp32_sendFrame(Esp32WifiState *s, struct mac80211_frame *frame,int length, int signal_strength);
+ void Esp32_S3_sendFrame(Esp32WifiState *s, struct mac80211_frame *frame,
+                         int length, int signal_strength);
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -164,7 +164,17 @@
+     };
+     memcpy(&rx_word0, packet, sizeof(rx_word0));
+     rx_word0 |= (frame->frame_length & 0xfff) << 16;
+-    if (!memcmp(frame->receiver_address, BROADCAST, 6)) {
++    if (s->s3_softap_peer &&
++        frame->frame_control.to_ds && !frame->frame_control.from_ds) {
++        const uint8_t *rx_address = frame->receiver_address;
++
++        if (!memcmp(rx_address, (uint8_t *)s->mem + 0x40, 6)) {
++            rx_word0 |= BIT(28) | BIT(30);
++        }
++        if (!memcmp(rx_address, (uint8_t *)s->mem + 0x48, 6)) {
++            rx_word0 |= BIT(29) | BIT(31);
++        }
++    } else if (!memcmp(frame->receiver_address, BROADCAST, 6)) {
+         rx_word0 |= 0xf0000000u;
+     } else {
+         if (!memcmp(frame->receiver_address, (uint8_t *)s->mem + 0x40, 6) ||
+@@ -187,7 +197,8 @@
+          * unicast management frames to the AP using these bits.
+          * Retain the synthetic access-point fallback for station mode.
+          */
+-        if (s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED ||
++        if ((!s->s3_softap_peer &&
++             s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED) ||
+             frame->frame_control.type != IEEE80211_TYPE_MGT) {
+             rx_word0 |= 0xf0000000u;
+         }
+@@ -473,6 +484,7 @@
+     s->dma_inlink_ptr = 0;
+     s->s3_raw_tx_sequence = 0;
+     memset(s->mem, 0, sizeof(s->mem));
++    Esp32_WLAN_reset_softap_peer(s);
+ }
+ 
+ static void esp32s3_wifi_realize(DeviceState *dev, Error **errp)
+@@ -504,6 +516,7 @@
+ static Property esp32s3_wifi_properties[] = {
+     DEFINE_NIC_PROPERTIES(Esp32WifiState, conf),
+     DEFINE_PROP_BOOL("raw-fixture", Esp32WifiState, s3_raw_fixture, false),
++    DEFINE_PROP_BOOL("open-softap-peer", Esp32WifiState, s3_softap_peer, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -36,6 +36,7 @@
+ #include "crypto/cipher.h"
+ #include "crypto/hmac.h"
+ #include "crypto/pbkdf.h"
++#include "net/eth.h"
+ #include "net/net.h"
+ #include "qemu/timer.h"
+ 
+@@ -672,7 +673,10 @@
+     struct mac80211_frame *frame;
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
+-    if (!s->radio_enabled || s->wlan_closed || s->s3_raw_fixture) { return; }
++    if (!s->radio_enabled || s->wlan_closed ||
++        s->s3_raw_fixture || s->s3_softap_peer) {
++        return;
++    }
+     // only send a beacon if we are an access point
+     if(s->ap_state!=Esp32_WLAN__STATE_STA_ASSOCIATED) {
+         if (access_points[s->beacon_ap].channel==esp32_wifi_channel) {
+@@ -782,7 +786,8 @@
+ 
+     if (s->ap_state != Esp32_WLAN__STATE_ASSOCIATED &&
+         s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED &&
+-        s->ap_state != Esp32_WLAN__STATE_STA_DHCP) {
++        s->ap_state != Esp32_WLAN__STATE_STA_DHCP &&
++        s->ap_state != Esp32_WLAN__STATE_SOFTAP_ASSOCIATED) {
+         // we are currently not connected
+         // to the access point
+         return 0;
+@@ -813,6 +818,21 @@
+ 
+     if (!s) {
+         return -1;
++    }
++    if (s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED) {
++        if (size < ETH_HLEN || size > ETH_HLEN + ETH_MTU ||
++            memcmp(buf + ETH_ALEN, s->macaddr, ETH_ALEN)) {
++            return size;
++        }
++        frame = Esp32_WLAN_create_data_packet(s, buf, size);
++        frame->frame_control.to_ds = 1;
++        memcpy(frame->receiver_address, s->associated_ap_macaddr, ETH_ALEN);
++        memcpy(frame->transmitter_address, s->macaddr, ETH_ALEN);
++        memcpy(frame->address_3, buf, ETH_ALEN);
++        frame->signal_strength = -10;
++        Esp32_WLAN_init_ap_frame(s, frame);
++        Esp32_WLAN_insert_frame(s, frame);
++        return size;
+     }
+     esp32_classic_wifi_trace(
+         "host-rx",
+@@ -879,6 +899,15 @@
+     if (s->inject_timer) { timer_del(s->inject_timer); }
+ }
+ 
++void Esp32_WLAN_reset_softap_peer(Esp32WifiState *s)
++{
++    if (s->s3_softap_peer) {
++        s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++        memset(s->associated_ap_macaddr, 0, ETH_ALEN);
++        wlan_drop_inject_queue(s);
++    }
++}
++
+ static void Esp32_WLAN_cleanup(NetClientState *ncs)
+ {
+     Esp32WifiState *s = qemu_get_nic_opaque(ncs);
+@@ -1019,6 +1048,78 @@
+     }
+ 
+     Esp32_WLAN_insert_frame(s, reply);
++}
++
++static bool softap_fixture_beacon(const mac80211_frame *frame)
++{
++    static const char ssid[] = "fixture-ap-test";
++    const uint8_t *data = frame->data_and_fcs;
++    size_t end;
++
++    if (frame->frame_length < IEEE80211_HEADER_SIZE + 12 + ETH_FCS_LEN ||
++        frame->frame_length > IEEE80211_HEADER_SIZE + sizeof(frame->data_and_fcs) ||
++        (data[10] & 0x11) != 1 ||
++        (frame->transmitter_address[0] & 1) ||
++        memcmp(frame->transmitter_address, frame->address_3, ETH_ALEN)) {
++        return false;
++    }
++    end = frame->frame_length - IEEE80211_HEADER_SIZE - ETH_FCS_LEN;
++    for (size_t offset = 12; offset + 2 <= end;) {
++        uint8_t tag = data[offset];
++        size_t length = data[offset + 1];
++
++        offset += 2;
++        if (length > end - offset) {
++            return false;
++        }
++        if (tag == IEEE80211_BEACON_PARAM_SSID) {
++            return length == sizeof(ssid) - 1 &&
++                !memcmp(data + offset, ssid, length);
++        }
++        offset += length;
++    }
++    return false;
++}
++
++static void softap_fixture_manage(Esp32WifiState *s, mac80211_frame *frame)
++{
++    unsigned subtype = frame->frame_control.sub_type;
++    const uint8_t *data = frame->data_and_fcs;
++    access_point_info fixture = { .ssid = "fixture-ap-test" };
++
++    if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_BEACON) {
++        if (s->ap_state == Esp32_WLAN__STATE_NOT_AUTHENTICATED &&
++            softap_fixture_beacon(frame)) {
++            memcpy(s->associated_ap_macaddr, frame->transmitter_address,
++                   ETH_ALEN);
++            s->ap_state = Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED;
++            send_single_frame(s, frame,
++                              Esp32_WLAN_create_authentication_request());
++        }
++        return;
++    }
++    if (memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->address_3, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->receiver_address, s->macaddr, ETH_ALEN)) {
++        return;
++    }
++    if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
++        s->ap_state == Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED &&
++        frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++        !memcmp(data, (uint8_t[]) { 0, 0, 2, 0, 0, 0 }, 6)) {
++        s->ap_state = Esp32_WLAN__STATE_STA_AUTHENTICATED;
++        send_single_frame(s, frame,
++                          Esp32_WLAN_create_association_request(&fixture));
++    } else if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_ASSOCIATION_RESP &&
++               s->ap_state == Esp32_WLAN__STATE_STA_AUTHENTICATED &&
++               frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++               !data[2] && !data[3]) {
++        s->ap_state = Esp32_WLAN__STATE_SOFTAP_ASSOCIATED;
++        qemu_flush_queued_packets(qemu_get_queue(s->nic));
++    } else if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_DISASSOCIATION ||
++               subtype == IEEE80211_TYPE_MGT_SUBTYPE_DEAUTHENTICATION) {
++        Esp32_WLAN_reset_softap_peer(s);
++    }
+ }
+ 
+ static void wpa_add_ccmp_envelope(Esp32WifiState *s,
+@@ -1317,6 +1418,10 @@
+     }
+ 
+     if(frame->frame_control.type == IEEE80211_TYPE_MGT) {
++        if (s->s3_softap_peer) {
++            softap_fixture_manage(s, frame);
++            return;
++        }
+         switch(frame->frame_control.sub_type) {
+             case IEEE80211_TYPE_MGT_SUBTYPE_BEACON:
+                 if(s->ap_state==Esp32_WLAN__STATE_NOT_AUTHENTICATED || s->ap_state==Esp32_WLAN__STATE_AUTHENTICATED) {
+@@ -1432,6 +1537,33 @@
+             }
+         }
+     }
++    if (s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED &&
++        frame->frame_control.type == IEEE80211_TYPE_DATA) {
++        static const uint8_t snap[] = { 0xaa, 0xaa, 3, 0, 0, 0 };
++        size_t offset = frame->frame_control.sub_type == 8 ? 2 : 0;
++        size_t absolute_offset = IEEE80211_HEADER_SIZE + offset + sizeof(snap);
++
++        if ((frame->frame_control.sub_type == 0 || frame->frame_control.sub_type == 8) &&
++            frame->frame_control.from_ds && !frame->frame_control.to_ds &&
++            !(frame->frame_control._flags & BIT(4)) &&
++            !memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) &&
++            frame->frame_length >= absolute_offset + 2 + ETH_FCS_LEN &&
++            frame->frame_length - absolute_offset - ETH_FCS_LEN <= ETH_MTU + 2 &&
++            !memcmp(frame->data_and_fcs + offset, snap, sizeof(snap))) {
++            size_t length = frame->frame_length - absolute_offset - ETH_FCS_LEN;
++
++            memcpy(ethernet_frame, frame->receiver_address, ETH_ALEN);
++            memcpy(ethernet_frame + ETH_ALEN, frame->address_3, ETH_ALEN);
++            memcpy(ethernet_frame + 2 * ETH_ALEN,
++                   frame->data_and_fcs + offset + sizeof(snap), length);
++            qemu_send_packet(qemu_get_queue(s->nic), ethernet_frame,
++                             2 * ETH_ALEN + length);
++        }
++        return;
++    }
++    if (s->s3_softap_peer) {
++        return;
++    }
+     if (frame->frame_control.type == IEEE80211_TYPE_DATA &&
+         wpa_handle_eapol(s, frame)) {
+         return;
+--- a/hw/misc/esp32_wlan.h
++++ b/hw/misc/esp32_wlan.h
+@@ -130,6 +130,7 @@
+     Esp32_WLAN__STATE_STA_AUTHENTICATED,
+     Esp32_WLAN__STATE_STA_ASSOCIATED,
+     Esp32_WLAN__STATE_STA_DHCP,
++    Esp32_WLAN__STATE_SOFTAP_ASSOCIATED,
+ };
+ 
+ #define Esp32_WLAN__MAX_INJECT_QUEUE_SIZE 20

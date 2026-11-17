@@ -24,6 +24,7 @@ OPERATIONS = frozenset(
         "serial.read",
         "input.write",
         "guest.reset",
+        "network.softap.probe",
         "program.read",
         "program.execute",
         "program.interrupt",

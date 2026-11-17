@@ -28,7 +28,7 @@ import time
 import uuid
 import zipfile
 from frame_presentation import FramePresentation, bind_presentation, presentation_from_controller
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -92,6 +92,15 @@ from device_service_network import (  # noqa: E402
     parse_udp_fixture,
 )
 from device_service_network_execution import parse_network_execution  # noqa: E402, F401
+from device_service_softap_peer import (  # noqa: E402
+    ACL_OPERATION as SOFTAP_ACL_OPERATION,
+    BOARDS as SOFTAP_BOARDS,
+    NIC as SOFTAP_NIC,
+    PROFILE as SOFTAP_PROFILE,
+    QOM_PROPERTY as SOFTAP_QOM_PROPERTY,
+    SoftAPPeer,
+    require_softap_backend,
+)
 from device_service_qemu_wifi import (  # noqa: E402, F401
     STICKS3_MONITOR_MAC,
     STICKS3_MONITOR_NIC,
@@ -1041,6 +1050,17 @@ def parse_qemu_wifi_execution(
     if not isinstance(value, dict):
         raise ServiceError("invalid_network", "network must be an object", 400)
     profile = value.get("profile", default_profile)
+    if profile == SOFTAP_PROFILE and spec.id in SOFTAP_BOARDS:
+        if set(value) - {"profile", "capture_pcap"} or value.get("capture_pcap", True) is not True:
+            raise ServiceError(
+                "invalid_network",
+                "open SoftAP fixture accepts only profile and capture_pcap=true",
+                400,
+            )
+        return {
+            "profile": SOFTAP_PROFILE, "net_mode": "unix-socketpair",
+            "nic": SOFTAP_NIC, "capture_pcap": True, "http_fixture": False,
+        }
     if profile != supported_profile:
         raise ServiceError(
             "unsupported_network_profile",
@@ -2757,6 +2777,7 @@ class DeviceSession:
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.dns_fixture_log = self.dir / "dns-fixture.json"
         self.udp_fixture_log = self.dir / "udp-fixture.json"
+        self.softap_fixture_receipt = self.dir / "softap-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
@@ -2778,6 +2799,7 @@ class DeviceSession:
         self._external_hci_probe_command_sha256: str | None = None
         self._native_vhci_gdb: subprocess.Popen | None = None
         self._http_fixture: UnifiedHttpFixture | None = None
+        self._softap_peer: SoftAPPeer | None = None
         self._companions: dict[str, dict[str, Any]] = {
             str(kind): dict(value)
             for kind, value in (companions or {}).items()
@@ -3307,6 +3329,12 @@ class DeviceSession:
         return dict(self._companions["http"])
 
     def _recover_companions(self) -> dict[str, dict[str, Any]]:
+        if self.network_config.get("profile") == SOFTAP_PROFILE:
+            raise ServiceError(
+                "companion_recovery_unsupported",
+                "the previous service owned the SoftAP socketpair",
+                409,
+            )
         http_required = self._requires_http_fixture()
         ble_required = self._requires_hci_probe()
         if not http_required and not ble_required:
@@ -3529,7 +3557,10 @@ class DeviceSession:
                 and self.state in ACTIVE_STATES
                 and (self.network_result or {}).get("status") != "PASS"
             ):
-                self.network_result = self._build_network_evidence()
+                self.network_result = (
+                    self.network_evidence() if self.network_config.get("profile") == SOFTAP_PROFILE
+                    else self._build_network_evidence()
+                )
             return {
                 "session_id": self.id,
                 "device_id": self.spec.id,
@@ -4522,6 +4553,13 @@ class DeviceSession:
             "reason": "capture file has not been created",
         }
 
+    def _softap_receipt(self) -> dict:
+        try:
+            peer = json.loads(self.softap_fixture_receipt.read_text())
+        except (OSError, json.JSONDecodeError):
+            return {"status": "NOT_RUN"}
+        return peer if isinstance(peer, dict) else {"status": "NOT_RUN"}
+
     def network_evidence(self) -> dict:
         evidence = self._build_network_evidence()
         if self.network_config.get("policy"):
@@ -4543,6 +4581,26 @@ class DeviceSession:
         evidence["packet_capture"] = self._network_capture_evidence()
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
+        if self.network_config.get("profile") == SOFTAP_PROFILE:
+            peer = self._softap_receipt()
+            evidence["softap_fixture"] = peer
+            evidence["kind"] = "m5stack-qemu-open-softap-proof"
+            evidence["isolation"] = {
+                "mode": "unix-socketpair",
+                "host_ip_backends": 0,
+                "cleanup_completed": peer.get("released") is True,
+            }
+            data_plane = evidence["native_data_plane"]
+            evidence["checks"] = {
+                "peer_dhcp": peer.get("dhcp") is True,
+                "peer_arp": peer.get("arp") is True,
+                "peer_http_body": peer.get("http") is True,
+                "captured_dora": data_plane["dhcpv4"]["completed_dora_transactions"] > 0,
+                "captured_http": data_plane["tcp"]["bidirectional_payload_flows"] > 0,
+            }
+            evidence["status"] = (
+                "PASS" if peer.get("status") == "PASS" and all(evidence["checks"].values()) else "PARTIAL"
+            )
         previous = self.network_result or {}
         self.network_result = evidence
         if (
@@ -4550,6 +4608,7 @@ class DeviceSession:
             or previous.get("checks") != evidence.get("checks")
             or previous.get("native_data_plane") != evidence.get("native_data_plane")
             or previous.get("udp_fixture") != evidence.get("udp_fixture")
+            or previous.get("softap_fixture") != evidence.get("softap_fixture")
         ):
             self._persist_session()
         return evidence
@@ -5802,8 +5861,18 @@ class DeviceSession:
                     if s3_wifi
                     else "misc.esp32_wifi"
                 )
-            command.extend(
-                [
+            if profile == SOFTAP_PROFILE:
+                peer_mac = qemu_station_mac(f"softap-peer:{self.id}")
+                self._softap_peer = SoftAPPeer(
+                    peer_mac, lambda receipt: atomic_write_json(self.softap_fixture_receipt, receipt),
+                )
+                peer_fd = self._softap_peer.child.fileno()
+                command.extend([
+                    "-global", f"driver={SOFTAP_NIC},property={SOFTAP_QOM_PROPERTY},value=on",
+                    "-nic", f"socket,fd={peer_fd},model={nic},mac={peer_mac},id=wifi0",
+                ])
+            else:
+                command.extend([
                     "-nic",
                     qemu_user_netdev(
                         nic=nic,
@@ -5821,8 +5890,7 @@ class DeviceSession:
                             else None
                         ),
                     ),
-                ]
-            )
+                ])
             if self.network_config.get("capture_pcap", False):
                 self.network_pcap.unlink(missing_ok=True)
                 self.network_pcap_summary.unlink(missing_ok=True)
@@ -6007,13 +6075,18 @@ class DeviceSession:
         stderr = self.stderr_path.open("wb")
         try:
             self._check_cancelled()
+            peer = self._softap_peer
             self._proc = subprocess.Popen(
                 launch_command,
                 cwd=ROOT,
                 env=env,
                 stdout=stdout,
                 stderr=stderr,
+                **({"pass_fds": (peer.child.fileno(),)} if peer is not None else {}),
             )
+            if peer is not None:
+                peer.child.close()
+                peer.start()
             self._check_cancelled()
         finally:
             stdout.close()
@@ -8214,6 +8287,10 @@ class DeviceSession:
                 files["network/http-fixture.json"] = (
                     self.http_fixture_log.read_bytes()
                 )
+            if self.network_config.get("profile") == SOFTAP_PROFILE:
+                files["network/softap-fixture.json"] = (
+                    json.dumps(network_payload["softap_fixture"], indent=2) + "\n"
+                ).encode()
             if self.network_config.get("udp_fixture") and self.udp_fixture_log.is_file():
                 files["network/udp-fixture.json"] = self.udp_fixture_log.read_bytes()
             if self.network_isolation_path.is_file():
@@ -8270,10 +8347,18 @@ class DeviceSession:
             if not owns_program:
                 raise ServiceError("program_busy", "a program transfer owns the console", 409)
         try:
-            with self._lock:
+            peer = getattr(self, "_softap_peer", None)
+            lifecycle = self._lifecycle_operation() if peer is not None else nullcontext()
+            with lifecycle, self._lock:
+                if peer is not None:
+                    self._require_runtime_permission(SOFTAP_ACL_OPERATION)
+                    peer.invalidate_for_reset()
                 self._frame_epoch += 1
                 self._preview_frames.invalidate()
                 self._qmp_call("system_reset")
+                if peer is not None:
+                    self._check_cancelled()
+                    peer.start()
                 if self.program_transport:
                     self._invalidate_program_loader("reset-requires-new-loader-proof")
                 if self.program_transport and self._program:
@@ -8437,6 +8522,16 @@ class DeviceSession:
             self.pid = None
         self._close_http_fixture()
         self._terminate_hci_probe()
+        softap_peer = getattr(self, "_softap_peer", None)
+        if softap_peer is not None:
+            softap_peer.close()
+            self._softap_peer = None
+        elif external_pid is not None and self.network_config.get("profile") == SOFTAP_PROFILE:
+            peer_receipt = self._softap_receipt()
+            if peer_receipt.get("status", "NOT_RUN") != "NOT_RUN":
+                atomic_write_json(self.softap_fixture_receipt, {
+                    **peer_receipt, "released": True, "status": "INTERRUPTED", "stage": "recovery",
+                })
         console = getattr(self, "_console", None)
         if console is not None:
             console.close()
@@ -10769,6 +10864,11 @@ class DeviceService:
         network_config = monitor_config
         requested_network = payload.get("network")
         if (
+            runtime != QEMU_WIFI_RUNTIME and isinstance(requested_network, dict)
+            and requested_network.get("profile") == SOFTAP_PROFILE
+        ):
+            raise ServiceError("invalid_network", "open SoftAP fixture requires runtime=qemu-wifi", 400)
+        if (
             runtime != QEMU_WIFI_RUNTIME
             and isinstance(requested_network, dict)
             and requested_network.get("udp_fixture") is not None
@@ -10787,6 +10887,15 @@ class DeviceService:
                 spec,
                 payload.get("network"),
             )
+            if network_config["profile"] == SOFTAP_PROFILE:
+                try:
+                    self.runtime_acl.check(spec.id, SOFTAP_ACL_OPERATION)
+                except RuntimeACLError as error:
+                    raise ServiceError(
+                        error.code, str(error), error.status,
+                        operation=error.operation, reason=error.reason, policy_id=error.policy_id,
+                    ) from error
+                require_softap_backend(spec.qemu)
         elif runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}:
             network_config = parse_qemu_ble_execution(
                 spec,

@@ -37,6 +37,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 Cardputer 与 ADV 在原生 Xtensa `eecf42ad…` 使用同一 SDK 固件 `25eaf534…` 完成 SoftAP 认证与关联。旧版本未向测试站返回认证帧。新运行时复验开放 STA、WPA2 STA、错误口令负控和 PaperDIY 同 FAT32 介质读写。SoftAP DHCP 和门户保持未验收。
 
+[原生开放 SoftAP 夹具](../tests/network/native_open_softap/summary.json)在 Xtensa `201c3611…` 上复用 SDK 夹具 `25eaf534…`。Cardputer 和 ADV 各自通过 Device Service 的私有 UNIX socketpair 获得 DHCP 租约、ARP 回应和固定 HTTP 正文。ADV 同会话复位后再次通过，两个并发租约、正常退出及服务中断的清理均有收据。原版应用门户尚未验证。
+
 CarPlay 原版 `4f3bb118…` 在可选 Tab5 DSI/GT911 路径使用真实 `POST /input`。空白处单击保持已稳定的原生帧，清除配对按钮单击打开了确认对话框；两次各有 13 个已由来宾读取并应答的控制器报告。已验证的归一化 Flash 可单独准入，其它原版可保留原路径。USB Host 手机握手、其它触摸板修订和拖动仍未验收。
 
 ## 2026-11-16

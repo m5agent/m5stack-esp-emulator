@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.64.0
+  version: 1.65.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3666,7 +3666,37 @@ components:
             renewal requests and correlated ACKs without retaining payloads.
         native_data_plane:
           $ref: "#/components/schemas/NativeStaDataPlane"
-          description: Optional passive receipt for qemu-wifi sessions. Preserves the existing network status and profile checks.
+          description: Optional passive transport receipt for qemu-wifi sessions.
+        softap_fixture:
+          type: object
+          description: Bounded open SoftAP peer receipt for the current reset generation.
+          required: [status]
+          properties:
+            schema_version:
+              const: 1
+            status:
+              type: string
+              enum: [NOT_RUN, RUNNING, INTERRUPTED, PARTIAL, PASS]
+            transport:
+              const: unix-socketpair
+            generation:
+              type: integer
+              minimum: 1
+            released:
+              type: boolean
+            dhcp:
+              type: boolean
+            arp:
+              type: boolean
+            http:
+              type: boolean
+            http_body_sha256:
+              type: [string, "null"]
+            http_request_sha256:
+              type: [string, "null"]
+            stage:
+              type: string
+              enum: [dhcp, arp, http, reset, recovery]
         isolation:
           type: object
           additionalProperties: true
@@ -4893,10 +4923,14 @@ components:
         sticks3-native-hid requires runtime=qemu-ble, device_id=sticks3,
         the original AirMouseS3 v1.0 merged image, and a QEMU build with the
         S3 native VHCI bridge. It accepts only profile and attempts.
+        cardputer-open-softap-fixture requires runtime=qemu-wifi, Cardputer or
+        Cardputer ADV, and the native open-softap-peer property. The only
+        optional field is capture_pcap=true. A configured runtime ACL must
+        grant network.softap.probe.
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture]
         wifi:
           type: boolean
         ble:
@@ -5959,6 +5993,7 @@ components:
         - serial.read
         - input.write
         - guest.reset
+        - network.softap.probe
         - program.read
         - program.execute
         - program.interrupt

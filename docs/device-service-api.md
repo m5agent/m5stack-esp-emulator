@@ -132,6 +132,7 @@ override the optional `"*"` fallback. The supported operations are:
 - `serial.read`
 - `input.write`
 - `guest.reset`
+- `network.softap.probe`
 - `program.read`
 - `program.execute`
 - `program.interrupt`
@@ -1865,6 +1866,18 @@ wrong credentials are rejected at M2 MIC and retried without DHCP. WPA3-SAE
 returns `unsupported_wifi_security`; WPA2 group-key multicast and RF behavior
 remain outside the current claim.
 
+Cardputer and Cardputer ADV can run a fixed open SoftAP fixture using
+`runtime=qemu-wifi` and `network={"profile":"cardputer-open-softap-fixture"}`.
+It requires a QEMU backend with the `open-softap-peer` property and permission
+`network.softap.probe` when a runtime ACL is configured. The only optional
+network field is `capture_pcap:true`. The peer joins `fixture-ap-test`, obtains
+its lease through the guest DHCP server, resolves the guest by ARP, and reads
+the fixed `/proof` response from port 80. The service uses one per-session
+UNIX socketpair and creates no IP listener or host networking backend for it.
+Guest SSID, addressing, path and response belong to the controlled fixture.
+Protected APs, caller-selected peers, arbitrary firmware portals and RF are
+outside this fixture's scope.
+
 Classic ESP32 boards other than Core2 also accept
 `runtime=qemu-wifi, network.profile=generic-observe`, with the board's native
 `misc.esp32_wifi` MAC and the same explicit AP/security/network policy fields.
@@ -2702,6 +2715,16 @@ audio evidence remain attached to the same session and evidence ZIP.
 For `qemu-wifi`, `native_data_plane` reports passive IPv4 transport evidence
 from the session's own Ethernet pcap. After the session stops, read
 `GET /sessions/{id}/network` again to obtain the finalized receipt.
+
+The open SoftAP fixture includes a `softap_fixture` receipt and the session
+ZIP includes `network/softap-fixture.json`. An active peer can complete its
+fixed exchange before the capture finalizes. The network result reaches
+`PASS` when both that peer and the finalized same-session capture support
+DHCP and bidirectional HTTP. A service reset interrupts the current exchange
+and increments the peer generation after QEMU resets. The capture retains
+traffic across resets. Stopping releases the peer and retains the last
+generation's receipt. After a control service restart, the old anonymous
+socketpair cannot be adopted and the service fences the interrupted session.
 
 ```json
 {

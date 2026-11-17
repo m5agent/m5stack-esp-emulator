@@ -1669,3 +1669,17 @@ synthetic access-point fallback for station mode is retained.
 Apply 0209 after 0208 in the native Xtensa recipe. The Cardputer and
 Cardputer ADV ESP-IDF SoftAP cases reached the guest station-joined event.
 DHCP and portal traffic depend on additional virtual-station data handling.
+
+## ESP32-S3 open SoftAP Ethernet peer (0210)
+
+Apply 0210 after 0209 in the native Xtensa recipe. The
+`open-softap-peer` QOM property enables the controlled station's data path.
+It matches the fixed open fixture SSID, verifies the AP's authentication and
+association status, and keeps SoftAP receive filtering bound to the programmed
+AP interface. Ethernet ingress carries the correct 802.11 address and DS bits.
+DHCP, ARP, and HTTP traverse the guest's Wi-Fi DMA and network stack.
+
+The Device Service binds this profile to a service-owned UNIX socketpair.
+The default station-mode synthetic AP remains available through its original
+profile. Frame handling keeps the open peer scoped to its associated BSSID,
+clears its state on reset, and discards protected SoftAP frames.

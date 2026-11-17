@@ -1,0 +1,474 @@
+{
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "upstream_qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "assembling_project_base": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+  "engine_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+  "engine_patch_sha256": "7e407f3c52c6d84a9e892fe04b0fdee3183579453c22507428a1dfb98037d174",
+  "service_source_sha256": {
+    "device_service.py": "f6b82d68425b49ee712a116901fbd620c1ac6768f697f04ebe36c45a5a417d14",
+    "device_service_softap_peer.py": "bd7b2a7ffa8e85312864a24b24dfe9c1ddc377c751cc9306a3e2e385cf62dbc1",
+    "runtime_acl.py": "2c69bb3d4273712a06e274b6aae57d9a267b17df250f7f19fb223c35161640e5"
+  },
+  "fixed_open_ap_same_session_reset": {
+    "device": "cardputer-adv",
+    "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+    "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+    "status": "ASSOCIATION_OBSERVED",
+    "scope": "service-owned Unix socketpair",
+    "burner_submissions": 0,
+    "peer_receipt": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 1,
+      "status": "PASS",
+      "released": false,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+      "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+    },
+    "peer_receipt_after_reset": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 2,
+      "status": "PASS",
+      "released": false,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+      "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+    },
+    "guest_markers": {
+      "AP_FIXTURE_STARTED": true,
+      "AP_FIXTURE_HTTP_READY": true,
+      "AP_FIXTURE_JOINED": true,
+      "AP_FIXTURE_LEASED": true,
+      "AP_FIXTURE_HTTP_SENT": true
+    },
+    "wifi_frame_counts": {
+      "RX_0_0": 2,
+      "RX_0_11": 2,
+      "RX_2_0": 14,
+      "TX_0_1": 2,
+      "TX_0_11": 2,
+      "TX_0_8": 20,
+      "TX_2_0": 18
+    },
+    "trace_sha256": "fef688ad0b3a7c05a18d0dd93da4b8697909eb1c75d48b7c139aea959c75dca5",
+    "serial_sha256": "f53a12b61f7cab451ea6f9f71359774265daf11654e0b2a8ed3079e9a18cccb1",
+    "zip_peer_matches_network_receipt": true,
+    "before_stop_evidence_sha256": "030e5c9c65ac33cda6ec6ec3151c6ea9a8d726c59312a55e14d47eb2be22fafa",
+    "stopped_lease_released": true,
+    "native_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "5726b855d767deac53126ef340e171a4f2f870df30ded7f68e82332f8e143d55",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 2
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "final_peer_receipt": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 2,
+      "status": "PASS",
+      "released": true,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+      "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+    },
+    "pcap_sha256": "5726b855d767deac53126ef340e171a4f2f870df30ded7f68e82332f8e143d55",
+    "ethernet_packets": 35,
+    "cleanup": true
+  },
+  "concurrent_open_ap_leases": {
+    "scenario": "two-leases",
+    "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+    "caller_policy_rejected": true,
+    "simultaneous_leases": 2,
+    "results": {
+      "cardputer": {
+        "serial_sha256": "8f3cced780b84687b30b10a33d6686b2f15891b3c3e9e004325479c277159915",
+        "peer": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 1,
+          "status": "PASS",
+          "released": true,
+          "dhcp": true,
+          "arp": true,
+          "http": true,
+          "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+          "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+        },
+        "status": "PASS",
+        "transport": {
+          "schema_version": 1,
+          "scope": "same-session-native-ipv4-transport",
+          "source": "ethernet-pcap",
+          "capture_state": "finalized",
+          "capture_sha256": "65b78316bd148eaf8c1c7fcd459346cf27da2ca8ec0d8ab1903733beb2913fa5",
+          "dhcpv4": {
+            "completed_dora_transactions": 1,
+            "leased_address_count": 1
+          },
+          "tcp": {
+            "bidirectional_payload_flows": 1
+          },
+          "udp": {
+            "bidirectional_payload_flows": 0
+          }
+        }
+      },
+      "cardputer-adv": {
+        "serial_sha256": "0952facd087d3a12b5628161bea759771b6f2f7013017a4b275d665fad40fe6a",
+        "peer": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 1,
+          "status": "PASS",
+          "released": true,
+          "dhcp": true,
+          "arp": true,
+          "http": true,
+          "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+          "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+        },
+        "status": "PASS",
+        "transport": {
+          "schema_version": 1,
+          "scope": "same-session-native-ipv4-transport",
+          "source": "ethernet-pcap",
+          "capture_state": "finalized",
+          "capture_sha256": "846bc8c45cde453cda5e9e1ee21772b51c282cf0dfa437323abd0d935ab70728",
+          "dhcpv4": {
+            "completed_dora_transactions": 1,
+            "leased_address_count": 1
+          },
+          "tcp": {
+            "bidirectional_payload_flows": 1
+          },
+          "udp": {
+            "bidirectional_payload_flows": 0
+          }
+        }
+      }
+    },
+    "zero_leases_after_cleanup": true,
+    "service_exited": true
+  },
+  "admission_controls": {
+    "configured_acl": {
+      "scenario": "acl-denied",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+      "error": {
+        "code": "runtime_acl_denied",
+        "status": 403
+      },
+      "zero_leases_after_cleanup": true,
+      "service_exited": true
+    },
+    "old_engine": {
+      "scenario": "old-backend",
+      "runtime_sha256": "eecf42ad4b393a76a9208c644abc2606030b585824b24ae53e5e9ecad2b4d4ed",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+      "error": {
+        "code": "softap_fixture_backend_unavailable",
+        "status": 503
+      },
+      "zero_leases_after_cleanup": true,
+      "service_exited": true
+    }
+  },
+  "ownership_controls": {
+    "shutdown": {
+      "scenario": "shutdown",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+      "restored_state": "stopped",
+      "old_process_released": true,
+      "receipt": {
+        "schema_version": 1,
+        "transport": "unix-socketpair",
+        "generation": 1,
+        "status": "PASS",
+        "released": true,
+        "dhcp": true,
+        "arp": true,
+        "http": true,
+        "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+        "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+      },
+      "zero_leases_after_cleanup": true,
+      "service_exited": true
+    },
+    "restart": {
+      "scenario": "restart",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "25eaf5347edbb7a8e8139830c4e2bf4cd696c0964f30cf969e4a2c52aede9ee2",
+      "restored_state": "failed",
+      "old_process_released": true,
+      "receipt": {
+        "schema_version": 1,
+        "transport": "unix-socketpair",
+        "generation": 1,
+        "status": "INTERRUPTED",
+        "released": true,
+        "dhcp": true,
+        "arp": true,
+        "http": true,
+        "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+        "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6",
+        "stage": "recovery"
+      },
+      "zero_leases_after_cleanup": true,
+      "service_exited": true
+    }
+  },
+  "station_mode_regressions": [
+    {
+      "validation": "virtual-device validation",
+      "device": "cardputer",
+      "scenario": "open",
+      "profile": "generic-observe",
+      "service_commit": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "firmware_sha256": "37e214ffb3d52530e0a9dc22511d4c208dffa73ce137a2a91504f3df0fdac886",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "expected_result": "PASS",
+      "host_http_expected_body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d",
+      "hardware_validation": "NOT RUN",
+      "sta_advertised": {
+        "runtime": "qemu-wifi",
+        "profile": "generic-observe",
+        "operation_assertions": false
+      },
+      "namespace_policy_failed_closed": true,
+      "guest_result": "PASS",
+      "guest_serial_sha256": "6e0bed28b5cbac942195738f4fbee46b52dd08c7b9f5097787dc4fe2bd7d989c",
+      "guest_associated": true,
+      "guest_dhcp": true,
+      "guest_http_body_match": true,
+      "http_requests": [
+        {
+          "allowed": true,
+          "body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d"
+        }
+      ],
+      "pre_stop_capture_status": "CAPTURING",
+      "topology": {
+        "machine": "m5cardputer",
+        "nic": "misc.esp32s3.wifi",
+        "backends": 1,
+        "restrict": "on",
+        "ipv6": "off",
+        "forward": "one fixed fixture-only TCP endpoint"
+      },
+      "qom_wifi_nic_count": 1,
+      "session_stopped": true,
+      "service_network_status": "PARTIAL",
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "3fd8d7fe8d21e556c85829835cf6ace547e9e2f81e5921ce4cba9e1c79530c0c",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "capture_analysis_status": "PASS",
+      "capture_sha256": "3fd8d7fe8d21e556c85829835cf6ace547e9e2f81e5921ce4cba9e1c79530c0c",
+      "capture_packets": 17,
+      "observed_dhcp_dora": true,
+      "fixed_http_tcp_bidirectional": true,
+      "captured_tcp_packets": 8,
+      "captured_udp_packets": 4,
+      "observed_external_destinations": 0,
+      "released": true,
+      "status": "COMPLETE"
+    },
+    {
+      "validation": "virtual-device validation",
+      "device": "cardputer-adv",
+      "scenario": "wpa2",
+      "profile": "generic-observe",
+      "service_commit": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "firmware_sha256": "92e02c8cc9da544dfc24bfe2fe223192847df11a258213e6cb7dd02c471461c7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "expected_result": "PASS",
+      "host_http_expected_body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d",
+      "hardware_validation": "NOT RUN",
+      "sta_advertised": {
+        "runtime": "qemu-wifi",
+        "profile": "generic-observe",
+        "operation_assertions": false
+      },
+      "guest_result": "PASS",
+      "guest_serial_sha256": "a01ae8f5a0c626ab2f1d5a3a59093abaf750cde1ed3df6becb736a9f28c7e151",
+      "guest_associated": true,
+      "guest_dhcp": true,
+      "guest_http_body_match": true,
+      "http_requests": [
+        {
+          "allowed": true,
+          "body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d"
+        }
+      ],
+      "pre_stop_capture_status": "CAPTURING",
+      "topology": {
+        "machine": "m5cardputeradv",
+        "nic": "misc.esp32s3.wifi",
+        "backends": 1,
+        "restrict": "on",
+        "ipv6": "off",
+        "forward": "one fixed fixture-only TCP endpoint"
+      },
+      "qom_wifi_nic_count": 1,
+      "session_stopped": true,
+      "service_network_status": "PARTIAL",
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "b66aafd9fcb0e0db03131d49ac0080e1c5ad200353a9fdfff40bdf9c4988530e",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 1
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "capture_analysis_status": "PASS",
+      "capture_sha256": "b66aafd9fcb0e0db03131d49ac0080e1c5ad200353a9fdfff40bdf9c4988530e",
+      "capture_packets": 17,
+      "observed_dhcp_dora": true,
+      "fixed_http_tcp_bidirectional": true,
+      "captured_tcp_packets": 8,
+      "captured_udp_packets": 4,
+      "observed_external_destinations": 0,
+      "released": true,
+      "status": "COMPLETE"
+    },
+    {
+      "validation": "virtual-device validation",
+      "device": "cardputer-adv",
+      "scenario": "wrong",
+      "profile": "generic-observe",
+      "service_commit": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+      "runtime_sha256": "201c3611d48180ccd78c414a384f0aa1df77abfe4e66fa9706b2da75e0c352d7",
+      "firmware_sha256": "92e02c8cc9da544dfc24bfe2fe223192847df11a258213e6cb7dd02c471461c7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "expected_result": "NO_LEASE",
+      "host_http_expected_body_sha256": "070c783d34868144e37620b284967c59ead89af2130855da1f96b3563c9dd36d",
+      "hardware_validation": "NOT RUN",
+      "sta_advertised": {
+        "runtime": "qemu-wifi",
+        "profile": "generic-observe",
+        "operation_assertions": false
+      },
+      "guest_result": "NO_LEASE",
+      "guest_serial_sha256": "8d552ba881be7bb22d9a3cf744364e0d22abd2aad35eb1469ede193da8f21fc9",
+      "guest_associated": false,
+      "guest_dhcp": false,
+      "guest_http_body_match": false,
+      "http_requests": [],
+      "pre_stop_capture_status": "CAPTURING",
+      "topology": {
+        "machine": "m5cardputeradv",
+        "nic": "misc.esp32s3.wifi",
+        "backends": 1,
+        "restrict": "on",
+        "ipv6": "off",
+        "forward": "one fixed fixture-only TCP endpoint"
+      },
+      "qom_wifi_nic_count": 1,
+      "session_stopped": true,
+      "service_network_status": "PARTIAL",
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+        "dhcpv4": {
+          "completed_dora_transactions": 0,
+          "leased_address_count": 0
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 0
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "capture_analysis_status": "PASS",
+      "capture_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+      "capture_packets": 0,
+      "observed_dhcp_dora": false,
+      "fixed_http_tcp_bidirectional": false,
+      "captured_tcp_packets": 0,
+      "captured_udp_packets": 0,
+      "observed_external_destinations": 0,
+      "released": true,
+      "status": "COMPLETE"
+    }
+  ],
+  "paperdiy_regression": {
+    "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+    "fixture_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "status": "PASS",
+    "events": [
+      "PAPERDIY_CARD_DET gpio=48 level=0",
+      "STORAGE_PROBE_MOUNT seed=1 prior=0",
+      "STORAGE_PROBE_REMOUNT write=1 restored=1",
+      "STORAGE_PROBE_DONE"
+    ],
+    "spi_commands": {
+      "17": 16,
+      "18": 0,
+      "24": 6,
+      "25": 0
+    },
+    "written_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+    "source_card_unchanged": true,
+    "worker_active_leases": 0,
+    "bundle_sha256": "24f4a7e47321248e65559944b49cdd9e6696db74f60cd5fc3a72996868f51d20"
+  }
+}
