@@ -11,6 +11,8 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
+[2026-11-17 会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)记录 UIFlow2 LittleFS、ESP-IDF SPIFFS 与实际复位读回。
+
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
 [2026-11-17 SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)记录初代 Cardputer 与 PaperS3 的 FAT32 读写和初代 Cardputer 的跨会话读回。
 
@@ -375,6 +377,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md) | 证据/差异 | `2026-11-17` | 原生 LittleFS/SPIFFS 挂载和复位读回 |
 | [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md) | 证据/差异 | `2026-11-17` | 实际组合键、触摸、键盘与编码器，保留旧运行时对照 |
 | [初代 Cardputer 与 PaperS3 SPI SD](evidence/2026-11-17-spi-sd-admission/README.md) | 证据/差异 | `2026-11-17` | 同 guest FAT32、跨会话读回、无卡负控 |
 | [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md) | 证据/差异 | `2026-11-16` | 干净重建，原版启动、休眠唤醒、板型和按键 |
