@@ -210,6 +210,7 @@ from network_policy import (  # noqa: E402
     namespace_capability,
     qemu_user_netdev,
 )
+from device_service_wifi_evidence import native_sta_capability, native_sta_data_plane  # noqa: E402
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from runtime_acl import (  # noqa: E402
@@ -4504,11 +4505,14 @@ class DeviceSession:
                 self.http_fixture_log
             )
         evidence["packet_capture"] = self._network_capture_evidence()
+        if self.runtime == QEMU_WIFI_RUNTIME:
+            evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
         previous = self.network_result or {}
         self.network_result = evidence
         if (
             previous.get("status") != evidence.get("status")
             or previous.get("checks") != evidence.get("checks")
+            or previous.get("native_data_plane") != evidence.get("native_data_plane")
         ):
             self._persist_session()
         return evidence
@@ -9769,6 +9773,7 @@ class DeviceService:
         reference_available = spec.reference_available
         backend_ready = spec.backend_ready
         machine = spec.missing_backend_machine if not backend_ready else None
+        native_network = native_sta_capability(spec, backend_ready=backend_ready)
         return {
             "device_id": spec.id,
             "name": spec.name,
@@ -9822,6 +9827,7 @@ class DeviceService:
                     and spec.service_kind == "qemu"
                 ),
             },
+            **({"native_network": native_network} if native_network else {}),
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
             "network_status": spec.network_status,

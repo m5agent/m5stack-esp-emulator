@@ -3369,6 +3369,8 @@ components:
           items:
             type: string
             enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+        native_network:
+          $ref: "#/components/schemas/NativeNetworkCapability"
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -3461,6 +3463,73 @@ components:
         one guest without starting the external BLE peer. network is the
         separate esp-emu diagnostic lane and cannot establish a whole-device
         PASS by itself.
+    NativeNetworkCapability:
+      type: object
+      additionalProperties: false
+      required: [sta]
+      description: >
+        Board-native WiFi station path on ready Cardputer and Cardputer ADV
+        QEMU backends. Worker isolation, firmware and lease admission are
+        checked independently when creating a session.
+      properties:
+        sta:
+          type: object
+          additionalProperties: false
+          required: [runtime, profile, operation_assertions]
+          properties:
+            runtime:
+              const: qemu-wifi
+            profile:
+              const: generic-observe
+            operation_assertions:
+              const: false
+              description: Application-operation assertions are unavailable in this passive transport path.
+    NativeStaDataPlane:
+      type: object
+      additionalProperties: false
+      required: [schema_version, scope, source, capture_state, capture_sha256, dhcpv4, tcp, udp]
+      description: >
+        Passive transport counts from this session. Application-level success
+        requires independent same-session evidence. Interpret the counters
+        only for a finalized and intact Ethernet pcap.
+      properties:
+        schema_version:
+          const: 1
+        scope:
+          const: same-session-native-ipv4-transport
+        source:
+          const: ethernet-pcap
+        capture_state:
+          type: string
+          enum: [capturing, finalized, unavailable]
+        capture_sha256:
+          type: [string, "null"]
+          pattern: "^[a-fA-F0-9]{64}$"
+          description: SHA-256 of the finalized pcap, null for other capture states.
+        dhcpv4:
+          type: object
+          additionalProperties: false
+          required: [completed_dora_transactions, leased_address_count]
+          properties:
+            completed_dora_transactions:
+              type: integer
+              minimum: 0
+            leased_address_count:
+              type: integer
+              minimum: 0
+        tcp:
+          $ref: "#/components/schemas/NativeStaTransportCounts"
+        udp:
+          $ref: "#/components/schemas/NativeStaTransportCounts"
+    NativeStaTransportCounts:
+      type: object
+      additionalProperties: false
+      required: [bidirectional_payload_flows]
+      properties:
+        bidirectional_payload_flows:
+          type: integer
+          minimum: 0
+          description: Distinct reciprocal IPv4 endpoint pairs with payload in both directions and one observed DHCP client address. Excludes DHCP control traffic.
     NetworkEvidence:
       type: object
       additionalProperties: true
@@ -3516,6 +3585,9 @@ components:
             PASS with a hashed pcap summary, CAPTURING while QEMU is running,
             or NOT_RUN with a reason. DHCP summaries distinguish initial DORA,
             renewal requests and correlated ACKs without retaining payloads.
+        native_data_plane:
+          $ref: "#/components/schemas/NativeStaDataPlane"
+          description: Optional passive receipt for qemu-wifi sessions. Preserves the existing network status and profile checks.
         isolation:
           type: object
           additionalProperties: true
