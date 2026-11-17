@@ -17,3 +17,26 @@ vinylM5Dial 1.0 的实际 GPIO、UART 与取帧记录。
 
 这里的播放状态来自 N9301 控制协议。实体 SD、音频解码、实际声音、屏幕修复、
 物理设备和浏览器均未验收。原版整体保持 `SIM_PARTIAL`。
+
+## 2026-11-18 原版音频数据面的复验
+
+在 `5f8e2f8f` 服务和无跟踪的原生 QEMU 上，同一原版 R1F30 在 PORT.B 启动，
+产生非黑 240×240 画面。
+七曲目索引夹具上电后收到全盘循环指令 `0bf402010002`，原版发出第 1 轨的播放命令。
+默认 35 ms 旋转 +3、−2 交付 12、8 条 GPIO 边沿，Unit 收到第 4、2 轨的索引命令。
+这段结果验证到选曲和播放控制。见[逐项证据](audio-media-boundary.json)。
+
+独立解码确认有效的 440 Hz、16 kHz 单声道 s16le WAV 上传成功，传给 Unit 的媒体
+字段被拒绝（HTTP 400 `invalid_unit_input`）。同一会话读取 `audio.pcm` 和提交
+`audio.inject` 均返回 HTTP 409 `audio_unsupported`。这两个接口服务于 Cardputer 系列
+的 SoC 音频。证据包含 Unit 状态、UART 控制记录和画面，音频条目为空。首次运行在
+来宾完成选曲后，取帧分析因验证环境缺少 Pillow 中断；补齐依赖后重新冷启动完成取证。
+两次均已停止会话、释放 Flash 与租约。
+
+按上方方法挂载七曲目索引夹具，上传 0.5 秒的 440 Hz WAV。固定样本按
+`round(10000 * sin(i * tau * 440 / 16000))` 写入单声道 s16le WAV。用同一固件
+创建会话时，在 Unit 的 `initial` 里加入 `media-artifact-id` 验证 400，再按既有字段
+启动正常会话，完成 +3、−2 后调用两个音频接口并导出证据包。U197 的 microSD、
+MP3/WAV 解码及 3.5 mm 输出位于 Unit 内。实际音频路径仍需 Unit 媒体与解码后的 PCM 证据。
+[U197 官方规格](https://docs.m5stack.com/en/unit/Unit_AudioPlayer) ·
+[N9301 UART 协议](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1155/Unit-AudioPlayer-Protocol-CN.pdf)

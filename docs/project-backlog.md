@@ -74,7 +74,9 @@
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
-   已验证真实 UART、官方驱动与原版旋钮换曲，实际音频和多目录操作仍开放。CoreS3 Port A 的 U024 在审核端已用同一 BIN 验证两组 X/Y/按键读值。
+   仍需接入 Unit 自有的媒体和 PCM 数据面及多目录操作。[同一原版的音频准入复验](evidence/2026-11-17-dial-audioplayer/README.md#2026-11-18-原版音频数据面的复验)
+   保留索引播放控制与音频接口负对照。后续需验收不同曲目的样本读回、暂停、恢复和原版设置的全盘循环。
+   CoreS3 Port A 的 U024 在审核端已用同一 BIN 验证两组 X/Y/按键读值。
    继续补 NFC、其他 Joystick 接线和外接收发控制器的 I2C/SPI 数据面。[Cardputer、ADV 的 WAV/PCM API](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)
    已通过同会话替换 WAV、来宾录音和 I2S1 PCM 捕获。审核端已用[原版 MP3](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)验证播放、断言失败及取证不足三种结果。继续验证其他音频固件与板型的 PCM、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY

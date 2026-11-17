@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "scope": "Native N9301 UART and local audio media admission on Dial",
+  "result": {
+    "uart_control": "PASS",
+    "unit_media_data_plane": "UNSUPPORTED",
+    "unit_pcm": "NOT RUN"
+  },
+  "device_service_source_commit": "5f8e2f8fe97d2d76553efdf03068a8c3dcf83727",
+  "native_runtime_sha256": "0b871bcd43a74d7c4d303e07ae496c0a673c9cc9d62911318de7d96bad1955be",
+  "firmware": {
+    "name": "vinylM5Dial 1.0 R1F30",
+    "sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf"
+  },
+  "session_profile": {
+    "device_id": "dial",
+    "runtime": "qemu",
+    "unit_id": "audioplayer",
+    "port_id": "port-b"
+  },
+  "uploaded_fixture": {
+    "sha256": "3a874380dfda1b7421bbd3d3c95d7fbbf081daeca5db1ecf4232e6d2c07081a0",
+    "bytes": 16044,
+    "rate": 16000,
+    "channels": 1,
+    "sample_bytes": 2,
+    "frames": 8000,
+    "tone_hz": 440,
+    "container": "WAV",
+    "format": "pcm_s16le",
+    "duration_seconds": 0.5,
+    "independent_decode": "ffmpeg",
+    "decoded_pcm_sha256": "c034ffe91d3b88ab76c67a6098f3dc22f37e31cbbbe1de6e34eeaf32c689380a",
+    "amplitude_counts": 10000
+  },
+  "first_harness_attempt": {
+    "result": "INCOMPLETE",
+    "failure": "Pillow was missing from the harness environment during framebuffer analysis",
+    "receipt_sha256": "7d69b4788a14cc5d154d68b7058e3375e70debe030827729ba74f4cbeafb9ac9",
+    "harness_log_sha256": "263d26352d9a26c01b35039ce15c54f455142cbbb6f257b8a5d684c963bc2d32",
+    "unit_media_mount": {
+      "http_status": 400,
+      "error": {
+        "code": "invalid_unit_input",
+        "message": "unknown input fields: media-artifact-id"
+      }
+    },
+    "selected_tracks": [
+      1,
+      4,
+      2
+    ],
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "leases": 0,
+      "service_exited": true
+    }
+  },
+  "repeat": {
+    "receipt_sha256": "13ecbf6ff189cf79c516dec1587c6541469b5a4fd9da40089623c5c13bfd691f",
+    "unit_media_mount": {
+      "http_status": 400,
+      "error": {
+        "code": "invalid_unit_input",
+        "message": "unknown input fields: media-artifact-id"
+      }
+    },
+    "session_audio_pcm": {
+      "http_status": 409,
+      "error": {
+        "code": "audio_unsupported",
+        "message": "audio routes require a native Cardputer or Cardputer ADV session"
+      }
+    },
+    "session_audio_inject": {
+      "http_status": 409,
+      "error": {
+        "code": "audio_unsupported",
+        "message": "audio routes require a native Cardputer or Cardputer ADV session"
+      }
+    },
+    "guest_input_and_playback_commands": [
+      {
+        "event": "auto_play",
+        "track": 1,
+        "guest_tx": "04fb01080804fb010d0d0bf40201000206f902010b0d04fb0306000109"
+      },
+      {
+        "expected": 4,
+        "before": 1,
+        "track": 4,
+        "track_match": true,
+        "delta": 3,
+        "edge_period_ms": 35,
+        "gpio_edges": 12,
+        "playback_status": 1,
+        "guest_uart_append": "04fb01000004fb030600040c",
+        "guest_indexed_play": "04fb030600040c"
+      },
+      {
+        "expected": 2,
+        "before": 4,
+        "track": 2,
+        "track_match": true,
+        "delta": -2,
+        "edge_period_ms": 35,
+        "gpio_edges": 8,
+        "playback_status": 1,
+        "guest_uart_append": "04fb030600020a",
+        "guest_indexed_play": "04fb030600020a"
+      }
+    ],
+    "uart_controller": {
+      "tx-hex": "04fb01080804fb010d0d0bf40201000206f902010b0d04fb030600010904fb01000004fb030600040c04fb030600020a",
+      "rx-hex": "04fb030e000212",
+      "frames-sent": 8,
+      "frames-injected": 6,
+      "media-track-count": 7,
+      "selected-track": 2,
+      "playback-status": 1,
+      "volume": 11,
+      "loop-mode": 0,
+      "invalid-frames": 0
+    },
+    "final_frame": {
+      "size": [
+        240,
+        240
+      ],
+      "nonblack": 57600,
+      "unique_colors": 169,
+      "sha256": "ce98088c4b34c486232c5a50962b4b0f1e778027d0d475ff9176937208273128"
+    },
+    "evidence_zip_sha256": "acb49850bede8385d69ba05b97acba2862c043be5d7bbd3a48fafde0aec18c22",
+    "evidence_zip_audio_entries": [],
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "leases": 0,
+      "service_exited": true
+    }
+  }
+}
