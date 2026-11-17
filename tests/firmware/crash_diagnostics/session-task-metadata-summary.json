@@ -1,0 +1,149 @@
+{
+  "status": "PASS",
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "device": "core2",
+  "format": "esp32_xtensa_elf32_crc32",
+  "runtime": "qemu",
+  "device_service_base": "a0fa14ae26f047fe4bef2c53681f9ea61b13eb8e",
+  "idf": {
+    "version": "5.5.4",
+    "commit": "735507283d5b2f9fb363a1901172dbd9e847945d"
+  },
+  "xtensa_runtime_sha256": "528ab418daedc9dab895fcebd4092b1a284563513c8ed7aca06b06527b58061a",
+  "module_sha256": {
+    "esp32_freertos_task_details.py": "0e4b4549dc9dcb519951128c46d4f430a80d9da656fa9f2a900a50aaadb18e96",
+    "esp32_uart_coredump.py": "e8b377853c0b1e3ae65f0796b8050042db2ebd9b0c6c3e2cfdb2518465b29f52",
+    "device_service.py": "05970b6df644178ecde4db0fba45797f4083484fb30f9c463dbfe70116228052",
+    "device_service_crash.py": "e77dc427873b3754c72de5e7aa991d3ea3530c3e5d430d2e0cd1847bf2a91953"
+  },
+  "parser_bundle": {
+    "pyelftools_version": "0.33",
+    "elf_reader_sha256": "2615f5052b79d8f5065f5739920b5f29aafd4831e4915a8983030ebe1cc978cf",
+    "scope": "optional module in the Device Service Python bundle"
+  },
+  "cases": {
+    "abort": {
+      "status": "PASS",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "other_elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "bundle_sha256": "8c39a34dfad9ae01c264294249d7bc6c7bb674220aa22e572fd3e1429c5569d3",
+      "api_zip_exact_receipt_equal": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "pcsps_preserved": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "isolated_service_exited": true,
+      "panic_kind": "panic",
+      "panic_core": 1,
+      "core_dump_sha256": "5de168b71fbaee6af21ddce5d8f5362d7b7443c370abccf8b41b3edc6d5f3070",
+      "task_context_count": 6,
+      "metadata": {
+        "status": "decoded",
+        "source": "matched_elf_dwarf_and_core_dump_tcb",
+        "complete_tasks": 6
+      },
+      "crashed_task": {
+        "pc": "0x400851e0",
+        "sp": "0x3ffb6720",
+        "metadata": {
+          "name": "fixture_fault",
+          "priority": 2,
+          "base_priority": 2,
+          "stack": {
+            "source": "tcb_saved_stack_bounds",
+            "used_bytes": 1696,
+            "free_bytes": 2396
+          }
+        }
+      },
+      "retained_after_service_restart": true,
+      "offline_tool": "espcoredump.py v1.17.2 and Xtensa GDB",
+      "offline_all_task_fields_match": true
+    },
+    "watchdog": {
+      "status": "PASS",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "other_elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "bundle_sha256": "022d9559160bad4939f062c3f2854d9d661d52333f00eb1ccc2ea3727802fcf5",
+      "api_zip_exact_receipt_equal": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "pcsps_preserved": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "isolated_service_exited": true,
+      "panic_kind": "watchdog",
+      "panic_core": 1,
+      "core_dump_sha256": "17adb0c55ee70c298e607c996a37d5091636269f87c4e293334bbde710c26566",
+      "task_context_count": 5,
+      "metadata": {
+        "status": "decoded",
+        "source": "matched_elf_dwarf_and_core_dump_tcb",
+        "complete_tasks": 5
+      },
+      "crashed_task": {
+        "pc": "0x400d7d1b",
+        "sp": "0x3ffb67d0",
+        "metadata": {
+          "name": "fixture_fault",
+          "priority": 2,
+          "base_priority": 2,
+          "stack": {
+            "source": "tcb_saved_stack_bounds",
+            "used_bytes": 1696,
+            "free_bytes": 2396
+          }
+        }
+      },
+      "retained_after_service_restart": true,
+      "offline_tool": "espcoredump.py v1.17.2 and Xtensa GDB",
+      "offline_all_task_fields_match": true
+    },
+    "no-dwarf": {
+      "status": "PASS",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "other_elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "bundle_sha256": "e8514c89c6c969a266bbc4e7426c91958ec0fb3c7af6ab2cdd1bc86467e53b49",
+      "api_zip_exact_receipt_equal": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "pcsps_preserved": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "isolated_service_exited": true,
+      "panic_kind": "panic",
+      "panic_core": 1,
+      "core_dump_sha256": "8c58ffc594f19124fd58bc512ef0dc40f7ef85487da49f5d59ee4c263d06f276",
+      "task_context_count": 6,
+      "metadata": {
+        "status": "unavailable",
+        "reason": "pyelftools_unavailable"
+      },
+      "crashed_task": {
+        "pc": "0x400851e0",
+        "sp": "0x3ffb6720"
+      }
+    }
+  },
+  "limits": {
+    "hardware": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "c6_task_metadata": "NOT RUN",
+    "stack_metric": "saved TCB pointer distances in bytes",
+    "stack_unwinding": "NOT RUN"
+  }
+}

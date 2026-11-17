@@ -161,6 +161,18 @@ ROM。覆盖不替代 eFuse、参考固件或 target smoke test；主机架构�
 - esptool、littlefs-python、Bumble 等 `.work/py` 依赖；
 - 每台设备的参考 UIFlow2 固件。
 
+Core2 UART 转储的可选 FreeRTOS 任务详情需要 `pyelftools`。将已验证的
+包加入服务使用的 Python 依赖目录，并在冻结发布时一并保留。仓库默认依赖
+路径的安装和导入检查如下。
+
+```sh
+python3 -m pip install --target .work/py pyelftools==0.33
+PYTHONPATH=.work/py python3 -c 'import elftools; print(elftools.__version__)'
+```
+
+如果部署使用自定义 Python 依赖目录，使用该实际目录安装和检查。
+缺少该包时保留崩溃任务的 PC/SP 与现有 ELF 符号解析。
+
 不同补丁有明确的基线和顺序，见
 `patches/qemu-m5stack-peripherals/README.md` 和各子目录 README。重建后必须
 保留完整构建证据，并在目标架构上跑设备级 smoke test。不要把“已经 clone”

@@ -3301,8 +3301,20 @@ also agrees with the dump application note, task PC symbol ranges appear
 under `core_dump.decoding.symbols`. This symbol lookup is separate from the
 panic register and backtrace symbols. Unsupported or damaged data returns
 `decoding.status=unavailable` with a reason, while the original delimiter
-observation is retained. Task names, priorities and stack usage are available
-via the [local offline decoder](../tests/firmware/crash_diagnostics/README.md).
+observation is retained.
+
+For a native Core2 CRC32 dump, the exact matching application ELF can also
+provide the ESP-IDF 5.5 FreeRTOS TCB field layout from uncompressed DWARF 4.
+With the optional `pyelftools` runtime dependency, the receipt combines
+that layout with unique captured TCB memory. A task may report `metadata.name`,
+`metadata.priority`, `metadata.base_priority` and optional
+`metadata.stack.used_bytes/free_bytes`. Stack values are byte distances
+from the saved TCB stack pointer to its upper and lower bounds. They do
+not measure high-water marks or walk the stack. Partial or unavailable
+metadata leaves saved PC/SP and symbolization intact. An absent or
+mismatched ELF does not expose metadata. The
+[local offline decoder](../tests/firmware/crash_diagnostics/README.md)
+remains available for independently checking the same Core2 artifacts.
 Flash dumps, other chips and the remaining UART formats have status observations only.
 
 ### Live native CPU PCs

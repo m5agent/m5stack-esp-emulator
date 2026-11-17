@@ -5959,6 +5959,34 @@ components:
                   context_status: {enum: [captured, sdk_placeholder]}
                   pc: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
                   sp: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
+                  metadata:
+                    type: object
+                    additionalProperties: false
+                    description: From captured Core2 TCB bytes using the exact matching ELF layout.
+                    required: [name, priority, base_priority]
+                    properties:
+                      name: {type: string, minLength: 1, maxLength: 63, pattern: '^[ -~]+$'}
+                      priority: {type: integer, minimum: 0, maximum: 255}
+                      base_priority: {type: integer, minimum: 0, maximum: 255}
+                      stack:
+                        type: object
+                        additionalProperties: false
+                        description: Byte distances calculated from saved TCB stack bounds.
+                        required: [source, used_bytes, free_bytes]
+                        properties:
+                          source: {const: tcb_saved_stack_bounds}
+                          used_bytes: {type: integer, minimum: 0, maximum: 1048576}
+                          free_bytes: {type: integer, minimum: 0, maximum: 1048576}
+            task_metadata:
+              type: object
+              additionalProperties: false
+              description: Optional Core2 metadata result for an exact matching app ELF.
+              required: [status]
+              properties:
+                status: {enum: [decoded, partial, unavailable]}
+                source: {const: matched_elf_dwarf_and_core_dump_tcb}
+                complete_tasks: {type: integer, minimum: 0, maximum: 64}
+                reason: {enum: [pyelftools_unavailable, unsupported_or_invalid_task_layout, task_memory_unavailable]}
             symbols:
               type: object
               description: The same address symbol structure as CrashDiagnostics.symbols.

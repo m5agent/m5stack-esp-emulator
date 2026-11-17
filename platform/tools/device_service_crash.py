@@ -212,13 +212,13 @@ def _s3_iwdt_stage0_observation(stderr: str) -> dict | None:
 
 def crash_console_observations(
     path: Path, stderr: str, captured: bytes | None = None, *, native_s3: bool = False,
-    core_dump_chip_id: int | None = None,
+    core_dump_chip_id: int | None = None, capture_task_core: Callable[[bytes], None] | None = None,
 ) -> tuple[dict, dict]:
     """Use one bounded tail and, if useful, the fixed console prefix."""
     if captured is not None:
         return _crash_console_snapshot(
             len(captured), lambda offset, size: captured[offset:offset + size], stderr,
-            native_s3=native_s3, core_dump_chip_id=core_dump_chip_id,
+            native_s3=native_s3, core_dump_chip_id=core_dump_chip_id, capture_task_core=capture_task_core,
         )
     try:
         with path.open("rb") as stream:
@@ -230,20 +230,24 @@ def crash_console_observations(
 
             return _crash_console_snapshot(
                 size, read, stderr, native_s3=native_s3, core_dump_chip_id=core_dump_chip_id,
+                capture_task_core=capture_task_core,
             )
     except OSError:
         return {"status": "unavailable", "bytes": 0}, serial_crash_observations("", stderr, native_s3=native_s3)
 
 
 def _crash_console_snapshot(
-    size: int, read: Callable[[int, int], bytes], stderr: str, *, native_s3: bool, core_dump_chip_id: int | None,
+    size: int, read: Callable[[int, int], bytes], stderr: str, *, native_s3: bool,
+    core_dump_chip_id: int | None, capture_task_core: Callable[[bytes], None] | None,
 ) -> tuple[dict, dict]:
     offset = max(0, size - CRASH_OUTPUT_LIMIT)
     tail = read(offset, size - offset)
     source, console = _output_sample(tail, offset, truncated=offset > 0)
     observed = serial_crash_observations(console, stderr, native_s3=native_s3)
     if core_dump_chip_id is not None and observed["core_dump"]["status"] == "uart_reported_complete":
-        observed["core_dump"]["decoding"] = _decode_uart_task_contexts(console, observed["panic"], core_dump_chip_id)
+        observed["core_dump"]["decoding"] = _decode_uart_task_contexts(
+            console, observed["panic"], core_dump_chip_id, capture_task_core=capture_task_core,
+        )
     if not offset or observed["panic"] is not None or len(tail) != size - offset:
         return source, observed
     try:
@@ -395,7 +399,10 @@ def uart_dump_after_panic(console: str, panic: dict) -> tuple[bytes, str]:
     return b"".join(base64.b64decode(line, validate=True) for line in payload), prefix
 
 
-def _decode_uart_task_contexts(console: str, panic: dict | None, chip_id: int) -> dict:
+def _decode_uart_task_contexts(
+    console: str, panic: dict | None, chip_id: int, *,
+    capture_task_core: Callable[[bytes], None] | None,
+) -> dict:
     if panic is None:
         return {"status": "unavailable", "reason": "panic_unavailable"}
     try:
@@ -403,7 +410,7 @@ def _decode_uart_task_contexts(console: str, panic: dict | None, chip_id: int) -
     except ValueError:
         return {"status": "unavailable", "reason": "invalid_or_unbound_uart_transfer"}
     try:
-        return decode_task_contexts(dump, prefix, chip_id=chip_id)
+        return decode_task_contexts(dump, prefix, chip_id=chip_id, capture_core=capture_task_core)
     except ValueError:
         return {"status": "unavailable", "reason": "unsupported_or_invalid_dump"}
 
