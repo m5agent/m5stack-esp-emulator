@@ -1131,6 +1131,10 @@ Important fields:
   those profiles are absent.
 - `network_console` reports the generic-firmware console default declared by
   the device matrix, such as `usb-jtag` for C6 UIFlow2.
+- Ready native QEMU backends for `cardputer` and `cardputer-adv` advertise
+  `native_network.sta` with `runtime=qemu-wifi`, `profile=generic-observe`
+  and `operation_assertions=false`. This advertises the board's station path.
+  Check worker and network-isolation admission when creating the lease.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
   used by the validated Tab5 runtime.
 
@@ -2670,6 +2674,33 @@ therefore retains the markers observed at the end of its run instead of the
 initial empty-serial `PARTIAL` result. For a unified session this endpoint
 describes the radio slice of the same guest; frame, input, device-state and
 audio evidence remain attached to the same session and evidence ZIP.
+
+For `qemu-wifi`, `native_data_plane` reports passive IPv4 transport evidence
+from the session's own Ethernet pcap. After the session stops, read
+`GET /sessions/{id}/network` again to obtain the finalized receipt.
+
+```json
+{
+  "schema_version": 1,
+  "scope": "same-session-native-ipv4-transport",
+  "source": "ethernet-pcap",
+  "capture_state": "finalized",
+  "capture_sha256": "8093d0d0dca631b3dce244ed9cfaf73823633fe50e1ca1f1c085d55a2878b8b1",
+  "dhcpv4": {"completed_dora_transactions": 1, "leased_address_count": 1},
+  "tcp": {"bidirectional_payload_flows": 1},
+  "udp": {"bidirectional_payload_flows": 0}
+}
+```
+
+`finalized` binds the counters to a complete, supported capture. `capturing`
+and `unavailable` return a null digest and zero default counters. Only a
+finalized zero describes the contents of a capture. DHCPv4 counts require an
+ordered discover, offer, request and acknowledgment for one transaction with
+a consistent lease. TCP and UDP counts require payload in both directions on
+exactly reversed IPv4 address and port pairs with one leased address. UDP
+counts exclude DHCP control traffic. The receipt contains counts and a hash.
+Application operations still require their own same-session assertions, and
+the existing network status and profile checks retain their meaning.
 
 `network.net_mode` accepts `user` or `user,restrict=yes`. Validated test
 profiles default to `user`; callers may explicitly select restricted mode.
