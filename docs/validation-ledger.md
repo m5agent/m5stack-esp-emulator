@@ -14,6 +14,17 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 原版正常启动与无 ELF 取帧
+
+[同一原版 BIN 对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)固定
+Device Service `c53750bf`，98TAB5 原版 SHA `ea4fb088…` 在 `0.50.0/a4c3468a…`
+的 60 秒观察目标内单次启动、没有软件复位，但 29 次帧请求因缺少匹配 ELF 拒绝。
+`1.1.0/633a35f9…` 的 DSI + GT911 配置取得连接，29 次帧请求均没有完整帧，
+串口记录 32 次启动、31 次软件复位。CarPlay 原版 SHA `4f3bb118…` 在后一配置
+取得 14 个有效 720×1280 帧。ZIP、完整 source/runtime/firmware SHA 和实际采样
+跨度在摘要中；三个会话及服务均已清理。未连接调试器或发送输入。新旧配置
+同时改变运行时与板级/取帧路径，重复复位根因未定；98TAB5 的 OTA 应用身份
+解析和正常显示仍开放。
 
 ## 2026-11-18 经典 Core2 隔离 HTTP
 
@@ -21,12 +32,20 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 经典 ESP32 探针与 Linux arm64 QEMU。审核执行计划、准入与回读覆盖显式 HTTP
 夹具。只有允许 Host 收到 HTTP 200 和准确正文，拒绝 Host 收到 403。两次 DHCP、
 DNS 和二进制 UDP 均通过。缺少命名空间能力在租约分配前拒绝。
+
 ## 2026-11-18 Core2 与 Nesso N1 的原生内部 LittleFS
 
 [两种芯片的六个会话](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)
 各用 ESP-IDF 5.5.4 的来宾实际挂载并写入。停止且保留 Flash 后，重启隔离服务并
 导出同一分区，两次导出 ID 相同。新会话读到旧写入，原始种子对照无旧写入。
 同会话 ZIP 内分区哈希一致，分区外 Flash 不变，六个租约全部释放。
+
+## 2026-11-18 Dial 原版快转的 GPIO 读回
+
+[两次冷启动](evidence/2026-11-18-dial-fast-rotary/README.md#原版实际读取-gpio-的复验)
+验证默认 35 ms 选曲 18/18、显式 5 ms 选曲 15/18。三次漏选均交付完整的 GPIO
+相序，按来宾实际读值重算的计数与 UART 选曲一致。5 ms 整圈仍为 PARTIAL，
+来宾轮询间隔的成因继续开放。
 
 ## 2026-11-18 经典 Core2 受控 STA
 

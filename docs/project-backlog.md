@@ -65,6 +65,7 @@
    断言，保持现有网络授权及隔离约束。
 4. **P0 Tab5 取帧与输入**。[Arduventure 原版取帧与 GT911 单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)已走匹配板型和实际输入。[ST7123 单点](evidence/2026-11-17-tab5-st7123-touch/README.md)已验证 Arduventure A/B 与四方向。继续对照 M5TabOS/98TAB5 启动路径，[ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已验证连续触点和原版关机请求；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已验证 ST7123 单点轨迹与释放；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已验证原版 Arduventure 关机和显式重启；继续补原版 ST7123 拖动语义、多点、其他板型电源路径、
    [并发取帧复验](evidence/2026-11-17-tab5-power-latch/README.md)已验证缓冲读取和同一帧 PNG 复用。
+   [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)已保留同原 BIN 的旧版无 ELF 取帧限制、新版 DSI 已连接但重复复位/无完整帧，以及 CarPlay 显示正对照；仍需定位配置差异的实际原因并补 OTA 应用身份解析，不能归因固件或据连接状态认定应用就绪。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、

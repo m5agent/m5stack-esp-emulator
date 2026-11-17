@@ -36,6 +36,8 @@
 
 [2026-11-16 Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md)记录触摸探测、USB 断言和新版 P4 CSR 阻断。
 
+[2026-11-18 Tab5 原版正常启动取帧对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)记录 98TAB5 新旧后端、CarPlay 无 ELF 显示正对照，以及 OTA 应用身份与重复复位的未解决边界。
+
 [2026-11-14 UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md)分开记录真实配对码、云端身份拒绝、授权身份及协议 PONG 超时；稳定身份不替代云端绑定。
 
 [2026-11-14 云端身份能力与回执复验](evidence/2026-11-14-cloud-identity-capability/README.md)记录旧服务兼容性、真实网页默认身份与授权身份、观察器失败及独立复测。
@@ -404,6 +406,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md) | 证据/差异 | `2026-11-18` | 原版 16 MiB 提前拒绝与官方 8 MiB 对照 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
 | [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |
+| [Tab5 原版正常启动取帧对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md) | 原生来宾证据 | `2026-11-18` | 98TAB5 新旧配置、CarPlay 无 ELF 显示正对照和未解决的 OTA 身份/重复复位 |
 | [UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md) | 日期化协议诊断与身份验证 | `2026-11-14` | 区分配对码、身份拒绝、持久身份及云端 control Pong 缺失；不授长期连接通过 |
 | [C6 中断修复后完整原生回归](evidence/2026-11-14-c6-gpio-irq/native-matrix/README.md) | 日期化矩阵证据 | `2026-11-14` | 70/70、单 attempt、原执行分区与源码/运行时绑定；原版应用和部署另验 |
 | [C6 普通 GPIO 中断](evidence/2026-11-14-c6-gpio-irq/README.md) | 日期化控制器与原驱动验收 | `2026-11-14` | 同 BIN 新旧 ISR、原版 UIFlow 执行分区、复位及共享 pad；BMI/FT 精确时序仍开放 |
