@@ -1,0 +1,516 @@
+{
+  "date": "2026-11-17",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "source_commit": "271524908363e8666148a7b60932fcaf01b5d5ff",
+  "device_id": "core2",
+  "runtime": "native qemu",
+  "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "cases": {
+    "abort": {
+      "scenario": "abort",
+      "qemu_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "other_elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "observation": {
+        "status": "observed",
+        "panic": {
+          "kind": "panic",
+          "core": 1,
+          "reason": "abort",
+          "line": "abort() was called at PC 0x400d7d17 on core 1",
+          "core_unassigned_backtrace": [],
+          "elf_sha256_prefix": "1efaa3064",
+          "abort_call_site_pc": "0x400d7d17"
+        },
+        "cpus": [
+          {
+            "core": 1,
+            "backtrace": [
+              {
+                "pc": "0x400851dd",
+                "sp": "0x3ffb6720"
+              },
+              {
+                "pc": "0x400851a5",
+                "sp": "0x3ffb6740"
+              },
+              {
+                "pc": "0x4008b13d",
+                "sp": "0x3ffb6760"
+              },
+              {
+                "pc": "0x400d7d17",
+                "sp": "0x3ffb67d0"
+              },
+              {
+                "pc": "0x40085bad",
+                "sp": "0x3ffb67f0"
+              }
+            ]
+          }
+        ],
+        "core_dump": {
+          "status": "uart_reported_complete"
+        },
+        "elf": {
+          "status": "matched",
+          "reported_sha256_prefix": "1efaa3064",
+          "artifact_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+          "expected_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+          "symbolization_eligible": true
+        },
+        "symbols": {
+          "status": "decoded",
+          "source": "matched_xtensa_elf_function_ranges",
+          "addresses": [
+            {
+              "pc": "0x400851a5",
+              "status": "resolved",
+              "function": "esp_system_abort",
+              "offset": 5
+            },
+            {
+              "pc": "0x400851dd",
+              "status": "resolved",
+              "function": "panic_abort",
+              "offset": 13
+            },
+            {
+              "pc": "0x40085bad",
+              "status": "resolved",
+              "function": "vPortTaskWrapper",
+              "offset": 5
+            },
+            {
+              "pc": "0x4008b13d",
+              "status": "resolved",
+              "function": "abort",
+              "offset": 137
+            },
+            {
+              "pc": "0x400d7d17",
+              "status": "resolved",
+              "function": "trigger_fault",
+              "offset": 27
+            }
+          ]
+        },
+        "boot": {
+          "rom_banners": 1,
+          "idf_banners": 1,
+          "reboot_requests": 0,
+          "reset_reports": [
+            {
+              "code": "0x1",
+              "reason": "POWERON_RESET"
+            }
+          ]
+        }
+      },
+      "bundle_sha256": "5c3d4d70a1186bd05321faf41ad9edafe12d15834f5dc8cbad60ecc887f7bdc9",
+      "zip_crc_verified": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "isolated_service_exited": true
+    },
+    "watchdog": {
+      "scenario": "watchdog",
+      "qemu_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "other_elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "observation": {
+        "status": "observed",
+        "panic": {
+          "kind": "watchdog",
+          "core": 1,
+          "reason": "Interrupt wdt timeout on CPU1",
+          "line": "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).",
+          "core_unassigned_backtrace": [],
+          "elf_sha256_prefix": "1916d0ba9"
+        },
+        "cpus": [
+          {
+            "core": 0,
+            "pc": "0x4000bfea",
+            "register": "PC",
+            "pc_source": "guest_register_dump",
+            "backtrace": [
+              {
+                "pc": "0x4000bfe7",
+                "sp": "0x3ffb12c0"
+              },
+              {
+                "pc": "0x40085d1d",
+                "sp": "0x3ffb12d0"
+              },
+              {
+                "pc": "0x40086cdf",
+                "sp": "0x3ffb12f0"
+              },
+              {
+                "pc": "0x40086343",
+                "sp": "0x3ffb1310"
+              },
+              {
+                "pc": "0x40086031",
+                "sp": "0x3ffb1330"
+              },
+              {
+                "pc": "0x40082a66",
+                "sp": "0x3ffb1340"
+              },
+              {
+                "pc": "0x40083da3",
+                "sp": "0x3ffb5180"
+              },
+              {
+                "pc": "0x400e0067",
+                "sp": "0x3ffb51a0"
+              },
+              {
+                "pc": "0x400869aa",
+                "sp": "0x3ffb51c0"
+              },
+              {
+                "pc": "0x40085bad",
+                "sp": "0x3ffb51e0"
+              }
+            ]
+          },
+          {
+            "core": 1,
+            "pc": "0x400d7d19",
+            "register": "PC",
+            "pc_source": "guest_register_dump",
+            "backtrace": [
+              {
+                "pc": "0x400d7d16",
+                "sp": "0x3ffb67d0"
+              },
+              {
+                "pc": "0x40085bad",
+                "sp": "0x3ffb67f0"
+              }
+            ]
+          }
+        ],
+        "core_dump": {
+          "status": "uart_reported_complete"
+        },
+        "elf": {
+          "status": "matched",
+          "reported_sha256_prefix": "1916d0ba9",
+          "artifact_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+          "expected_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+          "symbolization_eligible": true
+        },
+        "symbols": {
+          "status": "partial",
+          "source": "matched_xtensa_elf_function_ranges",
+          "addresses": [
+            {
+              "pc": "0x4000bfe7",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x4000bfea",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40082a66",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40083da3",
+              "status": "resolved",
+              "function": "esp_cpu_wait_for_intr",
+              "offset": 3
+            },
+            {
+              "pc": "0x40085bad",
+              "status": "resolved",
+              "function": "vPortTaskWrapper",
+              "offset": 5
+            },
+            {
+              "pc": "0x40085d1d",
+              "status": "resolved",
+              "function": "xPortInIsrContext",
+              "offset": 29
+            },
+            {
+              "pc": "0x40086031",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40086343",
+              "status": "resolved",
+              "function": "xPortSysTickHandler",
+              "offset": 15
+            },
+            {
+              "pc": "0x400869aa",
+              "status": "resolved",
+              "function": "prvIdleTask",
+              "offset": 6
+            },
+            {
+              "pc": "0x40086cdf",
+              "status": "resolved",
+              "function": "xTaskIncrementTick",
+              "offset": 27
+            },
+            {
+              "pc": "0x400d7d16",
+              "status": "resolved",
+              "function": "trigger_fault",
+              "offset": 26
+            },
+            {
+              "pc": "0x400d7d19",
+              "status": "resolved",
+              "function": "trigger_fault",
+              "offset": 29
+            },
+            {
+              "pc": "0x400e0067",
+              "status": "resolved",
+              "function": "esp_vApplicationIdleHook",
+              "offset": 43
+            }
+          ]
+        },
+        "boot": {
+          "rom_banners": 1,
+          "idf_banners": 1,
+          "reboot_requests": 0,
+          "reset_reports": [
+            {
+              "code": "0x1",
+              "reason": "POWERON_RESET"
+            }
+          ]
+        }
+      },
+      "bundle_sha256": "9bf510e2ea48b9cfdc46db3e277551f5528308ea08151a66e868f54b2e927134",
+      "zip_crc_verified": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "isolated_service_exited": true
+    },
+    "retention_after_service_restart": {
+      "scenario": "watchdog",
+      "qemu_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "status": "PASS",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+      "other_elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "observation": {
+        "status": "observed",
+        "panic": {
+          "kind": "watchdog",
+          "core": 1,
+          "reason": "Interrupt wdt timeout on CPU1",
+          "line": "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).",
+          "core_unassigned_backtrace": [],
+          "elf_sha256_prefix": "1916d0ba9"
+        },
+        "cpus": [
+          {
+            "core": 0,
+            "pc": "0x4000bfea",
+            "register": "PC",
+            "pc_source": "guest_register_dump",
+            "backtrace": [
+              {
+                "pc": "0x4000bfe7",
+                "sp": "0x3ffb12c0"
+              },
+              {
+                "pc": "0x40085d1d",
+                "sp": "0x3ffb12d0"
+              },
+              {
+                "pc": "0x40086cdf",
+                "sp": "0x3ffb12f0"
+              },
+              {
+                "pc": "0x40086343",
+                "sp": "0x3ffb1310"
+              },
+              {
+                "pc": "0x40086031",
+                "sp": "0x3ffb1330"
+              },
+              {
+                "pc": "0x40082a66",
+                "sp": "0x3ffb1340"
+              },
+              {
+                "pc": "0x40083da3",
+                "sp": "0x3ffb5180"
+              },
+              {
+                "pc": "0x400e0067",
+                "sp": "0x3ffb51a0"
+              },
+              {
+                "pc": "0x400869aa",
+                "sp": "0x3ffb51c0"
+              },
+              {
+                "pc": "0x40085bad",
+                "sp": "0x3ffb51e0"
+              }
+            ]
+          },
+          {
+            "core": 1,
+            "pc": "0x400d7d1b",
+            "register": "PC",
+            "pc_source": "guest_register_dump",
+            "backtrace": [
+              {
+                "pc": "0x400d7d18",
+                "sp": "0x3ffb67d0"
+              },
+              {
+                "pc": "0x40085bad",
+                "sp": "0x3ffb67f0"
+              }
+            ]
+          }
+        ],
+        "core_dump": {
+          "status": "uart_reported_complete"
+        },
+        "elf": {
+          "status": "matched",
+          "reported_sha256_prefix": "1916d0ba9",
+          "artifact_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+          "expected_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+          "symbolization_eligible": true
+        },
+        "symbols": {
+          "status": "partial",
+          "source": "matched_xtensa_elf_function_ranges",
+          "addresses": [
+            {
+              "pc": "0x4000bfe7",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x4000bfea",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40082a66",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40083da3",
+              "status": "resolved",
+              "function": "esp_cpu_wait_for_intr",
+              "offset": 3
+            },
+            {
+              "pc": "0x40085bad",
+              "status": "resolved",
+              "function": "vPortTaskWrapper",
+              "offset": 5
+            },
+            {
+              "pc": "0x40085d1d",
+              "status": "resolved",
+              "function": "xPortInIsrContext",
+              "offset": 29
+            },
+            {
+              "pc": "0x40086031",
+              "status": "unresolved"
+            },
+            {
+              "pc": "0x40086343",
+              "status": "resolved",
+              "function": "xPortSysTickHandler",
+              "offset": 15
+            },
+            {
+              "pc": "0x400869aa",
+              "status": "resolved",
+              "function": "prvIdleTask",
+              "offset": 6
+            },
+            {
+              "pc": "0x40086cdf",
+              "status": "resolved",
+              "function": "xTaskIncrementTick",
+              "offset": 27
+            },
+            {
+              "pc": "0x400d7d18",
+              "status": "resolved",
+              "function": "trigger_fault",
+              "offset": 28
+            },
+            {
+              "pc": "0x400d7d1b",
+              "status": "resolved",
+              "function": "trigger_fault",
+              "offset": 31
+            },
+            {
+              "pc": "0x400e0067",
+              "status": "resolved",
+              "function": "esp_vApplicationIdleHook",
+              "offset": 43
+            }
+          ]
+        },
+        "boot": {
+          "rom_banners": 1,
+          "idf_banners": 1,
+          "reboot_requests": 0,
+          "reset_reports": [
+            {
+              "code": "0x1",
+              "reason": "POWERON_RESET"
+            }
+          ]
+        }
+      },
+      "bundle_sha256": "02b35ddc88061ed17a805f40cdd7af2dbfb7eeedaa78341aee8ebaa69e0c5ea5",
+      "zip_crc_verified": true,
+      "zip_serial_sha_binds_parser": true,
+      "other_elf_excluded": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "retained_diagnostics_after_service_restart": true,
+      "isolated_service_exited": true
+    }
+  },
+  "scope": {
+    "core_dump": "Guest UART start/end markers and original stream retained; dump data integrity and task state not decoded.",
+    "addresses": "Exact-match Xtensa ELF function-range names only. Remaining addresses retain their numeric value.",
+    "original_community_firmware": "NOT RUN in this synthetic probe.",
+    "p4_riscv_c6_hardware_browser": "NOT RUN in this probe."
+  }
+}

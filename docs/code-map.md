@@ -103,6 +103,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_native_hid.py` | 原版 AirMouseS3 固件 SHA 绑定、S3 native VHCI 启动参数与 HID 证据 | Device Service BLE sessions |
 | `platform/tools/device_service_qemu_wifi.py` | QEMU WiFi open/WPA2 解析与 runtime-env projection | `device_service.py` 兼容 re-export、QEMU WiFi tests |
 | `platform/tools/device_service_wifi_evidence.py` | Cardputer/ADV 原生 STA 能力声明与同会话 Ethernet pcap 的被动 DHCPv4、TCP、UDP 传输计数 | Device Service 设备目录和 network evidence、`test_device_service_wifi_evidence.py` |
+| `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告；按完整 ELF 哈希和应用描述符核对后解析 Xtensa 函数地址 | 会话 `/crash` 与 ZIP、`test_device_service_crash.py` |
 | `platform/tools/device_service_execution_parsing.py` | 无状态 storage/NVS execution request 解析，保持 artifact、字段和 partition-label 契约 | `device_service.py` 兼容 re-export、execution parser tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |

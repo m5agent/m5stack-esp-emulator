@@ -6361,6 +6361,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertIn("manifest.json", archive.namelist())
             self.assertIn("serial.log", archive.namelist())
             self.assertIn("flash/virtual-flash.bin", archive.namelist())
+            crash = json.loads(archive.read("diagnostics/crash.json"))
+            self.assertEqual(crash["status"], "no_evidence")
+            self.assertEqual(crash["firmware_sha256"], session.firmware_sha)
+
+    def test_crash_diagnostics_retains_independent_backend_evidence(self):
+        session = self._stopped_session()
+        session.serial0.unlink()
+        session.stderr_path.write_text("backend loader started\n")
+        crash = session.crash_diagnostics()
+        self.assertEqual(crash["status"], "observation_unavailable")
+        self.assertEqual(crash["elf"]["status"], "not_uploaded")
+        session.stderr_path.write_text(
+            "[WARN cpu::execute] Illegal instruction 0x00000000 at PC=0x4FF10F12 hart=1 priv=Machine\n"
+        )
+        crash = session.crash_diagnostics()
+        self.assertEqual(crash["status"], "observed")
+        self.assertIsNone(crash["panic"])
+        self.assertEqual(crash["backend_observations"][0]["pc"], "0x4ff10f12")
 
     def test_qom_diff_uses_stored_snapshots(self):
         session = self._stopped_session()

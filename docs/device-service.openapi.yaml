@@ -2007,6 +2007,7 @@ paths:
           schema:
             type: string
             default: manifest,serial,frames,logs,qom
+        - $ref: "#/components/parameters/CrashElfArtifactId"
       responses:
         "200":
           description: >-
@@ -2014,6 +2015,8 @@ paths:
             usb-serial-jtag.log when a separate native USB capture is present
             and serial.read is allowed. serial.log remains the profile-defined
             default console; C6 HCI profiles already route USB there.
+            A serial or crash selection also includes diagnostics/crash.json
+            when serial.read is allowed.
           content:
             application/zip:
               schema:
@@ -2253,6 +2256,31 @@ paths:
         "403":
           $ref: "#/components/responses/Error"
         "408":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/crash:
+    get:
+      summary: Read retained guest crash observations
+      description: >
+        Requires serial.read when runtime ACL is configured. Reads bounded
+        tails from this session's console and runtime stderr. Boot loop
+        observations and backend warnings are separate from guest panic.
+        A separate USB stream is not concatenated. No live register sampling
+        or core dump validation is performed.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/CrashElfArtifactId"
+      responses:
+        "200":
+          description: Same-session bounded crash diagnostics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrashDiagnostics"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/serial:
     get:
@@ -2612,6 +2640,17 @@ components:
         type: string
         minLength: 1
         maxLength: 128
+    CrashElfArtifactId:
+      name: elf_artifact_id
+      in: query
+      description: >
+        Optional uploaded application ELF. Function names are emitted only
+        for a byte-identical artifact whose full SHA-256 is in a verified
+        application descriptor and uniquely agrees with the crash-reported
+        hash prefix. Xtensa ELF32 function ranges are supported.
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
     SessionId:
       name: session_id
       in: path
@@ -5479,6 +5518,79 @@ components:
           enum: [console, usb-serial-jtag]
           description: console is an unspecified primary transport, not a UART0 assertion.
         bytes: {type: integer, minimum: 0}
+    CrashDiagnostics:
+      type: object
+      required:
+        - schema_version
+        - session_id
+        - firmware_sha256
+        - device_id
+        - runtime
+        - status
+        - sources
+        - panic
+        - panic_count
+        - cpus
+        - boot
+        - task_watchdog_reports
+        - core_dump
+        - backend_observations
+        - elf
+        - symbols
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        session_id:
+          type: string
+        firmware_sha256:
+          type: string
+        device_id:
+          type: string
+        runtime:
+          type: string
+        status:
+          type: string
+          enum: [observed, no_evidence, observation_unavailable]
+        sources:
+          type: object
+          description: Console and runtime stderr capture offsets, sizes and hashes.
+          additionalProperties: true
+        panic:
+          type: [object, "null"]
+          description: Latest recognized guest panic with its raw opening line and reported ELF prefix.
+          additionalProperties: true
+        panic_count:
+          type: integer
+        cpus:
+          type: array
+          description: Observed CPU register PCs and raw backtrace frames.
+          items:
+            type: object
+            additionalProperties: true
+        boot:
+          type: object
+          additionalProperties: true
+        task_watchdog_reports:
+          type: integer
+        core_dump:
+          type: object
+          required: [status]
+          properties:
+            status:
+              type: string
+              enum: [not_observed, uart_incomplete, uart_reported_complete, flash_reported_saved, flash_check_failed, write_failed]
+        backend_observations:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        elf:
+          type: object
+          additionalProperties: true
+        symbols:
+          type: object
+          additionalProperties: true
     SerialChunk:
       type: object
       required: [session_id, channel, offset, next_offset, data, bytes]

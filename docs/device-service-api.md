@@ -2855,6 +2855,7 @@ display journal is not a replacement for same-session validation evidence.
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
 | GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus runtime stdout/stderr tail |
 | GET | `/api/v1/sessions/{id}/frame.png` | Live or last-known framebuffer as PNG |
+| GET | `/api/v1/sessions/{id}/crash` | Retained panic, watchdog, PC and core-dump observations |
 | POST | `/api/v1/sessions/{id}/input` | Buttons, keyboard, chords, encoder, touch and drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
 | GET | `/api/v1/sessions/{id}/qom?path=...&property=...` | Read a QOM property |
@@ -2972,7 +2973,42 @@ The response includes `ready`, `ready_reason`, matched serial markers,
 `first_serial_at`, `first_frame_at` and frame metrics without embedding the
 PNG bytes.
 
+### Retained crash observations
+
+`GET /api/v1/sessions/{id}/crash` returns a receipt for the same session and
+normalized firmware SHA-256. The receipt identifies the last 512 KiB at most
+from each primary console and runtime stderr by byte range and SHA-256. A
+separate USB stream remains available through the serial API. The runtime
+policy requires `serial.read`.
+
+`status: observed` means the bounded capture contains a recognized panic,
+watchdog report, repeated boot, core-dump event or backend report. Each has its
+own field. `no_evidence` means the available console window contains no
+recognized evidence. `observation_unavailable` means the console had no
+captured bytes and stderr supplied no recognized event.
+
+`panic` preserves the most recent guest panic line, reported core and reason.
+`cpus` records the core-tagged registers and backtraces the guest printed.
+An abort call-site address belongs to `panic.abort_call_site_pc`. Stderr
+backend hart/PC warnings belong to `backend_observations`. Boot banners and
+reset reports remain in `boot`, including watchdog resets without a panic.
+A task watchdog warning alone is recorded under `task_watchdog_reports`.
+Core-dump status records guest-reported delimiters or Flash checks. These
+observations do not perform live register sampling or validate dump contents.
+
+Pass an uploaded ELF's SHA-256 as `elf_artifact_id` to compare its exact bytes
+against the normalized firmware's valid application descriptor and the guest's
+panic-time hash prefix. With a unique exact match, the service can attach
+function names to addresses that fall within supported Xtensa ELF32 function
+ranges. Unsupported, ambiguous and unresolved addresses are explicit.
+DWARF line decoding, task reconstruction and RISC-V symbol decoding are
+outside this endpoint's supported observations.
+
 ### Evidence bundle
+
+The serial selection includes `diagnostics/crash.json` for callers with
+`serial.read`. Use `include=crash` to request the receipt alone. The optional
+`elf_artifact_id` query parameter also applies to the ZIP receipt.
 
 ```bash
 curl -sS \

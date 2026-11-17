@@ -16,6 +16,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-17
 
+[原生崩溃验收](../tests/firmware/crash_diagnostics/summary.json)在 `cbc0ea74…` 的 Core2 来宾分别触发 CPU1 abort 与真实中断 WDT。后者报告双核寄存器 PC。两个会话均输出 UART core dump 标记，匹配 ELF 能解析探针函数，其他 ELF 保持未解码。已验证同会话证据 ZIP 和停止后重启服务读回。
+
 [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)：Cardputer/StickS3 的 UIFlow2 LittleFS 与 Cardputer/StickS3/Dial 的 ESP-IDF SPIFFS 都通过真实数据分区夹具路径。保留原 artifact 和以有效 Flash SHA 核对区间外字节的结果。SD 另有停止后清单、哈希导出、重启复用及活动状态拒绝的证据。
 
 [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)：ADV 原驱动 56 个物理键与旧 runtime 负对照，K132 Fn、StickS3 A+B/双击/4999 ms 长按和 Core2 两次接触均取得客体证据。Dial 默认对照控制器 9/9、原 RotaryIRQ 3/9，后续 35/50 ms 显式速度原驱动 6/6；StopWatch 原版复审提交关闭并保留应用行为 PARTIAL。

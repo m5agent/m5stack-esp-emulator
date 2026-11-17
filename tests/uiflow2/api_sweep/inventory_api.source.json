@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.63.0",
-  "contract_sha256": "a404c19c9cff8f4fd2b74d938c6dee7d6c08a3c943df1777f61fe8e892bfe072",
+  "contract_sha256": "3cc321f80ea312a03527298e56a18c38dc8075cfb3731e330c8ac72de4a08c24",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1051,6 +1051,19 @@
       "positive_status": "NOT RUN"
     },
     {
+      "operation_id": "GET /sessions/{session_id}/crash",
+      "method": "GET",
+      "path": "/sessions/{session_id}/crash",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/crash missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
       "operation_id": "GET /sessions/{session_id}/serial",
       "method": "GET",
       "path": "/sessions/{session_id}/serial",
@@ -2034,6 +2047,16 @@
         409
       ],
       "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/crash missing-resource",
+      "operation_id": "GET /sessions/{session_id}/crash",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/crash",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
     },
     {
       "case_id": "GET /sessions/{session_id}/serial missing-resource",
