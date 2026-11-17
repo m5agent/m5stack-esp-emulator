@@ -53,8 +53,7 @@
    StickS3 夹具另有[按键触发和复位对照](../tests/network/native_open_softap/sticks3-button-summary.json)。
    按板型补 Wi-Fi 事件和应用
    断言，保持现有网络授权及隔离约束。
-4. **P0 Tab5 取帧与输入**。继续对照 Arduventure 的几何判断及 M5TabOS/98TAB5 启动路径。
-   扩展 GT911 单击以外的手势，补 ST7123 触摸、
+4. **P0 Tab5 取帧与输入**。[Arduventure 原版取帧与 GT911 单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)已走匹配板型和实际输入。继续对照 M5TabOS/98TAB5 启动路径，补 ST7123 触摸、
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。

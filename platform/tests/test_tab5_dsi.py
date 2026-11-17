@@ -19,6 +19,8 @@ from device_service_tab5_dsi import (
     _fields,
     _read_message,
     stage_tab5_gt911_part,
+    stage_tab5_st7123_i2c_part,
+    parse_tab5_board_overrides,
     tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
@@ -70,6 +72,30 @@ class Tab5DsiTests(unittest.TestCase):
                 self.assertEqual(raised.exception.code, code)
                 self.assertEqual(queue.call_count, int(code == "tab5_gt911_ack_timeout"))
 
+    def test_gt911_drag_schedules_one_contact_in_guest_time(self):
+        touch = Tab5Gt911Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (6, 6, 0, False), (22, 22, 0, True),
+        ]), mock.patch.object(touch, "_command", side_effect=["ok 100", *("ok" for _ in range(7))]) as command:
+            self.assertEqual(touch.drag(120, 200, 620, 1000, lambda: None), {"reports": 22, "acknowledged": 22})
+        self.assertEqual([call.args[0] for call in command.call_args_list], [
+            "part clock", "part gt911 input down:120,200 at 160",
+            "part gt911 input move:220,360 at 220", "part gt911 input move:320,520 at 280",
+            "part gt911 input move:420,680 at 340", "part gt911 input move:520,840 at 400",
+            "part gt911 input move:620,1000 at 460", "part gt911 input up at 520",
+        ])
+
+    def test_gt911_drag_still_queues_release_after_failed_move(self):
+        touch = Tab5Gt911Touch(1)
+        for release in ("ok", "err release failed"):
+            with self.subTest(release=release), mock.patch.object(touch, "_state", return_value=(0, 0, 0, True)), \
+                    mock.patch.object(touch, "_command", side_effect=["ok 100", "ok", "err move failed", release]) as command:
+                with self.assertRaises(ServiceError) as raised:
+                    touch.drag(120, 200, 620, 1000, lambda: None)
+                self.assertEqual(raised.exception.code, "tab5_gt911_unavailable" if release == "ok" else
+                                 "tab5_gt911_release_uncertain")
+                self.assertEqual(command.call_args.args, ("part gt911 input up at 520",))
+
     def test_idle_gt911_board_attaches_only_on_selected_controller(self):
         self.assertEqual(tab5_dsi_board_devices(""), ())
         self.assertEqual(tab5_dsi_board_devices("gt911-ili9881c"), (
@@ -78,6 +104,29 @@ class Tab5DsiTests(unittest.TestCase):
         with self.assertRaises(ServiceError) as unknown:
             tab5_dsi_board_devices("unsupported-board")
         self.assertEqual(unknown.exception.code, "tab5_dsi_board_unavailable")
+
+    def test_st7123_identity_isolated_from_gt911(self):
+        self.assertEqual(tab5_dsi_board_devices("st7123"), ("1:0x55,width=2,fill=0,reg=0x0000=0x03",))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unrelated = root / "wrong.wasm"
+            unrelated.write_bytes(b"unqualified part")
+            with self.assertRaises(ServiceError) as raised:
+                stage_tab5_st7123_i2c_part(str(unrelated), root)
+            self.assertEqual(raised.exception.code, "tab5_st7123_i2c_part_unavailable")
+            self.assertFalse((root / "tab5-cosim-board.json").exists())
+
+    def test_st7123_per_firmware_overrides_are_admitted_and_validated(self):
+        a, b = "a" * 64, "b" * 64
+        self.assertEqual(parse_tab5_board_overrides("", frozenset()), {})
+        self.assertEqual(parse_tab5_board_overrides('{"%s":"st7123"}' % a, frozenset({a, b})),
+                         {a: "st7123"})
+        for value, allowlist in (
+            ("[]", frozenset()), ("{", frozenset()), ('{"bad":"st7123"}', frozenset()),
+            ('{"%s":"unknown"}' % a, frozenset()), ('{"%s":"st7123"}' % b, frozenset({a})),
+        ):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                parse_tab5_board_overrides(value, allowlist)
 
     def test_claim_names_virtual_channel_zero(self):
         registration = _fields(_fields(REGISTER_VC0)[4])

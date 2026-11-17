@@ -224,9 +224,43 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(receipt["raw"], [640, 160])
             self.assertEqual(receipt["controller_reports"], {"reports": 13, "acknowledged": 13})
             self.assertEqual(session.events[-1]["event"], "gt911_touch_acknowledged")
+            with self.assertRaises(service_module.ServiceError) as raised:
+                session.inject({"kind": "drag", "x1": 1, "y1": 1, "x2": 720, "y2": 10})
+            self.assertEqual(raised.exception.code, "invalid_input")
+            controller.return_value.drag.assert_not_called()
+            controller.return_value.drag.return_value = {"reports": 22, "acknowledged": 22}
+            drag = session.inject({"kind": "drag", "x1": 120, "y1": 200, "x2": 620, "y2": 1000})
+            controller.return_value.drag.assert_called_once_with(120, 200, 620, 1000, session._check_cancelled)
+            self.assertEqual(drag["raw"], [120, 200, 620, 1000])
+            self.assertEqual(session.events[-1]["kind"], "drag")
             session._proc = session._c6_proc = None
             session._terminate_tab5()
             self.assertIsNone(session._tab5_gt911)
+
+    def test_st7123_launch_keeps_hardware_i2c_and_does_not_offer_gt911_input(self):
+        self.elf.write_bytes(b"wrong build")
+        candidate = Path("/qualified/esp-emu")
+        self.service.tab5_dsi_emulator = str(candidate)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_dsi_board_overrides = {self.image_sha: "st7123"}
+        self.service.tab5_st7123_i2c_part = "/qualified/st7123-gpio.wasm"
+        session = self.session()
+        board = session.dir / "tab5-cosim-board.json"
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
+                mock.patch.object(service_module, "stage_tab5_st7123_i2c_part", return_value=board) as stage, \
+                mock.patch.object(service_module, "Tab5DsiReceiver"):
+            self.provision(session)
+            sidecar, p4 = self.launch_commands(session)
+        stage.assert_called_once_with(self.service.tab5_st7123_i2c_part, session.dir)
+        self.assertNotIn("--cosim-board", sidecar)
+        self.assertEqual(p4[p4.index("--cosim-board") + 1], str(board))
+        self.assertNotIn("--control-tcp", p4)
+        self.assertIn("1:0x55,width=2,fill=0,reg=0x0000=0x03", p4)
+        self.assertEqual(session.flash_info["tab5"]["board_probe"], "esp-emu-gpio-i2c")
+        self.assertIsNone(session._tab5_gt911)
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.inject({"kind": "touch", "x": 120, "y": 200})
+        self.assertEqual(raised.exception.code, "input_requires_matching_elf")
 
     def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
         self.elf.write_bytes(b"wrong build")

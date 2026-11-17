@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import hashlib
+import json
 import os
 from pathlib import Path
+import re
 import socket
 import struct
 import threading
@@ -16,7 +18,8 @@ from device_service_errors import ServiceError
 
 TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828"
 TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
-TAB5_GT911_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts" / "tab5-gt911"
+TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
+TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_MESSAGE_BYTES = 128 * 1024
 MAX_PIXELS = 2 * 1024 * 1024
@@ -46,14 +49,36 @@ def tab5_dsi_runtime(value: str) -> Path:
 
 
 def tab5_dsi_board_devices(board: str) -> tuple[str, ...]:
-    """Select the stock board's idle touch-identification register device."""
+    """Select the hardware I²C identification registers of the panel revision."""
     if not board:
         return ()
     if board == "gt911-ili9881c":
         # GT911 backup address on Tab5 HP I2C controller 1. The product ID
         # begins with ASCII "911" at 0x8140; zero touch status means idle.
         return ("1:0x14,width=2,fill=0,reg=0x8140=0x39,reg=0x8141=0x31,reg=0x8142=0x31",)
+    if board == "st7123":
+        # M5GFX uses firmware version 3 for the ST7123. After GPIO board
+        # detection its touch driver can also read the ID over hardware I²C.
+        return ("1:0x55,width=2,fill=0,reg=0x0000=0x03",)
     raise ServiceError("tab5_dsi_board_unavailable", "unknown native DSI Tab5 board revision", 409)
+
+
+def parse_tab5_board_overrides(value: str, allowed: frozenset[str]) -> dict[str, str]:
+    if not value:
+        return {}
+    try:
+        overrides = json.loads(value)
+        if not isinstance(overrides, dict):
+            raise ValueError("expected an object")
+        for digest, board in overrides.items():
+            if re.fullmatch(r"[0-9a-f]{64}", digest) is None or not isinstance(board, str) or not board:
+                raise ValueError("each entry needs an admitted firmware SHA and board revision")
+            tab5_dsi_board_devices(board)
+        if allowed and not overrides.keys() <= allowed:
+            raise ValueError("board override hashes must be in the configured DSI allowlist")
+    except (ServiceError, ValueError) as error:
+        raise ValueError(f"M5_TAB5_DSI_BOARD_OVERRIDES: {error}") from error
+    return overrides
 
 
 def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> Path:
@@ -62,24 +87,41 @@ def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> Path:
         raise ServiceError(
             "tab5_gt911_part_unavailable", "Tab5 GT911 requires the gt911-ili9881c board revision", 409
         )
+    return _stage_tab5_part(
+        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm", TAB5_GT911_PART_SHA256,
+        "tab5_gt911_part_unavailable",
+    )
+
+
+def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
+    return _stage_tab5_part(
+        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm", TAB5_ST7123_I2C_PART_SHA256,
+        "tab5_st7123_i2c_part_unavailable",
+    )
+
+
+def _stage_tab5_part(value: str, session_dir: Path, source: str, module: str, expected: str, error_code: str) -> Path:
     try:
-        with Path(value).open("rb") as module:
-            part = module.read(128 * 1024 + 1)
-        if hashlib.sha256(part).hexdigest() != TAB5_GT911_PART_SHA256:
+        with Path(value).open("rb") as stream:
+            part = stream.read(128 * 1024 + 1)
+        if hashlib.sha256(part).hexdigest() != expected:
             raise ValueError("unexpected ESP Part hash")
-        config = (TAB5_GT911_SOURCE / "board.json").read_bytes()
-        (session_dir / "m5_tab5_gt911.wasm").write_bytes(part)
+        config = (TAB5_PARTS_SOURCE / source / "board.json").read_bytes()
+        (session_dir / module).write_bytes(part)
         path = session_dir / "tab5-cosim-board.json"
         path.write_bytes(config)
         return path
     except (OSError, ValueError) as error:
         raise ServiceError(
-            "tab5_gt911_part_unavailable", "configured Tab5 GT911 ESP Part could not be verified", 409
+            error_code, "configured Tab5 ESP Part could not be verified", 409
         ) from error
 
 
 class Tab5Gt911Touch:
-    """Submit one tap through the native controller and observe guest ACKs."""
+    """Submit single-contact gestures and observe guest acknowledgements."""
+
+    DRAG_STEPS = 5
+    DRAG_STEP_MS = 60
 
     def __init__(self, port: int):
         self.port = port
@@ -112,27 +154,61 @@ class Tab5Gt911Touch:
             pass
         raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 state could not be read", 409)
 
-    def tap(self, x: int, y: int, check_cancelled, *, timeout: float = 12) -> dict:
+    def _idle_counters(self) -> tuple[int, int, int]:
         reports, acknowledged, rejected, idle = self._state()
         if not idle or reports != acknowledged:
             raise ServiceError("tab5_gt911_busy", "Tab5 GT911 has a pending report", 409)
-        if self._command(f"part gt911 input tap:{x},{y}") != "ok":
-            raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 could not queue the tap", 409)
+        return reports, acknowledged, rejected
+
+    def _queue(self, action: str) -> None:
+        if self._command(f"part gt911 input {action}") != "ok":
+            raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 could not queue the input", 409)
+
+    def _wait_acknowledged(self, initial, minimum, check_cancelled, timeout) -> dict:
+        reports, acknowledged, rejected = initial
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             check_cancelled()
             current_reports, current_acknowledged, current_rejected, idle = self._state()
             if current_rejected != rejected:
-                raise ServiceError("tab5_gt911_busy", "Tab5 GT911 rejected the tap", 409)
-            if idle and current_reports == current_acknowledged and current_acknowledged - acknowledged >= 2:
+                raise ServiceError("tab5_gt911_busy", "Tab5 GT911 rejected the input", 409)
+            if idle and current_reports == current_acknowledged and current_acknowledged - acknowledged >= minimum:
                 return {
                     "reports": current_reports - reports,
                     "acknowledged": current_acknowledged - acknowledged,
                 }
             time.sleep(0.05)
         raise ServiceError(
-            "tab5_gt911_ack_timeout", "Tab5 guest did not acknowledge both GT911 tap reports", 409
+            "tab5_gt911_ack_timeout", "Tab5 guest did not acknowledge the GT911 contact and release", 409
         )
+
+    def tap(self, x: int, y: int, check_cancelled, *, timeout: float = 12) -> dict:
+        initial = self._idle_counters()
+        self._queue(f"tap:{x},{y}")
+        return self._wait_acknowledged(initial, 2, check_cancelled, timeout)
+
+    def drag(self, x1: int, y1: int, x2: int, y2: int, check_cancelled, *, timeout: float = 12) -> dict:
+        initial = self._idle_counters()
+        prefix, separator, value = self._command("part clock").partition(" ")
+        if prefix != "ok" or not separator or not value.isdecimal():
+            raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 guest clock is unavailable", 409)
+        start_ms = int(value) + self.DRAG_STEP_MS
+        release_ms = start_ms + self.DRAG_STEP_MS * (self.DRAG_STEPS + 1)
+        try:
+            self._queue(f"down:{x1},{y1} at {start_ms}")
+            for step in range(1, self.DRAG_STEPS + 1):
+                x = x1 + (x2 - x1) * step // self.DRAG_STEPS
+                y = y1 + (y2 - y1) * step // self.DRAG_STEPS
+                self._queue(f"move:{x},{y} at {start_ms + self.DRAG_STEP_MS * step}")
+        finally:
+            # Close the contact even if an intermediate command failed.
+            try:
+                self._queue(f"up at {release_ms}")
+            except ServiceError as error:
+                raise ServiceError(
+                    "tab5_gt911_release_uncertain", "Tab5 GT911 release could not be scheduled", 409
+                ) from error
+        return self._wait_acknowledged(initial, self.DRAG_STEPS + 2, check_cancelled, timeout)
 
 
 class DsiProtocolError(ValueError):
