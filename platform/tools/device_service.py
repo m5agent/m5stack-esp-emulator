@@ -104,8 +104,10 @@ from device_service_network_execution import parse_network_execution  # noqa: E4
 from device_service_softap_peer import (  # noqa: E402
     ACL_OPERATION as SOFTAP_ACL_OPERATION,
     NIC as SOFTAP_NIC,
+    PORTAL_QOM_PROPERTY as SOFTAP_PORTAL_QOM_PROPERTY,
     PROFILE_BOARDS as SOFTAP_PROFILE_BOARDS,
     QOM_PROPERTY as SOFTAP_QOM_PROPERTY,
+    STICKS3_PORTAL_PROFILE,
     SoftAPPeer,
     require_softap_backend,
 )
@@ -5919,12 +5921,17 @@ class DeviceSession:
                 peer_mac = qemu_station_mac(f"softap-peer:{self.id}")
                 self._unix_wifi_peer = SoftAPPeer(
                     peer_mac, lambda receipt: atomic_write_json(self.softap_fixture_receipt, receipt),
+                    portal=profile == STICKS3_PORTAL_PROFILE,
                 )
                 peer_fd = self._unix_wifi_peer.child.fileno()
                 command.extend([
                     "-global", f"driver={SOFTAP_NIC},property={SOFTAP_QOM_PROPERTY},value=on",
                     "-nic", f"socket,fd={peer_fd},model={nic},mac={peer_mac},id=wifi0",
                 ])
+                if profile == STICKS3_PORTAL_PROFILE:
+                    command.extend([
+                        "-global", f"driver={SOFTAP_NIC},property={SOFTAP_PORTAL_QOM_PROPERTY},value=on",
+                    ])
             elif profile == STA_TIME_PROFILE:
                 self._unix_wifi_peer = StationTimePeer(
                     wifi_mac, lambda receipt: atomic_write_json(self.sta_time_fixture_receipt, receipt),
@@ -11136,7 +11143,9 @@ class DeviceService:
                     if identity_request is not None:
                         raise ServiceError("invalid_network", "the local time fixture uses generated device identity", 400)
                 else:
-                    require_softap_backend(spec.qemu)
+                    require_softap_backend(
+                        spec.qemu, portal=network_config["profile"] == STICKS3_PORTAL_PROFILE,
+                    )
         elif runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}:
             network_config = parse_qemu_ble_execution(
                 spec,

@@ -1888,6 +1888,16 @@ The peer has a 25-second DHCP discovery budget after session launch or reset.
 This profile exercises a fixed provisioning fixture with no cloud credentials
 or public target.
 
+For the original StickS3-Claude-Codex-Assistant first-boot setup page, use
+`runtime=qemu-wifi` with `network={"profile":"sticks3-open-softap-portal"}`.
+This StickS3-only profile adds the `open-softap-sticks3-portal` backend
+requirement and uses the same `network.softap.probe` ACL, mandatory capture,
+and private UNIX socketpair. It joins the fixed open `StickS3-Setup` SSID
+and reads the guest's bounded HTML at `GET /` on port 80. The
+`softap_fixture` receipt records DHCP, ARP and request/body digests.
+The verified scope ends at the setup page. See the
+[original firmware evidence](evidence/2026-11-17-sticks3-portal-page/README.md).
+
 Cardputer ADV can use `runtime=qemu-wifi` with
 `network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins
 the open `fixturetest` AP and receives DHCP, DNS and SNTP through one

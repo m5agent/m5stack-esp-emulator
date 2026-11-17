@@ -1,4 +1,4 @@
-"""One fixed open SoftAP fixture using QEMU's local Ethernet stream."""
+"""Fixed open SoftAP peers using QEMU's local Ethernet stream."""
 
 from __future__ import annotations
 
@@ -17,30 +17,38 @@ from network_fabric import DHCP_MAGIC, _dhcp_options, _internet_checksum
 
 PROFILE = "cardputer-open-softap-fixture"
 STICKS3_PROFILE = "sticks3-open-softap-fixture"
+STICKS3_PORTAL_PROFILE = "sticks3-open-softap-portal"
 PROFILE_BOARDS = {
     PROFILE: frozenset({"cardputer", "cardputer-adv"}),
     STICKS3_PROFILE: frozenset({"sticks3"}),
+    STICKS3_PORTAL_PROFILE: frozenset({"sticks3"}),
 }
 ACL_OPERATION = "network.softap.probe"
 QOM_PROPERTY = "open-softap-peer"
+PORTAL_QOM_PROPERTY = "open-softap-sticks3-portal"
 NIC = "misc.esp32s3.wifi"
 HTTP_REQUEST = b"GET /proof HTTP/1.0\r\n\r\n"
 HTTP_BODY = b"AP_FIXTURE_OK"
 HTTP_RESPONSE = b"HTTP/1.0 200 OK\r\nContent-Length: 13\r\n\r\n" + HTTP_BODY
+PORTAL_REQUEST = b"GET / HTTP/1.0\r\nHost: 192.168.4.1\r\nConnection: close\r\n\r\n"
+_PORTAL_MAX_HEADER = 2048
+_PORTAL_MAX_BODY = 8192
 _BROADCAST = b"\xff" * 6
 _ZERO_IP = b"\0" * 4
 _BROADCAST_IP = b"\xff" * 4
 _MAX_ETHERNET = 1514
 
 
-def require_softap_backend(qemu: Path) -> None:
+def require_softap_backend(qemu: Path, *, portal: bool = False) -> None:
     try:
         result = subprocess.run(
             [str(qemu), "-device", f"{NIC},help"],
             check=True, capture_output=True, text=True, timeout=3,
         )
-        if any(line.strip().startswith(f"{QOM_PROPERTY}=<bool>")
-               for line in result.stdout.splitlines()):
+        required = (QOM_PROPERTY, PORTAL_QOM_PROPERTY) if portal else (QOM_PROPERTY,)
+        options = result.stdout.splitlines()
+        if all(any(line.strip().startswith(f"{prop}=<bool>") for line in options)
+               for prop in required):
             return
     except (OSError, subprocess.SubprocessError):
         pass
@@ -55,16 +63,51 @@ class _PeerStopped(Exception):
     pass
 
 
+def _portal_http_body(response: bytes) -> bytes | None:
+    header, separator, body = response.partition(b"\r\n\r\n")
+    if len(header) > _PORTAL_MAX_HEADER:
+        raise ValueError("portal HTTP header exceeded the limit")
+    if not separator:
+        return None
+    status, *headers = header.split(b"\r\n")
+    if status.split()[:2] not in ([b"HTTP/1.0", b"200"], [b"HTTP/1.1", b"200"]):
+        raise ValueError("portal did not return HTTP 200")
+    fields = {}
+    for line in headers:
+        name, colon, value = line.partition(b":")
+        name = name.lower()
+        if not colon or name in fields:
+            raise ValueError("invalid portal HTTP header")
+        fields[name] = value.strip()
+    length = fields.get(b"content-length", b"")
+    if (
+        b"transfer-encoding" in fields or not length.isdigit()
+        or len(length) > 4 or not 0 < int(length) <= _PORTAL_MAX_BODY
+        or fields.get(b"content-type", b"").lower().split(b";", 1)[0] != b"text/html"
+    ):
+        raise ValueError("portal did not return bounded HTML")
+    size = int(length)
+    if len(body) < size:
+        return None
+    if (
+        len(body) != size or b"<h3>StickS3-Setup</h3>" not in body
+        or b"<form action='/wifi'" not in body
+    ):
+        raise ValueError("portal HTML did not match the expected setup page")
+    return body
+
+
 class SoftAPPeer:
     """Per-lease peer. Neither endpoint can dial or listen on an IP socket."""
 
-    def __init__(self, mac: str, persist: Callable[[dict], None]):
+    def __init__(self, mac: str, persist: Callable[[dict], None], *, portal: bool = False):
         self.mac = bytes.fromhex(mac.replace(":", ""))
         if len(self.mac) != 6 or self.mac[0] & 3 != 2:
             raise ValueError("SoftAP peer requires a locally administered unicast address")
         self._peer, self.child = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
         self._peer.settimeout(0.15)
         self._persist = persist
+        self._portal = portal
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._lock = threading.Lock()
@@ -238,7 +281,7 @@ class SoftAPPeer:
             elif frame[20:22] == b"\0\x02" and frame[:6] == self.mac and frame[32:38] == self.mac:
                 return mac
 
-    def _http(self, lease: bytes, server: bytes, mac: bytes) -> None:
+    def _http(self, lease: bytes, server: bytes, mac: bytes, request: bytes) -> bytes:
         port = 49152 + secrets.randbelow(16384)
         initial = secrets.randbits(31)
 
@@ -267,22 +310,32 @@ class SoftAPPeer:
         send(2, initial, 0)
         while True:
             seq, ack, flags, _ = read(deadline)
-            if ack == initial + 1 and flags & 0x12 == 0x12:
+            if ack != initial + 1:
+                continue
+            if flags & 0x04:
+                raise ConnectionRefusedError
+            if flags & 0x12 == 0x12:
                 break
         next_remote = (seq + 1) & 0xffffffff
         send(0x10, initial + 1, next_remote)
-        send(0x18, initial + 1, next_remote, HTTP_REQUEST)
-        end_local = initial + 1 + len(HTTP_REQUEST)
+        send(0x18, initial + 1, next_remote, request)
+        end_local = initial + 1 + len(request)
         response = bytearray()
-        while len(response) < len(HTTP_RESPONSE):
+        while True:
             seq, ack, flags, payload = read(deadline)
             if seq != next_remote or ack != end_local or not payload:
                 continue
             response.extend(payload)
-            if not HTTP_RESPONSE.startswith(response):
-                raise ValueError("HTTP response differed from the fixed fixture")
+            if self._portal:
+                body = _portal_http_body(bytes(response))
+            else:
+                if not HTTP_RESPONSE.startswith(response):
+                    raise ValueError("HTTP response differed from the fixed fixture")
+                body = HTTP_BODY if len(response) == len(HTTP_RESPONSE) else None
             next_remote = (next_remote + len(payload) + bool(flags & 1)) & 0xffffffff
             send(0x10, end_local, next_remote)
+            if body is not None:
+                return body
 
     def _run(self) -> None:
         stage = "dhcp"
@@ -293,11 +346,23 @@ class SoftAPPeer:
             mac = self._arp(lease, server)
             self._record(arp=True)
             stage = "http"
-            self._http(lease, server, mac)
+            request = PORTAL_REQUEST if self._portal else HTTP_REQUEST
+            attempts = 8 if self._portal else 1
+            for attempt in range(attempts):
+                try:
+                    body = self._http(lease, server, mac, request)
+                    break
+                except ConnectionRefusedError:
+                    # WiFiManager starts the guest AP before binding its HTTP server.
+                    # Retry only a rejected connection, before emitting any request.
+                    if attempt == attempts - 1:
+                        raise
+                    if self._stop.wait(0.5):
+                        raise _PeerStopped
             self._record(
                 http=True, status="PASS",
-                http_body_sha256=hashlib.sha256(HTTP_BODY).hexdigest(),
-                http_request_sha256=hashlib.sha256(HTTP_REQUEST).hexdigest(),
+                http_body_sha256=hashlib.sha256(body).hexdigest(),
+                http_request_sha256=hashlib.sha256(request).hexdigest(),
             )
         except _PeerStopped:
             self._record(status="INTERRUPTED", stage=stage)

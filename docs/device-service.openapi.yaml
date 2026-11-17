@@ -5066,6 +5066,9 @@ components:
         optional field is capture_pcap=true. A configured runtime ACL must
         grant network.softap.probe. sticks3-open-softap-fixture uses the same
         transport and ACL for the StickS3 button-gated open fixture.
+        sticks3-open-softap-portal also requires open-softap-sticks3-portal
+        and uses that same transport and ACL to read the fixed StickS3-Setup
+        guest portal homepage with a bounded GET.
         cardputer-adv-local-time-fixture requires runtime=qemu-wifi and a configured
         ACL grant of network.sta.time.probe when ACL is enabled. It serves fixed DNS
         and SNTP on one private Unix socketpair. It accepts only profile,
@@ -5073,7 +5076,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, cardputer-adv-local-time-fixture]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, sticks3-open-softap-portal, cardputer-adv-local-time-fixture]
         withhold_ntp:
           type: boolean
           default: false
