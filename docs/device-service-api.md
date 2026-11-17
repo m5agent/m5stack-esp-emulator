@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.66.0` and bounded
+Status: local MVP with unified-device runtime contract `1.67.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3413,12 +3413,15 @@ still has no native input mapping.
   changes the native quadrature controller's detent target. A second
   request while movement is pending returns HTTP 409 `input_busy`. A
   successful response gives the new target and the prior controller
-  state. `edge_period_ms` optionally selects 5–100 ms per physical edge
-  for that motion, four edges per detent. Omitting it keeps the 5 ms
-  default. Explicit pacing requires `paced-detents` in the native encoder
-  model, otherwise the request returns HTTP 409 `unsupported_input`.
+  state with `controller.completion=queued`. The service selects 35 ms per
+  physical edge when `edge_period_ms` is omitted on a paced runtime.
+  An explicit value selects 5–100 ms per edge for that motion. Each detent
+  uses four edges, so 128 default detents schedule about 17.9 seconds of
+  virtual motion. The receipt reports the selected interval. Runtimes with
+  the legacy controller still report 5 ms for an omitted interval and
+  reject an explicit interval with HTTP 409 `unsupported_input`.
   Poll `/machine/encoder` `delivered-detents` and `gpio-edges` to observe
-  physical delivery; confirm the firmware's output separately.
+  physical delivery and check the guest application output separately.
 
 Semantic inputs accept `settle_seconds` between 0 and 5 as a host wait
 after dispatch. Acceptance and timings do not establish an application

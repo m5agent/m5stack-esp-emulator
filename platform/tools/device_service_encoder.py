@@ -2,13 +2,13 @@
 
 from device_service_errors import ServiceError
 
-
 ENCODER_PATH = "/machine/encoder"
 MIN_DETENTS = -4096
 MAX_DETENTS = 4096
 MAX_DELTA = 128
 EDGES_PER_DETENT = 4
-DEFAULT_EDGE_PERIOD_MS = 5
+FAST_EDGE_PERIOD_MS = 5
+DEFAULT_EDGE_PERIOD_MS = 35
 MAX_EDGE_PERIOD_MS = 100
 PACED_MOTION_PROPERTY = "paced-detents"
 
@@ -28,17 +28,17 @@ def validate_encoder_delta(delta: object) -> int:
 
 
 def validate_encoder_edge_period_ms(period: object) -> int:
-    if type(period) is not int or not DEFAULT_EDGE_PERIOD_MS <= period <= MAX_EDGE_PERIOD_MS:
+    if type(period) is not int or not FAST_EDGE_PERIOD_MS <= period <= MAX_EDGE_PERIOD_MS:
         raise ServiceError(
             "invalid_input",
             f"encoder edge_period_ms must be an integer within "
-            f"{DEFAULT_EDGE_PERIOD_MS}..{MAX_EDGE_PERIOD_MS}",
+            f"{FAST_EDGE_PERIOD_MS}..{MAX_EDGE_PERIOD_MS}",
             400,
         )
     return period
 
 
-def rotate_encoder(session, delta: int, *, edge_period_ms: int | None = None) -> dict[str, int]:
+def rotate_encoder(session, delta: int, *, edge_period_ms: int | None = None) -> dict[str, int | str]:
     """Schedule physical detents. The caller holds the session input lock."""
     delta = validate_encoder_delta(delta)
     if edge_period_ms is not None:
@@ -80,23 +80,28 @@ def rotate_encoder(session, delta: int, *, edge_period_ms: int | None = None) ->
             f"encoder target must stay within {MIN_DETENTS}..{MAX_DETENTS}",
             400,
         )
-    if edge_period_ms is None:
-        property_name, value = "detents", next_target
+    properties = session._qmp_call("qom-list", path=ENCODER_PATH).get("return")
+    if not isinstance(properties, list) or any(not isinstance(row, dict) for row in properties):
+        raise ServiceError("qmp_error", "unexpected Dial encoder property list", 503)
+    if any(row.get("name") == PACED_MOTION_PROPERTY for row in properties):
+        selected_period = DEFAULT_EDGE_PERIOD_MS if edge_period_ms is None else edge_period_ms
+        property_name = PACED_MOTION_PROPERTY
+        value = {"target_detents": next_target, "edge_period_ms": selected_period}
     else:
-        listed = session._qmp_call("qom-list", path=ENCODER_PATH).get("return", [])
-        if not any(row.get("name") == PACED_MOTION_PROPERTY for row in listed):
+        if edge_period_ms is not None:
             raise ServiceError(
                 "unsupported_input",
                 "this Dial runtime does not support a custom encoder edge period",
                 409,
             )
-        property_name = PACED_MOTION_PROPERTY
-        value = {"target_detents": next_target, "edge_period_ms": edge_period_ms}
+        property_name, value = "detents", next_target
+        selected_period = FAST_EDGE_PERIOD_MS
     session._qmp_call("qom-set", path=ENCODER_PATH, property=property_name, value=value)
     return {
         "delta": delta,
         "target_detents": next_target,
         "previous_detents": delivered,
         "previous_gpio_edges": edges,
-        "edge_period_ms": DEFAULT_EDGE_PERIOD_MS if edge_period_ms is None else edge_period_ms,
+        "edge_period_ms": selected_period,
+        "completion": "queued",
     }

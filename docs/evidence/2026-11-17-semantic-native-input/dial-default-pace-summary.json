@@ -1,0 +1,1648 @@
+{
+  "validation": "virtual-device validation",
+  "physical_hardware": "NOT RUN",
+  "service_base": "6da7ab20351d732c6738fe13311f686efc856db3",
+  "service_encoder_sha256": "450b263fd27ff89c8dfa7fac71f0eebd8bd1ceaa6beec4b0e4226317bf809b22",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "synchronous_isr_fixture_sdk_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "source_comparison": {
+    "uiflow_checkout": "122954de2a66cc10b0217607475e47859e73454f",
+    "micropython_checkout": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+    "analysis": "ESP32 Pin IRQ enqueues a Pin. RotaryIRQ reads live A/B when the deferred handler executes."
+  },
+  "callback_example": {
+    "request_delta": 2,
+    "physical_phase_pattern": [
+      2,
+      0,
+      1,
+      3,
+      2,
+      0,
+      1,
+      3
+    ],
+    "live_states": [
+      2,
+      0,
+      1,
+      3,
+      1,
+      3,
+      3,
+      3
+    ],
+    "callback_samples": [
+      "relative_guest_us",
+      "pin",
+      "live_state",
+      "pending_gpio_pair",
+      "value_after",
+      "value_before"
+    ],
+    "samples": [
+      [
+        0,
+        40,
+        2,
+        0,
+        -2,
+        -2
+      ],
+      [
+        6044,
+        41,
+        0,
+        0,
+        -2,
+        -2
+      ],
+      [
+        10584,
+        40,
+        1,
+        0,
+        -2,
+        -2
+      ],
+      [
+        16626,
+        41,
+        3,
+        0,
+        -1,
+        -2
+      ],
+      [
+        40128,
+        40,
+        1,
+        0,
+        -1,
+        -1
+      ],
+      [
+        40931,
+        41,
+        3,
+        0,
+        -1,
+        -1
+      ],
+      [
+        41157,
+        40,
+        3,
+        0,
+        -1,
+        -1
+      ],
+      [
+        41278,
+        41,
+        3,
+        0,
+        -1,
+        -1
+      ]
+    ]
+  },
+  "observations": {
+    "old_fast_application": "1/8 exact at the old 5-ms default",
+    "new_default_application": "12/12 exact at omitted 35 ms with original stock driver and redraw",
+    "same_guest_explicit_fast": "0/6 exact with redraw",
+    "short_foreground_delay": "0/8 exact at 5 ms with redraw and 1 ms foreground delay",
+    "redraw_suppressed": "6/6 exact at explicit 5 ms with the same driver and 20 ms foreground delay",
+    "max_default": "512 exact guest ISR edges, 18.104 seconds from first to last edge",
+    "legacy_default": "older runtime selected and reported 5 ms, 24 exact guest ISR edges"
+  },
+  "cases": {
+    "modern-exact-stock": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "stock",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "310c6eff78be47a722582dc05400f2e18463eaf0a8a4b02a1682c9aa923ad4d5",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 2048,
+        "sha256": "c915797a2044b6b08ce2598bfd1bb4132035960e797f5fb059fe289e5c15bbaa"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3
+        },
+        {
+          "target": -2,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5
+        },
+        {
+          "target": 0,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1
+        },
+        {
+          "target": -2,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -1
+        },
+        {
+          "target": 2,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 2
+        },
+        {
+          "target": -2,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -2
+        },
+        {
+          "target": 1,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3
+        },
+        {
+          "target": -4,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5
+        },
+        {
+          "target": -2,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1
+        },
+        {
+          "target": -4,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -2
+        },
+        {
+          "target": 0,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 3
+        },
+        {
+          "target": -4,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -2
+        }
+      ],
+      "evidence_zip_sha256": "b312db62b23087facf55efd2ef322f145ce5a473094eb56878336e0dec6cc48f",
+      "active_worker_leases_after_stop": 0
+    },
+    "modern-exact-isr": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "isr",
+      "device": "dial",
+      "base_sha256": null,
+      "firmware_sha256": "69044c46dd88ac71e6691bd48f535cb8f5d97647a22ed7eb160da8416cd22046",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "observed_interval_us_min_max": [
+            34524,
+            36232
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": -2,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "observed_interval_us_min_max": [
+            49531,
+            51021
+          ],
+          "isr_edges": 20,
+          "phase_sha256": "862271800f36e5072970dc1cd9556cc8a24b578dd8c589f0730e100d59a25565",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4459,
+            6308
+          ],
+          "isr_edges": 8,
+          "phase_sha256": "46b835b5eb9a717cda98c731770e49ea576f71116ced6dd22d939f3d79ae16fe",
+          "exact_phases": true
+        },
+        {
+          "target": -2,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4544,
+            6141
+          ],
+          "isr_edges": 8,
+          "phase_sha256": "4fc0bbc14c59bc87beec408d061bbf6a08fbe2cf0949f11cc9a21bd555d8d7a1",
+          "exact_phases": true
+        },
+        {
+          "target": 2,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4555,
+            6084
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": -2,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4548,
+            6080
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 1,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "observed_interval_us_min_max": [
+            34450,
+            36370
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": -4,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "observed_interval_us_min_max": [
+            49791,
+            51182
+          ],
+          "isr_edges": 20,
+          "phase_sha256": "862271800f36e5072970dc1cd9556cc8a24b578dd8c589f0730e100d59a25565",
+          "exact_phases": true
+        },
+        {
+          "target": -2,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4553,
+            6125
+          ],
+          "isr_edges": 8,
+          "phase_sha256": "46b835b5eb9a717cda98c731770e49ea576f71116ced6dd22d939f3d79ae16fe",
+          "exact_phases": true
+        },
+        {
+          "target": -4,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4539,
+            6062
+          ],
+          "isr_edges": 8,
+          "phase_sha256": "4fc0bbc14c59bc87beec408d061bbf6a08fbe2cf0949f11cc9a21bd555d8d7a1",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            3258,
+            7011
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": -4,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "observed_interval_us_min_max": [
+            4517,
+            6071
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        }
+      ],
+      "evidence_zip_sha256": "76bfac7ec74921ac28807964b48ffe95c525ff10823e3f44cd3054aece2c136f",
+      "active_worker_leases_after_stop": 0
+    },
+    "modern-exact-sampled": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "sampled",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "4bd2677f1c4f4800e746fde87c9e45c01818bc251cf045c8e8438c3361a1cedb",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 2060,
+        "sha256": "f321038f9894a0e5c11d92258f52dd9c48b6cb12031bd3c1bb7995eec1d0ee3f"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -2,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5,
+          "callback_count": 20,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -2,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 2,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -2,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -3,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 1,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -4,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5,
+          "callback_count": 20,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -2,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -4,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 0,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -4,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        }
+      ],
+      "evidence_zip_sha256": "92fe6527816add1e84c99b0746060b4e317d53b86a7d62e6839513d5600c6677",
+      "active_worker_leases_after_stop": 0
+    },
+    "modern-spin-sampled": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "sampled",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "cf3d23bb6095d58b07cef9e0c8453ae8a981040f20b3f860bbeda51393c3e635",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 2048,
+        "sha256": "c915797a2044b6b08ce2598bfd1bb4132035960e797f5fb059fe289e5c15bbaa"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -2,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5,
+          "callback_count": 20,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -2,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 2,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -2,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 1,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": true,
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -4,
+          "delta": -5,
+          "edge_period_ms": 50,
+          "model_edges": 20,
+          "busy_command_rejected": true,
+          "guest_delta": -5,
+          "callback_count": 20,
+          "callback_equal_phases": true
+        },
+        {
+          "target": -2,
+          "delta": 2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": 1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -4,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "model_edges": 8,
+          "busy_command_rejected": false,
+          "guest_delta": -1,
+          "callback_count": 8,
+          "callback_equal_phases": false
+        },
+        {
+          "target": 0,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": 2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        },
+        {
+          "target": -4,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "guest_delta": -2,
+          "callback_count": 16,
+          "callback_equal_phases": false
+        }
+      ],
+      "evidence_zip_sha256": "7e20b7c34483e060b33cf5fbda701a901f3ea159ba12de278226e0eb2331fead",
+      "active_worker_leases_after_stop": 0
+    },
+    "paced-default-stock": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "stock",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "310c6eff78be47a722582dc05400f2e18463eaf0a8a4b02a1682c9aa923ad4d5",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 2044,
+        "sha256": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 2
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -2
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 2
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -2
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 2
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -2
+        }
+      ],
+      "evidence_zip_sha256": "877cb3dbc2aa3809ae0d81b4b7556bd3163f89aefc9888a8036e827cf19bf1a6",
+      "active_worker_leases_after_stop": 0
+    },
+    "paced-default-isr": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "isr",
+      "device": "dial",
+      "base_sha256": null,
+      "firmware_sha256": "69044c46dd88ac71e6691bd48f535cb8f5d97647a22ed7eb160da8416cd22046",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34538,
+            36277
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34629,
+            36207
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "5c0cc746ae124ffb9937247e2564f3e833492a177743b5b2144a927915ab7c34",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34148,
+            36189
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34654,
+            36190
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4538,
+            6062
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4584,
+            6089
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34546,
+            35920
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34665,
+            36290
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "5c0cc746ae124ffb9937247e2564f3e833492a177743b5b2144a927915ab7c34",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34717,
+            36230
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34452,
+            36297
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4520,
+            6074
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4535,
+            6061
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34175,
+            36182
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34673,
+            36314
+          ],
+          "isr_edges": 12,
+          "phase_sha256": "5c0cc746ae124ffb9937247e2564f3e833492a177743b5b2144a927915ab7c34",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34511,
+            36221
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34721,
+            36257
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4505,
+            6081
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "0353f35a0d891233530a02a3389cd8f4071a40d00de4a277d01eed18484af79d",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4566,
+            6068
+          ],
+          "isr_edges": 16,
+          "phase_sha256": "7c65c05c5fddc729decfc222526ce7b024edc913d3a44ed72a10fa99f96bf885",
+          "exact_phases": true
+        }
+      ],
+      "evidence_zip_sha256": "d7e900d8fbd952afac3cf3f8c3b9b05741f1c081446db75a70b7830fae227923",
+      "active_worker_leases_after_stop": 0
+    },
+    "quiet-display-sampled": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "sampled",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "b125974685aa9a0122d398ac991d807b9b5c4ea553102732af6e207f599b9928",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 1524,
+        "sha256": "38395642176dcf8b687a3b801bf968ddf957a70d33d91fd70f8c007aacb6586e"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3,
+          "callback_count": 12,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -4,
+          "callback_count": 16,
+          "callback_equal_phases": true
+        }
+      ],
+      "evidence_zip_sha256": "d6122e509e966f2589df81ebb86aff6c42f9dc21a0ca391478535efc7c16a6fe",
+      "active_worker_leases_after_stop": 0
+    },
+    "max-default-isr": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "isr",
+      "device": "dial",
+      "base_sha256": null,
+      "firmware_sha256": "69044c46dd88ac71e6691bd48f535cb8f5d97647a22ed7eb160da8416cd22046",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 128,
+          "delta": 128,
+          "edge_period_ms": 35,
+          "model_edges": 512,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            34074,
+            36452
+          ],
+          "observed_first_to_last_edge_us": 18103959,
+          "isr_edges": 512,
+          "phase_sha256": "c505d0b1b78ca034a7124983b29eacb1d136c9a4df6f8cd96e1828cbba8da11d",
+          "exact_phases": true
+        }
+      ],
+      "evidence_zip_sha256": "f31b0a02650547514e835d10d7741f707e8d8bb1a8ea03148006c42f2bc8a256",
+      "active_worker_leases_after_stop": 0
+    },
+    "legacy-default-isr": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "isr",
+      "device": "dial",
+      "base_sha256": null,
+      "firmware_sha256": "69044c46dd88ac71e6691bd48f535cb8f5d97647a22ed7eb160da8416cd22046",
+      "runtime_sha256": "06db397cbe804e9eb13390d797cd67ca33ce5f29048fe7a56342cb66f4d2f9e0",
+      "invalid_periods_before_motion": true,
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "status": "COMPLETE",
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 5,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4356,
+            6077
+          ],
+          "observed_first_to_last_edge_us": 63352,
+          "isr_edges": 12,
+          "phase_sha256": "6a45e5e532ea18393a14d167b26868aed0c02b8cd978a60599ea12737c858aba",
+          "exact_phases": true
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 5,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "observed_interval_us_min_max": [
+            4541,
+            6060
+          ],
+          "observed_first_to_last_edge_us": 64004,
+          "isr_edges": 12,
+          "phase_sha256": "5c0cc746ae124ffb9937247e2564f3e833492a177743b5b2144a927915ab7c34",
+          "exact_phases": true
+        }
+      ],
+      "evidence_zip_sha256": "729d7873f2e3c03760e9fe481bdf00abb362becf05edf485288675481574aa8b",
+      "active_worker_leases_after_stop": 0
+    },
+    "final-source-confirmation": {
+      "validation": "virtual-device validation",
+      "hardware": "NOT RUN",
+      "case": "stock",
+      "device": "dial",
+      "base_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "firmware_sha256": "310c6eff78be47a722582dc05400f2e18463eaf0a8a4b02a1682c9aa923ad4d5",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "invalid_periods_before_motion": true,
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 2044,
+        "sha256": "c2bd8cf71a19ef32f73b5dd525b445ba41d4d4d6702ee4297a2af927c8e0011e"
+      },
+      "evidence_zip_crc": true,
+      "cleanup": "stopped",
+      "service_exited": true,
+      "request_receipts": [
+        {
+          "target": 3,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 3
+        },
+        {
+          "target": 0,
+          "delta": -3,
+          "edge_period_ms": 35,
+          "model_edges": 12,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -3
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": 4
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 35,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "omitted",
+          "completion": "queued",
+          "guest_delta": -4
+        },
+        {
+          "target": 4,
+          "delta": 4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": 2
+        },
+        {
+          "target": 0,
+          "delta": -4,
+          "edge_period_ms": 5,
+          "model_edges": 16,
+          "busy_command_rejected": false,
+          "request_shape": "explicit",
+          "completion": "queued",
+          "guest_delta": -2
+        }
+      ],
+      "evidence_zip_sha256": "dfe7263cbcc1b34cfe09a99a3bcb0c29d415d4f25e1f2c5a83b7697ee52b0a21",
+      "active_worker_leases_after_stop": 0
+    }
+  },
+  "final_service_encoder_sha256": "a20afb7995d67dc7e66987bad22ab081fc8e854e6d7c31b631c953ba89405dea"
+}

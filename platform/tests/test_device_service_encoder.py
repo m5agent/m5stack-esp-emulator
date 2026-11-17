@@ -1,7 +1,7 @@
 """Contract checks for the native Dial encoder adapter."""
 
-from types import SimpleNamespace
 import unittest
+from types import SimpleNamespace
 from unittest.mock import Mock, call
 
 from device_service_encoder import rotate_encoder
@@ -9,7 +9,7 @@ from device_service_errors import ServiceError
 
 
 class DialEncoderTests(unittest.TestCase):
-    def session(self, target=2, delivered=2, edges=8):
+    def session(self, target=2, delivered=2, edges=8, *, paced=True):
         return SimpleNamespace(
             spec=SimpleNamespace(id="dial", machine="m5dial"),
             runtime="qemu",
@@ -18,6 +18,7 @@ class DialEncoderTests(unittest.TestCase):
                     {"return": target},
                     {"return": delivered},
                     {"return": edges},
+                    {"return": [{"name": "paced-detents"}] if paced else [{"name": "detents"}]},
                     {"return": {}},
                 ]
             ),
@@ -32,7 +33,8 @@ class DialEncoderTests(unittest.TestCase):
                 "target_detents": -1,
                 "previous_detents": 2,
                 "previous_gpio_edges": 8,
-                "edge_period_ms": 5,
+                "edge_period_ms": 35,
+                "completion": "queued",
             },
         )
         path = "/machine/encoder"
@@ -42,7 +44,20 @@ class DialEncoderTests(unittest.TestCase):
                 call("qom-get", path=path, property=field)
                 for field in ("detents", "delivered-detents", "gpio-edges")
             ]
-            + [call("qom-set", path=path, property="detents", value=-1)],
+            + [
+                call("qom-list", path=path),
+                call("qom-set", path=path, property="paced-detents",
+                     value={"target_detents": -1, "edge_period_ms": 35}),
+            ],
+        )
+
+    def test_legacy_default_reports_actual_fast_period(self):
+        session = self.session(paced=False)
+        receipt = rotate_encoder(session, 1)
+        self.assertEqual(receipt["edge_period_ms"], 5)
+        self.assertEqual(receipt["completion"], "queued")
+        session._qmp_call.assert_called_with(
+            "qom-set", path="/machine/encoder", property="detents", value=3,
         )
 
     def test_rejects_overlap_and_mid_detent_retarget(self):
@@ -124,7 +139,7 @@ class DialEncoderTests(unittest.TestCase):
                 session._qmp_call.assert_not_called()
 
     def test_explicit_period_requires_new_model(self):
-        session = self.session()
+        session = self.session(paced=False)
         session._qmp_call.side_effect = [
             {"return": 2}, {"return": 2}, {"return": 8},
             {"return": [{"name": "detents", "type": "int"}]},
@@ -133,3 +148,13 @@ class DialEncoderTests(unittest.TestCase):
             rotate_encoder(session, 1, edge_period_ms=5)
         self.assertEqual((raised.exception.code, raised.exception.status), ("unsupported_input", 409))
         self.assertEqual(session._qmp_call.call_args_list[-1], call("qom-list", path="/machine/encoder"))
+
+    def test_explicit_fast_period_overrides_default(self):
+        session = self.session()
+        receipt = rotate_encoder(session, 1, edge_period_ms=5)
+        self.assertEqual(receipt["edge_period_ms"], 5)
+        self.assertEqual(receipt["completion"], "queued")
+        session._qmp_call.assert_called_with(
+            "qom-set", path="/machine/encoder", property="paced-detents",
+            value={"target_detents": 3, "edge_period_ms": 5},
+        )

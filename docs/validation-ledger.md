@@ -35,6 +35,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 [CardputerDict 0.6.4 原版](evidence/2026-11-17-cardputerdict-stock/README.md)通过正常会话及 saved-snapshot 审核，从自编 FAT32 StarDict 词库查词。缺正文和无卡对照均回退，完整审核仍为 `SIM_PARTIAL`。0.3.0 未执行。
 
 [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)：ADV 原驱动 56 个物理键与旧 runtime 负对照，K132 Fn、StickS3 A+B/双击/4999 ms 长按和 Core2 两次接触均取得客体证据。Dial 默认对照控制器 9/9、原 RotaryIRQ 3/9，后续 35/50 ms 显式速度原驱动 6/6；StopWatch 原版复审提交关闭并保留应用行为 PARTIAL。
+
+[Dial 普通服务输入](evidence/2026-11-17-semantic-native-input/dial-default-pace-summary.json)使用同一 UIFlow2 镜像和原生运行时对照：旧 5 ms 入口 1/8，35 ms 默认入参后正反转 12/12。ESP-IDF ISR 验证了两种速度的全部相序。省略探针的同步 LCD 重画后，显式 5 ms 也在原 RotaryIRQ 上准确计数 6/6。
 [Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。 [导出复验](evidence/2026-11-17-spi-sd-admission/export-summary.json)在同一 FAT32 镜像校验目录时间戳修复、运行时拒绝、内容寻址导出和服务重启读回。
 
 [SPI SD 挂载容量复验](../tests/firmware/spi_sd_media/spi-capacity-summary.json)用同一 NC1020 原版和 96 MiB 测试卡定位了重复接入 SDMMC 的启动错误。修正后原版挂载卡并开始 ROM 导入。PaperDIY 新的 96 MiB 读写、重挂载和同会话复位读回通过。

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.66.0
+  version: 1.67.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2529,7 +2529,8 @@ paths:
             GPIO taps retain synchronous host timing and completion=events_sent.
             For semantic native controls, an accepted receipt describes input
             submission; confirm guest response or controller delivery separately.
-            Encoder requests return a controller target and prior physical state.
+            Encoder requests return controller.completion=queued, the target,
+            selected edge interval, and prior physical state.
             Native Tab5 GT911 gestures return coordinate_space=panel-native,
             controller=gt911, and controller_reports counts for produced and
             acknowledged reports after the guest consumes the final release.
@@ -5839,8 +5840,11 @@ components:
               type: integer
               minimum: 5
               maximum: 100
-              default: 5
-              description: Per-motion physical quadrature edge interval; explicit values require a paced Dial runtime.
+              default: 35
+              description: >
+                Per-motion physical quadrature edge interval. On paced Dial
+                runtimes the service defaults to 35 ms. Legacy runtimes keep
+                5 ms when the field is absent and reject an explicit value.
             settle_seconds: {type: number, minimum: 0, maximum: 5}
         - type: object
           required: [kind, x, y]
