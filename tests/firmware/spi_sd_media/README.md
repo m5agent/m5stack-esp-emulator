@@ -87,6 +87,25 @@ The earlier service also attached SPI media to the QEMU SDMMC backend,
 which rejected the exact 96 MiB image before the original NC1020 guest ran.
 The fixed service attaches that media to the board-wired SPI endpoint.
 The original guest mounts the card and begins reading the synthetic ROM.
-End-to-end NC1020 boot and save remain outside the bounded proof. The
+That observation covers SD ROM import progress. The
 [observations](spi-capacity-summary.json) bind exact seed, firmware and runtime
 hashes and include the PaperDIY reset and no-ROM/no-media controls.
+
+## NC1020 original save and reload
+
+Use the exact merged original and a writable FAT32 card without replacement
+ROM/NOR. Wait for `romdata pre-filled`, `NOR in flash ready`, and a guest
+heartbeat. Hold the modeled G0 button, wait for
+`state save /sd/nc1020.state: ok`, collect the evidence ZIP, and stop with
+`purge=0`. Verify the file with the stopped-session SD inventory, export
+the writable card, and attach the exported artifact to a new session using
+the same firmware. The second session prints `fixed state values` and resumes
+its heartbeat. The source card stays unchanged.
+
+The [run receipt](nc1020-save-summary.json) records the incomplete initial
+frame, black frame after reload, and the separate saved-snapshot review.
+It also records the partial import of separately authored SD payloads.
+The 64 MiB FAT16 comparison card uses
+`--format fat16-superfloppy --size-mib 64 --sectors-per-cluster 32`.
+The exact original mounts that card and reaches bank 96 before a CPU1
+interrupt watchdog reset.

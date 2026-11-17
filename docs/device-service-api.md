@@ -2529,6 +2529,9 @@ expose the artifact SHA, size, interface and session-isolated copy boundary.
 superfloppy fixtures for reproducible storage-dependent firmware tests.
 FAT32 defaults to 512-byte clusters. For 66–96 MiB FAT32 images, use
 `--sectors-per-cluster 2` to create 1,024-byte clusters.
+FAT16 defaults to 2 KiB clusters. For a 64 MiB card with 16 KiB clusters, use
+`--format fat16-superfloppy --size-mib 64 --sectors-per-cluster 32`.
+The tool checks the FAT cluster count before creating an image.
 
 Stop the guest with `purge=0` before inspecting or exporting its writable SD
 disk. Both endpoints require `storage.read` when runtime ACL is configured.

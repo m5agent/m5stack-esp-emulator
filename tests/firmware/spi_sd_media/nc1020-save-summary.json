@@ -1,0 +1,198 @@
+{
+  "validation": "virtual-device validation",
+  "hardware": "NOT RUN",
+  "device": "cardputer",
+  "original_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+  "native_xtensa_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+  "storage_save_restore": {
+    "status": "PASS",
+    "service_source": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7",
+    "original_application_and_baked_data": "unchanged; mounted card has no replacement ROM/NOR",
+    "source_sd_sha256": "d01c4f4b416e0b54ce5a006b99848158b816722b6a453a05caeda576026f5546",
+    "source_sd_preserved": true,
+    "original_baked_content_mounted": true,
+    "physical_control": {
+      "kind": "button",
+      "control": "boot",
+      "action": "hold",
+      "seconds": 0.85,
+      "settle_seconds": 0.3
+    },
+    "source_markers": [
+      "romdata pre-filled",
+      "NOR in flash ready",
+      "G0 pressed",
+      "state save /sd/nc1020.state: ok"
+    ],
+    "card_spi_single_block_writes": 213,
+    "saved_file": {
+      "path": "/nc1020.state",
+      "size": 99384,
+      "sha256": "f9f942d48b0e833ab6f732b339c3ea4153f9f575d1495b99d284ff718204a5be"
+    },
+    "retained_sd_sha256": "b725a7a5785c50cf23adfa84e7982d7d266d6b4010fb103067eefa08e1202f3b",
+    "new_session_restored": "fixed state values; resumed emulator heartbeat",
+    "save_evidence_sha256": "cf84a82c9cd496dd6eecb69e87c8d6cdff3788d9174337a72463e6603390f51c",
+    "restore_evidence_sha256": "4ebac1a0a5c6ad91a2fdb4f8f3f8be8c82bb2e1ea1b01ea654fd3f492c877c1b",
+    "source_frame": {
+      "size": [
+        240,
+        135
+      ],
+      "colors": 2,
+      "sha256": "b7608a632ca9687684bc548d4c39bf030eb240bff7903fae7a32b4b61d714af7",
+      "nonblack_pixels": 16200
+    },
+    "restored_frame": {
+      "size": [
+        240,
+        135
+      ],
+      "colors": 1,
+      "sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+      "nonblack_pixels": 0
+    },
+    "application_display": "PARTIAL; incomplete initial frame and black after load",
+    "cleanup": {
+      "both_sessions_stopped": true,
+      "active_leases": 0,
+      "flash_released": true
+    }
+  },
+  "saved_snapshot_review": {
+    "reviewer_revision": "6e2254fa3749d60c47ee6139c4c2d373e31ab896",
+    "source_revision": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7",
+    "assertion": {
+      "status": "PASS",
+      "scope": "serial_event",
+      "line_contains": "state save /sd/nc1020.state: ok",
+      "serial_offset_before": 6744,
+      "before_sha256": "ba46548da9ea3d755715f1afa8a3345d1a7a78db6a6b6414746eb8fb2be3e7c7",
+      "matched_event": "state save /sd/nc1020.state: ok",
+      "serial_offset_after": 11590,
+      "after_sha256": "fbd8c55c2d9e337f214c68e02745aaa0fb2d1ff08863df01760e02768607bd7e"
+    },
+    "save_file": {
+      "path": "/nc1020.state",
+      "size": 99384,
+      "sha256": "e9d305658882bd0ebb2037f000491c6ae67641d0f5f62e7da336567f72fbf0cb"
+    },
+    "observation": {
+      "status": "PASS",
+      "required_seconds": 60,
+      "elapsed_seconds": 60.0076955,
+      "sample_count": 13,
+      "frame_scope": "framebuffer",
+      "frame_unavailable_reason": null,
+      "evidence_file": "observation.json"
+    },
+    "review_status": "manual_review",
+    "review_error_code": "E_INTERACTION_CLAIM_PARTIAL",
+    "evidence_zip_sha256": "8177f561d76750ab58b2c7d80a2f039f8256272168309a3f34506bf9036b79bb",
+    "cleanup": {
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0
+    },
+    "burner": "NOT SUBMITTED"
+  },
+  "cold_import": {
+    "status": "PARTIAL",
+    "authored_fixture_files": [
+      {
+        "name": "nc1020.rom",
+        "sha256": "9d0105170896737a6d8a0b2ad27b1be7c5ce5a0f2b932b78d3e3bb3140d6a5c1"
+      },
+      {
+        "name": "nc1020.nor",
+        "sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      }
+    ],
+    "fat32_64_mib": {
+      "service_source": "6da7ab20351d732c6738fe13311f686efc856db3",
+      "cluster_bytes": 512,
+      "samples": [
+        {
+          "banks": 0,
+          "guest_ms": 7894
+        },
+        {
+          "banks": 16,
+          "guest_ms": 153806
+        },
+        {
+          "banks": 32,
+          "guest_ms": 390589
+        },
+        {
+          "banks": 48,
+          "guest_ms": 702400
+        },
+        {
+          "banks": 64,
+          "guest_ms": 1097120
+        },
+        {
+          "banks": 80,
+          "guest_ms": 1574419
+        },
+        {
+          "banks": 96,
+          "guest_ms": 2134525
+        },
+        {
+          "banks": 112,
+          "guest_ms": 2776952
+        },
+        {
+          "banks": 128,
+          "guest_ms": 3509602
+        }
+      ],
+      "stop_reason": "bounded observation ended at 60 minutes",
+      "cleanup": {
+        "session_stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    },
+    "fat16_64_mib": {
+      "service_source": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7",
+      "cluster_bytes": 16384,
+      "sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+      "samples_first_attempt": [
+        {
+          "banks": 0,
+          "guest_ms": 7817
+        },
+        {
+          "banks": 16,
+          "guest_ms": 103309
+        },
+        {
+          "banks": 32,
+          "guest_ms": 199233
+        },
+        {
+          "banks": 48,
+          "guest_ms": 304743
+        },
+        {
+          "banks": 64,
+          "guest_ms": 400365
+        },
+        {
+          "banks": 80,
+          "guest_ms": 496012
+        },
+        {
+          "banks": 96,
+          "guest_ms": 591944
+        }
+      ],
+      "guest_error_after_last_sample": "Interrupt wdt timeout on CPU1",
+      "reboot_reason": "RTC_SW_CPU_RST",
+      "result_scope": "first attempt, before software CPU reset"
+    }
+  }
+}

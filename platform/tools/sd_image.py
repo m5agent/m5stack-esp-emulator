@@ -21,56 +21,38 @@ MBR_PARTITION_START = 2048
 FAT32_RESERVED_SECTORS = 32
 
 
-def _fat_size_sectors(total_sectors: int) -> int:
-    size = 1
-    while True:
-        data_sectors = (
-            total_sectors
-            - RESERVED_SECTORS
-            - ROOT_DIR_SECTORS
-            - FAT_COUNT * size
-        )
-        clusters = data_sectors // SECTORS_PER_CLUSTER
-        required = ((clusters + 2) * 2 + BYTES_PER_SECTOR - 1) // BYTES_PER_SECTOR
-        if required == size:
-            if not 4085 <= clusters <= 65524:
-                raise ValueError("image size does not produce a valid FAT16 cluster count")
-            return size
-        size = required
-
-
-def _fat32_cluster_count(partition_sectors: int, size: int, sectors_per_cluster: int) -> int:
-    data_sectors = partition_sectors - FAT32_RESERVED_SECTORS - FAT_COUNT * size
-    return data_sectors // sectors_per_cluster
-
-
-def _fat32_size_sectors(partition_sectors: int, sectors_per_cluster: int) -> int:
+def _fat_geometry(
+    total_sectors: int, overhead_sectors: int, sectors_per_cluster: int, entry_bytes: int,
+) -> tuple[int, int]:
     # Find the smallest sufficient FAT. Replacing its size with the exact
     # required count can oscillate when adding one sector removes a cluster.
+    def cluster_count(fat_sectors: int) -> int:
+        return (total_sectors - overhead_sectors - FAT_COUNT * fat_sectors) // sectors_per_cluster
+
     low = 1
-    high = ((partition_sectors + 2) * 4 + BYTES_PER_SECTOR - 1) // BYTES_PER_SECTOR
+    high = ((total_sectors + 2) * entry_bytes + BYTES_PER_SECTOR - 1) // BYTES_PER_SECTOR
     while low < high:
         size = (low + high) // 2
-        clusters = _fat32_cluster_count(partition_sectors, size, sectors_per_cluster)
-        if (clusters + 2) * 4 > size * BYTES_PER_SECTOR:
+        if (cluster_count(size) + 2) * entry_bytes > size * BYTES_PER_SECTOR:
             low = size + 1
         else:
             high = size
-    if _fat32_cluster_count(partition_sectors, low, sectors_per_cluster) < 65525:
-        raise ValueError("image size does not produce a valid FAT32 cluster count")
-    return low
+    return low, cluster_count(low)
 
 
 def _volume_id(label: str) -> int:
     return int.from_bytes(hashlib.sha256(label.encode("ascii")).digest()[:4], "little")
 
 
-def fat16_boot_sector(*, total_sectors: int, fat_sectors: int, label: str) -> bytes:
+def fat16_boot_sector(
+    *, total_sectors: int, fat_sectors: int, label: str,
+    sectors_per_cluster: int = SECTORS_PER_CLUSTER,
+) -> bytes:
     boot = bytearray(BYTES_PER_SECTOR)
     boot[0:3] = b"\xeb\x3c\x90"
     boot[3:11] = b"MSWIN4.1"
     struct.pack_into("<H", boot, 11, BYTES_PER_SECTOR)
-    boot[13] = SECTORS_PER_CLUSTER
+    boot[13] = sectors_per_cluster
     struct.pack_into("<H", boot, 14, RESERVED_SECTORS)
     boot[16] = FAT_COUNT
     struct.pack_into("<H", boot, 17, ROOT_ENTRIES)
@@ -157,9 +139,12 @@ def create_fat16_image(
     *,
     size_mib: int = 32,
     label: str = "M5FIXTURE",
+    sectors_per_cluster: int = SECTORS_PER_CLUSTER,
 ) -> dict:
     if size_mib < 16 or size_mib > 64:
         raise ValueError("size_mib must be between 16 and 64")
+    if type(sectors_per_cluster) is not int or sectors_per_cluster not in (1, 2, 4, 8, 16, 32):
+        raise ValueError("FAT16 sectors_per_cluster must be 1, 2, 4, 8, 16 or 32")
     normalized_label = label.upper()
     if (
         not normalized_label
@@ -169,11 +154,16 @@ def create_fat16_image(
         raise ValueError("label must be 1-11 ASCII letters, digits, '_' or '-'")
 
     total_sectors = size_mib * 1024 * 1024 // BYTES_PER_SECTOR
-    fat_sectors = _fat_size_sectors(total_sectors)
+    fat_sectors, clusters = _fat_geometry(
+        total_sectors, RESERVED_SECTORS + ROOT_DIR_SECTORS, sectors_per_cluster, 2,
+    )
+    if not 4085 <= clusters <= 65524:
+        raise ValueError("image size does not produce a valid FAT16 cluster count")
     boot = fat16_boot_sector(
         total_sectors=total_sectors,
         fat_sectors=fat_sectors,
         label=normalized_label,
+        sectors_per_cluster=sectors_per_cluster,
     )
     fat_start = RESERVED_SECTORS * BYTES_PER_SECTOR
     second_fat_start = fat_start + fat_sectors * BYTES_PER_SECTOR
@@ -193,13 +183,15 @@ def create_fat16_image(
             image.write(fat_prefix)
         image.seek(root_start)
         image.write(volume_entry)
+    with path.open("rb") as image:
+        digest = hashlib.file_digest(image, "sha256").hexdigest()
     return {
         "path": str(path),
         "bytes": path.stat().st_size,
-        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "sha256": digest,
         "filesystem": "FAT16",
         "sector_bytes": BYTES_PER_SECTOR,
-        "sectors_per_cluster": SECTORS_PER_CLUSTER,
+        "sectors_per_cluster": sectors_per_cluster,
         "fat_sectors": fat_sectors,
         "label": normalized_label,
     }
@@ -226,7 +218,11 @@ def create_fat32_mbr_image(
 
     total_sectors = size_mib * 1024 * 1024 // BYTES_PER_SECTOR
     partition_sectors = total_sectors - MBR_PARTITION_START
-    fat_sectors = _fat32_size_sectors(partition_sectors, sectors_per_cluster)
+    fat_sectors, clusters = _fat_geometry(
+        partition_sectors, FAT32_RESERVED_SECTORS, sectors_per_cluster, 4,
+    )
+    if clusters < 65525:
+        raise ValueError("image size does not produce a valid FAT32 cluster count")
     boot = fat32_boot_sector(
         partition_sectors=partition_sectors,
         fat_sectors=fat_sectors,
@@ -238,7 +234,6 @@ def create_fat32_mbr_image(
     first_fat = partition_start_bytes + FAT32_RESERVED_SECTORS * BYTES_PER_SECTOR
     second_fat = first_fat + fat_sectors * BYTES_PER_SECTOR
     root_start = second_fat + fat_sectors * BYTES_PER_SECTOR
-    clusters = _fat32_cluster_count(partition_sectors, fat_sectors, sectors_per_cluster)
     fat_prefix = struct.pack(
         "<III",
         0x0FFFFFF8,
@@ -299,10 +294,12 @@ def main() -> None:
         default="fat32-mbr",
     )
     parser.add_argument("--size-mib", type=int)
-    parser.add_argument("--sectors-per-cluster", type=int, choices=(1, 2), help="FAT32 cluster size")
+    parser.add_argument("--sectors-per-cluster", type=int, choices=(1, 2, 4, 8, 16, 32))
     parser.add_argument("--label", default="M5FIXTURE")
     args = parser.parse_args()
     if args.format == "fat32-mbr":
+        if args.sectors_per_cluster not in (None, 1, 2):
+            parser.error("FAT32 requires --sectors-per-cluster 1 or 2")
         result = create_fat32_mbr_image(
             args.out,
             size_mib=args.size_mib or 64,
@@ -310,12 +307,11 @@ def main() -> None:
             sectors_per_cluster=args.sectors_per_cluster or FAT32_SECTORS_PER_CLUSTER,
         )
     else:
-        if args.sectors_per_cluster is not None:
-            parser.error("--sectors-per-cluster requires --format fat32-mbr")
         result = create_fat16_image(
             args.out,
             size_mib=args.size_mib or 32,
             label=args.label,
+            sectors_per_cluster=args.sectors_per_cluster or SECTORS_PER_CLUSTER,
         )
     print(
         f"created {result['filesystem']} "

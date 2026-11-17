@@ -85,6 +85,19 @@ class SdImageTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "label"):
                 create_fat16_image(output, label="BAD LABEL")
 
+    def test_fat16_16_kib_clusters_fit_a_64_mib_card(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "fixture.img"
+            with self.assertRaisesRegex(ValueError, "valid FAT16 cluster count"):
+                create_fat16_image(output, size_mib=63, sectors_per_cluster=32)
+            self.assertFalse(output.exists())
+
+            result = create_fat16_image(output, size_mib=64, sectors_per_cluster=32)
+            volume, = inventory_sd_filesystems(output.read_bytes())["filesystems"]
+            self.assertEqual(volume["fat_type"], "fat16")
+            self.assertEqual((volume["cluster_size"], volume["cluster_count"]), (16 << 10, 4093))
+            self.assertEqual((result["sectors_per_cluster"], result["fat_sectors"]), (32, 16))
+
     def test_fat32_mbr_image_has_partition_boot_and_duplicate_fats(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "fixture.img"

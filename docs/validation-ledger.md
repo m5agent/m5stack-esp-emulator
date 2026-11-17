@@ -43,6 +43,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [SPI SD 挂载容量复验](../tests/firmware/spi_sd_media/spi-capacity-summary.json)用同一 NC1020 原版和 96 MiB 测试卡定位了重复接入 SDMMC 的启动错误。修正后原版挂载卡并开始 ROM 导入。PaperDIY 新的 96 MiB 读写、重挂载和同会话复位读回通过。
 
+[NC1020 原版 G0 存档](../tests/firmware/spi_sd_media/nc1020-save-summary.json)使用精确原版内嵌 ROM/NOR，在可写 FAT32 上保存了 99,384 字节。停止并导出后，新会话读回存档并继续输出心跳。保存快照复审另用输入后串口事件断言和停止后文件清单确认同一功能，完整审核仍需人工复核。自编 ROM/NOR 冷导入中，64 MiB FAT32 的有界运行到达 128/206；64 MiB FAT16 的 16 KiB 簇减少早期导入耗时，首轮到达 96/206 后出现 CPU1 中断 watchdog 和来宾复位。
+
 [PaperDIY 原生 API 验证](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)使用同一 SDK 固件和 FAT32 镜像，在 `cbc0ea74…` 上确认 G48 有卡低、无卡高及读写重新挂载。旧二进制 `ba82940a…` 仍可无卡运行，有卡请求返回 `409 storage_not_supported` 且无会话分配。
 
 [Cardputer 原生 STA 夹具](../tests/network/native_sta_peers/README.md)在隔离 macOS 测试路径用初代 Cardputer 和 ADV 逐项完成 DHCP、HTTP 正文核对、DNS A/NXDOMAIN、UDP 精确字节校验及同会话 PCAP。错误 UDP 响应仍有双向流量，但来宾业务断言拒绝。Linux namespace 正向执行仍待验收。

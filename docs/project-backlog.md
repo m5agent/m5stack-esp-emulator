@@ -44,8 +44,9 @@
    原生键位以控制器和 guest 驱动读回验收。Dial 的普通输入使用 35 ms，
    并保留显式高速输入。显式 5 ms 下的 UIFlow2 RotaryIRQ 应用计数仍开放，
    验收时同时检查引脚相序和来宾计数。
-2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，并用具备再分发或本地测试权限的
-   fixture 验证原版 nc1020 的 ROM/NOR 和存档，扩展 CardputerDict 的版本与设备范围。
+2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，补原版 nc1020 的 SD ROM/NOR 冷导入
+   和稳定画面，扩展 CardputerDict 的版本与设备范围。原版 NC1020 用内嵌 ROM/NOR 时已通过
+   [G0 存档与跨会话加载](../tests/firmware/spi_sd_media/nc1020-save-summary.json)。
    PaperDIY 会话内热插拔需要
    实现介质切换和 GPIO48 电平变化。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、原版应用的
