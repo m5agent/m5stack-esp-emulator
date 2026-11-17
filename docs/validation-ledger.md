@@ -88,6 +88,8 @@ ESP-IDF 驱动在同一 Device Service 会话收到四次 GPIO48 中断。首次
 [Dial AudioPlayer UART](evidence/2026-11-17-dial-audioplayer/README.md)记录候选原生运行时的两端口官方驱动复验及空介质负控。原版 vinylM5Dial 1.0 在 PORT.B 识别虚拟曲目，按默认旋钮输入切换第 1、4、2 轨。当时原版屏幕为全黑，按键和触摸现象保留为失败对照。
 
 [Dial GC9A01 GPIO 探测](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)记录同原版 R1F30 BIN 在 0218 的非黑帧、正反向 35 ms 整圈、触摸及物理按键经 UART 验证。显式 5 ms 整圈保留通过及漏选曲对照，同时保留旧版无 GP-SPI 传输及官方 UIFlow2 非黑帧对照。
+[Dial 快速旋转时序](evidence/2026-11-18-dial-fast-rotary/README.md)记录 0220 同 GPIO ISR 夹具的原生边沿时间 A/B、UIFlow2 同步重画控制，以及相关 vinylM5Dial 原版选曲证据。
+
 [Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。 [导出复验](evidence/2026-11-17-spi-sd-admission/export-summary.json)在同一 FAT32 镜像校验目录时间戳修复、运行时拒绝、内容寻址导出和服务重启读回。
 
 [SPI SD 挂载容量复验](../tests/firmware/spi_sd_media/spi-capacity-summary.json)用同一 NC1020 原版和 96 MiB 测试卡定位了重复接入 SDMMC 的启动错误。修正后原版挂载卡并开始 ROM 导入。PaperDIY 新的 96 MiB 读写、重挂载和同会话复位读回通过。

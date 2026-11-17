@@ -1775,3 +1775,11 @@ authentication for its infrastructure AP even before a guest SoftAP
 client is associated. A configured guest can then rejoin the same AP
 from its own Flash after reset. Management processing for the other
 SoftAP profiles keeps the original gate.
+
+## Dial quadrature edge deadlines (0220)
+
+Use nanosecond virtual deadlines in the Dial encoder. The service still accepts
+milliseconds. Each callback re-arms from the current virtual time and preserves
+its fractional millisecond. This keeps deadlines at least one requested period
+apart when QEMU is late. The board phases and the native GPIO/IRQ path are
+unchanged. [Controller and guest timing](../../docs/evidence/2026-11-18-dial-fast-rotary/README.md)
