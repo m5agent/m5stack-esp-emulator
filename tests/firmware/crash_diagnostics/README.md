@@ -71,9 +71,9 @@ the same-session evidence ZIP before stopping. The live endpoint must return
 process, writable Flash and lease are released. See the
 [bounded virtual-device result](live-cpu-pc-summary.json).
 
-The Nesso N1 MWDT fixture reached its UART readiness marker on native C6.
-The endpoint returned `409 cpu_pc_not_supported`. The Espressif RISC-V
+The earlier Xtensa-only endpoint returned `409 cpu_pc_not_supported` after
+the Nesso N1 MWDT fixture reached its UART readiness marker on native C6. The Espressif RISC-V
 `addr2line` tool separately resolved the known `setup()` symbol address
 with the app ELF exactly matched to the normalized ESP32-C6 Flash descriptor.
-That known address came from the ELF symbol table. Live RISC-V PC sampling
-and crash-time RISC-V frame attribution remain unvalidated.
+That known address came from the ELF symbol table. The newer native C6 live PC
+and same-session panic probes have their own [receipt](riscv_c6/live-cpu-pc-summary.json).

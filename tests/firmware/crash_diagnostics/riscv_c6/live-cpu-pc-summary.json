@@ -1,0 +1,484 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "source_base": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7",
+  "contract": {
+    "version": "1.68.0",
+    "operation": "GET /api/v1/sessions/{id}/crash/cpu-pc",
+    "permission": "serial.read",
+    "cache_control": "no-store"
+  },
+  "qmp": {
+    "read_only_commands": [
+      "query-status",
+      "query-cpus-fast",
+      "qom-get",
+      "human-monitor-command: info registers -a"
+    ],
+    "c6_machine_type": "esp32c6-machine",
+    "c6_cpu_model": "espressif-riscv-cpu",
+    "c6_target": "riscv32",
+    "state_test": "The isolated harness paused and resumed through its private QMP connection; the HTTP endpoint only sampled."
+  },
+  "scenarios": {
+    "mwdt": {
+      "status": "PASS",
+      "scenario": "mwdt",
+      "device_id": "nesso-n1",
+      "runtime": "qemu",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "runtime_executable_verified": true,
+      "source_firmware_sha256": "78c9c8c2c5073abc8b4c53094ab320fed456b82a9a95539d4ae6213811e78fa8",
+      "firmware_sha256": "592825bf43b3a3b37c6f9cc2f043050b2c6552e59c2bc4af71c300982160cbdd",
+      "asserted_marker": "MWDT_PROBE_READY",
+      "serial_sha256": "2e473d00edebd56e3dbb398f7fe88613f57211048ab9fbc5c1be2c0e9ad3ee67",
+      "bundle_sha256": "9a4b7382bb7dc39f1c73497e5afff7a5619a3c141dd331e8d6bcd3191c38c2d1",
+      "bundle_crc_verified": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0,
+        "post_stop_rejection": "session_not_running"
+      },
+      "isolated_service_exited": true,
+      "samples": [
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "592825bf43b3a3b37c6f9cc2f043050b2c6552e59c2bc4af71c300982160cbdd",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.199628+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "running",
+          "run_state_after": "running",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x4080273e"
+            }
+          ]
+        },
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "592825bf43b3a3b37c6f9cc2f043050b2c6552e59c2bc4af71c300982160cbdd",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.201578+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "paused",
+          "run_state_after": "paused",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x4080273e"
+            }
+          ]
+        },
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "592825bf43b3a3b37c6f9cc2f043050b2c6552e59c2bc4af71c300982160cbdd",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.202877+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "paused",
+          "run_state_after": "paused",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x4080273e"
+            }
+          ]
+        },
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "592825bf43b3a3b37c6f9cc2f043050b2c6552e59c2bc4af71c300982160cbdd",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.205255+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "running",
+          "run_state_after": "running",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x4080273e"
+            }
+          ]
+        }
+      ]
+    },
+    "abort": {
+      "status": "PASS",
+      "scenario": "abort",
+      "device_id": "nesso-n1",
+      "runtime": "qemu",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "runtime_executable_verified": true,
+      "source_firmware_sha256": "8ea84737c443e32b9683f132da937ca4acba815c8e433329ecf3d40610bce080",
+      "firmware_sha256": "8ea84737c443e32b9683f132da937ca4acba815c8e433329ecf3d40610bce080",
+      "asserted_marker": "RISCV_C6_CRASH_PROBE_ARMED",
+      "serial_sha256": "94ef51671a91216fbd923c2973a8a9633ee8c9cdf1c06aa1dfeb964e943d2c67",
+      "bundle_sha256": "43316f201ce7b674aa983674d5de8a96e4a2e5ea391dc019f3257f97b69577e3",
+      "bundle_crc_verified": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0,
+        "post_stop_rejection": "session_not_running"
+      },
+      "isolated_service_exited": true,
+      "samples": [
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "8ea84737c443e32b9683f132da937ca4acba815c8e433329ecf3d40610bce080",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.784803+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "running",
+          "run_state_after": "running",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x40800412"
+            }
+          ]
+        },
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "8ea84737c443e32b9683f132da937ca4acba815c8e433329ecf3d40610bce080",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:25.801956+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "running",
+          "run_state_after": "running",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x40800412"
+            }
+          ]
+        }
+      ],
+      "guest_panic": {
+        "panic": {
+          "kind": "panic",
+          "core": 0,
+          "reason": "abort",
+          "line": "abort() was called at PC 0x4200a5dd on core 0",
+          "core_unassigned_backtrace": [],
+          "elf_sha256_prefix": "6f29ed2b4",
+          "abort_call_site_pc": "0x4200a5dd"
+        },
+        "cpus": [
+          {
+            "core": 0,
+            "pc": "0x40804cb8",
+            "register": "MEPC",
+            "pc_source": "guest_register_dump"
+          }
+        ],
+        "elf": {
+          "status": "matched",
+          "reported_sha256_prefix": "6f29ed2b4",
+          "artifact_sha256": "6f29ed2b4031d15ef90e426f456ace9193fff45c4fdb99de30029f58b1c91521",
+          "expected_sha256": "6f29ed2b4031d15ef90e426f456ace9193fff45c4fdb99de30029f58b1c91521",
+          "symbolization_eligible": true
+        },
+        "symbols": {
+          "status": "decoded",
+          "source": "matched_riscv_elf_function_ranges",
+          "addresses": [
+            {
+              "pc": "0x40804cb8",
+              "status": "resolved",
+              "function": "panic_abort",
+              "offset": 18
+            },
+            {
+              "pc": "0x4200a5dd",
+              "status": "resolved",
+              "function": "trigger_riscv_abort",
+              "offset": 39
+            }
+          ]
+        }
+      }
+    },
+    "original": {
+      "status": "PASS",
+      "scenario": "original",
+      "device_id": "nesso-n1",
+      "runtime": "qemu",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "runtime_executable_verified": true,
+      "source_firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "firmware_sha256": "a5450d7c2001b5ef04b8403b8e7c0ff2530d42d7cd11d794fd740c5056afed9e",
+      "asserted_marker": "ESP-ROM:esp32c6",
+      "serial_sha256": "ff56d212d381d326565ac844dd4b6ac82ee3720d9813ded660f217832ba3c023",
+      "bundle_sha256": "4e93f844d15c9f41f0e90781def98777fccbbddfb60218737933ff2641b7bdfa",
+      "bundle_crc_verified": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0,
+        "post_stop_rejection": "session_not_running"
+      },
+      "isolated_service_exited": true,
+      "samples": [
+        {
+          "schema_version": 1,
+          "device_id": "nesso-n1",
+          "firmware_sha256": "a5450d7c2001b5ef04b8403b8e7c0ff2530d42d7cd11d794fd740c5056afed9e",
+          "runtime": "qemu",
+          "sampled_at": "2026-11-17T12:20:29.081619+00:00",
+          "source": "qmp_hmp_info_registers",
+          "target": "riscv32",
+          "machine_type": "esp32c6-machine",
+          "cpu_model": "espressif-riscv-cpu",
+          "run_state_before": "running",
+          "run_state_after": "running",
+          "cpus": [
+            {
+              "cpu_index": 0,
+              "pc": "0x4080a5de"
+            }
+          ]
+        }
+      ],
+      "original_firmware": "Meshtastic RFID Demo",
+      "application_functionality": "NOT RUN"
+    }
+  },
+  "core2_control": {
+    "status": "PASS",
+    "device_id": "core2",
+    "runtime": "qemu",
+    "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+    "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+    "elf_sha256": "1916d0ba967d78f1028c27a25073bef7b94a683159fafd1c88e089bac9e678a4",
+    "samples_before_panic": [
+      {
+        "schema_version": 1,
+        "device_id": "core2",
+        "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+        "runtime": "qemu",
+        "sampled_at": "2026-11-17T12:18:35.993144+00:00",
+        "source": "qmp_hmp_info_registers",
+        "target": "xtensa",
+        "run_state_before": "running",
+        "run_state_after": "running",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x40083da6"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40083da6"
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "device_id": "core2",
+        "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+        "runtime": "qemu",
+        "sampled_at": "2026-11-17T12:18:35.994517+00:00",
+        "source": "qmp_hmp_info_registers",
+        "target": "xtensa",
+        "run_state_before": "paused",
+        "run_state_after": "paused",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x4008af9b"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40082a06"
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "device_id": "core2",
+        "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+        "runtime": "qemu",
+        "sampled_at": "2026-11-17T12:18:35.995443+00:00",
+        "source": "qmp_hmp_info_registers",
+        "target": "xtensa",
+        "run_state_before": "paused",
+        "run_state_after": "paused",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x4008af9b"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x40082a06"
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "device_id": "core2",
+        "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+        "runtime": "qemu",
+        "sampled_at": "2026-11-17T12:18:35.997068+00:00",
+        "source": "qmp_hmp_info_registers",
+        "target": "xtensa",
+        "run_state_before": "running",
+        "run_state_after": "running",
+        "cpus": [
+          {
+            "cpu_index": 0,
+            "pc": "0x40083ca8"
+          },
+          {
+            "cpu_index": 1,
+            "pc": "0x400dabad"
+          }
+        ]
+      }
+    ],
+    "post_panic_sample": {
+      "schema_version": 1,
+      "device_id": "core2",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "runtime": "qemu",
+      "sampled_at": "2026-11-17T12:18:36.260027+00:00",
+      "source": "qmp_hmp_info_registers",
+      "target": "xtensa",
+      "run_state_before": "running",
+      "run_state_after": "running",
+      "cpus": [
+        {
+          "cpu_index": 0,
+          "pc": "0x400d1b33"
+        },
+        {
+          "cpu_index": 1,
+          "pc": "0x400814e6"
+        }
+      ]
+    },
+    "guest_observation": {
+      "panic": {
+        "kind": "watchdog",
+        "core": 1,
+        "reason": "Interrupt wdt timeout on CPU1",
+        "line": "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).",
+        "core_unassigned_backtrace": [],
+        "elf_sha256_prefix": "1916d0ba9"
+      },
+      "cpus": [
+        {
+          "core": 0,
+          "pc": "0x4000bfea",
+          "register": "PC",
+          "pc_source": "guest_register_dump",
+          "backtrace": [
+            {
+              "pc": "0x4000bfe7",
+              "sp": "0x3ffb12c0"
+            },
+            {
+              "pc": "0x40085d1d",
+              "sp": "0x3ffb12d0"
+            },
+            {
+              "pc": "0x40086cdf",
+              "sp": "0x3ffb12f0"
+            },
+            {
+              "pc": "0x40086343",
+              "sp": "0x3ffb1310"
+            },
+            {
+              "pc": "0x40086031",
+              "sp": "0x3ffb1330"
+            },
+            {
+              "pc": "0x40082a66",
+              "sp": "0x3ffb1340"
+            },
+            {
+              "pc": "0x40083da3",
+              "sp": "0x3ffb5180"
+            },
+            {
+              "pc": "0x400e0067",
+              "sp": "0x3ffb51a0"
+            },
+            {
+              "pc": "0x400869aa",
+              "sp": "0x3ffb51c0"
+            },
+            {
+              "pc": "0x40085bad",
+              "sp": "0x3ffb51e0"
+            }
+          ]
+        },
+        {
+          "core": 1,
+          "pc": "0x400d7d19",
+          "register": "PC",
+          "pc_source": "guest_register_dump",
+          "backtrace": [
+            {
+              "pc": "0x400d7d16",
+              "sp": "0x3ffb67d0"
+            },
+            {
+              "pc": "0x40085bad",
+              "sp": "0x3ffb67f0"
+            }
+          ]
+        }
+      ],
+      "core_dump": {
+        "status": "uart_reported_complete"
+      }
+    },
+    "evidence_zip_sha256": "81ada35cbe89a9d786121bf8846d56b5603653670c3a3e2b4da3bc93b6d7923d",
+    "zip_crc_verified": true,
+    "zip_serial_sha_binds_parser": true,
+    "post_stop_sample_rejection": "session_not_running",
+    "cleanup": {
+      "stopped": true,
+      "flash_released": true,
+      "active_leases": 0
+    },
+    "isolated_service_exited": true
+  },
+  "limits": {
+    "other_riscv_runtimes": "NOT RUN",
+    "riscv_stack_unwind": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  }
+}

@@ -6534,7 +6534,12 @@ class DeviceSession:
         with self._lock:
             if self.state != "running" or self._stop_event.is_set():
                 raise ServiceError("session_not_running", "device process is not running", 409)
-            sample = qmp_cpu_pc_sample(self._qmp_call)
+            # Only the plain, board-selected native C6 path is admitted here.
+            native_c6 = (
+                self.runtime == "qemu" and self.spec.backend == "qemu-esp32c6"
+                and self.spec.machine == "esp32c6"
+            )
+            sample = qmp_cpu_pc_sample(self._qmp_call, native_c6=native_c6)
             if self._stop_event.is_set():
                 raise ServiceError("session_not_running", "device process is stopping", 409)
             return {

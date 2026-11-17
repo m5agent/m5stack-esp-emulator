@@ -31,33 +31,52 @@ BACKEND_ILLEGAL = re.compile(
 CPU_PC_DUMP_LIMIT = 64 * 1024
 CPU_HEADER = re.compile(r"CPU#([0-9]{1,2})")
 XTENSA_PC = re.compile(r"PC=([0-9a-fA-F]{8})")
+RISCV32_PC = re.compile(r"[ \t]*pc[ \t]+([0-9a-fA-F]{8})[ \t]*")
+NATIVE_C6_CPU_PATH = re.compile(r"/machine/[a-zA-Z0-9_./\[\]-]{1,128}")
 
 
-def qmp_cpu_pc_sample(qmp_call) -> dict:
+def qmp_cpu_pc_sample(qmp_call, *, native_c6: bool = False) -> dict:
     """Sample only current PC values through fixed local monitor commands."""
     before = _sample_run_state(qmp_call)
     topology = qmp_call("query-cpus-fast").get("return")
-    if not isinstance(topology, list) or not 1 <= len(topology) <= 2:
+    max_cpus = 1 if native_c6 else 2
+    if not isinstance(topology, list) or not 1 <= len(topology) <= max_cpus:
         raise ServiceError("cpu_pc_unavailable", "unexpected native CPU topology", 409)
+    target = "riscv32" if native_c6 else "xtensa"
     indices = set()
     for cpu in topology:
         if not isinstance(cpu, dict) or type(cpu.get("cpu-index")) is not int:
             raise ServiceError("cpu_pc_unavailable", "invalid native CPU identity", 409)
-        if cpu.get("target", cpu.get("arch")) != "xtensa":
-            raise ServiceError("cpu_pc_not_supported", "live PC sampling supports Xtensa native QEMU", 409)
+        reported_target = cpu.get("target") if native_c6 else cpu.get("target", cpu.get("arch"))
+        if reported_target != target:
+            raise ServiceError("cpu_pc_not_supported", "vCPU target does not match the native sampling path", 409)
         indices.add(cpu["cpu-index"])
     if indices != set(range(len(topology))):
         raise ServiceError("cpu_pc_unavailable", "unexpected native CPU indices", 409)
+    identity = _native_c6_qmp_identity(qmp_call, topology[0]) if native_c6 else {}
     registers = qmp_call("human-monitor-command", **{"command-line": "info registers -a"}).get("return")
     after = _sample_run_state(qmp_call)
     if before != after:
         raise ServiceError("cpu_pc_state_changed", "QEMU run state changed during PC sampling", 409)
-    pcs = _xtensa_monitor_pcs(registers, indices)
+    pcs = _monitor_pcs(registers, indices, RISCV32_PC if native_c6 else XTENSA_PC)
     return {
-        "source": "qmp_hmp_info_registers", "target": "xtensa",
+        "source": "qmp_hmp_info_registers", "target": target, **identity,
         "run_state_before": before, "run_state_after": after,
         "cpus": [{"cpu_index": index, "pc": pcs[index]} for index in sorted(pcs)],
     }
+
+
+def _native_c6_qmp_identity(qmp_call, cpu: dict) -> dict:
+    cpu_path = cpu.get("qom-path")
+    if not isinstance(cpu_path, str) or not NATIVE_C6_CPU_PATH.fullmatch(cpu_path):
+        raise ServiceError("cpu_pc_unavailable", "native C6 CPU path is unavailable", 409)
+    machine_type = qmp_call("qom-get", path="/machine", property="type").get("return")
+    if machine_type != "esp32c6-machine":
+        raise ServiceError("cpu_pc_not_supported", "native C6 machine type was not confirmed", 409)
+    cpu_model = qmp_call("qom-get", path=cpu_path, property="type").get("return")
+    if cpu_model != "espressif-riscv-cpu":
+        raise ServiceError("cpu_pc_not_supported", "native C6 CPU model was not confirmed", 409)
+    return {"machine_type": machine_type, "cpu_model": cpu_model}
 
 
 def _sample_run_state(qmp_call) -> str:
@@ -70,7 +89,7 @@ def _sample_run_state(qmp_call) -> str:
     raise ServiceError("cpu_pc_unavailable", "QEMU is not running or paused", 409)
 
 
-def _xtensa_monitor_pcs(registers: str, indices: set[int]) -> dict[int, str]:
+def _monitor_pcs(registers: object, indices: set[int], pattern: re.Pattern[str]) -> dict[int, str]:
     if not isinstance(registers, str) or len(registers) > CPU_PC_DUMP_LIMIT or not registers.isascii():
         raise ServiceError("cpu_pc_unavailable", "unsupported monitor register output", 409)
     pcs = {}
@@ -83,7 +102,7 @@ def _xtensa_monitor_pcs(registers: str, indices: set[int]) -> dict[int, str]:
             if index in seen or index not in indices:
                 raise ServiceError("cpu_pc_unavailable", "monitor CPU header differs from topology", 409)
             seen.add(index)
-        pc = XTENSA_PC.fullmatch(row)
+        pc = pattern.fullmatch(row)
         if pc:
             if index not in indices or index in pcs:
                 raise ServiceError("cpu_pc_unavailable", "monitor PC has an ambiguous CPU index", 409)

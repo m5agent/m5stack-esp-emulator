@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.67.0
+  version: 1.68.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2284,13 +2284,15 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/crash/cpu-pc:
     get:
-      summary: Sample the current PC for each native Xtensa vCPU
+      summary: Sample current PCs on native Xtensa or plain native ESP32-C6 QEMU
       description: >
         Requires serial.read when runtime ACL is configured. Uses an existing
         QEMU QMP monitor with a fixed register read. The sampling call does
         not pause or resume the guest. Running CPUs are sampled sequentially.
         If the run-state checks disagree, no sample is returned. This live
-        view is independent of the panic and retained evidence APIs.
+        view is independent of the panic and retained evidence APIs. ESP32-C6
+        requires the board-selected plain native backend plus a matching QMP
+        machine, CPU type, and RISC-V32 target.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
@@ -5638,7 +5640,9 @@ components:
         runtime: {type: string}
         sampled_at: {type: string, format: date-time}
         source: {type: string, const: qmp_hmp_info_registers}
-        target: {type: string, const: xtensa}
+        target: {type: string, enum: [xtensa, riscv32]}
+        machine_type: {type: string, const: esp32c6-machine}
+        cpu_model: {type: string, const: espressif-riscv-cpu}
         run_state_before: {type: string, enum: [running, paused]}
         run_state_after: {type: string, enum: [running, paused]}
         cpus:
@@ -5652,6 +5656,23 @@ components:
             properties:
               cpu_index: {type: integer, minimum: 0, maximum: 1}
               pc: {type: string, pattern: '^0x[0-9a-f]{8}$'}
+      allOf:
+        - if:
+            properties:
+              target: {const: riscv32}
+          then:
+            required: [machine_type, cpu_model]
+            properties:
+              runtime: {const: qemu}
+              cpus:
+                maxItems: 1
+                items:
+                  properties:
+                    cpu_index: {const: 0}
+          else:
+            properties:
+              machine_type: false
+              cpu_model: false
     CrashDiagnostics:
       type: object
       required:

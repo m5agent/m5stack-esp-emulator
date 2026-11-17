@@ -10,7 +10,11 @@ from device_service_errors import ServiceError
 
 
 class CpuPcSampleTests(unittest.TestCase):
-    def sample(self, registers, *, states=("running", "running"), targets=("xtensa", "xtensa")):
+    def sample(
+        self, registers, *, states=("running", "running"), targets=("xtensa", "xtensa"),
+        native_c6=False, machine="esp32c6-machine", cpu_model="espressif-riscv-cpu",
+        cpu_path="/machine/soc/cpu",
+    ):
         queued_states = iter(states)
         calls = []
 
@@ -21,13 +25,15 @@ class CpuPcSampleTests(unittest.TestCase):
                 return {"return": {"status": status, "running": status == "running"}}
             if command == "query-cpus-fast":
                 return {"return": [
-                    {"cpu-index": i, "target": target, "thread-id": i + 100}
+                    {"cpu-index": i, "target": target, "thread-id": i + 100, "qom-path": cpu_path}
                     for i, target in enumerate(targets)
                 ]}
+            if command == "qom-get":
+                return {"return": machine if arguments["path"] == "/machine" else cpu_model}
             return {"return": registers}
 
         self.calls = calls
-        return qmp_cpu_pc_sample(qmp)
+        return qmp_cpu_pc_sample(qmp, native_c6=native_c6)
 
     def test_binds_two_pcs_to_qmp_indices_and_reads_paused_state_without_cont(self):
         result = self.sample(
@@ -48,6 +54,43 @@ class CpuPcSampleTests(unittest.TestCase):
             self.sample("CPU#0\nPC=400abcd0", targets=("riscv32",))
         self.assertEqual(failure.exception.code, "cpu_pc_not_supported")
         self.assertEqual([name for name, _ in self.calls], ["query-status", "query-cpus-fast"])
+
+    def test_native_c6_reads_current_pc_after_confirming_qmp_identity(self):
+        result = self.sample(
+            "CPU#0\n pc       4080273E\n mepc     40804cb8\n",
+            native_c6=True, targets=("riscv32",), states=("paused", "paused"),
+        )
+        self.assertEqual(result["target"], "riscv32")
+        self.assertEqual(result["machine_type"], "esp32c6-machine")
+        self.assertEqual(result["cpu_model"], "espressif-riscv-cpu")
+        self.assertEqual(result["cpus"], [{"cpu_index": 0, "pc": "0x4080273e"}])
+        self.assertEqual((result["run_state_before"], result["run_state_after"]), ("paused", "paused"))
+        self.assertEqual(self.calls, [
+            ("query-status", {}), ("query-cpus-fast", {}),
+            ("qom-get", {"path": "/machine", "property": "type"}),
+            ("qom-get", {"path": "/machine/soc/cpu", "property": "type"}),
+            ("human-monitor-command", {"command-line": "info registers -a"}), ("query-status", {}),
+        ])
+
+    def test_native_c6_rejects_other_targets_or_unverified_qom_before_registers(self):
+        cases = (
+            ({"targets": ("riscv64",)}, "cpu_pc_not_supported"),
+            ({"targets": ("riscv32", "riscv32")}, "cpu_pc_unavailable"),
+            ({"machine": "virt-machine"}, "cpu_pc_not_supported"),
+            ({"cpu_model": "riscv-cpu"}, "cpu_pc_not_supported"),
+            ({"cpu_path": "/objects/cpu"}, "cpu_pc_unavailable"),
+        )
+        for overrides, code in cases:
+            with self.subTest(**overrides), self.assertRaises(ServiceError) as failure:
+                self.sample("CPU#0\n pc 4080273e\n", **({"native_c6": True, "targets": ("riscv32",)} | overrides))
+            self.assertEqual(failure.exception.code, code)
+            self.assertNotIn("human-monitor-command", [name for name, _ in self.calls])
+
+    def test_native_c6_requires_current_pc_instead_of_guest_exception_pc(self):
+        for report in ("CPU#0\n mepc 40804cb8\n", "CPU#0\n pc 000000004080273e\n", "CPU#1\n pc 4080273e\n"):
+            with self.subTest(report=report), self.assertRaises(ServiceError) as failure:
+                self.sample(report, native_c6=True, targets=("riscv32",))
+            self.assertEqual(failure.exception.code, "cpu_pc_unavailable")
 
     def test_rejects_state_transition_and_ambiguous_or_incomplete_register_output(self):
         valid = "CPU#0\nPC=400abcd0\nCPU#1\nPC=400abcd1\n"
