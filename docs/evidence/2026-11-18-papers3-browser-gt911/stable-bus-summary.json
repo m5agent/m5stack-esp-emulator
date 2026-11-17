@@ -1,0 +1,199 @@
+{
+  "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+  "wasm_sha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+  "trace_sha256": "243142dc0098fb998cff5f33f1425aa04157884d82409301d2fc5279247293ee",
+  "trace_events": 152,
+  "register_actions_decoded": 26,
+  "motions": [
+    {
+      "holdRequestedMs": 150,
+      "outerHoldMs": 170.24000000953674,
+      "x": 113,
+      "y": 347,
+      "before": 1910,
+      "after": 1910,
+      "changedPixels": 0,
+      "frameSequenceDelta": 65,
+      "matches": false,
+      "before_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 0,
+        "point_reads": []
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1910,
+        "qmpBlack": 1910,
+        "sharedVsQmpChanged": 0
+      }
+    },
+    {
+      "holdRequestedMs": 300,
+      "outerHoldMs": 319.8049998283386,
+      "x": 113,
+      "y": 347,
+      "before": 1910,
+      "after": 1910,
+      "changedPixels": 0,
+      "frameSequenceDelta": 28,
+      "matches": false,
+      "before_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 0,
+        "point_reads": []
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1910,
+        "qmpBlack": 1910,
+        "sharedVsQmpChanged": 0
+      }
+    },
+    {
+      "holdRequestedMs": 500,
+      "outerHoldMs": 520.664999961853,
+      "x": 113,
+      "y": 347,
+      "before": 1910,
+      "after": 1755,
+      "changedPixels": 607,
+      "frameSequenceDelta": 78,
+      "matches": true,
+      "before_release_request": {
+        "status_0x81": 1,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": [
+          [
+            113,
+            347
+          ]
+        ]
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1755,
+        "qmpBlack": 1755,
+        "sharedVsQmpChanged": 0
+      }
+    },
+    {
+      "holdRequestedMs": 300,
+      "outerHoldMs": 318.9099998474121,
+      "x": 113,
+      "y": 347,
+      "before": 1755,
+      "after": 1755,
+      "changedPixels": 0,
+      "frameSequenceDelta": 45,
+      "matches": false,
+      "before_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 0,
+        "point_reads": []
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1755,
+        "qmpBlack": 1755,
+        "sharedVsQmpChanged": 0
+      }
+    },
+    {
+      "holdRequestedMs": 150,
+      "outerHoldMs": 168.78999996185303,
+      "x": 113,
+      "y": 347,
+      "before": 1755,
+      "after": 1755,
+      "changedPixels": 0,
+      "frameSequenceDelta": 37,
+      "matches": false,
+      "before_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 0,
+        "point_reads": []
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1755,
+        "qmpBlack": 1755,
+        "sharedVsQmpChanged": 0
+      }
+    },
+    {
+      "holdRequestedMs": 500,
+      "outerHoldMs": 520.1600000858307,
+      "x": 113,
+      "y": 347,
+      "before": 1755,
+      "after": 1910,
+      "changedPixels": 607,
+      "frameSequenceDelta": 76,
+      "matches": true,
+      "before_release_request": {
+        "status_0x81": 1,
+        "status_0x80": 0,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": [
+          [
+            113,
+            347
+          ]
+        ]
+      },
+      "after_release_request": {
+        "status_0x81": 0,
+        "status_0x80": 1,
+        "status_zero": 0,
+        "clears": 2,
+        "point_reads": []
+      },
+      "buffer_comparison": {
+        "sharedBlack": 1910,
+        "qmpBlack": 1910,
+        "sharedVsQmpChanged": 0
+      }
+    }
+  ]
+}

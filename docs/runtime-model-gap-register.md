@@ -158,6 +158,16 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+### PaperS3：原厂应用间歇延后读取 GT911
+
+PaperS3 Factory V0.5 原 BIN 在浏览器 QEMU WASM 中已出现完整坐标与松手读回，
+300 ms 和 500 ms 均有正确图标切换，也都有漏响应。多数可分类的漏响应只在
+松手后走到 GT911 的旧报告清除和空报告读回。已测稳定帧的共享 RGB565 与
+QMP 图标区域一致。原厂驱动出现至少 128 ms 服务间隔时会先丢弃旧报告，
+浏览器证据尚未测量实际 guest 驱动间隔或 GPIO IRQ 电平。仍需关联该间隔、
+IRQ、EPD 全刷和真机连续点按，确认运行时是否放大了轮询间隙。
+[冻结固件、总线记录与同帧对照](evidence/2026-11-18-papers3-browser-gt911/README.md)
+
 ### Tab5：最新原版应用的旧 P4 CLIC 与 DSI PHY
 
 [11 月 16 日同原版复验](evidence/2026-11-16-tab5-original-startup/README.md)在 0.50.0 确认 CarPlay 板型探测和 M5TabOS USB DWC 断言。两份原版在 1.0.0 的同 CSR 单步进入异常向量。新版 I2C part 可扩展板级器件，闭环仍需兼容旧 P4 CSR 的后端。USB device 模型及独立的触摸读取错误修复均未提供本路径所需的 guest USB host 或 BSP 探测数据面。

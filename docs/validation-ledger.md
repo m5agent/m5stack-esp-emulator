@@ -22,6 +22,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 无 ELF 与错配 ELF 均保留 PC/SP。ZIP 与 API 的有界 JSON 一致。默认停止释放 Flash。
 显式保留后可读回，只有串口权限时返回 `flash_read_denied`，并保留 panic 符号。
 
+## 2026-11-18 PaperS3 原厂触摸与浏览器 GT911 总线读回
+
+[原版固件与同帧对照](evidence/2026-11-18-papers3-browser-gt911/README.md)在冻结 Chromium QEMU WASM 上运行
+PaperS3 Factory V0.5 原 BIN `d6733a0c…`，两轮 15 次触摸中 4 次切换蜂鸣器图标。
+成功的 300 ms 和 500 ms 操作均读到正确坐标、按下和松开报告。10 次漏响应
+只观察到松手后的清除、空报告读取和再次清除，另 1 次总线证据不足。稳定帧
+对照中，共享 RGB565 和 QMP 截屏的图标区域 6/6 逐像素一致。两个会话均
+正常关闭，触摸稳定性仍为 PARTIAL。真机未执行。
+
 ## 2026-11-18 Cardputer ADV Flash 容量准入
 
 [原版与官方正对照](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)证明同一 16 MiB

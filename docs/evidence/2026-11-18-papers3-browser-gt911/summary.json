@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "issue",
+  "date": "2026-11-18",
+  "overall_status": "PARTIAL",
+  "title": "PaperS3 Factory V0.5 browser GT911 press/release consumption",
+  "source": {
+    "repository": "esp-emulator",
+    "base_commit": "a2148953f1c22a2b2b066780f9c501b3daddcdf0"
+  },
+  "hardware": {
+    "device": "PaperS3",
+    "scope": "virtual-device validation",
+    "controller": "GT911"
+  },
+  "firmware": {
+    "sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+    "version": "Original PaperS3 Factory V0.5"
+  },
+  "execution": {
+    "environment": "Isolated Chromium on a clone of frozen browser QEMU WASM",
+    "wasm_sha256": "96c7f8baf1d5f2fd760c560a0827ef7305ad06a1cefb28c905d05d796dc540d8",
+    "profile": "papers3-wasm-wallclock-et047tc1",
+    "observer_patch_sha256": "162475acccae73210afd708d33e5b2fcc9b0a46928af2955bbcdb1214eb1f8bb",
+    "guest_scheduling_changed": false,
+    "runtime_binary_changed": false,
+    "runtime_arguments_match": true,
+    "api_requests": 0,
+    "external_network_requests": 0,
+    "remaining_iframes": 0,
+    "remaining_workers": 0
+  },
+  "checks": [
+    {
+      "case": "Exact image startup and GT911 trace state readback",
+      "status": "PASS"
+    },
+    {
+      "case": "Original browser timing sequence on stable native image oracle",
+      "status": "PARTIAL",
+      "matches": 2,
+      "total": 9
+    },
+    {
+      "case": "Stable-frame browser repeat",
+      "status": "PARTIAL",
+      "matches": 2,
+      "total": 6
+    },
+    {
+      "case": "Paused shared RGB565 vs QMP screendump icon rectangle",
+      "status": "PASS",
+      "matches": 6,
+      "total": 6
+    },
+    {
+      "case": "Physical timing and e-paper optics",
+      "status": "NOT RUN"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "bus-summary.json",
+      "sha256": "e5a15351cb88a0b495ebcd5476eada582727be21d7887e1c17bb2c08e9754771",
+      "bytes": 5650
+    },
+    {
+      "path": "stable-bus-summary.json",
+      "sha256": "86cd6c13e131039feba3e93851c3c95db99eb4a72e4c2079272a6448c25222a1",
+      "bytes": 4668
+    }
+  ]
+}
