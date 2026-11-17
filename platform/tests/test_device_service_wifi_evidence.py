@@ -5,7 +5,9 @@ from unittest.mock import Mock
 
 from device_service import DeviceSession
 from device_service_specs import load_device_specs
-from device_service_wifi_evidence import native_sta_capability, native_sta_data_plane
+from device_service_wifi_evidence import (
+    captured_provision_station_dora, native_sta_capability, native_sta_data_plane,
+)
 
 
 def _transaction(**overrides):
@@ -107,9 +109,43 @@ class NativeStaDataPlaneTests(unittest.TestCase):
                 self.assertIsNone(receipt["capture_sha256"])
                 self.assertEqual(receipt["dhcpv4"]["completed_dora_transactions"], 0)
 
+    def test_provisioning_requires_generation_xid_and_exact_lease(self):
+        self.assertTrue(captured_provision_station_dora(_capture(), "01020304"))
+        self.assertFalse(captured_provision_station_dora(_capture(), "aabbccdd"))
+        self.assertFalse(captured_provision_station_dora(_capture(), None))
+        for capture in (
+            _capture(transactions=[_transaction(server_id="10.0.2.23")]),
+            _capture(transactions=[_transaction(client_address="10.0.2.23", requested_ip="10.0.2.23")]),
+            _capture(transactions=[_transaction(message_sequence=["REQUEST", "ACK"])]),
+            _capture(truncated_records=1),
+        ):
+            with self.subTest(capture=capture):
+                self.assertFalse(captured_provision_station_dora(capture, "01020304"))
 
 
 class NativeStaIntegrationTests(unittest.TestCase):
+    def test_reconnect_cannot_pass_using_pre_reset_capture(self):
+        historical = _capture()
+        phase = _capture(record_start_offset=2048)
+        session = SimpleNamespace(
+            runtime="qemu-wifi", network_config={"profile": "sticks3-open-softap-provisioning"},
+            network_result={},
+            _build_network_evidence=lambda: {"status": "PARTIAL", "checks": {}},
+            _network_capture_evidence=Mock(side_effect=[
+                historical,
+                {**historical, "station_reconnect": {**phase, "record_start_offset": 1024}},
+                {**historical, "station_reconnect": phase},
+            ]),
+            _softap_receipt=lambda: {
+                "status": "PASS", "station_reconnect": True, "station_dhcp": True,
+                "station_arp": True, "station_dhcp_xid": "01020304", "capture_start_offset": 2048,
+            },
+            _persist_session=Mock(),
+        )
+        self.assertEqual(DeviceSession.network_evidence(session)["status"], "PARTIAL")
+        self.assertEqual(DeviceSession.network_evidence(session)["status"], "PARTIAL")
+        self.assertEqual(DeviceSession.network_evidence(session)["status"], "PASS")
+
     def test_native_transport_changes_are_persisted_without_promoting_marker_status(self):
         session = SimpleNamespace(
             runtime="qemu-wifi",

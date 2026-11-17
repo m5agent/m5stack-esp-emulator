@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.71.0` and bounded
+Status: local MVP with unified-device runtime contract `1.72.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1910,6 +1910,17 @@ authentication request addressed to that AP. The profile accepts only
 It reports `PASS` only after two captured DHCP DORA exchanges, both portal
 HTTP flows, the form response, and a station ARP reply from the assigned
 address. See the [original same-session result](evidence/2026-11-17-sticks3-portal-station/README.md).
+
+After a passing provisioning exchange, a guest `POST /sessions/{id}/reset`
+preserves the session's virtual Flash. On a native runtime with patch 0219,
+the same peer waits for a fresh STA DHCP exchange and an ARP reply in the
+new generation. The guest reads its saved settings to associate to the lab
+AP. The peer does not submit the form again during this rejoin. The
+`softap_fixture` receipt marks `station_reconnect=true` and includes the
+current `station_dhcp_xid` and the pcap `capture_start_offset`. A passing
+finalized report matches the ID to a complete station DORA after that offset
+in the same capture. The guest may reuse a transaction ID after reset. Save a ZIP before each
+reset if the previous generation's receipt is needed.
 
 Cardputer ADV can use `runtime=qemu-wifi` with
 `network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins

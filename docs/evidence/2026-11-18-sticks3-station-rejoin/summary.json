@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "device": "sticks3",
+  "validation": "virtual-device validation",
+  "author_source": "5faf4efaec9b9aa0d36fcb9514030cb9de649862",
+  "author_tag": "v0.2.4",
+  "segments": [
+    {
+      "offset": 0,
+      "name": "bootloader.bin",
+      "sha256": "1776e4dd896a69d0a5c2e79957b0e2a88aa4129b1381d6478683515a1f6af343"
+    },
+    {
+      "offset": 32768,
+      "name": "partitions.bin",
+      "sha256": "a388634787e6301eb31711138e4dc4012483b79b140d63f2519acf41fd59d02d"
+    },
+    {
+      "offset": 57344,
+      "name": "boot_app0.bin",
+      "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+    },
+    {
+      "offset": 65536,
+      "name": "author app",
+      "sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6"
+    }
+  ],
+  "frozen_baseline": {
+    "runtime_sha256": "528ab418daedc9dab895fcebd4092b1a284563513c8ed7aca06b06527b58061a",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "source_firmware_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+    "composed_firmware_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+    "status": "PARTIAL",
+    "initial_provisioning": "PASS",
+    "simulator_reset_accepted": true,
+    "cold_nvs_changed": true,
+    "post_reset_association_requests": 0,
+    "pcap_sha256": "3df9686c0b24b9f1ee1e39ab1893ccb5fb6272f968c11f55002faf990d1824c1",
+    "total_probe_frames": 48
+  },
+  "candidate": {
+    "runtime_sha256": "22f3d8185aa2271429f8a6cdca7b6beec14d9664158e9eff54683a589b635386",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "source_firmware_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+    "composed_firmware_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+    "status": "PASS",
+    "source_file_sha256": {
+      "serve.py": "566deb50bbf31a03dd269dd925f96f1dbd2c667053dcc69891ef715127aa36bb",
+      "device_service.py": "af867b66af16200b4d56a0cdefc809735c94b524c3ce8150eb8ea321074e4abb",
+      "device_service_softap_peer.py": "72108d34dda1deafef955bd57bbdbe040899262bca3b85d7d8fc793a37e5edb9",
+      "device_service_wifi_evidence.py": "67cf5f889a6646ff4665678c45ded3c1b593493e9fed3d968f72be5de08d8852"
+    },
+    "configured_flash_sha256": "c2213d359385e8553d580d6912432c477a580897c2e8d3290130c2d4a3430e98",
+    "pre_reset_evidence_sha256": "d3fd182c825e1a6b64f0d6675353c9c5ad99c432c6462085ae5423175b3f1aee",
+    "reset_evidence": [
+      {
+        "flash_sha256": "0b9ce0420482bc3f3095c9e08b4574ba4db3da271134538ef3a465176e77770f",
+        "evidence_sha256": "f919407b081a14fe605a82eacf8517822909de3eb6c22f906bff34b69c566888",
+        "original_application_unchanged": true,
+        "nvs_still_configured": true,
+        "generation": 2,
+        "status": "PASS"
+      },
+      {
+        "flash_sha256": "9b07dfbfe06a530436fb7884e8c2f8cc92db23a94c82b747ead0a317b0975773",
+        "evidence_sha256": "7f5e228778a448b3ebfe31676a74083f1e75d308f956b26ed3f166f2528ce4a8",
+        "original_application_unchanged": true,
+        "nvs_still_configured": true,
+        "generation": 3,
+        "status": "PASS"
+      }
+    ],
+    "final_capture_sha256": "68c99b378485ddf7de176676e3f9a3d522d9ea1817d21489b6256ddd209a65e4",
+    "before_stop_evidence_sha256": "0be242539b65c99f3dbd1382c0f3eeb46cf8c9e2a4eda4b212f72a2e71dca38e",
+    "native_trace_enabled": false,
+    "host_ip_backends": 0,
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "raw_pcap_readback": {
+      "status": "PASS",
+      "reset_count": 2,
+      "portal_get_count": 1,
+      "portal_submit_count": 1,
+      "captured_dora_by_generation": {
+        "1": 2,
+        "2": 1,
+        "3": 1
+      },
+      "station_transaction_reused_across_resets": true,
+      "post_ack_station_arp_in_each_generation": true,
+      "boot_rom_banners": 3,
+      "boundaries_are_pcap_record_starts": true,
+      "same_capture_readback_hash": true,
+      "released": true
+    }
+  },
+  "development_negative": {
+    "runtime_sha256": "22f3d8185aa2271429f8a6cdca7b6beec14d9664158e9eff54683a589b635386",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "source_firmware_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+    "composed_firmware_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+    "status": "FAIL",
+    "reason": "Reused DHCP transaction ID was rejected before per-generation capture matching.",
+    "initial_provisioning": "PASS",
+    "post_reset_station_lease": "PARTIAL"
+  }
+}

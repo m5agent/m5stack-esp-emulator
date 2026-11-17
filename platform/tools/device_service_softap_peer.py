@@ -48,8 +48,8 @@ _SAVE_REQUEST = (
 )
 _ROOT_MARKERS = (b"<h3>StickS3-Setup</h3>", b"<form action='/wifi'")
 _SAVE_MARKERS = (b"Saving Credentials", b"Trying to connect ESP to network")
-_STATION_GATEWAY = ipaddress.IPv4Address("10.0.2.2")
-_STATION_LEASE = ipaddress.IPv4Address("10.0.2.15")
+PROVISION_STATION_GATEWAY = ipaddress.IPv4Address("10.0.2.2")
+PROVISION_STATION_LEASE = ipaddress.IPv4Address("10.0.2.15")
 _STATION_GATEWAY_MAC = bytes.fromhex("02f100000001")
 _ARP_HEADER = b"\x08\x06\0\x01\x08\0\x06\x04"
 _PORTAL_MAX_HEADER = 2048
@@ -146,6 +146,8 @@ class SoftAPPeer:
     def start(self) -> None:
         if self._closed or self._thread is not None:
             raise RuntimeError("SoftAP peer cannot start in its current state")
+        if self._generation:
+            self._discard_pending_frames()
         self._stop.clear()
         self._generation += 1
         with self._lock:
@@ -190,6 +192,21 @@ class SoftAPPeer:
         if self._stop.is_set():
             raise _PeerStopped
         self._peer.sendall(struct.pack("!I", len(data)) + data)
+
+    def _discard_pending_frames(self) -> None:
+        previous_timeout = self._peer.gettimeout()
+        self._peer.setblocking(False)
+        try:
+            for _ in range(64):
+                if not self._peer.recv(2048):
+                    break
+            else:
+                raise RuntimeError("old Wi-Fi fixture frames did not drain")
+        except BlockingIOError:
+            pass
+        finally:
+            self._peer.settimeout(previous_timeout)
+        self._input.clear()
 
     def _next_frame(self, deadline: float) -> bytes:
         while time.monotonic() < deadline:
@@ -332,20 +349,27 @@ class SoftAPPeer:
                     return seq, ack, tcp[13], tcp[offset:]
 
         deadline = time.monotonic() + 5
-        send(2, initial, 0)
-        while True:
-            seq, ack, flags, _ = read(deadline)
+        while time.monotonic() < deadline:
+            send(2, initial, 0)
+            try:
+                seq, ack, flags, _ = read(min(deadline, time.monotonic() + 0.65))
+            except TimeoutError:
+                continue
             if ack != initial + 1:
                 continue
             if flags & 0x04:
                 raise ConnectionRefusedError
             if flags & 0x12 == 0x12:
                 break
+        else:
+            raise TimeoutError
+
         next_remote = (seq + 1) & 0xffffffff
         send(0x10, initial + 1, next_remote)
         send(0x18, initial + 1, next_remote, request)
         end_local = initial + 1 + len(request)
         response = bytearray()
+        deadline = time.monotonic() + 5
         while True:
             seq, ack, flags, payload = read(deadline)
             if seq != next_remote or ack != end_local or not payload:
@@ -404,6 +428,12 @@ class PortalStationPeer(SoftAPPeer):
     def __init__(self, mac: str, station_mac: str, persist: Callable[[dict], None]):
         super().__init__(mac, persist, portal=True)
         self._station_mac = bytes.fromhex(station_mac.replace(":", ""))
+        self._station_proven = False
+        self._capture_start_offset = None
+
+    def start(self, *, capture_start_offset: int | None = None) -> None:
+        self._capture_start_offset = capture_start_offset
+        super().start()
 
     @staticmethod
     def _initial_protocol_state() -> dict:
@@ -411,7 +441,21 @@ class PortalStationPeer(SoftAPPeer):
             **SoftAPPeer._initial_protocol_state(),
             "save_http": False, "save_body_sha256": None,
             "station_dhcp": False, "station_arp": False,
+            "station_reconnect": False, "station_dhcp_xid": None, "capture_start_offset": None,
         }
+
+    def _run(self) -> None:
+        if not self._station_proven:
+            super()._run()
+            return
+        stage = "station-reconnect"
+        self._record(stage=stage, station_reconnect=True, capture_start_offset=self._capture_start_offset)
+        try:
+            self._await_station()
+        except _PeerStopped:
+            self._record(status="INTERRUPTED", stage=stage)
+        except (EOFError, OSError, ValueError):
+            self._record(status="PARTIAL", stage=stage)
 
     def _complete_http(self, lease: bytes, server: bytes, mac: bytes, evidence: dict) -> None:
         stage = "submit"
@@ -431,12 +475,12 @@ class PortalStationPeer(SoftAPPeer):
     def _await_station(self) -> None:
         station = self._station_mac
         mac = station.hex(":")
-        gateway = _STATION_GATEWAY.packed
-        lease = _STATION_LEASE.packed
+        gateway = PROVISION_STATION_GATEWAY.packed
+        lease = PROVISION_STATION_LEASE.packed
         router = _STATION_GATEWAY_MAC
         dhcp = LabDhcp({
-            "interface": "unix", "server_address": str(_STATION_GATEWAY),
-            "reservations": {mac: str(_STATION_LEASE)},
+            "interface": "unix", "server_address": str(PROVISION_STATION_GATEWAY),
+            "reservations": {mac: str(PROVISION_STATION_LEASE)},
         })
         arp_request = (
             _BROADCAST + router + _ARP_HEADER + b"\0\x01"
@@ -445,6 +489,8 @@ class PortalStationPeer(SoftAPPeer):
         arp_reply = router + station + _ARP_HEADER + b"\0\x02" + station + lease + router + gateway
         deadline = time.monotonic() + 28
         probe_at = None
+        offered_xid = None
+        acknowledged_xid = None
         while time.monotonic() < deadline:
             if probe_at is not None and time.monotonic() >= probe_at:
                 self._send(arp_request)
@@ -455,18 +501,26 @@ class PortalStationPeer(SoftAPPeer):
                 continue
             if frame[6:12] != station:
                 continue
-            if probe_at is not None and frame[:42] == arp_reply:
+            if acknowledged_xid is not None and frame[:42] == arp_reply:
+                self._station_proven = True
                 self._record(station_arp=True, status="PASS")
                 return
             reply = self._station_dhcp_reply(frame, dhcp, mac)
             if reply is None:
                 continue
+            xid = reply[4:8].hex()
+            message_type = _dhcp_options(reply).get(53)
+            if message_type == b"\x02":
+                offered_xid = xid
+            elif xid != offered_xid:
+                continue
             self._send(build_dhcp_ethernet_reply(
                 reply, source_mac=station, server_mac=router,
-                server_address=str(_STATION_GATEWAY),
+                server_address=str(PROVISION_STATION_GATEWAY),
             ))
-            if _dhcp_options(reply).get(53) == b"\x05":
-                self._record(station_dhcp=True)
+            if message_type == b"\x05":
+                acknowledged_xid = xid
+                self._record(station_dhcp=True, station_dhcp_xid=xid)
                 probe_at = time.monotonic()
         raise TimeoutError
 

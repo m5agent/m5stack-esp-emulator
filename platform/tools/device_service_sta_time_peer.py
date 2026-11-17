@@ -34,20 +34,6 @@ class StationTimePeer(SoftAPPeer):
         self._dhcp_server = None
 
     def start(self):
-        if self._generation:
-            previous_timeout = self._peer.gettimeout()
-            self._peer.setblocking(False)
-            try:
-                for _ in range(64):
-                    if not self._peer.recv(2048):
-                        break
-                else:
-                    raise RuntimeError("old station fixture frames did not drain")
-            except BlockingIOError:
-                pass
-            finally:
-                self._peer.settimeout(previous_timeout)
-            self._input.clear()
         self._leased = False
         self._counts = {}
         self._dhcp_server = LabDhcp({

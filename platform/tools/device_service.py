@@ -261,7 +261,9 @@ from network_policy import (  # noqa: E402
     namespace_capability,
     qemu_user_netdev,
 )
-from device_service_wifi_evidence import native_sta_capability, native_sta_data_plane  # noqa: E402
+from device_service_wifi_evidence import (  # noqa: E402
+    captured_provision_station_dora, native_sta_capability, native_sta_data_plane,
+)
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from runtime_acl import (  # noqa: E402
@@ -4580,6 +4582,17 @@ class DeviceSession:
             "status": "PASS",
             **summary,
         }
+        if self.network_config.get("profile") == STICKS3_PROVISION_PROFILE:
+            peer = self._softap_receipt()
+            start_offset = peer.get("capture_start_offset")
+            if peer.get("station_reconnect") is True and type(start_offset) is int:
+                try:
+                    phase_capture = summarize_pcap(self.network_pcap, record_start_offset=start_offset)
+                except (OSError, PcapError):
+                    pass
+                else:
+                    if phase_capture["input"] == summary["input"]:
+                        summary["station_reconnect"] = phase_capture
         atomic_write_json(self.network_pcap_summary, summary)
         self._record_event(
             "network_capture_summarized",
@@ -4662,12 +4675,28 @@ class DeviceSession:
                 "captured_http": data_plane["tcp"]["bidirectional_payload_flows"] > 0,
             }
             if provisioning:
-                evidence["checks"].update(
-                    peer_save_form=peer.get("save_http") is True,
-                    guest_station_lease=peer.get("station_dhcp") is True and peer.get("station_arp") is True,
-                    both_dhcp_flows=data_plane["dhcpv4"]["completed_dora_transactions"] >= 2,
-                    both_portal_requests=data_plane["tcp"]["bidirectional_payload_flows"] >= 2,
-                )
+                capture = evidence["packet_capture"]
+                reconnect = peer.get("station_reconnect") is True
+                if reconnect:
+                    phase_capture = capture.get("station_reconnect")
+                    capture = (
+                        phase_capture if isinstance(phase_capture, dict)
+                        and phase_capture.get("record_start_offset") == peer.get("capture_start_offset")
+                        and phase_capture.get("input") == capture.get("input") else {}
+                    )
+                station_checks = {
+                    "guest_station_lease": peer.get("station_dhcp") is True and peer.get("station_arp") is True,
+                    "captured_station_dora": captured_provision_station_dora(capture, peer.get("station_dhcp_xid")),
+                }
+                if reconnect:
+                    evidence["checks"] = station_checks
+                else:
+                    evidence["checks"].update(
+                        **station_checks,
+                        peer_save_form=peer.get("save_http") is True,
+                        both_dhcp_flows=data_plane["dhcpv4"]["completed_dora_transactions"] >= 2,
+                        both_portal_requests=data_plane["tcp"]["bidirectional_payload_flows"] >= 2,
+                    )
             evidence["status"] = (
                 "PASS" if peer.get("status") == "PASS" and all(evidence["checks"].values()) else "PARTIAL"
             )
@@ -8541,12 +8570,24 @@ class DeviceSession:
                     operation = UNIX_WIFI_PEER_OPERATIONS[self.network_config["profile"]]
                     self._require_runtime_permission(operation)
                     peer.invalidate_for_reset()
+                capture_start_offset = None
+                if isinstance(peer, PortalStationPeer):
+                    try:
+                        capture_size = self.network_pcap.stat().st_size
+                    except FileNotFoundError:
+                        pass
+                    else:
+                        if capture_size >= 24:
+                            capture_start_offset = capture_size
                 self._frame_epoch += 1
                 self._preview_frames.invalidate()
                 self._qmp_call("system_reset")
                 if peer is not None:
                     self._check_cancelled()
-                    peer.start()
+                    if isinstance(peer, PortalStationPeer):
+                        peer.start(capture_start_offset=capture_start_offset)
+                    else:
+                        peer.start()
                 if self.program_transport:
                     self._invalidate_program_loader("reset-requires-new-loader-proof")
                 if self.program_transport and self._program:
