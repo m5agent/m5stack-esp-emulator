@@ -1,11 +1,13 @@
-"""Bounded WAV and raw I2S capture interpretation for the Device Service."""
+"""Bounded WAV and native PCM capture interpretation for Device Service."""
 
 from __future__ import annotations
 
 from array import array
 import cmath
+from hashlib import sha256
 import io
 import math
+from pathlib import Path
 import sys
 import wave
 
@@ -15,12 +17,15 @@ CARDPUTER_AUDIO_DEVICES = frozenset({"cardputer", "cardputer-adv"})
 MICROPHONE_RATE = 16_000
 MICROPHONE_MAX_FRAMES = 10 * MICROPHONE_RATE
 WAV_MAX_BYTES = MICROPHONE_MAX_FRAMES * 2 + 64 * 1024
+UNIT_AUDIO_MAX_TRACKS = 16
+UNIT_AUDIO_MAX_CAPTURE_BYTES = 16 * 1024 * 1024
+UNIT_AUDIO_SOURCE = "native_n9301_unit"
 PCM_MAX_READ_BYTES = 512 * 1024
 SPECTRUM_MAX_FRAMES = 8192
 
 
 def decode_cardputer_wave(source: bytes) -> bytes:
-    """Extract an exact s16le mono microphone fixture without resampling."""
+    """Extract an exact s16le mono WAV fixture without resampling."""
     if len(source) > WAV_MAX_BYTES:
         raise ServiceError("audio_fixture_too_large", "WAV fixture is too large", 413)
     try:
@@ -31,7 +36,7 @@ def decode_cardputer_wave(source: bytes) -> bytes:
                 or wav.getcomptype() != "NONE"
                 or not 1 <= frames <= MICROPHONE_MAX_FRAMES
             ):
-                raise wave.Error("unsupported microphone fixture format")
+                raise wave.Error("unsupported PCM fixture format")
             pcm = wav.readframes(frames)
             if len(pcm) != frames * 2 or wav.readframes(1):
                 raise wave.Error("invalid PCM data size")
@@ -43,6 +48,18 @@ def decode_cardputer_wave(source: bytes) -> bytes:
         samples = array("h", pcm)
         samples.byteswap()
         return samples.tobytes()
+    return pcm
+
+
+def read_wave_artifact(path: Path, artifact_id: str) -> bytes:
+    try:
+        with path.open("rb") as stream:
+            source = stream.read(WAV_MAX_BYTES + 1)
+    except OSError as error:
+        raise ServiceError("audio_fixture_unavailable", "WAV artifact could not be read", 409) from error
+    pcm = decode_cardputer_wave(source)
+    if sha256(source).hexdigest() != artifact_id:
+        raise ServiceError("audio_fixture_unavailable", "WAV artifact digest changed", 409)
     return pcm
 
 

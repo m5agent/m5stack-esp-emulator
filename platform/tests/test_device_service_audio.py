@@ -112,3 +112,43 @@ class NativeAudioSessionTests(unittest.TestCase):
             self.session.audio_inject({"artifact_id": "a" * 64})
         self.assertEqual(forbidden.exception.status, 403)
         self.assertEqual(forbidden.exception.extra["operation"], "audio.inject")
+
+    def test_unit_media_has_its_own_stage_and_fixed_clock_capture(self):
+        session = self.session
+        session.spec.id = "dial"
+        session.dir = session.speaker_pcm.parent
+        session.unit_audio_pcm = session.dir / "unit-audio.pcm"
+        session.unit_audio_fixture = session.dir / "unit-audio-fixture.json"
+        raw = b"\x02\x00\xfe\xff" * 2048
+        wav = make_wave(raw)
+        self.artifact.write_bytes(wav)
+        artifact_id = hashlib.sha256(wav).hexdigest()
+        session.units = [{"id": "player", "media_wav_artifact_ids": [artifact_id]}]
+        env = {"M5SW_UNIT_AUDIO_PCM_DIR": "/old", "M5SW_UNIT_AUDIO_PCM_OUT": "/old"}
+        session._unit_audio_environment(env)
+        self.assertEqual(Path(env["M5SW_UNIT_AUDIO_PCM_DIR"], "1.pcm").read_bytes(), raw)
+        self.assertEqual(Path(env["M5SW_UNIT_AUDIO_PCM_OUT"]), session.unit_audio_pcm)
+        session.unit_audio_pcm.write_bytes(raw + b"\x10")
+        data, metrics = session.audio_capture("metrics", 0, len(raw), None, source="unit")
+        self.assertIsNone(data)
+        self.assertEqual(metrics["observed_bytes"], len(raw))
+        self.assertEqual(metrics["sample_rate_hz"], 16000)
+        self.assertEqual(metrics["source"], "native_n9301_unit")
+        self.assertEqual(metrics["unit_id"], "player")
+        self.assertEqual(metrics["rms"], 2)
+        for raw_source, rate, code in (
+            ("speaker", None, "audio_unsupported"),
+            ("unit", 48000, "invalid_audio_layout"),
+        ):
+            with self.assertRaises(ServiceError) as error:
+                session.audio_capture("metrics", 0, len(raw), rate, source=raw_source)
+            self.assertEqual(error.exception.code, code)
+        session.service.runtime_acl = RuntimeACL.from_document({
+            "schema_version": 1, "devices": {"dial": {"allow": ["serial.read"]}},
+        })
+        with self.assertRaises(ServiceError) as forbidden:
+            session.audio_capture("pcm", 0, len(raw), None, source="unit")
+        self.assertEqual(forbidden.exception.status, 403)
+        session.units = []
+        session._unit_audio_environment(env)
+        self.assertFalse(env)

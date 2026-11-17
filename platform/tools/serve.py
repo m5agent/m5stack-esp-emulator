@@ -747,6 +747,7 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ServiceError("invalid_audio_range", "audio range and sample rate must be integers", 400) from error
                 data, receipt = service.get_session(parts[1]).audio_capture(
                     query.get("format", ["pcm"])[0], offset, limit, rate,
+                    source=query.get("source", ["speaker"])[0],
                 )
                 if data is not None:
                     self._send_bytes(data, "application/octet-stream", extra_headers={

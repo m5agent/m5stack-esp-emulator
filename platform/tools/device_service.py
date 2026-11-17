@@ -232,8 +232,9 @@ from firmware_analysis import (  # noqa: E402
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from device_service_audio import (  # noqa: E402
-    CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES, WAV_MAX_BYTES,
-    decode_cardputer_wave, pcm_metrics,
+    CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES,
+    UNIT_AUDIO_MAX_CAPTURE_BYTES, UNIT_AUDIO_MAX_TRACKS, UNIT_AUDIO_SOURCE,
+    pcm_metrics, read_wave_artifact,
 )
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
@@ -2880,6 +2881,8 @@ class DeviceSession:
         self.storage_summary_path = self.dir / "storage.json"
         self.nvs_summary_path = self.dir / "nvs.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
+        self.unit_audio_pcm = self.dir / "unit-audio.pcm"
+        self.unit_audio_fixture = self.dir / "unit-audio-fixture.json"
         self.microphone_source_pcm = self.dir / "microphone-source.pcm"
         self.audio_fixture_path = self.dir / "audio-fixture.json"
         self.rmt_source = self.dir / "nec-source.rmt"
@@ -5586,6 +5589,32 @@ class DeviceSession:
         for key, value in defaults.items():
             env[key] = self.runtime_env.get(key, value)
 
+    def _unit_audio_attachment(self) -> dict | None:
+        return next((unit for unit in self.units if unit.get("media_wav_artifact_ids")), None)
+
+    def _unit_audio_environment(self, env: dict[str, str]) -> None:
+        env.pop("M5SW_UNIT_AUDIO_PCM_DIR", None)
+        env.pop("M5SW_UNIT_AUDIO_PCM_OUT", None)
+        attachment = self._unit_audio_attachment()
+        if attachment is None:
+            return
+        media_dir = self.dir / "unit-audio-media"
+        media_dir.mkdir(mode=0o700, exist_ok=True)
+        tracks = []
+        for index, artifact_id in enumerate(attachment["media_wav_artifact_ids"], 1):
+            self._check_cancelled()
+            pcm = read_wave_artifact(self.service.artifacts.path(artifact_id), artifact_id)
+            (media_dir / f"{index}.pcm").write_bytes(pcm)
+            tracks.append({"index": index, "artifact_id": artifact_id, "frames": len(pcm) // 2,
+                           "pcm_sha256": hashlib.sha256(pcm).hexdigest()})
+        atomic_write_json(self.unit_audio_fixture, {
+            "unit_id": attachment["id"], "sample_rate_hz": MICROPHONE_RATE,
+            "sample_format": "s16le", "channels": 1, "tracks": tracks,
+        })
+        self.unit_audio_pcm.unlink(missing_ok=True)
+        env["M5SW_UNIT_AUDIO_PCM_DIR"] = str(media_dir)
+        env["M5SW_UNIT_AUDIO_PCM_OUT"] = str(self.unit_audio_pcm)
+
     def _qemu_storage_environment(self, env: dict[str, str]) -> None:
         # The SPI SD model opens this path itself; -drive if=sd only feeds the
         # SoC SDMMC model. Never inherit an unrelated host/session disk path.
@@ -6097,6 +6126,7 @@ class DeviceSession:
         env.update(self.spec.env)
         env.update(self.runtime_env)
         self._plain_qemu_audio_environment(env)
+        self._unit_audio_environment(env)
         self._qemu_storage_environment(env)
         # Never inherit another session's external wiring from the host shell.
         env.pop("M5_UNIT_CONFIG", None)
@@ -7418,6 +7448,13 @@ class DeviceSession:
             raise ServiceError(
                 "runtime_model_gap", "QEMU Unit model/state contract is incomplete", 409,
             )
+        attachment = self._unit_audio_attachment()
+        if attachment is not None:
+            path = f"/machine/units/{attachment['id']}"
+            supported = self._qmp_call("qom-get", path=path, property="media-pcm-supported").get("return")
+            count = self._qmp_call("qom-get", path=path, property="media-pcm-track-count").get("return")
+            if supported is not True or count != len(attachment["media_wav_artifact_ids"]):
+                raise ServiceError("runtime_model_gap", "Native AudioPlayer did not load the requested WAV media", 409)
 
     def _unit_registry(self) -> tuple[UnitRegistry | None, str]:
         if not self.units:
@@ -8092,9 +8129,23 @@ class DeviceSession:
 
     def audio_capture(
         self, output_format: str, offset: int, limit: int, sample_rate_hz: int | None,
+        *, source: str = "speaker",
     ) -> tuple[bytes | None, dict]:
         DeviceSession._require_runtime_permission(self, "audio.read")
-        self._require_cardputer_audio()
+        if source not in {"speaker", "unit"}:
+            raise ServiceError("invalid_audio_source", "audio source must be speaker or unit", 400)
+        unit = self._unit_audio_attachment() if source == "unit" else None
+        if source == "unit":
+            if unit is None or self.spec.id != "dial" or self.runtime != "qemu":
+                raise ServiceError("audio_unsupported", "Unit PCM requires a native Dial session with WAV media", 409)
+            if offset % 2 or limit % 2 or sample_rate_hz not in {None, MICROPHONE_RATE}:
+                raise ServiceError("invalid_audio_layout", "Unit PCM uses aligned 16 kHz s16le mono samples", 400)
+            if output_format == "metrics":
+                sample_rate_hz = MICROPHONE_RATE
+            path = self.unit_audio_pcm
+        else:
+            self._require_cardputer_audio()
+            path = self.speaker_pcm
         if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
             raise ServiceError("invalid_audio_range", "expected pcm or metrics and a bounded byte range", 400)
         if output_format == "metrics":
@@ -8105,11 +8156,13 @@ class DeviceSession:
                 raise ServiceError("invalid_audio_layout", "metrics require aligned s16le mono and an explicit sample rate", 400)
         elif sample_rate_hz is not None:
             raise ServiceError("invalid_audio_layout", "sample_rate_hz applies to metrics only", 400)
-        if "M5SW_I2S_PCM_FILE" in self.runtime_env:
+        if unit is None and "M5SW_I2S_PCM_FILE" in self.runtime_env:
             raise ServiceError("audio_capture_unavailable", "speaker capture is redirected by a diagnostic override", 409)
         try:
-            with self.speaker_pcm.open("rb") as stream:
+            with path.open("rb") as stream:
                 observed = os.fstat(stream.fileno()).st_size
+                if unit is not None:
+                    observed = min(observed, UNIT_AUDIO_MAX_CAPTURE_BYTES) & ~1
                 if offset > observed:
                     raise ServiceError("audio_range_unavailable", "offset exceeds the observed capture length", 416)
                 stream.seek(offset)
@@ -8123,15 +8176,20 @@ class DeviceSession:
         receipt = {
             "session_id": self.id,
             "firmware_sha256": self.firmware_sha,
-            "source": "native_i2s_dma",
+            "source": UNIT_AUDIO_SOURCE if unit is not None else "native_i2s_dma",
             "offset": offset,
             "bytes": len(data),
             "next_offset": offset + len(data),
             "observed_bytes": observed,
             "sha256": hashlib.sha256(data).hexdigest(),
         }
+        if unit is not None:
+            receipt.update(unit_id=unit["id"], sample_rate_hz=MICROPHONE_RATE, channels=1, sample_format="s16le")
         if output_format == "metrics":
-            return None, receipt | pcm_metrics(data, sample_rate_hz)
+            metrics = pcm_metrics(data, sample_rate_hz)
+            if unit is not None:
+                metrics["layout_source"] = "native_unit_fixed_mono"
+            return None, receipt | metrics
         return data, receipt
 
     def audio_inject(self, payload: dict) -> dict:
@@ -8143,14 +8201,7 @@ class DeviceSession:
         if "M5SW_I2S_RX_PCM_FILE" in self.runtime_env:
             raise ServiceError("audio_fixture_conflict", "microphone source is redirected by a diagnostic override", 409)
         artifact = self.service.artifacts.path(artifact_id)
-        try:
-            with artifact.open("rb") as source:
-                wav = source.read(WAV_MAX_BYTES + 1)
-        except OSError as error:
-            raise ServiceError("audio_fixture_unavailable", "WAV artifact could not be read", 409) from error
-        pcm = decode_cardputer_wave(wav)
-        if hashlib.sha256(wav).hexdigest() != artifact_id:
-            raise ServiceError("audio_fixture_unavailable", "WAV artifact digest changed", 409)
+        pcm = read_wave_artifact(artifact, artifact_id)
         receipt = {
             "session_id": self.id,
             "status": "staged",
@@ -8573,6 +8624,20 @@ class DeviceSession:
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
+        if audio_read_allowed and "audio" in include and self._unit_audio_attachment() is not None:
+            if self.unit_audio_fixture.is_file():
+                files["audio/unit-fixture.json"] = self.unit_audio_fixture.read_bytes()
+            if self.unit_audio_pcm.is_file():
+                with self.unit_audio_pcm.open("rb") as stream:
+                    pcm = stream.read(UNIT_AUDIO_MAX_CAPTURE_BYTES)
+                pcm = pcm[:len(pcm) & ~1]
+                if pcm:
+                    files["audio/unit-output.pcm"] = pcm
+                    manifest["unit_audio"] = {
+                        "source": UNIT_AUDIO_SOURCE, "sample_rate_hz": MICROPHONE_RATE,
+                        "channels": 1, "sample_format": "s16le", "bytes": len(pcm),
+                        "sha256": hashlib.sha256(pcm).hexdigest(),
+                    }
         if (
             audio_read_allowed
             and (
@@ -10887,6 +10952,11 @@ class DeviceService:
             },
             "fixtures": {
                 "sd": sd,
+                **({"unit_audio": {
+                    "runtime": "qemu", "unit_id": "audioplayer", "source": UNIT_AUDIO_SOURCE,
+                    "sample_rate_hz": MICROPHONE_RATE, "sample_format": "s16le", "channels": 1,
+                    "max_tracks": UNIT_AUDIO_MAX_TRACKS,
+                }} if ready and spec.has_unit_audio_pcm else {}),
                 **({"audio": {
                     "runtime": "qemu",
                     "capture": "native_i2s_dma",
@@ -11535,6 +11605,16 @@ class DeviceService:
             unit_contract = unit_registry.freeze([unit["unit_id"] for unit in units]) if units else None
         except UnitError as error:
             raise ServiceError(error.code, error.message, error.status) from error
+        for unit in units:
+            media = unit.get("media_wav_artifact_ids")
+            if not media:
+                continue
+            if not spec.has_unit_audio_pcm:
+                raise ServiceError("runtime_model_gap", "Configured Dial runtime does not support AudioPlayer PCM", 409)
+            for artifact_id in dict.fromkeys(media):
+                read_wave_artifact(self.artifacts.path(artifact_id), artifact_id)
+                if artifact_id not in source_artifacts:
+                    source_artifacts.append(artifact_id)
         network_config = monitor_config
         requested_network = payload.get("network")
         if (

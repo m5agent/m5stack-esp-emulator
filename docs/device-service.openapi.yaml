@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.79.0
+  version: 1.80.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2304,13 +2304,16 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/audio.pcm:
     get:
-      summary: Read native Cardputer I2S DMA capture or PCM metrics
+      summary: Read native Cardputer or Dial AudioPlayer PCM and metrics
       description: >
         Requires audio.read under a runtime ACL. Captured bytes are retained
-        with the session. Metrics interpret the requested window as s16le
-        mono at the declared sample rate. No playback format is inferred.
+        with the session. Speaker metrics use the caller's declared s16le mono
+        sample rate. Dial Unit capture uses a fixed 16 kHz s16le mono stream.
       parameters:
         - $ref: "#/components/parameters/SessionId"
+        - name: source
+          in: query
+          schema: {type: string, enum: [speaker, unit], default: speaker}
         - name: format
           in: query
           schema: {type: string, enum: [pcm, metrics], default: pcm}
@@ -2322,7 +2325,10 @@ paths:
           schema: {type: integer, minimum: 1, maximum: 524288, default: 65536}
         - name: sample_rate_hz
           in: query
-          description: Required with metrics only. Offset and limit then require two-byte alignment.
+          description: >
+            Required for speaker metrics and optional for Unit metrics (16000).
+            Metrics and all Unit PCM reads require two-byte aligned offsets and
+            lengths. Omit this parameter for raw PCM.
           schema: {type: integer, minimum: 8000, maximum: 192000}
       responses:
         "200":
@@ -3831,6 +3837,18 @@ components:
           additionalProperties: false
           required: [sd]
           properties:
+            unit_audio:
+              type: object
+              additionalProperties: false
+              required: [runtime, unit_id, source, sample_rate_hz, sample_format, channels, max_tracks]
+              properties:
+                runtime: {const: qemu}
+                unit_id: {const: audioplayer}
+                source: {const: native_n9301_unit}
+                sample_rate_hz: {const: 16000}
+                sample_format: {const: s16le}
+                channels: {const: 1}
+                max_tracks: {const: 16}
             audio:
               type: object
               additionalProperties: false
@@ -4615,6 +4633,15 @@ components:
         initial:
           type: object
           additionalProperties: true
+        media_wav_artifact_ids:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items: {type: string, pattern: '^[0-9a-f]{64}$'}
+          description: >
+            Ordered immutable tracks for a single audioplayer on native Dial.
+            Each WAV uses 16 kHz mono signed 16-bit PCM, at most 10 seconds.
+            The array determines media-track-count.
       description: >
         Attached at guest creation. Pins and QOM paths are resolved from verified
         host wiring, never supplied by a caller. Unimplemented models or missing
@@ -6677,14 +6704,16 @@ components:
       properties:
         session_id: {type: string}
         firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
-        source: {const: native_i2s_dma}
+        source: {type: string, enum: [native_i2s_dma, native_n9301_unit]}
+        unit_id: {type: string}
+        channels: {const: 1}
         offset: {type: integer, minimum: 0}
         bytes: {type: integer, minimum: 2, maximum: 524288}
         next_offset: {type: integer, minimum: 0}
         observed_bytes: {type: integer, minimum: 0}
         sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
         sample_format: {const: s16le}
-        layout_source: {const: caller_declared_mono}
+        layout_source: {type: string, enum: [caller_declared_mono, native_unit_fixed_mono]}
         sample_rate_hz: {type: integer, minimum: 8000, maximum: 192000}
         frames: {type: integer, minimum: 1, maximum: 262144}
         rms: {type: number, minimum: 0, maximum: 32768}

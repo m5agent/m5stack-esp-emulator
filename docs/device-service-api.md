@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.79.0` and bounded
+Status: local MVP with unified-device runtime contract `1.80.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3314,6 +3314,34 @@ samples. Request the evidence ZIP before stopping for the PCM and the current
 microphone source digest. Stopped sessions can still read retained output.
 If an operator configures a runtime ACL, use `audio.inject` for WAV staging
 and `audio.read` for reading the capture or ZIP audio.
+
+### Dial AudioPlayer WAV media
+
+`fixtures.unit_audio` appears on Dial when the configured native QEMU
+supports AudioPlayer PCM. Upload up to 16 immutable tracks and attach
+one `audioplayer` Unit when creating the session.
+
+```json
+{
+  "id": "player",
+  "unit_id": "audioplayer",
+  "port_id": "port-b",
+  "media_wav_artifact_ids": ["<track 1 WAV SHA-256>", "<track 2 WAV SHA-256>"]
+}
+```
+
+Each track is a 16 kHz signed 16-bit mono PCM WAV of up to 10 seconds.
+The list sets the visible track count and index order. Units can still use
+the existing `media-track-count` scalar fixture on its own.
+
+`GET /api/v1/sessions/{id}/audio.pcm?source=unit` reads the digital samples
+emitted by the N9301 model in response to the guest UART controls.
+Use aligned byte offsets and lengths, or add `format=metrics` for native
+16 kHz metrics. Packet reads are bounded to 512 KiB and session capture to
+16 MiB. Include `audio` in the ZIP request for the track digests and
+`audio/unit-output.pcm`. Both routes use `audio.read`. The fixture covers
+indexed WAV playback before the DAC. MP3, the Unit's physical SD interface,
+stereo output and analog measurements have their own validation scope.
 
 ### Retained crash observations
 

@@ -92,6 +92,27 @@ class UnitRuntimeContractTests(unittest.TestCase):
             with self.subTest(count=count), self.assertRaises(UnitError):
                 self.registry.input_values("audioplayer", {"media-track-count": count})
 
+    def test_dial_wave_artifacts_freeze_order_and_track_count(self):
+        tracks = ["b" * 64, "a" * 64]
+        player = {"id": "player", "unit_id": "audioplayer", "port_id": "port-b"}
+        attached, = self.registry.attachments("dial", "qemu", [
+            {**player, "media_wav_artifact_ids": tracks},
+        ])
+        self.assertEqual(attached["media_wav_artifact_ids"], tracks)
+        self.assertEqual(attached["initial"]["media-track-count"], 2)
+        for extra in ({"initial": {"media-track-count": 1}}, {"media_wav_artifact_ids": []}):
+            with self.assertRaises(UnitError) as error:
+                self.registry.attachments("dial", "qemu", [
+                    {**player, "media_wav_artifact_ids": tracks, **extra},
+                ])
+            self.assertEqual(error.exception.code, "invalid_unit_audio_media")
+        with self.assertRaises(UnitError) as error:
+            self.registry.attachments("dial", "qemu", [
+                {**player, "media_wav_artifact_ids": tracks},
+                {**player, "id": "other", "port_id": "port-a"},
+            ])
+        self.assertEqual(error.exception.code, "unit_audio_media_unsupported")
+
     def test_scroll_physical_source_is_distinct_from_read_only_logical_counter(self):
         unit = self.registry.unit("scroll")
         self.assertEqual(unit["interface"]["address_7bit"], [0x40])

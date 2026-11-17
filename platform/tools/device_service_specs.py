@@ -259,6 +259,13 @@ class DeviceSpec:
         )
 
     @property
+    def has_unit_audio_pcm(self) -> bool:
+        return (
+            self.id == "dial" and self.service_kind == "qemu" and self.machine == "m5dial"
+            and qemu_has_qom_property(self.qemu, "m5dial-machine", "media-pcm-supported", "bool")
+        )
+
+    @property
     def reference_available(self) -> bool:
         return bool(self.reference_path and self.reference_path.is_file())
 

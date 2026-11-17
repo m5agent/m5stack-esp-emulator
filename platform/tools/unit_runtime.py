@@ -14,6 +14,8 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
+from device_service_audio import UNIT_AUDIO_MAX_TRACKS
+
 ROOT = Path(__file__).resolve().parents[2]
 UNIT_ROOT = ROOT / "platform/units"
 INSTANCE_ID = re.compile(r"[a-z][a-z0-9_-]{0,47}\Z")
@@ -219,7 +221,9 @@ class UnitRegistry:
         ports = {port["id"]: port for port in host["ports"]}
         rows, occupied = {}, set()
         for row in value:
-            if not isinstance(row, dict) or set(row) - {"id", "unit_id", "port_id", "initial", "parent_id"}:
+            if not isinstance(row, dict) or set(row) - {
+                "id", "unit_id", "port_id", "initial", "parent_id", "media_wav_artifact_ids",
+            }:
                 raise UnitError("invalid_units", "invalid Unit attachment fields")
             instance, unit_id, port_id = row.get("id"), row.get("unit_id"), row.get("port_id")
             if not isinstance(instance, str) or not INSTANCE_ID.fullmatch(instance):
@@ -241,7 +245,23 @@ class UnitRegistry:
             if connector in occupied:
                 raise UnitError("unit_port_conflict", "each physical connector accepts only one Unit", 409)
             occupied.add(connector)
-            rows[instance] = {**row, "initial": self.input_values(unit_id, row.get("initial", {}))}
+            initial = self.input_values(unit_id, row.get("initial", {}))
+            if "media_wav_artifact_ids" in row:
+                media = row["media_wav_artifact_ids"]
+                if (not isinstance(media, list) or not 1 <= len(media) <= UNIT_AUDIO_MAX_TRACKS
+                        or any(not isinstance(artifact, str) or not re.fullmatch(r"[0-9a-f]{64}", artifact)
+                               for artifact in media)):
+                    raise UnitError("invalid_unit_audio_media", "Unit media requires 1 to 16 WAV artifact SHA-256 IDs")
+                if (device_id, runtime, unit_id) != ("dial", "qemu", "audioplayer"):
+                    raise UnitError("unit_audio_media_unsupported", "WAV media requires a native Dial AudioPlayer", 409)
+                if initial.get("media-track-count", len(media)) != len(media):
+                    raise UnitError("invalid_unit_audio_media", "media-track-count must match the WAV track list")
+                initial["media-track-count"] = len(media)
+            rows[instance] = {**row, "initial": initial}
+
+        if (any("media_wav_artifact_ids" in row for row in rows.values())
+                and sum(row["unit_id"] == "audioplayer" for row in rows.values()) != 1):
+            raise UnitError("unit_audio_media_unsupported", "WAV media requires a single attached AudioPlayer", 409)
 
         resolved, visiting = {}, set()
 
@@ -283,6 +303,8 @@ class UnitRegistry:
                 "visual_port": visual_port, "initial": row["initial"],
                 **({"parent_id": parent} if parent is not None else {}),
             }
+            if "media_wav_artifact_ids" in row:
+                result["media_wav_artifact_ids"] = row["media_wav_artifact_ids"]
             resolved[instance] = result
             visiting.remove(instance)
             return result
