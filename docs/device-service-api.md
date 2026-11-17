@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.78.0` and bounded
+Status: local MVP with unified-device runtime contract `1.79.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3126,9 +3126,8 @@ identity, firmware/eFuse input hashes, byte preservation, and `symbols_status`
 (`matched` or `unavailable`). A single OTA0 upload with a verified app digest
 and erased OTA data has `application.selection=ota0_erased_otadata`, a
 partition label and subtype, app hashes and the descriptor's declared ELF SHA.
-Uploads with
-multiple app partitions or unresolved OTA metadata report an unavailable
-identity with a reason.
+Uploads with multiple app partitions or unresolved OTA metadata report an
+unavailable identity with a reason.
 The ELF SHA must match the actual app descriptor before symbolic frame/touch
 operations. A stale reference ELF fails with `tab5_elf_mismatch`. By default,
 an uploaded image without matching symbols may execute, with
