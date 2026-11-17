@@ -733,7 +733,9 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ServiceError("invalid_request", "SD export does not accept options", 400)
                 response = service.get_session(parts[1]).sd_storage_export()
             elif method == "GET" and len(parts) == 4 and parts[0] == "sessions" and parts[2:] == ["storage", "filesystem"]:
-                include_source = query.get("include_source", ["0"])
+                include_source = parse_qs(urlparse(self.path).query, keep_blank_values=True).get(
+                    "include_source", ["0"],
+                )
                 if len(include_source) != 1 or include_source[0] not in {"0", "1"}:
                     raise ServiceError("invalid_filesystem_source_flag", "include_source must be 0 or 1", 400)
                 response = service.get_session(parts[1]).filesystem_storage_inventory(

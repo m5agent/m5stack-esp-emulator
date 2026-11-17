@@ -243,6 +243,17 @@ class ServePeripheralApiTests(unittest.TestCase):
             row["runtime_cases"]["matrix"],
         )
 
+    def test_filesystem_source_query_requires_one_explicit_flag(self):
+        route = "/api/v1/sessions/missing/storage/filesystem"
+        for query in ("?include_source=", "?include_source=1&include_source=", "?include_source=2"):
+            with self.subTest(query=query), self.assertRaises(HTTPError) as rejected:
+                self.get_json(route + query)
+            self.assertEqual(rejected.exception.code, 400)
+        for query in ("", "?include_source=0", "?include_source=1"):
+            with self.subTest(query=query), self.assertRaises(HTTPError) as missing:
+                self.get_json(route + query)
+            self.assertEqual(missing.exception.code, 404)
+
     def test_tab5_inventory_preserves_blockers(self):
         row = self.get_json("/api/peripherals/tab5")
         self.assertFalse(row["complete"])
