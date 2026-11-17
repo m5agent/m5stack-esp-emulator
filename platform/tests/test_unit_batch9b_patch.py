@@ -66,7 +66,7 @@ class UnitBatch9bPatchTests(unittest.TestCase):
             self.assertTrue(unit["blocker"], unit_id)
             self.assertTrue(profile["blocker"], unit_id)
 
-    def test_four_uart_contracts_expose_only_byte_layer_properties(self):
+    def test_four_uart_contracts_preserve_byte_layer_properties(self):
         for unit_id in UART_IMPLEMENTED:
             unit = self.units[unit_id]
             profile = self.profiles[unit_id]
@@ -82,7 +82,7 @@ class UnitBatch9bPatchTests(unittest.TestCase):
             self.assertEqual(unit["model_status"], "partial")
             self.assertEqual(unit["runtime"]["status"], "implemented")
             self.assertEqual(profile["status"], "implemented")
-            self.assertEqual(profile["hosts"], ["cores3"])
+            self.assertIn("cores3", profile["hosts"])
             self.assertIn("virtual_device_evidence", profile)
             report = ROOT / profile["virtual_device_evidence"]["report"]
             self.assertTrue(report.is_file(), unit_id)

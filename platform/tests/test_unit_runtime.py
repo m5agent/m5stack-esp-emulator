@@ -18,7 +18,7 @@ class UnitRuntimeContractTests(unittest.TestCase):
     def test_full_visual_batch_has_explicit_runtime_boundaries(self):
         inventory = self.registry.inventory()
         self.assertEqual(len(inventory["units"]), 160)
-        self.assertEqual(len(inventory["hosts"]), 23)
+        self.assertEqual(len(inventory["hosts"]), 24)
 
 
 
@@ -71,6 +71,26 @@ class UnitRuntimeContractTests(unittest.TestCase):
         self.assertEqual(env["host_admission"]["ports"][0]["error"], {
             "code": "runtime_model_gap", "message": "missing controller",
         })
+
+    def test_dial_audioplayer_media_is_scoped_and_creation_only(self):
+        inventory = self.registry.inventory("dial")
+        admitted = {
+            unit["id"]: unit["host_admission"]["port_ids"]
+            for unit in inventory["units"] if unit["host_admission"]["admitted"]
+        }
+        self.assertEqual(admitted, {"audioplayer": ["port-a", "port-b"]})
+        attachment = self.registry.attachments("dial", "qemu", [{
+            "id": "player", "unit_id": "audioplayer", "port_id": "port-b",
+            "initial": {"media-track-count": 7},
+        }])[0]
+        self.assertEqual(attachment["pins"], {"yellow": 2, "white": 1})
+        self.assertEqual(attachment["initial"], {"media-track-count": 7})
+        with self.assertRaises(UnitError) as caught:
+            self.registry.input_values("audioplayer", {"media-track-count": 8}, live=True)
+        self.assertEqual(caught.exception.code, "unit_input_creation_only")
+        for count in (-1, 65536, True):
+            with self.subTest(count=count), self.assertRaises(UnitError):
+                self.registry.input_values("audioplayer", {"media-track-count": count})
 
     def test_scroll_physical_source_is_distinct_from_read_only_logical_counter(self):
         unit = self.registry.unit("scroll")

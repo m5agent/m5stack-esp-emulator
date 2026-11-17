@@ -884,6 +884,70 @@
           ]
         }
       ]
+    },
+    {
+      "device_id": "dial",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 13,
+            "white": 15
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "admitted_unit_ids": [
+            "audioplayer"
+          ],
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/Dial",
+              "checked_at": "2026-11-17",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "Runtime admission is scoped to Unit AudioPlayer."
+          ]
+        },
+        {
+          "id": "port-b",
+          "label": "PORT.B",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "admitted_unit_ids": [
+            "audioplayer"
+          ],
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/Dial",
+              "checked_at": "2026-11-17",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "Runtime admission is scoped to Unit AudioPlayer."
+          ]
+        }
+      ],
+      "unconfirmed": []
     }
   ]
 }

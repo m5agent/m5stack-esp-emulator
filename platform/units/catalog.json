@@ -27411,7 +27411,7 @@
         "export": "Model"
       },
       "official_docs": "https://docs.m5stack.com/en/unit/Unit_AudioPlayer",
-      "checked_at": "2026-11-03",
+      "checked_at": "2026-11-17",
       "chips": [
         {
           "part": "N9301",
@@ -27449,24 +27449,22 @@
         }
       },
       "protocol": {
-        "status": "documented-driver-gap-protocol-unresolved",
-        "summary": "N9301 MP3/WAV player with microSD (FAT16/32, <=32GB) and 3.5mm stereo jack, UART 9600 8N1. Public UIFlow2 has no AudioPlayer Unit driver and the page Protocol section does not give the command/status table; only UART byte/fixture observation is possible.",
+        "status": "documented",
+        "summary": "N9301 UART control at 9600 8N1 with complemented command, length and additive checksum. Official driver and protocol manual cover media discovery, playback state, indexed track selection, volume and loop mode. Unit storage and audio output are separate.",
         "registers": [
           {
             "register": "UART command/status format",
-            "length": 0,
-            "encoding": "external manual; not readable from page text -> UNRESOLVED"
+            "length": 32,
+            "encoding": "command, ones-complement, payload length, payload, modulo-256 checksum; max 32 bytes"
           },
           {
             "register": "microSD FAT16/32 storage",
             "length": 0,
-            "encoding": "N9301 internal; storage/audio NOT modeled"
+            "encoding": "N9301 internal storage; not modeled"
           }
         ],
         "gaps": [
-          "No public UIFlow2 AudioPlayer driver/command table",
-          "MP3/WAV decode/3.5mm audio/microSD NOT RUN",
-          "UART 9600 from page; no frame/opcode confirmation"
+          "MP3/WAV decoding, the Unit's physical microSD card, analog output and playback timing are unmodeled."
         ]
       },
       "inputs": {
@@ -27477,6 +27475,16 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": false,
           "pattern": "^([0-9a-fA-F]{2})*$"
+        },
+        "media-track-count": {
+          "type": "integer",
+          "label": "Indexed media tracks",
+          "default": 0,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "creation_only": true,
+          "maximum": 65535
         }
       },
       "outputs": {
@@ -27502,6 +27510,57 @@
           "default_source": "synthetic-test-fixture",
           "readOnly": true,
           "minimum": 0
+        },
+        "selected-track": {
+          "type": "integer",
+          "label": "Selected track",
+          "default": 0,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maximum": 65535
+        },
+        "playback-status": {
+          "type": "integer",
+          "label": "Playback status (0 stopped, 1 playing, 2 paused)",
+          "default": 0,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maximum": 2
+        },
+        "volume": {
+          "type": "integer",
+          "label": "Volume",
+          "default": 30,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maximum": 30
+        },
+        "loop-mode": {
+          "type": "integer",
+          "label": "Loop mode",
+          "default": 4,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "maximum": 5
+        },
+        "invalid-frames": {
+          "type": "integer",
+          "label": "Invalid UART frames",
+          "default": 0,
+          "minimum": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "rx-hex": {
+          "type": "string",
+          "label": "Last UART reply (hex)",
+          "default": "",
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
         }
       },
       "evidence": [
@@ -27520,10 +27579,10 @@
         },
         {
           "kind": "official-protocol-manual",
-          "url": "https://docs.m5stack.com/en/unit/Unit_AudioPlayer",
-          "checked_at": "2026-11-03",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1155/Unit-AudioPlayer-Protocol-CN.pdf",
+          "checked_at": "2026-11-17",
           "claims": [
-            "Internal Firmware/Protocol section did not provide a readable command table; external manual unresolved"
+            "Framing, checksums, media and playback status, track controls, volume and loop mode."
           ]
         }
       ],
@@ -27554,15 +27613,13 @@
             "type": "integer"
           }
         },
-        "blocker": "Guest evidence covers raw UART 9600 byte layer only: 7e03010203 TX captured and fixture 4f4b0d0a RX read; no public driver/N9301 command table. Audio/microSD/3.5mm NOT RUN; PORT.C substituted."
+        "blocker": "UART protocol uses explicit indexed media. Decoder timing, track names, Unit microSD, audio output and electrical UART behavior are unmodeled."
       },
-      "blocker": "0151 复用 UART TX 捕获 + idle fixture responder（U197，9600 8N1）；**无官方 Unit AudioPlayer 驱动、N9301 命令/状态表不可读 → 只做字节层观测，不解析命令**；无 guest/Device Service 证据 → planned；MP3/WAV 解码、microSD/FAT、3.5mm 音频、扬声器 NOT RUN；PORT.C 冲突。",
+      "blocker": "UART protocol uses explicit indexed media. Decoder timing, track names, Unit microSD, audio output and electrical UART behavior are unmodeled.",
       "limitations": [
-        "No public UIFlow2 AudioPlayer driver; UART command/status format unresolved (external manual).",
-        "MP3/WAV decoding, microSD/FAT16/32, 3.5mm audio and speaker are NOT RUN.",
-        "PORT.C UART shared with all UART Units; one per port.",
-        "0151 只登记 9600 UART 字节层模型；N9301 命令表/MP3 解码/音频输出/存储 NOT RUN，无 guest 证据。",
-        "Virtual-device guest evidence recorded in docs/evidence/2026-11-03-unit-batch11/report-audioplayer.json for cores3; see README for modeled subset, harness substitution and NOT RUN boundaries."
+        "An explicit media-track-count at creation supplies one indexed virtual directory. Zero tracks leaves the Unit silent.",
+        "Legacy raw UART fixture replies remain available for the recorded CoreS3 byte-layer probe.",
+        "Decoder timing, track names, Unit microSD, analog sound and electrical UART behavior are unmodeled."
       ],
       "input_semantics": null,
       "output_semantics": null

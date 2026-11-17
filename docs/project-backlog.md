@@ -63,8 +63,9 @@
    其他 dump 格式和 RISC-V 栈展开。原生 C6 已验证匹配 ELF 的 abort 地址和 MEPC 符号，
    Core2 和原生 C6 已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
-6. **P1 外设**。优先审查侧 Unit 挂载，按 UART/I2C/SPI 数据面验证 AudioPlayer、
-   NFC、Joystick 和外接收发控制器。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
+6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
+   已验证真实 UART、官方驱动与原版旋钮换曲，音频和完整交互仍开放。继续验证 NFC、Joystick 和外接收发控制器的
+   I2C/SPI 数据面。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
 7. **P2 能力与故障**。将板型、执行模式、可用控制器/fixture 和证据状态放入稳定清单；

@@ -1,0 +1,191 @@
+{
+  "validation": "virtual-device validation",
+  "source_base": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7",
+  "qemu_upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "runtime_binary_sha256": "66cc7956a4609c0e55e9b4fe9b29920eee86e64ab5d14d1b88db22be678b8723",
+  "driver_source_commit": "7ec5c5ead5d3e210bda907e5470490f98f028a4b",
+  "driver_sha256": "061aea42a9c40760dfd806672e968d24762c75a78398e439c45b570ca3cae435",
+  "official_driver_cases": [
+    {
+      "port": "port-a",
+      "indexed_tracks": 7,
+      "status": "PASS",
+      "firmware_sha256": "fea37b86cb03013f4949ce9c93cd3ffd8899267b94cb318387277123da16f24e",
+      "evidence_zip_sha256": "da1807573f8fd683fbec373f1cf7dd46f676af8817ebc015378a5a8ee3bbbdff",
+      "guest_markers": [
+        "N9301_PROBE_BOOT (15, 13) 7",
+        "N9301_PROBE_MEDIA 7",
+        "N9301_PROBE_REJECTED",
+        "N9301_PROBE_CONTROLS 0 5 15 1",
+        "N9301_PROBE_PASS"
+      ],
+      "controller": {
+        "tx-hex": "04fb01000004fb01080804fb01090904fb010d0d04fb01181806f90100000bf401000004fb01015504fb01000004fb2004fb01000004fb0104fb01000004fb030600000804fb01000004fb030600030b04fb01000004fb01020204fb01010104fb01000004fb01030304fb031600051d04fb01000004fb01050504fb01040404fb010e0e06f902010f1106f90100000bf4020101030bf401000004fb01000004fb01000004fb010e0e06f90100000bf4010000",
+        "frames-sent": 32,
+        "frames-injected": 30,
+        "transactions": 32,
+        "read-bytes": 188,
+        "written-bytes": 179,
+        "responses-hex": "",
+        "media-track-count": 7,
+        "selected-track": 5,
+        "playback-status": 0,
+        "volume": 15,
+        "loop-mode": 1,
+        "invalid-frames": 3,
+        "rx-hex": "0bf402000102"
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      }
+    },
+    {
+      "port": "port-b",
+      "indexed_tracks": 7,
+      "status": "PASS",
+      "firmware_sha256": "ba591f05e30122f6a274727817829a443bb99db876626c202fe323ef33a97218",
+      "evidence_zip_sha256": "c5f7df23a55b71d0b6ccd3f03bfeb8e00c974053e0547f92d05081024c9d5065",
+      "guest_markers": [
+        "N9301_PROBE_BOOT (1, 2) 7",
+        "N9301_PROBE_MEDIA 7",
+        "N9301_PROBE_REJECTED",
+        "N9301_PROBE_CONTROLS 0 5 15 1",
+        "N9301_PROBE_PASS"
+      ],
+      "controller": {
+        "tx-hex": "04fb01000004fb01080804fb01090904fb010d0d04fb01181806f90100000bf401000004fb01015504fb01000004fb2004fb01000004fb0104fb01000004fb030600000804fb01000004fb030600030b04fb01000004fb01020204fb01010104fb01000004fb01030304fb031600051d04fb01000004fb01050504fb01040404fb010e0e06f902010f1106f90100000bf4020101030bf401000004fb01000004fb01000004fb010e0e06f90100000bf4010000",
+        "frames-sent": 32,
+        "frames-injected": 30,
+        "transactions": 32,
+        "read-bytes": 188,
+        "written-bytes": 179,
+        "responses-hex": "",
+        "media-track-count": 7,
+        "selected-track": 5,
+        "playback-status": 0,
+        "volume": 15,
+        "loop-mode": 1,
+        "invalid-frames": 3,
+        "rx-hex": "0bf402000102"
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      }
+    },
+    {
+      "port": "port-b",
+      "indexed_tracks": 0,
+      "status": "PASS",
+      "firmware_sha256": "f5c4cdf63fa6da36a5a497936839f311927407b5fc8804bc23ef08c891574af5",
+      "evidence_zip_sha256": "16f8996ff71ae7b18efc74134ffe548af117cf7e4e3f32ad97351653ad263c0f",
+      "guest_markers": [
+        "N9301_PROBE_BOOT (1, 2) 0",
+        "N9301_PROBE_NO_MEDIA",
+        "N9301_PROBE_PASS"
+      ],
+      "controller": {
+        "tx-hex": "04fb01000004fb010808",
+        "frames-sent": 2,
+        "frames-injected": 0,
+        "transactions": 2,
+        "read-bytes": 0,
+        "written-bytes": 10,
+        "responses-hex": "",
+        "media-track-count": 0,
+        "selected-track": 0,
+        "playback-status": 0,
+        "volume": 30,
+        "loop-mode": 4,
+        "invalid-frames": 0,
+        "rx-hex": ""
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      }
+    }
+  ],
+  "archived_baseline_control": {
+    "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+    "runtime_binary_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+    "attached_units": 0,
+    "frame": {
+      "size": [
+        240,
+        240
+      ],
+      "nonblack": 0,
+      "sha256": "4bf6fb04707daaa254f0d27219adbb5bfb282a2f495e0bf528cb7ee3efde5832"
+    },
+    "uart0_serial_lines": 9,
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "leases": 0
+    }
+  },
+  "original": {
+    "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+    "port": "port-b",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "indexed_tracks": 7,
+    "uart_protocol": "PASS",
+    "encoder_to_uart_play": "PASS",
+    "whole_application": "SIM_PARTIAL",
+    "audio_output_and_physical_media": "NOT RUN",
+    "input": [
+      {
+        "delta": 3,
+        "track": 4,
+        "command_hex": "04fb030600040c",
+        "total_gpio_edges": 12
+      },
+      {
+        "delta": -2,
+        "track": 2,
+        "command_hex": "04fb030600020a",
+        "total_gpio_edges": 20
+      }
+    ],
+    "controller": {
+      "tx-hex": "04fb01080804fb010d0d0bf40201000206f902010b0d04fb030600010904fb01000004fb030600040c04fb030600020a",
+      "frames-sent": 8,
+      "frames-injected": 6,
+      "transactions": 8,
+      "read-bytes": 40,
+      "written-bytes": 48,
+      "responses-hex": "",
+      "media-track-count": 7,
+      "selected-track": 2,
+      "playback-status": 1,
+      "volume": 11,
+      "loop-mode": 0,
+      "invalid-frames": 0,
+      "rx-hex": "04fb030e000212"
+    },
+    "frame": {
+      "sha256": "4bf6fb04707daaa254f0d27219adbb5bfb282a2f495e0bf528cb7ee3efde5832",
+      "width": 240,
+      "height": 240,
+      "nonblack_pixels": 0,
+      "unique_colors": 0
+    },
+    "evidence_zip_sha256": "0165f830d1aad9b433045751ba2e35ca8b4ce40c319af07ada21d1ba1b5e886b",
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "active_leases": 0
+    },
+    "earlier_button_center_and_upper_touch": "No attributable playback or volume state transition observed."
+  },
+  "hardware": "NOT RUN",
+  "browser": "NOT RUN"
+}

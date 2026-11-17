@@ -1,0 +1,306 @@
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -100,6 +100,13 @@
+     uint64_t asr_command_id;  /* last AA55 <id> 55AA command observed on ASR TX */
+     uint8_t at_buf[256];
+     size_t at_len;
++    /* AudioPlayer U197 serial control with preconfigured indexed media. */
++    uint8_t n9301_frame[32];
++    size_t n9301_length;
++    int64_t n9301_frame_start_ms;
++    bool n9301_media_frozen;
++    uint64_t n9301_media_tracks, n9301_track, n9301_status;
++    uint64_t n9301_volume, n9301_loop_mode, n9301_invalid_frames;
+     /* U170-433 0xC0/0xC1 config mirror (8 bytes after the 3-byte header). */
+     uint8_t lora_config[8];
+     uint32_t rx_pulses[192], tx_pulses[192];
+@@ -1050,6 +1057,8 @@
+ static bool chain_is_unit(const char *unit_id);
+ static void chain_process(GPIOUnit *g);
+ static void cat1_respond(GPIOUnit *g);
++static void n9301_receive(GPIOUnit *g, ESP32UARTState *uart, unsigned index,
++                          uint8_t byte);
+ void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+ {
+     for (unsigned n = 0; n < 3; n++) {
+@@ -1079,7 +1088,10 @@
+                 esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                 if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                 g->unit->written_bytes++;
+-                if (chain_is_unit(g->unit->unit_id)) {
++                if (!strcmp(g->unit->unit_id, "audioplayer") &&
++                    (!g->at_responses || !*g->at_responses)) {
++                    n9301_receive(g, uart, n, byte);
++                } else if (chain_is_unit(g->unit->unit_id)) {
+                     if (g->chain_len < sizeof(g->chain_buf)) {
+                         g->chain_buf[g->chain_len++] = byte;
+                     }
+@@ -1362,6 +1374,217 @@
+     return false;
+ }
+ 
++enum {
++    N9301_PLAYBACK = 0x04,
++    N9301_VOLUME = 0x06,
++    N9301_LOOP = 0x0b,
++    N9301_ERROR = 0xaa,
++};
++
++static uint8_t n9301_checksum(const uint8_t *data, size_t length)
++{
++    uint8_t checksum = 0;
++
++    for (size_t index = 0; index < length; index++) {
++        checksum += data[index];
++    }
++    return checksum;
++}
++
++static void n9301_reply(GPIOUnit *g, ESP32UARTState *uart, unsigned index,
++                        uint8_t cmd, uint8_t sub, uint16_t value, bool wide)
++{
++    uint8_t frame[] = { cmd, (uint8_t)~cmd, wide ? 3 : 2, sub,
++                        wide ? value >> 8 : value, value, 0 };
++    size_t length = frame[2] + 4;
++
++    if (esp32_gpio_matrix_in_pin(uart_signal[index], true) != g->unit->white ||
++        length > fifo8_num_free(&uart->rx_fifo)) {
++        return;
++    }
++    frame[length - 1] = n9301_checksum(frame, length - 1);
++    esp32_uart_inject_rx(uart, frame, length);
++    g->unit->read_bytes += length;
++    g->at_frames_injected++;
++    g_free(g->last_rx);
++    g->last_rx = g_malloc(length * 2 + 1);
++    for (size_t i = 0; i < length; i++) {
++        sprintf(g->last_rx + i * 2, "%02x", frame[i]);
++    }
++}
++
++static void n9301_playback(GPIOUnit *g, ESP32UARTState *uart, unsigned index,
++                           const uint8_t *data, size_t length)
++{
++    uint8_t sub = data[0];
++    uint16_t selected;
++
++    if (sub == 0x06 || sub == 0x16) {
++        if (length != 3) {
++            return;
++        }
++        selected = (data[1] << 8) | data[2];
++        if (!selected || selected > g->n9301_media_tracks) {
++            n9301_reply(g, uart, index, N9301_ERROR, 0xff, 0x04, false);
++            return;
++        }
++        g->n9301_track = selected;
++        g->n9301_status = sub == 0x06 ? 1 : 0;
++    } else if (length != 1) {
++        return;
++    }
++
++    switch (sub) {
++    case 0x01:  /* Play or resume. */
++        g->n9301_status = 1;
++        break;
++    case 0x02:
++        if (g->n9301_status == 1) {
++            g->n9301_status = 2;
++        }
++        break;
++    case 0x03:
++    case 0x14:
++        g->n9301_status = 0;
++        break;
++    case 0x04:
++        g->n9301_track = g->n9301_track == 1 ?
++                         g->n9301_media_tracks : g->n9301_track - 1;
++        g->n9301_status = 1;
++        break;
++    case 0x05:
++        g->n9301_track = g->n9301_track == g->n9301_media_tracks ?
++                         1 : g->n9301_track + 1;
++        g->n9301_status = 1;
++        break;
++    }
++
++    switch (sub) {
++    case 0x00:
++    case 0x01:
++    case 0x02:
++    case 0x03:
++        n9301_reply(g, uart, index, N9301_PLAYBACK, 0,
++                    g->n9301_status, false);
++        break;
++    case 0x04:
++    case 0x05:
++    case 0x06:
++    case 0x0e:
++    case 0x16:
++        n9301_reply(g, uart, index, N9301_PLAYBACK, 0x0e,
++                    g->n9301_track, true);
++        break;
++    case 0x08:  /* Online-device mask, SD bit. */
++        n9301_reply(g, uart, index, N9301_PLAYBACK, sub, 2, false);
++        break;
++    case 0x09:  /* Playback device, SD. */
++        n9301_reply(g, uart, index, N9301_PLAYBACK, sub, 1, false);
++        break;
++    case 0x0d:
++    case 0x18:  /* The indexed fixture has one directory. */
++        n9301_reply(g, uart, index, N9301_PLAYBACK, sub,
++                    g->n9301_media_tracks, true);
++        break;
++    }
++}
++
++static void n9301_command(GPIOUnit *g, ESP32UARTState *uart, unsigned index)
++{
++    uint8_t cmd = g->n9301_frame[0];
++    size_t length = g->n9301_frame[2];
++    const uint8_t *data = g->n9301_frame + 3;
++
++    g->at_frames_sent++;
++    if (!g->n9301_media_tracks || !length) {
++        return;
++    }
++    if (cmd == N9301_PLAYBACK) {
++        n9301_playback(g, uart, index, data, length);
++    } else if (cmd == N9301_VOLUME) {
++        if (length == 1 && data[0] == 0) {
++            n9301_reply(g, uart, index, cmd, 0, g->n9301_volume, false);
++        } else if (length == 2 && data[0] == 1 && data[1] <= 30) {
++            g->n9301_volume = data[1];
++        } else if (length == 1 && data[0] == 2 && g->n9301_volume < 30) {
++            g->n9301_volume++;
++        } else if (length == 1 && data[0] == 3 && g->n9301_volume > 0) {
++            g->n9301_volume--;
++        }
++    } else if (cmd == N9301_LOOP) {
++        if (length == 1 && data[0] == 0) {
++            n9301_reply(g, uart, index, cmd, 0, g->n9301_loop_mode, false);
++        } else if (length == 2 && data[0] == 1 && data[1] <= 5) {
++            g->n9301_loop_mode = data[1];
++            g->n9301_status = 0;
++        }
++    }
++}
++
++static void n9301_receive(GPIOUnit *g, ESP32UARTState *uart, unsigned index,
++                          uint8_t byte)
++{
++    int64_t now = qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL);
++
++    if (g->n9301_length && now - g->n9301_frame_start_ms >= 500) {
++        g->n9301_length = 0;
++        g->n9301_invalid_frames++;
++    }
++    if (g->n9301_length == 1 &&
++        (g->n9301_frame[0] ^ byte) != UINT8_MAX) {
++        g->n9301_length = 0;
++        g->n9301_invalid_frames++;
++    }
++    if (g->n9301_length == 2 && byte > sizeof(g->n9301_frame) - 4) {
++        g->n9301_length = 0;
++        g->n9301_invalid_frames++;
++        return;
++    }
++    if (g->n9301_length == 0) {
++        g->n9301_frame_start_ms = now;
++    }
++    g->n9301_frame[g->n9301_length++] = byte;
++    if (g->n9301_length < 4 ||
++        g->n9301_length != (size_t)g->n9301_frame[2] + 4) {
++        return;
++    }
++    if (n9301_checksum(g->n9301_frame, g->n9301_length - 1) == byte) {
++        g->unit->transactions++;
++        n9301_command(g, uart, index);
++    } else {
++        g->n9301_invalid_frames++;
++    }
++    g->n9301_length = 0;
++}
++
++static void n9301_media_get(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    GPIOUnit *g = opaque;
++
++    count_get(obj, v, name, &g->n9301_media_tracks, errp);
++}
++
++static void n9301_media_set(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    GPIOUnit *g = opaque;
++    uint64_t count;
++
++    if (!visit_type_uint64(v, name, &count, errp)) {
++        return;
++    }
++    if (g->n9301_media_frozen || (g->at_responses && *g->at_responses) ||
++        count > UINT16_MAX) {
++        error_setg(errp, "AudioPlayer indexed media is a creation-only "
++                   "fixture with 0..65535 tracks and requires protocol mode");
++        return;
++    }
++    g->n9301_media_tracks = count;
++    g->n9301_track = count ? 1 : 0;
++    g->unit->input_events++;
++}
++
+ /* --- Batch-12b Chain (U223/U212) and Cat1-CN (U204) UART responders ---- */
+ 
+ static bool chain_is_unit(const char *unit_id)
+@@ -2413,6 +2636,11 @@
+     GPIOUnit *g = op;
+     char *value = NULL;
+     if (!visit_type_str(v, name, &value, errp)) { return; }
++    if (g->n9301_media_tracks && *value) {
++        error_setg(errp, "AudioPlayer indexed media requires protocol mode");
++        g_free(value);
++        return;
++    }
+     g_free(g->at_responses);
+     g->at_responses = value;
+     g->at_offset = 0;
+@@ -2789,6 +3017,23 @@
+                             &g->at_frames_sent);
+         object_property_add(o, "frames-injected", "uint64", count_get, NULL, NULL,
+                             &g->at_frames_injected);
++        if (!strcmp(id, "audioplayer")) {
++            g->n9301_volume = 30;
++            g->n9301_loop_mode = 4;  /* Single track, then stop. */
++            object_property_add(o, "media-track-count", "uint64",
++                                n9301_media_get, n9301_media_set, NULL, g);
++            object_property_add(o, "selected-track", "uint64", count_get,
++                                NULL, NULL, &g->n9301_track);
++            object_property_add(o, "playback-status", "uint64", count_get,
++                                NULL, NULL, &g->n9301_status);
++            object_property_add(o, "volume", "uint64", count_get,
++                                NULL, NULL, &g->n9301_volume);
++            object_property_add(o, "loop-mode", "uint64", count_get,
++                                NULL, NULL, &g->n9301_loop_mode);
++            object_property_add(o, "invalid-frames", "uint64", count_get,
++                                NULL, NULL, &g->n9301_invalid_frames);
++            object_property_add(o, "rx-hex", "str", hex_get, NULL, NULL, g);
++        }
+         if (!strcmp(id, "asr")) {
+             object_property_add(o, "command-id", "uint64", count_get, NULL, NULL,
+                                 &g->asr_command_id);
+@@ -2875,8 +3120,11 @@
+ void m5_unit_gpio_initial_complete(M5Unit *unit)
+ {
+     for (GPIOUnit *g = gpio_units; g; g = g->next) {
+-        if (g->unit == unit && g->flashlight) {
+-            g->flashlight->mode_frozen = true;
++        if (g->unit == unit) {
++            if (g->flashlight) {
++                g->flashlight->mode_frozen = true;
++            }
++            g->n9301_media_frozen = true;
+             return;
+         }
+     }

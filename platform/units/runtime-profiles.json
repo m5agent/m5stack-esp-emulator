@@ -12052,15 +12052,20 @@
     "audioplayer": {
       "status": "implemented",
       "hosts": [
-        "cores3"
+        "cores3",
+        "dial"
       ],
       "model_completeness": "partial",
-      "blocker": "Guest evidence covers raw UART 9600 byte layer only: 7e03010203 TX captured and fixture 4f4b0d0a RX read; no public driver/N9301 command table. Audio/microSD/3.5mm NOT RUN; PORT.C substituted.",
+      "blocker": "Indexed media fixture exercises N9301 serial control. Decoder timing, track names, Unit microSD, analog sound and electrical UART behavior are unmodeled.",
       "bindings_required": [],
-      "notes": "0151 只登记 9600 UART 字节层模型；N9301 命令表/MP3 解码/音频输出/存储 NOT RUN，无 guest 证据。",
+      "notes": "N9301 command/reply framing uses the guest UART through the board GPIO matrix and controller FIFO. The prior CoreS3 UART byte-layer fixture remains separately recorded.",
       "inputs": {
         "responses-hex": {
           "property": "responses-hex"
+        },
+        "media-track-count": {
+          "property": "media-track-count",
+          "creation_only": true
         }
       },
       "state": {
@@ -12084,6 +12089,27 @@
         },
         "responses-hex": {
           "property": "responses-hex"
+        },
+        "media-track-count": {
+          "property": "media-track-count"
+        },
+        "selected-track": {
+          "property": "selected-track"
+        },
+        "playback-status": {
+          "property": "playback-status"
+        },
+        "volume": {
+          "property": "volume"
+        },
+        "loop-mode": {
+          "property": "loop-mode"
+        },
+        "invalid-frames": {
+          "property": "invalid-frames"
+        },
+        "rx-hex": {
+          "property": "rx-hex"
         }
       },
       "virtual_device_evidence": {
@@ -12135,6 +12161,16 @@
           "0154-unit-batch10-evidence-fixes.patch"
         ],
         "note": "Current in-branch virtual-device evidence summary; raw ZIP/frame/serial stay in local ignored storage. Not a historical external archive reference and not hardware validation."
+      },
+      "protocol_validation": {
+        "dial": {
+          "report": "docs/evidence/2026-11-17-dial-audioplayer/summary.json",
+          "ports": [
+            "port-a",
+            "port-b"
+          ],
+          "scope": "N9301 indexed-media UART control through native Device Service"
+        }
       }
     },
     "fingerprint2": {

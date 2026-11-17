@@ -32,7 +32,7 @@ class UnitBatch11EvidenceTests(unittest.TestCase):
             self.assertEqual(unit["model_status"], "partial", unit_id)
             self.assertEqual(unit["runtime"]["status"], "implemented", unit_id)
             self.assertEqual(profile["status"], "implemented", unit_id)
-            self.assertEqual(profile["hosts"], ["cores3"], unit_id)
+            self.assertIn("cores3", profile["hosts"], unit_id)
             evidence = profile["virtual_device_evidence"]
             report = ROOT / evidence["report"]
             self.assertTrue(report.is_file(), unit_id)

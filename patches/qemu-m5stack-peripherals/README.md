@@ -1698,3 +1698,13 @@ other register offsets retain their previous behavior. This models the
 firmware-visible handshake without modeling analog lock timing. Apply 0211
 after 0209 in the native recipe, and after 0210 when the open SoftAP peer is
 also selected. [Same-artifact validation](../../tests/firmware/littlefs_partition/bbpll-6-1-summary.json)
+
+## Dial Grove Unit AudioPlayer N9301 UART (0212)
+
+Apply 0212 after the earlier Unit GPIO/UART models in the native Unit recipe.
+The controller hook receives the guest TX selected by the GPIO matrix. The
+Unit validates N9301 framing and routes the reply through the same hardware
+UART's mapped RX pin. An explicit indexed media count controls availability.
+This scope covers media discovery, playback state, track selection, volume
+and loop mode. The CoreS3 raw UART fixture remains available for its original
+byte-layer regression. See the [Dial guest and exact BIN runner](../../tests/units/dial_audioplayer_probe/README.md).
