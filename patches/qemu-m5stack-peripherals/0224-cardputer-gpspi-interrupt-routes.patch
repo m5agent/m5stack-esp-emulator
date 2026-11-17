@@ -1,0 +1,31 @@
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+--- a/hw/m5stopwatch/m5cardputer.c
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -90,14 +90,14 @@
+ 
+ static void cardputer_spi(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                   ESPGdmaState *gdma, hwaddr address,
+-                                  int dma, M5SpiPanelState *panel)
++                                  int dma, int irq, M5SpiPanelState *panel)
+ {
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     memory_region_add_subregion_overlap(sys_mem, address,
+         sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
+-    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
+-                              ETS_SPI3_INTR_SOURCE);
++    sysbus_connect_irq(SYS_BUS_DEVICE(spi), 0,
++                       qdev_get_gpio_in(intmatrix, irq));
+     esp32s3_gpspi_attach(spi, gdma, NULL, panel, dma);
+     esp32s3_gpspi_set_dc_pin(spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 37);
+@@ -158,7 +158,7 @@
+                              esp32_gpio_get_controller(true), 37, 36, 34, 35);
+ 
+     cardputer_spi(sys_mem, intmatrix, gdma, 0x60024000, GDMA_SPI2,
+-                  M5_SPI_PANEL(panel));
++                  ETS_SPI2_INTR_SOURCE, M5_SPI_PANEL(panel));
+     cardputer_spi(sys_mem, intmatrix, gdma, 0x60025000, GDMA_SPI3,
+-                  M5_SPI_PANEL(panel));
++                  ETS_SPI3_INTR_SOURCE, M5_SPI_PANEL(panel));
+ }

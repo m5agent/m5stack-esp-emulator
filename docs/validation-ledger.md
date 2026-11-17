@@ -45,6 +45,13 @@ abort 与中断 watchdog 分别有 6、5 个完整任务。两次崩溃任务均
 已用 1,696 字节、空闲 2,396 字节。两轮全部任务字段与独立离线工具一致。
 错误 ELF 与缺少解析依赖时保留原 PC/SP。停止和服务重启后仍可读。
 
+## 2026-11-18 Cardputer GP-SPI 中断分离
+
+[K132 双控制器对照](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)
+通过真实 GP-SPI FIFO 事务及 Xtensa 待高中断读回。0224 修复了另一控制器清除
+原中断源的板级串接错误。三份原厂固件以及原版 NC1020 的外部 SD、ROM/NOR
+读回和 G0 均保持通过。无追踪的首次完整 LCD 绘制仍有失败，保留为 PARTIAL。
+
 ## 2026-11-18 Cardputer 原生 ST7789 地址方向
 
 [同一 K132 的原生候选](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)

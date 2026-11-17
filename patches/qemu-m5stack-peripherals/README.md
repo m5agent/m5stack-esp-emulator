@@ -1803,3 +1803,10 @@ portrait-to-landscape stock initialization both land inside that glass.
 The adjustment is scoped to the K132 board registration.
 [Untraced firmware controls and controller evidence](../../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)
 record the original NC1020 and three immutable stock controls.
+
+## Cardputer GP-SPI interrupt routes (0224)
+
+K132's two controllers assert their own ESP32-S3 interrupt sources.
+An acknowledgement or idle transfer on SPI3 leaves a pending SPI2
+completion asserted, and the reverse holds. K132 peripheral clock routing and display geometry use earlier layers.
+See the [SPI interrupt routing regression](../../tests/firmware/spi_sd_media/cardputer_irq_route/README.md).

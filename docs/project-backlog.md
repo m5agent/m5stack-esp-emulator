@@ -48,7 +48,7 @@
 2. **P0 存储**。扩展 ESP-IDF LittleFS 到其他芯片及 SDK，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
-   继续验证内嵌 ROM/NOR 的跨会话加载后画面及首次绘制时间的重复性。StickS3/Dial 外接 SD
+   [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。原版仍有 LCD 绘制停顿，继续定位完成路径并验证内嵌 ROM/NOR 的跨会话画面。StickS3/Dial 外接 SD
    需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、更多原版应用的
    SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
