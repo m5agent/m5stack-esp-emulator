@@ -55,3 +55,33 @@ virtual-device validation，不能继承为真机结果或物理精度结论。
 
 SPI SD、独立 FAT/PCM/相机 oracle 与输入证据边界见
 [hardware probes](README-hardware.md)。
+
+## Cardputer 原生音频
+
+在独立 Device Service 选择原生 Xtensa 运行时及对应的 ROM 和构建依赖。
+使用设备各自的原厂 UIFlow2 合并镜像并核对[证据中的 SHA](cardputer-audio-summary.json)。
+`DEVICE` 取 `cardputer` 或 `cardputer-adv`，`MODE` 取 `tone` 或 `silence`。
+`DEVICE_SERVICE_URL` 是隔离服务的 origin，`BASE_IMAGE`、`BASE_SHA256`、
+`TOKEN_FILE`、`RUN_ROOT` 指向本次测试的镜像、摘要、凭据和输出位置。
+
+```sh
+mkdir -p "$RUN_ROOT/fixture-$MODE"
+printf '%s\n' "$MODE" > "$RUN_ROOT/fixture-$MODE/audio-test.mode"
+python3 tests/uiflow2/api_sweep/run_hardware_guest.py \
+  --api "$DEVICE_SERVICE_URL" --token-file "$TOKEN_FILE" \
+  --device "$DEVICE" --runtime qemu --base-image "$BASE_IMAGE" \
+  --expected-base-sha256 "$BASE_SHA256" \
+  --source tests/uiflow2/api_sweep/probe_cardputer_audio.py \
+  --fixture-dir "$RUN_ROOT/fixture-$MODE" --done-marker NATIVE_AUDIO_FINISHED \
+  --out-dir "$RUN_ROOT/$DEVICE-$MODE"
+python3 tests/uiflow2/api_sweep/verify_cardputer_audio.py "$RUN_ROOT/$DEVICE-$MODE" "$MODE"
+```
+
+静音轮次在可信本地服务允许的测试目录中生成一秒 32,000 字节的全零 PCM。
+运行同一命令时增加 `--runtime-env-json`，其文件只设置
+`M5SW_I2S_RX_PCM_FILE` 为该 PCM 的绝对路径。默认生成的 440 Hz 注入源
+和原生输出都进入 tone 轮次的同会话 ZIP。静音轮次的 host 输入覆盖
+仅保留 provenance，ZIP 保留由 pilot 起始的实际 TX 和后续静音样本。来宾
+从正常 `M5.Mic.record` 收集 16 kHz 单声道采样，经 UART 取回；`M5.Speaker.playRaw`
+提交 8 kHz、660 Hz 输入，再按来宾报告的 48 kHz 单声道 I2S1 格式分析
+native TX。RMS 是数字采样值。浏览器、物理麦克风、扬声器声学和供电未执行。

@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "runtime": "qemu",
+  "runtime_release_source": "bb91232a26aa91e9f0bcd8dbfb736940c934b55e",
+  "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+  "service_change_file": "platform/tools/device_service.py",
+  "candidate_service_file_sha256": "87989517e06c305086712add0799e5c53d40fbc3a205e0a3e92c62299bd51b90",
+  "probe": "probe_cardputer_audio.py",
+  "verifier": "verify_cardputer_audio.py",
+  "verifier_sha256": "0c15ab077c558fb5a81da310b55864840f1491dfd8ed467965020ccfd4bf4c11",
+  "runner": "run_hardware_guest.py",
+  "fixture": {
+    "microphone_tone_input_pcm_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b",
+    "microphone_32k_zero_input_pcm_sha256": "0c92bddb4e96f3ea9ec9f0f64a668255a6c15527ac09f6f119cafde60c7c4a39",
+    "speaker_volume": 96,
+    "speaker_driver_config": {
+      "port": 1,
+      "sample_rate_hz": 48000,
+      "channels": 1
+    },
+    "speaker_submitted": {
+      "tone_hz": 660,
+      "rate_hz": 8000,
+      "channels": 1,
+      "pcm_format": "s16le",
+      "samples": 6400,
+      "pilot_samples_in_silence_case": 800
+    }
+  },
+  "baseline_cardputer_tone": {
+    "status": "FAIL",
+    "device_id": "cardputer",
+    "base_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+    "firmware_sha256": "0f7f57adcf67d012d59adf476acf55be0ecfa6af369eb1c961e0ac04ec736f13",
+    "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+    "source_sha256": "286df9142ba834092732d52ecd50c6c4e7a42e831ad7b8c0136eb93f41a02d48",
+    "fixture_sha256": {
+      "audio-test.mode": "ff2b8f9e48ba1b8eb81b1694761e6d6221c8f3156380726be64ca1ba040c77e3"
+    },
+    "evidence_sha256": "5baedb27b9ea38b083ba31484dc8a858a2a93794daa0ac8c7a72ec1f6f167a84",
+    "runtime_environment_override": false,
+    "exact_same_composed_firmware_as_candidate": true,
+    "guest_errors": [
+      "NATIVE_AUDIO_MIC_ERROR AssertionError('mic completion',)",
+      "NATIVE_AUDIO_SPEAKER_ERROR AssertionError('speaker queue completion',)"
+    ],
+    "audio_evidence_members": [],
+    "cleanup": {
+      "terminal_state": "stopped",
+      "history_preserved": true,
+      "runtime_pid_gone": true,
+      "flash_retained": false
+    }
+  },
+  "candidate": {
+    "status": "PASS",
+    "cases": [
+      {
+        "status": "PASS",
+        "device_id": "cardputer",
+        "base_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+        "firmware_sha256": "0f7f57adcf67d012d59adf476acf55be0ecfa6af369eb1c961e0ac04ec736f13",
+        "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+        "source_sha256": "286df9142ba834092732d52ecd50c6c4e7a42e831ad7b8c0136eb93f41a02d48",
+        "fixture_sha256": {
+          "audio-test.mode": "ff2b8f9e48ba1b8eb81b1694761e6d6221c8f3156380726be64ca1ba040c77e3"
+        },
+        "evidence_sha256": "4e8540e45b7d6bf972a261deabaa90f256817cebc2bfe5c967c63dd7b76aa616",
+        "mode": "tone",
+        "microphone_fixture": {
+          "source_kind": "generated-deterministic-tone",
+          "input_override": false,
+          "sample_rate_hz": 16000,
+          "channels": 1,
+          "sample_format": "s16le",
+          "frequency_hz": 440,
+          "duration_seconds": 1,
+          "pcm_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+        },
+        "guest_microphone": {
+          "bytes": 6400,
+          "samples": 3200,
+          "nonzero_samples": 3200,
+          "rms_s16": 30197.367,
+          "pcm_sha256": "f0a793553d7021e61a62f46f731b96169f4ac3332c943b7281cff9b55d90ace5",
+          "sample_rate_hz": 16000,
+          "dominant_hz": 440.078
+        },
+        "native_speaker": {
+          "bytes": 84992,
+          "samples": 42496,
+          "nonzero_samples": 38362,
+          "rms_s16": 1468.157,
+          "pcm_sha256": "4c59962e0813ace7aa760cfc4a7237468462a2c29b160da4ccd095b3962502f1",
+          "sample_rate_hz": 48000,
+          "trailing_zero_samples": 4096,
+          "dominant_hz": 660.019
+        },
+        "cleanup": {
+          "terminal_state": "stopped",
+          "history_preserved": true,
+          "runtime_pid_gone": true,
+          "flash_retained": false
+        }
+      },
+      {
+        "status": "PASS",
+        "device_id": "cardputer",
+        "base_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+        "firmware_sha256": "5e23554ec711ea8913dcc44e969b6f9c7431aed71a29a4cca59da92a97a2654a",
+        "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+        "source_sha256": "286df9142ba834092732d52ecd50c6c4e7a42e831ad7b8c0136eb93f41a02d48",
+        "fixture_sha256": {
+          "audio-test.mode": "5ecdc51c9361ff7893cc32045ef0ee99b767adef92c75ea439e07a2f80f7b3d3"
+        },
+        "evidence_sha256": "9402f45e05028fe68216d9b9a64842c1f43fbb287791a898843599d6488233fa",
+        "mode": "silence",
+        "microphone_fixture": {
+          "source_kind": "explicit-diagnostic-override",
+          "input_override": true
+        },
+        "guest_microphone": {
+          "bytes": 6400,
+          "samples": 3200,
+          "nonzero_samples": 0,
+          "rms_s16": 0.0,
+          "pcm_sha256": "56a43ef88ddfcd0f56f7dd973312c0e73d62f59655c01d7b4e59aaa3be8b3fb6",
+          "sample_rate_hz": 16000
+        },
+        "native_speaker": {
+          "bytes": 84992,
+          "samples": 42496,
+          "nonzero_samples": 4796,
+          "rms_s16": 519.084,
+          "pcm_sha256": "1608100b1787988acf4a8111d2a8ad4ac71bcf3160e27e6394d263c43305817b",
+          "sample_rate_hz": 48000,
+          "trailing_zero_samples": 37690,
+          "dominant_hz": 660.019
+        },
+        "cleanup": {
+          "terminal_state": "stopped",
+          "history_preserved": true,
+          "runtime_pid_gone": true,
+          "flash_retained": false
+        }
+      },
+      {
+        "status": "PASS",
+        "device_id": "cardputer-adv",
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "firmware_sha256": "7f3eeabbad6be55d90fe03a9a5e0155bdaf67c2ae53033594629dfc8766c0c00",
+        "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+        "source_sha256": "286df9142ba834092732d52ecd50c6c4e7a42e831ad7b8c0136eb93f41a02d48",
+        "fixture_sha256": {
+          "audio-test.mode": "ff2b8f9e48ba1b8eb81b1694761e6d6221c8f3156380726be64ca1ba040c77e3"
+        },
+        "evidence_sha256": "c680807d0b1d399ce73ae016d6af79478c127303e050225df0e91a11b91e44ba",
+        "mode": "tone",
+        "microphone_fixture": {
+          "source_kind": "generated-deterministic-tone",
+          "input_override": false,
+          "sample_rate_hz": 16000,
+          "channels": 1,
+          "sample_format": "s16le",
+          "frequency_hz": 440,
+          "duration_seconds": 1,
+          "pcm_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+        },
+        "guest_microphone": {
+          "bytes": 6400,
+          "samples": 3200,
+          "nonzero_samples": 3200,
+          "rms_s16": 30197.367,
+          "pcm_sha256": "f0a793553d7021e61a62f46f731b96169f4ac3332c943b7281cff9b55d90ace5",
+          "sample_rate_hz": 16000,
+          "dominant_hz": 440.078
+        },
+        "native_speaker": {
+          "bytes": 85504,
+          "samples": 42752,
+          "nonzero_samples": 38362,
+          "rms_s16": 1463.755,
+          "pcm_sha256": "442117c427f7ded13ca5f7867ce45f7d1a2fd498545f474e072a76e4bb384b01",
+          "sample_rate_hz": 48000,
+          "trailing_zero_samples": 4352,
+          "dominant_hz": 660.019
+        },
+        "cleanup": {
+          "terminal_state": "stopped",
+          "history_preserved": true,
+          "runtime_pid_gone": true,
+          "flash_retained": false
+        }
+      },
+      {
+        "status": "PASS",
+        "device_id": "cardputer-adv",
+        "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+        "firmware_sha256": "b1469ad9f09696a3a121cd87890b344497bbc85531b43fb58a8da57bd33fd700",
+        "runtime_binary_sha256": "7d19fd18eb0adeddcf36070c1d3c0e81c028552dcd4f76195e3234cdc1e9c03a",
+        "source_sha256": "286df9142ba834092732d52ecd50c6c4e7a42e831ad7b8c0136eb93f41a02d48",
+        "fixture_sha256": {
+          "audio-test.mode": "5ecdc51c9361ff7893cc32045ef0ee99b767adef92c75ea439e07a2f80f7b3d3"
+        },
+        "evidence_sha256": "df3ce0dffc23c0e690a6b7309a7b60f7317b0d30edd02bb0f2e55390d607561d",
+        "mode": "silence",
+        "microphone_fixture": {
+          "source_kind": "explicit-diagnostic-override",
+          "input_override": true
+        },
+        "guest_microphone": {
+          "bytes": 6400,
+          "samples": 3200,
+          "nonzero_samples": 0,
+          "rms_s16": 0.0,
+          "pcm_sha256": "56a43ef88ddfcd0f56f7dd973312c0e73d62f59655c01d7b4e59aaa3be8b3fb6",
+          "sample_rate_hz": 16000
+        },
+        "native_speaker": {
+          "bytes": 84992,
+          "samples": 42496,
+          "nonzero_samples": 4796,
+          "rms_s16": 519.084,
+          "pcm_sha256": "1608100b1787988acf4a8111d2a8ad4ac71bcf3160e27e6394d263c43305817b",
+          "sample_rate_hz": 48000,
+          "trailing_zero_samples": 37690,
+          "dominant_hz": 660.019
+        },
+        "cleanup": {
+          "terminal_state": "stopped",
+          "history_preserved": true,
+          "runtime_pid_gone": true,
+          "flash_retained": false
+        }
+      }
+    ],
+    "post_run_active_leases": 0
+  },
+  "scope": {
+    "case": "stock UIFlow2 bases with the selected audio guest fixture",
+    "speaker_capture": "I2S DMA signed PCM before physical amplification; captures after first nonzero DMA buffer",
+    "mic_capture": "signed PCM recovered from the guest recording buffer over UART",
+    "browser_wasm": "NOT RUN",
+    "physical_acoustics": "NOT RUN"
+  }
+}

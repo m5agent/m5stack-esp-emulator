@@ -415,6 +415,7 @@ ESPNOW_PEER_TX_RATES = frozenset({
 })
 PLAIN_QEMU_AUDIO_DEVICES = frozenset({
     "cores3",
+    "cardputer",
     "cardputer-adv",
     "stopwatch",
     "sticks3",
