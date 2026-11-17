@@ -43,14 +43,26 @@ class DeviceServiceExecutionParsingTests(unittest.TestCase):
 
     def test_storage_protocol_matches_native_board_wiring(self) -> None:
         for device, interface in (("core2", "spi"), ("cores3", "spi"),
-                                  ("cardputer-adv", "spi"), ("papercolor", "spi"),
+                                  ("cardputer", "spi"), ("cardputer-adv", "spi"),
+                                  ("papercolor", "spi"),
+                                  ("papers3", "spi"),
                                   ("papermono", "sdmmc")):
             with self.subTest(device=device):
                 value = parse_storage_execution(
-                    SimpleNamespace(id=device, has_sd_card=True),
+                    device_service.load_device_specs()[device],
                     {"sd_image_artifact_id": ARTIFACT_ID},
                 )
                 self.assertEqual(value["interface"], interface)
+
+    def test_unsupported_card_slots_stay_unavailable(self) -> None:
+        specs = device_service.load_device_specs()
+        for device in ("basic-v27", "dial", "paperdiy", "sticks3"):
+            with self.subTest(device=device):
+                spec = specs[device]
+                self.assertFalse(spec.has_sd_card)
+                with self.assertRaises(ServiceError) as result:
+                    parse_storage_execution(spec, {"sd_image_artifact_id": ARTIFACT_ID})
+                self.assertEqual(result.exception.code, "storage_not_supported")
 
     def test_storage_parser_fail_closed(self) -> None:
         no_sd = SimpleNamespace(id="core2", has_sd_card=False)

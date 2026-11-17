@@ -1265,7 +1265,9 @@
         "cores3",
         "cardputer-adv",
         "papercolor",
-        "core2"
+        "core2",
+        "cardputer",
+        "papers3"
       ]
     },
     "usb-host": {
@@ -1772,10 +1774,6 @@
           "reason": "Device-local I2S speaker output remains unverified."
         },
         {
-          "model": "sd-card-spi",
-          "reason": "The microSD CS path is wired to GPIO12, but attached-image reads have not yet been validated on K132."
-        },
-        {
           "model": "ir-tx-rx",
           "reason": "K132 only transmits IR. Its GPIO44 RMT transmit path remains unverified."
         },
@@ -1844,8 +1842,7 @@
           "cs_gpio": 12,
           "mosi_gpio": 14,
           "sclk_gpio": 40,
-          "miso_gpio": 39,
-          "status": "partial"
+          "miso_gpio": 39
         },
         {
           "id": "ir",
@@ -4120,8 +4117,7 @@
         {
           "id": "sd",
           "model": "sd-card-spi",
-          "gpio": 47,
-          "status": "partial"
+          "gpio": 47
         }
       ],
       "peripheral_blockers": [
@@ -4144,10 +4140,6 @@
         {
           "model": "buzzer",
           "reason": "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled."
-        },
-        {
-          "model": "sd-card-spi",
-          "reason": "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
         }
       ]
     },

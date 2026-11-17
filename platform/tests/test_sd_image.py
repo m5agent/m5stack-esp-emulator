@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from firmware_filesystems import inventory_sd_filesystems
 from sd_image import (
     BYTES_PER_SECTOR,
     FAT_COUNT,
@@ -63,6 +64,18 @@ class SdImageTests(unittest.TestCase):
             )
             self.assertEqual(data[root_start:root_start + 11], b"M5TEST     ")
             self.assertEqual(data[root_start + 11], 0x08)
+            inventory = inventory_sd_filesystems(data)
+            self.assertEqual(inventory["layout"], "superfloppy")
+            self.assertEqual(inventory["filesystems"][0]["fat_type"], "fat16")
+            dated = bytearray(32)
+            dated[:11] = b"DATED   TXT"
+            dated[11] = 0x20  # archive
+            struct.pack_into("<H", dated, 18, (46 << 9) | (11 << 5) | 17)
+            with output.open("r+b") as disk:
+                disk.seek(root_start + 32)
+                disk.write(dated)
+            files = inventory_sd_filesystems(output.read_bytes())["filesystems"][0]["files"]
+            self.assertEqual([row["path"] for row in files], ["/DATED.TXT"])
 
     def test_fat16_image_validation(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -126,6 +139,16 @@ class SdImageTests(unittest.TestCase):
                 data[first_fat:first_fat + fat_sectors * BYTES_PER_SECTOR],
                 data[second_fat:second_fat + fat_sectors * BYTES_PER_SECTOR],
             )
+
+            inventory = inventory_sd_filesystems(data)
+            self.assertEqual(inventory["layout"], "mbr")
+            volume, = inventory["filesystems"]
+            self.assertEqual((volume["fat_type"], volume["offset"]), ("fat32", partition_offset))
+            corrupt_mbr = bytearray(data[:512])
+            struct.pack_into("<I", corrupt_mbr, 446 + 8, 0xFFFFFFFF)
+            rejected = inventory_sd_filesystems(bytes(corrupt_mbr))
+            self.assertEqual(rejected["filesystems"], [])
+            self.assertTrue(rejected["errors"])
 
     def test_fat32_mbr_image_validation(self):
         with tempfile.TemporaryDirectory() as temporary:

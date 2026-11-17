@@ -197,7 +197,7 @@
         "Validate remaining board-local peripheral data planes on K132."
       ],
       "blockers": [
-        "K132 SPI microSD data, audio, IR, RGB, ADC calibration, USB, networking and power sequencing remain partial."
+        "K132 audio, IR, RGB, ADC calibration, USB, networking and power sequencing remain partial."
       ],
       "validation": {
         "date": "2026-11-09",
@@ -2175,8 +2175,7 @@
         "The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.",
         "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
         "C139 PMS150G power-button, latch and wake behavior are not modeled.",
-        "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.",
-        "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
+        "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled."
       ],
       "validation": {
         "date": "2026-11-09",

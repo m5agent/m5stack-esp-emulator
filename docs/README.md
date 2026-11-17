@@ -12,6 +12,7 @@
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
+[2026-11-17 SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)记录初代 Cardputer 与 PaperS3 的 FAT32 读写和初代 Cardputer 的跨会话读回。
 
 [2026-11-16 Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)记录缓存 SRAM、板型探测和无跟踪的启动、休眠唤醒与按键。
 
@@ -375,6 +376,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md) | 证据/差异 | `2026-11-17` | 实际组合键、触摸、键盘与编码器，保留旧运行时对照 |
+| [初代 Cardputer 与 PaperS3 SPI SD](evidence/2026-11-17-spi-sd-admission/README.md) | 证据/差异 | `2026-11-17` | 同 guest FAT32、跨会话读回、无卡负控 |
 | [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md) | 证据/差异 | `2026-11-16` | 干净重建，原版启动、休眠唤醒、板型和按键 |
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |

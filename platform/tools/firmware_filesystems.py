@@ -438,8 +438,6 @@ class _FatVolume:
                     continue
                 if (
                     attributes & 0xC0
-                    or raw[18] != 0
-                    or raw[19] != 0
                     or b"\x00" in raw[:11]
                 ):
                     lfn_slots.clear()
@@ -548,7 +546,9 @@ def _fat_safe_name(name: str) -> str:
     return cleaned[:255] or "<unnamed>"
 
 
-def _list_fat(data: bytes, partition: dict) -> dict:
+def _list_fat(
+    data: bytes, partition: dict, *, content_budget: int | None = None,
+) -> dict:
     try:
         volume = _FatVolume(data)
     except _FatError as error:
@@ -568,6 +568,7 @@ def _list_fat(data: bytes, partition: dict) -> dict:
     declared_licenses: set[str] = set()
     listing_errors: list[str] = []
     total_file_bytes = 0
+    hashed_bytes = 0
     files_truncated = False
     directories_truncated = False
     visited_directory_clusters: set[int] = (
@@ -634,6 +635,11 @@ def _list_fat(data: bytes, partition: dict) -> dict:
 
             display_path, path_hash, redacted = _public_path(path)
             if len(files) >= MAX_FILES:
+                files_truncated = True
+                break
+            hashed_bytes += entry["size"]
+            if content_budget is not None and hashed_bytes > content_budget:
+                listing_errors.append("FAT file scan exceeds partition capacity")
                 files_truncated = True
                 break
             try:
@@ -739,6 +745,45 @@ def _looks_like_fat_boot_sector(data: bytes) -> bool:
     except _FatError:
         return False
     return True
+
+
+def inventory_sd_filesystems(data: bytes) -> dict:
+    """Inventory FAT on a whole-card volume or in MBR primary partitions."""
+    volume = _list_fat(data, {"offset": 0, "size": len(data)}, content_budget=len(data))
+    if volume["status"] != "INVALID":
+        return {"layout": "superfloppy", "filesystems": [volume], "errors": []}
+    if data[510:512] != b"\x55\xaa":
+        return {"layout": "unknown", "filesystems": [], "errors": ["no FAT volume or MBR signature"]}
+
+    fat_partition_types = {0x01, 0x04, 0x06, 0x0B, 0x0C, 0x0E}
+    filesystems = []
+    errors = []
+    ranges = []
+    for index in range(4):
+        entry = data[446 + index * 16:462 + index * 16]
+        if entry[4] == 0:
+            continue
+        offset = 512 * int.from_bytes(entry[8:12], "little")
+        size = 512 * int.from_bytes(entry[12:16], "little")
+        end = offset + size
+        if (
+            entry[0] not in {0x00, 0x80}
+            or offset < 512 or size == 0 or end > len(data)
+            or any(offset < right and left < end for left, right in ranges)
+        ):
+            errors.append(f"MBR partition {index + 1} has an invalid or overlapping range")
+            continue
+        ranges.append((offset, end))
+        if entry[4] not in fat_partition_types:
+            continue
+        filesystems.append(_list_fat(
+            data[offset:end],
+            {"partition_index": index + 1, "offset": offset, "size": size},
+            content_budget=size,
+        ))
+    if not filesystems and not errors:
+        return {"layout": "unknown", "filesystems": [], "errors": ["no supported FAT primary partition"]}
+    return {"layout": "mbr", "filesystems": filesystems, "errors": errors}
 
 
 def _blank_partition_value(data: bytes) -> int | None:

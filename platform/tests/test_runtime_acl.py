@@ -464,8 +464,8 @@ class RuntimeACLHttpTests(unittest.TestCase):
         self.service.close_all()
         self.temporary.cleanup()
 
-    def request(self, method: str, path: str, payload=None):
-        headers = {"Authorization": "Bearer runtime-acl-http-token"}
+    def request(self, method: str, path: str, payload=None, *, authenticated=True):
+        headers = {"Authorization": "Bearer runtime-acl-http-token"} if authenticated else {}
         body = None
         if payload is not None:
             body = json.dumps(payload).encode()
@@ -481,6 +481,15 @@ class RuntimeACLHttpTests(unittest.TestCase):
             return response.status, json.loads(response.read())
         finally:
             connection.close()
+
+    def test_stopped_sd_api_requires_bearer_and_runtime_read_permission(self):
+        path = f"/api/v1/sessions/{self.session.id}/storage/sd"
+        for method, route in (("GET", path), ("POST", path + "/export")):
+            with self.subTest(method=method):
+                status, body = self.request(method, route, authenticated=False)
+                self.assertEqual((status, body["error"]["code"]), (401, "unauthorized"))
+                status, body = self.request(method, route)
+                self.assertEqual((status, body["error"]["operation"]), (403, "storage.read"))
 
     def test_http_program_status_is_allowed_and_mutations_fail_closed(self):
         status, body = self.request(

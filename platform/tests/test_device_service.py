@@ -2166,6 +2166,60 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(unknown_field.exception.code, "invalid_storage")
 
+    def test_sd_fixture_is_rejected_by_the_diagnostic_network_lane(self):
+        artifact = self.service.upload_artifact(b"\x00" * 512)
+        with self.assertRaises(ServiceError) as wrong_runtime:
+            self.service.create_session({
+                "device_id": "cardputer-adv",
+                "runtime": "network",
+                "network": {"profile": "generic-observe"},
+                "storage": {"sd_image_artifact_id": artifact["artifact_id"]},
+            })
+        self.assertEqual(wrong_runtime.exception.code, "storage_not_supported")
+        self.assertEqual(wrong_runtime.exception.status, 409)
+
+    def test_stopped_sd_export_keeps_source_and_result_as_distinct_artifacts(self):
+        session = self._stopped_session()
+        initial, written = b"\x00" * 512, b"S" * 512
+        source = self.service.upload_artifact(initial, name="input.img")
+        source_id = source["artifact_id"]
+        session.storage_info = {"artifact_id": source_id, "interface": "spi", "bytes": len(initial)}
+        session.sd_card_image.write_bytes(initial)
+        self.assertEqual(session.sd_storage_export()["artifact_id"], source_id)
+        self.assertEqual(self.service.artifacts.get(source_id), source)
+        session.sd_card_image.write_bytes(written)
+        receipt = session.sd_storage_export()
+        self.assertNotEqual(receipt["artifact_id"], source_id)
+        self.assertEqual(receipt["source_artifact_id"], source_id)
+        self.assertEqual(self.service.artifacts.read(receipt["artifact_id"]), written)
+        self.assertEqual(self.service.artifacts.read(source_id), initial)
+        self.assertEqual(session.sd_storage_export(), receipt)
+
+    def test_sd_storage_rejects_active_or_unretained_session_media(self):
+        session = self._stopped_session()
+        self.assertIsNone(session.storage_info)
+        with self.assertRaises(ServiceError) as empty:
+            session.sd_storage_inventory()
+        self.assertEqual(empty.exception.code, "sd_media_unavailable")
+        for state, lease_active in (("running", False), ("stopped", True)):
+            with self.subTest(state=state, lease_active=lease_active):
+                session.state = state
+                session._worker_lease_active = lease_active
+                with self.assertRaises(ServiceError) as active:
+                    session.sd_storage_export()
+                self.assertEqual(active.exception.code, "sd_session_active")
+        session._worker_lease_active = False
+        session.storage_info = {"artifact_id": "f" * 64, "interface": "spi", "bytes": 512}
+        session.sd_card_image.write_bytes(b"S" * 1024)
+        with self.assertRaises(ServiceError) as resized:
+            session.sd_storage_export()
+        self.assertEqual(resized.exception.code, "invalid_storage_image")
+        session.sd_card_image.write_bytes(b"S" * 512)
+        session._stop_purge = True
+        with self.assertRaises(ServiceError) as purge:
+            session.sd_storage_inventory()
+        self.assertEqual(purge.exception.code, "sd_media_unavailable")
+
     def test_nvs_fixture_is_partition_bound_and_session_isolated(self):
         image = build_flash_with_nvs_partition()
         firmware_artifact = self.service.upload_artifact(image)

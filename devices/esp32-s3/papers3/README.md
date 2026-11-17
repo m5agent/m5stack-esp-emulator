@@ -37,7 +37,6 @@ boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/�
 - The GPIO3 battery-divider ADC data path and voltage injection are not modeled.
 - C139 PMS150G power-button, latch and wake behavior are not modeled.
 - The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled.
-- The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated.
 
 ## 文件
 

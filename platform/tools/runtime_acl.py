@@ -29,6 +29,7 @@ OPERATIONS = frozenset(
         "program.interrupt",
         "filesystem.write",
         "flash.read",
+        "storage.read",
     }
 )
 EXECUTION_ENTRYPOINTS = frozenset({"main.py", "main.mpy"})
