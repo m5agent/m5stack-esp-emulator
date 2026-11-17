@@ -12,6 +12,8 @@ const POINT_END: u16 = FIRST_POINT + 7;
 const TAP_NS: u64 = 180_000_000;
 const HOLD_REFRESH_NS: u64 = 16_000_000;
 const NS_PER_MS: u64 = 1_000_000;
+const DRAG_STEPS: u8 = 5;
+const DRAG_STEP_NS: u64 = 60 * NS_PER_MS;
 const UNREAD_REPORT_TIMEOUT_NS: u64 = 1_000_000_000;
 const MAX_READ: u32 = 512;
 
@@ -105,10 +107,42 @@ impl Registers {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 struct Point {
     x: u16,
     y: u16,
+}
+
+impl Point {
+    fn parse(coordinates: &str) -> Option<Self> {
+        let (x, y) = coordinates.split_once(',')?;
+        let point = Self {
+            x: x.parse().ok()?,
+            y: y.parse().ok()?,
+        };
+        (point.x < WIDTH && point.y < HEIGHT).then_some(point)
+    }
+
+    fn interpolate(self, end: Self, step: u8) -> Self {
+        let at_step = |start: u16, end: u16| {
+            let start = i32::from(start);
+            let distance = i32::from(end) - start;
+            (start + (distance * i32::from(step)).div_euclid(i32::from(DRAG_STEPS))) as u16
+        };
+        Self {
+            x: at_step(self.x, end.x),
+            y: at_step(self.y, end.y),
+        }
+    }
+}
+
+struct Drag {
+    start: Point,
+    end: Point,
+    moves: u8,
+    started_at: Option<u64>,
+    next_at: Option<u64>,
+    last_poll: Option<u64>,
 }
 
 #[derive(Default)]
@@ -123,6 +157,8 @@ struct St7123 {
     refresh_pending: bool,
     refresh_acknowledged: u32,
     hold_ms: u32,
+    drag: Option<Drag>,
+    drag_ms: u32,
     pending_at: Option<u64>,
     needs_read: bool,
     reports: u32,
@@ -138,27 +174,40 @@ impl St7123 {
             return None;
         }
         let (action, parameters) = input.split_once(':')?;
-        let (coordinates, length_ns) = match action {
-            "tap" => (parameters, TAP_NS),
+        let (point, length_ns, drag) = match action {
+            "tap" => (Point::parse(parameters)?, TAP_NS, None),
             "hold" => {
                 let (coordinates, duration) = parameters.rsplit_once(',')?;
                 let milliseconds = duration.parse::<u64>().ok()?;
                 if !(250..=5000).contains(&milliseconds) {
                     return None;
                 }
-                (coordinates, milliseconds * NS_PER_MS)
+                (Point::parse(coordinates)?, milliseconds * NS_PER_MS, None)
+            }
+            "drag" => {
+                let (start, end) = parameters.split_once(':')?;
+                let (start, end) = (Point::parse(start)?, Point::parse(end)?);
+                if start == end {
+                    return None;
+                }
+                (
+                    start,
+                    0,
+                    Some(Drag {
+                        start,
+                        end,
+                        moves: 0,
+                        started_at: None,
+                        next_at: None,
+                        last_poll: None,
+                    }),
+                )
             }
             _ => return None,
         };
-        let (x, y) = coordinates.split_once(',')?;
-        let point = Point {
-            x: x.parse().ok()?,
-            y: y.parse().ok()?,
-        };
-        if point.x >= WIDTH || point.y >= HEIGHT {
-            return None;
-        }
         self.point = Some(point);
+        self.drag = drag;
+        self.drag_ms = 0;
         self.length_ns = length_ns;
         self.refresh_enabled = action == "hold";
         self.refresh_acknowledged = 0;
@@ -228,17 +277,45 @@ impl St7123 {
         data
     }
 
+    fn advance_drag(&mut self, now_ns: u64) {
+        let drag = self.drag.as_mut().unwrap();
+        let started_at = *drag.started_at.get_or_insert(now_ns);
+        let next_at = drag
+            .next_at
+            .get_or_insert(now_ns.saturating_add(DRAG_STEP_NS));
+        // Keep the prior slot visible until its complete guest read. Give
+        // IRQ-driven readers an intervening high level for every move.
+        if self.irq_level == Some(false) || now_ns < *next_at {
+            return;
+        }
+        if drag.moves == DRAG_STEPS {
+            self.drag_ms = ((now_ns - started_at) / NS_PER_MS).min(u32::MAX as u64) as u32;
+            self.release();
+        } else {
+            drag.moves += 1;
+            self.point = Some(drag.start.interpolate(drag.end, drag.moves));
+            *next_at = now_ns.saturating_add(DRAG_STEP_NS);
+            self.needs_read = true;
+            self.reports = self.reports.saturating_add(1);
+        }
+    }
+
     fn poll(&mut self, pin: u32, now_ns: u64) -> Option<EmulatorMessage> {
+        let contact_was_active = self.point.is_some();
+        if let Some(drag) = &mut self.drag {
+            if drag
+                .last_poll
+                .replace(now_ns)
+                .is_some_and(|previous| now_ns < previous)
+            {
+                self.release();
+            }
+        }
         if let Some(pressed_at) = self.press_at {
             let elapsed = now_ns.saturating_sub(pressed_at);
             if elapsed >= self.length_ns {
                 self.hold_ms = (elapsed / NS_PER_MS).min(u32::MAX as u64) as u32;
                 self.release();
-                // Delimit the release IRQ even if an unread refresh held INT low.
-                if self.irq_level == Some(false) {
-                    self.irq_level = Some(true);
-                    return Some(drive(pin, true, now_ns));
-                }
             }
         }
         // A paused or stopped polling driver must not strand a physical contact.
@@ -257,7 +334,9 @@ impl St7123 {
                 }
             }
         }
-        if self.point.is_some() && !self.needs_read {
+        if self.drag.is_some() && !self.needs_read {
+            self.advance_drag(now_ns);
+        } else if self.point.is_some() && !self.needs_read {
             self.press_at.get_or_insert(now_ns);
             if self.refresh_enabled {
                 let refresh_at = self
@@ -271,6 +350,11 @@ impl St7123 {
                 }
             }
         }
+        // Delimit the release IRQ even if the last move or refresh was unread.
+        if contact_was_active && self.point.is_none() && self.irq_level == Some(false) {
+            self.irq_level = Some(true);
+            return Some(drive(pin, true, now_ns));
+        }
         let level = !self.needs_read;
         if self.irq_level == Some(level) {
             return None;
@@ -281,6 +365,7 @@ impl St7123 {
 
     fn release(&mut self) {
         self.point = None;
+        self.drag = None;
         self.press_at = None;
         self.pending_at = None;
         self.refresh_at = None;
@@ -538,9 +623,50 @@ impl Device for Bus {
                 .set("status_reads", self.touch.status_reads)
                 .set("coordinate_reads", self.touch.coordinate_reads)
                 .set("hold_ms", self.touch.hold_ms)
+                .set("drag_ms", self.touch.drag_ms)
                 .set("refresh_acknowledged", self.touch.refresh_acknowledged),
         )
     }
 }
 
 esp_part::export_part!(Bus, buffer = 1024);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn read_register(touch: &mut St7123, address: u16, read_len: u32) -> Vec<u8> {
+        touch.transfer(&I2cTransaction {
+            write: address.to_be_bytes().to_vec(),
+            read_len,
+            ..Default::default()
+        })
+    }
+
+    #[test]
+    fn unread_drag_move_releases_without_a_completion_receipt() {
+        let mut touch = St7123::default();
+        assert!(touch.start_contact("drag:0,1279:719,0").is_some());
+        touch.poll(23, 0);
+        read_register(&mut touch, FIRST_POINT, 7);
+        touch.poll(23, 1);
+
+        let move_at = DRAG_STEP_NS + 1;
+        touch.poll(23, move_at);
+        touch.poll(23, move_at + 1);
+        assert!(touch.needs_read);
+        assert_eq!(touch.reports, 2);
+        assert_eq!(touch.acknowledged, 1);
+
+        let expired = move_at + 1 + UNREAD_REPORT_TIMEOUT_NS;
+        touch.poll(23, expired);
+        assert_eq!(touch.irq_level, Some(true));
+        touch.poll(23, expired + 1);
+        assert_eq!(touch.irq_level, Some(false));
+        assert_eq!(read_register(&mut touch, STATUS, 1), [0]);
+        assert_eq!(touch.reports, 3);
+        assert_eq!(touch.acknowledged, 2);
+        assert_eq!(touch.drag_ms, 0);
+        assert!(touch.start_contact("tap:4,5").is_some());
+    }
+}

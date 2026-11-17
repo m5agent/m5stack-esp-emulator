@@ -127,6 +127,26 @@ class Tab5DsiTests(unittest.TestCase):
                 touch.hold(240, 780, 1200, lambda: None)
             self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
 
+    def test_st7123_drag_queues_one_gesture_and_requires_all_guest_positions(self):
+        touch = Tab5St7123Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (6, 6, 0, False), (7, 7, 0, True),
+        ]), mock.patch.object(touch, "_command", side_effect=["ok", "ok drag_ms=360"]) as command:
+            reports, timing = touch.drag(0, 1279, 719, 0, lambda: None)
+        self.assertEqual(reports, {"reports": 7, "acknowledged": 7})
+        self.assertEqual(timing, {"completion": "guest-observed", "guest_drag_ms": 360, "moves_acknowledged": 5})
+        self.assertEqual([call.args[0] for call in command.call_args_list], [
+            "part software-i2c input drag:0,1279:719,0", "part software-i2c state",
+        ])
+
+    def test_st7123_drag_does_not_acknowledge_a_missing_move(self):
+        touch = Tab5St7123Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (7, 6, 0, True), (7, 6, 0, True),
+        ]), mock.patch.object(touch, "_command", return_value="ok"), self.assertRaises(ServiceError) as raised:
+            touch.drag(0, 1279, 719, 0, lambda: None, timeout=0.075)
+        self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
+
     def test_st7123_touch_part_rejects_unqualified_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -289,6 +289,7 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(session.flash_info["tab5"]["touch_model"], "esp-emu-st7123")
             self.assertEqual(session.flash_info["tab5"]["touch_coordinate_space"], "panel-native")
             self.assertTrue(session.flash_info["tab5"]["touch_hold_supported"])
+            self.assertFalse(session.flash_info["tab5"]["touch_drag_supported"])
             with self.assertRaises(service_module.ServiceError) as invalid:
                 session.inject({"kind": "touch", "x": 720, "y": 20})
             self.assertEqual(invalid.exception.code, "invalid_input")
@@ -315,6 +316,37 @@ class Tab5ServiceTests(unittest.TestCase):
             controller.return_value.hold.assert_called_once_with(719, 1279, 1200, session._check_cancelled)
             self.assertEqual(hold["action"], "hold")
             self.assertEqual(hold["timing"], timing)
+
+    def test_st7123_drag_part_exposes_bounded_panel_trajectory(self):
+        self.elf.write_bytes(b"wrong build")
+        candidate = Path("/qualified/esp-emu")
+        self.service.tab5_dsi_emulator = str(candidate)
+        self.service.tab5_dsi_board_overrides = {self.image_sha: "st7123"}
+        self.service.tab5_st7123_touch_part = "/qualified/st7123-drag.wasm"
+        session = self.session()
+        staged = (session.dir / "tab5-cosim-board.json", service_module.TAB5_ST7123_DRAG_PART_SHA256)
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
+                mock.patch.object(service_module, "stage_tab5_st7123_touch_part", return_value=staged), \
+                mock.patch.object(service_module, "Tab5DsiReceiver"), \
+                mock.patch.object(service_module, "Tab5St7123Touch") as controller:
+            self.provision(session)
+            self.launch_commands(session)
+            self.assertTrue(session.flash_info["tab5"]["touch_hold_supported"])
+            self.assertTrue(session.flash_info["tab5"]["touch_drag_supported"])
+            request = {"kind": "drag", "x1": 0, "y1": 1279, "x2": 719, "y2": 0}
+            for invalid in ({"x2": 720}, {"x2": 0, "y2": 1279}, {"y1": True}):
+                with self.subTest(invalid=invalid), self.assertRaises(service_module.ServiceError) as failure:
+                    session.inject({**request, **invalid})
+                self.assertEqual(failure.exception.code, "invalid_input")
+            controller.return_value.drag.assert_not_called()
+            counts = {"reports": 7, "acknowledged": 7}
+            timing = {"completion": "guest-observed", "guest_drag_ms": 360, "moves_acknowledged": 5}
+            controller.return_value.drag.return_value = (counts, timing)
+            receipt = session.inject(request)
+            controller.return_value.drag.assert_called_once_with(0, 1279, 719, 0, session._check_cancelled)
+            self.assertEqual(receipt["raw"], [0, 1279, 719, 0])
+            self.assertEqual(receipt["controller_reports"], counts)
+            self.assertEqual(receipt["timing"], timing)
 
     def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
         self.elf.write_bytes(b"wrong build")

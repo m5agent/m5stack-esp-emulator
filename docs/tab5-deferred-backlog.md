@@ -52,7 +52,7 @@ revision, eFuse state and image size before being used.
 | Camera | MIPI-CSI/DMA and SCCB camera model | SC2356 configuration and deterministic frame reach `camera.snapshot()` |
 | USB Host | P4 DWC host controller and endpoints | Chapter 9 enumeration and at least one functional endpoint |
 | Storage | SDIO block backend | Guest block I/O is visible in a host image |
-| Touch | ST7123 drag, multitouch and terminal power latch | Multi-report sequences arrive through the same controller demonstrated by [native taps](evidence/2026-11-17-tab5-st7123-touch/README.md) |
+| Touch | ST7123 original-app drag behavior and multitouch | An original app responds to the verified [single-contact sequence](evidence/2026-11-17-tab5-st7123-drag/README.md), and an independent guest verifies concurrent contact slots |
 | Charger | IP2326 analog/current/termination state machine | Charging, current limit and termination states change at runtime through the normal power API |
 
 ## Rough effort

@@ -16,6 +16,7 @@ from zipfile import ZipFile
 POINTS = [(0, 1279), (719, 0), (310, 608)]
 GUEST_REPORT = re.compile(r"ST7123_PROBE_(?:POINT|RELEASE)[^\r\n]+")
 GUEST_CONTACT = re.compile(r"ST7123_PROBE_CONTACT samples=(\d+) duration_us=(\d+)")
+DRAG_POINTS = [(0, 1279), (143, 1023), (287, 767), (431, 511), (575, 255), (719, 0)]
 
 
 def sha(value):
@@ -107,6 +108,38 @@ def main():
             assert 1190000 <= guest_duration <= 1260000
             hold = {"x": x, "y": y, "guest_samples": samples, "guest_duration_us": guest_duration,
                     "controller_timing": timing, "release_observed": True}
+        drags = []
+        if tab5.get("touch_drag_supported"):
+            for positions in (DRAG_POINTS, list(reversed(DRAG_POINTS))):
+                x1, y1 = positions[0]
+                x2, y2 = positions[-1]
+                contact_count = len(GUEST_CONTACT.findall(serial))
+                report_count = len(GUEST_REPORT.findall(serial))
+                offset = len(serial)
+                receipt = api(session + "/input", "POST", {
+                    "kind": "drag", "x1": x1, "y1": y1, "x2": x2, "y2": y2,
+                })
+                assert receipt["accepted"] and receipt["controller"] == "st7123"
+                assert receipt["raw"] == [x1, y1, x2, y2]
+                assert receipt["controller_reports"] == {"reports": 7, "acknowledged": 7}
+                timing = receipt["timing"]
+                assert timing["completion"] == "guest-observed" and timing["moves_acknowledged"] == 5
+                assert 360 <= timing["guest_drag_ms"] <= 420
+                serial = serial_until(lambda text: len(GUEST_CONTACT.findall(text)) == contact_count + 1)
+                contact = GUEST_CONTACT.findall(serial)[-1]
+                samples, duration_us = map(int, contact)
+                expected_drag = [
+                    f"ST7123_PROBE_POINT x={x} y={y} area=20 irq_level=0" for x, y in positions
+                ] + ["ST7123_PROBE_RELEASE status=0x00 irq_level=0"]
+                assert GUEST_REPORT.findall(serial)[report_count:] == expected_drag
+                observed_drag = f"ST7123_PROBE_DRAG x1={x1} y1={y1} x2={x2} y2={y2} moves=5"
+                assert observed_drag in serial[offset:]
+                assert samples == 6 and 350000 <= duration_us <= 430000
+                drags.append({
+                    "guest_positions": positions, "guest_duration_us": duration_us,
+                    "guest_drag_marker": observed_drag, "controller_timing": timing,
+                    "controller_reports": receipt["controller_reports"], "release_observed": True,
+                })
         evidence = api(session + "/evidence?include=manifest,serial,logs")
         with ZipFile(io.BytesIO(evidence)) as bundle:
             assert bundle.testzip() is None
@@ -117,6 +150,8 @@ def main():
                        runtime_sha256=tab5["runtime_sha256"], part_sha256=tab5["touch_part_sha256"])
         if hold is not None:
             summary["hold"] = hold
+        if drags:
+            summary["drags"] = drags
     finally:
         stopped = api(session + "?purge=0&retain_flash=0", "DELETE")
         assert stopped["state"] == "stopped" and not stopped["flash_retained"]

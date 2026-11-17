@@ -2541,6 +2541,10 @@ paths:
         duration seconds from 0.25 to 5. Accepted holds report guest
         milliseconds and refresh readbacks. HTTP 409
         tab5_st7123_ack_timeout means guest hold or release evidence is missing.
+        A drag-capable ST7123 Part also accepts distinct panel-native drag
+        endpoints and reports guest duration after one contact, five moves,
+        and release are consumed by the guest. The same timeout code covers
+        missing drag readback.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:

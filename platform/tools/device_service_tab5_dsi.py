@@ -21,6 +21,7 @@ TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae
 TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
 TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
 TAB5_ST7123_HOLD_PART_SHA256 = "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
+TAB5_ST7123_DRAG_PART_SHA256 = "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d"
 TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_MESSAGE_BYTES = 128 * 1024
@@ -105,7 +106,7 @@ def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
 def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> tuple[Path, str]:
     return _stage_tab5_part(
         value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm",
-        (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256),
+        (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256, TAB5_ST7123_DRAG_PART_SHA256),
         "tab5_st7123_touch_part_unavailable",
     )
 
@@ -247,11 +248,13 @@ class Tab5Gt911Touch(Tab5NativeTouch):
 
 
 class Tab5St7123Touch(Tab5NativeTouch):
-    """Submit ST7123 taps and holds with guest contact and release receipts."""
+    """Submit ST7123 taps, holds and drags with guest readback receipts."""
 
     CONTROLLER = "st7123"
     PART_NAME = "software-i2c"
     ALLOW_EXPIRED_REPORTS = True
+    DRAG_MOVES = 5
+    DRAG_MIN_MS = 60 * (DRAG_MOVES + 1)
 
     def hold(self, x: int, y: int, milliseconds: int, check_cancelled, *, timeout: float = 20) -> tuple[dict, dict]:
         initial = self._idle_counters()
@@ -270,6 +273,23 @@ class Tab5St7123Touch(Tab5NativeTouch):
             "hold_seconds": milliseconds / 1000,
             "guest_hold_ms": actual_ms,
             "refresh_acknowledged": refreshed,
+        }
+
+    def drag(self, x1: int, y1: int, x2: int, y2: int, check_cancelled, *, timeout: float = 12) -> tuple[dict, dict]:
+        initial = self._idle_counters()
+        self._queue(f"drag:{x1},{y1}:{x2},{y2}")
+        expected = self.DRAG_MOVES + 2
+        reports = self._wait_acknowledged(initial, expected, check_cancelled, timeout)
+        try:
+            actual_ms = int(self._part_state()["drag_ms"])
+        except (KeyError, ValueError) as error:
+            raise self._error("unavailable", "drag evidence could not be read") from error
+        if reports["acknowledged"] != expected or actual_ms < self.DRAG_MIN_MS:
+            raise self._error("ack_timeout", "complete drag timing was not observed by the guest")
+        return reports, {
+            "completion": "guest-observed",
+            "guest_drag_ms": actual_ms,
+            "moves_acknowledged": self.DRAG_MOVES,
         }
 
 
