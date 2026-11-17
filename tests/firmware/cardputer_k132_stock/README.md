@@ -73,7 +73,8 @@ and attach a card without `nc1020.rom` or `nc1020.nor`. Check the serial ROM/NOR
 and application markers, hold G0 for 0.85 seconds, and verify the SD write stamp
 and retained state file. Export the stopped SD and supply its exact bytes to
 another new worker with the same populated Flash. In this run the saved file
-and restored-state serial marker matched. Both replay frames remained black.
+and restored-state serial marker matched. The two 240×135 frames contained
+120 and 4,063 nonblack pixels respectively. Both had an authored-pattern fit of zero.
 
 A retained LCD-only SDK fixture had a queued completion and a display task
 waiting on the SPI bus lock. The original BIN embeds the pre-fix
