@@ -1824,3 +1824,13 @@ This native layer covers the report cadence in [Goodix's programming guide](http
 sections 3.2 and 5. Configurable INT waveforms and the low-power scan mode
 remain outside the patch. The existing browser runtime and Tab5 use
 independent patch recipes.
+
+## Dial AudioPlayer indexed PCM media (0226)
+
+The native N9301 model on Dial reads one immutable 16 kHz mono s16le source
+per track in a single indexed directory. UART play controls drive a virtual
+clock that emits the selected samples before the simulated DAC. Sample output
+is bounded to 16 MiB per session. The class exposes media support for
+admission and per-attachment loaded tracks and emitted byte count for data
+plane checks. Unset media paths preserve the scalar indexed fixture.
+See the [original Dial playback evidence](../../docs/evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json).

@@ -27613,13 +27613,13 @@
             "type": "integer"
           }
         },
-        "blocker": "UART protocol uses explicit indexed media. Decoder timing, track names, Unit microSD, audio output and electrical UART behavior are unmodeled."
+        "blocker": "Native Dial can emit PCM from indexed WAV fixtures. Multi-directory modes, Unit microSD, MP3, analog output and electrical UART behavior remain open."
       },
-      "blocker": "UART protocol uses explicit indexed media. Decoder timing, track names, Unit microSD, audio output and electrical UART behavior are unmodeled.",
+      "blocker": "Native Dial can emit PCM from indexed WAV fixtures. Multi-directory modes, Unit microSD, MP3, analog output and electrical UART behavior remain open.",
       "limitations": [
         "An explicit media-track-count at creation supplies one indexed virtual directory. Zero tracks leaves the Unit silent.",
         "Legacy raw UART fixture replies remain available for the recorded CoreS3 byte-layer probe.",
-        "Decoder timing, track names, Unit microSD, analog sound and electrical UART behavior are unmodeled."
+        "Use native Dial with explicit WAV artifacts for digital PCM. Track names, Unit microSD, analog sound and electrical UART behavior remain open."
       ],
       "input_semantics": null,
       "output_semantics": null

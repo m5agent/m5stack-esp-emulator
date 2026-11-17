@@ -40,3 +40,17 @@ vinylM5Dial 1.0 的实际 GPIO、UART 与取帧记录。
 MP3/WAV 解码及 3.5 mm 输出位于 Unit 内。实际音频路径仍需 Unit 媒体与解码后的 PCM 证据。
 [U197 官方规格](https://docs.m5stack.com/en/unit/Unit_AudioPlayer) ·
 [N9301 UART 协议](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1155/Unit-AudioPlayer-Protocol-CN.pdf)
+
+## 2026-11-18 原版 WAV 输出
+
+原版 R1F30、Dial PORT.B 和独立 Device Service 保持同一路径，改用原生 QEMU
+0226 与显式的 WAV 媒体列表。启动及两次编码器动作 +3、−2 后，分别确认第
+1、4、2 轨，稳定 PCM 窗与各对应 WAV 字节一致。中央触摸暂停、恢复和按键停止
+均经真实 UART，暂停、停止期间采样长度保持固定。短音轨对照核验原版设置的
+全盘模式在 EOF 自动推进 1→2→1。
+
+API 样本、频率与同会话 ZIP 逐段校验。格式错误与旧版后端都在分配租约前拒绝，
+通过的会话保存证据、关闭来宾并释放 Flash。[有界摘要](wav-playback-summary.json)
+
+验收范围是 Unit 的 16 kHz 单声道 PCM，数据取自模拟 DAC 之前。Unit 内部
+FAT、MP3、多目录与物理声音另行验收。

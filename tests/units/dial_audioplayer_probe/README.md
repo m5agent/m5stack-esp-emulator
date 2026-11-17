@@ -10,9 +10,11 @@ The guest's hardware UART drives the GPIO matrix output. The N9301 model
 validates the complemented command, length and checksum, updates state, and
 replies via the mapped controller receive FIFO. It covers the documented
 media/track query, indexed track selection, playback state, and volume and
-mode commands. Unsupported commands, names and playback time are outside
-this model. Unit microSD FAT/physical behavior and actual MP3/WAV decoding,
-audio output and electrical signaling remain unmodeled.
+mode commands. With native patch 0226, an explicit
+`media_wav_artifact_ids` list on one Dial attachment stages fixed-format WAV
+tracks. The model advances digital PCM in virtual time from the guest UART
+commands. Multi-directory selection, Unit microSD FAT, MP3, analog output
+and electrical signaling remain open.
 
 ## Reproduction
 
@@ -48,5 +50,14 @@ resume, upper and lower volume controls, dial press to stop and play, and
 a nonblank application frame. The same session retains the Unit data plane,
 runtime provenance and an evidence ZIP before stop. The indexed media fixture
 does not provide physical audio or a multi-folder filesystem.
+
+For an indexed WAV run, upload 1–16 distinct 16 kHz mono PCM WAV artifacts,
+then supply their SHA-256 IDs in track order at session creation. Read
+`/audio.pcm?source=unit&format=metrics` after startup and each selected
+track. Compare the bytes and frequency to the independently decoded source.
+Pause and stop must keep the observed byte count fixed, and resume must
+continue from the current clip. For the original's all-track mode, two short
+clips must play 1→2→1 without encoder input. Request `include=audio` in the
+evidence ZIP to compare the windows. [Same original results](../../../docs/evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)
 
 The [fast 5 ms follow-up](../../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md) retains an original-guest missed selection with all 64 GPIO edges delivered.

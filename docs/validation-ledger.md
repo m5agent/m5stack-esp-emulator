@@ -14,6 +14,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Dial 原版 Unit AudioPlayer WAV
+
+[原版与旧版后端对照](evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)
+验证真实 UART 选曲 1→4→2 后的同会话 PCM、暂停、恢复、停止及短曲全盘循环。
+各读取窗口匹配原始 WAV 解码 PCM 和证据 ZIP。错误 WAV 400，缺少本地模型 409。
+
 ## 2026-11-18 NC1020 审核保存文件读回
 
 [原版同一 SD 种子的两轮 dry-run](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)

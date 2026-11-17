@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "device": "dial",
+  "unit": "audioplayer",
+  "port": "port-b",
+  "firmware": "vinylM5Dial R1F30",
+  "native_source": "73281c8c0e9f090544dfd57a9397dafe048198e8",
+  "scope": "indexed WAV playback digital PCM before DAC",
+  "sample_rate_hz": 16000,
+  "channels": 1,
+  "format": "s16le",
+  "cases": {
+    "vinyl-pcm": {
+      "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "tracks": [
+        {
+          "track": 1,
+          "frequency_hz": 440,
+          "pcm_sha256": "d3a4921063e77b5d1dc4bdbb362fc6f2a11a5464ed7bf468989b13251faa02dc",
+          "artifact_sha256": "b8bb1b3cdebb86547eb1bfb15d2e3b91620dd356ceac9e00bf115c842596ec65",
+          "frames": 160000
+        },
+        {
+          "track": 2,
+          "frequency_hz": 524,
+          "pcm_sha256": "4c6141d109eb8f095852550025e79b493942e036c66b6181be8b121f19c87233",
+          "artifact_sha256": "a9334bb024b3093622f96377b52e3f7d04eb89f2fbe3e210670ea0f1df9794e5",
+          "frames": 160000
+        },
+        {
+          "track": 3,
+          "frequency_hz": 610,
+          "pcm_sha256": "c65bfa41eb0824b339d3883be6db90186fe1594b49421c3cbffe825599a6bf85",
+          "artifact_sha256": "42ef236ea83b18b6e40454fca2092aa96d894eedc2125a3ead892c1d107344ca",
+          "frames": 160000
+        },
+        {
+          "track": 4,
+          "frequency_hz": 706,
+          "pcm_sha256": "2cd1e362fea4cb2829c71913bffcad88cd86e236dd638f5fcdac23f1598b5022",
+          "artifact_sha256": "85389804f43b37c06b7396a77f8ff5af017e58298ec61afd859b1deb38bd3bd4",
+          "frames": 160000
+        },
+        {
+          "track": 5,
+          "frequency_hz": 806,
+          "pcm_sha256": "7bcc1b6a4c22822038e8cad58c5f764212b00b418dea87bba8f9ff9a02fe22b1",
+          "artifact_sha256": "388c76119099e015b14e5cecfb549e9c7838c907163b57202b84da2f50bf47d2",
+          "frames": 160000
+        },
+        {
+          "track": 6,
+          "frequency_hz": 902,
+          "pcm_sha256": "a40063739f1718af13e2f0388c21b34d3312b9544c152a3932c0d442b1510b2e",
+          "artifact_sha256": "0383e0b6c0b95978ac407b87a3ed5c6f0eadfc517b1fcb453878631d6150c03e",
+          "frames": 160000
+        },
+        {
+          "track": 7,
+          "frequency_hz": 1030,
+          "pcm_sha256": "7fee3288778d3328b89c05ce088d49e0356b963f8d1acd0ecafc89cbf65886ed",
+          "artifact_sha256": "28abb9746cf9b86d6e06c832851958328a81bedf19b212bb04d3f4bd63d6054b",
+          "frames": 160000
+        }
+      ],
+      "invalid_wav": {
+        "http": 400,
+        "code": "invalid_audio_fixture"
+      },
+      "windows": [
+        {
+          "name": "boot",
+          "track": 1,
+          "offset": 2004,
+          "bytes": 8192,
+          "sha256": "11614f7b75c161fd69bc61d48b55e8b90c4e741f3e02a86b0f09fbc777ba24c1",
+          "independent_frequency_hz": 440.079,
+          "service_frequency_hz": 440.438,
+          "rms": 7070.369,
+          "byte_match_to_indexed_clip": true
+        },
+        {
+          "name": "encoder_3",
+          "track": 4,
+          "offset": 36588,
+          "bytes": 8192,
+          "sha256": "951adbd31a7eb6bd5661adacfab68b02dd59bc9bcc2291d82e1a3713c50c3543",
+          "independent_frequency_hz": 706.055,
+          "service_frequency_hz": 706.423,
+          "rms": 7074.158,
+          "indexed_uart": "04fb030600040c",
+          "byte_match_to_indexed_clip": true
+        },
+        {
+          "name": "encoder_-2",
+          "track": 2,
+          "offset": 69954,
+          "bytes": 8192,
+          "sha256": "e08c1a534c5ee46f2ba81e449c1e54311455e97ea9dce97b8a460bbce83a8d84",
+          "independent_frequency_hz": 523.949,
+          "service_frequency_hz": 523.732,
+          "rms": 7067.749,
+          "indexed_uart": "04fb030600020a",
+          "byte_match_to_indexed_clip": true
+        },
+        {
+          "name": "resume",
+          "track": 2,
+          "offset": 130810,
+          "bytes": 8192,
+          "sha256": "4c2e88ba3e14b7899926f0b5010695a3a55ff032239d50b36e0aab90a20371a6",
+          "independent_frequency_hz": 524.009,
+          "service_frequency_hz": 523.732,
+          "rms": 7067.773,
+          "byte_match_to_indexed_clip": true
+        }
+      ],
+      "pause_stable": true,
+      "stop_stable": true,
+      "frame_sha256": "bc2fd2fa4deaac3b4a1a7896eff42ee4a7009a263c629d23c486ddff1c2f4cc2",
+      "zip_sha256": "2084b2e23a519d063a140d01cbfbb4fec17893b5132af5d0b36a3a3d7d4cc35b",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "service_exited": true,
+      "capture_sha256": "e86f972bede8f876454b573b50699b74100aa474667076f92425196a18554fa0",
+      "capture_bytes": 173266
+    },
+    "vinyl-loop": {
+      "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "tracks": [
+        {
+          "track": 1,
+          "frequency_hz": 440,
+          "pcm_sha256": "c64e7e4323d0f84fa3072e588ff403196ee0885cfc80f2d37f1ac97a304fc940",
+          "artifact_sha256": "2f57378b78fa72d9b958c6f1ac806be371f34e8594c8ce5d0fc8b89099d96022",
+          "frames": 20000
+        },
+        {
+          "track": 2,
+          "frequency_hz": 524,
+          "pcm_sha256": "c4f0a4adfb9c243a0a91bc4b38ec7f9769a288a8a763ea965930e96f09ccb36f",
+          "artifact_sha256": "904d8656840993dfaf70e26d8ee258b5d80e6b1acb4555f05ed80097c952f7ba",
+          "frames": 20000
+        }
+      ],
+      "invalid_wav": {
+        "http": 400,
+        "code": "invalid_audio_fixture"
+      },
+      "windows": [
+        {
+          "name": "boot",
+          "track": 1,
+          "offset": 1352,
+          "bytes": 8192,
+          "sha256": "c2c421b0f446e5ea62bb880ef6bce2705f7c3c06720111fbd82bccd60e3c99cc",
+          "independent_frequency_hz": 439.971,
+          "service_frequency_hz": 440.438,
+          "rms": 7072.055,
+          "byte_match_to_indexed_clip": true
+        },
+        {
+          "name": "eof_advances",
+          "track": 2,
+          "offset": 40678,
+          "bytes": 8192,
+          "sha256": "97ee7e51ab793ac3e74bf473284a4433baaff744031deb7693c54e47df62d7b1",
+          "independent_frequency_hz": 524.009,
+          "service_frequency_hz": 523.732,
+          "rms": 7072.395,
+          "byte_match_to_indexed_clip": true
+        },
+        {
+          "name": "end_wraps",
+          "track": 1,
+          "offset": 80676,
+          "bytes": 8192,
+          "sha256": "f919422181e5f3727ec03ff4c8c572b1654ffdd4b0767e71a1658988e0304287",
+          "independent_frequency_hz": 440.04,
+          "service_frequency_hz": 440.438,
+          "rms": 7072.171,
+          "byte_match_to_indexed_clip": true
+        }
+      ],
+      "frame_sha256": "afeb40e983586478a02983e6b650bc96ec454148f4675aec4163f0c533700020",
+      "zip_sha256": "aed9162496403339d52964a14dba2787b03af0ab069a72566ad84072f8239de2",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "service_exited": true,
+      "capture_sha256": "ae6148c7c2dec461a9a48adf45c08ed9aca10d1129005fcfaa6143e2d893b88d",
+      "capture_bytes": 90948
+    },
+    "legacy-control": {
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "admission": {
+        "http": 409,
+        "code": "runtime_model_gap"
+      },
+      "cleanup": {
+        "active_leases": 0
+      },
+      "service_exited": true
+    }
+  },
+  "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+  "service_source": "4ee0e106386f064fcb95f901e6141b8cde6198f3",
+  "not_run": [
+    "physical headphone and DAC output",
+    "microSD FAT inside U197",
+    "MP3",
+    "browser-WASM",
+    "automated firmware-review PCM verdict"
+  ]
+}

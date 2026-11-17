@@ -12056,7 +12056,7 @@
         "dial"
       ],
       "model_completeness": "partial",
-      "blocker": "Indexed media fixture exercises N9301 serial control. Decoder timing, track names, Unit microSD, analog sound and electrical UART behavior are unmodeled.",
+      "blocker": "Native Dial supports indexed WAV playback through N9301 control. Track names, Unit microSD, MP3, analog sound and electrical UART behavior remain open.",
       "bindings_required": [],
       "notes": "N9301 command/reply framing uses the guest UART through the board GPIO matrix and controller FIFO. The prior CoreS3 UART byte-layer fixture remains separately recorded.",
       "inputs": {
