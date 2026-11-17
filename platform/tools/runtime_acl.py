@@ -25,6 +25,7 @@ OPERATIONS = frozenset(
         "input.write",
         "guest.reset",
         "network.softap.probe",
+        "network.sta.time.probe",
         "program.read",
         "program.execute",
         "program.interrupt",

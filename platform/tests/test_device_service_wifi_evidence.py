@@ -145,7 +145,13 @@ class NativeStaCapabilityTests(unittest.TestCase):
         for name in ("cardputer", "cardputer-adv"):
             with self.subTest(name=name):
                 spec = specs[name]
-                self.assertEqual(native_sta_capability(spec, backend_ready=True), expected)
+                observed = native_sta_capability(spec, backend_ready=True)
+                if name == "cardputer-adv":
+                    self.assertEqual(observed.pop("sta_time_fixture"), {
+                        "runtime": "qemu-wifi", "profile": "cardputer-adv-local-time-fixture",
+                        "host_ip_backends": 0, "scope": "local-dns-and-sntp",
+                    })
+                self.assertEqual(observed, expected)
                 self.assertEqual(native_sta_capability(spec, backend_ready=False), {})
                 for unsupported in (
                     replace(spec, supported=False),

@@ -14,7 +14,7 @@ import socket
 import subprocess
 import sys
 import time
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
 
@@ -22,7 +22,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "platform/tools"))
-from unix_sta_peer import NTP_SECONDS, UnixStaPeer
+from device_service_sta_time_peer import NTP_SECONDS, PROFILE
 
 ORIGINAL_SHA256 = "7c8ddd56e87a3b3ef5a69721b0847eb8461cb1833eb68eade918290e21894bf3"
 NORMALIZED_SHA256 = "bb779820e365a47f000416e0342ef922283d94014225813f5efd7d24533fd504"
@@ -93,23 +93,30 @@ def run(args):
         "validation": "virtual-device validation", "firmware_sha256": ORIGINAL_SHA256,
         "effective_firmware_sha256": NORMALIZED_SHA256, "runtime_sha256": args.qemu_sha256,
         "rom_sha256": digest((args.rom_dir / "esp32s3_rev0_rom.bin").read_bytes()),
-        "scenario": "withheld-ntp" if args.withhold_ntp else "fixed-ntp",
+        "scenario": "acl-denied" if args.deny_fixture else "withheld-ntp" if args.withhold_ntp else "fixed-ntp",
         "device": "cardputer-adv", "http": "NOT RUN", "hardware": "NOT RUN",
+        "source_sha256": {name: digest((ROOT / "platform/tools" / name).read_bytes()) for name in (
+            "device_service.py", "device_service_sta_time_peer.py",
+        )},
     }
     route = None
     service = None
-    peer = UnixStaPeer(out / "peer.json", ntp_reply=not args.withhold_ntp)
+    acl = out / "runtime-acl.json"
+    allowed = ["serial.read", "input.write", "guest.reset", "flash.read"]
+    if not args.deny_fixture:
+        allowed.append("network.sta.time.probe")
+    acl.write_text(json.dumps({"schema_version": 1, "devices": {
+        "cardputer-adv": {"allow": allowed},
+    }}))
     env = {key: value for key, value in os.environ.items() if not key.startswith(("M5_", "M5SW_"))}
     env.update(PYTHONDONTWRITEBYTECODE="1", M5_SERVICE_ESP_EMU=str(args.esp_emu.resolve()),
-               M5_QEMU_XTENSA=str(Path(__file__).with_name("strict-qemu.py").resolve()),
-               M5_QEMU_XTENSA_ROM_DIR=str(args.rom_dir.resolve()), ORIGINAL_STA_QEMU=str(qemu),
-               ORIGINAL_STA_TOPOLOGY=str(out / "topology.json"), ORIGINAL_STA_UNIX=str(peer.path))
+               M5_QEMU_XTENSA=str(qemu), M5_QEMU_XTENSA_ROM_DIR=str(args.rom_dir.resolve()))
     try:
         with (out / "service.log").open("wb") as log:
             service = subprocess.Popen([
                 sys.executable, str(ROOT / "platform/tools/serve.py"), str(port),
                 "--bind", "127.0.0.1", "--state-dir", str(out / "state"),
-                "--api-token-file", str(token_file), "--max-sessions", "1",
+                 "--api-token-file", str(token_file), "--max-sessions", "1", "--runtime-acl-file", str(acl),
             ], env=env, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
         wait_for(health)
         artifact = api("artifacts", original)
@@ -117,13 +124,23 @@ def run(args):
         firmware = api("firmware", {"device_id": "cardputer-adv", "kind": "merged",
                                     "artifact_id": artifact["artifact_id"]})
         assert firmware["sha256"] == NORMALIZED_SHA256
-        session = api("sessions", {
-            "device_id": "cardputer-adv", "firmware_id": firmware["firmware_id"],
-            "runtime": "qemu-wifi", "ttl_seconds": 240, "network": {
-                "profile": "generic-observe", "wifi_ssid": "fixturetest", "wifi_auth": "open",
-                "http_fixture": False, "capture_pcap": True,
-            },
-        })
+        try:
+            session = api("sessions", {
+                "device_id": "cardputer-adv", "firmware_id": firmware["firmware_id"],
+                "runtime": "qemu-wifi", "ttl_seconds": 240, "network": {
+                    "profile": PROFILE, "capture_pcap": True, "withhold_ntp": args.withhold_ntp,
+                },
+            })
+        except HTTPError as error:
+            if not args.deny_fixture:
+                raise
+            details = json.load(error)["error"]
+            assert error.code == 403 and details["code"] == "runtime_acl_denied"
+            assert details["operation"] == "network.sta.time.probe"
+            assert api("worker")["active_lease_count"] == 0
+            report.update(status="PASS", denial=details["code"], active_leases=0)
+            return True
+        assert not args.deny_fixture
         route = "sessions/" + session["session_id"]
         live = wait_for(lambda: value if (value := api(route))["state"] == "running" else None)
         assert live["firmware_sha256"] == NORMALIZED_SHA256 and live["runtime"] == "qemu-wifi"
@@ -149,11 +166,11 @@ def run(args):
             time.sleep(delay)
             report["input"].append({"name": name, "request": payload, "frame": capture(name)})
             if name == "wifi_scan":
-                assert not peer.events
+                assert not api(route + "/network")["sta_time_fixture"].get("dhcp")
 
         wait_for(lambda: "WiFi Connected!" in serial(), 35)
         if args.withhold_ntp:
-            wait_for(lambda: any(item["message"] == "withheld" for item in peer.events), 20)
+            wait_for(lambda: api(route + "/network")["sta_time_fixture"].get("ntp_requests",0) > 0, 20)
             time.sleep(50)
         else:
             wait_for(lambda: f"Time synced to UTC: {UTC_SECONDS}" in serial(), 30)
@@ -168,13 +185,23 @@ def run(args):
             assert UTC_SECONDS in report["guest_utc"]
         else:
             assert not report["guest_utc"]
-        report["topology"] = json.loads((out / "topology.json").read_text())
+        report["topology"] = api(route + "/network")["isolation"]
+        report["online_fixture_receipt"] = api(route + "/network")["sta_time_fixture"]
+        assert report["topology"]["host_ip_backends"] == 0
         package = api(route + "/evidence")
         with ZipFile(io.BytesIO(package)) as archive:
-            assert archive.testzip() is None and "network/capture.pcap" in archive.namelist()
+            assert archive.testzip() is None
+            assert {"network/capture.pcap", "network/sta-time-fixture.json"} <= set(archive.namelist())
         (out / "evidence.zip").write_bytes(package)
         report["evidence_zip_sha256"] = digest(package)
         assert digest(args.original_bin.read_bytes()) == ORIGINAL_SHA256
+        if args.check_reset:
+            response = api(route + "/reset", {})
+            assert response["reset"]
+            fixture = api(route + "/network")["sta_time_fixture"]
+            assert fixture["generation"] == 2 and fixture["released"] is False
+            assert fixture["ntp_replies"] == 0 and fixture["last_ntp_response_sha256"] is None
+            report["reset"] = {"generation": fixture["generation"], "prior_reply_cleared": True}
         report["status"] = "PASS"
     finally:
         try:
@@ -185,7 +212,9 @@ def run(args):
                 assert report["cleanup"] == {"state": "stopped", "flash_retained": False, "active_leases": 0}
                 network = api(route + "/network")
                 report["native_data_plane"] = network["native_data_plane"]
-                assert report["native_data_plane"]["dhcpv4"]["completed_dora_transactions"] == 1
+                report["final_fixture_receipt"] = network["sta_time_fixture"]
+                assert report["final_fixture_receipt"]["released"] is True
+                assert report["native_data_plane"]["dhcpv4"]["completed_dora_transactions"] >= 1
         except Exception:
             report["status"] = "FAIL"
             raise
@@ -194,7 +223,6 @@ def run(args):
                 service.terminate()
                 service.wait(timeout=12)
             token_file.unlink()
-            peer.close()
             (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
     return report["status"] == "PASS"
 
@@ -207,10 +235,12 @@ def main():
     parser.add_argument("--rom-dir", required=True, type=Path)
     parser.add_argument("--esp-emu", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)
-    parser.add_argument("--withhold-ntp", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--withhold-ntp", action="store_true")
+    mode.add_argument("--deny-fixture", action="store_true")
+    mode.add_argument("--check-reset", action="store_true")
     args = parser.parse_args()
-    if sys.platform != "darwin":
-        parser.error("this replay uses the macOS process sandbox")
+
     os.umask(0o077)
     return 0 if run(args) else 1
 

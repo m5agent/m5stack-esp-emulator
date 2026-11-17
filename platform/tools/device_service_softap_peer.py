@@ -87,10 +87,14 @@ class SoftAPPeer:
             self._receipt = {}
         self._record(
             schema_version=1, transport="unix-socketpair", generation=self._generation,
-            status="RUNNING", released=False, dhcp=False, arp=False, http=False,
+            status="RUNNING", released=False, **self._initial_protocol_state(),
         )
         self._thread = threading.Thread(target=self._run, name="softap-fixture-peer", daemon=True)
         self._thread.start()
+
+    @staticmethod
+    def _initial_protocol_state() -> dict:
+        return {"dhcp": False, "arp": False, "http": False}
 
     def pause(self) -> None:
         if self._thread is not None:

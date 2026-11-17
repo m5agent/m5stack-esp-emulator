@@ -100,5 +100,106 @@
   "public_http": "NOT RUN",
   "hardware": "NOT RUN",
   "browser": "NOT RUN",
-  "linux_namespace": "NOT RUN"
+  "linux_namespace": "NOT RUN",
+  "device_service_profile": "cardputer-adv-local-time-fixture",
+  "normal_device_service_cases": {
+    "normal_profile": {
+      "scenario": "fixed-ntp",
+      "guest_utc": [
+        1795291200,
+        1795291200
+      ],
+      "guest_ntp_success": true,
+      "evidence_zip_sha256": "1941efc7665406491a0b73cdcd8fcfe45c3cbbc322be1a49578a22531e0c66ff",
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "3113038a1f37e03f92142d19bd1289f87d3702a5803509ffee91c116e9432634",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 0
+        },
+        "udp": {
+          "bidirectional_payload_flows": 5
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      },
+      "reset": {
+        "generation": 2,
+        "prior_reply_cleared": true
+      },
+      "topology": {
+        "mode": "unix-socketpair",
+        "host_ip_backends": 0,
+        "cleanup_completed": false
+      },
+      "source_sha256": {
+        "device_service.py": "3a50ec17fea27ca348c1c845df7f5086e5c4b6f5c78afe2bb5685b38536bf0d1",
+        "device_service_sta_time_peer.py": "617e64ebc15a1b5ff8672c1c10365db16852315fbe6b6ecd56791d6a1972b5e6"
+      },
+      "peer": {
+        "dns_a_replies": 1,
+        "dns_denials": 2,
+        "ntp_requests": 2,
+        "ntp_replies": 2
+      }
+    },
+    "withheld_ntp": {
+      "scenario": "withheld-ntp",
+      "guest_utc": [],
+      "guest_ntp_success": false,
+      "evidence_zip_sha256": "24b0006de96f87b90c38fe27f32b4de1730ce74b9c26e64bf4e253b0c706b3cb",
+      "native_data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "8b9905dc2a17e9d6b2cdaf849600187f3cf0fa2feb3cb3bd2d85c821554e922d",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 0
+        },
+        "udp": {
+          "bidirectional_payload_flows": 3
+        }
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      },
+      "topology": {
+        "mode": "unix-socketpair",
+        "host_ip_backends": 0,
+        "cleanup_completed": false
+      },
+      "peer": {
+        "dns_a_replies": 2,
+        "dns_denials": 1,
+        "ntp_requests": 4,
+        "ntp_replies": 0
+      }
+    },
+    "acl_denied": {
+      "scenario": "acl-denied",
+      "denial": "runtime_acl_denied",
+      "active_leases": 0,
+      "source_sha256": {
+        "device_service.py": "3a50ec17fea27ca348c1c845df7f5086e5c4b6f5c78afe2bb5685b38536bf0d1",
+        "device_service_sta_time_peer.py": "617e64ebc15a1b5ff8672c1c10365db16852315fbe6b6ecd56791d6a1972b5e6"
+      }
+    }
+  }
 }

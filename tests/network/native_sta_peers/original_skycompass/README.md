@@ -6,11 +6,12 @@ normalization. Semantic keyboard input advances the original start screen,
 language selection, Wi-Fi scan and AP selection. Scan and connect use the
 native ESP32-S3 Wi-Fi controller.
 
-A dedicated macOS harness supplies one inherited Unix Ethernet endpoint.
-The fixture responds to DHCP, ARP, two time-service DNS names and fixed
-SNTP. It returns NXDOMAIN for other DNS names and has no IP socket or
-forward routes. The QEMU process is separately denied host IP egress.
-The `--withhold-ntp` control keeps DHCP and DNS unchanged.
+The dedicated Device Service starts the `cardputer-adv-local-time-fixture`
+profile using one per-session Unix socketpair. The fixture responds to
+DHCP, ARP, two time-service DNS names and fixed SNTP. It returns NXDOMAIN
+for other DNS names. The profile has no host IP backend and accepts
+neither forwarding nor caller-selected endpoints. The harness configures
+a private runtime ACL. The `--withhold-ntp` control keeps DHCP and DNS active.
 
 Use a native Xtensa runtime, matching ROMs, an installed Device Service
 dependency directory and the saved original with SHA-256
@@ -29,7 +30,9 @@ transaction in each capture, the exact fixture time in the original's
 serial output for the positive replay, and a request with the reply
 withheld plus no successful time sync in the negative replay. Collect
 the ZIP before stopping and read the finalized capture after releasing
-the lease and mutable Flash. Raw frames and captures stay in ignored
+the lease and mutable Flash. Use `--deny-fixture` to verify ACL rejection
+before a lease is created, or `--check-reset` to verify the next peer
+generation has cleared the previous response. Raw frames and captures stay in ignored
 storage. See [summary.json](summary.json) for bounded evidence.
 
 This virtual-device replay covers the original Wi-Fi setup, DHCP, DNS
