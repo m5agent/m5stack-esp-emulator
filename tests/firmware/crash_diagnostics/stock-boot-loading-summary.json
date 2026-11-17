@@ -1,0 +1,358 @@
+{
+  "validation": "retained virtual-device evidence replay; no new guest execution",
+  "source_commit": "a3aba3335394639585df94c940e1b46b1b50403c",
+  "baseline_source_commit": "31867f0eea21b907328297a8cd2190f295765e79",
+  "new_guest_sessions": 0,
+  "api_methods": [
+    "GET"
+  ],
+  "cases": {
+    "98tab5": {
+      "input_zip_sha256": "e653f4c4de90f1c503e36be4b09f5dd7d7a35899bb5afb42d8e044574e604bba",
+      "firmware_sha256": "35c636324ea1fcebd12f4752e458936c2ac151a9d171a67f1d624d944b96b0ff",
+      "serial_sha256": "16e1fa12061bd49f872bbc9bdb6f222c074509c4d6e5cfbcca24c16b9f22fe1d",
+      "serial_bytes": 145346,
+      "sources_console": {
+        "status": "available",
+        "offset": 0,
+        "bytes": 145346,
+        "sha256": "16e1fa12061bd49f872bbc9bdb6f222c074509c4d6e5cfbcca24c16b9f22fe1d",
+        "truncated": false
+      },
+      "boot": {
+        "rom_banners": 32,
+        "idf_banners": 32,
+        "reboot_requests": 0,
+        "reset_reports": [
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          }
+        ],
+        "application_load_count": 32,
+        "application_loads": [
+          {
+            "console_line": 1397,
+            "boot_ordinal": 17,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1482,
+            "boot_ordinal": 18,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1567,
+            "boot_ordinal": 19,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1652,
+            "boot_ordinal": 20,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1737,
+            "boot_ordinal": 21,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1822,
+            "boot_ordinal": 22,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1907,
+            "boot_ordinal": 23,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 1992,
+            "boot_ordinal": 24,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2077,
+            "boot_ordinal": 25,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2162,
+            "boot_ordinal": 26,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2247,
+            "boot_ordinal": 27,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2332,
+            "boot_ordinal": 28,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2417,
+            "boot_ordinal": 29,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2502,
+            "boot_ordinal": 30,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2587,
+            "boot_ordinal": 31,
+            "idf_log_ms": 610,
+            "offset": 65536
+          },
+          {
+            "console_line": 2672,
+            "boot_ordinal": 32,
+            "idf_log_ms": 610,
+            "offset": 65536
+          }
+        ]
+      },
+      "existing_observations_unchanged": true,
+      "parser_status": "PASS",
+      "api_status": "PASS",
+      "archived_frame_sha256": null,
+      "api_equals_zip": true,
+      "output_zip_sha256": "286d3de81de8136264422245488005230e9a490b7ca84de6128f5c329f18d715",
+      "crash_status": "observed",
+      "state_before": "stopped",
+      "state_after": "stopped",
+      "original_sha256": "ea4fb0889e4a2c68d472947137908c52c25a663152d3ff78262ce2605440dc6d"
+    },
+    "carplay": {
+      "input_zip_sha256": "e5fae97d7863c0ec61dd58f4b585417ca063546b67c8849d73ff70f73c0401c8",
+      "firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "serial_bytes": 4151,
+      "sources_console": {
+        "status": "available",
+        "offset": 0,
+        "bytes": 4151,
+        "sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+        "truncated": false
+      },
+      "boot": {
+        "rom_banners": 1,
+        "idf_banners": 1,
+        "reboot_requests": 0,
+        "reset_reports": [
+          {
+            "code": "0x1",
+            "reason": "POWERON"
+          }
+        ],
+        "application_load_count": 1,
+        "application_loads": [
+          {
+            "console_line": 31,
+            "boot_ordinal": 1,
+            "idf_log_ms": 155,
+            "offset": 65536
+          }
+        ]
+      },
+      "existing_observations_unchanged": true,
+      "parser_status": "PASS",
+      "api_status": "PASS",
+      "archived_frame_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+      "api_equals_zip": true,
+      "output_zip_sha256": "adb7f83191aceebf3f6ff4e7530b4a51cca347058136efa8285aec32aeeb2b48",
+      "crash_status": "no_evidence",
+      "state_before": "stopped",
+      "state_after": "stopped",
+      "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3"
+    },
+    "m5tabos": {
+      "input_zip_sha256": "13107b183b9f655b9d96b144372a2332905fbbca9120c8643b30d434cb9a44fe",
+      "firmware_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "serial_sha256": "dd0e99f3779a8d2e4db85ec19d3278e966ad1e02877c3ac2529c93dd63165108",
+      "serial_bytes": 30546,
+      "sources_console": {
+        "status": "available",
+        "offset": 0,
+        "bytes": 30546,
+        "sha256": "dd0e99f3779a8d2e4db85ec19d3278e966ad1e02877c3ac2529c93dd63165108",
+        "truncated": false
+      },
+      "boot": {
+        "rom_banners": 7,
+        "idf_banners": 7,
+        "reboot_requests": 0,
+        "reset_reports": [
+          {
+            "code": "0x1",
+            "reason": "POWERON"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          },
+          {
+            "code": "0xc",
+            "reason": "SW_CPU_RESET"
+          }
+        ],
+        "application_load_count": 7,
+        "application_loads": [
+          {
+            "console_line": 35,
+            "boot_ordinal": 1,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 117,
+            "boot_ordinal": 2,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 205,
+            "boot_ordinal": 3,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 293,
+            "boot_ordinal": 4,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 381,
+            "boot_ordinal": 5,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 469,
+            "boot_ordinal": 6,
+            "idf_log_ms": 493,
+            "offset": 65536
+          },
+          {
+            "console_line": 557,
+            "boot_ordinal": 7,
+            "idf_log_ms": 493,
+            "offset": 65536
+          }
+        ]
+      },
+      "existing_observations_unchanged": true,
+      "parser_status": "PASS",
+      "api_status": "NOT RUN",
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "api_not_run_reason": "Only the immutable original review ZIP was replayed; no stopped native session was copied for this case."
+    }
+  },
+  "active_leases_after": 0,
+  "status": "PASS_READ_ONLY_REPLAY",
+  "owned_service_exited": true,
+  "new_guest_runtime": "NOT RUN",
+  "existing_guest_execution_sources": {
+    "98tab5_and_carplay": "d6a22054fbf6527f89845804d90ff5c1ef44d864",
+    "m5tabos_native_service": "271524908363e8666148a7b60932fcaf01b5d5ff"
+  },
+  "stock_runtime_sha256": {
+    "98tab5_and_carplay": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "m5tabos": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771"
+  },
+  "scope": "Read-only replay of retained normal-boot virtual-device output. Does not establish new firmware startup, readiness, reset cause, physical properties or external network behavior."
+}

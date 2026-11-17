@@ -36,6 +36,49 @@ both results and stop/restart readback.
 
 [Bounded virtual-device evidence](summary.json).
 
+## Retained stock application-loading observations
+
+[The bounded stock replay](stock-boot-loading-summary.json) uses immutable ZIPs
+from ordinary 98TAB5, CarPlay and M5TabOS virtual-device starts. It does not run
+these firmware images again or trigger a fault. The new parser preserves all
+previous observations and additionally records bootloader application loads:
+98TAB5 has 32 loads at `0x10000` (last 16 retained, boot ordinals 17–32),
+CarPlay has one and M5TabOS has seven. Counts apply to each captured console
+window. The same ZIP member hashes bind the old and new parser outputs.
+
+Copies of the already stopped 98TAB5 and CarPlay session directories were
+opened by an isolated Device Service. Only GET routes were used: session,
+serial, crash, evidence and worker state. HTTP receipts and newly generated
+ZIP receipts agree exactly; their serial bytes match the original ZIPs.
+Both sessions remained stopped, with zero leases and no new guest processes.
+The CarPlay persisted frame remains byte-identical. M5TabOS had only its
+original ZIP replayed; its HTTP replay is **NOT RUN**.
+
+Recheck an original archive without starting a guest:
+
+```sh
+PYTHONPATH=platform/tools python3 - /path/to/evidence.zip <<'PY'
+from hashlib import sha256
+from pathlib import Path
+from zipfile import ZipFile
+import json, sys
+from device_service_crash import crash_console_observations
+with ZipFile(sys.argv[1]) as archive:
+    manifest = json.loads(archive.read("manifest.json"))
+    serial = archive.read("serial.log")
+    assert sha256(serial).hexdigest() == manifest["files"]["serial.log"]["sha256"]
+    stderr = archive.read("qemu.stderr").decode("utf-8", errors="replace")
+    source, observed = crash_console_observations(Path("unused"), stderr, serial)
+print(json.dumps({"source": source, "boot": observed["boot"]}, indent=2))
+PY
+```
+
+An application-load report is not readiness or an explanation of a reset.
+98TAB5 still has repeated software resets and no complete DSI frame in the
+retained run. M5TabOS's earlier reset evidence remains open. New boot execution,
+physical behavior, external networking and matching-ELF debugging are
+**NOT RUN** for this read-only replay.
+
 ## Offline FreeRTOS task report
 
 Run locally on macOS with trusted Espressif `esp-coredump` 1.17.2 and Xtensa
