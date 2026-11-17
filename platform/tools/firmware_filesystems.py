@@ -156,12 +156,17 @@ def _file_kind(path: str) -> str:
     return "resource"
 
 
-def _hash_stream(handle: object) -> str:
+def _hash_stream(handle: object, *, max_bytes: int | None = None) -> str:
     digest = hashlib.sha256()
     while True:
-        chunk = handle.read(1024 * 1024)
+        read_size = 1024 * 1024 if max_bytes is None else min(1024 * 1024, max_bytes + 1)
+        chunk = handle.read(read_size)
         if not chunk:
             return digest.hexdigest()
+        if max_bytes is not None:
+            max_bytes -= len(chunk)
+            if max_bytes < 0:
+                raise ValueError("filesystem file inventory exceeds the byte budget")
         digest.update(chunk)
 
 
@@ -1027,7 +1032,9 @@ def _score_spiffs_candidate(data: bytes, parsed: dict) -> tuple[int, int, int, i
     )
 
 
-def _list_spiffs(data: bytes, partition: dict) -> dict:
+def _list_spiffs(
+    data: bytes, partition: dict, *, max_file_bytes: int | None = None
+) -> dict:
     candidates: list[dict] = []
     attempts: list[dict] = []
     for page_size, block_size, name_len, meta_len in SPIFFS_CONFIGS:
@@ -1120,6 +1127,9 @@ def _list_spiffs(data: bytes, partition: dict) -> dict:
         display_path, path_hash, redacted = _public_path(name)
         if len(files) >= MAX_FILES:
             files_truncated = True
+            break
+        if max_file_bytes is not None and size > max_file_bytes - total_file_bytes:
+            listing_errors.append("filesystem file inventory exceeds the byte budget")
             break
         expected_data_pages = (
             size + data_content_len - 1
@@ -1302,7 +1312,9 @@ def _list_spiffs(data: bytes, partition: dict) -> dict:
     }
 
 
-def _list_littlefs(data: bytes, partition: dict) -> dict:
+def _list_littlefs(
+    data: bytes, partition: dict, *, max_file_bytes: int | None = None
+) -> dict:
     try:
         from littlefs import LittleFS, UserContext
     except ImportError:
@@ -1367,8 +1379,11 @@ def _list_littlefs(data: bytes, partition: dict) -> dict:
                         files_truncated = True
                         break
                     stat = filesystem.stat(path)
+                    remaining = None if max_file_bytes is None else max_file_bytes - total_file_bytes
+                    if remaining is not None and stat.size > remaining:
+                        raise ValueError("filesystem file inventory exceeds the byte budget")
                     with filesystem.open(path, "rb") as handle:
-                        file_hash = _hash_stream(handle)
+                        file_hash = _hash_stream(handle, max_bytes=remaining)
                     display_path, path_hash, redacted = _public_path(path)
                     kind = _file_kind(path)
                     row = {
@@ -1458,7 +1473,9 @@ def _list_littlefs(data: bytes, partition: dict) -> dict:
     }
 
 
-def inventory_data_partition(data: bytes, partition: dict) -> dict | None:
+def inventory_data_partition(
+    data: bytes, partition: dict, *, max_file_bytes: int | None = None
+) -> dict | None:
     offset = partition.get("offset")
     size = partition.get("size")
     subtype = partition.get("subtype")
@@ -1479,9 +1496,9 @@ def inventory_data_partition(data: bytes, partition: dict) -> dict | None:
         "sha256": _sha256(window),
     }
     if subtype == LITTLEFS_SUBTYPE or b"littlefs" in window[:64]:
-        return _list_littlefs(window, header)
+        return _list_littlefs(window, header, max_file_bytes=max_file_bytes)
     if subtype == SPIFFS_SUBTYPE:
-        return _list_spiffs(window, header)
+        return _list_spiffs(window, header, max_file_bytes=max_file_bytes)
     if subtype == FAT_SUBTYPE:
         if _blank_partition_value(window) is not None:
             return {
