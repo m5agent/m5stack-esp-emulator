@@ -93,6 +93,30 @@ with the app ELF exactly matched to the normalized ESP32-C6 Flash descriptor.
 That known address came from the ELF symbol table. The newer native C6 live PC
 and same-session panic probes have their own [receipt](riscv_c6/live-cpu-pc-summary.json).
 
+## Cardputer ADV ESP32-S3 UART ELF32 core dump
+
+Build the benign abort fixture with ESP-IDF 5.5.4 as above. In a private
+copy of `sdkconfig.defaults`, remove the ESP32 target assignment and select
+`CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y`. Select `CONFIG_ESP_COREDUMP_CHECKSUM_CRC32`
+or `CONFIG_ESP_COREDUMP_CHECKSUM_SHA256` in separate build directories. Use
+`-DIDF_TARGET=esp32s3` and merge the matching `@flash_args` with
+`esptool --chip esp32s3 merge_bin --fill-flash-size 8MB`.
+
+Use an owned Device Service with native `runtime=qemu` and
+`device_id=cardputer-adv`. Upload each merged image, its own ELF and the
+other variant's ELF. After the CPU1 abort and UART dump, inspect
+`core_dump.decoding` via the crash endpoint and the same-session ZIP.
+On the exact ELF each reading includes five contexts and the named
+`fixture_fault` task. Check both priorities and compare the saved stack
+distances against `esp-coredump info_corefile` with Xtensa S3 GDB.
+Missing and swapped ELFs preserve register-only task contexts.
+The separate live-PC endpoint gets two current QEMU CPU PCs.
+
+[Bounded comparison results](s3-uart-task-summary.json) cover both
+checksums, the matching app artifacts, equivalent API/ZIP receipts,
+and stopped history after an isolated service restart. Other S3 boards
+and the diagnostic network lane remain outside this qualification.
+
 ## ESP32-S3 watchdog timing
 
 Prepare a fresh native Xtensa build with `scripts/bootstrap-unit-runtime.py`.

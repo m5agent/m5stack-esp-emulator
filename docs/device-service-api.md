@@ -3297,12 +3297,13 @@ separate from `panic.abort_call_site_pc`. Unsupported, ambiguous and
 unresolved addresses are explicit. This endpoint reports symbol ranges.
 DWARF line decoding and stack unwinding remain outside this symbol lookup.
 
-On native `runtime=qemu` for Core2 and ESP32-C6, a completed ESP-IDF UART
-transfer within the latest console window adds `core_dump.decoding`. The
+On native `runtime=qemu` for Core2, Cardputer ADV (ESP32-S3), and ESP32-C6,
+a completed ESP-IDF UART transfer within the latest console window adds
+`core_dump.decoding`. The
 service binds one transfer to the latest observed panic and verifies the
 ELF32 machine, the chip-specific container version, and its application digest
-note. Core2 supports ELF32 CRC32, and ESP32-C6 supports ELF32 CRC32 and ELF32
-SHA-256. The receipt reports the verified embedded checksum and the full
+note. Core2 supports ELF32 CRC32. Native Cardputer ADV and ESP32-C6 support
+ELF32 CRC32 and ELF32 SHA-256. The receipt reports the verified embedded checksum and the full
 transfer's SHA-256 separately. It records the crashed task handle and up to 64
 captured task contexts with saved PC and SP. An SDK placeholder is labeled `sdk_placeholder` and has null
 registers. A skipped crashed task has a null handle. If a matching ELF artifact
@@ -3312,8 +3313,9 @@ panic register and backtrace symbols. Unsupported or damaged data returns
 `decoding.status=unavailable` with a reason, while the original delimiter
 observation is retained.
 
-For a native Core2 CRC32 dump, the exact matching application ELF can also
-provide the ESP-IDF 5.5 FreeRTOS TCB field layout from uncompressed DWARF 4.
+For these Core2 and Cardputer ADV dumps, the exact matching application ELF
+can also provide the ESP-IDF 5.5 FreeRTOS TCB field layout from uncompressed
+DWARF 4.
 With the optional `pyelftools` runtime dependency, the receipt combines
 that layout with unique captured TCB memory. A task may report `metadata.name`,
 `metadata.priority`, `metadata.base_priority` and optional
@@ -3325,6 +3327,8 @@ mismatched ELF does not expose metadata. The
 [local offline decoder](../tests/firmware/crash_diagnostics/README.md)
 remains available for independently checking the same Core2 artifacts.
 Flash dumps, other chips and the remaining UART formats have status observations only.
+Cardputer ADV task decoding is qualified for plain native QEMU. Other ESP32-S3
+boards and diagnostic network lanes keep their existing panic observations.
 
 ### Live native CPU PCs
 

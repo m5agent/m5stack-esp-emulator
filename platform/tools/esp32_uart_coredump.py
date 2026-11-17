@@ -12,8 +12,11 @@ from dataclasses import dataclass
 from xtensa_elf_symbols import EM_RISCV, EM_XTENSA
 
 ESP32_CHIP_ID = 0
+ESP32S3_CHIP_ID = 0x0009
 ESP32C6_CHIP_ID = 0x000D
 ESP32_ELF_CRC32 = 0x0102
+ESP32S3_ELF_CRC32 = (ESP32S3_CHIP_ID << 16) | ESP32_ELF_CRC32
+ESP32S3_ELF_SHA256 = (ESP32S3_CHIP_ID << 16) | 0x0103
 ESP32C6_ELF_CRC32 = (ESP32C6_CHIP_ID << 16) | ESP32_ELF_CRC32
 ESP32C6_ELF_SHA256 = (ESP32C6_CHIP_ID << 16) | 0x0103
 ESP_APP_NOTE = (b"ESP_CORE_DUMP_INFO\0", 8266)
@@ -35,13 +38,25 @@ class TaskLayout:
 
 # ESP-IDF 5.5.4 components/espcoredump/src/port/{xtensa,riscv}/core_dump_port.c.
 # Each port uses the TCB address as PRSTATUS PID and PC as the first register.
+XTENSA_TASK_LAYOUT = TaskLayout(EM_XTENSA, 588, 72 + 65 * 4, 152)
 TASK_LAYOUTS = {
-    ESP32_CHIP_ID: TaskLayout(EM_XTENSA, 588, 72 + 65 * 4, 152),
+    ESP32_CHIP_ID: XTENSA_TASK_LAYOUT,
+    ESP32S3_CHIP_ID: XTENSA_TASK_LAYOUT,
     ESP32C6_CHIP_ID: TaskLayout(EM_RISCV, 204, 72 + 2 * 4, 8),
 }
 CRC32_VERSIONS = {
     ESP32_CHIP_ID: ESP32_ELF_CRC32,
+    ESP32S3_CHIP_ID: ESP32S3_ELF_CRC32,
     ESP32C6_CHIP_ID: ESP32C6_ELF_CRC32,
+}
+SHA256_VERSIONS = {
+    ESP32S3_CHIP_ID: ESP32S3_ELF_SHA256,
+    ESP32C6_CHIP_ID: ESP32C6_ELF_SHA256,
+}
+CHIP_FORMATS = {
+    ESP32_CHIP_ID: "esp32_xtensa",
+    ESP32S3_CHIP_ID: "esp32s3_xtensa",
+    ESP32C6_CHIP_ID: "esp32c6_riscv",
 }
 
 
@@ -60,8 +75,8 @@ def verify_container(dump: bytes, *, version: int = ESP32_ELF_CRC32) -> tuple[in
     return checksum, bytes(payload[24:])
 
 
-def _verify_riscv_sha256(dump: bytes) -> tuple[str, bytes]:
-    payload = _payload(dump, ESP32C6_ELF_SHA256, 32)
+def _verify_sha256(dump: bytes, version: int) -> tuple[str, bytes]:
+    payload = _payload(dump, version, 32)
     checksum = hashlib.sha256(payload).digest()
     if checksum != dump[-32:]:
         raise ValueError("UART dump SHA-256 mismatch")
@@ -171,12 +186,12 @@ def decode_task_contexts(
         raise ValueError("unsupported or incomplete core dump")
     layout = TASK_LAYOUTS[chip_id]
     version, = struct.unpack_from("<I", dump, 4)
-    if chip_id == ESP32C6_CHIP_ID and version == ESP32C6_ELF_SHA256:
-        sha256, elf = _verify_riscv_sha256(dump)
-        checksum_fields = {"format": "esp32c6_riscv_elf32_sha256", "dump_embedded_sha256": sha256}
+    target = CHIP_FORMATS[chip_id]
+    if version == SHA256_VERSIONS.get(chip_id):
+        sha256, elf = _verify_sha256(dump, version)
+        checksum_fields = {"format": f"{target}_elf32_sha256", "dump_embedded_sha256": sha256}
     else:
         crc32, elf = verify_container(dump, version=CRC32_VERSIONS[chip_id])
-        target = "esp32c6_riscv" if chip_id == ESP32C6_CHIP_ID else "esp32_xtensa"
         checksum_fields = {"format": f"{target}_elf32_crc32", "dump_crc32": f"{crc32:08x}"}
     notes = list(core_notes(elf, machine=layout.machine))
     digest = app_note_digest(notes, version=version)

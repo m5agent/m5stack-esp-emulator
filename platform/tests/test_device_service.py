@@ -6483,6 +6483,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(crash["status"], "no_evidence")
             self.assertEqual(crash["firmware_sha256"], session.firmware_sha)
 
+    def test_crash_uart_dump_admission_is_bound_to_qualified_native_routes(self):
+        session = self._stopped_session()
+        for board, runtime, chip in (
+            ("cardputer-adv", "qemu", 0x0009),
+            ("cardputer-adv", "qemu-wifi", None),
+            ("sticks3", "qemu", None),
+            ("core2", "qemu", 0x0000),
+            ("nesso-n1", "qemu", 0x000D),
+        ):
+            with self.subTest(board=board, runtime=runtime), mock.patch.object(
+                device_service_module, "crash_console_observations",
+                wraps=device_service_module.crash_console_observations,
+            ) as collect:
+                session.spec = self.service.specs[board]
+                session.runtime = runtime
+                session.crash_diagnostics()
+                self.assertEqual(collect.call_args.kwargs["core_dump_chip_id"], chip)
+
     def test_crash_diagnostics_retains_independent_backend_evidence(self):
         session = self._stopped_session()
         session.serial0.unlink()
