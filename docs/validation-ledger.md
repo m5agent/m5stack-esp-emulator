@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 取帧准入和完整观察窗口
+
+[原版对照及审查摘要](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)绑定 CarPlay 1.0.0 与官方 UserDemo V0.4 的原 BIN、
+执行 Flash 和实际 DSI 配置。CarPlay 审核采样先记录连接中无完整帧，再在 60 秒观察内
+确认 12 次 PNG，最终 720×1280、48 色。启用共享缓存的请求返回 409，普通原生帧仍可读。
+UserDemo 未准入对照保留 `E_EVIDENCE_UNAVAILABLE` 和 60 秒串口观察。
+同一原版准入 DSI 后没有完整帧，60 秒长窗记录到一次 `CHIP_LP_WDT_RESET`。最终候选再次取得
+同一 ROM 复位记录并报告 `E_SIM_WATCHDOG_RESET`，保留 13 次已连接但无完整帧的采样。复位根因待确认。
+
 ## 2026-11-18 内部文件系统原始与停机清单
 
 [ADV 的 ESP-IDF 6.1.1 LittleFS 三会话](../tests/firmware/littlefs_partition/source-inventory-summary.json)通过真实 VFS

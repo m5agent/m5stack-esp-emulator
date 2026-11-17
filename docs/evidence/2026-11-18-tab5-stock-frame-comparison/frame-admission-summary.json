@@ -1,0 +1,632 @@
+{
+  "validation": "virtual-device validation",
+  "official_userdemo_direct": {
+    "validation": "virtual-device validation",
+    "status": "PARTIAL",
+    "scope": "Official M5Stack M5Tab5 UserDemo V0.4 normal no-ELF startup and native DSI capture admission",
+    "image_structure": {
+      "chip": "ESP32-P4",
+      "esp_image_chip_id": 18,
+      "bootloader_offset": 8192,
+      "partition_table_offset": 32768,
+      "selected_application": "factory",
+      "application_offset": 65536,
+      "application_partition_bytes": 10485760,
+      "guest_reported_chip_revision": "v1.0",
+      "guest_reported_supported_chip_revision_range": [
+        "v0.1",
+        "v1.99"
+      ]
+    },
+    "allowlisted_case": {
+      "validation": "virtual-device validation",
+      "device": "Tab5",
+      "vendor_release": "https://github.com/m5stack/M5Tab5-UserDemo/releases/tag/V0.4",
+      "official_release_commit": "68b19d37fbf9cefd5f256992f5dca34794c62ab4",
+      "source_commit": "b75853e39afc82b28594b43ce6ffe177de178055",
+      "runtime_frozen_release_commit": "c8a40dee575b944195ed52c7f8dfb8a16a51a8cf",
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_bytes": 5813840,
+      "expected_padded_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "mode": "allowlisted",
+      "native_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "p4_rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "hosted_c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "gt911_part_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "input": "none",
+      "external_network": "NOT REQUESTED",
+      "browser": "NOT RUN",
+      "physical": "NOT RUN",
+      "burner": "NOT SUBMITTED",
+      "samples": [
+        {
+          "seconds": 0.0,
+          "state": "flashing",
+          "frame_error": "session_not_running"
+        },
+        {
+          "seconds": 2.011,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 4.014,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 6.023,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 8.035,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 10.044,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 12.048,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 14.06,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 16.072,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 18.085,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 20.093,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 22.105,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 24.116,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 26.127,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 28.134,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 30.143,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 32.153,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "seconds": 34.164,
+          "state": "running",
+          "frame_error": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        }
+      ],
+      "padded_sha256_matches_readback": true,
+      "identity": {
+        "application": {
+          "offset": 65536,
+          "size": 10485760,
+          "segments_end": 5813800,
+          "partition_sha256": "a0ba607ec4bafaaeda01eb90858a0550c289b578e774f3055b5815ffa37ae28d",
+          "segments_sha256": "a8e6963b93ccdfa3bd7914af81a96773a9d1731969e28548b379081889f5a160",
+          "elf_sha256": "741b626b3374d0bb7cc5b9afbc8c0530e2837bd34baed4aca5cb674ef90fec46",
+          "version": "V0.3-1-g4b57c62"
+        },
+        "elf_sha256": null,
+        "symbols_status": "unavailable",
+        "frame_capture_admission": "native_dsi",
+        "frame_capture": "esp-emu-dsi",
+        "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+        "panel_board": "gt911-ili9881c",
+        "input_firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+        "execution_firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+        "application_bytes_unchanged": true,
+        "efuse_input_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e"
+      },
+      "serial_sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+      "serial_bytes": 4274,
+      "boot_banners": 1,
+      "sw_resets": 0,
+      "panic_markers": [],
+      "native_frame_count": 0,
+      "frame_error_counts": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 17
+      },
+      "unique_accepted_frames": 0,
+      "evidence_zip_sha256": "7f109c8c40909f0db909db8b1184f5e671c0810b38a7524a7374e5a1edecf167",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0,
+        "original_unchanged": true
+      },
+      "owned_service_exited": true,
+      "serial_markers": [
+        "ESP-IDF v5.4.2 2nd stage bootloader",
+        "chip revision: v1.0",
+        "Loaded app from partition at offset 0x10000",
+        "Project name:     m5stack_tab5",
+        "App version:      V0.3-1-g4b57c62",
+        "Reserving pool of 32K of internal memory for DMA/internal allocations"
+      ],
+      "measured_sample_end_seconds": 34.164
+    },
+    "unlisted_same_firmware_control": {
+      "validation": "virtual-device validation",
+      "device": "Tab5",
+      "vendor_release": "https://github.com/m5stack/M5Tab5-UserDemo/releases/tag/V0.4",
+      "official_release_commit": "68b19d37fbf9cefd5f256992f5dca34794c62ab4",
+      "source_commit": "b75853e39afc82b28594b43ce6ffe177de178055",
+      "runtime_frozen_release_commit": "c8a40dee575b944195ed52c7f8dfb8a16a51a8cf",
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_bytes": 5813840,
+      "expected_padded_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "mode": "unlisted",
+      "native_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "p4_rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+      "hosted_c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+      "gt911_part_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "input": "none",
+      "external_network": "NOT REQUESTED",
+      "browser": "NOT RUN",
+      "physical": "NOT RUN",
+      "burner": "NOT SUBMITTED",
+      "samples": [
+        {
+          "seconds": 0.0,
+          "state": "flashing",
+          "frame_error": "session_not_running"
+        },
+        {
+          "seconds": 2.012,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 4.02,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 6.03,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 8.042,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 10.048,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 12.059,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        },
+        {
+          "seconds": 14.061,
+          "state": "running",
+          "frame_error": "screenshot_requires_matching_elf",
+          "capture_admission": "native_dsi_firmware_not_admitted"
+        }
+      ],
+      "padded_sha256_matches_readback": true,
+      "identity": {
+        "application": {
+          "offset": 65536,
+          "size": 10485760,
+          "segments_end": 5813800,
+          "partition_sha256": "a0ba607ec4bafaaeda01eb90858a0550c289b578e774f3055b5815ffa37ae28d",
+          "segments_sha256": "a8e6963b93ccdfa3bd7914af81a96773a9d1731969e28548b379081889f5a160",
+          "elf_sha256": "741b626b3374d0bb7cc5b9afbc8c0530e2837bd34baed4aca5cb674ef90fec46",
+          "version": "V0.3-1-g4b57c62"
+        },
+        "elf_sha256": null,
+        "symbols_status": "unavailable",
+        "frame_capture_admission": "native_dsi_firmware_not_admitted",
+        "input_firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+        "execution_firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+        "application_bytes_unchanged": true,
+        "efuse_input_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e"
+      },
+      "serial_sha256": "27f7193050937c017454f738e6249b1749ba06402f32f3a814a3bcbfe390edec",
+      "serial_bytes": 4274,
+      "boot_banners": 1,
+      "sw_resets": 0,
+      "panic_markers": [],
+      "native_frame_count": 0,
+      "frame_error_counts": {
+        "session_not_running": 1,
+        "screenshot_requires_matching_elf": 7
+      },
+      "unique_accepted_frames": 0,
+      "evidence_zip_sha256": "67236ae4fc750637ec1bff403989f351cf39405d65a460836e737d4b5e4567eb",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0,
+        "original_unchanged": true
+      },
+      "owned_service_exited": true,
+      "serial_markers": [
+        "ESP-IDF v5.4.2 2nd stage bootloader",
+        "chip revision: v1.0",
+        "Loaded app from partition at offset 0x10000",
+        "Project name:     m5stack_tab5",
+        "App version:      V0.3-1-g4b57c62",
+        "Reserving pool of 32K of internal memory for DMA/internal allocations"
+      ],
+      "measured_sample_end_seconds": 14.061
+    },
+    "summary": "The admitted official image booted a factory app once without a visible reset or panic. The DSI receiver connected but produced no complete frame in the observed window. The unlisted copy remained on symbol-only capture with the explicit firmware-not-admitted reason. No cause of the missing frame is assigned.",
+    "prior_attempts": [
+      {
+        "scope": "Initial frozen c8 allowlisted observation",
+        "status": "PARTIAL",
+        "note": "Same no-frame observation. Corrected the offline bundle check to use normalized image identity; raw upload identity was independently verified."
+      },
+      {
+        "scope": "First requested b758 pair",
+        "status": "HARNESS_SOURCE_MISMATCH",
+        "note": "The launched script still pointed to the frozen c8 tree. Those two runs are excluded from b758 admission validation and were cleaned before the corrected runs."
+      }
+    ]
+  },
+  "cases": {
+    "carplay_native_startup": {
+      "validation": "virtual-device validation",
+      "emulator_source": "b75853e39afc82b28594b43ce6ffe177de178055",
+      "mode": "admitted",
+      "source_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "normalized_flash_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "entry": "device_service",
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "burner": "NOT SUBMITTED",
+      "frame_errors": [
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        }
+      ],
+      "startup_wait_seconds": 1.336,
+      "admission": "native_dsi",
+      "panel_board": "gt911-ili9881c",
+      "frame": {
+        "sha256": "a838944d29d24338f5198bfd058c50542ac66255ea60146699cf5c6602216551",
+        "size": [
+          720,
+          1280
+        ],
+        "colors": 2,
+        "nonblack": 792000
+      },
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "serial_bytes": 4151,
+      "zip_sha256": "6a201d5478d9ce34e33a6015c6203f36f75cdf108472f67a09564779d53907fc",
+      "released": true,
+      "services_exited": true
+    },
+    "carplay_reviewer_observation": {
+      "validation": "virtual-device validation",
+      "emulator_source": "b75853e39afc82b28594b43ce6ffe177de178055",
+      "mode": "admitted",
+      "source_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "normalized_flash_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "entry": "reviewer_observation",
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "burner": "NOT SUBMITTED",
+      "reviewer_source": "99d504439b2aa945e757123651bbb40037cbb229",
+      "observation": {
+        "status": "PASS",
+        "scope": "running_virtual_device",
+        "required_seconds": 60,
+        "elapsed_seconds": 60.01239804108627,
+        "tab5_dsi_capture": {
+          "backend": "esp-emu-dsi",
+          "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+          "firmware_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+          "admission": "native_dsi",
+          "capture_status_counts": {
+            "connected": 1
+          },
+          "outcome": "frame_observed",
+          "reason": "native_dsi_frame_observed"
+        },
+        "final_session_state": "running",
+        "serial_next_offset": 4151,
+        "frame_scope": "framebuffer"
+      },
+      "frame_sample_count": 12,
+      "admission": "native_dsi",
+      "panel_board": "gt911-ili9881c",
+      "frame": {
+        "sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+        "size": [
+          720,
+          1280
+        ],
+        "colors": 48,
+        "nonblack": 921600
+      },
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "serial_bytes": 4151,
+      "zip_sha256": "3c2f7cac97158ded45d8c47ad9d13b119cf7d4068ad19e5218cb1555471881f0",
+      "released": true,
+      "services_exited": true
+    },
+    "carplay_fresh_capture": {
+      "validation": "virtual-device validation",
+      "emulator_source": "c6a5ab02da5928f396aa716c1bb385e5de355d4d",
+      "mode": "admitted",
+      "source_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "normalized_flash_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "entry": "device_service",
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "burner": "NOT SUBMITTED",
+      "frame_errors": [
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        },
+        {
+          "code": "tab5_dsi_frame_unavailable",
+          "capture_status": "connected"
+        }
+      ],
+      "startup_wait_seconds": 1.335,
+      "cached_capture_admission": "frame_preview_not_available",
+      "fresh_capture_after_rejection": true,
+      "admission": "native_dsi",
+      "panel_board": "gt911-ili9881c",
+      "frame": {
+        "sha256": "a838944d29d24338f5198bfd058c50542ac66255ea60146699cf5c6602216551",
+        "size": [
+          720,
+          1280
+        ],
+        "colors": 2,
+        "nonblack": 792000
+      },
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "serial_bytes": 4151,
+      "zip_sha256": "ee12f0b1c19ce49c1aa029151106e5c8f5c71aa210bdb79ada6bb1421cb61099",
+      "released": true,
+      "services_exited": true
+    },
+    "userdemo_reviewer_unlisted": {
+      "validation": "virtual-device validation",
+      "emulator_source": "c6a5ab02da5928f396aa716c1bb385e5de355d4d",
+      "mode": "userdemo-unlisted",
+      "source_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_flash_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "entry": "saved_snapshot_reviewer",
+      "runtime_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+      "burner": "NOT SUBMITTED",
+      "reviewer_source": "99d504439b2aa945e757123651bbb40037cbb229",
+      "review_error": "E_EVIDENCE_UNAVAILABLE",
+      "review_lane": "SIM_PARTIAL",
+      "observation": {
+        "status": "PASS",
+        "scope": "running_virtual_device",
+        "required_seconds": 60,
+        "elapsed_seconds": 60.00228595780209,
+        "frame_unavailable_reason": "screenshot_requires_matching_elf",
+        "frame_capture_admission": "native_dsi_firmware_not_admitted",
+        "final_session_state": "running",
+        "serial_next_offset": 5768,
+        "frame_scope": "serial_only",
+        "input_probe_timing": "not_run",
+        "source_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781"
+      },
+      "frame_sample_count": 0,
+      "admission": "native_dsi_firmware_not_admitted",
+      "panel_board": null,
+      "serial_sha256": "dd8282e0bda9e1138cf61b51914c57498d6dcfd88a1160b4fe91d7ddf3992a71",
+      "serial_bytes": 6143,
+      "zip_sha256": "fc67d26d8f78a1d7a01169ca4b3c91e456cb655f0bb626eba540d9b4e971b8a3",
+      "released": true,
+      "services_exited": true
+    },
+    "userdemo_reviewer_initial_frame_result": {
+      "validation": "virtual-device validation",
+      "emulator_source": "b75853e39afc82b28594b43ce6ffe177de178055",
+      "reviewer_source": "99d504439b2aa945e757123651bbb40037cbb229",
+      "entry": "saved_snapshot_reviewer",
+      "source_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_flash_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "serial_sha256": "13dffe4299b489a81592b1b75d34ddc9b358d8f03c361261ff36d45d72620651",
+      "zip_sha256": "b7dc3a0a57b48f23a1460f3f19396e66196dcc7d95fdef6eae29e1d13a3ee4a6",
+      "released": true,
+      "services_exited": true,
+      "burner": "NOT SUBMITTED",
+      "vendor_release": "https://github.com/m5stack/M5Tab5-UserDemo/releases/tag/V0.4",
+      "device": "Tab5",
+      "api_runtime": "qemu",
+      "target_display_scope": "PARTIAL",
+      "observation_status": "PASS",
+      "required_seconds": 60,
+      "elapsed_seconds": 60.008299459004775,
+      "review_lane": "SIM_PARTIAL",
+      "reviewer_error": "E_TAB5_DSI_FRAME_UNAVAILABLE",
+      "native_capture": {
+        "backend": "esp-emu-dsi",
+        "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+        "firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+        "admission": "native_dsi",
+        "capture_status_counts": {
+          "connected": 13
+        },
+        "outcome": "frame_unavailable",
+        "capture_status": "connected",
+        "reason": "native_dsi_connected_no_complete_frame"
+      },
+      "native_frame_samples": 0,
+      "uart_boot_banners": 2,
+      "watchdog_reset": {
+        "count": 1,
+        "marker": "CHIP_LP_WDT_RESET",
+        "code": "0x10",
+        "first_seen_between_samples_seconds": [
+          40.05869183386676,
+          45.066911208909005
+        ]
+      },
+      "note": "A real guest reset appeared during the full observation. This Reviewer revision kept the DSI no-frame disposition despite that stronger serial signal. The source of the guest reset and absence of an application frame remain unverified.",
+      "earlier_runs": [
+        "First review failed before guest launch because the harness used the wrong local saved metadata field.",
+        "Second review ran the unchanged guest, but the previous Reviewer rejected the actual Tab5 public runtime label qemu and ended at 0.0 seconds."
+      ]
+    },
+    "userdemo_reviewer_watchdog": {
+      "validation": "virtual-device validation",
+      "emulator_source": "c6a5ab02da5928f396aa716c1bb385e5de355d4d",
+      "mode": "userdemo",
+      "source_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_flash_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "entry": "saved_snapshot_reviewer",
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "burner": "NOT SUBMITTED",
+      "reviewer_source": "5807a7890aca0a6a0cdb2dcc399e96599114786a",
+      "review_error": "E_SIM_WATCHDOG_RESET",
+      "review_lane": "SIM_PARTIAL",
+      "observation": {
+        "status": "PASS",
+        "scope": "running_virtual_device",
+        "required_seconds": 60,
+        "elapsed_seconds": 60.010267541976646,
+        "tab5_dsi_capture": {
+          "backend": "esp-emu-dsi",
+          "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+          "firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+          "admission": "native_dsi",
+          "capture_status_counts": {
+            "connected": 13
+          },
+          "outcome": "frame_unavailable",
+          "capture_status": "connected",
+          "reason": "native_dsi_connected_no_complete_frame"
+        },
+        "frame_unavailable_reason": "tab5_dsi_frame_unavailable",
+        "final_session_state": "running",
+        "serial_next_offset": 8606,
+        "frame_scope": "serial_only",
+        "input_probe_timing": "not_run",
+        "source_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781"
+      },
+      "frame_sample_count": 0,
+      "admission": "native_dsi",
+      "panel_board": "gt911-ili9881c",
+      "serial_sha256": "13dffe4299b489a81592b1b75d34ddc9b358d8f03c361261ff36d45d72620651",
+      "serial_bytes": 8606,
+      "zip_sha256": "07dbb7365b2c4524729fa3fd967db1447be8ecb4f98d15da6c1bf8ea026fb7f6",
+      "released": true,
+      "services_exited": true,
+      "failure_attribution": {
+        "category": "guest_failure_observed",
+        "firmware_conclusion": "UNRESOLVED",
+        "guest": {
+          "same_session": true,
+          "firmware_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+          "kind": "watchdog_reset",
+          "evidence_file": "crash-diagnostics.json",
+          "tab5_watchdog_reset": {
+            "code": "0x10",
+            "reason": "CHIP_LP_WDT_RESET",
+            "rom_banners": 2,
+            "source": {
+              "offset": 0,
+              "bytes": 8606,
+              "sha256": "13dffe4299b489a81592b1b75d34ddc9b358d8f03c361261ff36d45d72620651"
+            }
+          }
+        }
+      }
+    }
+  }
+}

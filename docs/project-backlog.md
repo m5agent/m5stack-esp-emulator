@@ -76,6 +76,9 @@
 4. **P0 Tab5 取帧与输入**。[Arduventure 原版取帧与 GT911 单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)已走匹配板型和实际输入。[ST7123 单点](evidence/2026-11-17-tab5-st7123-touch/README.md)已验证 Arduventure A/B 与四方向。继续对照 M5TabOS/98TAB5 启动路径，[ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已验证连续触点和原版关机请求；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已验证 ST7123 单点轨迹与释放；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已验证原版 Arduventure 关机和显式重启；继续补原版 ST7123 拖动语义、多点、其他板型电源路径、
    [并发取帧复验](evidence/2026-11-17-tab5-power-latch/README.md)已验证缓冲读取和同一帧 PNG 复用。
    [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)保留旧版无 ELF 取帧限制、新版 DSI 重复复位和 CarPlay 出帧对照。已核对单 OTA0 的 Flash 身份与实际加载偏移。继续定位 98TAB5 软件复位，验证正常显示及多应用 OTA 数据。
+   [取帧准入与 60 秒审核复验](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)已验证 CarPlay 在首帧等待后持续出帧，
+   官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
+   继续定位 UserDemo 原版长期观察中的 `CHIP_LP_WDT_RESET` 与缺帧。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
