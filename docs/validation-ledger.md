@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Core2 FreeRTOS 任务详情
+
+[同会话 API 与 ZIP](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)
+在 XTENSA `528ab418…` 的两次原生 Core2 会话确认精确匹配 ELF 的任务详情。
+abort 与中断 watchdog 分别有 6、5 个完整任务。两次崩溃任务均为
+`fixture_fault`，优先级当前值和基础值均为 2。按保存的任务栈指针计算，
+已用 1,696 字节、空闲 2,396 字节。两轮全部任务字段与独立离线工具一致。
+错误 ELF 与缺少解析依赖时保留原 PC/SP。停止和服务重启后仍可读。
+
 ## 2026-11-17 Cardputer SPI 空闲接收
 
 [原生 Cardputer 复验](../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)用同一

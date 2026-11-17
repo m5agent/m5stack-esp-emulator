@@ -4,11 +4,16 @@ import base64
 import hashlib
 from pathlib import Path
 import struct
+import sys
+import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 import zlib
 
 from decode_esp32_coredump import task_summary, uart_dump, validate_dump
 from device_service_crash import crash_console_observations, serial_crash_observations
+from esp32_freertos_task_details import annotate_core2_tasks
 from esp32_uart_coredump import (
     ESP32C6_CHIP_ID, ESP32C6_ELF_CRC32, ESP32C6_ELF_SHA256, ESP32_ELF_CRC32,
     decode_task_contexts,
@@ -21,14 +26,22 @@ def make_note(name, kind, description):
     return struct.pack("<3I", len(name), len(description), kind) + padded_name + padded_description
 
 
-def make_dump(notes, *, version=ESP32_ELF_CRC32, machine=94):
+def make_dump(notes, *, version=ESP32_ELF_CRC32, machine=94, loads=()):
     elf = bytearray(52)
     elf[:7] = b"\x7fELF\x01\x01\x01"
     struct.pack_into("<HH", elf, 16, 4, machine)  # ET_CORE
     struct.pack_into("<I", elf, 28, 52)
-    struct.pack_into("<HH", elf, 42, 32, 1)
-    elf.extend(struct.pack("<8I", 4, 84, 0, 0, len(notes), 0, 0, 0))
+    headers = 1 + len(loads)
+    struct.pack_into("<HH", elf, 42, 32, headers)
+    offset = 52 + headers * 32
+    elf.extend(struct.pack("<8I", 4, offset, 0, 0, len(notes), 0, 0, 0))
+    offset += len(notes)
+    for address, data in loads:
+        elf.extend(struct.pack("<8I", 1, offset, address, address, len(data), len(data), 0, 0))
+        offset += len(data)
     elf.extend(notes)
+    for _, data in loads:
+        elf.extend(data)
     trailer_size = 32 if version == ESP32C6_ELF_SHA256 else 4
     data = struct.pack("<6I", 24 + len(elf) + trailer_size, version, 0, 0, 0, 0) + elf
     trailer = hashlib.sha256(data).digest() if trailer_size == 32 else struct.pack("<I", zlib.crc32(data))
@@ -162,6 +175,64 @@ class OfflineCoreDumpTests(unittest.TestCase):
             "status": "uart_reported_complete",
             "decoding": {"status": "unavailable", "reason": "unsupported_or_invalid_dump"},
         })
+
+    def test_metadata_uses_one_exact_tcb_load_and_retains_saved_registers(self):
+        tcb = 0x3ffabc40
+        notes = make_app_note() + make_task_note(tcb, 0x400d7d19, 0x3ffb67d0) + make_extra_note(tcb)
+        fields = {
+            b"pxTopOfStack": (0, 4), b"uxPriority": (4, 4), b"uxBasePriority": (8, 4),
+            b"pxStack": (12, 4), b"pxEndOfStack": (16, 4), b"pcTaskName": (20, 16),
+        }
+        prefix = struct.pack("<5I", 0x3ffb6730, 4, 2, 0x3ffb6500, 0x3ffb6f00)
+        tcb_bytes = prefix + b"benign_task\0".ljust(16, b"\0")
+        for loads, available in (
+            ([(tcb, tcb_bytes)], True),
+            ([(tcb, tcb_bytes[:-1])], False),
+            ([(tcb, tcb_bytes), (tcb + 4, b"X" * 16)], False),
+            ([(tcb, prefix + b"A" * 16)], False),
+        ):
+            with self.subTest(available=available, load_sizes=[len(data) for _, data in loads]):
+                core = []
+                decoded = decode_task_contexts(
+                    make_dump(notes, loads=loads), "1916d0ba", capture_core=core.append,
+                )
+                task, = decoded["tasks"]
+                before = dict(task)
+                mock_module = SimpleNamespace(ELFFile=object())
+                with patch.dict(sys.modules, {"elftools.elf.elffile": mock_module}), patch(
+                    "esp32_freertos_task_details._read_layout", return_value=(36, fields),
+                ):
+                    annotate_core2_tasks(decoded, core[0], Path("test.elf"))
+                if available:
+                    self.assertEqual(decoded["task_metadata"]["status"], "decoded")
+                    self.assertEqual(task.pop("metadata"), {
+                        "name": "benign_task", "priority": 4, "base_priority": 2,
+                        "stack": {"source": "tcb_saved_stack_bounds", "used_bytes": 2000, "free_bytes": 560},
+                    })
+                else:
+                    self.assertEqual(decoded["task_metadata"], {
+                        "status": "unavailable", "reason": "task_memory_unavailable",
+                    })
+                self.assertEqual(task, before)
+
+    def test_same_core_capture_is_available_for_http_and_zip_console_sources(self):
+        tcb = 0x3ffabc40
+        notes = make_app_note() + make_task_note(tcb, 0x400d7d19, 0x3ffb67d0) + make_extra_note(tcb)
+        dump = make_dump(notes)
+        serial = (b"abort() was called at PC 0x400d7d19 on core 1\n"
+                  b"ELF file SHA256: 1916d0ba\n===== CORE DUMP START =====\n")
+        serial += b"".join(base64.b64encode(dump[i:i + 48]) + b"\n" for i in range(0, len(dump), 48))
+        serial += b"===== CORE DUMP END =====\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "serial.log"
+            log.write_bytes(serial)
+            from_log, from_zip = [], []
+            self.assertEqual(
+                crash_console_observations(log, "", core_dump_chip_id=0, capture_task_core=from_log.append),
+                crash_console_observations(log, "", serial, core_dump_chip_id=0, capture_task_core=from_zip.append),
+            )
+        self.assertEqual(from_log, [dump[24:-4]])
+        self.assertEqual(from_log, from_zip)
 
     def test_report_keeps_metrics_and_rejects_incomplete_or_repeated_rows(self):
         heading = (

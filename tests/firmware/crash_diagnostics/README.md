@@ -57,7 +57,16 @@ usage and the crashed task. Keep it local if task names contain private data.
 
 [Watchdog and abort results](offline-task-summary.json) cover Core2 native QEMU
 with ESP-IDF 5.5.4 and the ELF CRC32 UART format `0x0102`. Task names, priorities and stack usage are reported by the offline tool.
-The HTTP receipt reports saved task contexts for this same UART format.
+With the optional `pyelftools` package in the service Python bundle, the
+same exact application ELF can also qualify task details in the HTTP and
+ZIP receipts. [Bounded API and ZIP results](session-task-metadata-summary.json)
+include the exact application artifacts and the offline comparison. For the two fixed probes, the crashed task is
+`fixture_fault`, both priorities are 2, and the saved TCB stack reports
+1,696 bytes used and 2,396 bytes free. These values come from the saved
+pointers and do not measure the minimum remaining stack over time.
+Requests without an ELF or with the swapped ELF still get the same saved
+PC and SP. A matching ELF with the parser package absent retains the PC/SP
+and function symbols and returns `pyelftools_unavailable`.
 
 ## Live Xtensa CPU PC sample
 

@@ -6,7 +6,7 @@ import hashlib
 import re
 import struct
 import zlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
 from xtensa_elf_symbols import EM_RISCV, EM_XTENSA
@@ -68,7 +68,7 @@ def _verify_riscv_sha256(dump: bytes) -> tuple[str, bytes]:
     return checksum.hex(), bytes(payload[24:])
 
 
-def core_notes(elf: bytes, *, machine: int = EM_XTENSA) -> Iterator[tuple[tuple[bytes, int], bytes]]:
+def _core_segments(elf: bytes, machine: int) -> list[tuple[int, int, int, int, int]]:
     if (len(elf) < 52 or elf[:7] != b"\x7fELF\x01\x01\x01"
             or struct.unpack_from("<HH", elf, 16) != (4, machine)):
         raise ValueError("dump does not contain a matching ELF32 core file")
@@ -79,16 +79,31 @@ def core_notes(elf: bytes, *, machine: int = EM_XTENSA) -> Iterator[tuple[tuple[
         raise ValueError("invalid ELF program header table")
     segments = []
     for index in range(count):
-        kind, offset, _, _, size = struct.unpack_from("<5I", elf, table_offset + index * entry_size)
+        kind, offset, addr, _, size, memory_size = struct.unpack_from("<6I", elf, table_offset + index * entry_size)
         if offset + size > len(elf) or (size and offset < table_end):
             raise ValueError("invalid ELF segment extent")
         if size:
-            segments.append((offset, offset + size, kind))
+            segments.append((offset, offset + size, kind, addr, memory_size))
     previous_end = table_end
-    for offset, stop, kind in sorted(segments):
+    for offset, stop, _, _, _ in sorted(segments):
         if offset < previous_end:
             raise ValueError("overlapping ELF segments")
         previous_end = stop
+
+    return segments
+
+
+def core_loads(elf: bytes, *, machine: int) -> Iterator[tuple[int, int, memoryview]]:
+    """Read only file-backed PT_LOAD program segments from the checked core."""
+    for offset, stop, kind, address, size in _core_segments(elf, machine):
+        if kind == 1:  # PT_LOAD
+            if not address or size < stop - offset or address + size > 1 << 32:
+                raise ValueError("invalid ELF load address range")
+            yield address, size, memoryview(elf)[offset:stop]
+
+
+def core_notes(elf: bytes, *, machine: int = EM_XTENSA) -> Iterator[tuple[tuple[bytes, int], bytes]]:
+    for offset, stop, kind, _, _ in sorted(_core_segments(elf, machine)):
         if kind != 4:  # PT_NOTE
             continue
         while offset < stop:
@@ -148,7 +163,10 @@ def task_contexts(
     return None if crashed_tcb == CRASHED_TASK_SKIPPED else crashed_tcb, tasks
 
 
-def decode_task_contexts(dump: bytes, panic_prefix: str, *, chip_id: int = ESP32_CHIP_ID) -> dict:
+def decode_task_contexts(
+    dump: bytes, panic_prefix: str, *, chip_id: int = ESP32_CHIP_ID,
+    capture_core: Callable[[bytes], None] | None = None,
+) -> dict:
     if chip_id not in TASK_LAYOUTS or len(dump) < 8:
         raise ValueError("unsupported or incomplete core dump")
     layout = TASK_LAYOUTS[chip_id]
@@ -165,6 +183,8 @@ def decode_task_contexts(dump: bytes, panic_prefix: str, *, chip_id: int = ESP32
     if not (digest.startswith(panic_prefix) or panic_prefix.startswith(digest)):
         raise ValueError("UART dump ELF note differs from the panic ELF prefix")
     crashed_tcb, tasks = task_contexts(notes, layout)
+    if capture_core is not None:
+        capture_core(elf)
     return {
         "status": "decoded",
         **checksum_fields,
