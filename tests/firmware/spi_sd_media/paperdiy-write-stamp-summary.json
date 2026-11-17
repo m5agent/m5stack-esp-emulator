@@ -90,5 +90,13 @@
   "same_process": true,
   "worker_leases_after_stop": 0,
   "isolated_services_exited": true,
-  "scope": "Exact ESP-IDF probe and FAT32 seed. Browser WASM, physical insertion/electrical behavior, arbitrary PaperDIY application and reviewer job were not run."
+  "scope": "Exact ESP-IDF probe and FAT32 seed. Browser WASM, physical insertion/electrical behavior, arbitrary PaperDIY application and reviewer job were not run.",
+  "worker_generation_rerun": {
+    "device_service_source_commit": "167a462dd81ffd62f4b8dbe14d626f4fce18662e",
+    "native_bundle_commit": "63472ab884dc2968904999c75eb6aca91c3f2517",
+    "xtensa_qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+    "evidence_zip_sha256": "6b8a95972b23489c44f513dd898002098dcbd40d8b6fe9a93d7f98a1d512a5b6",
+    "same_firmware_and_sd_results": true,
+    "worker_replacement_identity_unit_control": true
+  }
 }
