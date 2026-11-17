@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.69.0` and bounded
+Status: local MVP with unified-device runtime contract `1.70.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -133,6 +133,7 @@ override the optional `"*"` fallback. The supported operations are:
 - `input.write`
 - `guest.reset`
 - `network.softap.probe`
+- `network.sta.time.probe`
 - `program.read`
 - `program.execute`
 - `program.interrupt`
@@ -1886,6 +1887,18 @@ active-low press. BtnB is observed on GPIO12 and leaves provisioning idle.
 The peer has a 25-second DHCP discovery budget after session launch or reset.
 This profile exercises a fixed provisioning fixture with no cloud credentials
 or public target.
+
+Cardputer ADV can use `runtime=qemu-wifi` with
+`network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins
+the open `fixturetest` AP and receives DHCP, DNS and SNTP through one
+session-owned Unix socketpair. Only the fixed time-service names resolve.
+The fixture has no host IP backend. A configured runtime ACL must grant
+`network.sta.time.probe`. Set `withhold_ntp:true` for a control that keeps
+DHCP and DNS active while withholding the time response. Packet capture is
+mandatory and caller-supplied identity, paths and destinations are outside
+this profile's contract. The `sta_time_fixture` network receipt covers
+peer observations. Use the original guest's serial markers to prove it
+accepted the time.
 
 Classic ESP32 boards other than Core2 also accept
 `runtime=qemu-wifi, network.profile=generic-observe`, with the board's native

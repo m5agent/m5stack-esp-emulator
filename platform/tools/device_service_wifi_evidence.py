@@ -6,6 +6,7 @@ from ipaddress import IPv4Address
 from typing import TYPE_CHECKING
 
 from device_service_parsing import is_sha256
+from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
 
 if TYPE_CHECKING:
     from device_service_specs import DeviceSpec
@@ -26,11 +27,17 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
         or spec.backend != "qemu-esp32s3"
     ):
         return {}
-    return {"sta": {
+    capability = {"sta": {
         "runtime": "qemu-wifi",
         "profile": "generic-observe",
         "operation_assertions": False,
     }}
+    if spec.id == STA_TIME_DEVICE:
+        capability["sta_time_fixture"] = {
+            "runtime": "qemu-wifi", "profile": STA_TIME_PROFILE,
+            "host_ip_backends": 0, "scope": "local-dns-and-sntp",
+        }
+    return capability
 
 
 def _ipv4(value: object) -> IPv4Address | None:

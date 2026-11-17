@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.69.0
+  version: 1.70.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3670,6 +3670,16 @@ components:
             operation_assertions:
               const: false
               description: Application-operation assertions are unavailable in this passive transport path.
+        sta_time_fixture:
+          type: object
+          additionalProperties: false
+          required: [runtime, profile, host_ip_backends, scope]
+          description: Offline DNS and SNTP fixture registered for native Cardputer ADV.
+          properties:
+            runtime: {const: qemu-wifi}
+            profile: {const: cardputer-adv-local-time-fixture}
+            host_ip_backends: {const: 0}
+            scope: {const: local-dns-and-sntp}
     NativeStaDataPlane:
       type: object
       additionalProperties: false
@@ -3774,6 +3784,20 @@ components:
         native_data_plane:
           $ref: "#/components/schemas/NativeStaDataPlane"
           description: Optional passive transport receipt for qemu-wifi sessions.
+        sta_time_fixture:
+          type: object
+          required: [status]
+          description: Bounded offline station fixture receipt for the current reset generation.
+          properties:
+            status:
+              enum: [NOT_RUN, RUNNING, REPLIED, INTERRUPTED, PARTIAL]
+            dhcp: {type: boolean}
+            released: {type: boolean}
+            dns_a_replies: {type: integer, minimum: 0}
+            ntp_replies: {type: integer, minimum: 0}
+            last_ntp_response_sha256:
+              type: [string, "null"]
+              pattern: "^[a-f0-9]{64}$"
         softap_fixture:
           type: object
           description: Bounded open SoftAP peer receipt for the current reset generation.
@@ -5036,10 +5060,18 @@ components:
         optional field is capture_pcap=true. A configured runtime ACL must
         grant network.softap.probe. sticks3-open-softap-fixture uses the same
         transport and ACL for the StickS3 button-gated open fixture.
+        cardputer-adv-local-time-fixture requires runtime=qemu-wifi and a configured
+        ACL grant of network.sta.time.probe when ACL is enabled. It serves fixed DNS
+        and SNTP on one private Unix socketpair. It accepts only profile,
+        capture_pcap=true and the optional withhold_ntp negative control.
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, cardputer-adv-local-time-fixture]
+        withhold_ntp:
+          type: boolean
+          default: false
+          description: Negative control for cardputer-adv-local-time-fixture. DHCP and DNS still reply.
         wifi:
           type: boolean
         ble:

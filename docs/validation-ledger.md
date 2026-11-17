@@ -18,6 +18,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [ESP32-S3 IWDT 时序取证](../tests/firmware/crash_diagnostics/s3-iwdt-timing-summary.json) 用同一 Cardputer 原生 QEMU、同一 ESP-IDF CPU1 watchdog 探针验证开启和默认关闭。两次均出现 guest CPU1 watchdog。开启时只输出一条 TIMERGROUP1 stage-0 摘要，包含 SYSTIMER 两目标、各核确认及 CPU0 喂狗距到期的实测间隔。NC1020 原版未在此候选运行时上验证。
 
+[SkyCompass Satellite 3.6 原版 STA](../tests/network/native_sta_peers/original_skycompass/README.md)从 Cardputer ADV 的原版界面完成扫描和 DHCP，在专用 Unix Ethernet 对端接收 DNS 和固定 SNTP，来宾读回指定 UTC。保留 DHCP/DNS 并扣留 NTP 响应时，原版无成功同步；公开 HTTP 和实体网络未执行。
+
 [设备能力预检](../tests/uiflow2/api_sweep/device-capabilities-summary.json)核对正确 QEMU、缺失二进制、错误机器及不支持型号的独立返回。ADV 预检报告 SPI SD 接入后，同一个隔离服务使用原版 MP3 固件与同一张 FAT32 夹具验证了读卡、帧变化及输出 PCM。能力预检使用当时的模型登记。
 
 [Tab5 原版取帧与单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)在同一个隔离 worker 按规范化 Flash SHA 选择 ST7123 或 GT911。Arduventure 在实际 GPIO 软件 I²C 板型探测通过后输出含游戏启动画面的 720×1280 原始帧。GT911 探针读到六个有序触点、释放及实际 I²C 确认，CarPlay 空白拖动和弹窗单击分别验证。该轮 ST7123 只做到原版取帧。后续 [ST7123 单触点](evidence/2026-11-17-tab5-st7123-touch/README.md)经设备 I²C/IRQ 探针和原版 Arduventure A/B、四方向验收，同一 worker 复测原版 CarPlay。[ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md)以独立来宾证实单触点持续与释放，原版关机前的界面及实际 PI4IO 脉冲通过。终态断电部分验证。
