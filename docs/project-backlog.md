@@ -54,6 +54,8 @@
    [ADV 内部 LittleFS 原始与停机清单](../tests/firmware/littlefs_partition/source-inventory-summary.json)通过 6.1.1 夹具的
    停机读回、服务重启和新会话复用。[保存快照文件断言](../tests/firmware/littlefs_partition/reviewer-output-summary.json)
    已对 ADV LittleFS 和初代 Cardputer SPIFFS 核对清单差异与预期哈希。继续在更多原版应用上验证实际文件读写。
+   CardputerDict ADV 0.5.0 已具备原版读取与缺正文、无卡对照，继续扩展其他版本和设备。
+   [原生读取证据](evidence/2026-11-17-cardputerdict-stock/adv-0.5.0-summary.json)
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
    [审核复验](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)
    已对同一原版核验 G0 动作写入、指定文件和缺失文件对照。

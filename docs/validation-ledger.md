@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 CardputerDict ADV 0.5.0 原版词库读取
+
+独立的原生 Device Service 会话运行同一个原版 `21b7a88e…`。完整 FAT32 词库的
+查询画面显示 `zorbax` 和 `MINT CACHE 7319`。缺正文、无卡均未显示该释义。
+三个会话的 SPI CMD17 读取分别为 128、79、0，均与各自 ZIP 的控制器日志匹配。
+原版 Flash 字节保持一致，停止后释放 Flash 和租约。
+[原版、帧与会话证据](evidence/2026-11-17-cardputerdict-stock/adv-0.5.0-summary.json)
+
 ## 2026-11-18 Dial 原版旋钮交付和选曲对照
 
 [原版两次冷启动](evidence/2026-11-18-dial-fast-rotary/uninstrumented-original-summary.json)使用同一未修改 BIN

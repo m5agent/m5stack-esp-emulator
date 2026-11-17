@@ -1,0 +1,98 @@
+{
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "target": "Cardputer ADV",
+  "application": "CardputerDict ADV 0.5.0",
+  "original_sha256": "21b7a88e7e58f18674184a58193d30f2722ddd690b4803d9b403b63ec0796d14",
+  "original_bytes": 2141568,
+  "normalized_flash_sha256": "f517333f24bcce896ff9f2a0e783102000ccfae2d2da212fafbe4e9a45c6598c",
+  "normalization": "Exact original bytes with erased 0xff fill to 8 MiB",
+  "device_service_source": "929dbf749e4a8ecd6c469fce8aea44120febd03f",
+  "native_xtensa_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "cases": [
+    {
+      "mode": "positive",
+      "status": "PASS",
+      "sd_image_sha256": "8b6f3995b15074994bd5c8707ab047e3c66e2774bf3f716469ec03b3c52027ed",
+      "before_frame_pixels": 32400,
+      "before_frame_sha256": "072bc38ed96cc94624194947781d9700e6d77828c8ce76acbb62b806788ab95d",
+      "candidates_frame_sha256": "766c9e1ce475d2a79da68c208c263dba3d0ea31b879fd62a6b1ca9b86b0fc84d",
+      "after_frame_sha256": "d446a5e25e5c369a32c30824f3a42b3c0bcd1f9e1ef8518fa342fa7029ea4013",
+      "serial_sha256": "61089e1976dfc2594ae4435cb53e9e620c38a8b987b0e27cccda1c7b81fe48fe",
+      "ocr_excerpt_hash": "13253b1b7504b004f4e9f825371db0410330c4a43c060d6a32255aa7fa835cb0",
+      "headword_rendered_after_submit": true,
+      "unique_definition_rendered": true,
+      "spi_cmd17_count": 128,
+      "zip_sha256": "4e3e37fc861bdedd386052a1c5ea88233b70063985f1edd20e63bcd4f12e2708",
+      "owned_service_exited": true,
+      "storage_receipt": {
+        "sha256": "8b6f3995b15074994bd5c8707ab047e3c66e2774bf3f716469ec03b3c52027ed",
+        "bytes": 67108864,
+        "writable": true
+      },
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "cmd17_in_retained_zip": 128
+    },
+    {
+      "mode": "missing-body",
+      "status": "PASS",
+      "sd_image_sha256": "74aa2d618d8969a68ce5a91e67156bb0a3bc7a3d116f2f01720a4c9c8a4cfb5c",
+      "before_frame_pixels": 32400,
+      "before_frame_sha256": "1845985b229cc18e3a7891805c950e8df53b9c09857b4bd8dd6cece0f0ca6401",
+      "candidates_frame_sha256": "be714b09b50651b1c5ca5afb42248b38647721d1db1893a95aad1eaa9f4a224e",
+      "after_frame_sha256": "845f3c7d07c3fb5b020dc99b963f61b0cf3edc4f9b2e560aaa03b35fd3316955",
+      "serial_sha256": "ed68f645a6cf9873d3b7391178b9d58d4c3e1ea80a61bde52861d5860c5ebf52",
+      "ocr_excerpt_hash": "d8027e92daa3df3dad6a6630fd254a09369136b8b98c9ccc3b4a917fa3d05dbf",
+      "headword_rendered_after_submit": false,
+      "unique_definition_rendered": false,
+      "spi_cmd17_count": 79,
+      "zip_sha256": "e49a2f823ab83171c4f7193cd77526b6fa2c888b7acd05a8db7f5844a4a546ba",
+      "owned_service_exited": true,
+      "storage_receipt": {
+        "sha256": "74aa2d618d8969a68ce5a91e67156bb0a3bc7a3d116f2f01720a4c9c8a4cfb5c",
+        "bytes": 67108864,
+        "writable": true
+      },
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "cmd17_in_retained_zip": 79
+    },
+    {
+      "mode": "no-card",
+      "status": "PASS",
+      "before_frame_pixels": 32400,
+      "before_frame_sha256": "1845985b229cc18e3a7891805c950e8df53b9c09857b4bd8dd6cece0f0ca6401",
+      "candidates_frame_sha256": "be714b09b50651b1c5ca5afb42248b38647721d1db1893a95aad1eaa9f4a224e",
+      "after_frame_sha256": "845f3c7d07c3fb5b020dc99b963f61b0cf3edc4f9b2e560aaa03b35fd3316955",
+      "serial_sha256": "fb40e0386dbe4905810ff8edc9846b885ec36aa809c9621f4ac68b331b408edb",
+      "ocr_excerpt_hash": "d8027e92daa3df3dad6a6630fd254a09369136b8b98c9ccc3b4a917fa3d05dbf",
+      "headword_rendered_after_submit": false,
+      "unique_definition_rendered": false,
+      "spi_cmd17_count": 0,
+      "zip_sha256": "784e63dce56c6d2f1f1df5fbb1f4aea991f329b853d8281a2377b1cf9118d750",
+      "owned_service_exited": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      },
+      "cmd17_in_retained_zip": 0
+    }
+  ],
+  "seed": "Locally authored CC0 FAT32 StarDict, with either complete matching body or body omitted.",
+  "inputs": "Five Backspaces, z o r b a x, Enter. All Device Service key receipts used the virtual clock.",
+  "finding": "OCR found zorbax and MINT CACHE 7319 only with the full dictionary. Independent controller records confirm reads on both attached media and none without a card.",
+  "serial_scope": "Legacy 0.6.4 mount-message text was not present in 0.5.0; controller transactions and rendered evidence establish the lookup.",
+  "reviewer_saved_snapshot": "NOT RUN",
+  "physical": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED"
+}
