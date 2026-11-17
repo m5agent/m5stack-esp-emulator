@@ -1,5 +1,7 @@
 # 项目当前状态
 
+2026-11-18 [原生 Cardputer K132 ST7789 对照](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)验证了原版 NC1020 外部 SD 冷导入的完整自编画面、G0 保存和逐字节 ROM/NOR 读回，并复验三份未修改的原厂固件。首个心跳先于首次完整绘制。跨会话存档加载后的画面、浏览器 WASM 和物理设备需要独立验证。
+
 2026-11-18 [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)按目标档案检查结构有效的 ESP 分区和 bootloader 容量，在分配会话前解释尺寸冲突。原 16 MiB 镜像及 8 MiB 官方正对照已复验。
 
 2026-11-14 [UIFlow2 身份、WebREPL 心跳与条件取帧](evidence/2026-11-14-uiflow-cloud-identity/README.md)已区分身份拒绝、标准 PONG 超时和 COI Worker 重建 304 失败；平台身份持久化及条件取帧已修复并经原版固件验证。[能力协商与回执](evidence/2026-11-14-cloud-identity-capability/README.md)限制旧服务的身份选择，默认持久 key 与授权 MAC 均须通过实际回执校验。[最终 main 交付与后验](evidence/2026-11-14-native-identity-delivery/README.md)已验证指定工作台上的原版 CoreS3 UI、身份、取证和清理；配对码与未绑定状态分别显示。新身份仍须真实云端绑定，授权身份仍复现标准 PONG 超时，持续连接保持 FAIL，远程代码执行未验证。原生结果不授予 browser-WASM 联网能力，Pages 按独立发布证据验收。

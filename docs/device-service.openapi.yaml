@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.72.0
+  version: 1.73.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3910,6 +3910,9 @@ components:
             station_reconnect:
               type: boolean
               description: This reset generation exercises settings saved by the guest in the same session.
+            station_on_start:
+              type: boolean
+              description: Generation one sent a valid guest STA DISCOVER before giving a SoftAP lease, so only the station path was exercised.
             station_dhcp_xid:
               type: [string, "null"]
               pattern: "^[a-f0-9]{8}$"

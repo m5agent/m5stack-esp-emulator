@@ -45,12 +45,12 @@
    并保留显式高速输入。[0220](evidence/2026-11-18-dial-fast-rotary/README.md)修正原生期限精度。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
    的快速整周应用计数仍开放，验收时同时检查引脚相序和来宾计数。Arduino 原版的旋转、触摸与按钮
    分别取证，见[原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
-2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，复验原版 NC1020 的显示区域和稳定画面，扩展 CardputerDict 的版本与设备范围。
-   0221 修复 SPI2 LCD 与 SPI3 SD 的板级时钟归属，原版外部 SD 冷导入已读回全部 ROM/NOR。原版 NC1020 用内嵌 ROM/NOR 时已通过
-   [G0 存档与跨会话加载](../tests/firmware/spi_sd_media/nc1020-save-summary.json)。
-   StickS3/Dial 外接 SD 需要独立接线模型。
+2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，扩展 CardputerDict 的版本与设备范围。
+   原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
+   继续验证内嵌 ROM/NOR 的跨会话加载后画面及首次绘制时间的重复性。StickS3/Dial 外接 SD
+   需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、更多原版应用的
-   SoftAP 门户，以及 StickS3 原版在新会话复用已配网 Flash。
+   SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
    已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。开放式 ESP-IDF 夹具已通过
    [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)；

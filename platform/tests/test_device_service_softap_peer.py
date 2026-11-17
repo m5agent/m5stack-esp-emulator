@@ -143,6 +143,32 @@ class SoftAPPeerLifecycleTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             peer.start()
 
+    def test_initial_ap_discovery_defers_to_the_bound_guest_station_discover(self):
+        receipts = []
+        peer = PortalStationPeer("02:00:00:00:00:01", "02:00:00:00:00:02", receipts.append)
+        station = SoftAPPeer("02:00:00:00:00:02", receipts.append)
+        foreign = SoftAPPeer("02:00:00:00:00:03", receipts.append)
+        for item in (peer, station, foreign):
+            self.addCleanup(item.close)
+        frames = []
+        with patch.object(foreign, "_send", side_effect=frames.append):
+            foreign._dhcp_request(b"xid1", b"\x35\x01\x01")
+        with patch.object(station, "_send", side_effect=frames.append):
+            station._dhcp_request(b"xid2", b"\x35\x01\x03")
+            station._dhcp_request(b"xid3", b"\x35\x01\x01")
+        delivered = Event()
+        with patch.object(peer, "_await_station", side_effect=lambda **_: delivered.set()) as serve_station:
+            peer.start()
+            for frame in frames:
+                peer.child.sendall(len(frame).to_bytes(4, "big") + frame)
+            self.assertTrue(delivered.wait(2))
+            serve_station.assert_called_once_with(first_frame=frames[-1])
+            self.assertTrue(receipts[-1]["station_on_start"])
+            self.assertFalse(receipts[-1]["station_reconnect"])
+            self.assertFalse(receipts[-1]["save_http"])
+            self.assertFalse(receipts[-1]["http"])
+            peer.close()
+
     def test_provisioned_reset_drains_old_frames_and_skips_portal(self):
         receipts = []
         peer = PortalStationPeer("02:00:00:00:00:01", "02:00:00:00:00:02", receipts.append)
