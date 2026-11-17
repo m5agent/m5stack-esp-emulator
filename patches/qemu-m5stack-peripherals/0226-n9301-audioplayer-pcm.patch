@@ -1,0 +1,391 @@
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -1,6 +1,11 @@
+ /* External Grove GPIO/ADC/PWM/RMT/UART endpoints. GPL-2.0-or-later. */
+ #include "qemu/osdep.h"
+ #include "qemu/timer.h"
++#include "qemu/error-report.h"
++#include "qemu/units.h"
++#include "hw/boards.h"
++#include "sysemu/reset.h"
++#include <glib/gstdio.h>
+ #include "qapi/visitor.h"
+ #include "qapi/qmp/qlist.h"
+ #include "qapi/qmp/qnum.h"
+@@ -14,6 +19,7 @@
+ #include <math.h>
+ 
+ typedef struct AW3641State AW3641State;
++typedef struct N9301Pcm N9301Pcm;
+ 
+ typedef struct GPIOUnit {
+     M5Unit *unit;
+@@ -105,6 +111,7 @@
+     size_t n9301_length;
+     int64_t n9301_frame_start_ms;
+     bool n9301_media_frozen;
++    N9301Pcm *n9301_pcm;
+     uint64_t n9301_media_tracks, n9301_track, n9301_status;
+     uint64_t n9301_volume, n9301_loop_mode, n9301_invalid_frames;
+     /* U170-433 0xC0/0xC1 config mirror (8 bytes after the 3-byte header). */
+@@ -1413,11 +1420,260 @@
+     }
+ }
+ 
++/* The fixture carries decoded media; the capture is taken before the DAC. */
++#define N9301_PCM_FRAME_NS (NANOSECONDS_PER_SECOND / 16000)
++#define N9301_PCM_BLOCK_FRAMES 320
++#define N9301_PCM_MAX_TRACKS 16
++#define N9301_PCM_MAX_TRACK_BYTES (160000 * 2)
++#define N9301_PCM_MAX_CAPTURE (16 * MiB)
++
++struct N9301Pcm {
++    GBytes *clips[N9301_PCM_MAX_TRACKS];
++    QEMUTimer *timer;
++    int output_fd;
++    uint64_t tracks, written;
++    size_t offset;
++    int64_t clock_ns;
++    ESP32UARTState *uart;
++    unsigned uart_index;
++};
++
++static bool n9301_pcm_attached;
++
++static bool n9301_pcm_supported(void)
++{
++    return object_dynamic_cast(qdev_get_machine(), MACHINE_TYPE_NAME("m5dial"));
++}
++
++static void n9301_pcm_supported_get(Object *o, Visitor *v, const char *name,
++                                   void *opaque, Error **errp)
++{
++    bool supported = n9301_pcm_supported();
++
++    visit_type_bool(v, name, &supported, errp);
++}
++
++static void n9301_pcm_count_get(Object *o, Visitor *v, const char *name,
++                               void *opaque, Error **errp)
++{
++    GPIOUnit *g = opaque;
++    uint64_t tracks = g->n9301_pcm ? g->n9301_pcm->tracks : 0;
++
++    visit_type_uint64(v, name, &tracks, errp);
++}
++
++static void n9301_pcm_written_get(Object *o, Visitor *v, const char *name,
++                                 void *opaque, Error **errp)
++{
++    GPIOUnit *g = opaque;
++    uint64_t written = g->n9301_pcm ? g->n9301_pcm->written : 0;
++
++    visit_type_uint64(v, name, &written, errp);
++}
++
++static void n9301_pcm_append(N9301Pcm *pcm, const uint8_t *samples,
++                             size_t bytes)
++{
++    ssize_t written;
++
++    if (pcm->output_fd < 0) {
++        return;
++    }
++    bytes = MIN(bytes, N9301_PCM_MAX_CAPTURE - pcm->written);
++    if (!bytes) {
++        return;
++    }
++    written = qemu_write_full(pcm->output_fd, samples, bytes);
++    pcm->written += written & ~1;
++    if (written != bytes) {
++        if ((written & 1) && ftruncate(pcm->output_fd, pcm->written)) {
++            error_report("AudioPlayer PCM capture lost frame alignment");
++        }
++        error_report("AudioPlayer PCM capture stopped after a short write");
++        close(pcm->output_fd);
++        pcm->output_fd = -1;
++    }
++}
++
++static void n9301_pcm_schedule(GPIOUnit *g)
++{
++    N9301Pcm *pcm = g->n9301_pcm;
++    size_t length, remain;
++
++    if (g->n9301_status != 1) {
++        timer_del(pcm->timer);
++        return;
++    }
++    length = g_bytes_get_size(pcm->clips[g->n9301_track - 1]);
++    remain = (length - pcm->offset) / 2;
++    timer_mod_ns(pcm->timer, pcm->clock_ns +
++                 MIN(remain, N9301_PCM_BLOCK_FRAMES) * N9301_PCM_FRAME_NS);
++}
++
++static void n9301_pcm_end_track(GPIOUnit *g, int64_t now)
++{
++    N9301Pcm *pcm = g->n9301_pcm;
++
++    pcm->offset = 0;
++    pcm->clock_ns = now;
++    switch (g->n9301_loop_mode) {
++    case 0: /* All tracks, wrapping. */
++    case 2: /* The indexed fixture has only one directory. */
++        g->n9301_track = g->n9301_track % pcm->tracks + 1;
++        break;
++    case 1: /* Repeat the same track. */
++        break;
++    case 5: /* All tracks, stopping at the end. */
++        if (g->n9301_track < pcm->tracks) {
++            g->n9301_track++;
++            break;
++        }
++        /* fall through */
++    default: /* Single-stop and unmodeled random ordering. */
++        g->n9301_status = 0;
++        return;
++    }
++    if (pcm->uart) {
++        n9301_reply(g, pcm->uart, pcm->uart_index, N9301_PLAYBACK, 0x0e,
++                    g->n9301_track, true);
++    }
++}
++
++static void n9301_pcm_pump(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    N9301Pcm *pcm = g->n9301_pcm;
++    const uint8_t *samples;
++    size_t bytes, length;
++    int64_t now, elapsed_ns;
++
++    if (!pcm || g->n9301_status != 1) {
++        return;
++    }
++    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    samples = g_bytes_get_data(pcm->clips[g->n9301_track - 1], &length);
++    elapsed_ns = MAX(now - pcm->clock_ns, 0);
++    bytes = MIN(elapsed_ns / N9301_PCM_FRAME_NS,
++                (length - pcm->offset) / 2) * 2;
++    n9301_pcm_append(pcm, samples + pcm->offset, bytes);
++    pcm->offset += bytes;
++    pcm->clock_ns += (bytes / 2) * N9301_PCM_FRAME_NS;
++    if (pcm->offset == length) {
++        n9301_pcm_end_track(g, now);
++    }
++    n9301_pcm_schedule(g);
++}
++
++static void n9301_pcm_transport(GPIOUnit *g, bool restart)
++{
++    N9301Pcm *pcm = g->n9301_pcm;
++
++    if (!pcm) {
++        return;
++    }
++    if (restart) {
++        pcm->offset = 0;
++    }
++    pcm->clock_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    n9301_pcm_schedule(g);
++}
++
++static void n9301_pcm_reset(void *opaque)
++{
++    GPIOUnit *g = opaque;
++    N9301Pcm *pcm = g->n9301_pcm;
++
++    pcm->uart = NULL;
++    g->n9301_track = 1;
++    g->n9301_status = 0;
++    g->n9301_volume = 30;
++    g->n9301_loop_mode = 4;
++    g->n9301_length = 0;
++    n9301_pcm_transport(g, true);
++}
++
++static GBytes *n9301_pcm_open_clip(const char *directory, unsigned track,
++                                  Error **errp)
++{
++    g_autofree char *name = g_strdup_printf("%u.pcm", track);
++    g_autofree char *path = g_build_filename(directory, name, NULL);
++    g_autoptr(GMappedFile) clip = NULL;
++    struct stat st;
++    int fd = g_open(path, O_RDONLY | O_BINARY | O_NONBLOCK, 0);
++
++    if (fd >= 0) {
++        if (!fstat(fd, &st) && S_ISREG(st.st_mode) && st.st_size > 0 &&
++            st.st_size <= N9301_PCM_MAX_TRACK_BYTES && !(st.st_size & 1)) {
++            clip = g_mapped_file_new_from_fd(fd, false, NULL);
++        }
++        close(fd);
++    }
++    if (!clip || g_mapped_file_get_length(clip) != st.st_size) {
++        error_setg(errp, "AudioPlayer PCM track %u is missing or invalid",
++                   track);
++        return NULL;
++    }
++    return g_mapped_file_get_bytes(clip);
++}
++
++static bool n9301_pcm_attach(GPIOUnit *g, uint64_t tracks, Error **errp)
++{
++    const char *directory = g_getenv("M5SW_UNIT_AUDIO_PCM_DIR");
++    const char *output = g_getenv("M5SW_UNIT_AUDIO_PCM_OUT");
++    g_autoptr(GPtrArray) clips = NULL;
++    struct stat st;
++    N9301Pcm *pcm;
++    int fd;
++
++    if (!n9301_pcm_supported() || (!directory && !output)) {
++        return true;
++    }
++    if (!directory || !output || !tracks || tracks > N9301_PCM_MAX_TRACKS ||
++        n9301_pcm_attached) {
++        error_setg(errp, "AudioPlayer PCM needs one Unit and 1..16 tracks "
++                   "with a capture file");
++        return false;
++    }
++    clips = g_ptr_array_new_with_free_func((GDestroyNotify)g_bytes_unref);
++    for (unsigned i = 1; i <= tracks; i++) {
++        GBytes *clip = n9301_pcm_open_clip(directory, i, errp);
++
++        if (!clip) {
++            return false;
++        }
++        g_ptr_array_add(clips, clip);
++    }
++    fd = g_open(output, O_WRONLY | O_CREAT | O_APPEND | O_BINARY | O_NONBLOCK,
++                0600);
++    if (fd < 0 || fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < 0 ||
++        st.st_size > N9301_PCM_MAX_CAPTURE || (st.st_size & 1)) {
++        if (fd >= 0) {
++            close(fd);
++        }
++        error_setg(errp, "AudioPlayer PCM has an invalid capture file");
++        return false;
++    }
++    pcm = g_new0(N9301Pcm, 1);
++    for (unsigned i = 0; i < tracks; i++) {
++        pcm->clips[i] = g_bytes_ref(g_ptr_array_index(clips, i));
++    }
++    pcm->tracks = tracks;
++    pcm->written = st.st_size;
++    pcm->output_fd = fd;
++    pcm->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, n9301_pcm_pump, g);
++    g->n9301_pcm = pcm;
++    n9301_pcm_attached = true;
++    qemu_register_reset(n9301_pcm_reset, g);
++    return true;
++}
++
+ static void n9301_playback(GPIOUnit *g, ESP32UARTState *uart, unsigned index,
+                            const uint8_t *data, size_t length)
+ {
+     uint8_t sub = data[0];
+     uint16_t selected;
++    uint64_t previous_status = g->n9301_status;
++    bool restart = false;
+ 
+     if (sub == 0x06 || sub == 0x16) {
+         if (length != 3) {
+@@ -1429,6 +1685,7 @@
+             return;
+         }
+         g->n9301_track = selected;
++        restart = true;
+         g->n9301_status = sub == 0x06 ? 1 : 0;
+     } else if (length != 1) {
+         return;
+@@ -1445,18 +1702,25 @@
+         break;
+     case 0x03:
+     case 0x14:
++        restart = true;
+         g->n9301_status = 0;
+         break;
+     case 0x04:
++        restart = true;
+         g->n9301_track = g->n9301_track == 1 ?
+                          g->n9301_media_tracks : g->n9301_track - 1;
+         g->n9301_status = 1;
+         break;
+     case 0x05:
++        restart = true;
+         g->n9301_track = g->n9301_track == g->n9301_media_tracks ?
+                          1 : g->n9301_track + 1;
+         g->n9301_status = 1;
+         break;
++    }
++
++    if (restart || g->n9301_status != previous_status) {
++        n9301_pcm_transport(g, restart);
+     }
+ 
+     switch (sub) {
+@@ -1499,6 +1763,11 @@
+     if (!g->n9301_media_tracks || !length) {
+         return;
+     }
++    if (g->n9301_pcm) {
++        g->n9301_pcm->uart = uart;
++        g->n9301_pcm->uart_index = index;
++        n9301_pcm_pump(g);
++    }
+     if (cmd == N9301_PLAYBACK) {
+         n9301_playback(g, uart, index, data, length);
+     } else if (cmd == N9301_VOLUME) {
+@@ -1517,6 +1786,7 @@
+         } else if (length == 2 && data[0] == 1 && data[1] <= 5) {
+             g->n9301_loop_mode = data[1];
+             g->n9301_status = 0;
++            n9301_pcm_transport(g, true);
+         }
+     }
+ }
+@@ -1578,6 +1848,9 @@
+         count > UINT16_MAX) {
+         error_setg(errp, "AudioPlayer indexed media is a creation-only "
+                    "fixture with 0..65535 tracks and requires protocol mode");
++        return;
++    }
++    if (!n9301_pcm_attach(g, count, errp)) {
+         return;
+     }
+     g->n9301_media_tracks = count;
+@@ -3020,6 +3293,12 @@
+         if (!strcmp(id, "audioplayer")) {
+             g->n9301_volume = 30;
+             g->n9301_loop_mode = 4;  /* Single track, then stop. */
++            object_property_add(o, "media-pcm-supported", "bool",
++                                n9301_pcm_supported_get, NULL, NULL, g);
++            object_property_add(o, "media-pcm-track-count", "uint64",
++                                n9301_pcm_count_get, NULL, NULL, g);
++            object_property_add(o, "media-pcm-written-bytes", "uint64",
++                                n9301_pcm_written_get, NULL, NULL, g);
+             object_property_add(o, "media-track-count", "uint64",
+                                 n9301_media_get, n9301_media_set, NULL, g);
+             object_property_add(o, "selected-track", "uint64", count_get,
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1787,9 +1787,18 @@
+     esp32s3_machine_init(machine);
+ }
+ 
++static bool m5dial_media_pcm_supported(Object *obj, Error **errp)
++{
++    return true;
++}
++
+ static void m5dial_machine_class_init(ObjectClass *oc, void *data)
+ {
+     MachineClass *mc = MACHINE_CLASS(oc);
++    object_class_property_add_bool(oc, "media-pcm-supported",
++                                   m5dial_media_pcm_supported, NULL);
++    object_class_property_set_description(oc, "media-pcm-supported",
++                                          "AudioPlayer Unit PCM fixture and capture");
+     mc->desc = "M5Stack Dial K130 (ESP32-S3FN8, GC9A01, FT3267, GPIO encoder)";
+     mc->init = m5dial_machine_init;
+     mc->max_cpus = 2;
