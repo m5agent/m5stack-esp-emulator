@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.78.0
+  version: 1.79.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -5948,13 +5948,18 @@ components:
           type: [object, "null"]
           description: >
             Flash preparation metadata. Tab5 includes tab5.application (factory
-            app identity or null), symbols_status (matched or unavailable),
+            application, verified single OTA0 application, or null),
+            symbols_status (matched or unavailable),
             gdb_app_identity_matched, elf_sha256, input_firmware_sha256,
             execution_firmware_sha256, application_bytes_unchanged,
             efuse_input_sha256 and efuse_session_owned. These fields describe
             complete-image preservation and session-owned input copies, not
             application readiness. Symbolic frame/touch operations require the
             configured ELF SHA to match the actual factory app descriptor.
+            A single OTA0 upload with a verified image digest and erased OTA data
+            records partition_label, partition_subtype and
+            selection=ota0_erased_otadata in its application identity. It uses
+            the symbol-free execution path.
         flash_retained:
           type: boolean
           description: >
