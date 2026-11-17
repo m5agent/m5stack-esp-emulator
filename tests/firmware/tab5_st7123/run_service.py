@@ -15,6 +15,7 @@ from zipfile import ZipFile
 
 POINTS = [(0, 1279), (719, 0), (310, 608)]
 GUEST_REPORT = re.compile(r"ST7123_PROBE_(?:POINT|RELEASE)[^\r\n]+")
+GUEST_CONTACT = re.compile(r"ST7123_PROBE_CONTACT samples=(\d+) duration_us=(\d+)")
 
 
 def sha(value):
@@ -84,6 +85,28 @@ def main():
         serial = serial_until(lambda text: len(GUEST_REPORT.findall(text)) >= len(expected))
         reports = GUEST_REPORT.findall(serial)
         assert reports == expected, reports
+        hold = None
+        if tab5.get("touch_hold_supported"):
+            x, y = 240, 780
+            receipt = api(session + "/input", "POST", {
+                "kind": "touch", "action": "hold", "x": x, "y": y, "seconds": 1.2,
+            })
+            assert receipt["accepted"] and receipt["action"] == "hold" and receipt["raw"] == [x, y]
+            assert receipt["controller_reports"] == {"reports": 2, "acknowledged": 2}
+            timing = receipt["timing"]
+            assert timing["completion"] == "guest-observed" and timing["hold_seconds"] == 1.2
+            assert 1200 <= timing["guest_hold_ms"] <= 1250
+            assert timing["refresh_acknowledged"] >= 3
+            contacts = GUEST_CONTACT.findall(serial)
+            serial = serial_until(lambda text: len(GUEST_CONTACT.findall(text)) == len(contacts) + 1)
+            samples, guest_duration = map(int, GUEST_CONTACT.findall(serial)[-1])
+            expected_hold = [f"ST7123_PROBE_POINT x={x} y={y} area=20 irq_level=0"] * samples
+            expected_hold.append("ST7123_PROBE_RELEASE status=0x00 irq_level=0")
+            assert GUEST_REPORT.findall(serial)[len(reports):] == expected_hold
+            assert samples == 1 + timing["refresh_acknowledged"]
+            assert 1190000 <= guest_duration <= 1260000
+            hold = {"x": x, "y": y, "guest_samples": samples, "guest_duration_us": guest_duration,
+                    "controller_timing": timing, "release_observed": True}
         evidence = api(session + "/evidence?include=manifest,serial,logs")
         with ZipFile(io.BytesIO(evidence)) as bundle:
             assert bundle.testzip() is None
@@ -92,6 +115,8 @@ def main():
         summary.update(no_input_no_irq=True, guest_reports=reports, evidence_zip_sha256=sha(evidence),
                        serial_sha256=sha(serial.encode()), status="PASS",
                        runtime_sha256=tab5["runtime_sha256"], part_sha256=tab5["touch_part_sha256"])
+        if hold is not None:
+            summary["hold"] = hold
     finally:
         stopped = api(session + "?purge=0&retain_flash=0", "DELETE")
         assert stopped["state"] == "stopped" and not stopped["flash_retained"]

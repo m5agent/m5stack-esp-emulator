@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "overall": "PARTIAL",
+  "runtime_artifacts": {
+    "esp_emu": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "gt911": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+    "st7123": "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
+  },
+  "standalone_controller_probe": {
+    "firmware_sha256": "239b876b70773b2e5889091423baa68cf8e8ed7481b99ea1ceb033d37861de34",
+    "execution_flash_sha256": "513bdfd1c1b0801e43526ae026dfb4b016db9c87ebf5976ab80e61e5d7b3972c",
+    "no_input_no_irq": true,
+    "guest_reports": [
+      "ST7123_PROBE_POINT x=0 y=1279 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0",
+      "ST7123_PROBE_POINT x=719 y=0 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0",
+      "ST7123_PROBE_POINT x=310 y=608 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0"
+    ],
+    "evidence_zip_sha256": "8d4d495e9b3e9d85044f7e33befafac69a286c1a5b63f974aee1533491312f58",
+    "serial_sha256": "1ff4aa6f0317bbcec1240e9b4c892aaf5478d093539384a0362937e82ae0b30c",
+    "status": "PASS",
+    "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "part_sha256": "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87",
+    "hold": {
+      "x": 240,
+      "y": 780,
+      "guest_samples": 69,
+      "guest_duration_us": 1201970,
+      "controller_timing": {
+        "completion": "guest-observed",
+        "hold_seconds": 1.2,
+        "guest_hold_ms": 1200,
+        "refresh_acknowledged": 68
+      },
+      "release_observed": true
+    },
+    "cleanup": {
+      "stopped": true,
+      "flash_released": true,
+      "lease_count_restored": true
+    }
+  },
+  "arduventure": {
+    "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+    "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+    "runtime_board": "st7123",
+    "controls": {
+      "power_icon_short_tap": {
+        "before": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "after": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348"
+      },
+      "same_duration_outside_icon": {
+        "timing": {
+          "completion": "guest-observed",
+          "hold_seconds": 3.0,
+          "guest_hold_ms": 3000,
+          "refresh_acknowledged": 186
+        },
+        "reports": {
+          "reports": 2,
+          "acknowledged": 2
+        },
+        "frame_hashes": [
+          "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+          "be3cd61931a21ae99d6241a14d1f50e9c66b5fc25384fabe2cb4c65a6087c0a2"
+        ]
+      }
+    },
+    "power_icon_hold": {
+      "panel_coordinates": [
+        672,
+        53
+      ],
+      "requested_guest_seconds": 3,
+      "power_off_screen_status": "PASS",
+      "power_off_png_sha256": "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+      "direct_hold_http": 409,
+      "direct_hold_service_error": "tab5_st7123_unavailable",
+      "observed_terminal_status": "PARTIAL",
+      "first_terminal_uart": "rst:0x7 (HP_SYS_HP_WDT_RESET)",
+      "first_serial_sha256": "a8353d6eb5a0677d90e097c705198eec104763eb15cd697af151e8f5a85c5201",
+      "first_evidence_zip_sha256": "0f491d40daf8e0d6e74a1dc6ddd1c9957353ff65889f8862dd52f7dc5b84f17a",
+      "trace": {
+        "status": "PASS",
+        "bus": "HP I2C1",
+        "address": "0x44",
+        "register": "OUT_SET 0x05",
+        "power_off_pulse_bit": 4,
+        "writes": [
+          "0x89",
+          "0x99",
+          "0x89",
+          "0x99",
+          "0x89",
+          "0x99",
+          "0x89",
+          "0x99",
+          "0x89",
+          "0x99"
+        ],
+        "acknowledged_writes": 10,
+        "interval_ms": [
+          48.999313,
+          49.0,
+          49.0,
+          49.0,
+          49.0,
+          49.0,
+          49.0,
+          49.0,
+          49.0
+        ],
+        "trace_sha256": "eb163dc81109d6c2bea54ca747115bf3231d28f97cb63e15f786a1e0e9088b86",
+        "instrumented_reset_marker_observed": false
+      }
+    },
+    "cleanup": {
+      "stopped": true,
+      "flash_released": true,
+      "remaining_leases": 0
+    }
+  },
+  "carplay_regression": {
+    "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+    "normalized_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+    "status": "PASS",
+    "selected_board": "gt911-ili9881c",
+    "display_backend": "esp-emu-dsi",
+    "blank_drag_controller_reports": {
+      "reports": 23,
+      "acknowledged": 23
+    },
+    "confirm_modal_sha256": "bf357f04e40dc9cb76f7e34df7b94a45a89f97da7df26f813fac35577103eed3",
+    "observed_frame_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+    "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+    "verified_evidence_sha256": "6c7216e32cfe3b71f548229eca5a8a174a5d30776680e301f45057a85ed2e7e6",
+    "cleanup": {
+      "stopped": true,
+      "flash_released": true,
+      "remaining_leases": 0
+    }
+  },
+  "burner": "NOT SUBMITTED",
+  "physical_hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN",
+  "multitouch": "NOT RUN",
+  "exact_terminal_reviewer": "NOT RUN"
+}

@@ -9,7 +9,9 @@ const TOUCH_COUNT: u16 = 0x0009;
 const STATUS: u16 = 0x0010;
 const FIRST_POINT: u16 = 0x0014;
 const POINT_END: u16 = FIRST_POINT + 7;
-const HOLD_NS: u64 = 180_000_000;
+const TAP_NS: u64 = 180_000_000;
+const HOLD_REFRESH_NS: u64 = 16_000_000;
+const NS_PER_MS: u64 = 1_000_000;
 const UNREAD_REPORT_TIMEOUT_NS: u64 = 1_000_000_000;
 const MAX_READ: u32 = 512;
 
@@ -115,6 +117,12 @@ struct St7123 {
     point: Option<Point>,
     irq_level: Option<bool>,
     press_at: Option<u64>,
+    length_ns: u64,
+    refresh_at: Option<u64>,
+    refresh_enabled: bool,
+    refresh_pending: bool,
+    refresh_acknowledged: u32,
+    hold_ms: u32,
     pending_at: Option<u64>,
     needs_read: bool,
     reports: u32,
@@ -125,11 +133,24 @@ struct St7123 {
 }
 
 impl St7123 {
-    fn tap(&mut self, input: &str) -> Option<()> {
+    fn start_contact(&mut self, input: &str) -> Option<()> {
         if self.point.is_some() || self.needs_read {
             return None;
         }
-        let (x, y) = input.strip_prefix("tap:")?.split_once(',')?;
+        let (action, parameters) = input.split_once(':')?;
+        let (coordinates, length_ns) = match action {
+            "tap" => (parameters, TAP_NS),
+            "hold" => {
+                let (coordinates, duration) = parameters.rsplit_once(',')?;
+                let milliseconds = duration.parse::<u64>().ok()?;
+                if !(250..=5000).contains(&milliseconds) {
+                    return None;
+                }
+                (coordinates, milliseconds * NS_PER_MS)
+            }
+            _ => return None,
+        };
+        let (x, y) = coordinates.split_once(',')?;
         let point = Point {
             x: x.parse().ok()?,
             y: y.parse().ok()?,
@@ -138,6 +159,10 @@ impl St7123 {
             return None;
         }
         self.point = Some(point);
+        self.length_ns = length_ns;
+        self.refresh_enabled = action == "hold";
+        self.refresh_acknowledged = 0;
+        self.hold_ms = 0;
         self.needs_read = true;
         self.reports = self.reports.saturating_add(1);
         Some(())
@@ -193,19 +218,39 @@ impl St7123 {
         {
             self.needs_read = false;
             self.pending_at = None;
-            self.acknowledged = self.acknowledged.saturating_add(1);
+            if self.refresh_pending {
+                self.refresh_pending = false;
+                self.refresh_acknowledged = self.refresh_acknowledged.saturating_add(1);
+            } else {
+                self.acknowledged = self.acknowledged.saturating_add(1);
+            }
         }
         data
     }
 
     fn poll(&mut self, pin: u32, now_ns: u64) -> Option<EmulatorMessage> {
+        if let Some(pressed_at) = self.press_at {
+            let elapsed = now_ns.saturating_sub(pressed_at);
+            if elapsed >= self.length_ns {
+                self.hold_ms = (elapsed / NS_PER_MS).min(u32::MAX as u64) as u32;
+                self.release();
+                // Delimit the release IRQ even if an unread refresh held INT low.
+                if self.irq_level == Some(false) {
+                    self.irq_level = Some(true);
+                    return Some(drive(pin, true, now_ns));
+                }
+            }
+        }
         // A paused or stopped polling driver must not strand a physical contact.
         // Missing reports stay unacknowledged so the API still fails that input.
         if self.needs_read {
             let pending_at = *self.pending_at.get_or_insert(now_ns);
             if now_ns.saturating_sub(pending_at) >= UNREAD_REPORT_TIMEOUT_NS {
                 self.pending_at = None;
-                if self.point.is_some() {
+                if self.refresh_pending {
+                    self.refresh_pending = false;
+                    self.needs_read = false;
+                } else if self.point.is_some() {
                     self.release();
                 } else {
                     self.needs_read = false;
@@ -213,9 +258,17 @@ impl St7123 {
             }
         }
         if self.point.is_some() && !self.needs_read {
-            let pressed_at = *self.press_at.get_or_insert(now_ns);
-            if now_ns.saturating_sub(pressed_at) >= HOLD_NS {
-                self.release();
+            self.press_at.get_or_insert(now_ns);
+            if self.refresh_enabled {
+                let refresh_at = self
+                    .refresh_at
+                    .get_or_insert(now_ns.saturating_add(HOLD_REFRESH_NS));
+                // Give each report a falling edge after the prior read deasserted INT.
+                if self.irq_level != Some(false) && now_ns >= *refresh_at {
+                    *refresh_at = now_ns.saturating_add(HOLD_REFRESH_NS);
+                    self.refresh_pending = true;
+                    self.needs_read = true;
+                }
             }
         }
         let level = !self.needs_read;
@@ -229,6 +282,9 @@ impl St7123 {
     fn release(&mut self) {
         self.point = None;
         self.press_at = None;
+        self.pending_at = None;
+        self.refresh_at = None;
+        self.refresh_pending = false;
         self.needs_read = true;
         self.reports = self.reports.saturating_add(1);
     }
@@ -432,7 +488,7 @@ impl Device for Bus {
     }
 
     fn on_input(&mut self, input: &str) {
-        if self.touch.tap(input).is_none() {
+        if self.touch.start_contact(input).is_none() {
             self.touch.rejected = self.touch.rejected.saturating_add(1);
         }
     }
@@ -480,7 +536,9 @@ impl Device for Bus {
                 .set("acknowledged", self.touch.acknowledged)
                 .set("rejected_inputs", self.touch.rejected)
                 .set("status_reads", self.touch.status_reads)
-                .set("coordinate_reads", self.touch.coordinate_reads),
+                .set("coordinate_reads", self.touch.coordinate_reads)
+                .set("hold_ms", self.touch.hold_ms)
+                .set("refresh_acknowledged", self.touch.refresh_acknowledged),
         )
     }
 }

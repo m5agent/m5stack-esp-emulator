@@ -2537,8 +2537,10 @@ paths:
         integer x1, y1, x2 and y2. HTTP 409 tab5_gt911_ack_timeout means the
         guest did not acknowledge the gesture's reports through release.
         The optional ST7123 lane accepts tap in the same raw frame space.
-        HTTP 409 tab5_st7123_ack_timeout means the guest did not read
-        both the press and release.
+        A hold-capable ST7123 Part also accepts touch, action hold, and
+        duration seconds from 0.25 to 5. Accepted holds report guest
+        milliseconds and refresh readbacks. HTTP 409
+        tab5_st7123_ack_timeout means guest hold or release evidence is missing.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:

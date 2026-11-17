@@ -380,7 +380,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | FirmwareManifest / WebBurner | 可用 | Device Service `1.51.0` operator runtime ACL 可用；guest filesystem 自身 ACL、live trust root、生产 key 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
-| Tab5 | `partial` | CSI、I2S/PCM、USB Host、动态 I2C 与 ST7123 拖动/多点待验证 |
+| Tab5 | `partial` | CSI、I2S/PCM、USB Host、动态 I2C 与 ST7123 拖动/多点及终态断电待验证；[原生长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已覆盖关机请求 |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
 | 设备视觉 | 42 主机、184 Unit | 固定公开模型 `dcb64c3`。当前运行登记与仅视觉差集以[自动项目快照](project-snapshot.md)为准。CardputerZero RJ45 使用独立固定补丁。文档单独固定在 `3681a648`。 |
 

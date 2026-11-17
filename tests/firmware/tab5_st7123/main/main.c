@@ -1,10 +1,12 @@
 #include <stdbool.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
 #include "esp_err.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
@@ -81,6 +83,10 @@ void app_main(void)
     ESP_ERROR_CHECK(gpio_isr_handler_add(ST7123_INT, touch_irq, NULL));
     printf("ST7123_PROBE_WAIT irq=%d level=%d\n", ST7123_INT, gpio_get_level(ST7123_INT));
 
+    unsigned samples = 0;
+    unsigned active_x = 0;
+    unsigned active_y = 0;
+    int64_t pressed_at = 0;
     for (;;) {
         if (xSemaphoreTake(pending_report, pdMS_TO_TICKS(1000)) != pdTRUE) {
             puts("ST7123_PROBE_NO_IRQ");
@@ -94,10 +100,24 @@ void app_main(void)
             read_register(device, ST7123_FIRST_POINT, report, sizeof(report));
             configASSERT(report[0] & 0x80);
             report[0] &= 0x3f;
+            const unsigned x = read_be16(report);
+            const unsigned y = read_be16(report + 2);
+            if (samples == 0) {
+                active_x = x;
+                active_y = y;
+                pressed_at = esp_timer_get_time();
+            }
+            configASSERT(x == active_x && y == active_y);
+            samples++;
             printf("ST7123_PROBE_POINT x=%u y=%u area=%u irq_level=%d\n",
-                   read_be16(report), read_be16(report + 2), report[4], level);
+                   x, y, report[4], level);
         } else {
             printf("ST7123_PROBE_RELEASE status=0x%02x irq_level=%d\n", status, level);
+            if (samples > 0) {
+                printf("ST7123_PROBE_CONTACT samples=%u duration_us=%" PRId64 "\n",
+                       samples, esp_timer_get_time() - pressed_at);
+                samples = 0;
+            }
         }
     }
 }

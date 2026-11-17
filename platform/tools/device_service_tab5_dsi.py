@@ -20,6 +20,7 @@ TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabe
 TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
 TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
 TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
+TAB5_ST7123_HOLD_PART_SHA256 = "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
 TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_MESSAGE_BYTES = 128 * 1024
@@ -89,36 +90,40 @@ def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> Path:
             "tab5_gt911_part_unavailable", "Tab5 GT911 requires the gt911-ili9881c board revision", 409
         )
     return _stage_tab5_part(
-        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm", TAB5_GT911_PART_SHA256,
+        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm", (TAB5_GT911_PART_SHA256,),
         "tab5_gt911_part_unavailable",
-    )
+    )[0]
 
 
 def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
     return _stage_tab5_part(
-        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm", TAB5_ST7123_I2C_PART_SHA256,
+        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm", (TAB5_ST7123_I2C_PART_SHA256,),
         "tab5_st7123_i2c_part_unavailable",
-    )
+    )[0]
 
 
-def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> Path:
+def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> tuple[Path, str]:
     return _stage_tab5_part(
-        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm", TAB5_ST7123_TOUCH_PART_SHA256,
+        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm",
+        (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256),
         "tab5_st7123_touch_part_unavailable",
     )
 
 
-def _stage_tab5_part(value: str, session_dir: Path, source: str, module: str, expected: str, error_code: str) -> Path:
+def _stage_tab5_part(
+    value: str, session_dir: Path, source: str, module: str, expected: tuple[str, ...], error_code: str,
+) -> tuple[Path, str]:
     try:
         with Path(value).open("rb") as stream:
             part = stream.read(128 * 1024 + 1)
-        if hashlib.sha256(part).hexdigest() != expected:
+        digest = hashlib.sha256(part).hexdigest()
+        if digest not in expected:
             raise ValueError("unexpected ESP Part hash")
         config = (TAB5_PARTS_SOURCE / source / "board.json").read_bytes()
         (session_dir / module).write_bytes(part)
         path = session_dir / "tab5-cosim-board.json"
         path.write_bytes(config)
-        return path
+        return path, digest
     except (OSError, ValueError) as error:
         raise ServiceError(
             error_code, "configured Tab5 ESP Part could not be verified", 409
@@ -150,18 +155,25 @@ class Tab5NativeTouch:
             pass
         raise self._error("unavailable", "control endpoint is unavailable")
 
-    def _state(self) -> tuple[int, int, int, bool]:
+    def _part_state(self) -> dict[str, str]:
         response = self._command(f"part {self.PART_NAME} state")
+        if response.startswith("ok "):
+            try:
+                return dict(item.split("=", 1) for item in response[3:].split())
+            except ValueError:
+                pass
+        raise self._error("unavailable", "state could not be read")
+
+    def _state(self) -> tuple[int, int, int, bool]:
+        values = self._part_state()
         try:
-            if response.startswith("ok "):
-                values = dict(item.split("=", 1) for item in response[3:].split())
-                if values["ready"] in {"true", "false"} and values["contact"] in {"true", "false"}:
-                    reports = int(values["reports"])
-                    acknowledged = int(values["acknowledged"])
-                    rejected = int(values["rejected_inputs"])
-                    if 0 <= acknowledged <= reports and rejected >= 0:
-                        idle = values["ready"] == values["contact"] == "false"
-                        return reports, acknowledged, rejected, idle
+            if values["ready"] in {"true", "false"} and values["contact"] in {"true", "false"}:
+                reports = int(values["reports"])
+                acknowledged = int(values["acknowledged"])
+                rejected = int(values["rejected_inputs"])
+                if 0 <= acknowledged <= reports and rejected >= 0:
+                    idle = values["ready"] == values["contact"] == "false"
+                    return reports, acknowledged, rejected, idle
         except (KeyError, ValueError):
             pass
         raise self._error("unavailable", "state could not be read")
@@ -235,11 +247,30 @@ class Tab5Gt911Touch(Tab5NativeTouch):
 
 
 class Tab5St7123Touch(Tab5NativeTouch):
-    """Submit ST7123 taps and require the guest to read contact and release."""
+    """Submit ST7123 taps and holds with guest contact and release receipts."""
 
     CONTROLLER = "st7123"
     PART_NAME = "software-i2c"
     ALLOW_EXPIRED_REPORTS = True
+
+    def hold(self, x: int, y: int, milliseconds: int, check_cancelled, *, timeout: float = 20) -> tuple[dict, dict]:
+        initial = self._idle_counters()
+        self._queue(f"hold:{x},{y},{milliseconds}")
+        reports = self._wait_acknowledged(initial, 2, check_cancelled, timeout)
+        state = self._part_state()
+        try:
+            actual_ms = int(state["hold_ms"])
+            refreshed = int(state["refresh_acknowledged"])
+        except (KeyError, ValueError) as error:
+            raise self._error("unavailable", "hold evidence could not be read") from error
+        if actual_ms < milliseconds or refreshed <= 0:
+            raise self._error("ack_timeout", "hold duration or refresh was not observed by the guest")
+        return reports, {
+            "completion": "guest-observed",
+            "hold_seconds": milliseconds / 1000,
+            "guest_hold_ms": actual_ms,
+            "refresh_acknowledged": refreshed,
+        }
 
 
 class DsiProtocolError(ValueError):

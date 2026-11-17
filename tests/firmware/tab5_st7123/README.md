@@ -22,6 +22,7 @@ python3 tests/firmware/tab5_st7123/run_service.py \
 ```
 
 The runner observes an idle no-IRQ control, then sends three taps at
-(0,1279), (719,0), and (310,608). It verifies the exact coordinates and released
-status on the same guest's UART and retains the evidence ZIP before stopping.
-This probe covers the controller, GPIO interrupt and guest read path.
+(0,1279), (719,0), and (310,608). On a hold-capable Part, it also holds
+(240,780) for 1.2 guest seconds. It verifies a single unchanged coordinate
+across the separate IRQ readbacks, ESP timer duration, and one release on the
+same guest's UART. The runner retains the evidence ZIP before stopping.

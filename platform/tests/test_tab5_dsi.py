@@ -104,6 +104,29 @@ class Tab5DsiTests(unittest.TestCase):
                 touch.tap(500, 700, lambda: None, timeout=0.075)
         self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
 
+    def test_st7123_hold_reports_continuous_readbacks_and_guest_duration(self):
+        touch = Tab5St7123Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (1, 1, 0, False), (2, 2, 0, True),
+        ]), mock.patch.object(touch, "_command", side_effect=[
+            "ok", "ok hold_ms=1200 refresh_acknowledged=68",
+        ]) as command:
+            before, timing = touch.hold(240, 780, 1200, lambda: None)
+        self.assertEqual(before, {"reports": 2, "acknowledged": 2})
+        self.assertEqual(timing, {"completion": "guest-observed", "hold_seconds": 1.2,
+                                  "guest_hold_ms": 1200, "refresh_acknowledged": 68})
+        self.assertEqual(command.call_args_list[0].args, ("part software-i2c input hold:240,780,1200",))
+
+    def test_st7123_hold_rejects_an_unobserved_duration(self):
+        touch = Tab5St7123Touch(1)
+        for state in ("ok hold_ms=1100 refresh_acknowledged=9", "ok hold_ms=1200 refresh_acknowledged=0"):
+            with self.subTest(state=state), mock.patch.object(touch, "_state", side_effect=[
+                (0, 0, 0, True), (2, 2, 0, True),
+            ]), mock.patch.object(touch, "_command", side_effect=["ok", state]), \
+                    self.assertRaises(ServiceError) as raised:
+                touch.hold(240, 780, 1200, lambda: None)
+            self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
+
     def test_st7123_touch_part_rejects_unqualified_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

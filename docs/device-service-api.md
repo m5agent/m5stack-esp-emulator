@@ -3077,7 +3077,15 @@ at address `0x55` with GPIO23 interrupt. The session records
 Use `{"kind":"touch","x":530,"y":770}` for a native tap. A successful
 response includes `controller="st7123"` and the guest-consumed press and
 release counts. An unread report returns `409 tab5_st7123_ack_timeout`.
-Drag, long press, and multitouch are outside this ST7123 native input path.
+A hold-capable module also accepts
+`{"kind":"touch","action":"hold","x":240,"y":780,"seconds":1.2}` with a
+duration of 0.25–5 seconds, defaulting to one second. It retains one coordinate for the requested
+guest-clock duration and refreshes its IRQ report. An accepted hold includes
+`timing.guest_hold_ms` and `timing.refresh_acknowledged` in addition to
+the contact and release readbacks. Guest resets or unread reports can leave
+the hold unverified. Drag and multitouch remain outside this input path.
+The previously qualified tap-only module remains valid under the same
+setting and reports `touch_hold_supported=false`.
 Workers with the prior identification-only binary configured as
 `M5_TAB5_ST7123_I2C_PART` retain native DSI with touch unavailable for
 no-ELF sessions. The new touch setting takes precedence for the ST7123

@@ -273,7 +273,8 @@ class Tab5ServiceTests(unittest.TestCase):
         session = self.session()
         board = session.dir / "tab5-cosim-board.json"
         with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
-                mock.patch.object(service_module, "stage_tab5_st7123_touch_part", return_value=board) as stage, \
+                mock.patch.object(service_module, "stage_tab5_st7123_touch_part",
+                                  return_value=(board, service_module.TAB5_ST7123_HOLD_PART_SHA256)) as stage, \
                 mock.patch.object(service_module, "stage_tab5_st7123_i2c_part") as legacy, \
                 mock.patch.object(service_module, "Tab5DsiReceiver"), \
                 mock.patch.object(service_module, "Tab5St7123Touch") as controller:
@@ -287,6 +288,7 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertNotIn("--i2c-dev", p4)
             self.assertEqual(session.flash_info["tab5"]["touch_model"], "esp-emu-st7123")
             self.assertEqual(session.flash_info["tab5"]["touch_coordinate_space"], "panel-native")
+            self.assertTrue(session.flash_info["tab5"]["touch_hold_supported"])
             with self.assertRaises(service_module.ServiceError) as invalid:
                 session.inject({"kind": "touch", "x": 720, "y": 20})
             self.assertEqual(invalid.exception.code, "invalid_input")
@@ -301,6 +303,18 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(tap["raw"], [719, 1279])
             self.assertEqual(tap["controller_reports"], {"reports": 2, "acknowledged": 2})
             self.assertEqual(session.events[-1]["event"], "st7123_touch_acknowledged")
+            for seconds in (True, 0.2, 5.01, float("nan")):
+                with self.subTest(seconds=seconds), self.assertRaises(service_module.ServiceError) as hold_error:
+                    session.inject({"kind": "touch", "action": "hold", "x": 719, "y": 1279, "seconds": seconds})
+                self.assertEqual(hold_error.exception.code, "invalid_input")
+            controller.return_value.hold.assert_not_called()
+            timing = {"completion": "guest-observed", "hold_seconds": 1.2,
+                      "guest_hold_ms": 1200, "refresh_acknowledged": 68}
+            controller.return_value.hold.return_value = ({"reports": 2, "acknowledged": 2}, timing)
+            hold = session.inject({"kind": "touch", "action": "hold", "x": 719, "y": 1279, "seconds": 1.2})
+            controller.return_value.hold.assert_called_once_with(719, 1279, 1200, session._check_cancelled)
+            self.assertEqual(hold["action"], "hold")
+            self.assertEqual(hold["timing"], timing)
 
     def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
         self.elf.write_bytes(b"wrong build")
