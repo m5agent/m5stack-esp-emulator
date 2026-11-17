@@ -148,6 +148,31 @@ class FsFixturePlannerTests(unittest.TestCase):
                 _plan(bytes(base), fixture, security=security)
             self.assertEqual(raised.exception.code, "fs_fixture_secure_firmware")
 
+    def test_declared_security_ambiguity_is_distinct_from_absent_metadata(self):
+        fixture = build_spiffs_volume(multi_index=True)
+        base = _firmware(fixture, subtype=0x82)
+        plan = _plan(base, fixture, fmt="spiffs")
+        self.assertEqual(plan, _plan(base, fixture, fmt="spiffs", security={
+            "secure_boot": "disabled",
+            "flash_encryption": "not-indicated",
+            "efuse": "not-included",
+            "efuse_summary": None,
+        }))
+        ambiguous = (
+            {"secure_boot": "unknown"},
+            {"flash_encryption": "unknown"},
+            {"secure_boot_config": None},
+            {"flash_encryption_config": "unknown"},
+            {"efuse": "unknown"},
+            {"efuse": "summary-included", "efuse_summary": None},
+            {"efuse_summary": {}},
+            {"efuse_summary": {"secure_boot": "disabled", "flash_encryption": "unknown"}},
+        )
+        for security in ambiguous:
+            with self.subTest(security=security), self.assertRaises(ServiceError) as raised:
+                _plan(base, fixture, fmt="spiffs", security=security)
+            self.assertEqual((raised.exception.code, raised.exception.status), ("fs_fixture_secure_firmware", 409))
+
     def test_spiffs_requires_existing_geometry_and_matching_fixture(self):
         base_volume = build_spiffs_volume(multi_index=True, obj_name_len=64)
         fixture = build_spiffs_volume(multi_index=True, obj_name_len=32)

@@ -23,7 +23,7 @@ SECTOR_BYTES = 4096
 PARTITION_TYPE_DATA = 1
 PARTITION_TYPE_APP = 0
 PARTITION_FLAG_READONLY = 2
-SAFE_SECURITY_STATES = (None, "disabled", "not-indicated", "unknown")
+SAFE_SECURITY_STATES = ("disabled", "not-indicated")
 
 
 def parse_fs_fixture(value: object) -> dict:
@@ -64,11 +64,15 @@ def _check_security(security: dict | None) -> None:
     if security is None:
         return
     if not isinstance(security, dict) or any(
-        security.get(key) not in SAFE_SECURITY_STATES
+        key in security and security[key] not in SAFE_SECURITY_STATES
         for key in ("secure_boot", "secure_boot_config", "flash_encryption", "flash_encryption_config")
     ):
         raise _secure_firmware()
     efuse = security.get("efuse_summary")
+    if "efuse" in security:
+        expected = "not-included" if efuse is None else "summary-included"
+        if security["efuse"] != expected:
+            raise _secure_firmware()
     if efuse is not None and (
         not isinstance(efuse, dict) or any(
             efuse.get(key) not in SAFE_SECURITY_STATES for key in ("secure_boot", "flash_encryption")

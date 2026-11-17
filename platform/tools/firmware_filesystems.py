@@ -1476,6 +1476,7 @@ def _list_littlefs(
 def inventory_data_partition(
     data: bytes, partition: dict, *, max_file_bytes: int | None = None
 ) -> dict | None:
+    """Inspect a partition, optionally bounding total LittleFS/SPIFFS file reads."""
     offset = partition.get("offset")
     size = partition.get("size")
     subtype = partition.get("subtype")
