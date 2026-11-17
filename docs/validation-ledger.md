@@ -43,6 +43,8 @@ Cardputer 与 ADV 在原生 Xtensa `eecf42ad…` 使用同一 SDK 固件 `25eaf5
 
 [原生开放 SoftAP 夹具](../tests/network/native_open_softap/summary.json)在 Xtensa `201c3611…` 上复用 SDK 夹具 `25eaf534…`。Cardputer 和 ADV 各自通过 Device Service 的私有 UNIX socketpair 获得 DHCP 租约、ARP 回应和固定 HTTP 正文。ADV 同会话复位后再次通过，两个并发租约、正常退出及服务中断的清理均有收据。原版应用门户尚未验证。
 
+[StickS3 按键配网夹具](../tests/network/native_open_softap/sticks3-button-summary.json)在原生 Xtensa `5f8a5f38…` 上运行 SDK 镜像 `85eeb128…`。无输入没有认证、关联、DORA 或 TCP。BtnB 的 GPIO12 低电平被来宾读到，AP 保持未启动；BtnA 的 GPIO11 低电平之后才出现 AP 启动、关联、分配地址和固定 HTTP 正文。复位后必须重新按 A，同一捕获保留两轮 DORA/HTTP，停止后租约归零。
+
 CarPlay 原版 `4f3bb118…` 在可选 Tab5 DSI/GT911 路径使用真实 `POST /input`。空白处单击保持已稳定的原生帧，清除配对按钮单击打开了确认对话框；两次各有 13 个已由来宾读取并应答的控制器报告。已验证的归一化 Flash 可单独准入，其它原版可保留原路径。USB Host 手机握手、其它触摸板修订和拖动仍未验收。
 
 ## 2026-11-16

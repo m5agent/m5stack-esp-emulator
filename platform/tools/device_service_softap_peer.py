@@ -16,7 +16,11 @@ from device_service_errors import ServiceError
 from network_fabric import DHCP_MAGIC, _dhcp_options, _internet_checksum
 
 PROFILE = "cardputer-open-softap-fixture"
-BOARDS = frozenset({"cardputer", "cardputer-adv"})
+STICKS3_PROFILE = "sticks3-open-softap-fixture"
+PROFILE_BOARDS = {
+    PROFILE: frozenset({"cardputer", "cardputer-adv"}),
+    STICKS3_PROFILE: frozenset({"sticks3"}),
+}
 ACL_OPERATION = "network.softap.probe"
 QOM_PROPERTY = "open-softap-peer"
 NIC = "misc.esp32s3.wifi"

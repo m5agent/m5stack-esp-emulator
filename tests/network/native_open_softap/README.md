@@ -51,3 +51,24 @@ verification covers two concurrent leases, graceful service shutdown, and
 cleanup after a control process interruption. These are local native
 virtual-device results. Browser-WASM, RF, encrypted guest APs, user firmware
 portals, and Linux-worker execution remain outside this fixture.
+
+## StickS3 button-gated provisioning
+
+Build with `-D M5_FIXTURE_STICKS3_BUTTON=ON` and the same merge layout.
+Use `device_id=sticks3`, `runtime=qemu-wifi`,
+`network.profile=sticks3-open-softap-fixture`, and readiness marker
+`PROVISION_WAIT_BUTTON gpio=11 level=1`. The firmware polls the board GPIOs
+through ESP-IDF. It reads BtnB low on GPIO12 while remaining idle and
+starts the AP after reading BtnA low on GPIO11.
+
+Submit `{"kind":"button","control":"b","action":"hold","seconds":0.35}`
+to `POST /api/v1/sessions/{id}/input`. Require
+`PROVISION_IGNORED_BUTTON gpio=12 level=0` and an inactive guest AP.
+Repeat with `"control":"a"` inside the fixture's DHCP discovery window.
+Require the GPIO11 press marker before AP startup, guest association, DHCP
+lease, and exact HTTP receipt. Reset the same session and repeat BtnA after
+the idle marker. Expect two completed DORA transactions and two payload
+flows in the finalized capture. A separate run without input must show
+zero auth and association responses, DORA exchanges, and TCP flows.
+See the [StickS3 evidence](sticks3-button-summary.json) for exact artifact
+hashes and the no-input and wrong-button observations.

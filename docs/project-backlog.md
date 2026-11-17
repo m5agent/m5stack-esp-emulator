@@ -48,8 +48,9 @@
    PaperDIY 会话内热插拔需要
    实现介质切换和 GPIO48 电平变化。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、原版应用的
-   SoftAP 门户，以及 StickS3 按键配网后同会话的网络收据。开放式 ESP-IDF 夹具已通过
-   [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)。
+   SoftAP 门户，以及 StickS3 原版配网的网络收据。开放式 ESP-IDF 夹具已通过
+   [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)；
+   StickS3 夹具另有[按键触发和复位对照](../tests/network/native_open_softap/sticks3-button-summary.json)。
    按板型补 Wi-Fi 事件和应用
    断言，保持现有网络授权及隔离约束。
 4. **P0 Tab5 取帧与输入**。继续对照 Arduventure 的几何判断及 M5TabOS/98TAB5 启动路径。

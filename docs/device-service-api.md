@@ -1878,6 +1878,15 @@ Guest SSID, addressing, path and response belong to the controlled fixture.
 Protected APs, caller-selected peers, arbitrary firmware portals and RF are
 outside this fixture's scope.
 
+StickS3 uses the same isolated peer via `network.profile=sticks3-open-softap-fixture`.
+Build the [button-gated fixture](../tests/network/native_open_softap/README.md)
+and wait for its GPIO11 idle marker before sending a semantic BtnA action to
+the active session. The fixture starts its guest AP only after reading the
+active-low press. BtnB is observed on GPIO12 and leaves provisioning idle.
+The peer has a 25-second DHCP discovery budget after session launch or reset.
+This profile exercises a fixed provisioning fixture with no cloud credentials
+or public target.
+
 Classic ESP32 boards other than Core2 also accept
 `runtime=qemu-wifi, network.profile=generic-observe`, with the board's native
 `misc.esp32_wifi` MAC and the same explicit AP/security/network policy fields.

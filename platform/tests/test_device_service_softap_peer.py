@@ -8,6 +8,7 @@ from device_service_errors import ServiceError
 from device_service_softap_peer import (
     ACL_OPERATION,
     PROFILE,
+    STICKS3_PROFILE,
     SoftAPPeer,
     require_softap_backend,
 )
@@ -31,6 +32,24 @@ class SoftAPAdmissionTests(unittest.TestCase):
         other = SimpleNamespace(id="sticks3", backend="qemu-esp32s3")
         with self.assertRaises(ServiceError) as raised:
             parse_qemu_wifi_execution(other, {"profile": PROFILE})
+        self.assertEqual(raised.exception.code, "unsupported_network_profile")
+
+    def test_sticks3_profile_uses_same_isolated_transport(self):
+        sticks = SimpleNamespace(id="sticks3", backend="qemu-esp32s3")
+        admitted = parse_qemu_wifi_execution(sticks, {"profile": STICKS3_PROFILE})
+        self.assertEqual(admitted["profile"], STICKS3_PROFILE)
+        self.assertEqual(admitted["net_mode"], "unix-socketpair")
+        self.assertTrue(admitted["capture_pcap"])
+        for payload in (
+            {"profile": PROFILE},
+            {"profile": [STICKS3_PROFILE]},
+            {"profile": STICKS3_PROFILE, "policy": {"egress": "native"}},
+        ):
+            with self.subTest(payload=payload), self.assertRaises(ServiceError):
+                parse_qemu_wifi_execution(sticks, payload)
+        cardputer = SimpleNamespace(id="cardputer", backend="qemu-esp32s3")
+        with self.assertRaises(ServiceError) as raised:
+            parse_qemu_wifi_execution(cardputer, {"profile": STICKS3_PROFILE})
         self.assertEqual(raised.exception.code, "unsupported_network_profile")
 
     def test_backend_requires_explicit_property(self):

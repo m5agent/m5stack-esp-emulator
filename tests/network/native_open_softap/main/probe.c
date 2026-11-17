@@ -9,6 +9,37 @@
 #include "nvs_flash.h"
 #include "lwip/sockets.h"
 
+#ifdef M5_FIXTURE_STICKS3_BUTTON
+#include "driver/gpio.h"
+#include "freertos/task.h"
+
+static void wait_for_provisioning_button(void)
+{
+    bool b_was_pressed = false;
+    const gpio_config_t button = {
+        .pin_bit_mask = (1ULL << GPIO_NUM_11) | (1ULL << GPIO_NUM_12),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&button));
+    while (!gpio_get_level(GPIO_NUM_11)) {
+        vTaskDelay(pdMS_TO_TICKS(5));
+    }
+    puts("PROVISION_WAIT_BUTTON gpio=11 level=1");
+    while (gpio_get_level(GPIO_NUM_11)) {
+        bool b_pressed = !gpio_get_level(GPIO_NUM_12);
+        if (b_pressed && !b_was_pressed) {
+            puts("PROVISION_IGNORED_BUTTON gpio=12 level=0");
+        }
+        b_was_pressed = b_pressed;
+        vTaskDelay(pdMS_TO_TICKS(5));
+    }
+    puts("PROVISION_ENTER_BUTTON gpio=11 level=0");
+}
+#endif
+
 static void network_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     if (base == WIFI_EVENT && id == WIFI_EVENT_AP_START) {
@@ -26,6 +57,9 @@ static void network_event(void *arg, esp_event_base_t base, int32_t id, void *da
 void app_main(void)
 {
     puts("AP_FIXTURE_BOOT");
+#ifdef M5_FIXTURE_STICKS3_BUTTON
+    wait_for_provisioning_button();
+#endif
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -54,7 +88,7 @@ void app_main(void)
     int connection = accept(listener, NULL, NULL);
     if (connection >= 0) {
         char request[128] = {0};
-        size_t length = recv(connection, request, sizeof(request)-1, 0);
+        ssize_t length = recv(connection, request, sizeof(request)-1, 0);
         if (length > 0 && !strncmp(request, "GET /proof ", 11)) {
             const char response[] = "HTTP/1.0 200 OK\r\nContent-Length: 13\r\n\r\nAP_FIXTURE_OK";
             if (send(connection,response,sizeof(response)-1,0) == sizeof(response)-1) {
