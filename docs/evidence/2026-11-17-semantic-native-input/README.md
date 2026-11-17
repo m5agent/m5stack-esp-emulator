@@ -33,3 +33,14 @@ guest 键事件。K132 初次探针的 Python 成员测试抛出
 同路径复现可使用 `tests/uiflow2/api_sweep/run_hardware_guest.py`，
 在其 `--drive-json` 中将固件准备标记绑定到 `input` 请求。
 [请求字段与完成语义](../../device-service-api.md#inject-input)。
+
+## Dial 显式物理速度复验
+
+候选原生 Xtensa
+`bef8e5f1f181c341076b35ea1cb5946ba8437349ed879196469d4448e0e33e98`
+通过同一个 HTTP 输入端点分别提交 +3@35 ms 与 −5@50 ms，各三次。
+原 UIFlow2 RotaryIRQ 六次计数精确。随后省略间隔的 +2 请求均恢复 5 ms，
+三次都交付 8 个 GPIO 边沿，驱动三次均读成 +1。ESP-IDF GPIO ISR 对照
+捕获九个动作的全部 120 个边沿，正交相序正确。旧运行时明确拒绝显式速度，
+未改变 detent 目标和计数。固件调度回调没有保存边沿时的 GPIO 状态，后续
+读实时引脚可能合并已经到达的相位。保留默认速度和高速驱动的证据边界。
