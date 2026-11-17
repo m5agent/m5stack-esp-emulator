@@ -1,5 +1,7 @@
+import struct
 import unittest
 from pathlib import Path
+from threading import Event
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -12,10 +14,14 @@ from device_service_softap_peer import (
     STICKS3_PORTAL_PROFILE,
     STICKS3_PROVISION_PROFILE,
     STICKS3_PROFILE,
+    PortalStationPeer,
     SoftAPPeer,
+    _SAVE_MARKERS,
+    _SAVE_REQUEST,
     _portal_http_body,
     require_softap_backend,
 )
+from network_fabric import _internet_checksum
 from runtime_acl import RuntimeACL, RuntimeACLError
 
 
@@ -137,8 +143,57 @@ class SoftAPPeerLifecycleTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             peer.start()
 
+    def test_provisioned_reset_drains_old_frames_and_skips_portal(self):
+        receipts = []
+        peer = PortalStationPeer("02:00:00:00:00:01", "02:00:00:00:00:02", receipts.append)
+        self.addCleanup(peer.close)
+        peer.start()
+        peer.invalidate_for_reset()
+        peer._station_proven = True
+        peer._input.extend(b"incomplete old frame")
+        peer.child.sendall(b"obsolete socket bytes")
+        delivered = Event()
+        with patch.object(peer, "_await_station", side_effect=delivered.set):
+            peer.start(capture_start_offset=2048)
+            self.assertTrue(delivered.wait(2))
+            self.assertFalse(peer._input)
+            self.assertEqual(receipts[-1]["generation"], 2)
+            self.assertTrue(receipts[-1]["station_reconnect"])
+            self.assertEqual(receipts[-1]["capture_start_offset"], 2048)
+            self.assertFalse(receipts[-1]["save_http"])
+            self.assertIsNone(receipts[-1]["station_dhcp_xid"])
+            peer.close()
 
 class SoftAPPortalResponseTests(unittest.TestCase):
+    def test_dropped_syn_retries_connection_before_sending_form_once(self):
+        peer = SoftAPPeer("02:00:00:00:00:01", lambda receipt: None, portal=True)
+        self.addCleanup(peer.close)
+        lease, server = bytes([192, 168, 4, 2]), bytes([192, 168, 4, 1])
+        gateway = bytes.fromhex("020000000005")
+        body = b"Saving Credentials. Trying to connect ESP to network"
+        response = (
+            b"HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nContent-Length: "
+            + str(len(body)).encode() + b"\r\n\r\n" + body
+        )
+
+        def packet(seq, ack, flags, data=b""):
+            tcp = bytearray(struct.pack("!HHIIBBHHH", 80, 49152, seq, ack, 0x50, flags, 8192, 0, 0) + data)
+            pseudo = server + lease + struct.pack("!BBH", 0, 6, len(tcp))
+            struct.pack_into("!H", tcp, 16, _internet_checksum(pseudo + tcp))
+            return peer.mac + gateway + b"\x08\0" + peer._ipv4(server, lease, 6, bytes(tcp))
+
+        frames = [TimeoutError, packet(10, 8, 0x12), packet(11, 8 + len(_SAVE_REQUEST), 0x18, response)]
+        with (
+            patch("device_service_softap_peer.secrets.randbelow", return_value=0),
+            patch("device_service_softap_peer.secrets.randbits", return_value=7),
+            patch.object(peer, "_next_frame", side_effect=frames),
+            patch.object(peer, "_send") as send,
+        ):
+            self.assertEqual(peer._http(lease, server, gateway, _SAVE_REQUEST, markers=_SAVE_MARKERS), body)
+        packets = [call.args[0] for call in send.call_args_list]
+        self.assertEqual(packets[:2], [packets[0]] * 2)
+        self.assertEqual([frame[54:] for frame in packets if frame[54:]], [_SAVE_REQUEST])
+
     def test_requires_complete_expected_html(self):
         body = b"<h3>StickS3-Setup</h3><form action='/wifi'></form>"
         header = (

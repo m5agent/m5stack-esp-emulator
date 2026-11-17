@@ -1,0 +1,28 @@
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -1430,11 +1430,10 @@
+     if (frame->frame_control.type == IEEE80211_TYPE_MGT) {
+         if (s->s3_softap_peer && !s->s3_portal_station_active) {
+             const unsigned subtype = frame->frame_control.sub_type;
+-            bool associated = s->s3_portal_station && ap_info &&
+-                s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED;
+-            const uint8_t *ap = associated ? ap_info->mac_address : NULL;
+-
+-            if (associated && subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
++            bool infrastructure = s->s3_portal_station && ap_info;
++            const uint8_t *ap = infrastructure ? ap_info->mac_address : NULL;
++
++            if (infrastructure && subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
+                 frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
+                 !memcmp(frame->receiver_address, ap, ETH_ALEN) &&
+                 !memcmp(frame->address_3, ap, ETH_ALEN) &&
+@@ -1444,7 +1443,7 @@
+                 memcpy(s->station_macaddr, frame->transmitter_address, ETH_ALEN);
+                 s->s3_portal_station_active = true;
+                 s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
+-            } else if (!associated || subtype != IEEE80211_TYPE_MGT_SUBTYPE_PROBE_REQ) {
++            } else if (!infrastructure || subtype != IEEE80211_TYPE_MGT_SUBTYPE_PROBE_REQ) {
+                 softap_fixture_manage(s, frame);
+                 return;
+             }

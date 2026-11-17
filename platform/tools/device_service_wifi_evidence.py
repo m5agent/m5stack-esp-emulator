@@ -6,7 +6,9 @@ from ipaddress import IPv4Address
 from typing import TYPE_CHECKING
 
 from device_service_parsing import is_sha256
-from device_service_softap_peer import STICKS3_PROVISION_PROFILE
+from device_service_softap_peer import (
+    PROVISION_STATION_GATEWAY, PROVISION_STATION_LEASE, STICKS3_PROVISION_PROFILE,
+)
 from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
 
 if TYPE_CHECKING:
@@ -117,6 +119,39 @@ def _count_transport_pairs(rows: list, lease_addresses: set[IPv4Address]) -> dic
     return counts
 
 
+def _finalized_capture(packet_capture: dict) -> tuple[str, list, list] | None:
+    capture_input = packet_capture.get("input")
+    capture_sha256 = capture_input.get("sha256") if isinstance(capture_input, dict) else None
+    dhcp = packet_capture.get("dhcp")
+    flows = packet_capture.get("flows")
+    if (
+        packet_capture.get("status") != "PASS" or packet_capture.get("format") != "pcap"
+        or packet_capture.get("linktype") != 1
+        or packet_capture.get("truncated_records") or packet_capture.get("malformed_records")
+        or packet_capture.get("flows_truncated")
+        or not isinstance(capture_sha256, str) or not is_sha256(capture_sha256)
+        or not isinstance(dhcp, dict) or dhcp.get("transactions_truncated")
+        or not isinstance(dhcp.get("transactions"), list) or not isinstance(flows, list)
+    ):
+        return None
+    return capture_sha256, dhcp["transactions"], flows
+
+
+def captured_provision_station_dora(packet_capture: dict, xid: object) -> bool:
+    """Bind the current peer generation to its actual station DHCP exchange."""
+    if not isinstance(xid, str) or len(xid) != 8:
+        return False
+    capture = _finalized_capture(packet_capture)
+    if capture is None:
+        return False
+    return any(
+        isinstance(row, dict) and row.get("xid") == xid
+        and row.get("server_id") == str(PROVISION_STATION_GATEWAY)
+        and _completed_dora(row) == PROVISION_STATION_LEASE
+        for row in capture[1]
+    )
+
+
 def native_sta_data_plane(packet_capture: dict) -> dict:
     """Summarize observed transport. Application semantics require separate proof."""
     receipt = {
@@ -132,22 +167,12 @@ def native_sta_data_plane(packet_capture: dict) -> dict:
     if packet_capture.get("status") == "CAPTURING":
         receipt["capture_state"] = "capturing"
         return receipt
-    capture_input = packet_capture.get("input")
-    capture_sha256 = capture_input.get("sha256") if isinstance(capture_input, dict) else None
-    dhcp = packet_capture.get("dhcp")
-    flows = packet_capture.get("flows")
-    if (
-        packet_capture.get("status") != "PASS" or packet_capture.get("format") != "pcap"
-        or packet_capture.get("linktype") != 1
-        or packet_capture.get("truncated_records") or packet_capture.get("malformed_records")
-        or packet_capture.get("flows_truncated")
-        or not isinstance(capture_sha256, str) or not is_sha256(capture_sha256)
-        or not isinstance(dhcp, dict) or dhcp.get("transactions_truncated")
-        or not isinstance(dhcp.get("transactions"), list) or not isinstance(flows, list)
-    ):
+    capture = _finalized_capture(packet_capture)
+    if capture is None:
         return receipt
+    capture_sha256, transactions, flows = capture
     leases = {}
-    for row in dhcp["transactions"]:
+    for row in transactions:
         if isinstance(row, dict) and isinstance(row.get("xid"), str) and row["xid"]:
             if address := _completed_dora(row):
                 leases[row["xid"]] = address

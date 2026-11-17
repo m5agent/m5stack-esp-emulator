@@ -1767,3 +1767,11 @@ and DMA wiring carries the driver's subsequent panel traffic. The original
 vinylM5Dial display and its rotary, touch and button controls were verified
 with the unchanged BIN and the same Unit AudioPlayer attachment.
 [Same-artifact validation](../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)
+
+## S3 lab station rejoin after reset (0219)
+
+The opt-in StickS3 provisioning profile responds to probes and directed
+authentication for its infrastructure AP even before a guest SoftAP
+client is associated. A configured guest can then rejoin the same AP
+from its own Flash after reset. Management processing for the other
+SoftAP profiles keeps the original gate.

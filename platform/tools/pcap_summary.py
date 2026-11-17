@@ -340,6 +340,7 @@ def summarize_pcap(
     *,
     include_dns_names: bool = True,
     max_flows: int = MAX_RECORDED_FLOWS,
+    record_start_offset: int | None = None,
 ) -> dict[str, Any]:
     capture_size = path.stat().st_size
     if capture_size > MAX_CAPTURE_BYTES:
@@ -347,6 +348,8 @@ def summarize_pcap(
             f"capture is {capture_size} bytes; maximum is {MAX_CAPTURE_BYTES}"
         )
     data = path.read_bytes()
+    if record_start_offset is not None and not 24 <= record_start_offset <= len(data):
+        raise PcapError("capture record start offset is outside the capture")
     result: dict[str, Any] = {
         "schema_version": 1,
         "kind": "m5stack-pcap-summary",
@@ -391,6 +394,8 @@ def summarize_pcap(
             "malware safety",
         ],
     }
+    if record_start_offset is not None:
+        result["record_start_offset"] = record_start_offset
     if len(data) < 24:
         raise PcapError("capture is shorter than the pcap global header")
     magic = data[:4]
@@ -423,6 +428,7 @@ def summarize_pcap(
     protocols = result["protocols"]
     offset = 24
     while offset < len(data):
+        record_start = offset
         if offset + 16 > len(data):
             result["truncated_records"] += 1
             break
@@ -436,6 +442,8 @@ def summarize_pcap(
             break
         frame = data[offset:end]
         offset = end
+        if record_start_offset is not None and record_start < record_start_offset:
+            continue
         result["packets"] += 1
         timestamp = seconds + (fraction / fraction_scale)
         network = _network_packet(frame)

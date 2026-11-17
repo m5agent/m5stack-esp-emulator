@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.71.0
+  version: 1.72.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3893,17 +3893,31 @@ components:
             save_http:
               type: boolean
               description: The expected WiFiManager form response was received.
+            save_body_sha256:
+              type: [string, "null"]
+              pattern: "^[a-f0-9]{64}$"
             station_dhcp:
               type: boolean
             station_arp:
               type: boolean
+            station_reconnect:
+              type: boolean
+              description: This reset generation exercises settings saved by the guest in the same session.
+            station_dhcp_xid:
+              type: [string, "null"]
+              pattern: "^[a-f0-9]{8}$"
+              description: Station DHCP transaction ID for the current generation.
+            capture_start_offset:
+              type: [integer, "null"]
+              minimum: 24
+              description: Start of the current reset generation within the same Ethernet pcap.
             http_body_sha256:
               type: [string, "null"]
             http_request_sha256:
               type: [string, "null"]
             stage:
               type: string
-              enum: [dhcp, arp, http, reset, recovery]
+              enum: [dhcp, arp, http, reset, recovery, submit, station, station-reconnect]
         isolation:
           type: object
           additionalProperties: true
@@ -5149,6 +5163,8 @@ components:
         and the network.softap.provision ACL operation when ACL is enabled.
         It reads the guest portal, submits one fixed open lab SSID, and
         verifies the guest's station DHCP and ARP in the same session.
+        After a proven provisioning exchange, native patch 0219 supports a
+        fresh station DHCP exchange after a guest reset using the saved settings.
         It accepts only profile and optional capture_pcap=true.
         cardputer-adv-local-time-fixture requires runtime=qemu-wifi and a configured
         ACL grant of network.sta.time.probe when ACL is enabled. It serves fixed DNS

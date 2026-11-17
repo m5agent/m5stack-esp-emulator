@@ -167,6 +167,41 @@ def dhcp_packet(
 
 
 class PcapSummaryTests(unittest.TestCase):
+    def test_reset_cutoff_requires_a_new_exchange_even_when_xid_repeats(self):
+        xid = 0x11223344
+        frames = []
+        for kind in (1, 2, 3, 5):
+            reply = kind in (2, 5)
+            frames.append(ethernet(ipv4_udp(
+                dhcp_packet(
+                    operation=2 if reply else 1,
+                    xid=xid, message_type=kind,
+                    assigned_address="10.0.2.15" if reply else "0.0.0.0",
+                    requested_ip="10.0.2.15" if kind == 3 else None,
+                    server_id="10.0.2.2" if kind != 1 else None,
+                    lease_seconds=120 if reply else None,
+                ),
+                source="10.0.2.2" if reply else "0.0.0.0",
+                destination="255.255.255.255",
+                source_port=67 if reply else 68, destination_port=68 if reply else 67,
+            )))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "session.pcap"
+            cutoff = len(pcap(frames))
+            path.write_bytes(pcap(frames + frames[:1]))
+            cold = summarize_pcap(path)
+            incomplete = summarize_pcap(path, record_start_offset=cutoff)
+            self.assertEqual(incomplete["input"], cold["input"])
+            self.assertEqual(incomplete["dhcp"]["transactions"][0]["message_sequence"], ["DISCOVER"])
+            path.write_bytes(pcap(frames + frames))
+            rejoin = summarize_pcap(path, record_start_offset=cutoff)
+            transaction, = rejoin["dhcp"]["transactions"]
+            self.assertEqual(transaction["xid"], "11223344")
+            self.assertEqual(transaction["message_sequence"], ["DISCOVER", "OFFER", "REQUEST", "ACK"])
+            self.assertEqual(rejoin["packets"], 4)
+            with self.assertRaises(PcapError):
+                summarize_pcap(path, record_start_offset=path.stat().st_size + 1)
+
     def test_ipv6_site_local_scope_is_not_global(self) -> None:
         self.assertEqual(_scope("fec0::2"), "site-local")
 
