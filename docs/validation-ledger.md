@@ -14,6 +14,21 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 内部文件系统原始与停机清单
+
+[ADV 的 ESP-IDF 6.1.1 LittleFS 三会话](../tests/firmware/littlefs_partition/source-inventory-summary.json)通过真实 VFS
+读取夹具、写入目标文件、卸载与重新挂载。原始清单只有 `FIXTURE.TXT`，首次停机清单新增
+`PROOF.TXT`。重启同一隔离服务后仍能分别读回。导出的 1 MiB 分区在新来宾读到
+已有文件，使用原始夹具的独立对照报告无该文件。三个会话的导出均与对应运行期证据中
+的分区一致，完整释放 Flash 和租约。缺省查询仍返回原形状，空白和重复的
+`include_source` 取值返回 400。
+
+[保存快照的内部文件断言](../tests/firmware/littlefs_partition/reviewer-output-summary.json)在 ADV 的 ESP-IDF 6.1.1 LittleFS
+和初代 Cardputer 的 ESP-IDF 5.5.4 SPIFFS 上复用普通审核入口。两个新建文件通过。
+预期哈希错误、目标不存在及预置内容被改写后的错误哈希分别失败，源和停机均为预期内容的
+预置对照为 PARTIAL。六次结果均由来宾串口、原始及停机清单和审核回执交叉核对。
+探针未绘制应用画面，整机审核保留 E_NO_FRAME。会话保留证据并释放 Flash 和租约。
+
 ## 2026-11-18 All day watch 留存 IWDT 与 RTC 源码对照
 
 [原版 0.3.8 留存证据与只读审核回放](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)

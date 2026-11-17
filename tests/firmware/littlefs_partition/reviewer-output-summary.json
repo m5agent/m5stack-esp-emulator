@@ -1,0 +1,331 @@
+{
+  "validation": "virtual-device validation",
+  "emulator_commit": "bb94ea01e65da8c94c709960fbf4c05fc6ea261f",
+  "reviewer_commit": "4ffd5d951d42bab8e3c0834bbd01a0b1820073b0",
+  "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "physical": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "cases": {
+    "littlefs-new": {
+      "status": "PASS",
+      "expected_status": "PASS",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer-adv",
+      "format": "littlefs",
+      "sdk": "6.1.1",
+      "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "source_fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "required_file": "/PROOF.TXT",
+      "required_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+      "file_check": {
+        "status": "PASS",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_outputs_verified",
+        "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+        "source_artifact_id": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+        "format": "littlefs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/PROOF.TXT",
+            "expected_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+            "status": "PASS",
+            "reason": "guest_created_file",
+            "source_sha256": null,
+            "retained_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5"
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "c8268b45fc4ee3e204fdb1299114281459305b3797d5bc305920026afd8b0f7a",
+        "retained_partition_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "509be7ef6bd0b3734250bc96865d5c4a6499913c359d2292ace06c64941f78a1",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "littlefs-wrong": {
+      "status": "FAIL",
+      "expected_status": "FAIL",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer-adv",
+      "format": "littlefs",
+      "sdk": "6.1.1",
+      "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "source_fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "required_file": "/PROOF.TXT",
+      "required_sha256": "a61a371269a31c4de0f1c614881071deaa3ffc5590ca88d34a4355a2d2e11322",
+      "file_check": {
+        "status": "FAIL",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_output_mismatch",
+        "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+        "source_artifact_id": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+        "format": "littlefs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/PROOF.TXT",
+            "expected_sha256": "a61a371269a31c4de0f1c614881071deaa3ffc5590ca88d34a4355a2d2e11322",
+            "status": "FAIL",
+            "reason": "file_sha256_mismatch",
+            "source_sha256": null,
+            "retained_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5"
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "c8268b45fc4ee3e204fdb1299114281459305b3797d5bc305920026afd8b0f7a",
+        "retained_partition_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "fe0bf034e964d4392f3a0046292411865e990f0b4909db85fa2ef2cd3935e1a3",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "littlefs-missing": {
+      "status": "FAIL",
+      "expected_status": "FAIL",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer-adv",
+      "format": "littlefs",
+      "sdk": "6.1.1",
+      "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "source_fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "required_file": "/MISSING.TXT",
+      "required_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+      "file_check": {
+        "status": "FAIL",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_output_mismatch",
+        "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+        "source_artifact_id": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+        "format": "littlefs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/MISSING.TXT",
+            "expected_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+            "status": "FAIL",
+            "reason": "expected_file_missing",
+            "source_sha256": null,
+            "retained_sha256": null
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "c8268b45fc4ee3e204fdb1299114281459305b3797d5bc305920026afd8b0f7a",
+        "retained_partition_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "470a98214d18f1567ca4610dc7e3c34f0bd2d20ac74e60570b30292bae5a03cd",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "littlefs-preexisting": {
+      "status": "PARTIAL",
+      "expected_status": "PARTIAL",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer-adv",
+      "format": "littlefs",
+      "sdk": "6.1.1",
+      "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "source_fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+      "required_file": "/PROOF.TXT",
+      "required_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+      "file_check": {
+        "status": "PARTIAL",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_output_unconfirmed",
+        "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+        "source_artifact_id": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+        "format": "littlefs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/PROOF.TXT",
+            "expected_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+            "status": "PARTIAL",
+            "reason": "expected_file_already_in_fixture",
+            "source_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5",
+            "retained_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5"
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "29cb3ce6904537d6f091b75e32cd13e376e09855291175faa780811bf8f87e85",
+        "retained_partition_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "1f3ba75afae29b45e9aaed817268b4e16800f9bda5fe3487f68aa995e7508658",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "littlefs-overwritten": {
+      "status": "FAIL",
+      "expected_status": "FAIL",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer-adv",
+      "format": "littlefs",
+      "sdk": "6.1.1",
+      "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+      "source_fixture_sha256": "b1a80c343e76fd6eb65fb64690d287aee6b7ba84183f1abf50758225c132e919",
+      "required_file": "/PROOF.TXT",
+      "required_sha256": "559135ca36b635ba7706b37ad7c7d97b78b3ce5f57f2523c317c840e1bf783a3",
+      "file_check": {
+        "status": "FAIL",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_output_mismatch",
+        "firmware_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+        "source_artifact_id": "b1a80c343e76fd6eb65fb64690d287aee6b7ba84183f1abf50758225c132e919",
+        "format": "littlefs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/PROOF.TXT",
+            "expected_sha256": "559135ca36b635ba7706b37ad7c7d97b78b3ce5f57f2523c317c840e1bf783a3",
+            "status": "FAIL",
+            "reason": "file_sha256_mismatch",
+            "source_sha256": "559135ca36b635ba7706b37ad7c7d97b78b3ce5f57f2523c317c840e1bf783a3",
+            "retained_sha256": "12b7f00789062f329278bf35f79e12b0670289e4ae729dd0591b1497f51d96d5"
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "6716b6a4d70f1c9aae719887f7f068b2831c0c311e9fee8f38b0a6da6c15bf52",
+        "retained_partition_sha256": "3090a20339dbc4ae27e9bcfbdc735750d70c0e8b0b2bb60d66af6d7db7c41ea3",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "876105f666c4bbae15d8af13c2f52ace4180df900fd8b53b1a2396f8ebf7440e",
+      "flash_released": true,
+      "lease_released": true
+    },
+    "spiffs-new": {
+      "status": "PASS",
+      "expected_status": "PASS",
+      "matched_expected": true,
+      "reviewer_status": "manual_review",
+      "reviewer_error_code": "E_NO_FRAME",
+      "device": "cardputer",
+      "format": "spiffs",
+      "sdk": "5.5.4",
+      "firmware_sha256": "b943f008d663cad2ba316b566825e0f9171f9c5c02c28e805ddcfc4629e614e3",
+      "source_fixture_sha256": "d53424b5735514fdab7a407eb30a22e6744b91a5a6db04610a756c1feff1a162",
+      "required_file": "/PROOF.TXT",
+      "required_sha256": "cd96d1024fa7c5b44a0be83f49d7b624b3657613262a634f5630107e8cf5b120",
+      "file_check": {
+        "status": "PASS",
+        "scope": "guest_internal_filesystem_output",
+        "reason": "requested_guest_outputs_verified",
+        "firmware_sha256": "b943f008d663cad2ba316b566825e0f9171f9c5c02c28e805ddcfc4629e614e3",
+        "source_artifact_id": "d53424b5735514fdab7a407eb30a22e6744b91a5a6db04610a756c1feff1a162",
+        "format": "spiffs",
+        "partition_label": "storage",
+        "files": [
+          {
+            "path": "/PROOF.TXT",
+            "expected_sha256": "cd96d1024fa7c5b44a0be83f49d7b624b3657613262a634f5630107e8cf5b120",
+            "status": "PASS",
+            "reason": "guest_created_file",
+            "source_sha256": null,
+            "retained_sha256": "cd96d1024fa7c5b44a0be83f49d7b624b3657613262a634f5630107e8cf5b120"
+          }
+        ],
+        "evidence_file": "filesystem-output.json",
+        "offset": 1114112,
+        "size": 1048576,
+        "effective_flash_sha256": "6d9377a6b4cce701925eeae6730f6b4b929cacf2d17c496c6f36e0cc15d6a258",
+        "retained_partition_sha256": "01ebc2731adb27962ef33eb5891bb8533cf6cfc9fdbfd9738f2f2f5a8488f916",
+        "cleanup": {
+          "status": "PASS",
+          "flash_retained": false
+        }
+      },
+      "serial_markers": [
+        "SPIFFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "SPIFFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "SPIFFS_PROBE_DONE"
+      ],
+      "evidence_zip_sha256": "56d590e98b7e239458ce152e23152baaceac2852da17242af93afa3b32067873",
+      "flash_released": true,
+      "lease_released": true
+    }
+  },
+  "active_leases_after": 0,
+  "owned_processes_stopped": true,
+  "preflight_attempts": [
+    {
+      "scope": "direct-1",
+      "status": "INFRASTRUCTURE_FAIL",
+      "reason": "Harness misspelled the ADV machine. Its no-network gate rejected the launch before QEMU executed. Isolated service exited; the unused mutable Flash copy was removed."
+    },
+    {
+      "scope": "review-1",
+      "status": "INFRASTRUCTURE_FAIL",
+      "reason": "Bare export did not configure the frozen Flash helper. Both boards were rejected at capability admission without creating guest sessions."
+    },
+    {
+      "scope": "review-2",
+      "status": "INFRASTRUCTURE_FAIL",
+      "reason": "Setting host-image alone still left the helper path absent. Capability preflight stopped the attempt before any review was queued."
+    }
+  ]
+}

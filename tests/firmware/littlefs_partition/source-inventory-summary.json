@@ -1,0 +1,113 @@
+{
+  "status": "PASS",
+  "device": "cardputer-adv",
+  "sdk": "6.1.1",
+  "base_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+  "seed_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+  "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "source_commit": "bb94ea01e65da8c94c709960fbf4c05fc6ea261f",
+  "source_file_sha256": {
+    "device_service.py": "fcc3d0227b5ebf71ae563bc89f5c8dfdeb6d4aa2e7b39dc4f4e39399c5488647",
+    "device_service_fs_fixture.py": "f689b28eebc3cfaba6792a99c2dbd0825a5ac9c1803454b81f9a443d23542fb3",
+    "serve.py": "8444e004b3dfdaa032bfd1bd9940a660d79473da3aa27590414772852c3ca502"
+  },
+  "format": "littlefs",
+  "validation": "virtual-device validation",
+  "cases": [
+    {
+      "name": "seed-first",
+      "status": "PASS",
+      "markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "file_count_before": 1,
+      "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "outside_partition_unchanged": true,
+      "read_after_service_restart": true,
+      "source_names": [
+        "FIXTURE.TXT"
+      ],
+      "source_opt_in_backward_compatible": true,
+      "invalid_source_options_rejected": true,
+      "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+      "exported_partition_bytes": 1048576,
+      "export_matches_pre_stop_zip": true,
+      "repeat_export_same_artifact": true,
+      "file_names": [
+        "FIXTURE.TXT",
+        "PROOF.TXT"
+      ],
+      "evidence_zip_sha256": "fe4567e7f064492144c61a586056e6fceeed60952167486404dd3905b343c268",
+      "stopped": true,
+      "flash_released": true,
+      "leases": 0
+    },
+    {
+      "name": "snapshot-import",
+      "status": "PASS",
+      "markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "file_count_before": 2,
+      "fixture_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+      "outside_partition_unchanged": true,
+      "source_names": [
+        "FIXTURE.TXT",
+        "PROOF.TXT"
+      ],
+      "source_opt_in_backward_compatible": true,
+      "invalid_source_options_rejected": true,
+      "filesystem_sha256": "9700aa3ef41dfaae2a15a8dc1fbb9b17f22f7e80331a3d09ae98a77b7d52f8f2",
+      "exported_partition_bytes": 1048576,
+      "export_matches_pre_stop_zip": true,
+      "repeat_export_same_artifact": true,
+      "file_names": [
+        "FIXTURE.TXT",
+        "PROOF.TXT"
+      ],
+      "evidence_zip_sha256": "4ca49ac9d7940cddd1302c9650963701ed714a81d54b968f56ef8179e5070992",
+      "stopped": true,
+      "flash_released": true,
+      "leases": 0
+    },
+    {
+      "name": "seed-isolated-control",
+      "status": "PASS",
+      "markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "file_count_before": 1,
+      "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+      "outside_partition_unchanged": true,
+      "source_names": [
+        "FIXTURE.TXT"
+      ],
+      "source_opt_in_backward_compatible": true,
+      "invalid_source_options_rejected": true,
+      "filesystem_sha256": "7869b3105bc1767af0ed0f1ee4b092091a97e971d7177d4907a3221cb25bda84",
+      "exported_partition_bytes": 1048576,
+      "export_matches_pre_stop_zip": true,
+      "repeat_export_same_artifact": true,
+      "file_names": [
+        "FIXTURE.TXT",
+        "PROOF.TXT"
+      ],
+      "evidence_zip_sha256": "3ff345cead9f1b23d2dbffc41b7c3fa3194fde62ab3e373c0cf642668c21ec72",
+      "stopped": true,
+      "flash_released": true,
+      "leases": 0
+    }
+  ],
+  "separate_leases": true,
+  "source_artifacts_unchanged": true,
+  "isolated_service_exited": true
+}

@@ -50,6 +50,9 @@
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    [Core2 与 Nesso N1](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)已在 ESP-IDF 5.5.4 验证 LittleFS 停止后导出、服务重启与新会话复用。
+   [ADV 内部 LittleFS 原始与停机清单](../tests/firmware/littlefs_partition/source-inventory-summary.json)通过 6.1.1 夹具的
+   停机读回、服务重启和新会话复用。[保存快照文件断言](../tests/firmware/littlefs_partition/reviewer-output-summary.json)
+   已对 ADV LittleFS 和初代 Cardputer SPIFFS 核对清单差异与预期哈希。继续在更多原版应用上验证实际文件读写。
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
    [审核复验](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)
    已对同一原版核验 G0 动作写入、指定文件和缺失文件对照。
