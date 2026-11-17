@@ -46,17 +46,17 @@
 2. **P0 存储**。补 ESP-IDF LittleFS 真实来宾挂载，并用具备再分发或本地测试权限的
    fixture 验证原版 nc1020、CardputerDict 等的应用路径。PaperDIY 会话内热插拔需要
    实现介质切换和 GPIO48 电平变化。StickS3/Dial 外接 SD 需要独立接线模型。
-3. **P0 同 guest 网络**。按板型验证 Wi-Fi STA/AP、配置顺序、DNS/HTTP/TCP/UDP
-   fixture、pcap 和关联事件；优先 Cardputer/ADV、按键进入配网的 StickS3。
-   保持现有网络授权及隔离约束。
-4. **P0 Tab5 取帧**。与兼容的上游后端确认面板/帧缓冲快照，用只有原版 BIN 的会话
-   验证非黑帧和更新。补 ST7123/GT911、C6/SDIO、USB Host、CSI、音频各自被访问
-   的控制器路径，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
+3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、固件 SoftAP
+   的关联/DHCP/门户，以及 StickS3 按键配网后同会话的网络收据。按板型补 Wi-Fi 事件和应用
+   断言，保持现有网络授权及隔离约束。
+4. **P0 Tab5 取帧**。现有 ILI9881C/GT911 板型的 CarPlay 原版已取得无 ELF 帧；继续对照
+   Arduventure 的几何判断及 M5TabOS/98TAB5 启动路径。补 ST7123/GT911 触摸、
+   C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
-5. **P0 崩溃与任务观测**。原生 Core2 探针已验证同会话 panic、WDT、双核 PC、
-   UART core dump 状态及匹配 ELF 的 Xtensa 函数解析。继续用原版按键 WDT、Tab5
-   重启与启动停滞核对分类，补充已匹配 core dump 的任务和 RISC-V 调用栈解码。
+5. **P0 崩溃与任务观测**。补自动 core dump/FreeRTOS 任务解码、RISC-V 匹配 ELF
+   符号解析和运行时 CPU PC 采样。All day watch 的原输入序列及历史 CPU1 WDT 仍需复现，
+   M5TabOS 的重复复位和 98TAB5 的无画面路径继续独立定位。
 6. **P1 外设**。优先审查侧 Unit 挂载，按 UART/I2C/SPI 数据面验证 AudioPlayer、
    NFC、Joystick 和外接收发控制器。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
