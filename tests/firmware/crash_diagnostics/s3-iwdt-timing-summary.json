@@ -164,5 +164,29 @@
     "changes_restored_to_pinned_tree": "PASS",
     "final_patch_sha256": "e7935418bbe781d01a0bb80d6050a395150727601a2e71d6d9bc3c1dc55af419",
     "before_reverse_recipe_sha256": "bad3dc3a327200716874764834c6af4dc73de35accf5e2448142009206369eed"
+  },
+  "crash_api_validation": {
+    "on": {
+      "same_session_firmware_and_device": true,
+      "backend_observations_match_raw_and_zip": true,
+      "timing_observations": 1,
+      "bundle_sha256": "4145c257c5476069638dc912c63550db126bafd26347209b7ab262ad81d681cc",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    },
+    "off": {
+      "same_session_firmware_and_device": true,
+      "backend_observations_match_raw_and_zip": true,
+      "timing_observations": 0,
+      "bundle_sha256": "ca15fcc7fcf6f24b44ba05e8de3357a73a338f9d28d62a4bbae5a983904e8aaa",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    }
   }
 }

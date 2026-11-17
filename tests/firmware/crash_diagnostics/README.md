@@ -95,6 +95,10 @@ CPU1 watchdog panic. Collect `include=serial,logs,crash` before stopping.
 The tracing instance emits one `M5_S3_IWDT_STAGE0` line in native stderr
 with `schema_version=1`. The default instance produces the same guest panic
 without a timing receipt. Both test sessions release Flash and their lease.
+Compare the timing payload with `backend_observations` from
+`GET /api/v1/sessions/{id}/crash` and the same session's
+`diagnostics/crash.json` in the evidence ZIP. The API and ZIP must retain
+the same timing payload and the separate guest panic.
 
 `acks` and `last_ack_ns` are indexed by vCPU and alarm target, in that order.
 An acknowledgement counts a write that clears a pending raw alarm. It confirms
