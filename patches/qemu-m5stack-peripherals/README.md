@@ -1757,3 +1757,13 @@ the S3 DMA descriptor marks incoming infrastructure data for the guest STA
 interface. The original read-only portal and other Wi-Fi profiles retain
 their existing radio and socket configuration. See the pinned guest
 [execution evidence](../../docs/evidence/2026-11-17-sticks3-portal-station/README.md).
+
+## Dial GC9A01 GPIO probe (0218)
+
+Apply after the existing panel GPIO adapter in the native recipe. Attach the
+same Dial panel to the board's GPIO CS7, SCK6, DC4 and SDA5 for the three-wire
+probe. The GPIO adapter releases SDA when the probe ends. Existing GP-SPI
+and DMA wiring carries the driver's subsequent panel traffic. The original
+vinylM5Dial display and its rotary, touch and button controls were verified
+with the unchanged BIN and the same Unit AudioPlayer attachment.
+[Same-artifact validation](../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)

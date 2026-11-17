@@ -1,0 +1,675 @@
+{
+  "validation": "virtual-device validation",
+  "base_emulator_commit": "2db3851c0b7a4980210034d05130224a2ecf6455",
+  "patch_sha256": "96d391ebbe1b36bfc9d9fc770904b97dc85b6068b3503cf6b78ef893ec3f5430",
+  "runtime_runs": {
+    "normal-full-turn-a1": {
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 0,
+        "sha256": "4bf6fb04707daaa254f0d27219adbb5bfb282a2f495e0bf528cb7ee3efde5832"
+      },
+      "zip_sha256": "7cccaf150745e98351454578d0154762d289898b955b2c3f632aa6abad9434d2",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "rotary": [
+        {
+          "expected": 4,
+          "before": 1,
+          "track": 4,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600020a"
+        },
+        {
+          "expected": 5,
+          "before": 2,
+          "track": 5,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600050d"
+        },
+        {
+          "expected": 3,
+          "before": 5,
+          "track": 3,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600030b"
+        },
+        {
+          "expected": 5,
+          "before": 3,
+          "track": 5,
+          "track_match": true,
+          "delta": 2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600050d"
+        },
+        {
+          "expected": 2,
+          "before": 5,
+          "track": 2,
+          "track_match": true,
+          "delta": -3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600020a"
+        },
+        {
+          "expected": 4,
+          "before": 2,
+          "track": 4,
+          "track_match": true,
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "0bf401000004fb01000004fb01000004fb01151504fb030600020a"
+        },
+        {
+          "expected": 7,
+          "before": 2,
+          "track": 7,
+          "track_match": true,
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600070f"
+        },
+        {
+          "expected": 2,
+          "before": 7,
+          "track": 2,
+          "track_match": true,
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb01151504fb030600020a"
+        }
+      ]
+    },
+    "usb-diagnostic-a1": {
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_sha256": "384058e4fe12b118e76a371bab37384f1347c9ef4e6c1e8176f827222399cf7a",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 0,
+        "sha256": "4bf6fb04707daaa254f0d27219adbb5bfb282a2f495e0bf528cb7ee3efde5832"
+      },
+      "zip_sha256": "8d625da99088bd369f1aa27e4a476ff097df3f5205bcc69901d2ff0c9bb21454",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "rotary": [
+        {
+          "expected": 4,
+          "before": 1,
+          "track": 4,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600020a"
+        }
+      ],
+      "hardware_spi_transfers": 0,
+      "usb_log": {
+        "bytes": 2577,
+        "sha256": "ee048f2f61c5d49b210227c64946b6a4dbaee5f7651c070c9cfa96de11f06496",
+        "original_reports_started_render_task": true,
+        "observed_health_frames_4_of_4": true
+      }
+    },
+    "usb-gpio-candidate-a1": {
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_sha256": "7bc692aeb0e59322b2b061819e36dd8856d42fa4e3b3c4f373cff399de6a2adb",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "sha256": "f25d019f2a6c76ac777083c14d4efe67ae6b464304afa42f86e2e1dce3857350"
+      },
+      "zip_sha256": "27e682cb2a35b45ae9e5562891e127186bbd0a2f19ef3f8f04d686390a83ee42",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "rotary": [
+        {
+          "expected": 4,
+          "before": 1,
+          "track": 4,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600020a"
+        }
+      ],
+      "hardware_spi_transfers": 11247,
+      "usb_log": {
+        "bytes": 2497,
+        "sha256": "44f595a0f56df136cc6324ac7387583e7be5c447f4677dca54314f4d6291dc89",
+        "original_reports_started_render_task": true,
+        "observed_health_frames_4_of_4": false
+      }
+    },
+    "pure-full-turn-a1": {
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "sha256": "713479e0b4047371a637a0a51a11dc246151a8ffb1609be525b8e3ba563eda30"
+      },
+      "zip_sha256": "01f8b5fc67d6f596b61e0cf135bafe901f1d868147d787ace746af6f8f5b949e",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "rotary": [
+        {
+          "expected": 4,
+          "before": 1,
+          "track": 4,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600020a"
+        },
+        {
+          "expected": 5,
+          "before": 2,
+          "track": 5,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600050d"
+        },
+        {
+          "expected": 3,
+          "before": 5,
+          "track": 3,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 5,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600030b"
+        },
+        {
+          "expected": 5,
+          "before": 3,
+          "track": 5,
+          "track_match": true,
+          "delta": 2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600050d"
+        },
+        {
+          "expected": 2,
+          "before": 5,
+          "track": 2,
+          "track_match": true,
+          "delta": -3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb030600020a"
+        },
+        {
+          "expected": 4,
+          "before": 2,
+          "track": 4,
+          "track_match": true,
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb0115150bf401000004fb01000004fb030600020a"
+        },
+        {
+          "expected": 7,
+          "before": 2,
+          "track": 7,
+          "track_match": true,
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600070f"
+        },
+        {
+          "expected": 2,
+          "before": 7,
+          "track": 2,
+          "track_match": true,
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb01151504fb030600020a"
+        }
+      ]
+    },
+    "pure-controls-a1": {
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "sha256": "869bb0357a729cb5435d8a7d6e31d5a26bb50ede7d1518d15375df252e420be5"
+      },
+      "zip_sha256": "933135bfc525fd4b6ebd27a82e7445a20c68aead9f5c19e85fa42ed2032ecc12",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "rotary": [
+        {
+          "expected": 4,
+          "before": 1,
+          "track": 4,
+          "track_match": true,
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600040c"
+        },
+        {
+          "expected": 2,
+          "before": 4,
+          "track": 2,
+          "track_match": true,
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "playback_status": 1,
+          "guest_uart_append": "04fb01000004fb030600020a"
+        }
+      ],
+      "playback_controls": [
+        {
+          "control": "center_pause",
+          "property": "playback-status",
+          "before": 1,
+          "target": 2,
+          "after": 2,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "04fb01000004fb010202",
+          "frame_sha256": "785bdac4c1c216d2154cccee63907a098eb340b5c03ece2f1fb59e141cf2f96f"
+        },
+        {
+          "control": "center_resume",
+          "property": "playback-status",
+          "before": 2,
+          "target": 1,
+          "after": 1,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "04fb01151504fb010101",
+          "frame_sha256": "e4ae190ca10e0ccd97788dd7427ac1465381af736d7dd3cbdc790c6acd463f0e"
+        },
+        {
+          "control": "up_volume",
+          "property": "volume",
+          "before": 11,
+          "target": 12,
+          "after": 12,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "04fb01000004fb01151506f902010c0e",
+          "frame_sha256": "c40a96467d8ed8152224f8e30bd3d286325d3eb307d681c4e959b48a0abf0255"
+        },
+        {
+          "control": "down_volume",
+          "property": "volume",
+          "before": 12,
+          "target": 11,
+          "after": 11,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "06f902010b0d",
+          "frame_sha256": "15661f55dd8fb07ff1b1ab744c92b8b0d46825ab35656593dea63ec8240e5efe"
+        },
+        {
+          "control": "push_stop",
+          "property": "playback-status",
+          "before": 1,
+          "target": 0,
+          "after": 0,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "04fb010303",
+          "frame_sha256": "99040b2152349864153e5ce41fc5f5747f232153e0f26f77b8f229ca512d989e"
+        },
+        {
+          "control": "push_play",
+          "property": "playback-status",
+          "before": 0,
+          "target": 1,
+          "after": 1,
+          "transition": true,
+          "accepted": true,
+          "guest_uart_append": "0bf401000004fb010101",
+          "frame_sha256": "8cdaa294d8dd0b5dbdd3d69d5f8ec1c939e1d82d0bc2178a7c9979260f075459"
+        }
+      ]
+    },
+    "uiflow-trace-a2": {
+      "firmware_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57528,
+        "sha256": "a5a968c631cb70ec41841b71f5e0bd850a0ff454d53282e9ca2a2fd4f00d3712"
+      },
+      "zip_sha256": "0f68f3284025561488dd2589b90776369e7a047f976bcb9e8edca0659e076e0a",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "hardware_spi_transfers": 35723
+    },
+    "uiflow-pure-candidate-a1": {
+      "firmware_sha256": "6a1c7f01bebb5b74284c2e58b3d7bb465dd7cca99252012f3007153f1d6611f1",
+      "runtime_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+      "frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57526,
+        "sha256": "29343189fff7d64758d3761fd2aa3668a0fcd3303c905de645f6da92cbb613e0"
+      },
+      "zip_sha256": "05bf1898d03db1559c980eda71c5996472ed98f5f3e08257b35d92091da40a1a",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "service_exited": true,
+      "hardware_spi_transfers": 35763
+    }
+  },
+  "hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN",
+  "physical_audio_and_media": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "fast_full_turn_repeat": {
+    "status": "PARTIAL",
+    "runtime_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+    "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+    "configuration": "same pure 0218 candidate, extended runner polling unit and encoder state",
+    "delta": -16,
+    "edge_period_ms": 5,
+    "expected_gpio_edges": 64,
+    "observed_gpio_edges": 64,
+    "expected_track": 7,
+    "observed_track": 2,
+    "uart_track_select_observed": false,
+    "nonblack_pixels": 57600,
+    "evidence_zip_sha256": "c0e76e1ad83070e62fef32e25a3bc1046fccadde185c9c349217d553a12ade47",
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "active_leases": 0
+    }
+  },
+  "source_stack": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_patch_count": 163,
+    "changed_file_count": 155,
+    "ordered_forward_and_reverse_apply": "PASS",
+    "prepared_source_verification": "PASS",
+    "built_qemu_source_bytes_match": "PASS",
+    "changes_restored_to_pinned_tree": "PASS",
+    "final_patch_sha256": "96d391ebbe1b36bfc9d9fc770904b97dc85b6068b3503cf6b78ef893ec3f5430",
+    "before_reverse_recipe_sha256": "b2e849f0ff83f05e227284d3ea237a6a5a8a6e7f13897b41134f143a1cb5fe6f"
+  },
+  "checked_in_gate": {
+    "original_default_and_controls": {
+      "status": "PASS",
+      "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+      "runtime_binary_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+      "frame": {
+        "sha256": "c75ab25100272d2cfa9fde8652cb1dd6dbeaf06dec3e997f549cf5f2c736a607",
+        "width": 240,
+        "height": 240,
+        "nonblack_pixels": 57600,
+        "unique_colors": 171
+      },
+      "input": [
+        {
+          "delta": 3,
+          "edge_period_ms": 35,
+          "track": 4,
+          "command_hex": "04fb030600040c",
+          "total_gpio_edges": 12
+        },
+        {
+          "delta": -2,
+          "edge_period_ms": 35,
+          "track": 2,
+          "command_hex": "04fb030600020a",
+          "total_gpio_edges": 20
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "track": 4,
+          "command_hex": "04fb030600040c",
+          "total_gpio_edges": 84
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "track": 2,
+          "command_hex": "04fb030600020a",
+          "total_gpio_edges": 148
+        }
+      ],
+      "playback_controls": [
+        {
+          "control": "pause",
+          "property": "playback-status",
+          "before": 1,
+          "after": 2,
+          "guest_uart_append": "04fb01000004fb01000004fb010202"
+        },
+        {
+          "control": "resume",
+          "property": "playback-status",
+          "before": 2,
+          "after": 1,
+          "guest_uart_append": "04fb01151504fb010101"
+        },
+        {
+          "control": "volume-up",
+          "property": "volume",
+          "before": 11,
+          "after": 12,
+          "guest_uart_append": "04fb01000004fb01151506f902010c0e"
+        },
+        {
+          "control": "volume-down",
+          "property": "volume",
+          "before": 12,
+          "after": 11,
+          "guest_uart_append": "06f902010b0d"
+        },
+        {
+          "control": "stop",
+          "property": "playback-status",
+          "before": 1,
+          "after": 0,
+          "guest_uart_append": "04fb010303"
+        },
+        {
+          "control": "play",
+          "property": "playback-status",
+          "before": 0,
+          "after": 1,
+          "guest_uart_append": "04fb010101"
+        }
+      ],
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      },
+      "evidence_sha256": "e2f7ffda37bd1cae54da2bdf17ca1313d38f1b60701ae9d6ad0f54d1f7f3f5f0",
+      "guest_markers": []
+    },
+    "official_port_b_driver": {
+      "status": "PASS",
+      "firmware_sha256": "ba591f05e30122f6a274727817829a443bb99db876626c202fe323ef33a97218",
+      "runtime_binary_sha256": "fe86e6a4c96488992c6e4b801a47ae7a200dcc596997be7aecf42ff368e40c0c",
+      "frame": {
+        "sha256": "4bf6fb04707daaa254f0d27219adbb5bfb282a2f495e0bf528cb7ee3efde5832",
+        "width": 240,
+        "height": 240,
+        "nonblack_pixels": 0,
+        "unique_colors": 0
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_leases": 0
+      },
+      "evidence_sha256": "5fc91e1599c76d062e225ce6a66add219b4baed1c253f57be7189b8161850d1a",
+      "guest_markers": [
+        "N9301_PROBE_BOOT (1, 2) 7",
+        "N9301_PROBE_MEDIA 7",
+        "N9301_PROBE_REJECTED",
+        "N9301_PROBE_CONTROLS 0 5 15 1",
+        "N9301_PROBE_PASS"
+      ]
+    }
+  }
+}

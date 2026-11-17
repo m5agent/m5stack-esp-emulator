@@ -16,7 +16,7 @@ audio output and electrical signaling remain unmodeled.
 
 ## Reproduction
 
-Build the native Xtensa Unit runtime through patch 0212. Start a dedicated
+Build the native Xtensa Unit runtime through patch 0218. Start a dedicated
 loopback Device Service using that QEMU, matching ROMs, a private state
 directory and a control token, as in the [Unit test guide](../README.md).
 Set `M5_UNIT_EXPECT_RUNTIME_SHA256` to the expected binary SHA-256.
@@ -41,8 +41,12 @@ requests and replies.
 
 For the immutable vinylM5Dial 1.0 original, replace `--base-firmware … --driver …`
 with `--original-bin <saved-original-bin>`. The runner verifies the original
-SHA. It waits for the application to play track 1 and requires +3/−2
-ordinary Device Service encoder steps to reach tracks 4 and 2 through the
-guest's own indexed UART commands. The same session records a frame, the
-Unit data plane, runtime provenance and a ZIP before stop. The application
-display and other UI actions remain tracked separately.
+SHA and waits for track 1 to play. It requires the original indexed UART
+play commands after the default 35 ms rotation in both directions,
+including full 16-detent turns. It then checks center pause and
+resume, upper and lower volume controls, dial press to stop and play, and
+a nonblank application frame. The same session retains the Unit data plane,
+runtime provenance and an evidence ZIP before stop. The indexed media fixture
+does not provide physical audio or a multi-folder filesystem.
+
+The [fast 5 ms follow-up](../../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md) retains an original-guest missed selection with all 64 GPIO edges delivered.

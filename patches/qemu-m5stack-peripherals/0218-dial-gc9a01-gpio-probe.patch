@@ -1,0 +1,21 @@
+diff --git a/hw/m5stopwatch/m5dial.c b/hw/m5stopwatch/m5dial.c
+--- a/hw/m5stopwatch/m5dial.c
++++ b/hw/m5stopwatch/m5dial.c
+@@ -13,6 +13,7 @@
+ #include "qemu/timer.h"
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/dma/esp_gdma.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
+ #include "qapi/qmp/qdict.h"
+@@ -266,6 +267,9 @@
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_prop_set_bit(panel, "infer-command", false);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
++    /* M5GFX can probe the GC9A01 over GPIO before using GP-SPI. */
++    m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
++                             esp32_gpio_get_controller(true), 7, 6, 4, 5);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
+     esp32s3_gpspi_set_dc_pin(spi, 4);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 7);
