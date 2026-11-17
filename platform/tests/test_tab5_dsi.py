@@ -283,10 +283,30 @@ class Tab5DsiTests(unittest.TestCase):
         ):
             with self.subTest(frame=frame):
                 sender, receiver = socket.socketpair()
-                with sender, receiver:
+                with sender, receiver, receiver.makefile("rb") as reader:
                     sender.sendall(frame)
                     with self.assertRaises(DsiProtocolError):
-                        _read_message(receiver)
+                        _read_message(reader)
+
+    def test_coalesced_transport_ignores_unneeded_broadcasts_and_keeps_clock_boundary(self):
+        def packet(topic, message):
+            return struct.pack("<IH", 2 + len(topic) + len(message), len(topic)) + topic + message
+
+        clock = b"\x08\x33\x12\x00"
+        gpio = b"\x1a\x00"
+        reset = b"\x4a\x00"
+        sender, receiver = socket.socketpair()
+        with sender, receiver, receiver.makefile("rb") as reader:
+            sender.sendall(b"".join([
+                packet(b"SIM/CLOCK", clock),
+                packet(b"HW/GPIO/23/LEVEL", gpio),
+                packet(b"SIM/CLOCK", clock),
+                packet(b"SIM/RESET", reset),
+            ]))
+            self.assertIsNone(_read_message(reader, need_clock=False))
+            self.assertIsNone(_read_message(reader))
+            self.assertEqual(_read_message(reader), {1: 51, 2: b""})
+            self.assertEqual(_read_message(reader, need_clock=False), {9: b""})
 
     def test_runtime_override_does_not_admit_an_unidentified_binary(self):
         with tempfile.TemporaryDirectory() as directory:
