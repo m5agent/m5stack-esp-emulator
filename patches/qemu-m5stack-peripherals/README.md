@@ -1630,3 +1630,16 @@ runtimes with the complete map.
 
 Apply 0205 after 0204 in the native Xtensa recipe. Its mapping comes from
 the independently maintained [browser mapping patch](../qemu-wasm-probe/0016-cardputer-keyboard-qcode-map.patch).
+
+## Dial physical rotation pace (0206)
+
+The native Dial `/machine/encoder` exposes `paced-detents`. Write
+`{"target_detents": 3, "edge_period_ms": 50}` as a single property update
+while the current motion is idle. Readback reports the target and the
+selected virtual-time interval for the most recent motion. The next
+ordinary `detents` write still starts at 5 ms per edge. Each detent
+drives four actual transitions on GPIO41/40; this option specifies waveform
+speed. Guest firmware remains responsible for reading those pins and counting.
+
+Apply 0206 after 0205 in the native Xtensa recipe. Browser-WASM and legacy
+native defaults retain their existing rate.

@@ -32,6 +32,7 @@ class DialEncoderTests(unittest.TestCase):
                 "target_detents": -1,
                 "previous_detents": 2,
                 "previous_gpio_edges": 8,
+                "edge_period_ms": 5,
             },
         )
         path = "/machine/encoder"
@@ -93,3 +94,42 @@ class DialEncoderTests(unittest.TestCase):
                 rotate_encoder(session, 1)
             self.assertEqual(raised.exception.code, "qmp_error")
             self.assertEqual(session._qmp_call.call_count, 1)
+
+
+    def test_paced_motion_uses_atomic_qom_write(self):
+        session = self.session()
+        session._qmp_call.side_effect = [
+            {"return": 2}, {"return": 2}, {"return": 8},
+            {"return": [{"name": "paced-detents", "type": "any"}]},
+            {"return": {}},
+        ]
+        receipt = rotate_encoder(session, 3, edge_period_ms=50)
+        self.assertEqual(receipt["edge_period_ms"], 50)
+        self.assertEqual(receipt["target_detents"], 5)
+        self.assertEqual(session._qmp_call.call_args_list[-2:], [
+            call("qom-list", path="/machine/encoder"),
+            call(
+                "qom-set", path="/machine/encoder", property="paced-detents",
+                value={"target_detents": 5, "edge_period_ms": 50},
+            ),
+        ])
+
+    def test_invalid_periods_fail_before_controller_io(self):
+        for period in (4, 101, True, 50.0, "50"):
+            with self.subTest(period=period):
+                session = self.session()
+                with self.assertRaises(ServiceError) as raised:
+                    rotate_encoder(session, 1, edge_period_ms=period)
+                self.assertEqual((raised.exception.code, raised.exception.status), ("invalid_input", 400))
+                session._qmp_call.assert_not_called()
+
+    def test_explicit_period_requires_new_model(self):
+        session = self.session()
+        session._qmp_call.side_effect = [
+            {"return": 2}, {"return": 2}, {"return": 8},
+            {"return": [{"name": "detents", "type": "int"}]},
+        ]
+        with self.assertRaises(ServiceError) as raised:
+            rotate_encoder(session, 1, edge_period_ms=5)
+        self.assertEqual((raised.exception.code, raised.exception.status), ("unsupported_input", 409))
+        self.assertEqual(session._qmp_call.call_args_list[-1], call("qom-list", path="/machine/encoder"))

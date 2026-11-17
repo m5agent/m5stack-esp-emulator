@@ -182,6 +182,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0203-s3-dcache-occupy-handshake.patch",
     "patches/qemu-m5stack-peripherals/0204-cardputer-gpio-board-detect.patch",
     "patches/qemu-m5stack-peripherals/0205-cardputer-adv-keyboard-map.patch",
+    "patches/qemu-m5stack-peripherals/0206-dial-paced-quadrature.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

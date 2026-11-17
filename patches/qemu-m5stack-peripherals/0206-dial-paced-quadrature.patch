@@ -1,0 +1,143 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] Dial: select physical quadrature speed per movement
+
+Allow an explicit per-motion edge period while leaving the legacy native
+and browser defaults at 5 ms. A paced request changes target and period in
+one idle-only QOM write. The period controls the real GPIO41/40 waveform;
+neither the model nor its setter reads or adjusts a firmware counter.
+
+diff --git a/hw/m5stopwatch/m5dial.c b/hw/m5stopwatch/m5dial.c
+--- a/hw/m5stopwatch/m5dial.c
++++ b/hw/m5stopwatch/m5dial.c
+@@ -15,9 +15,13 @@
+ #include "hw/dma/esp_gdma.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
++#include "qapi/qmp/qdict.h"
++#include "qapi/qmp/qnum.h"
++#include "qapi/qmp/qobject.h"
+ #include "qapi/visitor.h"
+ #include "m5stopwatch.h"
+ 
++#define DIAL_DEFAULT_EDGE_PERIOD_MS 5
+ #define TYPE_M5_DIAL_ENCODER "m5-dial-quadrature"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5DialEncoder, M5_DIAL_ENCODER)
+ 
+@@ -27,6 +31,7 @@
+     int64_t target, delivered;
+     int direction;
+     unsigned phase;
++    unsigned edge_period_ms;
+     uint64_t edges;
+ };
+ 
+@@ -55,7 +60,8 @@
+         /* Re-arm from now: late host scheduling must not burst old edges
+          * into one guest IRQ delivery or directly fabricate a count.
+          */
+-        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) +
++                  s->edge_period_ms);
+     }
+ }
+ 
+@@ -65,6 +71,23 @@
+     M5DialEncoder *s = M5_DIAL_ENCODER(obj);
+     int64_t value = !strcmp(name, "detents") ? s->target : s->delivered;
+     visit_type_int64(v, name, &value, errp);
++}
++
++static bool dial_encoder_idle(const M5DialEncoder *s)
++{
++    return !s->phase && s->target == s->delivered;
++}
++
++static void dial_encoder_arm(M5DialEncoder *s, int64_t target, unsigned period)
++{
++    if (dial_encoder_idle(s)) {
++        s->edge_period_ms = period;
++    }
++    s->target = target;
++    if (!timer_pending(s->timer) && !dial_encoder_idle(s)) {
++        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) +
++                  s->edge_period_ms);
++    }
+ }
+ 
+ static void dial_encoder_set(Object *obj, Visitor *v, const char *name,
+@@ -79,10 +102,48 @@
+         error_setg(errp, "Dial physical detents must be within -4096..4096");
+         return;
+     }
+-    s->target = target;
+-    if (!timer_pending(s->timer) && (s->phase || s->target != s->delivered)) {
+-        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
+-    }
++    dial_encoder_arm(s, target, DIAL_DEFAULT_EDGE_PERIOD_MS);
++}
++
++static void dial_encoder_paced_get(Object *obj, Visitor *v, const char *name,
++                                   void *opaque, Error **errp)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    QDict *result = qdict_new();
++    qdict_put_int(result, "target_detents", s->target);
++    qdict_put_int(result, "edge_period_ms", s->edge_period_ms);
++    QObject *value = QOBJECT(result);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void dial_encoder_paced_set(Object *obj, Visitor *v, const char *name,
++                                   void *opaque, Error **errp)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    QObject *value = NULL;
++    int64_t target, period;
++
++    if (!visit_type_any(v, name, &value, errp)) {
++        return;
++    }
++    QDict *dict = qobject_to(QDict, value);
++    QNum *target_value = dict
++        ? qobject_to(QNum, qdict_get(dict, "target_detents")) : NULL;
++    QNum *period_value = dict
++        ? qobject_to(QNum, qdict_get(dict, "edge_period_ms")) : NULL;
++    if (!target_value || !period_value || qdict_size(dict) != 2 ||
++        !qnum_get_try_int(target_value, &target) ||
++        !qnum_get_try_int(period_value, &period) ||
++        target < -4096 || target > 4096 || period < 5 || period > 100) {
++        error_setg(errp, "Dial paced detents require target_detents in "
++                   "-4096..4096 and edge_period_ms in 5..100");
++    } else if (!dial_encoder_idle(s)) {
++        error_setg(errp, "Dial physical rotation is in progress");
++    } else {
++        dial_encoder_arm(s, target, period);
++    }
++    qobject_unref(value);
+ }
+ 
+ static void dial_encoder_edges(Object *obj, Visitor *v, const char *name,
+@@ -99,6 +160,7 @@
+     s->target = s->delivered = 0;
+     s->phase = s->edges = 0;
+     s->direction = 1;
++    s->edge_period_ms = DIAL_DEFAULT_EDGE_PERIOD_MS;
+     esp32_gpio_set_input(41, 1);
+     esp32_gpio_set_input(40, 1);
+ }
+@@ -106,11 +168,14 @@
+ static void dial_encoder_init(Object *obj)
+ {
+     M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    s->edge_period_ms = DIAL_DEFAULT_EDGE_PERIOD_MS;
+     s->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, dial_encoder_step, s);
+     object_property_add(obj, "detents", "int", dial_encoder_get,
+                         dial_encoder_set, NULL, NULL);
+     object_property_add(obj, "delivered-detents", "int", dial_encoder_get,
+                         NULL, NULL, NULL);
++    object_property_add(obj, "paced-detents", "any", dial_encoder_paced_get,
++                        dial_encoder_paced_set, NULL, NULL);
+     object_property_add(obj, "gpio-edges", "uint64", dial_encoder_edges,
+                         NULL, NULL, NULL);
+ }
