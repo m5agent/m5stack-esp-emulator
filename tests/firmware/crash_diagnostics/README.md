@@ -79,6 +79,32 @@ retained run. M5TabOS's earlier reset evidence remains open. New boot execution,
 physical behavior, external networking and matching-ELF debugging are
 **NOT RUN** for this read-only replay.
 
+## Conflicting stock write reports
+
+[The passive write-report comparison](stock-write-report-summary.json) reuses
+the exact original ZIPs above. 98TAB5 has 31 explicit Flash write starts,
+31 write failures and 31 subsequent saved reports. The old last-line rule
+reported `flash_reported_saved`; the corrected receipt reports `write_failed`
+and independently retains `saved_reported=true` and `conflicting_reports=true`.
+The last 16 attempt records and latest terminal report remain bounded. The
+final, incomplete 32nd boot does not erase the 31st boot's conflicting report.
+
+A new explicit write start clears the association with an earlier failure.
+An incomplete later attempt remains visible without replacing the latest
+terminal report or decoding an earlier saved dump as that newer write.
+CarPlay remains `not_observed`; M5TabOS remains `flash_check_failed`, with six
+incomplete write starts and no saved report. Other parsed observations are
+unchanged against the same input bytes. Existing UART and Flash decoder
+contracts still pass.
+
+Only the copied, already stopped 98TAB5 and CarPlay sessions were opened by
+an isolated service. GET `/crash` and the new ZIP receipts match exactly,
+including source hashes and attempt records. Serial bytes and CarPlay's frame
+are unchanged; no guest, input, dump trigger, debugger or external traffic was
+started. M5TabOS HTTP replay and fresh firmware execution are **NOT RUN**.
+This correction classifies contradictory guest reports; it neither verifies
+physical Flash contents nor explains the original software resets.
+
 ## Offline FreeRTOS task report
 
 Run locally on macOS with trusted Espressif `esp-coredump` 1.17.2 and Xtensa
