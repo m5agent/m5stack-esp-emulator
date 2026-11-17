@@ -5961,6 +5961,86 @@ class DeviceServiceUnitTests(unittest.TestCase):
             session._proc = None
             session._qmp = None
 
+    def test_semantic_buttons_queue_virtual_hold_and_two_presses(self):
+        session = self._stopped_session()
+        session.state = "running"
+        with mock.patch.object(session, "_qmp_call") as qmp:
+            held = session.inject({"kind": "button", "control": "b", "action": "hold",
+                                   "seconds": 5, "settle_seconds": 0})
+            double = session.inject({"kind": "button", "control": "a", "action": "double_click",
+                                     "settle_seconds": 0})
+        self.assertEqual(qmp.call_args_list, [
+            mock.call("send-key", keys=[{"type": "qcode", "data": "b"}], **{"hold-time": 5000}),
+            *[mock.call("send-key", keys=[{"type": "qcode", "data": "a"}], **{"hold-time": 120})] * 2,
+        ])
+        self.assertEqual((held["timing"]["clock"], held["timing"]["hold_time_ms"]), ("virtual", 5000))
+        self.assertEqual(double["timing"]["presses"], 2)
+        self.assertEqual(session.events[-1]["action"], "double_click")
+
+    def test_semantic_button_chord_groups_edges_and_releases_on_cancel(self):
+        session = self._stopped_session()
+        session.state = "running"
+        qmp_events = []
+        def qmp(name, *, events):
+            self.assertEqual(name, "input-send-event")
+            qmp_events.append([(e["data"]["key"]["data"], e["data"]["down"]) for e in events])
+            if len(qmp_events) == 1:
+                session._stop_event.set()
+        before = len(session.events)
+        with mock.patch.object(session, "_qmp_call", side_effect=qmp):
+            with self.assertRaises(device_service_module.SessionCancelled):
+                session.inject({"kind": "chord", "keys": ["a", "b"]})
+        self.assertEqual(qmp_events, [[("a", True), ("b", True)], [("b", False), ("a", False)]])
+        self.assertEqual(len(session.events), before)
+
+    def test_semantic_keyboard_maps_fn_to_the_board_and_rejects_stale_adv(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session.spec = self.service.specs["cardputer"]
+        request = {"kind": "chord", "keys": ["fn", "semicolon"], "seconds": 0.001, "settle_seconds": 0}
+        with mock.patch.object(session, "_qmp_call") as qmp:
+            session.inject(request)
+            keys = [e["data"]["key"]["data"] for e in qmp.call_args_list[0].kwargs["events"]]
+            self.assertEqual(keys, ["menu", "semicolon"])
+        session.spec = self.service.specs["cardputer-adv"]
+        with mock.patch.object(session, "_qmp_call", return_value={"return": []}) as qmp:
+            with self.assertRaises(ServiceError) as unsupported:
+                session.inject(request)
+            self.assertEqual(unsupported.exception.code, "unsupported_input")
+            qmp.assert_called_once_with("qom-list", path="/machine")
+        with mock.patch.object(session, "_qmp_call",
+                               side_effect=[{"return": [{"name": "keyboard-full-map"}]}, {"return": True}, {}, {}]) as qmp:
+            session.inject(request)
+            keys = [e["data"]["key"]["data"] for e in qmp.call_args_list[2].kwargs["events"]]
+            self.assertEqual(keys, ["compose", "semicolon"])
+
+    def test_semantic_rejects_alias_collisions_and_unavailable_model_controls(self):
+        session = self._stopped_session()
+        session.state = "running"
+        for model, payload, code in (
+            ("core2", {"kind": "chord", "keys": ["a", "b"]}, "unsupported_input"),
+            ("cardputer-adv", {"kind": "chord", "keys": ["shift", "shift_r"]}, "invalid_input"),
+            ("cardputer-adv", {"kind": "button", "control": "boot"}, "unsupported_input"),
+            ("sticks3", {"kind": "touch", "action": "hold", "seconds": 1}, "unsupported_input"),
+            ("sticks3", {"kind": "encoder", "delta": 1}, "unsupported_input"),
+        ):
+            session.spec = self.service.specs[model]
+            with self.subTest(model=model, payload=payload), mock.patch.object(session, "_qmp_call") as qmp:
+                with self.assertRaises(ServiceError) as error:
+                    session.inject(payload)
+                self.assertEqual(error.exception.code, code)
+                qmp.assert_not_called()
+
+    def test_semantic_touch_double_click_sends_two_pointer_press_release_pairs(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session.spec = self.service.specs["core2"]
+        with mock.patch.object(session._stop_event, "wait"), mock.patch.object(session, "_qmp_call") as qmp:
+            result = session.inject({"kind": "touch", "action": "double_click", "x": 50, "y": 60})
+        self.assertEqual([row.kwargs["events"][-1]["data"]["down"] for row in qmp.call_args_list],
+                         [True, False, True, False])
+        self.assertEqual((result["timing"]["clock"], result["timing"]["presses"]), ("host", 2))
+
     def test_physical_key_down_and_up_are_distinct_qmp_events(self):
         session = self._stopped_session()
         session.state = "running"

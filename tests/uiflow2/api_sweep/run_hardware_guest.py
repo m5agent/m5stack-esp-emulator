@@ -15,13 +15,14 @@ import run_guest
 
 
 MAX_HOST_ACTION_DELAY_SECONDS = 30
+HARDWARE_DEVICE_CHOICES = (*run_guest.DEVICE_CHOICES, "cardputer")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", required=True)
     parser.add_argument("--token-file", type=Path)
-    parser.add_argument("--device", choices=run_guest.DEVICE_CHOICES, required=True)
+    parser.add_argument("--device", choices=HARDWARE_DEVICE_CHOICES, required=True)
     parser.add_argument("--runtime", default="qemu")
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--append-code", action="append")

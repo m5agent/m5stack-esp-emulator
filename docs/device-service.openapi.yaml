@@ -2377,7 +2377,7 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/input:
     post:
-      summary: Inject key or pointer input
+      summary: Inject native buttons, keyboard, chords, encoder or touch
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -2396,6 +2396,9 @@ paths:
             cancel the queue; system_reset does not guarantee cancellation, while
             stopping the VM destroys it. Managed Preview default taps and NanoC6
             GPIO taps retain synchronous host timing and completion=events_sent.
+            For semantic native controls, an accepted receipt describes input
+            submission; confirm guest response or controller delivery separately.
+            Encoder requests return a controller target and prior physical state.
           content:
             application/json:
               schema:
@@ -5343,16 +5346,89 @@ components:
                 not:
                   required: [hold_seconds]
         - type: object
+          required: [kind, control]
+          additionalProperties: false
+          properties:
+            kind: {const: button}
+            control: {type: string}
+            action: {type: string, enum: [click, hold, double_click], default: click}
+            seconds: {type: number, minimum: 0.001, maximum: 5, description: "Hold only; defaults to 1."}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+          allOf:
+            - if:
+                required: [seconds]
+              then:
+                required: [action]
+                properties:
+                  action: {const: hold}
+        - type: object
+          required: [kind, key]
+          additionalProperties: false
+          properties:
+            kind: {const: keyboard}
+            key: {type: string, description: "Physical key name, such as fn or semicolon, or a board QEMU qcode."}
+            action: {type: string, enum: [click, hold, double_click], default: click}
+            seconds: {type: number, minimum: 0.001, maximum: 5, description: "Hold only; defaults to 1."}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+          allOf:
+            - if:
+                required: [seconds]
+              then:
+                required: [action]
+                properties:
+                  action: {const: hold}
+        - type: object
+          required: [kind, keys]
+          additionalProperties: false
+          properties:
+            kind: {const: chord}
+            target: {type: string, enum: [button, keyboard]}
+            keys:
+              type: array
+              minItems: 2
+              maxItems: 4
+              uniqueItems: true
+              items: {type: string}
+            seconds: {type: number, minimum: 0.001, maximum: 5, default: 0.45}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+        - type: object
+          required: [kind, delta]
+          additionalProperties: false
+          properties:
+            kind: {const: encoder}
+            delta:
+              type: integer
+              minimum: -128
+              maximum: 128
+              not: {const: 0}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+        - type: object
           required: [kind, x, y]
           properties:
             kind:
               const: touch
+            action:
+              type: string
+              enum: [tap, click, hold, double_click]
+              default: tap
+            seconds:
+              type: number
+              minimum: 0.001
+              maximum: 5
+              description: Hold only for semantic touch; defaults to 1.
             x:
               type: integer
             y:
               type: integer
             settle_seconds:
               type: number
+          allOf:
+            - if:
+                required: [seconds]
+              then:
+                required: [action]
+                properties:
+                  action: {const: hold}
         - type: object
           required: [kind, x, y]
           properties:

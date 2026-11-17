@@ -2766,7 +2766,7 @@ display journal is not a replacement for same-session validation evidence.
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
 | GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus runtime stdout/stderr tail |
 | GET | `/api/v1/sessions/{id}/frame.png` | Live or last-known framebuffer as PNG |
-| POST | `/api/v1/sessions/{id}/input` | Key, touch, long press or drag |
+| POST | `/api/v1/sessions/{id}/input` | Buttons, keyboard, chords, encoder, touch and drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
 | GET | `/api/v1/sessions/{id}/qom?path=...&property=...` | Read a QOM property |
 | GET | `/api/v1/sessions/{id}/qom/list?path=/machine` | List QOM properties |
@@ -3106,6 +3106,47 @@ frame hash is unchanged. For a recently stopped session it returns the persisted
 last-known frame.
 
 ### Inject input
+
+For independent native sessions, send a physical board control or a keyboard
+key by name. A board without the requested control returns HTTP 409
+`unsupported_input`. Cardputer and Cardputer-ADV expose Fn as `fn` and use
+their respective GPIO matrix and TCA8418 controller. The native ADV runtime
+must expose `/machine` property `keyboard-full-map`. The ADV's boot button
+still has no native input mapping.
+
+```json
+{"kind":"button","control":"b","action":"hold","seconds":5}
+{"kind":"button","control":"a","action":"double_click"}
+{"kind":"chord","target":"button","keys":["a","b"]}
+{"kind":"chord","target":"keyboard","keys":["fn","semicolon"]}
+{"kind":"encoder","delta":3}
+{"kind":"touch","x":67,"y":160,"action":"hold","seconds":1}
+```
+
+- `button`, `keyboard` and explicit touch actions accept `click`, `hold`
+  and `double_click`. A click is 120 ms. A double click submits two 120 ms
+  presses with a 120 ms release gap. `seconds` is for a hold only, defaults
+  to 1 and accepts 0.001–5. A standalone QMP key uses the existing virtual
+  queue. Touch and the NanoC6 GPIO button use synchronous host timing.
+- A chord presses two to four distinct model controls in one QMP input
+  batch, holds them for 0.45 host seconds by default, and releases them in
+  reverse order in one batch. `target` defaults to `keyboard` on either
+  Cardputer and to `button` elsewhere. Chords use physical key names. Core2
+  touch buttons share a single contact and cannot form a simultaneous
+  chord. These host-timed controls are separate from the legacy virtual
+  key queue. Avoid overlapping queued and direct input on the same key.
+- Dial `encoder` accepts a signed nonzero integer between -128 and 128 and
+  changes the native quadrature controller's detent target. A second
+  request while movement is pending returns HTTP 409 `input_busy`. A
+  successful response gives the new target and the prior controller
+  state. Poll `/machine/encoder` `delivered-detents` and `gpio-edges` to
+  observe physical delivery; confirm the firmware's output separately.
+
+Semantic inputs accept `settle_seconds` between 0 and 5 as a host wait
+after dispatch. Acceptance and timings do not establish an application
+response. Managed Preview, Tab5 and the diagnostic network backend do
+not implement this semantic contract. Existing `key` and pointer commands
+remain available on their supported paths.
 
 Automatic key tap in an independent QMP session:
 

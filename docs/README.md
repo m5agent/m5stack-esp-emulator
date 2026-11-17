@@ -11,6 +11,8 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
+[2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
+
 [2026-11-16 Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)记录缓存 SRAM、板型探测和无跟踪的启动、休眠唤醒与按键。
 
 [2026-11-16 ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md)记录同一原 BIN 的错误放行、提前拒绝、审核状态和官方正对照。

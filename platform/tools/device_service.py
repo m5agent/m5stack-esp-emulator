@@ -49,6 +49,12 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from device_service_errors import ServiceError  # noqa: E402
+from device_service_encoder import rotate_encoder  # noqa: E402
+from device_service_input import (  # noqa: E402
+    SEMANTIC_INPUT_KINDS,
+    normalize_semantic_input,
+    send_semantic_input,
+)
 from device_service_identity import (  # noqa: E402
     DeviceIdentityStore, device_identity_capability, parse_device_identity, restore_device_identity, validate_identity_runtime,
 )
@@ -207,6 +213,7 @@ from runtime_acl import (  # noqa: E402
 from run_profile_ui_test import (  # noqa: E402
     QMP,
     QMPCommandError,
+    pointer_events,
     read_ppm,
     send_input,
     wait_qmp,
@@ -7147,7 +7154,14 @@ class DeviceSession:
                 raise ServiceError("invalid_input", f"{field} must be a finite coordinate within the frame", 400) from error
             return value
         kind = payload.get("kind")
+        if not isinstance(kind, str):
+            raise ServiceError("invalid_input", "input kind is required", 400)
         action = str(payload.get("action", "tap")).lower()
+        if kind in SEMANTIC_INPUT_KINDS or (kind == "touch" and action != "tap"):
+            command = normalize_semantic_input(self, payload, native=self.runtime in QEMU_QMP_RUNTIMES)
+            if kind == "touch":
+                command.update(x=coordinate("x"), y=coordinate("y"))
+            return command
         command = {"kind": kind, "action": action}
         settle_default = 0.3
         if kind == "key":
@@ -7186,7 +7200,7 @@ class DeviceSession:
         else:
             raise ServiceError(
                 "invalid_input",
-                "kind must be key, touch, longpress or drag",
+                "kind must be key, touch, longpress, drag, button, keyboard, chord or encoder",
                 400,
             )
         command["settle_seconds"] = duration("settle_seconds", settle_default)
@@ -7204,6 +7218,8 @@ class DeviceSession:
             )
         command = self.validate_input(payload)
         kind, action, settle = command["kind"], command["action"], command["settle_seconds"]
+        if kind in SEMANTIC_INPUT_KINDS or (kind == "touch" and action != "tap"):
+            return self._inject_semantic(command, acl_policy_id)
         if kind == "key":
             spec = f"{'key' if action == 'tap' else 'key' + action}:{command['key']}"
         elif kind == "touch":
@@ -7269,6 +7285,41 @@ class DeviceSession:
             "action": action,
             "accepted": True,
             **({"timing": timing} if timing else {}),
+        }
+
+    def _inject_semantic(self, command: dict, acl_policy_id: str) -> dict:
+        kind, action = command["kind"], command["action"]
+        if kind == "encoder":
+            spec = f"encoder:{command['delta']}"
+        elif kind == "touch":
+            spec = f"touch:{command['x']},{command['y']}"
+        else:
+            spec = f"{kind}:{'+'.join(command['names'])}"
+
+        with self._lock:
+            self._check_cancelled()
+            if self.state != "running":
+                raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+            if kind == "encoder":
+                controller = rotate_encoder(self, command["delta"])
+                observation = {"controller": controller}
+            else:
+                timing = send_semantic_input(self, command, pointer_events)
+                observation = {"timing": timing}
+            self._record_event(
+                "input",
+                spec=spec,
+                action=action,
+                runtime_acl_policy_id=acl_policy_id,
+                **observation,
+            )
+            self._stop_event.wait(command["settle_seconds"])
+        return {
+            "session_id": self.id,
+            "input": spec,
+            "action": action,
+            "accepted": True,
+            **observation,
         }
 
     def qom_set(self, payload: dict) -> dict:
@@ -8930,14 +8981,16 @@ class Tab5DeviceSession(DeviceSession):
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
-        elf = self._require_tab5_symbols("input_requires_matching_elf", "touch injection")
+        if not isinstance(payload, dict):
+            raise ServiceError("invalid_input", "input must be an object", 400)
         kind = payload.get("kind")
-        if kind not in {"touch", "longpress"}:
+        if kind not in ("touch", "longpress") or str(payload.get("action", "tap")).lower() != "tap":
             raise ServiceError(
                 "unsupported_input",
-                "Tab5 service currently supports touch and longpress only",
+                "Tab5 service currently supports legacy touch and longpress only",
                 409,
             )
+        elf = self._require_tab5_symbols("input_requires_matching_elf", "touch injection")
         x = int(payload.get("x", 0))
         y = int(payload.get("y", 0))
         hold = (

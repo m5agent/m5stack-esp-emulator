@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-16`
+日期：`2026-11-17`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,10 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-17
+
+[原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)：ADV 原驱动 56 个物理键与旧 runtime 负对照，K132 Fn、StickS3 A+B/双击/4999 ms 长按和 Core2 两次接触均取得客体证据。Dial 控制器 9/9、原 RotaryIRQ 3/9；StopWatch 原版复审提交关闭并保留应用行为 PARTIAL。
 
 ## 2026-11-16
 

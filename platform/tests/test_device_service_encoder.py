@@ -75,7 +75,7 @@ class DialEncoderTests(unittest.TestCase):
                 session.runtime = runtime
                 with self.assertRaises(ServiceError) as raised:
                     rotate_encoder(session, 1)
-                self.assertEqual(raised.exception.code, "input_not_supported")
+                self.assertEqual(raised.exception.code, "unsupported_input")
                 session._qmp_call.assert_not_called()
 
     def test_rejects_target_outside_physical_bounds(self):

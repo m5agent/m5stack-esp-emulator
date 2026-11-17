@@ -239,6 +239,12 @@ def run(args):
         composed[vfs["offset"]:vfs["offset"] + vfs["size"]] = vfs_data
         image.write_bytes(composed)
     raw = image.read_bytes()
+    declared_layout = (
+        vfs["offset"] == int(device["vfs_offset"], 0)
+        and vfs["size"] == int(device["vfs_size"], 0)
+        if "vfs_offset" in device and "vfs_size" in device
+        else None
+    )
     report = {"schema_version": 1, "device_id": args.device,
               "validation": "virtual-device validation", "hardware_validation": "NOT RUN",
               "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
@@ -246,8 +252,7 @@ def run(args):
               "base_sha256": hashlib.sha256(base).hexdigest(),
               "base_lane": "caller-pinned-candidate" if getattr(args, "base_image", None) else "device-matrix-reference",
               "firmware_lane":firmware_lane,
-              "vfs": vfs, "declared_layout_matches": (vfs["offset"] == int(device["vfs_offset"], 0)
-                  and vfs["size"] == int(device["vfs_size"], 0)),
+              "vfs": vfs, "declared_layout_matches": declared_layout,
               "firmware_sha256": hashlib.sha256(raw).hexdigest(), "status": "FAIL"}
     session_id = None
     serial_text, serial_offset, observed_pages = "", 0, []

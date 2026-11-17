@@ -35,6 +35,37 @@
 - Nesso N1 中断剩余范围：[普通 CPU GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已通过实际 IDF ISR 和原版 UIFlow `Pin.irq`，共享 GPIO3 pad/扩展器锁存回归通过。仍需实现 BMI270 数据/运动事件与 IRQ 输出使能、FT6336 模式/脉冲/扫描时序，以及独立 NMI/source 31、睡眠唤醒/滤波；各自须经过原驱动、真实控制器输入和复位对照，不由普通 GPIO 结果关闭。
 - Honeypot 的 AP 关联及 HTTP 数据面需另行验收，配置控制台通过不转授联网能力。见[原版应用边界](evidence/2026-11-14-native-identity-delivery/README.md)。
 
+## 固件审查数据面
+
+按 P0、P1、P2 顺序推进。验证时保留原 BIN，补充可复现的 guest 探针对照；
+每次记录实际输入、数据面、输出和清理。
+
+1. **P0 语义输入**。给审查动作绑定具体板型的按键、键盘、组合键、触摸和编码器。
+   原生键位以控制器和 guest 驱动读回验收。Dial 仍需区分正交引脚实际交付和
+   UIFlow2 RotaryIRQ 的应用计数；上一层接受动作不能代替这两类读回。
+2. **P0 存储**。完成 Cardputer/ADV 的 FAT32 预置、会话私有读写、目录与写回镜像复用。
+   PaperDIY 还需接通 CARD_DET。无板载卡槽的 StickS3/Dial 先覆盖内部文件系统，
+   外接卡需独立描述接线。LittleFS、SPIFFS 分别验证分区格式、预置路径、固件
+   挂载和写后重启。原版 nc1020、CardputerDict 等使用具备再分发或本地测试权限的 fixture。
+3. **P0 同 guest 网络**。按板型验证 Wi-Fi STA/AP、配置顺序、DNS/HTTP/TCP/UDP
+   fixture、pcap 和关联事件；优先 Cardputer/ADV、按键进入配网的 StickS3。
+   保持现有网络授权及隔离约束。
+4. **P0 Tab5 取帧**。与兼容的上游后端确认面板/帧缓冲快照，用只有原版 BIN 的会话
+   验证非黑帧和更新。补 ST7123/GT911、C6/SDIO、USB Host、CSI、音频各自被访问
+   的控制器路径，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
+   [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
+   [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
+5. **P0 崩溃与任务观测**。先保存原始 panic、WDT 原因、CPU0/CPU1 PC 和 core dump
+   状态；匹配 ELF 后再解码调用栈和任务。用按键后的 CPU1 WDT、Tab5 core dump 循环、
+   启动停滞验证分类，分别记录未上传 ELF、匹配失败和模型缺口。
+6. **P1 外设**。优先审查侧 Unit 挂载，按 UART/I2C/SPI 数据面验证 AudioPlayer、
+   NFC、Joystick 和外接收发控制器。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
+   ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
+   的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
+7. **P2 能力与故障**。将板型、执行模式、可用控制器/fixture 和证据状态放入稳定清单；
+   故障记录区分目标不支持、未建模、环境失败和有 guest 证据的应用失败。
+   XIAOZHI_CARD_KIT 在受理阶段归入不支持的目标。
+
 ## 新增主机剩余工作
 
 - CoreMatrix C158：验收 8 MiB Quad PSRAM、Wi-Fi 数据面和浏览器硬件复位。默认 Device Service 准入仍需独立验证固件上传契约和普通会话生命周期。

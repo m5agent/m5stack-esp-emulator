@@ -29,7 +29,7 @@ def rotate_encoder(session, delta: int) -> dict[str, int]:
     delta = validate_encoder_delta(delta)
     if not supports_rotary_encoder(session.spec, session.runtime):
         raise ServiceError(
-            "input_not_supported",
+            "unsupported_input",
             "rotary encoder input requires a native Dial session",
             409,
         )
