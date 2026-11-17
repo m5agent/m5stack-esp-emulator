@@ -197,6 +197,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0219-s3-provisioned-station-rejoin.patch",
     "patches/qemu-m5stack-peripherals/0220-dial-quadrature-nanosecond-deadlines.patch",
     "patches/qemu-m5stack-peripherals/0221-cardputer-gpspi-board-clock-routes.patch",
+    "patches/qemu-m5stack-peripherals/0223-cardputer-st7789-native-gram.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

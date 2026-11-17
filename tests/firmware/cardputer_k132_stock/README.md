@@ -36,6 +36,20 @@ and power sequencing need separate evidence. A filesystem-composed v2.5.4
 candidate reached ROM bootloader entry without a nonblank frame. The stock
 result is scoped to the unmodified firmware.
 
+## Native ST7789 address-order comparison
+
+Use the existing immutable controls above after changing physical panel
+geometry. The observed landscape applications use MADCTL 0x6c with
+column window 40–279 and row window 53–187. The original NC1020 uses
+MADCTL 0x00 and native coordinates spanning columns 52–186 and rows
+40–279. Its authored display content exercises that independent path
+through the same controller and fixed glass.
+
+The [native A/B summary](native-st7789-summary.json) records the full
+authored framebuffer match before and after a real G0 save, the exact
+stock controls, and preserved ROM and NOR bytes. A guest heartbeat can
+precede its first completed LCD draw.
+
 ## Browser WASM
 
 Build and export the source-locked browser QEMU as described in

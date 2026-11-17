@@ -1,0 +1,26 @@
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+--- a/hw/m5stopwatch/m5cardputer.c
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -139,15 +139,17 @@
+     }
+     esp32_gpio_set_input(0, 1);
+ 
++    /* The ST7789 keeps native portrait GRAM. The landscape board mounting
++     * determines scanout independently of the guest's address orientation. */
+     DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
+-    qdev_prop_set_uint32(panel, "mem-width", 320);
+-    qdev_prop_set_uint32(panel, "mem-height", 240);
++    qdev_prop_set_uint32(panel, "mem-width", 240);
++    qdev_prop_set_uint32(panel, "mem-height", 320);
+     qdev_prop_set_uint32(panel, "vis-width", 240);
+     qdev_prop_set_uint32(panel, "vis-height", 135);
+-    qdev_prop_set_uint32(panel, "offset-x", 40);
+-    qdev_prop_set_uint32(panel, "offset-y", 53);
++    qdev_prop_set_uint32(panel, "offset-x", 52);
++    qdev_prop_set_uint32(panel, "offset-y", 40);
+     qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+-    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_uint32(panel, "glass-rotation", 3);
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
