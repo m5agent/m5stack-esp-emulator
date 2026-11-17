@@ -250,6 +250,15 @@ class DeviceSpec:
         return "sd" in self.peripherals
 
     @property
+    def has_sd_hotplug(self) -> bool:
+        return (
+            self.id == "paperdiy" and self.has_sd_card
+            and qemu_has_qom_property(
+                self.qemu, "m5paperdiy-machine", "sd-card-hotplug-model", "bool"
+            )
+        )
+
+    @property
     def reference_available(self) -> bool:
         return bool(self.reference_path and self.reference_path.is_file())
 

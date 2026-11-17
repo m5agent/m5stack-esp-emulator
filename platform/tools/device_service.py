@@ -4839,6 +4839,7 @@ class DeviceSession:
                 "bytes": self.sd_card_image.stat().st_size,
                 "session_isolated_copy": True,
                 "writable": True,
+                **({"initially_ejected": True} if self.storage_config.get("sd_initially_ejected") else {}),
             }
             atomic_write_json(
                 self.storage_summary_path,
@@ -5498,6 +5499,7 @@ class DeviceSession:
         # The SPI SD model opens this path itself; -drive if=sd only feeds the
         # SoC SDMMC model. Never inherit an unrelated host/session disk path.
         env.pop("M5SW_SPI_SD_IMAGE", None)
+        env.pop("M5SW_SPI_SD_EJECTED", None)
         if self.storage_config:
             if self.spec.id == "paperdiy" and not self.spec.has_sd_card:
                 raise ServiceError(
@@ -5507,6 +5509,8 @@ class DeviceSession:
                 )
             if storage_interface(self.spec) == "spi":
                 env["M5SW_SPI_SD_IMAGE"] = str(self.sd_card_image)
+                if self.storage_config.get("sd_initially_ejected"):
+                    env["M5SW_SPI_SD_EJECTED"] = "1"
 
     def _apply_profile_qom(
         self,
@@ -7715,6 +7719,14 @@ class DeviceSession:
                 mpdu = parse_sticks3_raw_mpdu(value)
                 details.update(mpdu_sha256=hashlib.sha256(mpdu).hexdigest(), mpdu_bytes=len(mpdu))
             else:
+                if prop == "sd-card-present":
+                    details["runtime_acl_policy_id"] = self._require_runtime_permission("input.write")
+                    if type(value) is not bool:
+                        raise ServiceError("invalid_qom", "sd-card-present requires a boolean", 400)
+                    if path != "/machine/et047tc1" or not self.spec.has_sd_hotplug or self.runtime != "qemu":
+                        raise ServiceError("sd_hotplug_not_supported", "session has no modeled hot-plug SD slot", 409)
+                    if value and not self.storage_config:
+                        raise ServiceError("sd_media_not_prepared", "prepare the session SD image at creation", 409)
                 details["value"] = value
             result = self._qmp_call("qom-set", path=path, property=prop, value=value)
             self._record_event("qom_set", **details)
@@ -10505,6 +10517,8 @@ class DeviceService:
                 sd = {"admission": "backend_unavailable"}
             elif spec.has_sd_card:
                 sd = {"admission": "eligible", "interface": storage_interface(spec)}
+                if spec.has_sd_hotplug:
+                    sd["hotplug"] = True
 
         components = []
         for row in read_device_components(device_id):
@@ -11273,6 +11287,8 @@ class DeviceService:
             storage_payload = {name: value for name, value in storage_payload.items() if name != "filesystem"} or None
         storage_config = parse_storage_execution(spec, storage_payload)
         if storage_config:
+            if storage_config.get("sd_initially_ejected") and runtime != "qemu":
+                raise ServiceError("sd_hotplug_not_supported", "SD hot-plug requires the plain native QEMU runtime", 409)
             if spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
                 raise ServiceError(
                     "storage_not_supported",

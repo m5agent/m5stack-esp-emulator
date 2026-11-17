@@ -190,6 +190,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0212-n9301-audioplayer-uart.patch",
     "patches/qemu-m5stack-peripherals/0213-s3-iwdt-timing-receipt.patch",
     "patches/qemu-m5stack-peripherals/0214-s3-sticks3-open-softap-portal.patch",
+    "patches/qemu-m5stack-peripherals/0215-paperdiy-sd-hotplug.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

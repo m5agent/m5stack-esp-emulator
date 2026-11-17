@@ -109,3 +109,25 @@ The 64 MiB FAT16 comparison card uses
 `--format fat16-superfloppy --size-mib 64 --sectors-per-cluster 32`.
 The exact original mounts that card and reaches bank 96 before a CPU1
 interrupt watchdog reset.
+
+## PaperDIY SD hot-plug
+
+Use the same PaperDIY 16 MiB defaults with `-DPROBE_PAPERDIY_HOTPLUG=ON` and
+merge the resulting `flash_args`. Generate the 64 MiB seeded FAT32+MBR image
+from the first section. Start a dedicated native Device Service with patch
+0215 and `M5SW_SPI_SD_TRACE=1`. Run:
+
+```sh
+python3 tests/firmware/spi_sd_media/run_hotplug.py \
+  --base-url "$DEVICE_API" --token-file "$CONTROL_TOKEN_FILE" \
+  --firmware "$MERGED_PROBE" --media "$FAT32_FIXTURE" --output "$EVIDENCE_DIR"
+```
+
+The guest initially attempts a real SPI mount with empty media, observes
+four GPIO48 IRQs during insertion and removal, writes once and reopens the
+file after reinsertion. The runner ties each state transition to the same
+QEMU process. It checks SPI command deltas, the retained evidence ZIP and
+the stopped FAT inventory and export receipt. The source image is immutable.
+The [virtual-device result](paperdiy-hotplug-summary.json) retains old-backend,
+missing-media and normal attached-at-boot controls. Runtime image replacement,
+physical/electrical and browser behavior are outside this scope.

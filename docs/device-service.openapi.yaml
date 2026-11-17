@@ -2592,6 +2592,9 @@ paths:
   /sessions/{session_id}/qom:
     post:
       summary: Set a QOM property
+      description: >-
+        The PaperDIY boolean sd-card-present property at /machine/et047tc1
+        controls the prepared session SD image and requires input.write.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -3637,6 +3640,9 @@ components:
               properties:
                 admission: {type: string, enum: [eligible, unsupported, backend_unavailable]}
                 interface: {type: string, enum: [spi, sdmmc]}
+                hotplug:
+                  type: boolean
+                  description: Present and true for PaperDIY with the native SD hot-plug model.
         components:
           type: array
           items:
@@ -4992,6 +4998,12 @@ components:
         sd_image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+        sd_initially_ejected:
+          type: boolean
+          default: false
+          description: >-
+            Prepare the session-owned image with the PaperDIY slot initially empty.
+            True requires an SD artifact and the plain native QEMU hot-plug model.
         filesystem:
           $ref: "#/components/schemas/FilesystemFixture"
     FilesystemFixture:

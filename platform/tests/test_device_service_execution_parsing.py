@@ -81,6 +81,23 @@ class DeviceServiceExecutionParsingTests(unittest.TestCase):
                 spec.qemu, "m5paperdiy-machine", "sd-card-detect-model", "bool"
             )
 
+    def test_initially_ejected_requires_a_boolean_and_native_hotplug_support(self) -> None:
+        spec = device_service.load_device_specs()["paperdiy"]
+        payload = {"sd_image_artifact_id": ARTIFACT_ID, "sd_initially_ejected": True}
+        with mock.patch.object(device_service_specs, "qemu_has_qom_property",
+                               side_effect=lambda *args: args[2] == "sd-card-detect-model"):
+            with self.assertRaises(ServiceError) as missing:
+                parse_storage_execution(spec, payload)
+            self.assertEqual(missing.exception.code, "sd_hotplug_not_supported")
+            self.assertNotIn("sd_initially_ejected", parse_storage_execution(
+                spec, dict(payload, sd_initially_ejected=False)
+            ))
+        with mock.patch.object(device_service_specs, "qemu_has_qom_property", return_value=True):
+            self.assertTrue(parse_storage_execution(spec, payload)["sd_initially_ejected"])
+            with self.assertRaises(ServiceError) as invalid:
+                parse_storage_execution(spec, dict(payload, sd_initially_ejected="false"))
+            self.assertEqual(invalid.exception.code, "invalid_storage")
+
     def test_storage_parser_fail_closed(self) -> None:
         no_sd = SimpleNamespace(id="core2", has_sd_card=False)
         for value, code, status in (
