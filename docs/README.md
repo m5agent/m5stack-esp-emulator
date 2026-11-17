@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-16`
+日期：`2026-11-18`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -398,6 +398,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [初代 Cardputer 与 PaperS3 SPI SD](evidence/2026-11-17-spi-sd-admission/README.md) | 证据/差异 | `2026-11-17` | 同 guest FAT32、跨会话读回、无卡负控 |
 | [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md) | 证据/差异 | `2026-11-16` | 干净重建，原版启动、休眠唤醒、板型和按键 |
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
+| [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md) | 证据/差异 | `2026-11-18` | 原版 16 MiB 提前拒绝与官方 8 MiB 对照 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
 | [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |
 | [UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md) | 日期化协议诊断与身份验证 | `2026-11-14` | 区分配对码、身份拒绝、持久身份及云端 control Pong 缺失；不授长期连接通过 |
@@ -612,6 +613,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md) | 原生来宾证据 | `2026-11-17` | 同来宾关联、DHCP、ARP 和只读首页 |
 | [StickS3 原版同会话配网与 STA](evidence/2026-11-17-sticks3-portal-station/README.md) | 原生来宾证据 | `2026-11-17` | 固定表单、两次 DHCP 和站点 ARP |
 | [StickS3 原版复位重连](evidence/2026-11-18-sticks3-station-rejoin/README.md) | 原生来宾证据 | `2026-11-18` | 两次复位、保存设置和独立抓包 |
+| [StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md) | 原生来宾证据 | `2026-11-18` | 同一配置后 Flash 的新会话与抓包回读 |
 | [原版 Tab5 ST7123 输入](evidence/2026-11-17-tab5-st7123-touch/README.md) | 原生来宾证据 | `2026-11-17` | Arduventure 单点 A/B 和四方向、IRQ/I²C 来宾探针与 CarPlay GT911 对照 |
 | [Tab5 ST7123 与 GT911](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md) | 原生来宾证据 | `2026-11-17` | 原版 Arduventure 无 ELF 取帧、原版 CarPlay GT911 确认页与独立滑动协议的早期验证 |
 | [本地虚拟设备实验室](local-observatory.md) | 使用指南 | `2026-11-06` | 无输入自动巡展、短任务与黑屏、日志跟随和资源预算；不进入静态托管导出 |
