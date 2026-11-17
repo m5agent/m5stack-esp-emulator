@@ -2611,13 +2611,17 @@ before ejecting. Ejection clears SPI transaction state, raises GPIO48 and
 leaves the session-owned image available for reinsertion or stopped export.
 The session cannot swap to a different image at runtime.
 
-`GET /sessions/{id}/storage/sd/write-stamp` samples the metadata of a running
-Cardputer or Cardputer ADV native QEMU session's attached writable SPI SD
-image. It requires `storage.read` under a runtime ACL. The response binds a
-decimal nanosecond modification stamp to the session, composed firmware,
+`GET /sessions/{id}/storage/sd/write-stamp` samples the metadata of an attached
+writable SPI SD image on native QEMU when the device reports
+`fixtures.sd.write_stamp: true`. This includes Cardputer, Cardputer ADV and
+PaperDIY with the native hot-plug model. It requires `storage.read` under a
+runtime ACL. The response binds a decimal nanosecond modification stamp
+to the session, composed firmware,
 source SD artifact and opaque media identity. A regular file, the expected
-size and a running guest are required. Compare a quiet baseline and a
-post-input sample with the same media identity to observe flushed writes
+size and a running guest are required. An ejected PaperDIY card returns
+`409 sd_media_ejected`. Each validated PaperDIY presence command invalidates
+the prior media identity, including reinsertion of the same image. Compare a
+quiet baseline and a post-input sample with the same media identity to observe flushed writes
 in an input window. The stamp does not count blocks, identify file contents
 or distinguish independent writes in that window.
 
@@ -2970,7 +2974,8 @@ The runtime field identifies the default session request mode, its backend and
 its machine where applicable. Tab5 uses the `qemu` request mode for its native
 ESP32-P4 backend. `fixtures.sd` checks that this backend route can accept a raw
 SD image and identifies the board's SPI or SDMMC wiring when eligible. A
-qualified PaperDIY reports `fixtures.sd.hotplug: true`. The
+qualified PaperDIY reports `fixtures.sd.hotplug: true`. The optional
+`fixtures.sd.write_stamp: true` identifies support for a live SD write stamp. The
 actual image, firmware, worker capacity and policy are checked on session
 creation. `network.catalog_profiles` lists catalog selectors. Where present,
 `network.native` is the existing board-native STA capability. A network request
@@ -3063,7 +3068,7 @@ and controller. Firmware behavior requires a session and the matching evidence.
 | POST | `/api/v1/sessions/{id}/flash-snapshot` | Store a virtual flash snapshot |
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | GET | `/api/v1/sessions/{id}/storage/sd` | Inventory retained SD after the guest stops |
-| GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to a running Cardputer-family SPI SD image |
+| GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to an attached SPI SD image on a supported native QEMU guest |
 | POST | `/api/v1/sessions/{id}/storage/sd/export` | Export retained SD to a reusable media artifact |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |

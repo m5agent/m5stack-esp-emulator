@@ -2285,6 +2285,50 @@ class DeviceServiceUnitTests(unittest.TestCase):
             session.sd_write_stamp()
         self.assertEqual(unsupported.exception.code, "sd_write_stamp_unsupported")
 
+    def test_paperdiy_sd_write_stamp_is_bound_to_the_inserted_attachment(self):
+        session = self._stopped_session()
+        session.spec = self.service.specs["paperdiy"]
+        session.state = "running"
+        session.storage_config = {"sd_image_artifact_id": "e" * 64}
+        session.storage_info = {
+            "artifact_id": "e" * 64, "interface": "spi", "bytes": 512,
+            "session_isolated_copy": True, "writable": True,
+        }
+        session.sd_card_image.write_bytes(b"A" * 512)
+        present = True
+
+        def qmp(name, *, path, property, **arguments):
+            nonlocal present
+            self.assertEqual((path, property), ("/machine/et047tc1", "sd-card-present"))
+            if name == "qom-get":
+                return {"return": present}
+            self.assertEqual(name, "qom-set")
+            present = arguments["value"]
+            return {"return": {}}
+
+        with (
+            mock.patch("device_service_specs.qemu_has_qom_property", return_value=True),
+            mock.patch.object(session, "_process_identity_matches", return_value=True),
+            mock.patch.object(session, "_qmp_call", side_effect=qmp),
+        ):
+            qom_input = {"path": "/machine/et047tc1", "property": "sd-card-present"}
+            first = session.sd_write_stamp()
+            self.assertEqual(session.sd_write_stamp(), first)
+            session.qom_set({**qom_input, "value": False})
+            with self.assertRaises(ServiceError) as ejected:
+                session.sd_write_stamp()
+            self.assertEqual(ejected.exception.code, "sd_media_ejected")
+            session.qom_set({**qom_input, "value": True})
+            second = session.sd_write_stamp()
+            self.assertEqual(second["modified_ns"], first["modified_ns"])
+            self.assertNotEqual(second["media_id"], first["media_id"])
+            self.assertEqual(session.sd_write_stamp(), second)
+
+        with mock.patch("device_service_specs.qemu_has_qom_property", return_value=False):
+            with self.assertRaises(ServiceError) as unsupported:
+                session.sd_write_stamp()
+            self.assertEqual(unsupported.exception.code, "sd_write_stamp_unsupported")
+
     def test_sd_storage_rejects_active_or_unretained_session_media(self):
         session = self._stopped_session()
         self.assertIsNone(session.storage_info)
@@ -7094,7 +7138,10 @@ class DeviceServiceHttpTests(unittest.TestCase):
         self.assertEqual(present["model_status"], "supported")
         self.assertEqual(present["runtime"]["local_status"], "ready")
         self.assertEqual(present["runtime"]["default_mode"], "qemu")
-        self.assertEqual(present["fixtures"]["sd"], {"admission": "eligible", "interface": "spi"})
+        self.assertEqual(
+            present["fixtures"]["sd"],
+            {"admission": "eligible", "interface": "spi", "write_stamp": True},
+        )
         self.assertEqual(present["network"]["native"]["sta"]["runtime"], "qemu-wifi")
         sd = next(component for component in present["components"] if component["id"] == "sd")
         self.assertEqual(sd["evidence"], {"status": "case_registered", "case_ids": ["cardputer-adv-sd"]})

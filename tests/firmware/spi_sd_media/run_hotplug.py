@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import time
+from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
@@ -30,6 +31,7 @@ def main():
     parser.add_argument("--firmware", required=True, type=Path)
     parser.add_argument("--media", required=True, type=Path, help="seeded FAT32+MBR fixture")
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--check-write-stamp", action="store_true")
     args = parser.parse_args()
     base = urlsplit(args.base_url)
     if base.scheme != "http" or base.hostname != "127.0.0.1" or not base.port or base.port in {8787, 8830}:
@@ -51,7 +53,10 @@ def main():
             data = response.read()
             return json.loads(data) if response.headers.get_content_type() == "application/json" else data
 
-    assert api("/devices/paperdiy/capabilities")["fixtures"]["sd"]["hotplug"]
+    capability = api("/devices/paperdiy/capabilities")["fixtures"]["sd"]
+    assert capability["hotplug"]
+    if args.check_write_stamp:
+        assert capability.get("write_stamp") is True
     original_sd = args.media.read_bytes()
     sd = api("/artifacts", "POST", file=args.media)["artifact_id"]
     firmware = api("/artifacts", "POST", file=args.firmware)["artifact_id"]
@@ -64,6 +69,9 @@ def main():
     })
     session = "/sessions/" + opened["session_id"]
     summary = {"status": "FAIL", "firmware_sha256": firmware, "source_sd_sha256": sd}
+    if args.check_write_stamp:
+        summary["composed_flash_sha256"] = image["sha256"]
+        summary["sd_capability"] = capability
 
     def wait_for(marker):
         deadline = time.monotonic() + 35
@@ -76,6 +84,17 @@ def main():
             time.sleep(0.15)
         raise AssertionError(f"guest missed {marker}")
 
+    def stamp(present):
+        try:
+            receipt = api(session + "/storage/sd/write-stamp")
+        except HTTPError as error:
+            detail = json.loads(error.read())
+            assert not present and error.code == 409 and detail["error"]["code"] == "sd_media_ejected", detail
+            return None
+        assert present and receipt["session_id"] == opened["session_id"]
+        assert receipt["firmware_sha256"] == image["sha256"] and receipt["source_artifact_id"] == sd
+        return receipt
+
     def evidence():
         package = api(session + "/evidence?include=manifest,serial,logs")
         with ZipFile(BytesIO(package)) as archive:
@@ -85,6 +104,8 @@ def main():
 
     try:
         wait_for("HOTPLUG_INITIAL level=1 mount=ESP_ERR_TIMEOUT")
+        if args.check_write_stamp:
+            assert stamp(False) is None
         before = api(session)
         _, previous = evidence()
         assert not any(previous[command] for command in COMMANDS)
@@ -95,10 +116,17 @@ def main():
             (True, "HOTPLUG_REINSERT persisted=1 unmounted=1"),
             (False, "HOTPLUG_DONE"),
         )
+        stamps = []
         for present, marker in states:
             api(session + "/qom", "POST", {"path": SWITCH, "property": PROPERTY, "value": present})
+            pre = stamp(present) if args.check_write_stamp else None
             assert api(session + "/qom?" + urlencode({"path": SWITCH, "property": PROPERTY}))["value"] is present
             serial = wait_for(marker)
+            if args.check_write_stamp:
+                post = stamp(present)
+                if present:
+                    assert post["media_id"] == pre["media_id"]
+                    stamps.append((pre, post))
             package, now = evidence()
             summary["cmd_delta"].append({command: now[command] - previous[command] for command in COMMANDS})
             previous = now
@@ -106,6 +134,15 @@ def main():
         assert re.findall(r"^HOTPLUG_IRQ generation=(\d) level=(\d)\r?$", serial, re.M) == [
             ("1", "0"), ("2", "1"), ("3", "0"), ("4", "1"),
         ]
+        if args.check_write_stamp:
+            (before_write, after_write), (before_read, after_read) = stamps
+            summary["stamps"] = {
+                "write_advanced": int(after_write["modified_ns"]) > int(before_write["modified_ns"]),
+                "read_quiet": after_read["modified_ns"] == before_read["modified_ns"],
+                "reinsertion_changed_identity": before_write["media_id"] != before_read["media_id"],
+                "ejected_requests_rejected": True,
+            }
+            assert all(summary["stamps"].values()), summary["stamps"]
         first, ejected, reinserted, final = summary["cmd_delta"]
         assert first["0"] and first["17"] and first["24"]
         assert reinserted["0"] and reinserted["17"] and not reinserted["24"]

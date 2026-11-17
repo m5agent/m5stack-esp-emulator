@@ -2801,6 +2801,7 @@ class DeviceSession:
         self.storage_info = (
             dict(storage_info) if isinstance(storage_info, dict) else None
         )
+        self._sd_attachment_generation = 0
         self.filesystem_config = dict(filesystem_config or {})
         self.filesystem_info = dict(filesystem_info) if isinstance(filesystem_info, dict) else None
         self.nvs_config = dict(nvs_config or {})
@@ -7879,6 +7880,8 @@ class DeviceSession:
                         raise ServiceError("sd_hotplug_not_supported", "session has no modeled hot-plug SD slot", 409)
                     if value and not self.storage_config:
                         raise ServiceError("sd_media_not_prepared", "prepare the session SD image at creation", 409)
+                    # A lost QMP reply cannot prove the previous attachment lasted.
+                    self._sd_attachment_generation += 1
                 details["value"] = value
             result = self._qmp_call("qom-set", path=path, property=prop, value=value)
             self._record_event("qom_set", **details)
@@ -8242,27 +8245,35 @@ class DeviceSession:
             storage = self.storage_info or {}
             if (
                 self.runtime != "qemu"
-                or self.spec.id not in {"cardputer", "cardputer-adv"}
+                or not self.spec.has_sd_write_stamp
                 or storage.get("interface") != "spi"
                 or storage.get("session_isolated_copy") is not True
                 or storage.get("writable") is not True
             ):
-                raise ServiceError("sd_write_stamp_unsupported", "a session-owned Cardputer SPI SD fixture is required", 409)
-            generation = self._frame_generation()
-            if generation[0] != "running" or generation[1] or not self._process_identity_matches():
-                raise ServiceError("sd_session_not_running", "a live guest is required for an SD write stamp", 409)
-            try:
-                info = self.sd_card_image.lstat()
-            except OSError as error:
-                raise ServiceError("sd_media_unavailable", "the session SD medium is unavailable", 409) from error
-            if not stat.S_ISREG(info.st_mode) or info.st_size != storage["bytes"]:
-                raise ServiceError("invalid_storage_image", "the session SD medium changed size or type", 409)
-            if self._frame_generation() != generation:
-                raise ServiceError("sd_session_busy", "session changed during the SD sample", 409)
-            # Include the runtime and inode identities without exposing host process metadata.
-            media_id = hashlib.sha256(
-                repr((self.id, generation, info.st_dev, info.st_ino)).encode()
-            ).hexdigest()
+                raise ServiceError("sd_write_stamp_unsupported", "a supported session-owned SPI SD fixture is required", 409)
+            with self._lock:
+                generation = self._frame_generation()
+                if generation[0] != "running" or generation[1] or not self._process_identity_matches():
+                    raise ServiceError("sd_session_not_running", "a live guest is required for an SD write stamp", 409)
+                if self.spec.id == "paperdiy":
+                    present = self.qom_get("/machine/et047tc1", "sd-card-present")["value"]
+                    if present is False:
+                        raise ServiceError("sd_media_ejected", "the session SD medium is ejected", 409)
+                    if present is not True:
+                        raise ServiceError("sd_media_unavailable", "the session SD presence is unavailable", 409)
+                try:
+                    info = self.sd_card_image.lstat()
+                except OSError as error:
+                    raise ServiceError("sd_media_unavailable", "the session SD medium is unavailable", 409) from error
+                if not stat.S_ISREG(info.st_mode) or info.st_size != storage["bytes"]:
+                    raise ServiceError("invalid_storage_image", "the session SD medium changed size or type", 409)
+                if self._frame_generation() != generation:
+                    raise ServiceError("sd_session_busy", "session changed during the SD sample", 409)
+                # Include the runtime and inode identities without exposing host process metadata.
+                media_identity = (self.id, generation, info.st_dev, info.st_ino)
+                if self.spec.id == "paperdiy":
+                    media_identity += (self._sd_attachment_generation,)
+                media_id = hashlib.sha256(repr(media_identity).encode()).hexdigest()
             return {
                 "session_id": self.id,
                 "firmware_sha256": self.firmware_sha,
@@ -10922,6 +10933,8 @@ class DeviceService:
                 sd = {"admission": "eligible", "interface": storage_interface(spec)}
                 if spec.has_sd_hotplug:
                     sd["hotplug"] = True
+                if spec.has_sd_write_stamp:
+                    sd["write_stamp"] = True
 
         components = []
         for row in read_device_components(device_id):

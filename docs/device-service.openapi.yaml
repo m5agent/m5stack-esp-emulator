@@ -2168,10 +2168,12 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/storage/sd/write-stamp:
     get:
-      summary: Sample the write stamp of a running Cardputer-family SPI SD image
+      summary: Sample the write stamp of an attached native QEMU SPI SD fixture
       description: >-
         Requires storage.read when a runtime ACL is active. Returns metadata
-        for an attached session-owned SPI SD image on native QEMU.
+        for an attached session-owned SPI SD image when fixtures.sd.write_stamp
+        is true. PaperDIY returns sd_media_ejected while the slot is empty.
+        A PaperDIY presence command invalidates the prior media identity.
         Compare stamps around an accepted action only when the media identity
         is unchanged and the pre-action baseline is quiet.
       parameters:
@@ -3875,6 +3877,9 @@ components:
                 hotplug:
                   type: boolean
                   description: Present and true for PaperDIY with the native SD hot-plug model.
+                write_stamp:
+                  type: boolean
+                  description: Present and true when this native SPI SD fixture supports live write stamps.
         components:
           type: array
           items:

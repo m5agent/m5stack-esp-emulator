@@ -266,6 +266,12 @@ class DeviceSpec:
         )
 
     @property
+    def has_sd_write_stamp(self) -> bool:
+        return self.service_kind == "qemu" and (
+            self.id in {"cardputer", "cardputer-adv"} or self.has_sd_hotplug
+        )
+
+    @property
     def reference_available(self) -> bool:
         return bool(self.reference_path and self.reference_path.is_file())
 
