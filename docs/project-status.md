@@ -405,6 +405,10 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载，[guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 读写及初代 Cardputer 的跨会话读回。PaperDIY 在具备 CARD_DET 模型的原生后端通过 [GPIO48 有卡／无卡及 FAT32 读写](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)。具备热插拔模型时，[同会话 GPIO48 中断、拔卡超时、重新插卡和 FAT32 内容回读](../tests/firmware/spi_sd_media/paperdiy-hotplug-summary.json)已验证。以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。 PaperS3 Factory V0.5 的浏览器触控已验证图标切换，连续点按仍有漏响应。已观测到按住时 GPIO48 就绪而固件在松手后才清除旧报告。稳定图标区域的双路逐像素对照见[浏览器触控边界](evidence/2026-11-18-papers3-browser-gt911/README.md)。
 
+PaperDIY 的原生热插拔后端也提供 SD 写入时间戳和本地能力预检。同会话
+实测将写入与仅读取区分，拔卡拒绝采样，重新插卡生成新的介质身份，停机
+后可验证文件内容。[虚拟设备验证](../tests/firmware/spi_sd_media/paperdiy-write-stamp-summary.json)
+
 ## 当前风险
 
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学、机械、

@@ -199,6 +199,14 @@ GT911 驱动采样，先清旧报告。160.512 ms 松手，随后仅读到空报
 另有一次读到按下和松开报告但图标证据未匹配，单独保留。未加观测的
 冻结原生版复现成功与漏响应，浏览器和真机边界不变。
 
+## 2026-11-18 PaperDIY 原生 SD 写入时间戳
+
+[同固件、同 FAT32 夹具的虚拟设备复验](../tests/firmware/spi_sd_media/paperdiy-write-stamp-summary.json)
+在首次插卡后观察到时间戳递增、6 次 SPI CMD24 和正常卸载。拔卡期间
+请求返回 `sd_media_ejected`，重新插卡时介质身份变化，来宾读回并卸载，
+时间戳保持不变且没有 CMD24。停机会话保留的 `/PROOF.BIN` 哈希与探针
+内容一致。夹具源卡不变，worker 租约清空。
+
 ## 2026-11-17 Cardputer SPI 空闲接收
 
 [原生 Cardputer 复验](../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)用同一

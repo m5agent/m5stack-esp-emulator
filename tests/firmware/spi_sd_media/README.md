@@ -170,3 +170,12 @@ the stopped FAT inventory and export receipt. The source image is immutable.
 The [virtual-device result](paperdiy-hotplug-summary.json) retains old-backend,
 missing-media and normal attached-at-boot controls. Runtime image replacement,
 physical/electrical and browser behavior are outside this scope.
+
+On a Device Service that advertises `fixtures.sd.write_stamp: true`, rerun
+the same command with `--check-write-stamp`. The runner samples the first
+attachment before and after the guest flush, then samples the reinserted
+attachment during readback. The first stamp must advance, the second must
+stay unchanged, and the attachment identities must differ. Queries while
+ejected must return `409 sd_media_ejected`. The stopped inventory still
+checks `/PROOF.BIN` byte-for-byte by SHA-256.
+[SD write-stamp evidence](paperdiy-write-stamp-summary.json)

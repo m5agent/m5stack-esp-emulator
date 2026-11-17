@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "device": "paperdiy",
+  "lane": "native Device Service /api/v1",
+  "device_service_source_commit": "7113d7f8875332e7ebcba059aba0aa1b46c495a3",
+  "reproduction": "Set M5SW_SPI_SD_TRACE=1 on an isolated local worker and run tests/firmware/spi_sd_media/run_hotplug.py with --check-write-stamp, the merged ESP-IDF probe and the seeded FAT32+MBR fixture.",
+  "firmware_artifact_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+  "composed_flash_sha256": "32db496baea072d947ecf3f9c7940159add46dd5953f27cf5fedf87881e19fcb",
+  "source_sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "sd_capability": {
+    "admission": "eligible",
+    "interface": "spi",
+    "hotplug": true,
+    "write_stamp": true
+  },
+  "runtime_runs": [
+    {
+      "native_bundle_commit": "2db3851c0b7a4980210034d05130224a2ecf6455",
+      "xtensa_qemu_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "release_manifest_sha256": "856ec575ec065a38a494bdfd504325a0510261c26c913d111039d674ca2aae9f",
+      "evidence_zip_sha256": "9f720d8fd9f10fde7be5ece7fbdb2c4c6f2cc2eba85cea008959365b03cf8385"
+    },
+    {
+      "native_bundle_commit": "63472ab884dc2968904999c75eb6aca91c3f2517",
+      "xtensa_qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "release_manifest_sha256": "4809829d4ee01450f1a7f3797bb1b0d13b11cdcc34ffccc99275de79798b55de",
+      "evidence_zip_sha256": "7bed0cb88d834be8e76c05f4c7a7cd8bb1ef3cbfa526c6b4aa7fd4d2c0c73501"
+    }
+  ],
+  "sd_spi_command_deltas_by_stage": {
+    "first_insert": {
+      "0": 2,
+      "17": 9,
+      "18": 0,
+      "24": 6,
+      "25": 0
+    },
+    "first_eject": {
+      "0": 0,
+      "17": 0,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    },
+    "reinsert_read_only": {
+      "0": 2,
+      "17": 8,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    },
+    "final_eject": {
+      "0": 0,
+      "17": 0,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    }
+  },
+  "stamp_assertions": {
+    "write_advanced": true,
+    "read_quiet": true,
+    "reinsertion_changed_identity": true,
+    "ejected_requests_rejected": true
+  },
+  "ejected_response": {
+    "http": 409,
+    "code": "sd_media_ejected"
+  },
+  "same_guest_markers": [
+    "HOTPLUG_INITIAL level=1 mount=ESP_ERR_TIMEOUT",
+    "HOTPLUG_IRQ generation=1 level=0",
+    "HOTPLUG_FIRST seed=1 write=1 unmounted=1",
+    "HOTPLUG_IRQ generation=2 level=1",
+    "HOTPLUG_EJECTED mount=ESP_ERR_TIMEOUT",
+    "HOTPLUG_IRQ generation=3 level=0",
+    "HOTPLUG_REINSERT persisted=1 unmounted=1",
+    "HOTPLUG_IRQ generation=4 level=1",
+    "HOTPLUG_DONE"
+  ],
+  "stopped_sd_sha256": "14ac7136d256cad2fff6c3b397bf0c1894a5596f43289f566047024ce942ac31",
+  "retained_file": {
+    "path": "/PROOF.BIN",
+    "sha256": "9c8a5072334c4c1e97395a2b4bbbff06912123cb4a8c540e52f9099b21c45f3b"
+  },
+  "source_sd_unchanged": true,
+  "same_process": true,
+  "worker_leases_after_stop": 0,
+  "isolated_services_exited": true,
+  "scope": "Exact ESP-IDF probe and FAT32 seed. Browser WASM, physical insertion/electrical behavior, arbitrary PaperDIY application and reviewer job were not run."
+}
