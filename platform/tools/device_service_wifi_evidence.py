@@ -7,10 +7,16 @@ from typing import TYPE_CHECKING
 
 from device_service_parsing import is_sha256
 from device_service_softap_peer import (
-    PROVISION_STATION_GATEWAY, PROVISION_STATION_LEASE, STICKS3_PROVISION_PROFILE,
+    NIC as SOFTAP_NIC,
+    PROFILE as CARDPUTER_SOFTAP_PROFILE,
+    PROVISION_STATION_GATEWAY,
+    PROVISION_STATION_LEASE,
+    QOM_PROPERTY as SOFTAP_PEER_PROPERTY,
+    STICKS3_PROFILE as STICKS3_SOFTAP_PROFILE,
+    STICKS3_PROVISION_PROFILE,
 )
 from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
-from device_service_specs import CORE2_WIFI_PROFILE
+from device_service_specs import CORE2_WIFI_PROFILE, qemu_has_qom_property
 
 if TYPE_CHECKING:
     from device_service_specs import DeviceSpec
@@ -37,17 +43,25 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
     if spec.backend != "qemu-esp32s3":
         return {}
     if spec.id == "sticks3" and spec.machine == "m5sticks3":
-        return {"portal_provisioning_fixture": {
+        capability = {"portal_provisioning_fixture": {
             "runtime": "qemu-wifi", "profile": STICKS3_PROVISION_PROFILE,
             "host_ip_backends": 0, "scope": "portal-to-station",
         }}
-    if spec.id not in _CARDPUTER_STA_MACHINES or spec.machine != _CARDPUTER_STA_MACHINES[spec.id]:
+        softap_profile = STICKS3_SOFTAP_PROFILE
+    elif spec.id in _CARDPUTER_STA_MACHINES and spec.machine == _CARDPUTER_STA_MACHINES[spec.id]:
+        capability = {"sta": {
+            "runtime": "qemu-wifi",
+            "profile": "generic-observe",
+            "operation_assertions": False,
+        }}
+        softap_profile = CARDPUTER_SOFTAP_PROFILE
+    else:
         return {}
-    capability = {"sta": {
-        "runtime": "qemu-wifi",
-        "profile": "generic-observe",
-        "operation_assertions": False,
-    }}
+    if qemu_has_qom_property(spec.qemu, SOFTAP_NIC, SOFTAP_PEER_PROPERTY, "bool"):
+        capability["open_softap_fixture"] = {
+            "runtime": "qemu-wifi", "profile": softap_profile,
+            "host_ip_backends": 0, "scope": "fixed-softap-http",
+        }
     if spec.id == STA_TIME_DEVICE:
         capability["sta_time_fixture"] = {
             "runtime": "qemu-wifi", "profile": STA_TIME_PROFILE,

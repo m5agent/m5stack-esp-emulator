@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.81.0` and bounded
+Status: local MVP with unified-device runtime contract `1.82.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1139,6 +1139,12 @@ Important fields:
   `native_network.sta` with `runtime=qemu-wifi`, `profile=generic-observe`
   and `operation_assertions=false`. This advertises the board's station path.
   Check worker and network-isolation admission when creating the lease.
+- Ready native Cardputer, Cardputer ADV and StickS3 backends with the
+  `open-softap-peer` QOM property advertise `native_network.open_softap_fixture`.
+  It identifies the exact board profile, `runtime=qemu-wifi`,
+  `scope=fixed-softap-http` and `host_ip_backends=0`. The same capability is
+  available from `/devices/{device_id}/capabilities`. Session creation
+  checks the backend and configured runtime ACL independently.
 - Tab5 `features.qom` is `false`. The matching-ELF touch path uses a GDB mailbox.
   Uploaded Tab5 images can use the optional native GT911 controller path.
 

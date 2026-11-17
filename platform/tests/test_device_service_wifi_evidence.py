@@ -1,7 +1,7 @@
 from dataclasses import replace
 from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from device_service import DeviceSession
 from device_service_specs import load_device_specs
@@ -189,7 +189,8 @@ class NativeStaCapabilityTests(unittest.TestCase):
         ):
             self.assertEqual(native_sta_capability(wrong, backend_ready=True), {})
 
-    def test_only_matched_ready_native_cardputer_projects_sta_capability(self):
+    @patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=False)
+    def test_only_matched_ready_native_cardputer_projects_sta_capability(self, _property_probe):
         specs = load_device_specs()
         expected = {"sta": {
             "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
@@ -218,3 +219,26 @@ class NativeStaCapabilityTests(unittest.TestCase):
                 "host_ip_backends": 0, "scope": "portal-to-station",
             },
         })
+
+    def test_fixed_softap_offer_requires_exact_board_machine_and_nic_property(self):
+        specs = load_device_specs()
+        for board, profile in (
+            ("cardputer", "cardputer-open-softap-fixture"),
+            ("cardputer-adv", "cardputer-open-softap-fixture"),
+            ("sticks3", "sticks3-open-softap-fixture"),
+        ):
+            with self.subTest(board=board):
+                spec = specs[board]
+                with patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=True) as probe:
+                    result = native_sta_capability(spec, backend_ready=True)
+                    self.assertEqual(result["open_softap_fixture"], {
+                        "runtime": "qemu-wifi", "profile": profile, "host_ip_backends": 0,
+                        "scope": "fixed-softap-http",
+                    })
+                    probe.assert_called_once_with(spec.qemu, "misc.esp32s3.wifi", "open-softap-peer", "bool")
+                    probe.reset_mock()
+                    self.assertEqual(native_sta_capability(spec, backend_ready=False), {})
+                    self.assertEqual(native_sta_capability(replace(spec, machine="m5cores3"), backend_ready=True), {})
+                    probe.assert_not_called()
+                with patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=False):
+                    self.assertNotIn("open_softap_fixture", native_sta_capability(spec, backend_ready=True))

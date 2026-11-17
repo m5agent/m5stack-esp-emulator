@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.81.0
+  version: 1.82.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3910,6 +3910,7 @@ components:
       anyOf:
         - required: [sta]
         - required: [portal_provisioning_fixture]
+        - required: [open_softap_fixture]
       description: >
         Board-native WiFi paths on ready Cardputer, Cardputer ADV, StickS3
         and configured classic Core2 QEMU backends. Worker capabilities, firmware and lease admission are
@@ -3940,6 +3941,16 @@ components:
             profile: {const: cardputer-adv-local-time-fixture}
             host_ip_backends: {const: 0}
             scope: {const: local-dns-and-sntp}
+        open_softap_fixture:
+          type: object
+          additionalProperties: false
+          required: [runtime, profile, host_ip_backends, scope]
+          description: Fixed DHCP, ARP and HTTP peer for a ready native QEMU with open-softap-peer support.
+          properties:
+            runtime: {const: qemu-wifi}
+            profile: {enum: [cardputer-open-softap-fixture, sticks3-open-softap-fixture]}
+            host_ip_backends: {const: 0}
+            scope: {const: fixed-softap-http}
         portal_provisioning_fixture:
           type: object
           additionalProperties: false
