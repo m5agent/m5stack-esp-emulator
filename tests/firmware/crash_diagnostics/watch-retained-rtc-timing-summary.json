@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "title": "All day watch 0.3.8 ESP32-S3 RTC sleep completion audit",
+  "status": "PARTIAL",
+  "evidence_lane": "Retained native Device Service virtual-device validation and read-only source audit",
+  "device": "M5StickS3",
+  "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+  "historical_runtime": {
+    "emulator_commit": "2db3851c0b7a4980210034d05130224a2ecf6455",
+    "release_manifest_sha256": "856ec575ec065a38a494bdfd504325a0510261c26c913d111039d674ca2aae9f",
+    "qemu_executable_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+    "esp32s3_rev0_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+    "profile": "uiflow2-sticks3-wifi",
+    "runs": [
+      {
+        "evidence_bundle_sha256": "cd5ac1dbc4e96dea9261e6ba771baf4fc532d0a8271bd1b292f20624239a179f",
+        "core": 1,
+        "backtrace_entries": 7,
+        "last_systimer_alarm_to_iwdt_ms": [
+          0.003,
+          0.003
+        ],
+        "last_systimer_ack_to_iwdt_ms": [
+          300.454,
+          300.466
+        ],
+        "last_watchdog_feed_to_iwdt_ms": 300.423
+      },
+      {
+        "evidence_bundle_sha256": "119d543b2ebbcb3654bc7f079e15e949c598e3808982215ebce5fa1fd9afe03d",
+        "core": 1,
+        "backtrace_entries": 7,
+        "last_systimer_alarm_to_iwdt_ms": [
+          1.519,
+          1.519
+        ],
+        "last_systimer_ack_to_iwdt_ms": [
+          300.699,
+          300.755
+        ],
+        "last_watchdog_feed_to_iwdt_ms": 300.674
+      }
+    ],
+    "control_bundle_sha256": "f68159d8d55f1e06efa7377c0fd46509031dbc2ea37db423ad98b11c77986729",
+    "control_result": "Same firmware and runtime with different interaction timing did not show a panic in the retained observation window."
+  },
+  "panic_location": {
+    "category": "ESP32-S3 RTC sleep completion polling",
+    "observation": "Both retained panic records point to polling the wake or reject status after a sleep request.",
+    "matching_elf": "unavailable"
+  },
+  "source_audit": {
+    "qemu_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "candidate_qemu_executable_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+    "candidate_build_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "compared_source_trees": "Retained November 17 ESP32-S3 IWDT trace source and November 18 7e63 native build source. The two audited files match byte for byte. The historical run's release executable and ROM were independently rehashed.",
+    "files": {
+      "hw/misc/esp32s3_rtc_cntl.c": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b",
+      "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87"
+    },
+    "finding": "The audited RTC controller does not implement guest-visible sleep wake or reject completion. Pad power handling does not generate that RTC status."
+  },
+  "primary_reference_urls": [
+    "https://github.com/espressif/esp-idf/blob/v5.4.1/components/esp_hw_support/port/esp32s3/rtc_sleep.c#L269-L284",
+    "https://github.com/espressif/esp-idf/blob/v5.4.1/components/soc/esp32s3/register/soc/rtc_cntl_reg.h"
+  ],
+  "inference": "Missing RTC sleep completion is a source-supported causal candidate for the historical watchdog. The audited 7e63 source retains the same gap. The sample establishes neither when the interrupt masks first rose nor behavior after an RTC-model correction.",
+  "verification": {
+    "fresh_watch_run_on_7e63": "NOT RUN",
+    "rtc_model_correction_same_firmware_replay": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "reviewer_replay": {
+    "commit": "ea64e80e3d88e2761b5627545376a1de400cf34f",
+    "validation": "retained virtual-device evidence, read-only Reviewer replay",
+    "new_guest_execution": "NOT RUN",
+    "cases": {
+      "historical_long_hold": {
+        "original_evidence_zip_sha256": "cd5ac1dbc4e96dea9261e6ba771baf4fc532d0a8271bd1b292f20624239a179f",
+        "composed_firmware_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+        "serial_sha256": "48aeeb1040a722f7ece8b68bded34eea830ba4ef9fcf20cb629c01398ed0c9b3",
+        "runtime_stderr_sha256": "493fb0c4b8058e766df179856d20594174c462a489d82ae4f7846a474ac3fa3b",
+        "guest_failure_category": "guest_failure_observed",
+        "guest_failure_observed": true,
+        "guest_panic_core": 1,
+        "guest_panic_reason": "Interrupt wdt timeout on CPU1",
+        "firmware_conclusion": "UNRESOLVED",
+        "backend_watchdog": {
+          "scope": "first_backend_stage0_in_session",
+          "source": {
+            "offset": 0,
+            "bytes": 771,
+            "sha256": "493fb0c4b8058e766df179856d20594174c462a489d82ae4f7846a474ac3fa3b"
+          },
+          "virtual_time_ns": 28210773000,
+          "feed_age_ns": 300423000,
+          "deadline_delta_ns": 423000,
+          "timer_alarm_age_ns": [
+            3000,
+            3000
+          ],
+          "timer_ack_age_ns": [
+            [
+              300454000,
+              null
+            ],
+            [
+              null,
+              300466000
+            ]
+          ],
+          "cpu_irq_snapshot_available": true
+        },
+        "mismatched_firmware_receipt_excluded": true
+      },
+      "historical_semantic_hold": {
+        "original_evidence_zip_sha256": "119d543b2ebbcb3654bc7f079e15e949c598e3808982215ebce5fa1fd9afe03d",
+        "composed_firmware_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+        "serial_sha256": "90297161debca012514f9b3ddc59c337f0212d9589b69b9f0da6f1e3175e8f3d",
+        "runtime_stderr_sha256": "167c6316573c6b9dc246ecbfc3026aea2ca61104cc0265f74e45c306189cea98",
+        "guest_failure_category": "guest_failure_observed",
+        "guest_failure_observed": true,
+        "guest_panic_core": 1,
+        "guest_panic_reason": "Interrupt wdt timeout on CPU1",
+        "firmware_conclusion": "UNRESOLVED",
+        "backend_watchdog": {
+          "scope": "first_backend_stage0_in_session",
+          "source": {
+            "offset": 0,
+            "bytes": 771,
+            "sha256": "167c6316573c6b9dc246ecbfc3026aea2ca61104cc0265f74e45c306189cea98"
+          },
+          "virtual_time_ns": 25538773000,
+          "feed_age_ns": 300674000,
+          "deadline_delta_ns": 674000,
+          "timer_alarm_age_ns": [
+            1519000,
+            1519000
+          ],
+          "timer_ack_age_ns": [
+            [
+              300699000,
+              null
+            ],
+            [
+              null,
+              300755000
+            ]
+          ],
+          "cpu_irq_snapshot_available": true
+        },
+        "mismatched_firmware_receipt_excluded": true
+      },
+      "historical_immediate_release": {
+        "original_evidence_zip_sha256": "f68159d8d55f1e06efa7377c0fd46509031dbc2ea37db423ad98b11c77986729",
+        "composed_firmware_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+        "serial_sha256": "42f797c503a271744fbb7ca149b0e3feaf5c29cedb9fb7b107cd7aab56049593",
+        "runtime_stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "guest_failure_category": "unresolved",
+        "guest_failure_observed": false,
+        "guest_panic_core": null,
+        "guest_panic_reason": null,
+        "firmware_conclusion": "NOT EVALUATED",
+        "backend_watchdog": null,
+        "mismatched_firmware_receipt_excluded": true
+      }
+    }
+  }
+}

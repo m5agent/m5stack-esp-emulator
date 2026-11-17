@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 All day watch 留存 IWDT 与 RTC 源码对照
+
+[原版 0.3.8 留存证据与只读审核回放](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
+核对了原始 BIN、规范化 Flash、M5StickS3 历史运行时和三个会话 ZIP。两次长输入均报告 CPU1 IWDT。
+最后一对 SYSTIMER 告警分别距 IWDT 0.003 ms 和 1.519 ms，两路确认均已超过 300 ms。
+快速释放对照的观察窗口没有记录 panic。审核 API 0.14 读回同会话证据，保留独立的时序和未归因结论，
+并拒绝错配固件的收据。两次异常位置均对应 RTC 睡眠完成轮询，审计的 QEMU RTC 源码缺少唤醒或拒绝完成状态。
+匹配 ELF 不可用。新版原版复跑、模型修正后的原版对照和真机均为 `NOT RUN`。
+
 ## 2026-11-18 保存快照的本地 STA 应用断言
 
 [隔离 Linux 三板及负对照](../tests/network/native_sta_peers/saved-sta-operation-summary.json)
