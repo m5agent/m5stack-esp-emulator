@@ -1,0 +1,161 @@
+{
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "native_qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+  "reviewer_integrated_commit": "30524015c15ead7940a66b53f496e1cd5f1cea07",
+  "device_service_current_commit": "d99d4d00340b8ef3265a8b9d31252996e1f41d8c",
+  "paperdiy": {
+    "reviewer_saved_model_plan": {
+      "target_profile": "paperdiy",
+      "saved_item_device_codes": [
+        "PAPER_DIY",
+        "PAPERDIY"
+      ],
+      "runtime": "qemu",
+      "whole_device": true,
+      "creatable": true,
+      "fixture": {
+        "status": "admitted",
+        "reason": "sd_write_stamp_advertised"
+      },
+      "features": {
+        "flash": true,
+        "storage": true,
+        "serial": true,
+        "input": true,
+        "screenshot": true
+      }
+    },
+    "native_device_service": {
+      "status": "PASS",
+      "firmware_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+      "source_sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "composed_flash_sha256": "32db496baea072d947ecf3f9c7940159add46dd5953f27cf5fedf87881e19fcb",
+      "sd_capability": {
+        "admission": "eligible",
+        "interface": "spi",
+        "hotplug": true,
+        "write_stamp": true
+      },
+      "cmd_delta": [
+        {
+          "0": 2,
+          "17": 9,
+          "18": 0,
+          "24": 6,
+          "25": 0
+        },
+        {
+          "0": 0,
+          "17": 0,
+          "18": 0,
+          "24": 0,
+          "25": 0
+        },
+        {
+          "0": 2,
+          "17": 8,
+          "18": 0,
+          "24": 0,
+          "25": 0
+        },
+        {
+          "0": 0,
+          "17": 0,
+          "18": 0,
+          "24": 0,
+          "25": 0
+        }
+      ],
+      "stamps": {
+        "write_advanced": true,
+        "read_quiet": true,
+        "reinsertion_changed_identity": true,
+        "ejected_requests_rejected": true
+      },
+      "guest_markers": [
+        "HOTPLUG_INITIAL level=1 mount=ESP_ERR_TIMEOUT",
+        "HOTPLUG_IRQ generation=1 level=0",
+        "HOTPLUG_FIRST seed=1 write=1 unmounted=1",
+        "HOTPLUG_IRQ generation=2 level=1",
+        "HOTPLUG_EJECTED mount=ESP_ERR_TIMEOUT",
+        "HOTPLUG_IRQ generation=3 level=0",
+        "HOTPLUG_REINSERT persisted=1 unmounted=1",
+        "HOTPLUG_IRQ generation=4 level=1",
+        "HOTPLUG_DONE"
+      ],
+      "bundle_sha256": "f96ef80924651a0104fa73cbf0e7f7a6be1f332230b948174108671c9d78c809",
+      "same_process": true,
+      "stopped_sd_sha256": "14ac7136d256cad2fff6c3b397bf0c1894a5596f43289f566047024ce942ac31",
+      "retained_proof_sha256": "9c8a5072334c4c1e97395a2b4bbbff06912123cb4a8c540e52f9099b21c45f3b",
+      "cleaned": true
+    },
+    "reviewer_scope": "Live mapped whole-device plan and capability preflight. Full saved PaperDIY review not run."
+  },
+  "papers3": {
+    "review_status": "manual_review",
+    "review_error_code": "E_SIM_SD_WRITE_PARTIAL",
+    "admission": {
+      "status": "unavailable",
+      "reason": "sd_write_stamp_not_advertised"
+    },
+    "source_firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+    "composed_firmware_sha256": "ea1fdd4b3ee20db6b27fcd74f9e3a4bc538195075b3dfdd30f5e266764265788",
+    "route_control": {
+      "http": 409,
+      "code": "sd_write_stamp_unsupported"
+    },
+    "sd_status": "PARTIAL",
+    "sd_action": {
+      "status": "PARTIAL",
+      "write_status": "NOT RUN",
+      "reason": "sd_write_stamp_not_advertised"
+    },
+    "input_accepted": true,
+    "boot_and_ui": "PASS",
+    "observation_seconds": 60.06963137513958,
+    "evidence_zip_sha256": "0b7cf8c3e37c76833e57c3e74a9a8024c73c17e6a10b569ab99d80266792e967",
+    "flash_released": true,
+    "submission": "NOT SUBMITTED",
+    "reviewer_stamp_requests": 0,
+    "independent_stamp_requests": 1
+  },
+  "legacy_cardputerdict": {
+    "reviewer_commit": "61786cf42841fcc8817274a1a53ef50693b3c59f",
+    "device_service_commit": "31867f0eea21b907328297a8cd2190f295765e79",
+    "review_status": "manual_review",
+    "review_error_code": "E_INTERACTION_CLAIM_PARTIAL",
+    "admission": {
+      "status": "admitted",
+      "reason": "legacy_cardputer_spi_fixture"
+    },
+    "source_firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+    "composed_firmware_sha256": "dd5ae9b2d1af6dce97adfd27d55a2097fff9920cee5f7e2771c67e05011b2929",
+    "route_control": null,
+    "sd_status": "PASS",
+    "sd_action": {
+      "status": "PASS",
+      "write_status": "PASS",
+      "reason": "sd_write_and_retained_file_observed",
+      "retained_sd_sha256": "319679af773dd93df85c4710c64afffac53f26a87099f23875230d86fd299036",
+      "expected_file": "/dictionaries/ecdict.cidx",
+      "retained_file": {
+        "path": "/dictionaries/ecdict.cidx",
+        "size": 68,
+        "sha256": "05f4620cef8de5e7ba956039381681e56cb8d0d4339cfb9fe291f476aae19614"
+      }
+    },
+    "input_accepted": true,
+    "boot_and_ui": "PASS",
+    "observation_seconds": 60.013075541937724,
+    "evidence_zip_sha256": "d050c324928b5338c04d1454e51af2e13f492b5c6e7bd9dda042e901c2b634eb",
+    "flash_released": true,
+    "submission": "NOT SUBMITTED"
+  },
+  "leases_after_tests": 0,
+  "isolated_workers_exited": true,
+  "source_seeds_unchanged": true,
+  "burner": "NOT SUBMITTED",
+  "physical_device": "NOT RUN",
+  "browser_wasm": "NOT RUN"
+}

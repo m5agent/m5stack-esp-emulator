@@ -1,0 +1,315 @@
+{
+  "validation": "virtual-device validation",
+  "device": "M5Dial",
+  "unit": "AudioPlayer U197 at Port B",
+  "runtime": "native QEMU Xtensa, isolated no NIC",
+  "device_service_source": "d99d4d00340b8ef3265a8b9d31252996e1f41d8c",
+  "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "firmware": "vinylM5Dial R1F30",
+  "firmware_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+  "saved_description_sha256": "ac0a8f43cf963f3e5838629f18e43108a31763438eca4d368e4f54df2e51a244",
+  "wav_fixture": {
+    "rate_hz": 16000,
+    "format": "s16le mono",
+    "tracks": [
+      {
+        "track": 1,
+        "frequency_hz": 440,
+        "pcm_sha256": "d3a4921063e77b5d1dc4bdbb362fc6f2a11a5464ed7bf468989b13251faa02dc",
+        "artifact_sha256": "b8bb1b3cdebb86547eb1bfb15d2e3b91620dd356ceac9e00bf115c842596ec65",
+        "frames": 160000
+      },
+      {
+        "track": 2,
+        "frequency_hz": 524,
+        "pcm_sha256": "4c6141d109eb8f095852550025e79b493942e036c66b6181be8b121f19c87233",
+        "artifact_sha256": "a9334bb024b3093622f96377b52e3f7d04eb89f2fbe3e210670ea0f1df9794e5",
+        "frames": 160000
+      },
+      {
+        "track": 3,
+        "frequency_hz": 610,
+        "pcm_sha256": "c65bfa41eb0824b339d3883be6db90186fe1594b49421c3cbffe825599a6bf85",
+        "artifact_sha256": "42ef236ea83b18b6e40454fca2092aa96d894eedc2125a3ead892c1d107344ca",
+        "frames": 160000
+      },
+      {
+        "track": 4,
+        "frequency_hz": 706,
+        "pcm_sha256": "2cd1e362fea4cb2829c71913bffcad88cd86e236dd638f5fcdac23f1598b5022",
+        "artifact_sha256": "85389804f43b37c06b7396a77f8ff5af017e58298ec61afd859b1deb38bd3bd4",
+        "frames": 160000
+      },
+      {
+        "track": 5,
+        "frequency_hz": 806,
+        "pcm_sha256": "7bcc1b6a4c22822038e8cad58c5f764212b00b418dea87bba8f9ff9a02fe22b1",
+        "artifact_sha256": "388c76119099e015b14e5cecfb549e9c7838c907163b57202b84da2f50bf47d2",
+        "frames": 160000
+      },
+      {
+        "track": 6,
+        "frequency_hz": 902,
+        "pcm_sha256": "a40063739f1718af13e2f0388c21b34d3312b9544c152a3932c0d442b1510b2e",
+        "artifact_sha256": "0383e0b6c0b95978ac407b87a3ed5c6f0eadfc517b1fcb453878631d6150c03e",
+        "frames": 160000
+      },
+      {
+        "track": 7,
+        "frequency_hz": 1030,
+        "pcm_sha256": "7fee3288778d3328b89c05ce088d49e0356b963f8d1acd0ecafc89cbf65886ed",
+        "artifact_sha256": "28abb9746cf9b86d6e06c832851958328a81bedf19b212bb04d3f4bd63d6054b",
+        "frames": 160000
+      }
+    ]
+  },
+  "initial_partial_observations": {
+    "baseline_deadline_seconds": 3,
+    "reviewer_source": "6c0e666f0410292fd3af4a60d4944d26f0f800bb",
+    "cases": [
+      {
+        "case": "positive",
+        "audio_status": "PARTIAL",
+        "audio_reason": "audio_capture_baseline_unavailable",
+        "evidence_zip_sha256": "648277274381e5faac2db38bdd7ba059cc2b54794bead4c293fb76123f20a2be"
+      },
+      {
+        "case": "wrong-tone",
+        "audio_status": "PARTIAL",
+        "audio_reason": "audio_capture_baseline_unavailable",
+        "evidence_zip_sha256": "5d4eef315226a34027c5228d1ea96bbf8c4aedd88ae7e05491b1745e5912f24a"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case": "positive",
+      "reviewer_source": "30524015c15ead7940a66b53f496e1cd5f1cea07",
+      "final_status": "done",
+      "final_error": null,
+      "evidence_zip_sha256": "d89403affd7ac23f2b7b7eee7cfb16d961ad12d0cd0608f8572d7d61cfe3c3bb",
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0,
+      "validation_audio": {
+        "source": "unit",
+        "after_input": "encoder_clockwise",
+        "sample_rate_hz": 16000,
+        "frequency_hz": 524,
+        "tolerance_hz": 7,
+        "minimum_rms": 1200,
+        "window_frames": 2048,
+        "timeout_seconds": 4
+      },
+      "observation_seconds": 60.021,
+      "audio_status": "PASS",
+      "audio_reason": "expected_tone_observed",
+      "unit_uart": {
+        "status": "PASS",
+        "observed": {
+          "frames-sent": 35,
+          "frames-injected": 31,
+          "transactions": 35,
+          "read-bytes": 196,
+          "written-bytes": 181,
+          "media-track-count": 7,
+          "selected-track": 2,
+          "playback-status": 1
+        }
+      },
+      "controller": {
+        "delta": 1,
+        "target_detents": 1,
+        "previous_detents": 0,
+        "previous_gpio_edges": 0,
+        "edge_period_ms": 35,
+        "completion": "queued"
+      },
+      "data_checks": {
+        "label": "positive-integrated",
+        "review_status": "PASS",
+        "review_reason": "expected_tone_observed",
+        "encoder_seconds_from_session_creation": 8.327,
+        "evidence_zip_sha256": "d89403affd7ac23f2b7b7eee7cfb16d961ad12d0cd0608f8572d7d61cfe3c3bb",
+        "baseline_offset": 2552,
+        "baseline_bytes": 4096,
+        "baseline_frequency_hz": 440.0,
+        "baseline_spectrum_estimate_hz": 439.102,
+        "encoder_checkpoint_bytes": 6648,
+        "matching_window_offsets": [
+          35320,
+          39416
+        ],
+        "post_action_window_count": 9,
+        "first_http_200_seconds_after_first_metrics_request": 6,
+        "http_409_before_success": 25
+      },
+      "pcm_retained": true,
+      "pcm_bytes": 2049598,
+      "pcm_sha256": "8d5e1f458aedd479354e730b52cb9bebae99b9c48077f88ff8cf57fdfc69c774",
+      "track_2_byte_matched_windows": [
+        {
+          "offset": 35320,
+          "bytes": 4096,
+          "sha256": "ccc29347426ad9161933e53afbb592967a677c01c3ce868217f37c961843e170",
+          "reference_track": 2,
+          "reference_offset": 478,
+          "independent_frequency_hz": 524.069
+        },
+        {
+          "offset": 39416,
+          "bytes": 4096,
+          "sha256": "163d65e61c225e1d8e24254e5feb3855ec3332bce47ebd8f9d954d809ea2a49c",
+          "reference_track": 2,
+          "reference_offset": 4574,
+          "independent_frequency_hz": 524.069
+        }
+      ]
+    },
+    {
+      "case": "wrong-tone",
+      "reviewer_source": "6402b43a6134778ee70f09e2cce1aec0658b43ba",
+      "final_status": "manual_review",
+      "final_error": "E_SIM_AUDIO_ASSERTION_FAILED",
+      "evidence_zip_sha256": "6aa412fe3a3da8ffd8ccc23039a85098400cd9340f1245d5b48353af0e1f6ceb",
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0,
+      "validation_audio": {
+        "source": "unit",
+        "after_input": "encoder_clockwise",
+        "sample_rate_hz": 16000,
+        "frequency_hz": 1318,
+        "tolerance_hz": 7,
+        "minimum_rms": 1200,
+        "window_frames": 2048,
+        "timeout_seconds": 4
+      },
+      "observation_seconds": 60.023,
+      "audio_status": "FAIL",
+      "audio_reason": "expected_tone_not_observed",
+      "unit_uart": {
+        "status": "PASS",
+        "observed": {
+          "frames-sent": 34,
+          "frames-injected": 30,
+          "transactions": 34,
+          "read-bytes": 190,
+          "written-bytes": 176,
+          "media-track-count": 7,
+          "selected-track": 2,
+          "playback-status": 1
+        }
+      },
+      "controller": {
+        "delta": 1,
+        "target_detents": 1,
+        "previous_detents": 0,
+        "previous_gpio_edges": 0,
+        "edge_period_ms": 35,
+        "completion": "queued"
+      },
+      "data_checks": {
+        "label": "wrong-tone-a2",
+        "review_status": "FAIL",
+        "review_reason": "expected_tone_not_observed",
+        "encoder_seconds_from_session_creation": 8.278,
+        "evidence_zip_sha256": "6aa412fe3a3da8ffd8ccc23039a85098400cd9340f1245d5b48353af0e1f6ceb",
+        "baseline_offset": 1378,
+        "baseline_bytes": 4096,
+        "baseline_frequency_hz": 439.863,
+        "baseline_spectrum_estimate_hz": 439.102,
+        "encoder_checkpoint_bytes": 5474,
+        "matching_window_offsets": [],
+        "post_action_window_count": 24,
+        "first_http_200_seconds_after_first_metrics_request": 5,
+        "http_409_before_success": 25
+      },
+      "pcm_retained": true,
+      "pcm_bytes": 2082820,
+      "pcm_sha256": "90e3ba91fded04689c156b3af89cf481a7a04b62f44a232a0e08c17106f965ee",
+      "track_2_byte_matched_windows": [
+        {
+          "offset": 17762,
+          "bytes": 4096,
+          "sha256": "6c2960fe9bea1a5ca5894a4f8b52be6b9f6d4d2c3d2562e65fefb91c3492a9b3",
+          "reference_track": 2,
+          "reference_offset": 390,
+          "independent_frequency_hz": 523.81
+        },
+        {
+          "offset": 21858,
+          "bytes": 4096,
+          "sha256": "c47b93f1aa08e680186e13a043caaa780eb6a8e4d15f6ff125c92e2076bf91e7",
+          "reference_track": 2,
+          "reference_offset": 4486,
+          "independent_frequency_hz": 524.069
+        }
+      ]
+    },
+    {
+      "case": "acl",
+      "reviewer_source": "6402b43a6134778ee70f09e2cce1aec0658b43ba",
+      "final_status": "manual_review",
+      "final_error": "E_SIM_AUDIO_PARTIAL",
+      "evidence_zip_sha256": "a185f66065765ad91f0c6a512e540a4faa49a3e2fabb2fa078deb03f0f7bf8e1",
+      "session_stopped": true,
+      "flash_released": true,
+      "active_leases": 0,
+      "validation_audio": {
+        "source": "unit",
+        "after_input": "encoder_clockwise",
+        "sample_rate_hz": 16000,
+        "frequency_hz": 524,
+        "tolerance_hz": 7,
+        "minimum_rms": 1200,
+        "window_frames": 2048,
+        "timeout_seconds": 4
+      },
+      "observation_seconds": 60.021,
+      "audio_status": "PARTIAL",
+      "audio_reason": "audio_capture_baseline_unavailable",
+      "unit_uart": {
+        "status": "PASS",
+        "observed": {
+          "frames-sent": 29,
+          "frames-injected": 26,
+          "transactions": 29,
+          "read-bytes": 164,
+          "written-bytes": 149,
+          "media-track-count": 7,
+          "selected-track": 6,
+          "playback-status": 1
+        }
+      },
+      "controller": {
+        "delta": 1,
+        "target_detents": 1,
+        "previous_detents": 0,
+        "previous_gpio_edges": 0,
+        "edge_period_ms": 35,
+        "completion": "queued"
+      },
+      "data_checks": {
+        "label": "acl-a2",
+        "review_status": "PARTIAL",
+        "review_reason": "audio_capture_baseline_unavailable",
+        "encoder_seconds_from_session_creation": 3.157,
+        "evidence_zip_sha256": "a185f66065765ad91f0c6a512e540a4faa49a3e2fabb2fa078deb03f0f7bf8e1",
+        "pre_action_metric_http_statuses": [
+          403
+        ]
+      },
+      "pcm_retained": false,
+      "service_code": "runtime_acl_denied"
+    }
+  ],
+  "scope": "Unit UART and digital PCM before emulated DAC",
+  "not_run": [
+    "physical hardware",
+    "browser WASM",
+    "Unit FAT and MP3 decoding",
+    "resident deployment",
+    "Burner submission"
+  ]
+}

@@ -54,3 +54,11 @@ API 样本、频率与同会话 ZIP 逐段校验。格式错误与旧版后端�
 
 验收范围是 Unit 的 16 kHz 单声道 PCM，数据取自模拟 DAC 之前。Unit 内部
 FAT、MP3、多目录与物理声音另行验收。
+
+## 2026-11-18 原版保存快照审核
+
+[审核 dry-run 摘要](review-playback-summary.json)固定原版 BIN、描述、原生后端、
+有序 WAV 和服务源码。验收为第 1 轨的 PCM 基线、顺时针旋转一格的回执、切换到
+第 2 轨后的两段连续 PCM，以及同一证据 ZIP 中相应的原始字节与 Unit UART。
+失败对照只改预期主频，权限对照移除音频读取权限。报告分别记录 `PASS`、
+`FAIL` 和 `PARTIAL`。本轮是 virtual-device validation。

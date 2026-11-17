@@ -75,9 +75,12 @@
 5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。[原生 C6 会话](../tests/firmware/crash_diagnostics/riscv_c6/session-core-dump-summary.json)已核验 ELF32 UART 的 CRC32 与 SHA-256 两种转储，保留各自的任务 PC/SP。[Core2 任务详情](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)已验证匹配 ELF 下的名称、优先级和保存栈用量。[Cardputer ADV 原生会话](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)验证了 ELF32 CRC32 与 SHA-256、保存任务详情及独立双核实时 PC。[Nesso N1 RV32 任务详情](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)已补齐两种校验格式的匹配 ELF 路径。[原生 Cardputer ADV Flash 转储](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)已验证两种校验格式、同会话 ZIP 与权限限制。[Nesso N1 原生 UART](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)的保存栈展开已逐帧对照 GDB。继续补其他运行时的任务详情、Flash 路径及栈展开。
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
+   [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
+   98TAB5 的失败与“已保存”冲突，下一步需要独立证据定位复位来源。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
    已验证[原版索引 WAV 与 PCM](evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)。
-   继续接入审核端 PCM 断言，补多目录、物理介质和其他音频格式。[旧版准入对照](evidence/2026-11-17-dial-audioplayer/README.md#2026-11-18-原版音频数据面的复验)
+   [保存快照审核](evidence/2026-11-17-dial-audioplayer/review-playback-summary.json)
+   已验证原版切歌后的 PCM 断言。继续补多目录、实体介质和其他音频格式。
    CoreS3 Port A 的 U024 在审核端已用同一 BIN 验证两组 X/Y/按键读值。
    继续补 NFC、其他 Joystick 接线和外接收发控制器的 I2C/SPI 数据面。[Cardputer、ADV 的 WAV/PCM API](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)
    已通过同会话替换 WAV、来宾录音和 I2S1 PCM 捕获。审核端已用[原版 MP3](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)验证播放、断言失败及取证不足三种结果。继续验证其他音频固件与板型的 PCM、IMU/Camera/IR、

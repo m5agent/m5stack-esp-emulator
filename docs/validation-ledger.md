@@ -14,11 +14,30 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Dial 原版保存快照 PCM 审核
+
+[独立服务 dry-run](evidence/2026-11-17-dial-audioplayer/review-playback-summary.json)
+用相同描述和原版 R1F30。旋钮顺时针一格，取证从轨 1 转为轨 2，两个窗口匹配
+524 Hz WAV 的样本。改预期为 1318 Hz 得到断言失败，关闭音频读权限得到取证不完整。
+
+## 2026-11-18 Tab5 转储状态回放
+
+[保留的原版串口和 ZIP 回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)
+识别 98TAB5 的 31 次写入失败与后续“已保存”冲突。CarPlay、M5TabOS 原分类
+保持一致。只读回放核对分类和 ZIP，未重新启动来宾。
+
 ## 2026-11-18 Dial 原版 Unit AudioPlayer WAV
 
 [原版与旧版后端对照](evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)
 验证真实 UART 选曲 1→4→2 后的同会话 PCM、暂停、恢复、停止及短曲全盘循环。
 各读取窗口匹配原始 WAV 解码 PCM 和证据 ZIP。错误 WAV 400，缺少本地模型 409。
+
+## 2026-11-18 审核的 SD 写入能力判断
+
+[同会话审核与旧服务对照](../tests/firmware/spi_sd_media/sd-write-review-admission-summary.json)
+记录 PaperS3 原版能启动、取帧和收键，卡已挂载，写入取证标为 `NOT RUN`。
+PaperDIY 的审核计划确认准入，原生探针验证六次 CMD24、拔插和读回。
+旧版服务的原版 CardputerDict 仍取得实际写入和 68 字节保留缓存文件。
 
 ## 2026-11-18 NC1020 审核保存文件读回
 
