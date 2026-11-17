@@ -50,20 +50,52 @@ def exercise_original(client, route, properties):
     assert initial["selected-track"] == 1
     assert initial["frames-injected"] >= 2
     assert "04fb01080804fb010d0d" in initial["tx-hex"]
+
+    def encoder():
+        state = client.json(f"{route}/device-state")
+        return state["components"]["encoder"]["properties"]
+
     results = []
-    for delta, index, command in ((3, 4, "04fb030600040c"), (-2, 2, "04fb030600020a")):
+    for delta in (3, -2, 16, -16):
         before = properties()
-        receipt = client.json(f"{route}/input", method="POST", payload={
-            "kind": "encoder", "delta": delta, "settle_seconds": 0,
-        })["controller"]
+        index = (before["selected-track"] - 1 + delta) % before["media-track-count"] + 1
+        payload = {"kind": "encoder", "delta": delta, "settle_seconds": 0}
+        receipt = client.json(f"{route}/input", method="POST", payload=payload)["controller"]
         assert receipt["edge_period_ms"] == 35
-        after = wait_for_state(properties, lambda value: value["selected-track"] == index, 15)
-        assert command in after["tx-hex"][len(before["tx-hex"]):]
-        edges = client.json(f"{route}/device-state")["components"]["encoder"]["properties"]
-        assert edges["delivered-detents"] == receipt["target_detents"]
+        target = receipt["target_detents"]
+        edges = wait_for_state(encoder, lambda value: value["delivered-detents"] == target, 15)
         assert edges["gpio-edges"] - receipt["previous_gpio_edges"] == 4 * abs(delta)
-        results.append({"delta": delta, "track": index, "command_hex": command,
-                        "total_gpio_edges": edges["gpio-edges"]})
+        after = wait_for_state(properties, lambda value: value["selected-track"] == index, 15)
+        packet = bytes((4, 0xfb, 3, 6, 0, index))
+        command = (packet + bytes((sum(packet) & 0xff,))).hex()
+        assert command in after["tx-hex"][len(before["tx-hex"]):]
+        assert after["playback-status"] == 1
+        results.append({"delta": delta, "edge_period_ms": receipt["edge_period_ms"], "track": index,
+                        "command_hex": command, "total_gpio_edges": edges["gpio-edges"]})
+    return results
+
+
+def exercise_original_playback(client, route, properties):
+    volume = properties()["volume"]
+    controls = (
+        ("pause", {"kind": "touch", "x": 120, "y": 120}, "playback-status", 2),
+        ("resume", {"kind": "touch", "x": 120, "y": 120}, "playback-status", 1),
+        ("volume-up", {"kind": "touch", "x": 120, "y": 30}, "volume", volume + 1),
+        ("volume-down", {"kind": "touch", "x": 120, "y": 210}, "volume", volume),
+        ("stop", {"kind": "button", "control": "a"}, "playback-status", 0),
+        ("play", {"kind": "button", "control": "a"}, "playback-status", 1),
+    )
+    results = []
+    for label, input_fields, key, expected in controls:
+        before = properties()
+        assert before[key] != expected
+        payload = {**input_fields, "action": "hold", "seconds": 0.25}
+        assert client.json(f"{route}/input", method="POST", payload=payload)["accepted"]
+        after = wait_for_state(properties, lambda value: value[key] == expected, 15)
+        commands = after["tx-hex"][len(before["tx-hex"]):]
+        assert commands
+        results.append({"control": label, "property": key, "before": before[key],
+                        "after": after[key], "guest_uart_append": commands})
     return results
 
 
@@ -110,6 +142,7 @@ def run(client, args):
         ), timeout=100)
         if args.original_bin:
             report["input"] = exercise_original(client, route, properties)
+            report["playback_controls"] = exercise_original_playback(client, route, properties)
         else:
             assert "Traceback" not in serial
             state = properties()
@@ -125,6 +158,10 @@ def run(client, args):
         frame = client.raw(f"{route}/frame.png")
         (out / "frame.png").write_bytes(frame)
         report["frame"] = {"sha256": digest(frame), **png_metrics(frame)}
+        if args.original_bin:
+            assert (report["frame"]["width"], report["frame"]["height"]) == (240, 240)
+            assert report["frame"]["nonblack_pixels"] > 0
+            assert report["frame"]["unique_colors"] > 1
         report["status"] = "PASS"
     finally:
         try:

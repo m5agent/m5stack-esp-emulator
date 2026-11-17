@@ -384,6 +384,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md) | 证据/差异 | `2026-11-17` | 原生 LittleFS/SPIFFS 挂载和复位读回 |
 | [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md) | 证据/差异 | `2026-11-17` | 实际组合键、触摸、键盘与编码器，保留旧运行时对照 |
 | [Dial AudioPlayer UART](evidence/2026-11-17-dial-audioplayer/README.md) | 证据/差异 | `2026-11-17` | 两个 Grove 端口官方驱动、无介质负控和原版旋钮到 UART 选曲 |
+| [Dial GC9A01 GPIO 探测](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md) | 证据/差异 | `2026-11-17` | 原版画面、正反整圈旋转、触摸与物理按键 |
 | [CardputerDict 原版查词](evidence/2026-11-17-cardputerdict-stock/README.md) | 证据/差异 | `2026-11-17` | FAT32 原版查词与缺正文、无卡对照 |
 | [初代 Cardputer 与 PaperS3 SPI SD](evidence/2026-11-17-spi-sd-admission/README.md) | 证据/差异 | `2026-11-17` | 同 guest FAT32、跨会话读回、无卡负控 |
 | [Cardputer 原生组合验证](evidence/2026-11-16-cardputer-native-integration/README.md) | 证据/差异 | `2026-11-16` | 干净重建，原版启动、休眠唤醒、板型和按键 |

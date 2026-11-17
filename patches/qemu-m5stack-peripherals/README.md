@@ -1735,3 +1735,13 @@ leaves MISO undriven, drops partial transactions and drives the active-low
 GPIO48 switch through the GPIO input and interrupt controller. The backing
 image stays attached to the isolated session for reinsertion and export.
 [GPIO48 and FAT32 regression](../../tests/firmware/spi_sd_media/README.md#paperdiy-sd-hot-plug).
+
+## Dial GC9A01 GPIO probe (0218)
+
+Apply after the existing panel GPIO adapter in the native recipe. Attach the
+same Dial panel to the board's GPIO CS7, SCK6, DC4 and SDA5 for the three-wire
+probe. The GPIO adapter releases SDA when the probe ends. Existing GP-SPI
+and DMA wiring carries the driver's subsequent panel traffic. The original
+vinylM5Dial display and its rotary, touch and button controls were verified
+with the unchanged BIN and the same Unit AudioPlayer attachment.
+[Same-artifact validation](../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)

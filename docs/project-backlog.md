@@ -42,8 +42,9 @@
 
 1. **P0 语义输入**。给审查动作绑定具体板型的按键、键盘、组合键、触摸和编码器。
    原生键位以控制器和 guest 驱动读回验收。Dial 的普通输入使用 35 ms，
-   并保留显式高速输入。显式 5 ms 下的 UIFlow2 RotaryIRQ 应用计数仍开放，
-   验收时同时检查引脚相序和来宾计数。
+   并保留显式高速输入。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
+   的快速整周应用计数仍开放，验收时同时检查引脚相序和来宾计数。Arduino 原版的旋转、触摸与按钮
+   分别取证，见[原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
 2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，补原版 nc1020 的 SD ROM/NOR 冷导入
    和稳定画面，扩展 CardputerDict 的版本与设备范围。原版 NC1020 用内嵌 ROM/NOR 时已通过
    [G0 存档与跨会话加载](../tests/firmware/spi_sd_media/nc1020-save-summary.json)。
@@ -66,7 +67,7 @@
    Core2 和原生 C6 已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
-   已验证真实 UART、官方驱动与原版旋钮换曲，音频和完整交互仍开放。继续验证 NFC、Joystick 和外接收发控制器的
+   已验证真实 UART、官方驱动与原版旋钮换曲，实际音频和多目录操作仍开放。继续验证 NFC、Joystick 和外接收发控制器的
    I2C/SPI 数据面。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
