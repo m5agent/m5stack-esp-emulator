@@ -95,7 +95,9 @@ class RuntimeInterfaceTests(unittest.TestCase):
             {case["machine"] for case in stackchan["matrix"]},
             {"m5stackchan"},
         )
-        self.assertEqual(len(self.payload["devices"]["tab5"]["external"]), 3)
+        tab5 = self.payload["devices"]["tab5"]
+        self.assertEqual(len(tab5["external"]), 4)
+        self.assertEqual(tab5["case_models"]["tab5-st7123"], ["touch-st7123"])
         self.assertIn(
             "stackchan-peripherals",
             stackchan["case_models"],
