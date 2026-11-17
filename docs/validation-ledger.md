@@ -84,6 +84,15 @@ NC1020 通过全部 28,800 个自编显示内容像素的三次比对，G0 保�
 和 512 KiB NOR 均逐字节匹配。三份未改动的原厂固件保留各自的画面和输入验收。
 首个串口心跳仍可早于来宾完成第一次 LCD 绘制。
 
+## 2026-11-18 PaperS3 浏览器接触时间与 GT911 就绪
+
+[虚拟接触与控制器复测](evidence/2026-11-18-papers3-browser-gt911/README.md#接触时长与-irq-复测)使用同一 Factory V0.5
+原 BIN 和冻结 WASM。12 次 300 ms 操作的时长下界均超过 300 ms，按住时均无
+GT911 总线访问，松手后才出现清除、空报告和再次清除。四次独立 GPIO48
+读回均为按前高、按住时低、松手后首次读回仍低。已确认来宾在接触期间
+可见报告就绪。稳定图标与可见全刷两组均有 EPD 扫描，尚未隔离 EPD
+负载与 guest 驱动间隙的因果关系。触控稳定性仍为 PARTIAL。
+
 ## 2026-11-17 Cardputer SPI 空闲接收
 
 [原生 Cardputer 复验](../tests/firmware/spi_sd_media/idle-rx-dma-summary.json)用同一

@@ -403,7 +403,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
-初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载，[guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 读写及初代 Cardputer 的跨会话读回。PaperDIY 在具备 CARD_DET 模型的原生后端通过 [GPIO48 有卡／无卡及 FAT32 读写](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)。具备热插拔模型时，[同会话 GPIO48 中断、拔卡超时、重新插卡和 FAT32 内容回读](../tests/firmware/spi_sd_media/paperdiy-hotplug-summary.json)已验证。以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。 PaperS3 Factory V0.5 的浏览器触控已验证图标切换，连续点按仍有漏响应。松手后清除 GT911 旧报告和稳定图标区域的双路逐像素对照见[浏览器触控边界](evidence/2026-11-18-papers3-browser-gt911/README.md)。
+初代 Cardputer 和 PaperS3 的原生 Device Service 已开放 SPI SD 镜像挂载，[guest 验证](evidence/2026-11-17-spi-sd-admission/README.md)覆盖 FAT32 读写及初代 Cardputer 的跨会话读回。PaperDIY 在具备 CARD_DET 模型的原生后端通过 [GPIO48 有卡／无卡及 FAT32 读写](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)。具备热插拔模型时，[同会话 GPIO48 中断、拔卡超时、重新插卡和 FAT32 内容回读](../tests/firmware/spi_sd_media/paperdiy-hotplug-summary.json)已验证。以上设备矩阵描述原生后端能力，不代表 WASM 准入；已编译 Xtensa 板型须逐板绑定完整 Flash SHA、ROM/eFuse、真实帧/输入及清理。C6 RISC-V、Tab5 P4、CardputerZero Linux ARM64 是独立浏览器目标，不继承 Xtensa 或 native PASS。动态计数见[自动项目快照](project-snapshot.md)。 PaperS3 Factory V0.5 的浏览器触控已验证图标切换，连续点按仍有漏响应。已观测到按住时 GPIO48 就绪而固件在松手后才清除旧报告。稳定图标区域的双路逐像素对照见[浏览器触控边界](evidence/2026-11-18-papers3-browser-gt911/README.md)。
 
 ## 当前风险
 

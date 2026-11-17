@@ -69,5 +69,33 @@
       "sha256": "86cd6c13e131039feba3e93851c3c95db99eb4a72e4c2079272a6448c25222a1",
       "bytes": 4668
     }
+  ],
+  "followups": [
+    {
+      "date": "2026-11-18",
+      "status": "PARTIAL",
+      "checks": [
+        {
+          "case": "Conservative virtual contact lower bound at least 300 ms",
+          "matches": 12,
+          "total": 12
+        },
+        {
+          "case": "Guest-visible ready GPIO48 during the hold",
+          "matches": 4,
+          "total": 4
+        },
+        {
+          "case": "Factory stable buzzer-icon change in this cohort",
+          "matches": 0,
+          "total": 12
+        }
+      ],
+      "evidence": {
+        "path": "clock-irq-epd-summary.json",
+        "sha256": "68c74c470887488e90ddcd3022cf90fc907eeff4036a4688d35fc14711ac772d",
+        "bytes": 12297
+      }
+    }
   ]
 }
