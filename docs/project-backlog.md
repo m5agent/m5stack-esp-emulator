@@ -53,8 +53,10 @@
    原版 NC1020 的外部 SD 冷导入、完整显示内容与 G0 保存已在[原生 K132](../tests/firmware/cardputer_k132_stock/native-st7789-summary.json)通过。
    [审核复验](../tests/firmware/spi_sd_media/nc1020-retained-file-review-summary.json)
    已对同一原版核验 G0 动作写入、指定文件和缺失文件对照。
-   [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。原版仍有 LCD 绘制停顿，继续定位完成路径并验证内嵌 ROM/NOR 的跨会话画面。StickS3/Dial 外接 SD
-   需要独立接线模型。
+   [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。
+   [同 Flash 对照和跨服务恢复](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)
+   已确认原版 G0 文件可在新服务恢复。LCD 停顿与固件 SDK 的 SPI 跨核交接问题吻合，
+   继续核对原版任务现场及真机画面。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。

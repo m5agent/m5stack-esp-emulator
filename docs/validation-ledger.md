@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 NC1020 同 Flash 显示对照与跨服务恢复
+
+[原版与 SDK 探针证据](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)
+固定同一原版、SD 种子、应用和最终 Flash 字节。两次正常时序的冷启动分别取得完整
+图案和 61.59% 图案，两轮均有 G0 存档。新服务以已导入 ROM/NOR 的 Flash 和
+导出的 99,384 字节状态文件恢复到应用循环，取帧仍黑。独立 SDK 探针观测到 SPI
+完成已入队及跨核总线锁等待，原版编译进了对应的旧版驱动交接路径。
+
 ## 2026-11-18 Dial 原版保存快照 PCM 审核
 
 [独立服务 dry-run](evidence/2026-11-17-dial-audioplayer/review-playback-summary.json)

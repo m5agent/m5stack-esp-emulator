@@ -1,0 +1,417 @@
+{
+  "validation": "virtual-device validation",
+  "device": "Cardputer K132",
+  "device_service_source": "b92d7b5630687cb7d7142346a39839ef61bd0116",
+  "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "original_nc1020_firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+  "source_sdk": "ESP-IDF v5.4.1",
+  "application_elf_sha256_reported_by_app_descriptor": "06374925e1686b6db691f10de985036bb2b544484fe5bb77ecae36d9e738f80c",
+  "original_source_reference": "81b35b76cf88306cc2bfae425bff4b3e6fbf9ed1",
+  "cold_sd_seed_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+  "cold_rom_nor_provenance": {
+    "bootloader_and_factory_app_unchanged": true,
+    "rom_banks": 206,
+    "romdata_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+    "nordata_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+    "flash_equal_between_full_and_incomplete_draw": true
+  },
+  "normal_timing_cold_replays": [
+    {
+      "frame_status": "PASS",
+      "seconds_to_application_loop": 25.578,
+      "flash_sha256_before_g0": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "evidence_zip_sha256": "a5252ba00ff48649efffd9564699c2d4f2fab7782f8999693196928e6822266f",
+      "serial_sha256": "5151804757aefb88055edac42d1d31d672f858e758f3d378226371130138edab",
+      "positive_draw_marker": true,
+      "frames": {
+        "frame_before": {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 1.0,
+          "full_authored_pattern_match": true
+        },
+        "frame_before_second": {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 1.0,
+          "full_authored_pattern_match": true
+        },
+        "frame_after": {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 1.0,
+          "full_authored_pattern_match": true
+        }
+      },
+      "g0_input": {
+        "kind": "button",
+        "control": "boot",
+        "action": "hold",
+        "seconds": 0.85,
+        "settle_seconds": 0.3
+      },
+      "g0_accepted_with_same_session_save_marker": true,
+      "saved_state": {
+        "bytes": 99384,
+        "sha256": "c2cb02b1ae381e21fc96a4f5d08a875a608f456647e9f5c8840aad0e4d15010d"
+      },
+      "cleanup": "stopped, released, zero leases",
+      "heartbeat_samples_in_same_zip": 34,
+      "first_nonzero_draw_marker_ms": 25535
+    },
+    {
+      "frame_status": "PARTIAL",
+      "seconds_to_application_loop": 29.559,
+      "flash_sha256_before_g0": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "evidence_zip_sha256": "d8be64cad5d56004f8e2582c0a4298e1eed04d9398bc99072a200a548653e5b2",
+      "serial_sha256": "5133c57a4c8ada8cefb8ce7c8aec1743c25bb1ade7d427d56d00832e88864941",
+      "positive_draw_marker": false,
+      "frames": {
+        "frame_before": {
+          "sha256": "9036c7df59d3d68caa5b374c85b6dbd64f4e63e062dd13f7453013f31c0dff42",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 0.615879,
+          "full_authored_pattern_match": false
+        },
+        "frame_before_second": {
+          "sha256": "9036c7df59d3d68caa5b374c85b6dbd64f4e63e062dd13f7453013f31c0dff42",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 0.615879,
+          "full_authored_pattern_match": false
+        },
+        "frame_after": {
+          "sha256": "9036c7df59d3d68caa5b374c85b6dbd64f4e63e062dd13f7453013f31c0dff42",
+          "dimensions": [
+            240,
+            135
+          ],
+          "authored_pixel_fit": 0.615879,
+          "full_authored_pattern_match": false
+        }
+      },
+      "g0_input": {
+        "kind": "button",
+        "control": "boot",
+        "action": "hold",
+        "seconds": 0.85,
+        "settle_seconds": 0.3
+      },
+      "g0_accepted_with_same_session_save_marker": true,
+      "saved_state": {
+        "bytes": 99384,
+        "sha256": "201b15b3c607a9de32078dc2054d9e0eae1a9550f5cbda2ffaaa6615d5d6ca8f"
+      },
+      "cleanup": "stopped, released, zero leases",
+      "heartbeat_samples_in_same_zip": 351,
+      "first_nonzero_draw_marker_ms": null
+    }
+  ],
+  "cross_service_restore": {
+    "storage_status": "PASS",
+    "display_status": "PARTIAL",
+    "run": {
+      "source_revision": "b92d7b5630687cb7d7142346a39839ef61bd0116",
+      "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "cold_firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+      "real_imported_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "cold_evidence_zip_sha256": "a5252ba00ff48649efffd9564699c2d4f2fab7782f8999693196928e6822266f",
+      "warm": {
+        "source_card_sha256": "d01c4f4b416e0b54ce5a006b99848158b816722b6a453a05caeda576026f5546",
+        "serial_markers": {
+          "romdata pre-filled": true,
+          "NOR in flash ready": true,
+          "LoadNC2k() returned": true,
+          "heartbeat:": true
+        },
+        "cold_import_absent": true,
+        "frame": {
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "frame_size": [
+            240,
+            135
+          ],
+          "candidates": [
+            {
+              "orientation": "landscape-clockwise",
+              "fit": 0,
+              "dominant_colors": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "class_sizes": [
+                25026,
+                3774
+              ],
+              "different_colors": false
+            },
+            {
+              "orientation": "landscape-counterclockwise",
+              "fit": 0,
+              "dominant_colors": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "class_sizes": [
+                25026,
+                3774
+              ],
+              "different_colors": false
+            }
+          ],
+          "authored_pattern_match": false
+        },
+        "save": {
+          "input": {
+            "kind": "button",
+            "control": "boot",
+            "action": "hold",
+            "seconds": 0.85,
+            "settle_seconds": 0.3
+          },
+          "accepted": true,
+          "write_stamp_advanced": true
+        },
+        "retained_flash_partitions_sha256": {
+          "factory": "deb49672951545caa29a32d64f526c62af461bc6f8b40655f6b503dfa3e6fd5f",
+          "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+          "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+        },
+        "evidence_zip_sha256": "63d4f0a12c2ccc3c56740563565c8717a78c7161ae3e2b396bbba4927576bcef",
+        "serial_sha256": "8e46a16e9f38088e1250113b8566503c070ac1a59dbd6577791c11682e6b0a82",
+        "state_file": {
+          "size": 99384,
+          "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+        },
+        "exported_card_sha256": "c2eb71d31098aa4666e204732a21b49e8c154bf2a7aa6de43f972048c7aa4bd9",
+        "active_leases_after": 0,
+        "flash_released": true
+      },
+      "restore": {
+        "source_card_sha256": "c2eb71d31098aa4666e204732a21b49e8c154bf2a7aa6de43f972048c7aa4bd9",
+        "serial_markers": {
+          "romdata pre-filled": true,
+          "NOR in flash ready": true,
+          "LoadNC2k() returned": true,
+          "heartbeat:": true,
+          "state restored: /sd/nc1020.state": true
+        },
+        "cold_import_absent": true,
+        "frame": {
+          "png_sha256": "5a84ff26483a23087f5d67b78500a2841e5cfc0043a48a631f363164c87291fd",
+          "frame_size": [
+            240,
+            135
+          ],
+          "candidates": [
+            {
+              "orientation": "landscape-clockwise",
+              "fit": 0,
+              "dominant_colors": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "class_sizes": [
+                25026,
+                3774
+              ],
+              "different_colors": false
+            },
+            {
+              "orientation": "landscape-counterclockwise",
+              "fit": 0,
+              "dominant_colors": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "class_sizes": [
+                25026,
+                3774
+              ],
+              "different_colors": false
+            }
+          ],
+          "authored_pattern_match": false
+        },
+        "retained_flash_partitions_sha256": {
+          "factory": "deb49672951545caa29a32d64f526c62af461bc6f8b40655f6b503dfa3e6fd5f",
+          "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+          "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+        },
+        "evidence_zip_sha256": "11f4b25817056add44726a052f779a210851fda838c8af6e77c12de56236a13f",
+        "serial_sha256": "ec2a262735bfd8bad6cd0f88de89cb04793ca55bcf33712c21b76e3a9c0978e7",
+        "state_file": {
+          "size": 99384,
+          "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+        },
+        "exported_card_sha256": "d43c8bcc6ff3c93caccb52707a213feebdf9abf94bffd82447ac809389ea5a39",
+        "active_leases_after": 0,
+        "flash_released": true
+      },
+      "worker_restart_and_fresh_state": true,
+      "media_seed_intact": true,
+      "overall": "PARTIAL"
+    }
+  },
+  "lcd_only_probe_control": {
+    "sdk_commit": "4c2820d377d1375e787bcef612f0c32c1427d183",
+    "probe_flash_sha256": "7a49808c9b388c953f7161a447f1e72b9b8b67a87f260c006bbffa7ccf173a5e",
+    "case_results": {
+      "frozen_a1": {
+        "qemu_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+        "outcome": "FAIL",
+        "same_core": {
+          "init_core": 0,
+          "draw_core": 0,
+          "submitted": 960,
+          "callback_on_init_core": 960,
+          "callback_on_other_core": 0,
+          "drained": 960,
+          "observer_notified": 1
+        },
+        "cross_core": {
+          "init_core": 0,
+          "draw_core": 1,
+          "submitted": 299,
+          "callback_on_init_core": 299,
+          "callback_on_other_core": 0,
+          "drained": 298,
+          "observer_notified": 0
+        },
+        "evidence_zip_sha256": "6ae1b7a8d3698e5d49441b627c6d2fdb8666a1f66cc4da2b075442fcfe897cb5",
+        "cleanup": "stopped, released, zero leases"
+      },
+      "combined_a1": {
+        "qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+        "outcome": "FAIL",
+        "same_core": {
+          "init_core": 0,
+          "draw_core": 0,
+          "submitted": 960,
+          "callback_on_init_core": 960,
+          "callback_on_other_core": 0,
+          "drained": 960,
+          "observer_notified": 1
+        },
+        "cross_core": {
+          "init_core": 0,
+          "draw_core": 1,
+          "submitted": 603,
+          "callback_on_init_core": 603,
+          "callback_on_other_core": 0,
+          "drained": 602,
+          "observer_notified": 0
+        },
+        "evidence_zip_sha256": "19a1e93b57053e6216e580a71770b3a3c198753108db1538d4f779720179202d",
+        "cleanup": "stopped, released, zero leases"
+      },
+      "combined_a2": {
+        "qemu_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+        "outcome": "PASS",
+        "same_core": {
+          "init_core": 0,
+          "draw_core": 0,
+          "submitted": 960,
+          "callback_on_init_core": 960,
+          "callback_on_other_core": 0,
+          "drained": 960,
+          "observer_notified": 1
+        },
+        "cross_core": {
+          "init_core": 0,
+          "draw_core": 1,
+          "submitted": 960,
+          "callback_on_init_core": 960,
+          "callback_on_other_core": 0,
+          "drained": 960,
+          "observer_notified": 1
+        },
+        "evidence_zip_sha256": "ab4111857c3f0c63ac88ab8ac874559a180033bbec79c8ac63d2ee8e0f0e3a8b",
+        "cleanup": "stopped, released, zero leases"
+      }
+    },
+    "retained_stalled_probe": {
+      "evidence_zip_sha256": "6e660d7f764167eb96012c35f4ab5c697e9164c27307c6bcc7cc5b9740b13dac",
+      "result_queue_entries": 1,
+      "display_task_waiting_for_bus_lock": true,
+      "lock_semaphore_available": false,
+      "bus_lock_owner_recorded": false,
+      "both_cores_idle": true
+    }
+  },
+  "supported_attribution": {
+    "class": "guest_spi_driver_handoff_suspected_for_original",
+    "upstream_release_5_4_fix_commit": "8ee2dce0d6758d0dd8c782587ef5d8715c8c26e3",
+    "original_preserves_affected_driver_condition": true,
+    "direct_waiter_snapshot_from_same_original_failure": "NOT RUN",
+    "original_runtime_replacement": "NOT RUN"
+  },
+  "not_run": [
+    "physical hardware",
+    "browser WASM",
+    "resident service rollout",
+    "Burner submission"
+  ],
+  "separate_instrumented_guest": {
+    "frame_match_status": "PARTIAL",
+    "heartbeat_samples_in_same_zip": 496,
+    "first_nonzero_draw_marker_ms": null,
+    "evidence_zip_sha256": "f71740a84ce609c212632e998adbd203e55ea2b3d2b48025c7a29e2eee1d4e0c",
+    "actual_guest_g0_save": "PASS",
+    "cleanup": "stopped, released, zero leases",
+    "trace": {
+      "raw_stderr_bytes": 313746736,
+      "raw_stderr_sha256": "53fe2fae2a8cb58914a5cfcf185985a65e5d884ad0f46a8f15d0d265c755eb54",
+      "dcs_2a_2b_2c_each": 25249,
+      "ramwr_with_270_byte_payload": 25200,
+      "ramwr_with_240_byte_payload": 49,
+      "scope": "Observed same-session GPSPI trace, DCS commands counted as emitted traces. Logging changed timing."
+    }
+  }
+}

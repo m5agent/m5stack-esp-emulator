@@ -50,6 +50,37 @@ authored framebuffer match before and after a real G0 save, the exact
 stock controls, and preserved ROM and NOR bytes. A guest heartbeat can
 precede its first completed LCD draw.
 
+## Original NC1020 storage and display attribution
+
+The [native follow-up](nc1020-storage-and-display-summary.json) binds the original
+ESP-IDF 5.4.1 BIN and authored SD fixture to the current native Xtensa service.
+Two normal-timing cold boots imported all 206 ROM banks and the 512 KiB NOR
+payload. Their full 8 MiB Flash snapshots matched byte for byte. Both accepted
+G0 and retained a 99,384-byte state file. The full frame matched the authored
+pattern in one boot and stopped at 61.59% in the other. The latter continued to
+emit heartbeats with zero completed draws.
+
+For a normal cold replay, upload the exact original BIN, import it for
+`cardputer` and attach the pinned FAT card. Verify the same-session serial
+`LoadNC2k() returned` and the first completed draw using the authored pattern.
+Capture consecutive native panel frames before G0 and another after G0. Retrieve
+the live Flash bytes and the evidence ZIP, then stop and inspect the retained
+SD inventory. Keep the original factory application bytes. Compare the
+`romdata` and `nordata` partition bytes to the fixture.
+
+For a separate replay, import the captured populated Flash into a new worker
+and attach a card without `nc1020.rom` or `nc1020.nor`. Check the serial ROM/NOR
+and application markers, hold G0 for 0.85 seconds, and verify the SD write stamp
+and retained state file. Export the stopped SD and supply its exact bytes to
+another new worker with the same populated Flash. In this run the saved file
+and restored-state serial marker matched. Both replay frames remained black.
+
+A retained LCD-only SDK fixture had a queued completion and a display task
+waiting on the SPI bus lock. The original BIN embeds the pre-fix
+ESP-IDF handoff path. The known driver race is consistent with the original
+behavior. The original failed session's task state and physical timing remain
+open. [ESP-IDF 5.4 branch fix](https://github.com/espressif/esp-idf/commit/8ee2dce0d6758d0dd8c782587ef5d8715c8c26e3)
+
 ## Browser WASM
 
 Build and export the source-locked browser QEMU as described in
