@@ -1783,3 +1783,11 @@ milliseconds. Each callback re-arms from the current virtual time and preserves
 its fractional millisecond. This keeps deadlines at least one requested period
 apart when QEMU is late. The board phases and the native GPIO/IRQ path are
 unchanged. [Controller and guest timing](../../docs/evidence/2026-11-18-dial-fast-rotary/README.md)
+
+## Cardputer GP-SPI board clocks (0221)
+
+GPIO36 drives the LCD clock and GPIO40 drives the microSD clock. Both
+GP-SPI controllers can route to either pad via the GPIO matrix. Only the
+controller routed to a device's clock can transfer its data. GPIO36 also
+supports the direct SPI2 FSPICLK function. The existing select and receive
+DMA behavior applies to devices on that controller's routed clock.
