@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.75.0",
-  "contract_sha256": "a471d93b0865e9f65639af0534b83151815147c363d8d1650730db495cdda3f2",
+  "contract_version": "1.76.0",
+  "contract_sha256": "c2870187cca45bd91aa3ff49b15f98a0b05c8cd7188c4ee15f02391474f8a46c",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1271,7 +1271,39 @@
           "POST /sessions/{session_id}/storage/filesystem/export missing-resource"
         ],
         "positive_status": "NOT RUN"
-      }
+      },
+    {
+      "operation_id": "GET /sessions/{session_id}/audio.pcm",
+      "method": "GET",
+      "path": "/sessions/{session_id}/audio.pcm",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "native-cardputer-qemu",
+        "captured-i2s-pcm",
+        "audio-read-permission"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/audio.pcm missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/audio.inject",
+      "method": "POST",
+      "path": "/sessions/{session_id}/audio.inject",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "native-cardputer-qemu",
+        "owned-pcm-wav-artifact",
+        "audio-inject-permission"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/audio.inject missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    }
   ],
   "safe_cases": [
     {
@@ -2501,7 +2533,27 @@
         "expected_status": [
           404
         ]
-      }
+      },
+    {
+      "case_id": "GET /sessions/{session_id}/audio.pcm missing-resource",
+      "operation_id": "GET /sessions/{session_id}/audio.pcm",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/audio.pcm",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/audio.inject missing-resource",
+      "operation_id": "POST /sessions/{session_id}/audio.inject",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/audio.inject",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    }
   ],
   "joint_unit_fixtures": {
     "sensors": {

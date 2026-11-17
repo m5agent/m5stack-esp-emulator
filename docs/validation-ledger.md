@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer 与 ADV 同会话 WAV 和 PCM API
+
+[两款板原生验证](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)在同一来宾中依次
+暂存 523 Hz 与零值 WAV。来宾首次录音为 523.217 Hz，替换后录音末段 RMS 为 8。
+扬声器 48 kHz 单声道 I2S1 的 DMA 主频为 660.657 Hz。分段 PCM 与同会话 ZIP
+逐字节一致，停止后的指标仍可读，全部租约已释放。
+
 ## 2026-11-18 Cardputer 与 ADV 隔离 STA
 
 [同会话 Linux 证据](../tests/network/native_sta_peers/linux-session-summary.json)验证两款板的

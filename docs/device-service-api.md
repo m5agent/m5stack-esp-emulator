@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.75.0` and bounded
+Status: local MVP with unified-device runtime contract `1.76.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -130,6 +130,8 @@ devices are rejected before the listener starts. Device-specific rules
 override the optional `"*"` fallback. The supported operations are:
 
 - `serial.read`
+- `audio.read`
+- `audio.inject`
 - `input.write`
 - `guest.reset`
 - `network.softap.probe`
@@ -3266,6 +3268,40 @@ For firmware with known serial markers:
 The response includes `ready`, `ready_reason`, matched serial markers,
 `first_serial_at`, `first_frame_at` and frame metrics without embedding the
 PNG bytes.
+
+### Cardputer audio fixtures
+
+Plain native Cardputer and Cardputer ADV expose `fixtures.audio` in device
+capabilities. Upload a WAV through `POST /api/v1/artifacts`. Pass its artifact
+ID to `POST /api/v1/sessions/{id}/audio.inject` while the guest runs.
+
+```json
+{"artifact_id":"<WAV SHA-256>"}
+```
+
+Use uncompressed 16 kHz mono signed 16-bit PCM, up to 10 seconds per fixture.
+The receipt hashes the WAV artifact and the extracted PCM independently. It
+reports `staged` and `applies_on: next_i2s_rx_start`. The controller uses the
+new source when the guest starts I2S RX again. The endpoint leaves the guest
+and its current RX stream running. To verify consumption, read samples or
+a test marker from the guest after that RX start.
+
+`GET /api/v1/sessions/{id}/audio.pcm` returns the native I2S DMA byte window.
+Use `offset` and `limit` to read up to 524,288 bytes per request. Response
+headers report the window SHA-256, next offset and observed file size.
+The model starts capturing after its first nonzero output. Before that,
+the endpoint can report `audio_capture_unavailable`.
+
+For firmware known to write s16le mono, request
+`/audio.pcm?format=metrics&sample_rate_hz=48000` with its actual sample rate
+and even byte offsets and lengths. The response reports peak, RMS and the
+strongest non-DC frequency band in a Hann window of at most 8,192 samples.
+It uses the declared sample rate and layout. A constant or shorter than
+256-sample window returns a null frequency. These quantities describe digital
+samples. Request the evidence ZIP before stopping for the PCM and the current
+microphone source digest. Stopped sessions can still read retained output.
+If an operator configures a runtime ACL, use `audio.inject` for WAV staging
+and `audio.read` for reading the capture or ZIP audio.
 
 ### Retained crash observations
 

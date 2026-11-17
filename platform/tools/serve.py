@@ -738,6 +738,29 @@ class Handler(SimpleHTTPRequestHandler):
                 if self._read_json(required=False, max_bytes=512):
                     raise ServiceError("invalid_request", "filesystem export does not accept options", 400)
                 response = service.get_session(parts[1]).filesystem_storage_export()
+            elif method == "GET" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "audio.pcm":
+                try:
+                    offset = int(query.get("offset", ["0"])[0])
+                    limit = int(query.get("limit", ["65536"])[0])
+                    rate = int(query["sample_rate_hz"][0]) if "sample_rate_hz" in query else None
+                except ValueError as error:
+                    raise ServiceError("invalid_audio_range", "audio range and sample rate must be integers", 400) from error
+                data, receipt = service.get_session(parts[1]).audio_capture(
+                    query.get("format", ["pcm"])[0], offset, limit, rate,
+                )
+                if data is not None:
+                    self._send_bytes(data, "application/octet-stream", extra_headers={
+                        "X-Request-ID": request_id,
+                        "X-Audio-SHA256": receipt["sha256"],
+                        "X-Audio-Next-Offset": str(receipt["next_offset"]),
+                        "X-Audio-Observed-Bytes": str(receipt["observed_bytes"]),
+                    })
+                    return
+                response = receipt
+            elif method == "POST" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "audio.inject":
+                response = service.get_session(parts[1]).audio_inject(
+                    self._read_json(max_bytes=512, reject_duplicate_keys=True),
+                )
             elif (
                 method == "GET"
                 and len(parts) == 3

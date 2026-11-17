@@ -333,6 +333,8 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
         self.session.virtual_flash = self.session.firmware_path
         self.session.serial0.write_text("privileged serial\n")
         (self.session.dir / "usb-serial-jtag.log").write_text("privileged USB CDC\n")
+        self.session.speaker_pcm.write_bytes(b"speaker")
+        self.session.microphone_source_pcm.write_bytes(b"microphone")
         bundle = self.session.evidence_bundle(
             {"manifest", "serial", "logs", "flash"}
         )
@@ -345,6 +347,9 @@ class RuntimeACLDeviceServiceTests(unittest.TestCase):
         self.assertNotIn("qemu.stdout", names)
         self.assertNotIn("diagnostics/crash.json", names)
         self.assertNotIn("flash/virtual-flash.bin", names)
+        self.assertFalse(any(name.startswith("audio/") for name in names))
+        self.assertNotIn("audio", manifest)
+        self.assertNotIn("audio_fixture", manifest)
         self.assertEqual(
             manifest["program_redaction"]["reason"],
             "runtime_acl_program_read_denied",

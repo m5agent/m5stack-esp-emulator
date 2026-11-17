@@ -85,3 +85,26 @@ python3 tests/uiflow2/api_sweep/verify_cardputer_audio.py "$RUN_ROOT/$DEVICE-$MO
 从正常 `M5.Mic.record` 收集 16 kHz 单声道采样，经 UART 取回；`M5.Speaker.playRaw`
 提交 8 kHz、660 Hz 输入，再按来宾报告的 48 kHz 单声道 I2S1 格式分析
 native TX。RMS 是数字采样值。浏览器、物理麦克风、扬声器声学和供电未执行。
+
+### 同会话的 WAV 替换与 PCM API
+
+准备 16 kHz 单声道、16 位、持续一秒的两份 WAV。一份是峰值 12,000 的
+523 Hz 正弦波，一份是零值。分别上传并取得 artifact SHA。使用上面同一
+原厂基座与 runner，把 `--source` 改为
+`probe_cardputer_audio_api.py`，移除 `--fixture-dir`，并改用
+`--done-marker AUDIO_API_DONE --drive-json "$ACTION_FILE"`。动作文件如下。
+
+```json
+{
+  "AUDIO_API_WAIT tone": [{"endpoint":"audio.inject","payload":{"artifact_id":"<tone SHA>"}}],
+  "AUDIO_API_WAIT silence": [{"endpoint":"audio.inject","payload":{"artifact_id":"<silence SHA>"}}],
+  "AUDIO_API_DONE": [{"endpoint":"audio.pcm?format=metrics&sample_rate_hz=48000","method":"GET"}]
+}
+```
+
+从 `AUDIO_API_MIC` UART 行按相位和偏移重建每次 3,200 个 s16le 样本。
+第一轮主频应在 523 Hz 附近。零值源切换后，来宾录音可能有前一次音色的滤波
+余量，检查 RMS 显著降低及末段 RMS。按来宾公布的 48 kHz 单声道 I2S1 检查
+扬声器主频约 660 Hz。停止后分段读取 `/audio.pcm`，比对同会话 ZIP 中的
+`audio/speaker.pcm` 和各段 SHA-256。最后一份暂存的麦克风 PCM 摘要位于
+`manifest.json`。两块板各一轮、所有租约释放的 [virtual-device 证据](cardputer-audio-api-summary.json)。

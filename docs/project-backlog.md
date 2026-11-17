@@ -69,8 +69,9 @@
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。按原序列复现 All day watch
    CPU1 WDT，继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
-   已验证真实 UART、官方驱动与原版旋钮换曲，实际音频和多目录操作仍开放。继续验证 NFC、Joystick 和外接收发控制器的
-   I2C/SPI 数据面。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
+   已验证真实 UART、官方驱动与原版旋钮换曲，实际音频和多目录操作仍开放。CoreS3 Port A 的 U024 在审核端已用同一 BIN 验证两组 X/Y/按键读值。
+   继续补 NFC、其他 Joystick 接线和外接收发控制器的 I2C/SPI 数据面。[Cardputer、ADV 的 WAV/PCM API](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)
+   已通过同会话替换 WAV、来宾录音和 I2S1 PCM 捕获。继续验收审核端应用音频断言及其他板型的 PCM、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
 7. **P2 能力与故障**。基于只读设备能力查询，继续按运行模式细化控制器与 fixture 准入。

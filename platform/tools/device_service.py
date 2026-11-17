@@ -231,6 +231,10 @@ from firmware_analysis import (  # noqa: E402
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
+from device_service_audio import (  # noqa: E402
+    CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES, WAV_MAX_BYTES,
+    decode_cardputer_wave, pcm_metrics,
+)
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
     crash_console_observations, crash_function_symbols, decode_flash_task_contexts, identify_crash_elf,
@@ -2863,6 +2867,7 @@ class DeviceSession:
         self.nvs_summary_path = self.dir / "nvs.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
         self.microphone_source_pcm = self.dir / "microphone-source.pcm"
+        self.audio_fixture_path = self.dir / "audio-fixture.json"
         self.rmt_source = self.dir / "nec-source.rmt"
         self.rmt_capture = self.dir / "nec-capture.rmt"
         self.hci_port: int | None = None
@@ -8064,6 +8069,102 @@ class DeviceSession:
             "changed": changed,
         }
 
+    def _require_cardputer_audio(self) -> None:
+        if self.runtime != "qemu" or self.spec.id not in CARDPUTER_AUDIO_DEVICES:
+            raise ServiceError("audio_unsupported", "audio routes require a native Cardputer or Cardputer ADV session", 409)
+
+    def audio_capture(
+        self, output_format: str, offset: int, limit: int, sample_rate_hz: int | None,
+    ) -> tuple[bytes | None, dict]:
+        DeviceSession._require_runtime_permission(self, "audio.read")
+        self._require_cardputer_audio()
+        if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
+            raise ServiceError("invalid_audio_range", "expected pcm or metrics and a bounded byte range", 400)
+        if output_format == "metrics":
+            if (
+                offset % 2 or limit % 2 or type(sample_rate_hz) is not int
+                or not 8000 <= sample_rate_hz <= 192000
+            ):
+                raise ServiceError("invalid_audio_layout", "metrics require aligned s16le mono and an explicit sample rate", 400)
+        elif sample_rate_hz is not None:
+            raise ServiceError("invalid_audio_layout", "sample_rate_hz applies to metrics only", 400)
+        if "M5SW_I2S_PCM_FILE" in self.runtime_env:
+            raise ServiceError("audio_capture_unavailable", "speaker capture is redirected by a diagnostic override", 409)
+        try:
+            with self.speaker_pcm.open("rb") as stream:
+                observed = os.fstat(stream.fileno()).st_size
+                if offset > observed:
+                    raise ServiceError("audio_range_unavailable", "offset exceeds the observed capture length", 416)
+                stream.seek(offset)
+                data = stream.read(min(limit, observed - offset))
+        except OSError as error:
+            raise ServiceError("audio_capture_unavailable", "no session-owned PCM has been captured", 409) from error
+        if output_format == "metrics":
+            data = data[:len(data) & ~1]
+            if not data:
+                raise ServiceError("audio_capture_unavailable", "no complete sample at the requested offset", 409)
+        receipt = {
+            "session_id": self.id,
+            "firmware_sha256": self.firmware_sha,
+            "source": "native_i2s_dma",
+            "offset": offset,
+            "bytes": len(data),
+            "next_offset": offset + len(data),
+            "observed_bytes": observed,
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+        if output_format == "metrics":
+            return None, receipt | pcm_metrics(data, sample_rate_hz)
+        return data, receipt
+
+    def audio_inject(self, payload: dict) -> dict:
+        DeviceSession._require_runtime_permission(self, "audio.inject")
+        self._require_cardputer_audio()
+        artifact_id = payload.get("artifact_id")
+        if set(payload) != {"artifact_id"} or not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
+            raise ServiceError("invalid_audio_fixture", "provide the SHA-256 artifact_id of a WAV file", 400)
+        if "M5SW_I2S_RX_PCM_FILE" in self.runtime_env:
+            raise ServiceError("audio_fixture_conflict", "microphone source is redirected by a diagnostic override", 409)
+        artifact = self.service.artifacts.path(artifact_id)
+        try:
+            with artifact.open("rb") as source:
+                wav = source.read(WAV_MAX_BYTES + 1)
+        except OSError as error:
+            raise ServiceError("audio_fixture_unavailable", "WAV artifact could not be read", 409) from error
+        pcm = decode_cardputer_wave(wav)
+        if hashlib.sha256(wav).hexdigest() != artifact_id:
+            raise ServiceError("audio_fixture_unavailable", "WAV artifact digest changed", 409)
+        receipt = {
+            "session_id": self.id,
+            "status": "staged",
+            "source_kind": "owned_wave_artifact",
+            "artifact_id": artifact_id,
+            "pcm_sha256": hashlib.sha256(pcm).hexdigest(),
+            "sample_format": "s16le",
+            "sample_rate_hz": MICROPHONE_RATE,
+            "channels": 1,
+            "frames": len(pcm) // 2,
+            "applies_on": "next_i2s_rx_start",
+        }
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("audio_session_busy", "session lifecycle operation is in progress", 409)
+        try:
+            with self._lock:
+                if self.state != "running" or self._stop_event.is_set() or not self._process_identity_matches():
+                    raise ServiceError("audio_session_not_running", "a live guest is required to stage audio", 409)
+                path = self.microphone_source_pcm
+                temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+                try:
+                    temporary.write_bytes(pcm)
+                    atomic_write_json(self.audio_fixture_path, receipt)
+                    os.replace(temporary, path)
+                finally:
+                    temporary.unlink(missing_ok=True)
+                self._record_event("audio_fixture_staged", artifact_id=artifact_id, pcm_sha256=receipt["pcm_sha256"])
+        finally:
+            self._lifecycle_lock.release()
+        return receipt
+
     def sd_write_stamp(self) -> dict:
         """Observe flushed writes to an owned, running guest's SPI SD image."""
         self._require_runtime_permission("storage.read")
@@ -8454,8 +8555,10 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
         if (
-            (
+            audio_read_allowed
+            and (
                 self.network_config.get("profile") in UNIFIED_PROFILES
                 or self.network_config.get("profile") == NESSO_UNIFIED_PROFILE
                 or self._plain_qemu_audio_enabled()
@@ -8478,8 +8581,8 @@ class DeviceSession:
         }:
             data_entries = [
                 ("audio/microphone-source.pcm", self.microphone_source_pcm),
-            ]
-            if self._plain_qemu_audio_enabled():
+            ] if audio_read_allowed else []
+            if self._plain_qemu_audio_enabled() and audio_read_allowed:
                 overridden = "M5SW_I2S_RX_PCM_FILE" in self.runtime_env
                 manifest["audio_fixture"] = {
                     "source_kind": "explicit-diagnostic-override" if overridden else "generated-deterministic-tone",
@@ -8509,17 +8612,27 @@ class DeviceSession:
                 if not path.is_file():
                     continue
                 data = path.read_bytes()
+                digest = hashlib.sha256(data).hexdigest()
+                if name == "audio/microphone-source.pcm" and self.audio_fixture_path.is_file():
+                    try:
+                        fixture = json.loads(self.audio_fixture_path.read_bytes())
+                    except (OSError, ValueError):
+                        fixture = None
+                    if isinstance(fixture, dict) and fixture.get("pcm_sha256") == digest:
+                        manifest["audio_fixture"] = fixture
+                    else:
+                        manifest["audio_fixture"] = {"source_kind": "unverified_owned_pcm"}
                 files[name] = data
                 manifest.setdefault("device_data", {})[name] = {
                     "bytes": len(data),
-                    "sha256": hashlib.sha256(data).hexdigest(),
+                    "sha256": digest,
                 }
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             for name, path in (
                 ("rmt/capture.bin", self.rmt_capture),
                 ("pcm/buzzer.pcm", self.speaker_pcm),
             ):
-                if not path.is_file():
+                if not path.is_file() or (name == "pcm/buzzer.pcm" and not audio_read_allowed):
                     continue
                 data = path.read_bytes()
                 files[name] = data
@@ -10750,7 +10863,17 @@ class DeviceService:
                 "catalog_profiles": list(spec.network_profiles),
                 **({"native": native_network} if native_network else {}),
             },
-            "fixtures": {"sd": sd},
+            "fixtures": {
+                "sd": sd,
+                **({"audio": {
+                    "runtime": "qemu",
+                    "capture": "native_i2s_dma",
+                    "microphone": {
+                        "sample_format": "s16le", "sample_rate_hz": MICROPHONE_RATE,
+                        "channels": 1, "applies_on": "next_i2s_rx_start",
+                    },
+                }} if ready and spec.id in CARDPUTER_AUDIO_DEVICES else {}),
+            },
             "components": components,
         }
 

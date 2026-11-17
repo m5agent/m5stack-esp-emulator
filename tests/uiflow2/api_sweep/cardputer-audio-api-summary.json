@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+  "cases": [
+    {
+      "device": "cardputer",
+      "base_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "firmware_sha256": "22fbc67937d3f4292a7ae36ef8294945ff4794ebe3279f1436e89a2576b37859",
+      "staged": {
+        "tone": {
+          "artifact_id": "cfd1fe0e4a968777c59ebbdc1647ac850d553ce2fc78a3089c145dc1bf39938b",
+          "pcm_sha256": "43545231024ef89319b6a9d325f11f753e7142e197ac40400ef41435b4351f98"
+        },
+        "silence": {
+          "artifact_id": "643f8a8dc8bd9c19225afffad2becfec5426180b3749cb208abdf1a6c8354efc",
+          "pcm_sha256": "0c92bddb4e96f3ea9ec9f0f64a668255a6c15527ac09f6f119cafde60c7c4a39"
+        }
+      },
+      "guest_tone": {
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 16000,
+        "frames": 3200,
+        "rms": 30208.053,
+        "peak": 32752,
+        "dominant_frequency_hz": 523.217,
+        "spectrum_frames": 2048
+      },
+      "guest_silence": {
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 16000,
+        "frames": 3200,
+        "rms": 134.71,
+        "peak": 1336,
+        "dominant_frequency_hz": 7.812,
+        "spectrum_frames": 2048
+      },
+      "guest_silence_tail_rms": 8.0,
+      "speaker": {
+        "firmware_sha256": "22fbc67937d3f4292a7ae36ef8294945ff4794ebe3279f1436e89a2576b37859",
+        "source": "native_i2s_dma",
+        "offset": 0,
+        "bytes": 65536,
+        "next_offset": 65536,
+        "observed_bytes": 84992,
+        "sha256": "64c8c645d7c257a4a927bc96e6c06fc13667ca52bdca75ea96fc9183aad25145",
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 48000,
+        "frames": 32768,
+        "rms": 1544.398,
+        "peak": 2233,
+        "dominant_frequency_hz": 660.657,
+        "spectrum_frames": 8192
+      },
+      "raw_capture_sha256": "4c59962e0813ace7aa760cfc4a7237468462a2c29b160da4ccd095b3962502f1",
+      "evidence_sha256": "be8feece1d39d4e830f38147f19110b577ed49b91b34fbc13a86667859ed2055",
+      "session_stopped": true
+    },
+    {
+      "device": "cardputer-adv",
+      "base_sha256": "fe39163d55d4c9b00eb9ff6d5ccce5fcaa4922819bcea8a75d83e3bd09a2af62",
+      "firmware_sha256": "664a4f3b7fe435bf6dba7368929722ca1dbfe92de151cfc816b3bec6ec11c328",
+      "staged": {
+        "tone": {
+          "artifact_id": "cfd1fe0e4a968777c59ebbdc1647ac850d553ce2fc78a3089c145dc1bf39938b",
+          "pcm_sha256": "43545231024ef89319b6a9d325f11f753e7142e197ac40400ef41435b4351f98"
+        },
+        "silence": {
+          "artifact_id": "643f8a8dc8bd9c19225afffad2becfec5426180b3749cb208abdf1a6c8354efc",
+          "pcm_sha256": "0c92bddb4e96f3ea9ec9f0f64a668255a6c15527ac09f6f119cafde60c7c4a39"
+        }
+      },
+      "guest_tone": {
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 16000,
+        "frames": 3200,
+        "rms": 30208.053,
+        "peak": 32752,
+        "dominant_frequency_hz": 523.217,
+        "spectrum_frames": 2048
+      },
+      "guest_silence": {
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 16000,
+        "frames": 3200,
+        "rms": 134.71,
+        "peak": 1336,
+        "dominant_frequency_hz": 7.812,
+        "spectrum_frames": 2048
+      },
+      "guest_silence_tail_rms": 8.0,
+      "speaker": {
+        "firmware_sha256": "664a4f3b7fe435bf6dba7368929722ca1dbfe92de151cfc816b3bec6ec11c328",
+        "source": "native_i2s_dma",
+        "offset": 0,
+        "bytes": 65536,
+        "next_offset": 65536,
+        "observed_bytes": 85504,
+        "sha256": "64c8c645d7c257a4a927bc96e6c06fc13667ca52bdca75ea96fc9183aad25145",
+        "sample_format": "s16le",
+        "layout_source": "caller_declared_mono",
+        "sample_rate_hz": 48000,
+        "frames": 32768,
+        "rms": 1544.398,
+        "peak": 2233,
+        "dominant_frequency_hz": 660.657,
+        "spectrum_frames": 8192
+      },
+      "raw_capture_sha256": "442117c427f7ded13ca5f7867ce45f7d1a2fd498545f474e072a76e4bb384b01",
+      "evidence_sha256": "374bff90a4d37acf9bbb7301ea61d3e0bd4ac114bda0e9f9cd9ef5b7eb14a60f",
+      "session_stopped": true
+    }
+  ],
+  "active_leases": 0,
+  "validation": "virtual-device validation",
+  "runtime_profile": "plain native qemu, ESP32-S3 I2S1",
+  "runtime_release_source": "63472ab884dc2968904999c75eb6aca91c3f2517",
+  "probe_source_sha256": "cdd17312e9ad768701ab4e0a11811d22956334c81c5b94ce5ededf3f5c330a74",
+  "controller_output_rate_source": "guest speaker config 48000 Hz mono I2S1",
+  "source_silence": "zero input WAV; guest wrapper has settling residue after switching",
+  "verification": [
+    "successive WAV stages on a single guest per board",
+    "speaker capture API equals retained ZIP bytes",
+    "live and stopped metrics match",
+    "all leases released"
+  ],
+  "not_run": [
+    "physical acoustic response",
+    "browser runtime",
+    "arbitrary firmware audio compatibility"
+  ]
+}

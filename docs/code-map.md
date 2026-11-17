@@ -106,6 +106,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_softap_peer.py` | Cardputer/ADV 开放 SoftAP 的每会话 UNIX socketpair、固定 DHCP/ARP/HTTP 客户端和世代回执 | Device Service 原生 SoftAP profile、`test_device_service_softap_peer.py` |
 | `platform/tools/device_service_sta_time_peer.py` | Cardputer ADV STA 的会话私有 Unix DHCP、DNS 和 SNTP 对端 | 本地时间 profile、`test_device_service_sta_time_peer.py` |
 | `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告，按完整 ELF 哈希和应用描述符核对 Xtensa 与原生 C6 的函数地址，采样原生 Xtensa 和 C6 当前 CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
+| `platform/tools/device_service_audio.py` | 校验有界 WAV 夹具并解析调用方声明的 s16le 单声道窗口，计算数字 RMS、峰值和主频 | 原生 Cardputer `/audio.inject` 与 `/audio.pcm`、`test_device_service_audio.py` |
 | `platform/tools/esp32_uart_coredump.py` | 有界校验 ELF32 转储的 CRC32 或 SHA-256、ELF note 与保存上下文。来源包括 Core2、Cardputer ADV、原生 ESP32-C6 的 UART 与原生 Cardputer ADV 的虚拟 Flash | 会话崩溃证据、离线解码校验与 `test_decode_esp32_coredump.py` |
 | `platform/tools/esp32_riscv_task_backtrace.py` | 从匹配 Nesso N1 RV32 应用 ELF 的 `.debug_frame` 和 UART 转储中的任务栈恢复最多 16 帧 | 会话崩溃证据、`test_esp32_riscv_task_backtrace.py` |
 | `platform/tools/esp32_freertos_task_details.py` | 使用精确匹配 ELF 的 DWARF 布局读取 Core2、Cardputer ADV 和 Nesso N1 UART dump 内的 TCB 名称、优先级和保存栈用量 | Device Service 崩溃证据与 `test_decode_esp32_coredump.py` |

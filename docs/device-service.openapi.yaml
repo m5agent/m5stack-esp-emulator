@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.75.0
+  version: 1.76.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2302,6 +2302,88 @@ paths:
           $ref: "#/components/responses/Error"
         "507":
           $ref: "#/components/responses/Error"
+  /sessions/{session_id}/audio.pcm:
+    get:
+      summary: Read native Cardputer I2S DMA capture or PCM metrics
+      description: >
+        Requires audio.read under a runtime ACL. Captured bytes are retained
+        with the session. Metrics interpret the requested window as s16le
+        mono at the declared sample rate. No playback format is inferred.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: format
+          in: query
+          schema: {type: string, enum: [pcm, metrics], default: pcm}
+        - name: offset
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 524288, default: 65536}
+        - name: sample_rate_hz
+          in: query
+          description: Required with metrics only. Offset and limit then require two-byte alignment.
+          schema: {type: integer, minimum: 8000, maximum: 192000}
+      responses:
+        "200":
+          description: Capture bytes or metrics bound to the same byte window
+          headers:
+            X-Audio-SHA256: {schema: {type: string}}
+            X-Audio-Next-Offset: {schema: {type: integer}}
+            X-Audio-Observed-Bytes: {schema: {type: integer}}
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioCaptureMetrics"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "416":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/audio.inject:
+    post:
+      summary: Stage a WAV artifact for the next native Cardputer I2S RX start
+      description: >
+        Requires audio.inject under a runtime ACL and a running native Cardputer
+        or Cardputer ADV session. Staging replaces the session fixture atomically.
+        The guest must start RX to load it. The staged receipt makes no claim
+        that the guest has consumed the samples.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [artifact_id]
+              properties:
+                artifact_id: {type: string, pattern: '^[0-9a-f]{64}$'}
+      responses:
+        "200":
+          description: Staged 16 kHz signed 16-bit mono WAV fixture, at most 10 seconds
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioInjectionReceipt"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash:
     get:
       summary: Read current virtual flash metadata or bytes
@@ -3749,6 +3831,22 @@ components:
           additionalProperties: false
           required: [sd]
           properties:
+            audio:
+              type: object
+              additionalProperties: false
+              required: [runtime, capture, microphone]
+              properties:
+                runtime: {const: qemu}
+                capture: {const: native_i2s_dma}
+                microphone:
+                  type: object
+                  additionalProperties: false
+                  required: [sample_format, sample_rate_hz, channels, applies_on]
+                  properties:
+                    sample_format: {const: s16le}
+                    sample_rate_hz: {const: 16000}
+                    channels: {const: 1}
+                    applies_on: {const: next_i2s_rx_start}
             sd:
               type: object
               additionalProperties: false
@@ -6562,10 +6660,48 @@ components:
           type: array
           items:
             type: string
+    AudioCaptureMetrics:
+      type: object
+      additionalProperties: false
+      required: [session_id, firmware_sha256, source, offset, bytes, next_offset, observed_bytes, sha256, sample_format, layout_source, sample_rate_hz, frames, rms, peak, dominant_frequency_hz, spectrum_frames]
+      properties:
+        session_id: {type: string}
+        firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        source: {const: native_i2s_dma}
+        offset: {type: integer, minimum: 0}
+        bytes: {type: integer, minimum: 2, maximum: 524288}
+        next_offset: {type: integer, minimum: 0}
+        observed_bytes: {type: integer, minimum: 0}
+        sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        sample_format: {const: s16le}
+        layout_source: {const: caller_declared_mono}
+        sample_rate_hz: {type: integer, minimum: 8000, maximum: 192000}
+        frames: {type: integer, minimum: 1, maximum: 262144}
+        rms: {type: number, minimum: 0, maximum: 32768}
+        peak: {type: integer, minimum: 0, maximum: 32768}
+        dominant_frequency_hz: {type: [number, "null"], minimum: 0}
+        spectrum_frames: {type: integer, minimum: 0, maximum: 8192}
+    AudioInjectionReceipt:
+      type: object
+      additionalProperties: false
+      required: [session_id, status, source_kind, artifact_id, pcm_sha256, sample_format, sample_rate_hz, channels, frames, applies_on]
+      properties:
+        session_id: {type: string}
+        status: {const: staged}
+        source_kind: {const: owned_wave_artifact}
+        artifact_id: {type: string, pattern: '^[0-9a-f]{64}$'}
+        pcm_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        sample_format: {const: s16le}
+        sample_rate_hz: {const: 16000}
+        channels: {const: 1}
+        frames: {type: integer, minimum: 1, maximum: 160000}
+        applies_on: {const: next_i2s_rx_start}
     RuntimeACLOperation:
       type: string
       enum:
         - serial.read
+        - audio.read
+        - audio.inject
         - input.write
         - guest.reset
         - network.softap.probe

@@ -22,6 +22,8 @@ MAX_POLICY_BYTES = 64 * 1024
 OPERATIONS = frozenset(
     {
         "serial.read",
+        "audio.read",
+        "audio.inject",
         "input.write",
         "guest.reset",
         "network.softap.probe",
