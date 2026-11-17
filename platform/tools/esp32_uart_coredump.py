@@ -1,4 +1,4 @@
-"""Decode supported ESP-IDF ELF32 UART core-dump containers."""
+"""Decode supported ESP-IDF ELF32 core-dump containers."""
 
 from __future__ import annotations
 

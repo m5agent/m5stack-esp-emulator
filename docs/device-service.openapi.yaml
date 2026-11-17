@@ -6074,6 +6074,26 @@ components:
                   context_status: {enum: [captured, sdk_placeholder]}
                   pc: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
                   sp: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
+                  saved_backtrace:
+                    type: object
+                    additionalProperties: false
+                    description: Bounded Nesso N1 UART saved frames from stack bytes and matching application ELF CFI.
+                    required: [status, source, stop_reason, frames]
+                    properties:
+                      status: {enum: [complete, partial, unavailable]}
+                      source: {const: matched_rv32_debug_frame}
+                      stop_reason:
+                        enum: [return_address_undefined, invalid_debug_frame, invalid_saved_registers, stack_not_captured, missing_or_ambiguous_cfi, unsupported_cfi, invalid_return_address, frame_limit]
+                      frames:
+                        type: array
+                        maxItems: 16
+                        items:
+                          type: object
+                          additionalProperties: false
+                          required: [pc, sp]
+                          properties:
+                            pc: {type: string, pattern: '^0x[0-9a-f]{8}$'}
+                            sp: {type: string, pattern: '^0x[0-9a-f]{8}$'}
                   metadata:
                     type: object
                     additionalProperties: false

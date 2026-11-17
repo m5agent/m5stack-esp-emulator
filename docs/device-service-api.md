@@ -3350,6 +3350,14 @@ metadata leaves saved PC/SP and symbolization intact. An absent or
 mismatched ELF does not expose metadata. The
 [local offline decoder](../tests/firmware/crash_diagnostics/README.md)
 remains available for independently checking the same Core2 artifacts.
+
+Exact-ELF Nesso N1 UART receipts may also report each task's
+`saved_backtrace` using the matched application's RV32 `.debug_frame`
+rules and that task's captured stack. The response carries at most 16
+saved PC/SP pairs, its completion state and the reason it stopped.
+Incomplete information preserves any established prefix. These frames
+describe the saved task state, separately from live CPU PCs and the
+panic's console backtrace.
 Plain native Cardputer ADV also decodes ELF32 CRC32 and SHA-256 dumps from
 virtual Flash. In addition to `serial.read`, this path requires
 `flash.read`. One ESP-IDF completion line must follow the latest panic and

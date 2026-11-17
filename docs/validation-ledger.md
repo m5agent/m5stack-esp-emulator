@@ -37,6 +37,13 @@ PaperS3 Factory V0.5 原 BIN `d6733a0c…`，两轮 15 次触摸中 4 次切换�
 原版先前在实际 8 MiB 来宾的 Flash probe 失败，随后在候选的组合和导入返回 409。
 审核保留静态容量原因，无来宾分配。官方 8 MiB 对照正常出帧，所有租约已释放。
 
+## 2026-11-18 Nesso N1 ESP32-C6 保存任务栈展开
+
+[CRC32 和 SHA-256 原生会话](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)
+仍使用相同 BIN 和匹配应用 ELF。两次分别展开 main、IDLE 和 esp_timer 的 7、4、5 帧，
+逐帧 PC/SP 与 Espressif RV32 GDB 一致。无 ELF 与错配 ELF 保留保存寄存器。
+同会话 ZIP、隔离服务重启后读回以及租约释放均已验证。
+
 ## 2026-11-18 Nesso N1 ESP32-C6 任务详情
 
 [两份 RV32 原生转储](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)
