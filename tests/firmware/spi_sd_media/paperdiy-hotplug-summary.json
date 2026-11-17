@@ -1,0 +1,208 @@
+{
+  "status": "PASS",
+  "scenario": "hotplug",
+  "device": "paperdiy",
+  "firmware_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+  "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+  "sd_source_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "sd_capability": {
+    "admission": "eligible",
+    "interface": "spi",
+    "hotplug": true
+  },
+  "cmd_delta": [
+    {
+      "0": 2,
+      "17": 9,
+      "18": 0,
+      "24": 6,
+      "25": 0
+    },
+    {
+      "0": 0,
+      "17": 0,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    },
+    {
+      "0": 2,
+      "17": 8,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    },
+    {
+      "0": 0,
+      "17": 0,
+      "18": 0,
+      "24": 0,
+      "25": 0
+    }
+  ],
+  "bundle_sha256": "f34e78e07dc4c0121a1853a5cb31c9e72d93dcb0fb9892786e6867bede14b5bb",
+  "serial_proof": [
+    "HOTPLUG_INITIAL level=1 mount=ESP_ERR_TIMEOUT",
+    "HOTPLUG_IRQ generation=1 level=0",
+    "HOTPLUG_FIRST seed=1 write=1 unmounted=1",
+    "HOTPLUG_IRQ generation=2 level=1",
+    "HOTPLUG_EJECTED mount=ESP_ERR_TIMEOUT",
+    "HOTPLUG_IRQ generation=3 level=0",
+    "HOTPLUG_REINSERT persisted=1 unmounted=1",
+    "HOTPLUG_IRQ generation=4 level=1",
+    "HOTPLUG_DONE"
+  ],
+  "stopped_sd_sha256": "14ac7136d256cad2fff6c3b397bf0c1894a5596f43289f566047024ce942ac31",
+  "retained_proof_sha256": "9c8a5072334c4c1e97395a2b4bbbff06912123cb4a8c540e52f9099b21c45f3b",
+  "stopped_sd_export_verified": true,
+  "runtime_process_exited": true,
+  "leases_zero": true,
+  "original_artifact_unchanged": true,
+  "service_exited": true,
+  "validation": "virtual-device validation",
+  "device_service_base": "5a87913bf60dcde84420661d279ab5e0c9c9154c",
+  "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "native_recipe": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_patch_count": 162,
+    "changed_file_count": 155,
+    "ordered_forward_and_reverse_apply": "PASS",
+    "prepared_source_verification": "PASS",
+    "built_qemu_source_bytes_match": "PASS",
+    "changes_restored_to_pinned_tree": "PASS",
+    "final_patch_sha256": "0d79fbc3ef77f1e3d5300a71075c44b8041a5273e99f6da114d2fd34243ae70e",
+    "before_reverse_recipe_sha256": "373ef569a37a5bcb133d5f9b5872e4adf52cc70efcad73409e1ee7258d89676c"
+  },
+  "checked_in_runner": {
+    "status": "PASS",
+    "firmware_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+    "source_sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+    "cmd_delta": [
+      {
+        "0": 2,
+        "17": 9,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      },
+      {
+        "0": 0,
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      {
+        "0": 2,
+        "17": 8,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      {
+        "0": 0,
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      }
+    ],
+    "guest_markers": [
+      "HOTPLUG_INITIAL level=1 mount=ESP_ERR_TIMEOUT",
+      "HOTPLUG_IRQ generation=1 level=0",
+      "HOTPLUG_FIRST seed=1 write=1 unmounted=1",
+      "HOTPLUG_IRQ generation=2 level=1",
+      "HOTPLUG_EJECTED mount=ESP_ERR_TIMEOUT",
+      "HOTPLUG_IRQ generation=3 level=0",
+      "HOTPLUG_REINSERT persisted=1 unmounted=1",
+      "HOTPLUG_IRQ generation=4 level=1",
+      "HOTPLUG_DONE"
+    ],
+    "bundle_sha256": "62543d9f7a155061dd555e6f97effef08fa490b83159dc6f4ac722582e43feab",
+    "same_process": true,
+    "stopped_sd_sha256": "14ac7136d256cad2fff6c3b397bf0c1894a5596f43289f566047024ce942ac31",
+    "retained_proof_sha256": "9c8a5072334c4c1e97395a2b4bbbff06912123cb4a8c540e52f9099b21c45f3b",
+    "cleaned": true
+  },
+  "controls": {
+    "old_backend": {
+      "status": "PASS",
+      "firmware_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+      "runtime_sha256": "eca4ab4bce50c10834fc92b12a3bdb69fd4c504c3281bec03574322dc6b98187",
+      "rejected": {
+        "http": 409,
+        "code": "sd_hotplug_not_supported"
+      },
+      "leases_zero": true,
+      "original_artifact_unchanged": true,
+      "service_exited": true
+    },
+    "missing_media": {
+      "status": "PASS",
+      "firmware_sha256": "7a10bda2976950dceb98c41744f35ec9a7da7f320d602f24cc5a9c838e47af94",
+      "runtime_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "rejected": {
+        "http": 409,
+        "code": "sd_media_not_prepared"
+      },
+      "runtime_process_exited": true,
+      "leases_zero": true,
+      "original_artifact_unchanged": true,
+      "service_exited": true
+    },
+    "static_attachment_and_reset": {
+      "qemu_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+      "reset_same_guest_and_card": true,
+      "spi_commands": {
+        "17": 35,
+        "18": 0,
+        "24": 14,
+        "25": 0
+      },
+      "source_card_unchanged": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE",
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=1",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "89afc3b2584cad30bccbd811812eae9b84e40c38c00178dca8a241ad6c4a2273",
+      "bundle_crc_verified": true,
+      "runtime_process_exited": true,
+      "status": "PASS",
+      "isolated_service_exited": true
+    },
+    "static_empty": {
+      "qemu_sha256": "99da5cb681e44dfdf332f8af01b8d5d36bbb2801b30ca7e0ca6be21af4c0ecff",
+      "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+      "spi_commands": {
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=1",
+        "STORAGE_PROBE_NO_CARD",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "1b05af6ae618454e33af904a2cf589065940ce1e1f22f6b5a4416225176f4700",
+      "bundle_crc_verified": true,
+      "runtime_process_exited": true,
+      "status": "PASS",
+      "isolated_service_exited": true
+    }
+  },
+  "not_run": [
+    "runtime image replacement",
+    "physical hardware",
+    "browser WASM",
+    "independent original application and other boards"
+  ]
+}

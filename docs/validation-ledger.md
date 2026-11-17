@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-17 PaperDIY 原生 SD 热插拔
+
+ESP-IDF 驱动在同一 Device Service 会话收到四次 GPIO48 中断。首次
+插卡可读写 FAT32，拔卡期间挂载超时，再插入可读回已写入的文件。
+旧后端拒绝热插拔，新后端保留开机挂卡路径。
+[虚拟设备证据](../tests/firmware/spi_sd_media/paperdiy-hotplug-summary.json)
+
 ## 2026-11-17 Tab5 ST7123 关机锁存
 
 原版 Arduventure 1.0.0 长按电源图标后，HP I²C1 上的 PI4IOE2

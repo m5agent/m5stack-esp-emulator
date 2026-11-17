@@ -25,7 +25,7 @@ def parse_storage_execution(
         return {}
     if not isinstance(value, dict):
         raise ServiceError("invalid_storage", "storage must be an object", 400)
-    unknown = sorted(set(value) - {"sd_image_artifact_id"})
+    unknown = sorted(set(value) - {"sd_image_artifact_id", "sd_initially_ejected"})
     if unknown:
         raise ServiceError(
             "invalid_storage",
@@ -39,16 +39,22 @@ def parse_storage_execution(
             "storage.sd_image_artifact_id must be a SHA-256 artifact id",
             400,
         )
+    initially_ejected = value.get("sd_initially_ejected", False)
+    if type(initially_ejected) is not bool:
+        raise ServiceError("invalid_storage", "storage.sd_initially_ejected must be a boolean", 400)
     if not spec.has_sd_card:
         raise ServiceError(
             "storage_not_supported",
             f"{spec.id} has no modeled SD-card interface",
             409,
         )
+    if initially_ejected and not spec.has_sd_hotplug:
+        raise ServiceError("sd_hotplug_not_supported", "the selected board cannot eject session media", 409)
     return {
         "interface": storage_interface(spec),
         "format": "raw",
         "sd_image_artifact_id": artifact_id,
+        **({"sd_initially_ejected": True} if initially_ejected else {}),
     }
 
 

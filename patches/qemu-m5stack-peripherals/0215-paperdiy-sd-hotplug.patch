@@ -1,0 +1,190 @@
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -30,7 +30,7 @@
+     SD_READ_NEXT,
+ } SdSpiMode;
+ 
+-typedef struct M5SpiSdState {
++struct M5SpiSdState {
+     FILE *image;
+     uint64_t image_size;
+     SdSpiMode mode;
+@@ -54,7 +54,8 @@
+     bool multi_write;
+     uint32_t written_blocks;
+     bool trace;
+-} M5SpiSdState;
++    bool inserted;
++};
+ 
+ static uint8_t sd_crc7(const uint8_t *data, uint32_t size)
+ {
+@@ -375,7 +376,7 @@
+     uint8_t result;
+ 
+     /* An empty socket leaves the bus undriven. */
+-    if (!s->image) {
++    if (!s->inserted) {
+         return 0xff;
+     }
+     switch (s->mode) {
+@@ -484,6 +485,7 @@
+         }
+     }
+     sd_set_identity(s, s->image_size);
++    s->inserted = s->image != NULL;
+     return s;
+ }
+ 
+@@ -495,6 +497,39 @@
+     return s->image != NULL;
+ }
+ 
++M5SpiSdState *m5_spi_sd_attach_s3_pair(DeviceState *spi_a, DeviceState *spi_b,
++                                      int cs_pin)
++{
++    M5SpiSdState *s = m5_spi_sd_create();
++
++    esp32s3_gpspi_attach_spi_slave(spi_a, &sd_spi_ops, s, cs_pin);
++    esp32s3_gpspi_attach_spi_slave(spi_b, &sd_spi_ops, s, cs_pin);
++    return s;
++}
++
++bool m5_spi_sd_inserted(const M5SpiSdState *s)
++{
++    return s->inserted;
++}
++
++bool m5_spi_sd_set_inserted(M5SpiSdState *s, bool inserted)
++{
++    if (inserted && !s->image) {
++        return false;
++    }
++    if (s->inserted != inserted) {
++        /* Drop partial commands, responses and writes when the card is removed. */
++        *s = (M5SpiSdState) {
++            .image = s->image,
++            .image_size = s->image_size,
++            .trace = s->trace,
++            .inserted = inserted,
++        };
++        sd_set_identity(s, s->image_size);
++    }
++    return true;
++}
++
+ void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin)
+ {
+     /* Both GP-SPI controllers can be routed to the one physical card bus. */
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -171,7 +171,12 @@
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
++typedef struct M5SpiSdState M5SpiSdState;
+ bool m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++M5SpiSdState *m5_spi_sd_attach_s3_pair(DeviceState *spi_a, DeviceState *spi_b,
++                                      int cs_pin);
++bool m5_spi_sd_inserted(const M5SpiSdState *s);
++bool m5_spi_sd_set_inserted(M5SpiSdState *s, bool inserted);
+ void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin);
+ /* FLIR Lepton 3.0 VoSPI model attached to a classic ESP32 SPI controller. */
+ void m5_lepton_attach_spi(DeviceState *dev, DeviceState *spi);
+diff --git a/hw/m5stopwatch/m5paper_et047.c b/hw/m5stopwatch/m5paper_et047.c
+--- a/hw/m5stopwatch/m5paper_et047.c
++++ b/hw/m5stopwatch/m5paper_et047.c
+@@ -52,6 +52,7 @@
+     DeviceState parent_obj;
+     DeviceState *pm1;
+     M5Gt911 *touch;
++    M5SpiSdState *sd;
+     QemuConsole *con;
+     QemuInputHandlerState *input;
+     bool diy;
+@@ -406,6 +407,21 @@
+     return d;
+ }
+ 
++static bool paperdiy_sd_card_present(Object *obj, Error **errp)
++{
++    return m5_spi_sd_inserted(M5_PAPER_ET047(obj)->sd);
++}
++
++static void paperdiy_set_sd_card_present(Object *obj, bool present, Error **errp)
++{
++    if (!m5_spi_sd_set_inserted(M5_PAPER_ET047(obj)->sd, present)) {
++        error_setg(errp, "PaperDIY has no prepared SD media");
++        return;
++    }
++    /* The board switch is active low. Drive the input and its GPIO IRQ. */
++    esp32_gpio_set_input(48, !present);
++}
++
+ void m5paper_et047_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                              ESPGdmaState *gdma, bool diy)
+ {
+@@ -435,21 +451,23 @@
+     }
+     m5stopwatch_soft_i2c_init_pins(bus, 41, 42);
+ 
+-    bool sd_inserted = false;
++    DeviceState *spi[ARRAY_SIZE(spi_mmio)];
+     /*
+      * The factory firmware tries the empty socket unconditionally. Map
+      * GP-SPI even when there is no media, so command completion and the
+      * all-high MISO response reach the original driver.
+      */
+     for (unsigned i = 0; i < ARRAY_SIZE(spi_mmio); i++) {
+-        DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+-        sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++        spi[i] = qdev_new(TYPE_ESP32S3_GPSPI);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(spi[i]), &error_fatal);
+         memory_region_add_subregion_overlap(sys_mem, spi_mmio[i],
+-            sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
+-        sysbus_connect_irq(SYS_BUS_DEVICE(spi), 0,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(spi[i]), 0), 1);
++        sysbus_connect_irq(SYS_BUS_DEVICE(spi[i]), 0,
+                            qdev_get_gpio_in(intmatrix, spi_irq[i]));
+-        esp32s3_gpspi_attach(spi, gdma, NULL, NULL, spi_dma[i]);
+-        sd_inserted |= m5_spi_sd_attach(spi, 47);
++        esp32s3_gpspi_attach(spi[i], gdma, NULL, NULL, spi_dma[i]);
++        if (!diy) {
++            m5_spi_sd_attach(spi[i], 47);
++        }
+     }
+ 
+     DeviceState *panel = qdev_new(TYPE_M5_PAPER_ET047);
+@@ -457,8 +475,14 @@
+     et->diy = diy;
+     if (diy) {
+         et->pm1 = paper_i2c_device(bus, "m5pm1", 0x6e);
+-        /* CARD_DET is active low and depends on the SD model's opened media. */
+-        esp32_gpio_force_line(48, !sd_inserted);
++        et->sd = m5_spi_sd_attach_s3_pair(spi[0], spi[1], 47);
++        if (g_strcmp0(getenv("M5SW_SPI_SD_EJECTED"), "1") == 0) {
++            m5_spi_sd_set_inserted(et->sd, false);
++        }
++        esp32_gpio_set_input(48, !m5_spi_sd_inserted(et->sd));
++        object_property_add_bool(OBJECT(et), "sd-card-present",
++                                 paperdiy_sd_card_present,
++                                 paperdiy_set_sd_card_present);
+     } else {
+         paper_i2c_device(bus, "pcf8563", 0x51);
+         paper_i2c_device(bus, "bmi270", 0x68);
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1476,6 +1476,10 @@
+                                    m5paperdiy_sd_card_detect_model, NULL);
+     object_class_property_set_description(oc, "sd-card-detect-model",
+                                           "CARD_DET follows attached SPI SD media");
++    object_class_property_add_bool(oc, "sd-card-hotplug-model",
++                                   m5paperdiy_sd_card_detect_model, NULL);
++    object_class_property_set_description(oc, "sd-card-hotplug-model",
++                                          "Session SD media can be ejected and reinserted");
+     mc->desc = "M5Stack PaperDIY (ESP32-S3R8, ET047TC1 540x960)";
+     mc->init = m5paperdiy_machine_init;
+     mc->max_cpus = 2;

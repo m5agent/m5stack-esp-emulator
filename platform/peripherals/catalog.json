@@ -1269,7 +1269,7 @@
         "raw-image-file",
         "session-owned-storage-artifact"
       ],
-      "data_plane": "GP-SPI SD SPI command/data model with CMD0/8/9/10/12/13/16/17/18/24/25/51/55/58/59 and ACMD22/23/41/SD_STATUS; single/multiple raw-image sectors, streaming data/stop tokens, completed-write count and CRC16",
+      "data_plane": "GP-SPI SD SPI command/data model with CMD0/8/9/10/12/13/16/17/18/24/25/51/55/58/59 and ACMD22/23/41/SD_STATUS; single/multiple raw-image sectors, streaming data/stop tokens, completed-write count and CRC16. PaperDIY live eject/reinsert changes the GPIO48 switch and SPI availability while retaining the session-owned sectors",
       "tested_devices": [
         "cores3",
         "cardputer-adv",

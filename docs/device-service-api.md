@@ -2555,6 +2555,20 @@ FAT16 defaults to 2 KiB clusters. For a 64 MiB card with 16 KiB clusters, use
 `--format fat16-superfloppy --size-mib 64 --sectors-per-cluster 32`.
 The tool checks the FAT cluster count before creating an image.
 
+A PaperDIY backend advertising `fixtures.sd.hotplug: true` accepts
+`storage.sd_initially_ejected: true` with the SD artifact and `runtime: qemu`.
+The card starts ejected. Omitting the field keeps the regular attached-media boot.
+On an active session use `POST /sessions/{id}/qom` with
+`{"path":"/machine/et047tc1","property":"sd-card-present","value":true}` to
+insert the prepared card, or `false` to eject it. The same path and property
+on `GET /sessions/{id}/qom` report presence. A write requires `input.write`.
+Insertion without prepared media returns `409 sd_media_not_prepared`.
+An unsupported board or older backend rejects the hot-plug request with
+`409 sd_hotplug_not_supported`. Complete and unmount guest filesystem writes
+before ejecting. Ejection clears SPI transaction state, raises GPIO48 and
+leaves the session-owned image available for reinsertion or stopped export.
+The session cannot swap to a different image at runtime.
+
 Stop the guest with `purge=0` before inspecting or exporting its writable SD
 disk. Both endpoints require `storage.read` when runtime ACL is configured.
 `GET /sessions/{id}/storage/sd` reports the current disk SHA-256, original
@@ -2879,7 +2893,8 @@ An unknown identifier returns `404 unknown_device`. The response uses
 The runtime field identifies the default session request mode, its backend and
 its machine where applicable. Tab5 uses the `qemu` request mode for its native
 ESP32-P4 backend. `fixtures.sd` checks that this backend route can accept a raw
-SD image and identifies the board's SPI or SDMMC wiring when eligible. The
+SD image and identifies the board's SPI or SDMMC wiring when eligible. A
+qualified PaperDIY reports `fixtures.sd.hotplug: true`. The
 actual image, firmware, worker capacity and policy are checked on session
 creation. `network.catalog_profiles` lists catalog selectors. Where present,
 `network.native` is the existing board-native STA capability. A network request

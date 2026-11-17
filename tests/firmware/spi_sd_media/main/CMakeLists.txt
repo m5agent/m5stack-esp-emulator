@@ -1,4 +1,9 @@
-idf_component_register(SRCS "main.c"
+if(PROBE_PAPERDIY_HOTPLUG)
+    set(probe_source "hotplug.c")
+else()
+    set(probe_source "main.c")
+endif()
+idf_component_register(SRCS "${probe_source}"
                        PRIV_REQUIRES fatfs esp_driver_spi esp_driver_sdspi esp_driver_gpio)
 if(PROBE_PAPERDIY)
     target_compile_definitions(${COMPONENT_LIB} PRIVATE PROBE_PAPER=1 PROBE_PAPERDIY=1)

@@ -1725,3 +1725,13 @@ UART's mapped RX pin. An explicit indexed media count controls availability.
 This scope covers media discovery, playback state, track selection, volume
 and loop mode. The CoreS3 raw UART fixture remains available for its original
 byte-layer regression. See the [Dial guest and exact BIN runner](../../tests/units/dial_audioplayer_probe/README.md).
+
+
+## PaperDIY SPI SD hot-plug (0215)
+
+Apply after 0214 in the native recipe. PaperDIY uses one physical card state
+for SPI2 and SPI3. QOM toggles presence for the session-owned image. Ejection
+leaves MISO undriven, drops partial transactions and drives the active-low
+GPIO48 switch through the GPIO input and interrupt controller. The backing
+image stays attached to the isolated session for reinsertion and export.
+[GPIO48 and FAT32 regression](../../tests/firmware/spi_sd_media/README.md#paperdiy-sd-hot-plug).

@@ -155,6 +155,11 @@
       "device": "paperdiy",
       "test": "tests/firmware/spi_sd_media/main/main.c",
       "evidence": "tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json"
+    },
+    "paperdiy-spi-sd-hotplug": {
+      "device": "paperdiy",
+      "test": "tests/firmware/spi_sd_media/run_hotplug.py",
+      "evidence": "tests/firmware/spi_sd_media/paperdiy-hotplug-summary.json"
     }
   },
   "case_models": {
@@ -598,6 +603,9 @@
       "sd-card-spi"
     ],
     "paperdiy-spi-sd-media": [
+      "sd-card-spi"
+    ],
+    "paperdiy-spi-sd-hotplug": [
       "sd-card-spi"
     ]
   },
@@ -1098,7 +1106,8 @@
     "paperdiy": {
       "external": [
         "paperdiy-et047-factory",
-        "paperdiy-spi-sd-media"
+        "paperdiy-spi-sd-media",
+        "paperdiy-spi-sd-hotplug"
       ],
       "models": [
         "gpio-button",
@@ -1411,7 +1420,8 @@
       "external": [
         "cardputer-spi-sd-media",
         "papers3-spi-sd-media",
-        "paperdiy-spi-sd-media"
+        "paperdiy-spi-sd-media",
+        "paperdiy-spi-sd-hotplug"
       ]
     },
     "usb-host": {
