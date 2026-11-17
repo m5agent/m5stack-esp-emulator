@@ -1,0 +1,40 @@
+diff --git a/hw/m5stopwatch/m5dial.c b/hw/m5stopwatch/m5dial.c
+--- a/hw/m5stopwatch/m5dial.c
++++ b/hw/m5stopwatch/m5dial.c
+@@ -58,11 +58,13 @@
+         s->delivered += s->direction;
+     }
+     if (s->phase || s->target != s->delivered) {
+-        /* Re-arm from now: late host scheduling must not burst old edges
++        /* Preserve sub-millisecond time so adjacent edges are never
++         * compressed by rounding the current time down. Re-arm from now:
++         * late host scheduling must not burst old edges
+          * into one guest IRQ delivery or directly fabricate a count.
+          */
+-        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) +
+-                  s->edge_period_ms);
++        timer_mod_ns(s->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                     s->edge_period_ms * SCALE_MS);
+     }
+ }
+ 
+@@ -86,8 +88,8 @@
+     }
+     s->target = target;
+     if (!timer_pending(s->timer) && !dial_encoder_idle(s)) {
+-        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) +
+-                  s->edge_period_ms);
++        timer_mod_ns(s->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                     s->edge_period_ms * SCALE_MS);
+     }
+ }
+ 
+@@ -170,7 +172,7 @@
+ {
+     M5DialEncoder *s = M5_DIAL_ENCODER(obj);
+     s->edge_period_ms = DIAL_DEFAULT_EDGE_PERIOD_MS;
+-    s->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, dial_encoder_step, s);
++    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, dial_encoder_step, s);
+     object_property_add(obj, "detents", "int", dial_encoder_get,
+                         dial_encoder_set, NULL, NULL);
+     object_property_add(obj, "delivered-detents", "int", dial_encoder_get,

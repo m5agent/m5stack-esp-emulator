@@ -1767,3 +1767,11 @@ and DMA wiring carries the driver's subsequent panel traffic. The original
 vinylM5Dial display and its rotary, touch and button controls were verified
 with the unchanged BIN and the same Unit AudioPlayer attachment.
 [Same-artifact validation](../../docs/evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)
+
+## Dial quadrature edge deadlines (0220)
+
+Use nanosecond virtual deadlines in the Dial encoder. The service still accepts
+milliseconds. Each callback re-arms from the current virtual time and preserves
+its fractional millisecond. This keeps deadlines at least one requested period
+apart when QEMU is late. The board phases and the native GPIO/IRQ path are
+unchanged. [Controller and guest timing](../../docs/evidence/2026-11-18-dial-fast-rotary/README.md)

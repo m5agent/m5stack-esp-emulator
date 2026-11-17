@@ -42,7 +42,7 @@
 
 1. **P0 语义输入**。给审查动作绑定具体板型的按键、键盘、组合键、触摸和编码器。
    原生键位以控制器和 guest 驱动读回验收。Dial 的普通输入使用 35 ms，
-   并保留显式高速输入。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
+   并保留显式高速输入。[0220](evidence/2026-11-18-dial-fast-rotary/README.md)修正原生期限精度。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
    的快速整周应用计数仍开放，验收时同时检查引脚相序和来宾计数。Arduino 原版的旋转、触摸与按钮
    分别取证，见[原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
 2. **P0 存储**。扩展 ESP-IDF LittleFS 的 SDK 和板型范围，补原版 nc1020 的 SD ROM/NOR 冷导入
