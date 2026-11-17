@@ -7279,7 +7279,7 @@ class DeviceSession:
 
     def preview_frame(self, max_age_ms: int) -> dict:
         """Opt-in shared sample. Ordinary frame/evidence captures remain fresh."""
-        if self.runtime == "tab5" or self.runtime == "network":
+        if self.spec.service_kind == "tab5" or self.runtime in {"tab5", "network"}:
             raise ServiceError("frame_preview_not_available", "shared preview capture is currently admitted for QEMU runtimes only; omit max_age_ms for the existing backend capture", 409)
         generation = self._frame_generation()
         if generation[1] and generation[0] not in {"stopped", "failed"}:
@@ -9771,8 +9771,11 @@ class Tab5DeviceSession(DeviceSession):
         identity = (self.flash_info or {}).get("tab5", {})
         if not self._tab5_elf or not identity.get("gdb_app_identity_matched"):
             details = {}
-            if code == "screenshot_requires_matching_elf" and identity.get("frame_capture_admission"):
-                details["capture_admission"] = identity["frame_capture_admission"]
+            admission = identity.get("frame_capture_admission")
+            if code == "screenshot_requires_matching_elf" and admission in (
+                "native_dsi_not_configured", "native_dsi_firmware_not_admitted",
+            ):
+                details["capture_admission"] = admission
             raise ServiceError(
                 code, f"Tab5 {operation} requires an ELF matching this session's application", 409, **details
             )

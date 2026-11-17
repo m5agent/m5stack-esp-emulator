@@ -39,7 +39,7 @@ class Tab5ServiceTests(unittest.TestCase):
             spec=self.spec, firmware_id=self.image_sha,
             firmware_path=self.image, firmware_sha=self.image_sha,
             firmware_source=source, source_artifacts=[], ttl_seconds=120,
-            ready_marker=None, ready_timeout=1, ready_conditions={}, runtime="tab5",
+            ready_marker=None, ready_timeout=1, ready_conditions={}, runtime="qemu",
         )
 
     def provision(self, session):
@@ -406,6 +406,13 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(raised.exception.extra["capture_status"], "connected")
             session._close_dsi_receiver()
             receiver.return_value.close.assert_called_once()
+
+    def test_tab5_public_qemu_selection_rejects_shared_frame_cache(self):
+        session = self.session()
+        self.assertEqual(session.runtime, "qemu")
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.preview_frame(1000)
+        self.assertEqual((raised.exception.status, raised.exception.code), (409, "frame_preview_not_available"))
 
     def test_dsi_reuses_only_the_current_immutable_observation(self):
         session = self.session()

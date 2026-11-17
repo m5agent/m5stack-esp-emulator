@@ -2648,6 +2648,8 @@ paths:
         reuse. Captured program context is not application readiness or an atomic
         snapshot with Unit/serial state. Tab5/network do not admit shared capture;
         omit max_age_ms to retain their existing capture behavior.
+        The Tab5 profile uses the public runtime=qemu selector while its
+        actual display capture is implemented by the Tab5 backend.
         Tab5 sessions on the explicitly enabled native DSI backend return the
         latest complete received DPI frame, with no matching ELF needed.
         Before a complete frame is received this backend replies with

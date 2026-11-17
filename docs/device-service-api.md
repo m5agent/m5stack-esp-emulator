@@ -3128,6 +3128,9 @@ curl -sS -H 'Content-Type: application/json' \
   http://127.0.0.1:8787/api/v1/sessions
 ```
 
+Tab5 uses the public `runtime=qemu` session selector. Its actual display and
+CPU backend is selected by the Tab5 profile.
+
 The first run prepares and verifies a virtual flash through the backend's
 flashing path. Core2 and Tab5 use an exact host-image copy: Core2 avoids the
 intermittent LX6 ROM download handshake, while the esp-emu 0.50.0 Tab5 esptool
