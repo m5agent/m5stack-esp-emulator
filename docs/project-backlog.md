@@ -43,9 +43,10 @@
 1. **P0 语义输入**。给审查动作绑定具体板型的按键、键盘、组合键、触摸和编码器。
    原生键位以控制器和 guest 驱动读回验收。Dial 的普通输入使用 35 ms，
    并保留显式高速输入。[0220](evidence/2026-11-18-dial-fast-rotary/README.md)修正原生期限精度。显式 5 ms 下的 UIFlow2 RotaryIRQ 和 Arduino 原版
-   的快速整周应用计数仍开放。原版的[寄存器读回复验](evidence/2026-11-18-dial-fast-rotary/README.md#原版实际读取-gpio-的复验)
-   将三次漏选绑定到来宾漏读相位。后续需用同一原版核对取样间隔及应用计数，保留虚拟边沿、
-   来宾读回、UART 选曲和默认 35 ms 对照。旋转、触摸和按钮的独立结果见
+   的快速整周应用计数仍开放。[无诊断追踪的原版复验](evidence/2026-11-18-dial-fast-rotary/uninstrumented-original-summary.json)
+   确认了 5 ms 漏选，原版 GPIO40/41 注册进入轮询分支。[来宾寄存器读回](evidence/2026-11-18-dial-fast-rotary/README.md#原版实际读取-gpio-的复验)
+   将三次漏选绑定到实际漏读相位。公开 R1F27 的[两份中断构建对照](evidence/2026-11-18-dial-fast-rotary/rebuilt-r1f27-summary.json)
+   均通过。继续为原版 R1F30 核对轮询间隔、应用计数和同一 BIN 的实体旋钮并保留 35 ms 对照。旋转、触摸和按钮的独立结果见
    [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。

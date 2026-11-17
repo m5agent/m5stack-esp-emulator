@@ -14,6 +14,17 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Dial 原版旋钮交付和选曲对照
+
+[原版两次冷启动](evidence/2026-11-18-dial-fast-rotary/uninstrumented-original-summary.json)使用同一未修改 BIN
+和未加诊断的 `7e63fc22…` 原生运行时。36 次旋转均交付规定相位，35 ms 选曲 18/18，
+5 ms 选曲 14/18。每次选择均与同一会话对应的新增 N9301 UART 命令核对。
+[固定版 SDK 和原版启动路径](evidence/2026-11-18-dial-fast-rotary/README.md#无取样追踪的原版复验)
+确认 GPIO40/41 的中断注册未执行，原版进入轮询。实体旋钮未验证。
+[公开 R1F27 重建对照](evidence/2026-11-18-dial-fast-rotary/rebuilt-r1f27-summary.json)的两份构建各通过
+5 ms 和 35 ms 整圈 6/6，以及短转不换曲 2/2。修订构建链接 GPIO40/41 ISR，原版 R1F30
+不在这组构建验收范围。
+
 ## 2026-11-18 Tab5 取帧准入和完整观察窗口
 
 [原版对照及审查摘要](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)绑定 CarPlay 1.0.0 与官方 UserDemo V0.4 的原 BIN、

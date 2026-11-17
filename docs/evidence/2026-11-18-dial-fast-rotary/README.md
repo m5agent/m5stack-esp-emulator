@@ -71,10 +71,34 @@ CPU 和实际返回的 G41/G40 值。每次动作后比对 `4 × abs(delta)` 个
 
 [逐动作摘要](original-pair-summary.json)保留固件、运行时、证据包和尾帧哈希。
 两轮均先导出证据包，再停会话、释放 Flash 和租约并关闭独立服务。由实际读取
-可解释这三次漏选。5 ms 整圈仍为 PARTIAL，原版取样间隔的成因、无诊断观察器时的
-失败比例、浏览器和同一 BIN 的实物结果均有待验证。
+可解释这三次漏选。5 ms 整圈仍为 PARTIAL。来宾轮询间隔拉长的原因、浏览器和同一 BIN 的实物结果仍待验证。
 [官方 M5Dial Encoder 1.0.3 参考实现](https://github.com/m5stack/M5Dial/blob/533c9d0198e72621d55a4d35f726d3d53a7e1431/src/utility/Encoder.h)
 也使用分开的寄存器读取和相位状态表；以上原版指令和计数均来自 BIN 的读回。
+
+## 无取样追踪的原版复验
+
+[两轮原版摘要](uninstrumented-original-summary.json)固定 Device Service
+`929dbf74…` 和原生 QEMU `7e63fc22…`。两个全新会话各发 18 次输入，
+不启用 PC、GPIO 或时钟诊断。默认 35 ms 正确选曲 18/18，显式 5 ms 为 14/18，
+其中整圈 9/12、短转 5/6。36 次动作均交付每格四个 GPIO 边沿。
+四次漏选均有新的有效 N9301 UART 命令确认实际曲目。两个来宾有非黑帧，均释放 Flash 和租约。
+
+从同一原版 IROM 核对到编码器构造将 A/B 设为 GPIO41/GPIO40。启动时，
+固件调用内置中断注册函数，两脚均进入未支持的返回路径。编译后的读取函数
+只在注册计数小于 2 时实际轮询 GPIO，保留的 A/B 读取属于这条路径。
+旧诊断的 1,664 条寄存器观察均没有这两脚的 IRQ 使能，与原版行为一致。
+[M5Dial 的固定版 IRQ 映射](https://github.com/m5stack/M5Dial/blob/533c9d0198e72621d55a4d35f726d3d53a7e1431/src/utility/Encoder.h)
+同样未注册 GPIO40/41。[公开应用的构建配置](https://github.com/Layer812/vinylM5Dial/blob/d9d2af725412df9554bc1bf154efff8a541adf15/platformio.ini)
+标注 M5Dial 1.0.3。原版的确切构建版本及真实旋钮的漏选比例仍未验证。
+
+## 公开 R1F27 源码中断注册对照
+
+两份构建使用[固定的公开应用源码](https://github.com/Layer812/vinylM5Dial/tree/d9d2af725412df9554bc1bf154efff8a541adf15)、同一工具链及依赖。
+修订构建只修改 M5Dial 1.0.3 的 `Encoder.h`，在 ESP32-S3 映射启用 GPIO40 和 GPIO41，
+将中断槽数扩到 42。链接结果确认新增两个 ISR。两份 R1F27 均以 16 格换一首，
+5 ms 及 35 ms 整圈各通过 6/6，短转不换曲 2/2。
+这是两份重建固件的兼容性对照，5 ms 漏选未在 R1F27 复现，原版 R1F30 的漏选仍为 PARTIAL。
+[双构建与逐动作摘要](rebuilt-r1f27-summary.json)保留源码、固件、GPIO 和同会话 UART 选曲的身份。
 
 ## 复现
 

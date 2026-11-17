@@ -1,0 +1,687 @@
+{
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "firmware": "vinylM5Dial 1.0 R1F30",
+  "original_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+  "device_service_source": "929dbf749e4a8ecd6c469fce8aea44120febd03f",
+  "native_runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "device": "Dial",
+  "unit": {
+    "model": "AudioPlayer U197 / N9301",
+    "port": "B",
+    "indexed_tracks": 7
+  },
+  "distinct_cold_sessions": true,
+  "raw_uart_and_frames_bound_to_same_session": true,
+  "matching_edges_for_all_gestures": true,
+  "runs": [
+    {
+      "cold_run": 1,
+      "boot_track": 1,
+      "unit_uart_capture_bytes": 310,
+      "unit_uart_sha256": "0e0ce5214440c689cd49edb50f5ab99fb00523249953d9f7c62e0a8428a82efb",
+      "invalid_uart_frames": 0,
+      "trace_instrumentation": false,
+      "qemu_executable_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "source_unchanged": true,
+      "isolated_service_exited": true,
+      "ux_frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "unique_colors": 167,
+        "sha256": "6f09c22da589999d9b8253a82a8685b41b7ae804c67e00936fa696158861de0b"
+      },
+      "retained_frame_sha256": "dbb3fa595ae7c3d8a6d22b837c22ea1c0ae6878de4fbc8d3988692dfcffbedf9",
+      "evidence_zip_sha256": "e0b0df31655ed13e1c480ffe0c56d7b829ca6e886fcd225718e144b373aa18ad",
+      "uart_observation_same_session": true,
+      "steps": [
+        {
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "before": 1,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "before": 4,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": 3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "before": 2,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -2,
+          "edge_period_ms": 5,
+          "gpio_edges": 8,
+          "before": 5,
+          "expected": 3,
+          "track": 4,
+          "track_match": false,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": 2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "before": 4,
+          "expected": 6,
+          "track": 6,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600060e",
+              "track": 6
+            }
+          ]
+        },
+        {
+          "delta": -3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "before": 6,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 5,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 1,
+          "track": 1,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 1,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 5,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 1,
+          "track": 2,
+          "track_match": false,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 2,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 4,
+          "expected": 6,
+          "track": 6,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600060e",
+              "track": 6
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 6,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 4,
+          "expected": 2,
+          "track": 3,
+          "track_match": false,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      }
+    },
+    {
+      "cold_run": 2,
+      "boot_track": 1,
+      "unit_uart_capture_bytes": 295,
+      "unit_uart_sha256": "1846b6a335e0b5077f7f523e5f18c71ffac0195589a04566da14561b797786f6",
+      "invalid_uart_frames": 0,
+      "trace_instrumentation": false,
+      "qemu_executable_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "source_unchanged": true,
+      "isolated_service_exited": true,
+      "ux_frame": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "unique_colors": 154,
+        "sha256": "8991f0d76fcfbcd3ff6f5a55a015b187aed4c46938d388089be6ed1baf0099cf"
+      },
+      "retained_frame_sha256": "791fc05ffe51439d1be256ccbfc3ec7b3bfb9a6063816e03c0443ed302d337c3",
+      "evidence_zip_sha256": "a1b810615c917b1e0e0b89b857e34eaf612e1880a5f2957b0c9585093de7a302",
+      "uart_observation_same_session": true,
+      "steps": [
+        {
+          "delta": 3,
+          "edge_period_ms": 35,
+          "gpio_edges": 12,
+          "before": 1,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": -2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "before": 4,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": 3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "before": 2,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -2,
+          "edge_period_ms": 5,
+          "gpio_edges": 8,
+          "before": 5,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": 2,
+          "edge_period_ms": 35,
+          "gpio_edges": 8,
+          "before": 3,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -3,
+          "edge_period_ms": 5,
+          "gpio_edges": 12,
+          "before": 5,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 2,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 4,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 2,
+          "expected": 7,
+          "track": 7,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600070f",
+              "track": 7
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 7,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 2,
+          "expected": 4,
+          "track": 4,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600040c",
+              "track": 4
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 4,
+          "expected": 2,
+          "track": 2,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 2,
+          "expected": 7,
+          "track": 1,
+          "track_match": false,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 1,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 5,
+          "track": 5,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600050d",
+              "track": 5
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 5,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "gpio_edges": 64,
+          "before": 3,
+          "expected": 1,
+          "track": 1,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "gpio_edges": 64,
+          "before": 1,
+          "expected": 3,
+          "track": 3,
+          "track_match": true,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600030b",
+              "track": 3
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      }
+    }
+  ],
+  "rates": [
+    {
+      "edge_period_ms": 5,
+      "scope": "all",
+      "gestures": 18,
+      "correct": 14,
+      "misses": 4
+    },
+    {
+      "edge_period_ms": 5,
+      "scope": "short",
+      "gestures": 6,
+      "correct": 5,
+      "misses": 1
+    },
+    {
+      "edge_period_ms": 5,
+      "scope": "full_turn",
+      "gestures": 12,
+      "correct": 9,
+      "misses": 3
+    },
+    {
+      "edge_period_ms": 35,
+      "scope": "all",
+      "gestures": 18,
+      "correct": 18,
+      "misses": 0
+    },
+    {
+      "edge_period_ms": 35,
+      "scope": "short",
+      "gestures": 6,
+      "correct": 6,
+      "misses": 0
+    },
+    {
+      "edge_period_ms": 35,
+      "scope": "full_turn",
+      "gestures": 12,
+      "correct": 12,
+      "misses": 0
+    }
+  ],
+  "scope_limits": "Uninstrumented checked runtime and unchanged firmware; no PC/GPIO timing trace or rate override. Controller total GPIO edge counts are verified but this does not measure their per-edge timing or identify the missed sample. The control proves indexed playback codes, not PCM decoding.",
+  "physical": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "original_sampling_path": {
+    "scope": "read-only interpretation of exact original IROM and retained live GPIO observations",
+    "app_offset": "0x10000",
+    "mapped_irom_sha256": "780c0230f4ff3c786e45a4395d90bbd3a337d45cce9a468a22dbbc59cbcba181",
+    "result": "Live GPIO A/B reads execute only when the original encoder interrupt attachment count is below two.",
+    "gpio_irq_receipts": 1664,
+    "irqs_enabled_at_observed_edges": 0,
+    "sdk_comparison": "The pinned public M5Dial ESP32 GPIO interrupt dispatcher omits GPIO40 and GPIO41, the board's A/B pins.",
+    "sdk_reference": "https://github.com/m5stack/M5Dial/tree/533c9d0198e72621d55a4d35f726d3d53a7e1431/src",
+    "assigned_gpio": [
+      41,
+      40
+    ],
+    "attachment_return": [
+      0,
+      0
+    ],
+    "compiled_startup": "The original constructor assigns GPIO41 and GPIO40. Its enabled encoder initialization calls the embedded attach dispatcher for both. Both pins reach the unsupported-pin return without registering an interrupt. The same object's zero IRQ attachment count selects the GPIO polling branch seen in the retained execution."
+  }
+}

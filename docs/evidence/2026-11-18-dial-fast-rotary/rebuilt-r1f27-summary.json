@@ -1,0 +1,534 @@
+{
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "scope": "Build and behavioral compatibility of the private S3 encoder IRQ registration change on two public R1F27 rebuilds.",
+  "public_app_commit": "d9d2af725412df9554bc1bf154efff8a541adf15",
+  "public_source_import_commit": "169e2a8095e71f44dff4c5bce4d24afdbf8c1cee",
+  "application_source_sha256": "c7a6796eab8e0b1fee180d23404d6bab90f70260416fffa8658def668769e06f",
+  "app_configuration_sha256": "9b86e155dfddddc49f409ff9a32a0252b8270b68e1d7e553d656d96b865c6415",
+  "upstream_m5dial_1_0_3": "533c9d0198e72621d55a4d35f726d3d53a7e1431",
+  "private_patch_sha256": "c6458def36ba9c7749be108cf7bdb54207f0aab5066c0ea74bca99e651ffc9f1",
+  "different_dependency_files": [
+    "m5dial/M5Dial/src/utility/Encoder.h"
+  ],
+  "platformio_core": "6.1.19",
+  "espressif32_platform": "pioarduino 55.03.311",
+  "platform_archive_sha256": "313625fe62ef4a7a0bfb9fee40cf261254302a24445bad7d6fc34c2012de67a6",
+  "arduino_esp32": "3.3.11",
+  "esp_idf": "5.5.5",
+  "xtensa_gcc": "14.2.0",
+  "other_libraries": {
+    "M5Unified": "0.3.0",
+    "M5GFX": "0.3.0"
+  },
+  "linked_elf_symbols": {
+    "stock_absent": [
+      "ENCODER::isr40()",
+      "ENCODER::isr41()"
+    ],
+    "patched_present": [
+      "ENCODER::isr40()",
+      "ENCODER::isr41()"
+    ]
+  },
+  "first_exploratory_run": "Stopped via owned cleanup after recognizing R1F30 one-song-per-detent expectations do not apply to public R1F27; excluded from paired scores.",
+  "same_test_runtime_untouched": true,
+  "unit": "AudioPlayer U197 / N9301 Port B, seven indexed tracks",
+  "original_r1f30_sha256": "7778656ee942bb5e87fbc780955c452f752059c9cf9325d7e026b83ec6c7ffaf",
+  "outcome": "Both rebuilt R1F27 variants passed equally. This comparison does not demonstrate a 5 ms reliability gain or fix the different original R1F30 image. Actual GPIO edge totals and N9301 index-packet decisions are verified; per-edge timing, PCM and hardware are outside this run.",
+  "cases": [
+    {
+      "variant": "stock",
+      "image": {
+        "factory_bytes": 619216,
+        "factory_sha256": "9a519c1eb0a6c883121b026b2b8ef4d379fef7e6d3a68fcdeab9e3d2533278c8",
+        "merged_sha256": "8071c1c3ed192130103d7dfa64a26cc2d32b962ae82296686cc2d007ea60737c",
+        "app_bytes": 553680,
+        "app_sha256": "21ab690aae8a7ca793de49bd45a3b970d674b259f7c21985befa6e91f88bdc97",
+        "elf_sha256": "d5ac8f3ab2581466ca336e59dd080a261b27b1bd6bba0e0f8a14edc65278f851",
+        "app_marker": "R1F27",
+        "bootloader_sha256": "434d5c2994e21c5795c95173235600a3ae1e78feadcac6ca1884e0c9de63a6bd",
+        "partition_table_sha256": "f4e3b6cfe370c81dca210d57f3c463f924a539842a19fff6eda4615278ee97a2",
+        "before_app_sha256": "3902bedd9c0e85f9132042f1574558e8260e78bf29507fb34eac3530208fc7d7"
+      },
+      "status": "PASS",
+      "isolated_services_stopped": true,
+      "device_service_source": "929dbf749e4a8ecd6c469fce8aea44120febd03f",
+      "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "same_session_uart_sha256": "beb9564b5ab48b25030d4565bcb64ec9330340a102fb971042059662fecdcaa9",
+      "uart_bytes": 251,
+      "boot_index": 1,
+      "frame_metrics": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "unique_colors": 159,
+        "sha256": "6bc0f76a2c9f3b594960d45a07b43557a7ae4fb0583aee46f6a889baff59d7c2"
+      },
+      "retained_frame_sha256": "6bc0f76a2c9f3b594960d45a07b43557a7ae4fb0583aee46f6a889baff59d7c2",
+      "evidence_zip_sha256": "fd06240936a21c96e0b2c85eaed140ad24b5e31a10ca43f9477d7ddfc5865207",
+      "cases": {
+        "5ms_full": "6/6",
+        "35ms_full": "6/6",
+        "short_no_change": "2/2"
+      },
+      "gestures": [
+        {
+          "delta": 3,
+          "edge_period_ms": 35,
+          "song_delta": 0,
+          "before": 1,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 12,
+          "guest_indexed_play": []
+        },
+        {
+          "delta": -3,
+          "edge_period_ms": 35,
+          "song_delta": 0,
+          "before": 1,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 12,
+          "guest_indexed_play": []
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "patched",
+      "image": {
+        "factory_bytes": 619344,
+        "factory_sha256": "28f224bc70026e203da88bb7a52078712208b8a9f169b588796409243ffc6521",
+        "merged_sha256": "bf870c8ea73c06b8f1653a794f4f7856bb5ab80da8dc357adfc02395c2a6c416",
+        "app_bytes": 553808,
+        "app_sha256": "60d937b48e4ea088e7fb8b8bf813a292a748a96eb0407b17771d6cdbcca76857",
+        "elf_sha256": "7429d12ca875a40868bc51e6863377507b46f98ea1ce5fc90927374d1a04fe87",
+        "app_marker": "R1F27",
+        "bootloader_sha256": "434d5c2994e21c5795c95173235600a3ae1e78feadcac6ca1884e0c9de63a6bd",
+        "partition_table_sha256": "f4e3b6cfe370c81dca210d57f3c463f924a539842a19fff6eda4615278ee97a2",
+        "before_app_sha256": "3902bedd9c0e85f9132042f1574558e8260e78bf29507fb34eac3530208fc7d7"
+      },
+      "status": "PASS",
+      "isolated_services_stopped": true,
+      "device_service_source": "929dbf749e4a8ecd6c469fce8aea44120febd03f",
+      "runtime_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "leases": 0
+      },
+      "same_session_uart_sha256": "1e726c689e0068357791ecacfd447507436ab58ec6c6a78bc8c536a95c7b65ff",
+      "uart_bytes": 216,
+      "boot_index": 1,
+      "frame_metrics": {
+        "size": [
+          240,
+          240
+        ],
+        "nonblack": 57600,
+        "unique_colors": 163,
+        "sha256": "1459e1e0922334256c972fa74a907fa66adeb27fcc3066e06a94ca698cb8c14b"
+      },
+      "retained_frame_sha256": "1459e1e0922334256c972fa74a907fa66adeb27fcc3066e06a94ca698cb8c14b",
+      "evidence_zip_sha256": "761101d106f3261dd7beef110322eee6b42b39fbca914600ad09a9c014de21a4",
+      "cases": {
+        "5ms_full": "6/6",
+        "35ms_full": "6/6",
+        "short_no_change": "2/2"
+      },
+      "gestures": [
+        {
+          "delta": 3,
+          "edge_period_ms": 35,
+          "song_delta": 0,
+          "before": 1,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 12,
+          "guest_indexed_play": []
+        },
+        {
+          "delta": -3,
+          "edge_period_ms": 35,
+          "song_delta": 0,
+          "before": 1,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 12,
+          "guest_indexed_play": []
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 35,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 35,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        },
+        {
+          "delta": 16,
+          "edge_period_ms": 5,
+          "song_delta": 1,
+          "before": 1,
+          "expected": 2,
+          "track": 2,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb030600020a",
+              "track": 2
+            }
+          ]
+        },
+        {
+          "delta": -16,
+          "edge_period_ms": 5,
+          "song_delta": -1,
+          "before": 2,
+          "expected": 1,
+          "track": 1,
+          "gpio_edges": 64,
+          "guest_indexed_play": [
+            {
+              "hex": "04fb0306000109",
+              "track": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "physical_hardware": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED"
+}
