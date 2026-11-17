@@ -60,6 +60,7 @@ from device_service_tab5_dsi import (  # noqa: E402
     TAB5_DSI_RUNTIME_SHA256,
     TAB5_GT911_PART_SHA256,
     TAB5_GT911_SIZE,
+    TAB5_ST7123_DRAG_PART_SHA256,
     TAB5_ST7123_HOLD_PART_SHA256,
     TAB5_ST7123_I2C_PART_SHA256,
     Tab5DsiReceiver,
@@ -9171,6 +9172,7 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_st7123_board: Path | None = None
         self._tab5_st7123_touch_enabled = False
         self._tab5_st7123_hold_enabled = False
+        self._tab5_st7123_drag_enabled = False
         self._tab5_native_touch: Tab5Gt911Touch | Tab5St7123Touch | None = None
 
     def _prepare_tab5_identity(self) -> dict:
@@ -9241,11 +9243,15 @@ class Tab5DeviceSession(DeviceSession):
                 if st_touch_part:
                     self._tab5_st7123_board, digest = stage_tab5_st7123_touch_part(st_touch_part, self.dir)
                     self._tab5_st7123_touch_enabled = True
-                    self._tab5_st7123_hold_enabled = digest == TAB5_ST7123_HOLD_PART_SHA256
+                    self._tab5_st7123_drag_enabled = digest == TAB5_ST7123_DRAG_PART_SHA256
+                    self._tab5_st7123_hold_enabled = (
+                        self._tab5_st7123_drag_enabled or digest == TAB5_ST7123_HOLD_PART_SHA256
+                    )
                     identity.update(
                         touch_model="esp-emu-st7123", touch_part_sha256=digest,
                         touch_coordinate_space="panel-native",
                         touch_hold_supported=self._tab5_st7123_hold_enabled,
+                        touch_drag_supported=self._tab5_st7123_drag_enabled,
                     )
                 else:
                     self._tab5_st7123_board = stage_tab5_st7123_i2c_part(
@@ -9619,11 +9625,13 @@ class Tab5DeviceSession(DeviceSession):
         kind = payload.get("kind")
         st7123 = self._tab5_st7123_touch_enabled
         controller = "st7123" if st7123 else "gt911"
-        supported = ("touch",) if st7123 else ("touch", "drag")
+        supported = ("touch",) if st7123 and not self._tab5_st7123_drag_enabled else ("touch", "drag")
         action = str(payload.get("action", "tap")).lower()
         hold = self._tab5_st7123_hold_enabled and kind == "touch" and action == "hold"
         if kind not in supported or (action != "tap" and not hold):
-            if st7123:
+            if self._tab5_st7123_drag_enabled:
+                gestures = "taps, holds, and single-contact drags"
+            elif st7123:
                 gestures = "taps and single-contact holds" if self._tab5_st7123_hold_enabled else "taps"
             else:
                 gestures = "taps and single-contact drags"
@@ -9641,18 +9649,23 @@ class Tab5DeviceSession(DeviceSession):
                 "invalid_input",
                 f"Tab5 {controller.upper()} coordinates must be integers inside the {width}×{height} frame", 400,
             )
+        if st7123 and kind == "drag" and coordinates[:2] == coordinates[2:]:
+            raise ServiceError("invalid_input", "Tab5 ST7123 drag endpoints must differ", 400)
         with self._lifecycle_operation():
             touch = self._tab5_native_touch
             if self.state != "running" or touch is None:
                 raise ServiceError("session_not_running", f"session state is {self.state}", 409)
             timing = None
             if kind == "drag":
-                try:
-                    evidence = touch.drag(*coordinates, self._check_cancelled)
-                except ServiceError as error:
-                    if error.code == "tab5_gt911_release_uncertain":
-                        self._request_failure(error)
-                    raise
+                if st7123:
+                    evidence, timing = touch.drag(*coordinates, self._check_cancelled)
+                else:
+                    try:
+                        evidence = touch.drag(*coordinates, self._check_cancelled)
+                    except ServiceError as error:
+                        if error.code == "tab5_gt911_release_uncertain":
+                            self._request_failure(error)
+                        raise
             elif hold_ms is not None:
                 evidence, timing = touch.hold(*coordinates, hold_ms, self._check_cancelled)
             else:
@@ -9668,7 +9681,9 @@ class Tab5DeviceSession(DeviceSession):
                 "controller_reports": evidence,
             }
             if timing is not None:
-                receipt.update(action="hold", timing=timing)
+                receipt["timing"] = timing
+                if hold_ms is not None:
+                    receipt["action"] = "hold"
             self._record_event(
                 f"{controller}_touch_acknowledged", kind=kind, raw=receipt["raw"],
                 runtime_acl_policy_id=acl_policy_id, **evidence, **(timing or {}),

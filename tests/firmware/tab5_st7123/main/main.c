@@ -84,8 +84,11 @@ void app_main(void)
     printf("ST7123_PROBE_WAIT irq=%d level=%d\n", ST7123_INT, gpio_get_level(ST7123_INT));
 
     unsigned samples = 0;
-    unsigned active_x = 0;
-    unsigned active_y = 0;
+    unsigned first_x = 0;
+    unsigned first_y = 0;
+    unsigned last_x = 0;
+    unsigned last_y = 0;
+    unsigned moves = 0;
     int64_t pressed_at = 0;
     for (;;) {
         if (xSemaphoreTake(pending_report, pdMS_TO_TICKS(1000)) != pdTRUE) {
@@ -103,20 +106,28 @@ void app_main(void)
             const unsigned x = read_be16(report);
             const unsigned y = read_be16(report + 2);
             if (samples == 0) {
-                active_x = x;
-                active_y = y;
+                first_x = x;
+                first_y = y;
                 pressed_at = esp_timer_get_time();
+            } else if (x != last_x || y != last_y) {
+                moves++;
             }
-            configASSERT(x == active_x && y == active_y);
+            last_x = x;
+            last_y = y;
             samples++;
             printf("ST7123_PROBE_POINT x=%u y=%u area=%u irq_level=%d\n",
                    x, y, report[4], level);
         } else {
             printf("ST7123_PROBE_RELEASE status=0x%02x irq_level=%d\n", status, level);
             if (samples > 0) {
+                if (moves > 0) {
+                    printf("ST7123_PROBE_DRAG x1=%u y1=%u x2=%u y2=%u moves=%u\n",
+                           first_x, first_y, last_x, last_y, moves);
+                }
                 printf("ST7123_PROBE_CONTACT samples=%u duration_us=%" PRId64 "\n",
                        samples, esp_timer_get_time() - pressed_at);
                 samples = 0;
+                moves = 0;
             }
         }
     }

@@ -9,7 +9,7 @@ RUSTUP_TOOLCHAIN=1.88.0 python3 platform/esp-parts/tab5-st7123-gpio/build.py \
 ```
 
 The tested WASM SHA-256 is
-`0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87`.
+`56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d`.
 Set `M5_TAB5_ST7123_TOUCH_PART` to the absolute path of that module and select
 `st7123` in the [Device Service configuration](../../../docs/device-service-api.md#create-a-reference-uiflow2-device).
 
@@ -23,11 +23,14 @@ report. It drives GPIO23 low until the guest reads the full coordinates
 or the release. Unread reports expire. Taps and holds use raw 720×1280
 coordinates. Holds keep the coordinate visible to polling on the guest
 clock, with refresh IRQs no more often than every 16 ms. Refresh reads
-are counted separately from contact and release.
+are counted separately from contact and release. A native drag moves the
+same slot to five interpolated positions at least 60 guest ms apart,
+including the endpoint. The Part advances after the guest reads the
+previous report and releases one interval after the endpoint.
 [M5GFX detector](https://github.com/m5stack/M5GFX/blob/28d47949bdc84f30881623476f555398e2194313/src/board_detect/m5/esp32p4.inl)
 · [M5GFX runtime touch driver](https://github.com/m5stack/M5GFX/blob/28d47949bdc84f30881623476f555398e2194313/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.inl)
 
 See the [guest controller probe](../../../tests/firmware/tab5_st7123/README.md)
 for version, panel geometry, IRQ, coordinate and release verification.
-Drag, multitouch, reset-pin electrical timing, and other panel revisions are
+Multitouch, reset-pin electrical timing, and other panel revisions are
 outside this ST7123 model.

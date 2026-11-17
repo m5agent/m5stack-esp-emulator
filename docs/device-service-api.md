@@ -3092,13 +3092,21 @@ response includes `controller="st7123"` and the guest-consumed press and
 release counts. An unread report returns `409 tab5_st7123_ack_timeout`.
 A hold-capable module also accepts
 `{"kind":"touch","action":"hold","x":240,"y":780,"seconds":1.2}` with a
-duration of 0.25–5 seconds, defaulting to one second. It retains one coordinate for the requested
-guest-clock duration and refreshes its IRQ report. An accepted hold includes
+duration of 0.25–5 seconds, defaulting to one second. It retains one coordinate
+for the requested guest-clock duration and refreshes its IRQ report. An accepted hold includes
 `timing.guest_hold_ms` and `timing.refresh_acknowledged` in addition to
 the contact and release readbacks. Guest resets or unread reports can leave
-the hold unverified. Drag and multitouch remain outside this input path.
-The previously qualified tap-only module remains valid under the same
-setting and reports `touch_hold_supported=false`.
+the hold unverified.
+
+A drag-capable module reports `touch_drag_supported=true` and also accepts
+`{"kind":"drag","x1":0,"y1":1279,"x2":719,"y2":0}`. Raw integer endpoints
+must differ and lie within the panel. The Part schedules one contact, five
+interpolated updates including the endpoint, and release. The guest reads
+each report before the Part advances. The reply includes seven controller
+readbacks and `timing.guest_drag_ms` and `timing.moves_acknowledged`.
+Unread reports or a clock reset can expire an active gesture. Multitouch
+remains outside this input path. Previously qualified older Parts retain
+their tap or hold capabilities under the same setting.
 Workers with the prior identification-only binary configured as
 `M5_TAB5_ST7123_I2C_PART` retain native DSI with touch unavailable for
 no-ELF sessions. The new touch setting takes precedence for the ST7123

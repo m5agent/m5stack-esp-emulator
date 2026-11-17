@@ -1,0 +1,351 @@
+{
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "scope": "native ST7123 drag guest fixture plus original tap, hold and GT911 regression",
+  "bench_guest": "ESP-IDF 5.5.4 ESP32-P4 revision <3",
+  "original_app_st7123_drag": "NOT RUN",
+  "multitouch": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "runtime_artifacts": {
+    "esp_emu": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "gt911": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+    "st7123": "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d"
+  },
+  "probe": {
+    "firmware_sha256": "1e0c468252b88bb1b4e57165d6b32250ab4e4bc90db26eb34e40c8bbef027714",
+    "execution_flash_sha256": "c35cd980b5096daaf38aff54b73cc940e52f9b7611cb83830636eddd2cd5477f",
+    "no_input_no_irq": true,
+    "guest_reports": [
+      "ST7123_PROBE_POINT x=0 y=1279 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0",
+      "ST7123_PROBE_POINT x=719 y=0 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0",
+      "ST7123_PROBE_POINT x=310 y=608 area=20 irq_level=0",
+      "ST7123_PROBE_RELEASE status=0x00 irq_level=0"
+    ],
+    "evidence_zip_sha256": "8b960e398a3b8861001ece852c51d3ebf31b700656a644a75c8beb03f26fda46",
+    "serial_sha256": "0d6e2ccb522d4ed2b04db2e77bd2024b07a524e50bc47d62603a39ea184671c6",
+    "status": "PASS",
+    "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "part_sha256": "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d",
+    "hold": {
+      "x": 240,
+      "y": 780,
+      "guest_samples": 69,
+      "guest_duration_us": 1201971,
+      "controller_timing": {
+        "completion": "guest-observed",
+        "hold_seconds": 1.2,
+        "guest_hold_ms": 1200,
+        "refresh_acknowledged": 68
+      },
+      "release_observed": true
+    },
+    "drags": [
+      {
+        "guest_positions": [
+          [
+            0,
+            1279
+          ],
+          [
+            143,
+            1023
+          ],
+          [
+            287,
+            767
+          ],
+          [
+            431,
+            511
+          ],
+          [
+            575,
+            255
+          ],
+          [
+            719,
+            0
+          ]
+        ],
+        "guest_duration_us": 362014,
+        "guest_drag_marker": "ST7123_PROBE_DRAG x1=0 y1=1279 x2=719 y2=0 moves=5",
+        "controller_timing": {
+          "completion": "guest-observed",
+          "guest_drag_ms": 360,
+          "moves_acknowledged": 5
+        },
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "release_observed": true
+      },
+      {
+        "guest_positions": [
+          [
+            719,
+            0
+          ],
+          [
+            575,
+            255
+          ],
+          [
+            431,
+            511
+          ],
+          [
+            287,
+            767
+          ],
+          [
+            143,
+            1023
+          ],
+          [
+            0,
+            1279
+          ]
+        ],
+        "guest_duration_us": 362013,
+        "guest_drag_marker": "ST7123_PROBE_DRAG x1=719 y1=0 x2=0 y2=1279 moves=5",
+        "controller_timing": {
+          "completion": "guest-observed",
+          "guest_drag_ms": 360,
+          "moves_acknowledged": 5
+        },
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "release_observed": true
+      }
+    ],
+    "cleanup": {
+      "stopped": true,
+      "flash_released": true,
+      "lease_count_restored": true
+    }
+  },
+  "single_worker_original_regressions": {
+    "single_service": true,
+    "runtime_artifacts": {
+      "esp_emu": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "gt911": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "st7123": "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d"
+    },
+    "cases": {
+      "arduventure": {
+        "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+        "normalized_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+        "status": "PASS",
+        "selected_board": "st7123",
+        "display_backend": "esp-emu-dsi",
+        "touches": [
+          {
+            "label": "blank",
+            "coords": [
+              338,
+              685
+            ],
+            "before": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+            "after": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          },
+          {
+            "label": "speed",
+            "coords": [
+              358,
+              548
+            ],
+            "before": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+            "after": "77d55abdf419e4d5b33bebf8062fcadde861a4f069ef8ee053ab468a6e47af92",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          },
+          {
+            "label": "b",
+            "coords": [
+              530,
+              770
+            ],
+            "before": "77d55abdf419e4d5b33bebf8062fcadde861a4f069ef8ee053ab468a6e47af92",
+            "after": "5b950e975616b0e28f9bf4a118f5cf6b52885217e20a9325b149bf6e58d180be",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          },
+          {
+            "label": "b",
+            "coords": [
+              530,
+              770
+            ],
+            "before": "5b950e975616b0e28f9bf4a118f5cf6b52885217e20a9325b149bf6e58d180be",
+            "after": "6cdbfa95b3b459554557a2908da5728f1c6a1e2d5d797a2c4d78be29b1818a58",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          },
+          {
+            "label": "right",
+            "coords": [
+              280,
+              850
+            ],
+            "before": "6cdbfa95b3b459554557a2908da5728f1c6a1e2d5d797a2c4d78be29b1818a58",
+            "after": "8f4f95ed83dffb9f443a0b91059771088bc669cd7c343773f3dd7697ebe07b58",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            },
+            "game_cursor_after": [
+              0,
+              1
+            ]
+          },
+          {
+            "label": "down",
+            "coords": [
+              180,
+              950
+            ],
+            "before": "8f4f95ed83dffb9f443a0b91059771088bc669cd7c343773f3dd7697ebe07b58",
+            "after": "02d73e9c700e90a5c8963d7f19252fd51a589dc51930d40c204203ccc73c7470",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            },
+            "game_cursor_after": [
+              1,
+              1
+            ]
+          },
+          {
+            "label": "left",
+            "coords": [
+              80,
+              850
+            ],
+            "before": "02d73e9c700e90a5c8963d7f19252fd51a589dc51930d40c204203ccc73c7470",
+            "after": "87a59f1d76622639f6a8d7a8752f51ec8efb3b5af9991f44029289ec52577d7c",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            },
+            "game_cursor_after": [
+              1,
+              0
+            ]
+          },
+          {
+            "label": "up",
+            "coords": [
+              180,
+              750
+            ],
+            "before": "87a59f1d76622639f6a8d7a8752f51ec8efb3b5af9991f44029289ec52577d7c",
+            "after": "6cdbfa95b3b459554557a2908da5728f1c6a1e2d5d797a2c4d78be29b1818a58",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            },
+            "game_cursor_after": [
+              0,
+              0
+            ]
+          },
+          {
+            "label": "b",
+            "coords": [
+              530,
+              770
+            ],
+            "before": "6cdbfa95b3b459554557a2908da5728f1c6a1e2d5d797a2c4d78be29b1818a58",
+            "after": "26934621c88a396fbdb7eb7349bf71bafa00d77bb8b735bdc984e4f4363fb33e",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          },
+          {
+            "label": "a",
+            "coords": [
+              530,
+              970
+            ],
+            "before": "26934621c88a396fbdb7eb7349bf71bafa00d77bb8b735bdc984e4f4363fb33e",
+            "after": "6cdbfa95b3b459554557a2908da5728f1c6a1e2d5d797a2c4d78be29b1818a58",
+            "controller_reports": {
+              "reports": 2,
+              "acknowledged": 2
+            }
+          }
+        ],
+        "blank_control_region_stayed_equal": true,
+        "speed_control_transition": "1x to 2x",
+        "b_opened_genuine_new_game_name_entry": true,
+        "game_name_confirm_and_delete": true,
+        "right_hold": {
+          "raw": [
+            280,
+            850
+          ],
+          "game_cursor_after": [
+            0,
+            5
+          ],
+          "timing": {
+            "completion": "guest-observed",
+            "hold_seconds": 1.2,
+            "guest_hold_ms": 1200,
+            "refresh_acknowledged": 74
+          },
+          "after_sha256": "f79a3ce2b489650196e13ac91c5df3284c6ae3591411bb8cceae4fbb778bcec6"
+        },
+        "observed_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "serial_sha256": "3293c153dc9ca82f403689be1c91c5ddffe4d61b7dd934adaebc77b4b3afacd1",
+        "verified_evidence_sha256": "b183dadb6eac2288ee31a32805d4c343e5316f1994b81d88e778a873d93c586c",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "remaining_leases": 0
+        }
+      },
+      "carplay": {
+        "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+        "normalized_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+        "status": "PASS",
+        "selected_board": "gt911-ili9881c",
+        "display_backend": "esp-emu-dsi",
+        "blank_drag_controller_reports": {
+          "reports": 24,
+          "acknowledged": 24
+        },
+        "confirm_modal_sha256": "bf357f04e40dc9cb76f7e34df7b94a45a89f97da7df26f813fac35577103eed3",
+        "observed_frame_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+        "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+        "verified_evidence_sha256": "6515f75eed37ad1db2414759070af517f65d64db4f5420ec8229abaa5402d1cc",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "remaining_leases": 0
+        }
+      }
+    },
+    "status": "PASS",
+    "isolated_service_exited": true
+  }
+}
