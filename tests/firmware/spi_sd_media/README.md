@@ -110,6 +110,12 @@ That observation covers SD ROM import progress. The
 [observations](spi-capacity-summary.json) bind exact seed, firmware and runtime
 hashes and include the PaperDIY reset and no-ROM/no-media controls.
 
+## Cardputer GP-SPI interrupt routing
+
+The [K132 IRQ probe](cardputer_irq_route/README.md) checks the isolated
+completion sources while each controller clears its own status. It also
+records exact original NC1020 storage and display observations after 0224.
+
 ## NC1020 original save and reload
 
 Use the exact merged original and a writable FAT32 card without replacement

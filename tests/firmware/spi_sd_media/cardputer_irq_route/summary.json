@@ -1,0 +1,278 @@
+{
+  "validation": "virtual-device validation",
+  "device": "cardputer",
+  "source_service_commit": "8c65905e466c69a62239371f1fcd254c183b0712",
+  "patch_sha256": "aa1c323bc6840de516e46a75bab78d7e1a33842893e759a808d561da9b302378",
+  "irq_separation": {
+    "frozen": {
+      "status": "FAIL",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "firmware_sha256": "71d21e4aa813c4e94bc9101b79761752805b9fbdc1367938f777df5ee007b977",
+      "samples": [
+        {
+          "host": "2",
+          "assigned_cpu_interrupt_mask": "00000100",
+          "pending_after_transfer": "00000300",
+          "pending_after_other_ack": "00000000",
+          "pending_after_own_ack": "00000000",
+          "raw_after_other_ack": "1"
+        },
+        {
+          "host": "3",
+          "assigned_cpu_interrupt_mask": "00000200",
+          "pending_after_transfer": "00000300",
+          "pending_after_other_ack": "00000000",
+          "pending_after_own_ack": "00000000",
+          "raw_after_other_ack": "1"
+        }
+      ],
+      "evidence_zip_sha256": "9110d873524a13224b5323d8cbe8974e0d074dbd8d2328a83bc216473de252ce",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "candidate": {
+      "status": "PASS",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "firmware_sha256": "71d21e4aa813c4e94bc9101b79761752805b9fbdc1367938f777df5ee007b977",
+      "samples": [
+        {
+          "host": "2",
+          "assigned_cpu_interrupt_mask": "00000100",
+          "pending_after_transfer": "00000100",
+          "pending_after_other_ack": "00000100",
+          "pending_after_own_ack": "00000000",
+          "raw_after_other_ack": "1"
+        },
+        {
+          "host": "3",
+          "assigned_cpu_interrupt_mask": "00000200",
+          "pending_after_transfer": "00000200",
+          "pending_after_other_ack": "00000200",
+          "pending_after_own_ack": "00000000",
+          "raw_after_other_ack": "1"
+        }
+      ],
+      "evidence_zip_sha256": "845372be69c50497084cf404be98ce8fe4414c0aec7fb25d6bc3592714bad152",
+      "cleanup": "stopped, released, zero leases"
+    }
+  },
+  "candidate_stock": {
+    "factory-v09": {
+      "firmware_sha256": "5a80d85877ca82feb888d404fd0a22659f1f5049bbf6db7615bf9c5b722923cb",
+      "status": "PASS",
+      "input_qcode": "a",
+      "evidence_sha256": "62c337b131b6b724bcb5413be09a39360ca3868dd1766c0b850f85270ace2f78",
+      "leases_zero": true
+    },
+    "factory-v08": {
+      "firmware_sha256": "76cfa4cb8b6ba639e35b8de2489c75c5a6d677fe22982cb926aaf6dbf651992e",
+      "status": "PASS",
+      "input_qcode": "q",
+      "evidence_sha256": "536f54e046ba145eb794c9a6bfe68c12d907f706f4e0a733bb1ed92cedaa583d",
+      "leases_zero": true
+    },
+    "uiflow2-v254": {
+      "firmware_sha256": "d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309",
+      "status": "PASS",
+      "input_qcode": "f12",
+      "evidence_sha256": "9c79730b456fd0056921b98fa4d3e8cf4f585103023fe0d5b20ec49d7590b20d",
+      "leases_zero": true
+    }
+  },
+  "original": {
+    "candidate_untraced": {
+      "visual_status": "PARTIAL",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+      "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+      "tracing": "disabled",
+      "heartbeat_count": 490,
+      "first_completed_lcd_draw_guest_ms": null,
+      "import_and_same_guest_g0": "PASS",
+      "rom_banks": 206,
+      "rom_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+      "nor_bytes": 524288,
+      "nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+      "retained_save": {
+        "bytes": 99384,
+        "sha256": "9a7aadcae8f6826c2d3a973c9b5ba01821c8b450f7a28effef9290a9e08ee8ce"
+      },
+      "frames": [
+        {
+          "sha256": "ac918376c241c33c5c1c66fc7ee3234973e1459d595c8075b21ee871feebe7b9",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 720
+        },
+        {
+          "sha256": "ac918376c241c33c5c1c66fc7ee3234973e1459d595c8075b21ee871feebe7b9",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 720
+        },
+        {
+          "sha256": "ac918376c241c33c5c1c66fc7ee3234973e1459d595c8075b21ee871feebe7b9",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 720
+        }
+      ],
+      "evidence_zip_sha256": "2b7e5474934111f82c1234c2c9c8ca4c0e2b2d2c8a61fe9d2e1e4bfe0c16d73c",
+      "cleanup": "stopped, released, zero leases"
+    },
+    "frozen_one_shot": {
+      "visual_status": "PARTIAL",
+      "runtime_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+      "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+      "tracing": "disabled",
+      "heartbeat_count": 451,
+      "first_completed_lcd_draw_guest_ms": null,
+      "import_and_same_guest_g0": "PASS",
+      "rom_banks": 206,
+      "rom_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+      "nor_bytes": 524288,
+      "nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+      "retained_save": {
+        "bytes": 99384,
+        "sha256": "d37a564f1a47f35efcb7969f9b65894965197e75a68c6cae47765a526a5ef63b"
+      },
+      "frames": [
+        {
+          "sha256": "e1235c3030519bc1b01f13547d48f5d18d56136ecc3f730deee8b84018035f0d",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 2180
+        },
+        {
+          "sha256": "e1235c3030519bc1b01f13547d48f5d18d56136ecc3f730deee8b84018035f0d",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 2180
+        },
+        {
+          "sha256": "e1235c3030519bc1b01f13547d48f5d18d56136ecc3f730deee8b84018035f0d",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 2180
+        }
+      ],
+      "evidence_zip_sha256": "77fa7118bf3baaa2ddc49448d5e26a319714574a70d98720dc5518ba7a247290",
+      "cleanup": "stopped, released, zero leases",
+      "one_shot_read_only_registers_before_g0": {
+        "spi2": {
+          "cmd_user": false,
+          "data_length_bits": 1920,
+          "trans_done_enable": true,
+          "trans_done_raw": true,
+          "trans_done_status": true
+        },
+        "spi3": {
+          "cmd_user": false,
+          "data_length_bits": 8,
+          "trans_done_enable": true,
+          "trans_done_raw": true,
+          "trans_done_status": true
+        },
+        "cpu_source_routes": [
+          [
+            6,
+            6
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    "candidate_one_shot": {
+      "visual_status": "PARTIAL",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+      "sd_image_sha256": "2a3d4020fcc8c4098d8f04308d9440c27c17905bc07f7fa8eebe656a42865f5e",
+      "tracing": "disabled",
+      "heartbeat_count": 469,
+      "first_completed_lcd_draw_guest_ms": null,
+      "import_and_same_guest_g0": "PASS",
+      "rom_banks": 206,
+      "rom_sha256": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+      "nor_bytes": 524288,
+      "nor_sha256": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4",
+      "retained_save": {
+        "bytes": 99384,
+        "sha256": "931dd3f098e828d576b0c94c42899c8bc6944031d7a1a3d5d9ce3b3c9e9777be"
+      },
+      "frames": [
+        {
+          "sha256": "581e81782f298f971651e671c5cb164e6b366bc0db9a24b0d6839ad159e1c4fc",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 16973
+        },
+        {
+          "sha256": "581e81782f298f971651e671c5cb164e6b366bc0db9a24b0d6839ad159e1c4fc",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 16973
+        },
+        {
+          "sha256": "581e81782f298f971651e671c5cb164e6b366bc0db9a24b0d6839ad159e1c4fc",
+          "size": [
+            240,
+            135
+          ],
+          "nonblack": 16973
+        }
+      ],
+      "evidence_zip_sha256": "bdd8a887992affc264d424b53847288458df32b0162bcb9239870335ae56978c",
+      "cleanup": "stopped, released, zero leases",
+      "one_shot_read_only_registers_before_g0": {
+        "spi2": {
+          "cmd_user": false,
+          "data_length_bits": 1920,
+          "trans_done_enable": true,
+          "trans_done_raw": true,
+          "trans_done_status": true
+        },
+        "spi3": {
+          "cmd_user": false,
+          "data_length_bits": 8,
+          "trans_done_enable": true,
+          "trans_done_raw": true,
+          "trans_done_status": true
+        },
+        "cpu_source_routes": [
+          [
+            6,
+            6
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    }
+  },
+  "scope": "Separate GP-SPI IRQ delivery PASS. Untraced original NC1020 first-frame stability remains PARTIAL.",
+  "not_run": [
+    "physical hardware",
+    "browser-WASM"
+  ]
+}
