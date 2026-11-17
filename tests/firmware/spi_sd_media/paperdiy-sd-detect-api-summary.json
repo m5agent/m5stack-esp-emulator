@@ -112,6 +112,35 @@
       "bundle_crc_verified": true,
       "session_final_state": "stopped",
       "runtime_process_exited": true
+    },
+    "native_model_with_card_after_guest_reset": {
+      "status": "PASS",
+      "reset_operation": "POST /api/v1/sessions/{id}/reset after first STORAGE_PROBE_DONE",
+      "reset_same_qemu_process": true,
+      "sd_source_unchanged": true,
+      "spi_commands": {
+        "17": 35,
+        "18": 0,
+        "24": 14,
+        "25": 0
+      },
+      "written_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE",
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=1",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "b18d2236ab0779bf28c853b05959fd8ada096a650d73d8659498b9a92129bb25",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "worker_active_leases": 0,
+      "isolated_service_exited": true
     }
   },
   "limits": [
