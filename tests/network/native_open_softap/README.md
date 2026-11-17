@@ -72,3 +72,19 @@ flows in the finalized capture. A separate run without input must show
 zero auth and association responses, DORA exchanges, and TCP flows.
 See the [StickS3 evidence](sticks3-button-summary.json) for exact artifact
 hashes and the no-input and wrong-button observations.
+
+## Saved-snapshot review
+
+With the Device Service 1.82 capability published for the board, an existing
+saved firmware can request the same fixture through the Reviewer. Send
+`validation.native_softap_fixture=true` in the saved-snapshot retry. For
+StickS3, add `pre_network_steps` with the GPIO11 idle marker, the BtnA hold,
+and the GPIO11 enter marker described above. The reviewer runs those checks
+immediately after the native session starts and before waiting for a frame.
+
+The [saved review evidence](saved-review-summary.json) contains the observed
+phases and finalized capture identities. The stopped session ZIP retains
+the exact PCAP and fixture receipt, and the reviewer checks them against the
+session and firmware. The BtnB control retains its failed GPIO11 gate and
+zero captured DHCP/TCP exchanges. For this headless probe the application
+network check and the display readiness check remain independently visible.

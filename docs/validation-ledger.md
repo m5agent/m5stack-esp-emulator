@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 保存快照的原生隔离热点
+
+[同会话审核和最终抓包](../tests/network/native_open_softap/saved-review-summary.json)
+绑定 Cardputer、ADV 和 StickS3 的固定本地 DHCP、ARP 和 HTTP 响应。StickS3 正面
+A 键通过 GPIO11 检查后启动热点，侧面 B 键被来宾忽略，前置检查保留为部分验证。
+Headless 夹具的画面未就绪，与局部网络结论分别记录。同一原版 Assistant 的回归
+覆盖门户表单、STA DHCP 和 ARP。
+
 ## 2026-11-18 NC1020 同 Flash 显示对照与跨服务恢复
 
 [原版与 SDK 探针证据](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)

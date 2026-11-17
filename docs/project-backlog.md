@@ -65,6 +65,8 @@
    已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。开放式 ESP-IDF 夹具已通过
    [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)；
    StickS3 夹具另有[按键触发和复位对照](../tests/network/native_open_softap/sticks3-button-summary.json)。
+   [保存快照热点审核](../tests/network/native_open_softap/saved-review-summary.json)在 Cardputer、
+   ADV 和 StickS3 接入同会话的固定 HTTP 夹具，并区分前置按键和数据面结果。
    按板型补 Wi-Fi 事件和应用
    断言，保持现有网络授权及隔离约束。
 4. **P0 Tab5 取帧与输入**。[Arduventure 原版取帧与 GT911 单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)已走匹配板型和实际输入。[ST7123 单点](evidence/2026-11-17-tab5-st7123-touch/README.md)已验证 Arduventure A/B 与四方向。继续对照 M5TabOS/98TAB5 启动路径，[ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已验证连续触点和原版关机请求；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已验证 ST7123 单点轨迹与释放；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已验证原版 Arduventure 关机和显式重启；继续补原版 ST7123 拖动语义、多点、其他板型电源路径、
