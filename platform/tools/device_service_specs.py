@@ -6,6 +6,7 @@ from functools import lru_cache
 import json
 import os
 from pathlib import Path
+import stat
 import subprocess
 from typing import Any
 
@@ -24,8 +25,9 @@ SERVICE_MEMORY_OVERRIDES = {"core2": "8"}
 # an SD peripheral that is still planned or lacks card-detect support.
 SPI_SD_DEVICE_IDS = frozenset({
     "core2", "cores3", "cardputer", "cardputer-adv", "papercolor",
-    "papers3",
+    "papers3", "paperdiy",
 })
+QEMU_PROBE_TIMEOUT = 2
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -103,13 +105,67 @@ def backend_rom_dir(backend_id: str, configured: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+def _qemu_file_identity(binary: Path) -> tuple[int, ...]:
+    info = binary.stat()
+    if not stat.S_ISREG(info.st_mode):
+        raise OSError(f"QEMU executable is not a regular file: {binary}")
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+
 @lru_cache(maxsize=16)
 def _qemu_machine_names(binary: Path, _file_identity: tuple[int, ...]) -> frozenset[str]:
     output = subprocess.run(
         [str(binary), "-machine", "help"], check=True, capture_output=True,
-        timeout=2, text=True, encoding="utf-8", errors="replace",
+        timeout=QEMU_PROBE_TIMEOUT, text=True, encoding="utf-8", errors="replace",
     ).stdout
     return frozenset(line.split()[0] for line in output.splitlines() if line.strip())
+
+
+@lru_cache(maxsize=32)
+def _qemu_qom_properties(
+    binary: Path,
+    _file_identity: tuple[int, ...],
+    typename: str,
+) -> frozenset[tuple[str, str]]:
+    commands = (
+        {"execute": "qmp_capabilities"},
+        {"execute": "qom-list-properties", "arguments": {"typename": typename}, "id": "properties"},
+        {"execute": "quit"},
+    )
+    output = subprocess.run(
+        [str(binary), "-M", "none", "-S", "-display", "none", "-qmp", "stdio"],
+        input="".join(json.dumps(command) + "\n" for command in commands),
+        check=True, capture_output=True, timeout=QEMU_PROBE_TIMEOUT,
+        text=True, encoding="utf-8",
+    ).stdout
+    for line in output.splitlines():
+        if not line.strip():
+            continue
+        message = json.loads(line)
+        if isinstance(message, dict) and message.get("id") == "properties":
+            properties = message.get("return")
+            if isinstance(properties, list):
+                return frozenset(
+                    (row["name"], row["type"])
+                    for row in properties
+                    if isinstance(row, dict)
+                    and isinstance(row.get("name"), str)
+                    and isinstance(row.get("type"), str)
+                )
+            break
+    raise ValueError(f"missing QMP property list for {typename}")
+
+
+def qemu_has_qom_property(
+    binary: Path, typename: str, name: str, property_type: str
+) -> bool:
+    """Discover a property on the configured QEMU binary without booting a guest."""
+    try:
+        return (name, property_type) in _qemu_qom_properties(
+            binary, _qemu_file_identity(binary), typename
+        )
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return False
 
 
 def core2_radio_qemu_path() -> Path:
@@ -180,6 +236,15 @@ class DeviceSpec:
 
     @property
     def has_sd_card(self) -> bool:
+        if self.id == "paperdiy":
+            return (
+                self.service_kind == "qemu"
+                and self.machine == "m5paperdiy"
+                and "sd-card-spi" in self.peripherals
+                and qemu_has_qom_property(
+                    self.qemu, "m5paperdiy-machine", "sd-card-detect-model", "bool"
+                )
+            )
         if self.id in SPI_SD_DEVICE_IDS:
             return any(model in self.peripherals for model in ("sd", "sd-card-spi"))
         return "sd" in self.peripherals
@@ -216,9 +281,7 @@ class DeviceSpec:
         if not self.require_machine_probe or not self.qemu.is_file():
             return None
         try:
-            stat = self.qemu.stat()
-            identity = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
-            if self.machine in _qemu_machine_names(self.qemu, identity):
+            if self.machine in _qemu_machine_names(self.qemu, _qemu_file_identity(self.qemu)):
                 return None
         except (OSError, subprocess.SubprocessError):
             pass

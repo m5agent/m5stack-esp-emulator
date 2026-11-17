@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import subprocess
 import sys
 import tempfile
 from unittest import mock
@@ -113,6 +114,60 @@ class DeviceServiceSpecTests(unittest.TestCase):
                     "does not point to an executable",
                 ):
                     device_service_specs.load_device_specs()
+
+    def test_qom_probe_checks_exact_property_and_refreshes_when_binary_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            qemu = Path(directory) / "qemu"
+            qemu.write_bytes(b"first")
+            marker = "sd-card-detect-model"
+            typename = "m5paperdiy-machine"
+            response = {
+                "id": "properties",
+                "return": [{"name": marker, "type": "bool"}],
+            }
+            with mock.patch.object(device_service_specs.subprocess, "run") as run:
+                run.return_value.stdout = json.dumps(response) + "\n"
+                self.assertTrue(device_service_specs.qemu_has_qom_property(
+                    qemu, typename, marker, "bool"
+                ))
+                self.assertFalse(device_service_specs.qemu_has_qom_property(
+                    qemu, typename, marker, "str"
+                ))
+                run.assert_called_once()
+                commands = [
+                    json.loads(line)
+                    for line in run.call_args.kwargs["input"].splitlines()
+                ]
+                self.assertEqual(commands[1]["arguments"], {"typename": typename})
+                self.assertEqual(run.call_args.args[0][1:5], ["-M", "none", "-S", "-display"])
+                self.assertEqual(run.call_args.kwargs["timeout"], device_service_specs.QEMU_PROBE_TIMEOUT)
+
+                replacement = qemu.with_name("replacement")
+                replacement.write_bytes(b"other")
+                replacement.replace(qemu)
+                response["return"] = []
+                run.return_value.stdout = json.dumps(response) + "\n"
+                self.assertFalse(device_service_specs.qemu_has_qom_property(
+                    qemu, typename, marker, "bool"
+                ))
+                self.assertEqual(run.call_count, 2)
+
+    def test_qom_probe_fails_closed_on_missing_timeout_and_invalid_protocol(self):
+        with tempfile.TemporaryDirectory() as directory:
+            qemu = Path(directory) / "qemu"
+            args = (qemu, "m5paperdiy-machine", "sd-card-detect-model", "bool")
+            with mock.patch.object(device_service_specs.subprocess, "run") as run:
+                self.assertFalse(device_service_specs.qemu_has_qom_property(*args))
+                run.assert_not_called()
+                qemu.write_bytes(b"test")
+                run.side_effect = subprocess.TimeoutExpired(str(qemu), 2)
+                self.assertFalse(device_service_specs.qemu_has_qom_property(*args))
+                run.side_effect = None
+                for output in ("invalid JSON", '{"return":[],"id":"quit"}'):
+                    with self.subTest(output=output):
+                        run.return_value.stdout = output
+                        self.assertFalse(device_service_specs.qemu_has_qom_property(*args))
+                self.assertEqual(run.call_count, 3)
 
 
 if __name__ == "__main__":

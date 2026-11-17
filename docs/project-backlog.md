@@ -43,10 +43,9 @@
 1. **P0 语义输入**。给审查动作绑定具体板型的按键、键盘、组合键、触摸和编码器。
    原生键位以控制器和 guest 驱动读回验收。Dial 仍需区分正交引脚实际交付和
    UIFlow2 RotaryIRQ 的应用计数；已验证显式 35/50 ms，默认高速应用计数仍开放。
-2. **P0 存储**。SD 镜像导出、UIFlow2 LittleFS 与 ESP-IDF SPIFFS 已有已知原生数据面验证。
-   PaperDIY 还需接通 CARD_DET，StickS3/Dial 外接卡需要独立接线建模。补 ESP-IDF
-   LittleFS guest 复验，并用具备再分发或本地测试权限的 fixture 验证原版 nc1020、
-   CardputerDict 等应用路径。
+2. **P0 存储**。补 ESP-IDF LittleFS 真实来宾挂载，并用具备再分发或本地测试权限的
+   fixture 验证原版 nc1020、CardputerDict 等的应用路径。PaperDIY 会话内热插拔需要
+   实现介质切换和 GPIO48 电平变化。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。按板型验证 Wi-Fi STA/AP、配置顺序、DNS/HTTP/TCP/UDP
    fixture、pcap 和关联事件；优先 Cardputer/ADV、按键进入配网的 StickS3。
    保持现有网络授权及隔离约束。

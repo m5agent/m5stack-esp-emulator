@@ -4647,7 +4647,11 @@ components:
         a modeled SPI or SDMMC interface. The artifact is copied into the
         session directory and hashed again before QEMU starts. Core2, CoreS3,
         Cardputer, Cardputer-ADV, PaperColor and PaperS3 use their
-        board-wired SPI SD endpoint. SDMMC profiles use writable `if=sd`.
+        board-wired SPI SD endpoint. PaperDIY uses SPI on native QEMU builds
+        that expose the read-only sd-card-detect-model machine property.
+        Older binaries report features.storage false for PaperDIY and reject
+        SD fixtures with storage_not_supported. Attach at session creation.
+        SDMMC profiles use writable `if=sd`.
         Requires a QEMU guest runtime. The separate network diagnostic lane
         rejects SD fixtures with storage_not_supported. Storage metadata
         reports the selected interface. The source artifact is never mounted

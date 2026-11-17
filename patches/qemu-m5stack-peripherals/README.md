@@ -1643,3 +1643,17 @@ speed. Guest firmware remains responsible for reading those pins and counting.
 
 Apply 0206 after 0205 in the native Xtensa recipe. Browser-WASM and legacy
 native defaults retain their existing rate.
+
+## PaperDIY SPI SD card detect (0208)
+
+PaperDIY GPIO48 is the active-low CARD_DET signal. The board drives it low
+only when the existing SPI SD model has opened valid sector-aligned media.
+PaperS3 still uses GPIO48 for touch. The PaperDIY machine exposes the read-only
+boolean `sd-card-detect-model` property to identify this model before making
+storage available. A property value of true identifies the wiring model
+for both populated and empty sockets. Use `qom-list-properties` for
+`m5paperdiy-machine` for a no-guest capability probe.
+
+Apply 0208 after 0206 in the native Xtensa recipe. The same [ESP-IDF probe
+and FAT fixture](../../tests/firmware/spi_sd_media/README.md) retain the
+control without 0208 and the candidate with and without media.

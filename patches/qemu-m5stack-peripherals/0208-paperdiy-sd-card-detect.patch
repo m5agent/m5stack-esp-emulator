@@ -1,0 +1,83 @@
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -487,9 +487,12 @@
+     return s;
+ }
+ 
+-void m5_spi_sd_attach(DeviceState *spi, int cs_pin)
+-{
+-    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, m5_spi_sd_create(), cs_pin);
++bool m5_spi_sd_attach(DeviceState *spi, int cs_pin)
++{
++    M5SpiSdState *s = m5_spi_sd_create();
++
++    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, s, cs_pin);
++    return s->image != NULL;
+ }
+ 
+ void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin)
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -171,7 +171,7 @@
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+-void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++bool m5_spi_sd_attach(DeviceState *spi, int cs_pin);
+ void m5_spi_sd_attach_classic(DeviceState *spi_a, DeviceState *spi_b, int cs_pin);
+ /* FLIR Lepton 3.0 VoSPI model attached to a classic ESP32 SPI controller. */
+ void m5_lepton_attach_spi(DeviceState *dev, DeviceState *spi);
+diff --git a/hw/m5stopwatch/m5paper_et047.c b/hw/m5stopwatch/m5paper_et047.c
+--- a/hw/m5stopwatch/m5paper_et047.c
++++ b/hw/m5stopwatch/m5paper_et047.c
+@@ -435,6 +435,7 @@
+     }
+     m5stopwatch_soft_i2c_init_pins(bus, 41, 42);
+ 
++    bool sd_inserted = false;
+     /*
+      * The factory firmware tries the empty socket unconditionally. Map
+      * GP-SPI even when there is no media, so command completion and the
+@@ -448,7 +449,7 @@
+         sysbus_connect_irq(SYS_BUS_DEVICE(spi), 0,
+                            qdev_get_gpio_in(intmatrix, spi_irq[i]));
+         esp32s3_gpspi_attach(spi, gdma, NULL, NULL, spi_dma[i]);
+-        m5_spi_sd_attach(spi, 47);
++        sd_inserted |= m5_spi_sd_attach(spi, 47);
+     }
+ 
+     DeviceState *panel = qdev_new(TYPE_M5_PAPER_ET047);
+@@ -456,7 +457,8 @@
+     et->diy = diy;
+     if (diy) {
+         et->pm1 = paper_i2c_device(bus, "m5pm1", 0x6e);
+-        esp32_gpio_force_line(48, 1); /* Empty microSD detect, active low. */
++        /* CARD_DET is active low and depends on the SD model's opened media. */
++        esp32_gpio_force_line(48, !sd_inserted);
+     } else {
+         paper_i2c_device(bus, "pcf8563", 0x51);
+         paper_i2c_device(bus, "bmi270", 0x68);
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1457,9 +1457,18 @@
+     esp32s3_machine_init(machine);
+ }
+ 
++static bool m5paperdiy_sd_card_detect_model(Object *obj, Error **errp)
++{
++    return true;
++}
++
+ static void m5paperdiy_machine_class_init(ObjectClass *oc, void *data)
+ {
+     MachineClass *mc = MACHINE_CLASS(oc);
++    object_class_property_add_bool(oc, "sd-card-detect-model",
++                                   m5paperdiy_sd_card_detect_model, NULL);
++    object_class_property_set_description(oc, "sd-card-detect-model",
++                                          "CARD_DET follows attached SPI SD media");
+     mc->desc = "M5Stack PaperDIY (ESP32-S3R8, ET047TC1 540x960)";
+     mc->init = m5paperdiy_machine_init;
+     mc->max_cpus = 2;

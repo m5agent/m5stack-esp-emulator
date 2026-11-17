@@ -1267,7 +1267,8 @@
         "papercolor",
         "core2",
         "cardputer",
-        "papers3"
+        "papers3",
+        "paperdiy"
       ]
     },
     "usb-host": {
@@ -4178,8 +4179,7 @@
         {
           "id": "sd",
           "model": "sd-card-spi",
-          "gpio": 47,
-          "status": "partial"
+          "gpio": 47
         }
       ],
       "peripheral_blockers": [
@@ -4190,10 +4190,6 @@
         {
           "model": "pwr-button",
           "reason": "The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated."
-        },
-        {
-          "model": "sd-card-spi",
-          "reason": "The factory demo reaches the empty-slot SPI path; a mounted image, card-detect transitions and sector transfers were not validated."
         }
       ]
     }

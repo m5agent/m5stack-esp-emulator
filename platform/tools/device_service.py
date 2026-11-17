@@ -5336,6 +5336,12 @@ class DeviceSession:
         # SoC SDMMC model. Never inherit an unrelated host/session disk path.
         env.pop("M5SW_SPI_SD_IMAGE", None)
         if self.storage_config:
+            if self.spec.id == "paperdiy" and not self.spec.has_sd_card:
+                raise ServiceError(
+                    "storage_not_supported",
+                    "PaperDIY requires a native SPI SD card-detect model",
+                    409,
+                )
             env["M5SW_SPI_SD_IMAGE"] = str(self.sd_card_image)
 
     def _apply_profile_qom(

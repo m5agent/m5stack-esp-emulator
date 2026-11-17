@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "device": "paperdiy",
+  "native_scope": "same source with only patch 0208 toggled; both include patches 0205 and 0206",
+  "qemu_source_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "native_patch_sha256": "d9141aff74f0458409ab8760b2e1dec6768453ec16f227f1c065ae912803cecd",
+  "esp_idf_source": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "probe_source_sha256": "7f9cbaebb917e183ebebcb57061aaafeccee91276c8b5dabe76c03c3c0ca07a9",
+  "vendor_pin_map": "https://docs.m5stack.com/en/core/PaperDIY_Complete_Kit#microsd",
+  "cases": [
+    {
+      "test_scenario": "control-card",
+      "qemu_sha256": "ba82940a88e7a6418abc31df5411ecbcfaa6845fb5a8f90c9bf1a6b2fbb575a8",
+      "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "fixture_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "qmp_model_available": false,
+      "private_service_stage": {
+        "service_source_head": "dbddd47db4ab8d6c66e569d98dcdcca755f14e65",
+        "private_admission_override": "paperdiy enabled only in isolated test source for native A/B, including historical control",
+        "service_specs_sha256": "b3ffd19194d9887e648c6d85acaf46b63db1018b0bf3c49bad35c83290609e8b",
+        "service_code_sha256": "90e1fb25b5cc57e35aad06536f727d29d62808373e7bdfaae7f07735754cfef7"
+      },
+      "spi_commands": {
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      "written_sd_sha256": null,
+      "source_card_unchanged": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=1",
+        "STORAGE_PROBE_NO_CARD",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "321864d4f37fc1e017ec182842505a85a5a4937270991c8491f05e15a23237d1",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "worker_active_leases": 0,
+      "status": "PASS",
+      "isolated_service_exited": true
+    },
+    {
+      "test_scenario": "candidate-empty",
+      "qemu_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "fixture_sha256": null,
+      "qmp_model_available": true,
+      "private_service_stage": {
+        "service_source_head": "dbddd47db4ab8d6c66e569d98dcdcca755f14e65",
+        "private_admission_override": "paperdiy enabled only in isolated test source for native A/B, including historical control",
+        "service_specs_sha256": "b3ffd19194d9887e648c6d85acaf46b63db1018b0bf3c49bad35c83290609e8b",
+        "service_code_sha256": "90e1fb25b5cc57e35aad06536f727d29d62808373e7bdfaae7f07735754cfef7"
+      },
+      "qmp_running_readback": true,
+      "spi_commands": {
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=1",
+        "STORAGE_PROBE_NO_CARD",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "386dddbce0c45e5f9833d4da361067dd3ff7879c16f823ad9de8042677c73099",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "worker_active_leases": 0,
+      "status": "PASS",
+      "isolated_service_exited": true
+    },
+    {
+      "test_scenario": "candidate-card",
+      "qemu_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+      "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "fixture_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "qmp_model_available": true,
+      "private_service_stage": {
+        "service_source_head": "dbddd47db4ab8d6c66e569d98dcdcca755f14e65",
+        "private_admission_override": "paperdiy enabled only in isolated test source for native A/B, including historical control",
+        "service_specs_sha256": "b3ffd19194d9887e648c6d85acaf46b63db1018b0bf3c49bad35c83290609e8b",
+        "service_code_sha256": "90e1fb25b5cc57e35aad06536f727d29d62808373e7bdfaae7f07735754cfef7"
+      },
+      "qmp_running_readback": true,
+      "spi_commands": {
+        "17": 16,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      },
+      "written_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "source_card_unchanged": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "bundle_sha256": "e5aee7f3585743d43876c622dbb3af6d07d31e435f134b8ab7f880d0428cea46",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "worker_active_leases": 0,
+      "status": "PASS",
+      "isolated_service_exited": true
+    }
+  ],
+  "not_run": [
+    "final API eligibility gate",
+    "official stock PaperDIY firmware",
+    "hot-plug",
+    "browser WASM",
+    "physical hardware"
+  ]
+}

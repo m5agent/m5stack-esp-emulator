@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-17",
+  "category": "virtual-device validation",
+  "status": "PASS",
+  "device_id": "paperdiy",
+  "board_machine": "m5paperdiy",
+  "runtime": "isolated native Device Service /api/v1, runtime=qemu, default admission",
+  "inputs": {
+    "firmware_sha256": "5d7c8d7857fccb2c638dd8685f26802684dc623d495f86322e24ba7222f776c1",
+    "firmware_source": "tests/firmware/spi_sd_media, build with PROBE_PAPERDIY=ON",
+    "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "fat32_mbr_source_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+    "fat32_source_bytes": 67108864,
+    "native_qemu_with_patch_0208_sha256": "cbc0ea74c5763a9d989562b7061516fb3489fdc4056ddce4e016d555c1b86bb2",
+    "native_qemu_without_patch_0208_sha256": "ba82940a88e7a6418abc31df5411ecbcfaa6845fb5a8f90c9bf1a6b2fbb575a8",
+    "service_source_sha256": {
+      "platform/tools/device_service.py": "a929f2160b8c0877bd213df3aaec67512a39400f13d5161a1a5fec2e356fd70c",
+      "platform/tools/device_service_specs.py": "cfc357604d5bc3a46e5c0a4d3e1721743351ed091d9698b5c497c967dace4c67",
+      "platform/tools/device_service_execution_parsing.py": "aa821f9866612fb2fff883d5d6b498a651c015a3c81b2c33e8ee20e390434127"
+    }
+  },
+  "scenarios": {
+    "native_model_with_card": {
+      "status": "PASS",
+      "features_storage": true,
+      "device_creatable": true,
+      "sd_attachment_requested": true,
+      "worker_active_leases": 0,
+      "isolated_service_exited": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=0",
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_DONE"
+      ],
+      "spi_commands": {
+        "17": 16,
+        "18": 0,
+        "24": 6,
+        "25": 0
+      },
+      "bundle_sha256": "42f03cdf9e4c64cb3702faf6b0575b181d7c6863743e429e38ec5a85f81016e2",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "source_card_unchanged": true,
+      "written_sd_sha256": "f7b18bbf8c4685de2fd804eebcf3000264e19d6edb3bd4ae0fb286423fb7e573",
+      "qmp_running_readback": true,
+      "evidence_storage_interface": "spi",
+      "evidence_source_sha256_verified": true,
+      "independent_stopped_disk_files_sha256": {
+        "/FIXTURE/ROM.BIN": "906e7515a7163f530a94524b9f9d16e8137fdc2c186839aec1d382f6c37915bd",
+        "/PROOF.BIN": "1555493f702de528b1a23fa4687f0f5bbf9e745bfde800d56cc1535ac7ee3516"
+      }
+    },
+    "native_model_without_card": {
+      "status": "PASS",
+      "features_storage": true,
+      "device_creatable": true,
+      "sd_attachment_requested": false,
+      "worker_active_leases": 0,
+      "isolated_service_exited": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=1",
+        "STORAGE_PROBE_NO_CARD",
+        "STORAGE_PROBE_DONE"
+      ],
+      "spi_commands": {
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      "bundle_sha256": "6510ef05ed8452c970a774b677b07dd04a02d294be1182a3fd91d868bc474a37",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true,
+      "qmp_running_readback": true
+    },
+    "previous_binary_rejects_card": {
+      "status": "PASS",
+      "features_storage": false,
+      "device_creatable": true,
+      "sd_attachment_requested": true,
+      "worker_active_leases": 0,
+      "isolated_service_exited": true,
+      "http_status": 409,
+      "error_code": "storage_not_supported",
+      "session_dir_count": 0,
+      "source_card_unchanged": true
+    },
+    "previous_binary_boots_without_card": {
+      "status": "PASS",
+      "features_storage": false,
+      "device_creatable": true,
+      "sd_attachment_requested": false,
+      "worker_active_leases": 0,
+      "isolated_service_exited": true,
+      "events": [
+        "PAPERDIY_CARD_DET gpio=48 level=1",
+        "STORAGE_PROBE_NO_CARD",
+        "STORAGE_PROBE_DONE"
+      ],
+      "spi_commands": {
+        "17": 0,
+        "18": 0,
+        "24": 0,
+        "25": 0
+      },
+      "bundle_sha256": "70ed03f1c01ed06b1f4fd3f06ad8acaef7fd22f52ebdd5f3301a1ed99003f23c",
+      "bundle_crc_verified": true,
+      "session_final_state": "stopped",
+      "runtime_process_exited": true
+    }
+  },
+  "limits": [
+    "The guest uses the stock ESP-IDF GPIO, SDSPI and FAT VFS drivers; no stock or community application was exercised by this test.",
+    "The image is attached at session creation. Live insertion, browser WASM and physical hardware were outside the run."
+  ]
+}
