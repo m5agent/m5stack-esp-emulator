@@ -235,7 +235,7 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(session.events[-1]["kind"], "drag")
             session._proc = session._c6_proc = None
             session._terminate_tab5()
-            self.assertIsNone(session._tab5_gt911)
+            self.assertIsNone(session._tab5_native_touch)
 
     def test_st7123_launch_keeps_hardware_i2c_and_does_not_offer_gt911_input(self):
         self.elf.write_bytes(b"wrong build")
@@ -257,10 +257,50 @@ class Tab5ServiceTests(unittest.TestCase):
         self.assertNotIn("--control-tcp", p4)
         self.assertIn("1:0x55,width=2,fill=0,reg=0x0000=0x03", p4)
         self.assertEqual(session.flash_info["tab5"]["board_probe"], "esp-emu-gpio-i2c")
-        self.assertIsNone(session._tab5_gt911)
+        self.assertIsNone(session._tab5_native_touch)
         with self.assertRaises(service_module.ServiceError) as raised:
             session.inject({"kind": "touch", "x": 120, "y": 200})
         self.assertEqual(raised.exception.code, "input_requires_matching_elf")
+
+    def test_st7123_touch_part_is_scoped_and_reports_guest_consumption(self):
+        self.elf.write_bytes(b"wrong build")
+        candidate = Path("/qualified/esp-emu")
+        self.service.tab5_dsi_emulator = str(candidate)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+        self.service.tab5_dsi_board_overrides = {self.image_sha: "st7123"}
+        self.service.tab5_st7123_touch_part = "/qualified/st7123-touch.wasm"
+        session = self.session()
+        board = session.dir / "tab5-cosim-board.json"
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
+                mock.patch.object(service_module, "stage_tab5_st7123_touch_part", return_value=board) as stage, \
+                mock.patch.object(service_module, "stage_tab5_st7123_i2c_part") as legacy, \
+                mock.patch.object(service_module, "Tab5DsiReceiver"), \
+                mock.patch.object(service_module, "Tab5St7123Touch") as controller:
+            self.provision(session)
+            sidecar, p4 = self.launch_commands(session)
+            stage.assert_called_once_with(self.service.tab5_st7123_touch_part, session.dir)
+            legacy.assert_not_called()
+            self.assertNotIn("--control-tcp", sidecar)
+            self.assertIn("--control-tcp", p4)
+            self.assertEqual(p4[p4.index("--cosim-board") + 1], str(board))
+            self.assertNotIn("--i2c-dev", p4)
+            self.assertEqual(session.flash_info["tab5"]["touch_model"], "esp-emu-st7123")
+            self.assertEqual(session.flash_info["tab5"]["touch_coordinate_space"], "panel-native")
+            with self.assertRaises(service_module.ServiceError) as invalid:
+                session.inject({"kind": "touch", "x": 720, "y": 20})
+            self.assertEqual(invalid.exception.code, "invalid_input")
+            with self.assertRaises(service_module.ServiceError) as drag:
+                session.inject({"kind": "drag", "x1": 1, "y1": 1, "x2": 20, "y2": 10})
+            self.assertEqual(drag.exception.code, "unsupported_input")
+            controller.return_value.tap.assert_not_called()
+            controller.return_value.tap.return_value = {"reports": 2, "acknowledged": 2}
+            tap = session.inject({"kind": "touch", "x": 719, "y": 1279})
+            controller.return_value.tap.assert_called_once_with(719, 1279, session._check_cancelled)
+            self.assertEqual(tap["controller"], "st7123")
+            self.assertEqual(tap["raw"], [719, 1279])
+            self.assertEqual(tap["controller_reports"], {"reports": 2, "acknowledged": 2})
+            self.assertEqual(session.events[-1]["event"], "st7123_touch_acknowledged")
 
     def test_dsi_session_launches_capture_receiver_only_for_its_p4(self):
         self.elf.write_bytes(b"wrong build")

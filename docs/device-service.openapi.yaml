@@ -2511,6 +2511,9 @@ paths:
         drag in the raw 720 by 1280 DSI frame (top-left origin). A drag takes
         integer x1, y1, x2 and y2. HTTP 409 tab5_gt911_ack_timeout means the
         guest did not acknowledge the gesture's reports through release.
+        The optional ST7123 lane accepts tap in the same raw frame space.
+        HTTP 409 tab5_st7123_ack_timeout means the guest did not read
+        both the press and release.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -2533,9 +2536,9 @@ paths:
             submission; confirm guest response or controller delivery separately.
             Encoder requests return controller.completion=queued, the target,
             selected edge interval, and prior physical state.
-            Native Tab5 GT911 gestures return coordinate_space=panel-native,
-            controller=gt911, and controller_reports counts for produced and
-            acknowledged reports after the guest consumes the final release.
+            Native Tab5 gestures return coordinate_space=panel-native,
+            controller=gt911 or controller=st7123, and controller_reports
+            counts after the guest consumes the final release.
           content:
             application/json:
               schema:

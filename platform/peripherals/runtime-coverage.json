@@ -101,6 +101,11 @@
       "test": "tests/uiflow2/run_tab5_ui_test.py",
       "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
     },
+    "tab5-st7123": {
+      "device": "tab5",
+      "test": "tests/firmware/tab5_st7123/run_service.py",
+      "evidence": "docs/evidence/2026-11-17-tab5-st7123-touch/summary.json"
+    },
     "tab5-rs485": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_rs485.py",
@@ -551,6 +556,9 @@
       "rs485"
     ],
     "tab5-peripheral-scenarios": [],
+    "tab5-st7123": [
+      "touch-st7123"
+    ],
     "core2-atecc608": [
       "atecc608"
     ],
@@ -899,11 +907,13 @@
       "external": [
         "tab5-hosted-peripherals",
         "tab5-rs485",
-        "tab5-peripheral-scenarios"
+        "tab5-peripheral-scenarios",
+        "tab5-st7123"
       ],
       "models": [
         "esp32c6-hosted",
-        "rs485"
+        "rs485",
+        "touch-st7123"
       ]
     },
     "cardputer-zero": {
@@ -1419,6 +1429,11 @@
     "encoder": {
       "external": [
         "stickt2-thermal-probe"
+      ]
+    },
+    "touch-st7123": {
+      "external": [
+        "tab5-st7123"
       ]
     },
     "touch-gt911": {

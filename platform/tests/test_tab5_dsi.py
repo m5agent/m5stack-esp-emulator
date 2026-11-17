@@ -16,10 +16,12 @@ from device_service_tab5_dsi import (
     REGISTER_VC0,
     Tab5DsiReceiver,
     Tab5Gt911Touch,
+    Tab5St7123Touch,
     _fields,
     _read_message,
     stage_tab5_gt911_part,
     stage_tab5_st7123_i2c_part,
+    stage_tab5_st7123_touch_part,
     parse_tab5_board_overrides,
     tab5_dsi_board_devices,
     tab5_dsi_runtime,
@@ -84,6 +86,33 @@ class Tab5DsiTests(unittest.TestCase):
             "part gt911 input move:420,680 at 340", "part gt911 input move:520,840 at 400",
             "part gt911 input move:620,1000 at 460", "part gt911 input up at 520",
         ])
+
+    def test_st7123_tap_recovers_after_expired_unread_reports(self):
+        touch = Tab5St7123Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (2, 0, 0, True), (3, 0, 0, False), (4, 2, 0, True),
+        ]), mock.patch.object(touch, "_command", return_value="ok") as queue:
+            self.assertEqual(touch.tap(719, 1279, lambda: None), {"reports": 2, "acknowledged": 2})
+        queue.assert_called_once_with("part software-i2c input tap:719,1279")
+
+    def test_st7123_does_not_acknowledge_an_expired_press(self):
+        touch = Tab5St7123Touch(1)
+        with mock.patch.object(touch, "_state", side_effect=[
+            (0, 0, 0, True), (2, 1, 0, True), (2, 1, 0, True),
+        ]), mock.patch.object(touch, "_command", return_value="ok"):
+            with self.assertRaises(ServiceError) as raised:
+                touch.tap(500, 700, lambda: None, timeout=0.075)
+        self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
+
+    def test_st7123_touch_part_rejects_unqualified_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unrelated = root / "wrong.wasm"
+            unrelated.write_bytes(b"unqualified part")
+            with self.assertRaises(ServiceError) as raised:
+                stage_tab5_st7123_touch_part(str(unrelated), root)
+            self.assertEqual(raised.exception.code, "tab5_st7123_touch_part_unavailable")
+            self.assertFalse((root / "tab5-cosim-board.json").exists())
 
     def test_gt911_drag_still_queues_release_after_failed_move(self):
         touch = Tab5Gt911Touch(1)

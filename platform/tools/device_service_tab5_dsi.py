@@ -19,6 +19,7 @@ from device_service_errors import ServiceError
 TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828"
 TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
 TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
+TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
 TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_MESSAGE_BYTES = 128 * 1024
@@ -100,6 +101,13 @@ def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
     )
 
 
+def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> Path:
+    return _stage_tab5_part(
+        value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm", TAB5_ST7123_TOUCH_PART_SHA256,
+        "tab5_st7123_touch_part_unavailable",
+    )
+
+
 def _stage_tab5_part(value: str, session_dir: Path, source: str, module: str, expected: str, error_code: str) -> Path:
     try:
         with Path(value).open("rb") as stream:
@@ -117,14 +125,18 @@ def _stage_tab5_part(value: str, session_dir: Path, source: str, module: str, ex
         ) from error
 
 
-class Tab5Gt911Touch:
-    """Submit single-contact gestures and observe guest acknowledgements."""
+class Tab5NativeTouch:
+    """Submit native Tab5 input and wait for guest consumption."""
 
-    DRAG_STEPS = 5
-    DRAG_STEP_MS = 60
+    CONTROLLER: str
+    PART_NAME: str
+    ALLOW_EXPIRED_REPORTS = False
 
     def __init__(self, port: int):
         self.port = port
+
+    def _error(self, code: str, description: str) -> ServiceError:
+        return ServiceError(f"tab5_{self.CONTROLLER}_{code}", f"Tab5 {self.CONTROLLER.upper()} {description}", 409)
 
     def _command(self, command: str) -> str:
         try:
@@ -136,10 +148,10 @@ class Tab5Gt911Touch:
                 return reply.decode("ascii").strip()
         except (OSError, UnicodeError):
             pass
-        raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 control endpoint is unavailable", 409)
+        raise self._error("unavailable", "control endpoint is unavailable")
 
     def _state(self) -> tuple[int, int, int, bool]:
-        response = self._command("part gt911 state")
+        response = self._command(f"part {self.PART_NAME} state")
         try:
             if response.startswith("ok "):
                 values = dict(item.split("=", 1) for item in response[3:].split())
@@ -152,17 +164,17 @@ class Tab5Gt911Touch:
                         return reports, acknowledged, rejected, idle
         except (KeyError, ValueError):
             pass
-        raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 state could not be read", 409)
+        raise self._error("unavailable", "state could not be read")
 
     def _idle_counters(self) -> tuple[int, int, int]:
         reports, acknowledged, rejected, idle = self._state()
-        if not idle or reports != acknowledged:
-            raise ServiceError("tab5_gt911_busy", "Tab5 GT911 has a pending report", 409)
+        if not idle or (not self.ALLOW_EXPIRED_REPORTS and reports != acknowledged):
+            raise self._error("busy", "has a pending report")
         return reports, acknowledged, rejected
 
     def _queue(self, action: str) -> None:
-        if self._command(f"part gt911 input {action}") != "ok":
-            raise ServiceError("tab5_gt911_unavailable", "Tab5 GT911 could not queue the input", 409)
+        if self._command(f"part {self.PART_NAME} input {action}") != "ok":
+            raise self._error("unavailable", "could not queue the input")
 
     def _wait_acknowledged(self, initial, minimum, check_cancelled, timeout) -> dict:
         reports, acknowledged, rejected = initial
@@ -171,21 +183,32 @@ class Tab5Gt911Touch:
             check_cancelled()
             current_reports, current_acknowledged, current_rejected, idle = self._state()
             if current_rejected != rejected:
-                raise ServiceError("tab5_gt911_busy", "Tab5 GT911 rejected the input", 409)
-            if idle and current_reports == current_acknowledged and current_acknowledged - acknowledged >= minimum:
+                raise self._error("busy", "rejected the input")
+            observed = current_acknowledged - acknowledged
+            if idle and current_reports - reports == observed and observed >= minimum:
                 return {
                     "reports": current_reports - reports,
                     "acknowledged": current_acknowledged - acknowledged,
                 }
             time.sleep(0.05)
         raise ServiceError(
-            "tab5_gt911_ack_timeout", "Tab5 guest did not acknowledge the GT911 contact and release", 409
+            f"tab5_{self.CONTROLLER}_ack_timeout",
+            f"Tab5 guest did not acknowledge the {self.CONTROLLER.upper()} contact and release", 409,
         )
 
     def tap(self, x: int, y: int, check_cancelled, *, timeout: float = 12) -> dict:
         initial = self._idle_counters()
         self._queue(f"tap:{x},{y}")
         return self._wait_acknowledged(initial, 2, check_cancelled, timeout)
+
+
+class Tab5Gt911Touch(Tab5NativeTouch):
+    """Submit GT911 taps and single-contact drags."""
+
+    CONTROLLER = "gt911"
+    PART_NAME = "gt911"
+    DRAG_STEPS = 5
+    DRAG_STEP_MS = 60
 
     def drag(self, x1: int, y1: int, x2: int, y2: int, check_cancelled, *, timeout: float = 12) -> dict:
         initial = self._idle_counters()
@@ -209,6 +232,14 @@ class Tab5Gt911Touch:
                     "tab5_gt911_release_uncertain", "Tab5 GT911 release could not be scheduled", 409
                 ) from error
         return self._wait_acknowledged(initial, self.DRAG_STEPS + 2, check_cancelled, timeout)
+
+
+class Tab5St7123Touch(Tab5NativeTouch):
+    """Submit ST7123 taps and require the guest to read contact and release."""
+
+    CONTROLLER = "st7123"
+    PART_NAME = "software-i2c"
+    ALLOW_EXPIRED_REPORTS = True
 
 
 class DsiProtocolError(ValueError):

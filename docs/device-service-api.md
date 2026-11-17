@@ -3003,7 +3003,7 @@ On a shared worker, set `M5_TAB5_DSI_FIRMWARE_SHA256S` to a comma-separated
 list of exact admitted firmware hashes validated with this board. Use the
 `sha256` returned by `POST /firmware/import` for each image.
 Unlisted uploads keep the legacy path. This setting scopes the DSI runtime,
-board selection and GT911 Part together.
+board selection and native touch Parts together.
 
 `M5_TAB5_DSI_BOARD_OVERRIDES` accepts a JSON object from admitted firmware
 SHA-256 to board revision. When a DSI allowlist is configured, every key
@@ -3039,14 +3039,21 @@ gesture returns `409 tab5_gt911_ack_timeout`. If release cannot be queued, the
 worker stops the session and returns `409 tab5_gt911_release_uncertain`.
 Long press and multitouch are outside this native input path.
 
-For `st7123`, build the [GPIO I²C ESP Part](../platform/esp-parts/tab5-st7123-gpio/README.md)
-and set `M5_TAB5_ST7123_I2C_PART` to the absolute module path. The worker
-verifies its SHA-256 and connects the board registers to the firmware's
-software I²C probe on GPIO31/32. Hardware I²C retains the existing board
-register fixtures. The session records `board_probe=esp-emu-gpio-i2c` and
-`board_probe_part_sha256`. This path supplies the native portrait frame for
-the validated original. ST7123 touch input still requires matching symbols
-and returns `409 input_requires_matching_elf` in a no-ELF session.
+For `st7123`, build the [ST7123 ESP Part](../platform/esp-parts/tab5-st7123-gpio/README.md)
+and set `M5_TAB5_ST7123_TOUCH_PART` to the absolute module path. The worker
+verifies its SHA-256. The Part supplies board identification on the
+GPIO31/32 software I²C bus and delivers touch reports on HP I²C controller 1
+at address `0x55` with GPIO23 interrupt. The session records
+`board_probe=esp-emu-gpio-i2c`, `board_probe_part_sha256`,
+`touch_model=esp-emu-st7123`, and `touch_coordinate_space=panel-native`.
+Use `{"kind":"touch","x":530,"y":770}` for a native tap. A successful
+response includes `controller="st7123"` and the guest-consumed press and
+release counts. An unread report returns `409 tab5_st7123_ack_timeout`.
+Drag, long press, and multitouch are outside this ST7123 native input path.
+Workers with the prior identification-only binary configured as
+`M5_TAB5_ST7123_I2C_PART` retain native DSI with touch unavailable for
+no-ELF sessions. The new touch setting takes precedence for the ST7123
+board only.
 
 With native DSI enabled, `GET /sessions/{id}/frame.png` with default
 `orient=panel` returns the latest complete received DPI frame. A still

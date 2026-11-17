@@ -61,11 +61,14 @@ from device_service_tab5_dsi import (  # noqa: E402
     TAB5_GT911_PART_SHA256,
     TAB5_GT911_SIZE,
     TAB5_ST7123_I2C_PART_SHA256,
+    TAB5_ST7123_TOUCH_PART_SHA256,
     Tab5DsiReceiver,
     Tab5Gt911Touch,
+    Tab5St7123Touch,
     parse_tab5_board_overrides,
     stage_tab5_gt911_part,
     stage_tab5_st7123_i2c_part,
+    stage_tab5_st7123_touch_part,
     tab5_dsi_board_devices,
     tab5_dsi_runtime,
 )
@@ -9100,7 +9103,8 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_dsi_devices: tuple[str, ...] = ()
         self._tab5_gt911_board: Path | None = None
         self._tab5_st7123_board: Path | None = None
-        self._tab5_gt911: Tab5Gt911Touch | None = None
+        self._tab5_st7123_touch_enabled = False
+        self._tab5_native_touch: Tab5Gt911Touch | Tab5St7123Touch | None = None
 
     def _prepare_tab5_identity(self) -> dict:
         """Admit the actual session image before starting either companion."""
@@ -9166,12 +9170,23 @@ class Tab5DeviceSession(DeviceSession):
             if board:
                 identity.update(panel_board=board, touch_model="idle-identification-registers")
             if board == "st7123":
-                self._tab5_st7123_board = stage_tab5_st7123_i2c_part(
-                    getattr(self.service, "tab5_st7123_i2c_part", ""), self.dir,
-                )
+                st_touch_part = getattr(self.service, "tab5_st7123_touch_part", "")
+                if st_touch_part:
+                    self._tab5_st7123_board = stage_tab5_st7123_touch_part(st_touch_part, self.dir)
+                    self._tab5_st7123_touch_enabled = True
+                    digest = TAB5_ST7123_TOUCH_PART_SHA256
+                    identity.update(
+                        touch_model="esp-emu-st7123", touch_part_sha256=digest,
+                        touch_coordinate_space="panel-native",
+                    )
+                else:
+                    self._tab5_st7123_board = stage_tab5_st7123_i2c_part(
+                        getattr(self.service, "tab5_st7123_i2c_part", ""), self.dir,
+                    )
+                    digest = TAB5_ST7123_I2C_PART_SHA256
                 identity.update(
                     board_probe="esp-emu-gpio-i2c",
-                    board_probe_part_sha256=TAB5_ST7123_I2C_PART_SHA256,
+                    board_probe_part_sha256=digest,
                 )
             elif part:
                 self._tab5_gt911_board = stage_tab5_gt911_part(part, board, self.dir)
@@ -9313,12 +9328,15 @@ class Tab5DeviceSession(DeviceSession):
         ]
         if elf:
             command.extend(["--elf", str(elf)])
-        gt911_port = None
-        if self._tab5_gt911_board is not None:
-            gt911_port = free_tcp_port()
+        touch_board = self._tab5_gt911_board
+        touch_port = None
+        if self._tab5_st7123_touch_enabled:
+            touch_board = self._tab5_st7123_board
+        if touch_board is not None:
+            touch_port = free_tcp_port()
             command.extend([
-                "--cosim-board", str(self._tab5_gt911_board),
-                "--control-tcp", f"127.0.0.1:{gt911_port}",
+                "--cosim-board", str(touch_board),
+                "--control-tcp", f"127.0.0.1:{touch_port}",
             ])
         else:
             for i2c_device in (*TAB5_I2C_DEVICES, *self._tab5_dsi_devices):
@@ -9347,9 +9365,10 @@ class Tab5DeviceSession(DeviceSession):
         self.pid = self._proc.pid
         self._persist_session()
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
-        if gt911_port is not None:
-            wait_for_tcp_port(gt911_port, self._proc, 8)
-            self._tab5_gt911 = Tab5Gt911Touch(gt911_port)
+        if touch_port is not None:
+            wait_for_tcp_port(touch_port, self._proc, 8)
+            controller = Tab5St7123Touch if self._tab5_st7123_touch_enabled else Tab5Gt911Touch
+            self._tab5_native_touch = controller(touch_port)
         self._check_cancelled()
 
     def _close_dsi_receiver(self) -> None:
@@ -9360,7 +9379,7 @@ class Tab5DeviceSession(DeviceSession):
             receiver.close()
 
     def _terminate_tab5(self) -> None:
-        self._tab5_gt911 = None
+        self._tab5_native_touch = None
         self._close_dsi_receiver()
         for proc in (self._proc, self._c6_proc):
             if proc is not None and proc.poll() is None:
@@ -9482,8 +9501,8 @@ class Tab5DeviceSession(DeviceSession):
             )
         if not isinstance(payload, dict):
             raise ServiceError("invalid_input", "input must be an object", 400)
-        if self._tab5_gt911_board is not None:
-            return self._inject_gt911(payload)
+        if self._tab5_gt911_board is not None or self._tab5_st7123_touch_enabled:
+            return self._inject_tab5_native_touch(payload)
         kind = payload.get("kind")
         if kind not in ("touch", "longpress") or str(payload.get("action", "tap")).lower() != "tap":
             raise ServiceError(
@@ -9527,31 +9546,37 @@ class Tab5DeviceSession(DeviceSession):
             "accepted": True,
         }
 
-    def _inject_gt911(self, payload: dict) -> dict:
+    def _inject_tab5_native_touch(self, payload: dict) -> dict:
         acl_policy_id = self._require_runtime_permission("input.write")
         kind = payload.get("kind")
-        if kind not in ("touch", "drag") or str(payload.get("action", "tap")).lower() != "tap":
-            raise ServiceError("unsupported_input", "Native Tab5 GT911 supports taps and single-contact drags", 409)
+        st7123 = self._tab5_st7123_touch_enabled
+        controller = "st7123" if st7123 else "gt911"
+        supported = ("touch",) if st7123 else ("touch", "drag")
+        if kind not in supported or str(payload.get("action", "tap")).lower() != "tap":
+            gestures = "taps" if st7123 else "taps and single-contact drags"
+            raise ServiceError("unsupported_input", f"Native Tab5 {controller.upper()} supports {gestures}", 409)
         fields = ("x1", "y1", "x2", "y2") if kind == "drag" else ("x", "y")
         coordinates = tuple(payload.get(field) for field in fields)
         width, height = TAB5_GT911_SIZE
         if any(type(value) is not int or not 0 <= value < extent
                for value, extent in zip(coordinates, (width, height) * (len(fields) // 2))):
             raise ServiceError(
-                "invalid_input", f"Tab5 GT911 coordinates must be integers inside the {width}×{height} frame", 400
+                "invalid_input",
+                f"Tab5 {controller.upper()} coordinates must be integers inside the {width}×{height} frame", 400,
             )
         with self._lifecycle_operation():
-            if self.state != "running" or self._tab5_gt911 is None:
+            touch = self._tab5_native_touch
+            if self.state != "running" or touch is None:
                 raise ServiceError("session_not_running", f"session state is {self.state}", 409)
             if kind == "drag":
                 try:
-                    evidence = self._tab5_gt911.drag(*coordinates, self._check_cancelled)
+                    evidence = touch.drag(*coordinates, self._check_cancelled)
                 except ServiceError as error:
                     if error.code == "tab5_gt911_release_uncertain":
                         self._request_failure(error)
                     raise
             else:
-                evidence = self._tab5_gt911.tap(*coordinates, self._check_cancelled)
+                evidence = touch.tap(*coordinates, self._check_cancelled)
             receipt = {
                 "session_id": self.id,
                 "input": kind,
@@ -9559,11 +9584,11 @@ class Tab5DeviceSession(DeviceSession):
                 "raw": list(coordinates),
                 "accepted": True,
                 "coordinate_space": "panel-native",
-                "controller": "gt911",
+                "controller": controller,
                 "controller_reports": evidence,
             }
             self._record_event(
-                "gt911_touch_acknowledged", kind=kind, raw=receipt["raw"],
+                f"{controller}_touch_acknowledged", kind=kind, raw=receipt["raw"],
                 runtime_acl_policy_id=acl_policy_id, **evidence,
             )
             return receipt
@@ -9639,6 +9664,7 @@ class DeviceService:
         self.tab5_dsi_board = os.environ.get("M5_TAB5_DSI_BOARD", "").strip()
         self.tab5_gt911_part = os.environ.get("M5_TAB5_GT911_PART", "").strip()
         self.tab5_st7123_i2c_part = os.environ.get("M5_TAB5_ST7123_I2C_PART", "").strip()
+        self.tab5_st7123_touch_part = os.environ.get("M5_TAB5_ST7123_TOUCH_PART", "").strip()
         hashes = os.environ.get("M5_TAB5_DSI_FIRMWARE_SHA256S", "").strip()
         self.tab5_dsi_firmware_sha256s = frozenset(value.strip() for value in hashes.split(",")) if hashes else frozenset()
         if any(re.fullmatch(r"[0-9a-f]{64}", value) is None for value in self.tab5_dsi_firmware_sha256s):

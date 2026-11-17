@@ -16,7 +16,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-17
 
-[Tab5 原版取帧与单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)在同一个隔离 worker 按规范化 Flash SHA 选择 ST7123 或 GT911。Arduventure 在实际 GPIO 软件 I²C 板型探测通过后输出含游戏启动画面的 720×1280 原始帧。GT911 探针读到六个有序触点、释放及实际 I²C 确认，CarPlay 空白拖动和弹窗单击分别验证。ST7123 触控保持未建模。
+[Tab5 原版取帧与单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)在同一个隔离 worker 按规范化 Flash SHA 选择 ST7123 或 GT911。Arduventure 在实际 GPIO 软件 I²C 板型探测通过后输出含游戏启动画面的 720×1280 原始帧。GT911 探针读到六个有序触点、释放及实际 I²C 确认，CarPlay 空白拖动和弹窗单击分别验证。该轮 ST7123 只做到原版取帧。后续 [ST7123 单触点](evidence/2026-11-17-tab5-st7123-touch/README.md)经设备 I²C/IRQ 探针和原版 Arduventure A/B、四方向验收，同一 worker 复测原版 CarPlay。
 
 [原生崩溃验收](../tests/firmware/crash_diagnostics/summary.json)在 `cbc0ea74…` 的 Core2 来宾分别触发 CPU1 abort 与真实中断 WDT。后者报告双核寄存器 PC。两个会话均输出 UART core dump 标记，匹配 ELF 能解析探针函数，其他 ELF 保持未解码。已验证同会话证据 ZIP 和停止后重启服务读回。
 

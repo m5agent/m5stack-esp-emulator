@@ -288,15 +288,15 @@
     "touch-st7123": {
       "kind": "touch",
       "interface": "dsi-i2c",
+      "address": "0x55",
       "capabilities": [
         "touch"
       ],
-      "status": "partial",
+      "status": "simulated",
       "injection": [
-        "gdb-mailbox"
+        "device-service-input"
       ],
-      "data_plane": "Firmware-side GDB mailbox feeds the M5GFX Touch_ST7123 raw-read hook; the native esp-emu P4 backend does not expose the ST7123 I2C controller transactions or DSI touch data plane",
-      "blocker": "Add an ST7123 I2C model plus a native P4 I2C/QOM bridge, then inject touch through controller registers instead of the M5GFX raw-read hook",
+      "data_plane": "Tab5 native ST7123 single-contact taps through HP I2C1 0x55 and GPIO23 interrupt, with guest reads of the coordinate and release reports",
       "tested_devices": [
         "tab5"
       ]
@@ -2435,10 +2435,6 @@
           "reason": "PA enable is known, but the Tab5 ES8388-to-NS4150B PCM path cannot be captured without P4 I2S"
         },
         {
-          "model": "touch-st7123",
-          "reason": "Touch is visible only through a firmware GDB hook, not ST7123 controller/I2C transactions"
-        },
-        {
           "model": "usb-host-p4-dwc",
           "reason": "No ESP32-P4 USB host controller or endpoint attachment model"
         },
@@ -2533,7 +2529,7 @@
           "model": "touch-st7123",
           "address": "0x55",
           "bus": "i2c1-dsi",
-          "status": "partial"
+          "status": "simulated"
         },
         {
           "id": "usb-host",
