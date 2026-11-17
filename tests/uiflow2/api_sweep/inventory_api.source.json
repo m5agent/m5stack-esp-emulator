@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.82.0",
-  "contract_sha256": "35cceae18eb8d89e64d1132fc2b1038dfdc737be5805333b8274a4b25fe69ae4",
+  "contract_version": "1.83.0",
+  "contract_sha256": "9c0cb1c87c372a55cf8d214dc35a686aebe64482ec7dbdce42e2b92286af9626",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1252,7 +1252,8 @@
           "flash-read-permission"
         ],
         "case_ids": [
-          "GET /sessions/{session_id}/storage/filesystem missing-resource"
+          "GET /sessions/{session_id}/storage/filesystem missing-resource",
+          "GET /sessions/{session_id}/storage/filesystem invalid-source-flag"
         ],
         "positive_status": "NOT RUN"
       },
@@ -2523,6 +2524,14 @@
         "expected_status": [
           404
         ]
+      },
+      {
+        "case_id": "GET /sessions/{session_id}/storage/filesystem invalid-source-flag",
+        "operation_id": "GET /sessions/{session_id}/storage/filesystem",
+        "method": "GET",
+        "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/filesystem?include_source=",
+        "coverage": "rejection-only",
+        "expected_status": [400]
       },
       {
         "case_id": "POST /sessions/{session_id}/storage/filesystem/export missing-resource",
