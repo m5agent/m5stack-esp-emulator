@@ -47,10 +47,10 @@
    fixture 验证原版 nc1020、CardputerDict 等的应用路径。PaperDIY 会话内热插拔需要
    实现介质切换和 GPIO48 电平变化。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、固件 SoftAP
-   的关联/DHCP/门户，以及 StickS3 按键配网后同会话的网络收据。按板型补 Wi-Fi 事件和应用
+   关联后的 DHCP 和门户，以及 StickS3 按键配网后同会话的网络收据。按板型补 Wi-Fi 事件和应用
    断言，保持现有网络授权及隔离约束。
-4. **P0 Tab5 取帧**。现有 ILI9881C/GT911 板型的 CarPlay 原版已取得无 ELF 帧；继续对照
-   Arduventure 的几何判断及 M5TabOS/98TAB5 启动路径。补 ST7123/GT911 触摸、
+4. **P0 Tab5 取帧与输入**。继续对照 Arduventure 的几何判断及 M5TabOS/98TAB5 启动路径。
+   扩展 GT911 单击以外的手势，补 ST7123 触摸、
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。

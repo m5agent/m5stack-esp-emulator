@@ -27,7 +27,11 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [PaperDIY 原生 API 验证](../tests/firmware/spi_sd_media/paperdiy-sd-detect-api-summary.json)使用同一 SDK 固件和 FAT32 镜像，在 `cbc0ea74…` 上确认 G48 有卡低、无卡高及读写重新挂载。旧二进制 `ba82940a…` 仍可无卡运行，有卡请求返回 `409 storage_not_supported` 且无会话分配。
 
-[Cardputer 原生 STA 夹具](../tests/network/native_sta_peers/README.md)在隔离 macOS 测试路径用初代 Cardputer 和 ADV 逐项完成 DHCP、HTTP 正文核对、DNS A/NXDOMAIN、UDP 精确字节校验及同会话 PCAP。错误 UDP 响应仍有双向流量，但来宾业务断言拒绝。Linux namespace 正向执行和 SoftAP 关联/门户仍待验收。
+[Cardputer 原生 STA 夹具](../tests/network/native_sta_peers/README.md)在隔离 macOS 测试路径用初代 Cardputer 和 ADV 逐项完成 DHCP、HTTP 正文核对、DNS A/NXDOMAIN、UDP 精确字节校验及同会话 PCAP。错误 UDP 响应仍有双向流量，但来宾业务断言拒绝。Linux namespace 正向执行仍待验收。
+
+Cardputer 与 ADV 在原生 Xtensa `eecf42ad…` 使用同一 SDK 固件 `25eaf534…` 完成 SoftAP 认证与关联。旧版本未向测试站返回认证帧。新运行时复验开放 STA、WPA2 STA、错误口令负控和 PaperDIY 同 FAT32 介质读写。SoftAP DHCP 和门户保持未验收。
+
+CarPlay 原版 `4f3bb118…` 在可选 Tab5 DSI/GT911 路径使用真实 `POST /input`。空白处单击保持已稳定的原生帧，清除配对按钮单击打开了确认对话框；两次各有 13 个已由来宾读取并应答的控制器报告。已验证的归一化 Flash 可单独准入，其它原版可保留原路径。USB Host 手机握手、其它触摸板修订和拖动仍未验收。
 
 ## 2026-11-16
 
