@@ -127,6 +127,32 @@
         "sha256": "c906bb8203dd0f7a1b989d63faaf95b9029f75552399b9d61b0c128729241ef1",
         "bytes": 18726
       }
+    },
+    {
+      "date": "2026-11-18",
+      "status": "PARTIAL",
+      "checks": [
+        {
+          "case": "Instrumented native 607-pixel icon checks",
+          "matches": 10,
+          "total": 12
+        },
+        {
+          "case": "Frozen native stable icon checks with conclusive evidence",
+          "matches": 4,
+          "total": 11
+        },
+        {
+          "case": "Frozen native accepted contact without settled icon evidence",
+          "matches": 1,
+          "total": 12
+        }
+      ],
+      "evidence": {
+        "path": "native-poll-summary.json",
+        "sha256": "09dd223b08d9abd9bd5ed34ddaa46d8ef2ca98a6751180ef428e502a811625d3",
+        "bytes": 16216
+      }
     }
   ]
 }

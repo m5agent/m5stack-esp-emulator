@@ -1,0 +1,509 @@
+{
+  "documentation_source_commit": "731817add38c34e6d2a58f8dcde646cd7ded3f46",
+  "frozen_native_release_source_commit": "63472ab884dc2968904999c75eb6aca91c3f2517",
+  "scope": "native QEMU Device Service only",
+  "instrumented_gpio_and_gt911": {
+    "native_runtime_sha256": "1309290143c16e7a8f1131ca07acde728e809a48295abc255616ed3575a1706b",
+    "original_firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+    "zip_sha256": "3bcb2c975a2d2a31450918d93916bb0e08ac76fc6fb9021f110579589b27bd5d",
+    "trace_sha256": "e75afda4933bdf7e82e0a3b44dd8e22bfa58fba41a5334d7d0e736572adcca98",
+    "source_receipt_sha256": "eb6f9b11460cd5e8c5f45edae53514383730f594c04ce1e696901d9b0c54d6b8",
+    "source_bound_touch_poll_pc": "0x42032e87",
+    "other_gpio_read_pc": "0x42035073",
+    "source_bound_write_literal_address": "0x3c128968",
+    "source_bound_write_literal_hex": "814e00",
+    "valid_gpiobank_unwind_by_pc": {
+      "0x42032e87": 162,
+      "0x42035073": 127
+    },
+    "trials": [
+      {
+        "requested_hold_ms": 150,
+        "actual_hold_ms": 160.558,
+        "gesture_index": 1,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 1139,
+        "gt911_ready_ms_after_press": 6.935,
+        "first_source_bound_gpio48_poll_ms_after_press": 70.755,
+        "first_source_bound_poll_ms_after_ready": 63.82,
+        "in_hold_source_bound_poll_count": 2,
+        "other_gpio48_read_times_during_hold_ms": [
+          84.302,
+          135.357
+        ],
+        "first_gt911_clear_ms_after_press": 72.395,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          81.895,
+          132.824
+        ],
+        "gt911_release_report_ms_after_press": 201.189,
+        "gt911_empty_read_ms_after_press": 242.733
+      },
+      {
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 310.567,
+        "gesture_index": 2,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 2170,
+        "gt911_ready_ms_after_press": 7.544,
+        "first_source_bound_gpio48_poll_ms_after_press": 132.767,
+        "first_source_bound_poll_ms_after_ready": 125.223,
+        "in_hold_source_bound_poll_count": 2,
+        "other_gpio48_read_times_during_hold_ms": [
+          142.528,
+          200.813,
+          225.94
+        ],
+        "first_gt911_clear_ms_after_press": 133.975,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          141.934
+        ],
+        "gt911_release_report_ms_after_press": 334.713,
+        "gt911_empty_read_ms_after_press": 372.715
+      },
+      {
+        "requested_hold_ms": 500,
+        "actual_hold_ms": 510.511,
+        "gesture_index": 3,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 2997,
+        "gt911_ready_ms_after_press": 6.037,
+        "first_source_bound_gpio48_poll_ms_after_press": 35.286,
+        "first_source_bound_poll_ms_after_ready": 29.249,
+        "in_hold_source_bound_poll_count": 6,
+        "other_gpio48_read_times_during_hold_ms": [
+          59.746,
+          110.247,
+          156.228,
+          205.714,
+          206.91,
+          235.473,
+          267.746,
+          272.508,
+          439.24,
+          489.569
+        ],
+        "first_gt911_clear_ms_after_press": 36.394,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          57.788,
+          107.858,
+          155.636,
+          205.124,
+          437.424,
+          487.171
+        ],
+        "gt911_release_report_ms_after_press": 545.095,
+        "gt911_empty_read_ms_after_press": 587.477
+      },
+      {
+        "requested_hold_ms": 500,
+        "actual_hold_ms": 501.988,
+        "gesture_index": 4,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 3780,
+        "gt911_ready_ms_after_press": 7.533,
+        "first_source_bound_gpio48_poll_ms_after_press": 141.77,
+        "first_source_bound_poll_ms_after_ready": 134.237,
+        "in_hold_source_bound_poll_count": 5,
+        "other_gpio48_read_times_during_hold_ms": [
+          154.013,
+          201.343,
+          255.001,
+          329.305,
+          353.801,
+          444.011,
+          495.734
+        ],
+        "first_gt911_clear_ms_after_press": 142.702,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          152.077,
+          200.749,
+          252.957,
+          441.823,
+          493.098
+        ],
+        "gt911_release_report_ms_after_press": 552.863,
+        "gt911_empty_read_ms_after_press": 592.096
+      },
+      {
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 310.523,
+        "gesture_index": 5,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 2143,
+        "gt911_ready_ms_after_press": 7.559,
+        "first_source_bound_gpio48_poll_ms_after_press": 24.718,
+        "first_source_bound_poll_ms_after_ready": 17.159,
+        "in_hold_source_bound_poll_count": 3,
+        "other_gpio48_read_times_during_hold_ms": [
+          32.576,
+          86.156,
+          92.243,
+          96.461,
+          244.76,
+          250.152,
+          272.074
+        ],
+        "first_gt911_clear_ms_after_press": 26.247,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          31.993,
+          83.781,
+          242.569
+        ],
+        "gt911_release_report_ms_after_press": 361.611,
+        "gt911_empty_read_ms_after_press": 404.555
+      },
+      {
+        "requested_hold_ms": 150,
+        "actual_hold_ms": 160.511,
+        "gesture_index": 6,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 1218,
+        "gt911_ready_ms_after_press": 6.035,
+        "first_source_bound_gpio48_poll_ms_after_press": 137.05,
+        "first_source_bound_poll_ms_after_ready": 131.015,
+        "in_hold_source_bound_poll_count": 1,
+        "other_gpio48_read_times_during_hold_ms": [
+          2.195,
+          6.987,
+          149.348
+        ],
+        "first_gt911_clear_ms_after_press": 138.467,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          147.69
+        ],
+        "gt911_release_report_ms_after_press": 219.189,
+        "gt911_empty_read_ms_after_press": 259.845
+      },
+      {
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 310.53,
+        "gesture_index": 7,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 2159,
+        "gt911_ready_ms_after_press": 6.032,
+        "first_source_bound_gpio48_poll_ms_after_press": 26.124,
+        "first_source_bound_poll_ms_after_ready": 20.092,
+        "in_hold_source_bound_poll_count": 6,
+        "other_gpio48_read_times_during_hold_ms": [
+          50.835,
+          99.542,
+          151.428,
+          200.361,
+          249.454,
+          299.726
+        ],
+        "first_gt911_clear_ms_after_press": 27.436,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          49.215,
+          97.039,
+          148.828,
+          198.21,
+          247.328,
+          297.441
+        ],
+        "gt911_release_report_ms_after_press": 358.662,
+        "gt911_empty_read_ms_after_press": 396.7
+      },
+      {
+        "requested_hold_ms": 500,
+        "actual_hold_ms": 506.366,
+        "gesture_index": 8,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 3642,
+        "gt911_ready_ms_after_press": 4.55,
+        "first_source_bound_gpio48_poll_ms_after_press": 26.246,
+        "first_source_bound_poll_ms_after_ready": 21.696,
+        "in_hold_source_bound_poll_count": 7,
+        "other_gpio48_read_times_during_hold_ms": [
+          50.292,
+          101.894,
+          160.755,
+          166.744,
+          199.344,
+          270.629,
+          321.13,
+          368.537,
+          431.177,
+          432.376,
+          433.214
+        ],
+        "first_gt911_clear_ms_after_press": 27.519,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          48.168,
+          99.233,
+          158.487,
+          268.274,
+          318.578,
+          366.642,
+          430.125
+        ],
+        "gt911_release_report_ms_after_press": 566.511,
+        "gt911_empty_read_ms_after_press": 566.907
+      },
+      {
+        "requested_hold_ms": 150,
+        "actual_hold_ms": 160.512,
+        "gesture_index": 9,
+        "icon_oracle_match": false,
+        "region_changed_pixels": 0,
+        "latched_lines_during_contact": 1080,
+        "gt911_ready_ms_after_press": 7.526,
+        "first_source_bound_gpio48_poll_ms_after_press": 157.832,
+        "first_source_bound_poll_ms_after_ready": 150.306,
+        "in_hold_source_bound_poll_count": 1,
+        "other_gpio48_read_times_during_hold_ms": [
+          51.143,
+          82.388
+        ],
+        "first_gt911_clear_ms_after_press": 158.189,
+        "gt911_pressed_status_read_times_during_hold_ms": [],
+        "gt911_release_report_ms_after_press": 165.041,
+        "gt911_empty_read_ms_after_press": 181.343
+      },
+      {
+        "requested_hold_ms": 500,
+        "actual_hold_ms": 510.733,
+        "gesture_index": 10,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 3657,
+        "gt911_ready_ms_after_press": 6.041,
+        "first_source_bound_gpio48_poll_ms_after_press": 13.981,
+        "first_source_bound_poll_ms_after_ready": 7.94,
+        "in_hold_source_bound_poll_count": 8,
+        "other_gpio48_read_times_during_hold_ms": [
+          39.036,
+          89.106,
+          138.105,
+          189.449,
+          194.396,
+          198.634,
+          359.161,
+          409.432,
+          460.851,
+          509.848
+        ],
+        "first_gt911_clear_ms_after_press": 15.221,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          36.88,
+          86.329,
+          135.773,
+          187.033,
+          356.92,
+          407.061,
+          458.417,
+          507.456
+        ],
+        "gt911_release_report_ms_after_press": 518.578,
+        "gt911_empty_read_ms_after_press": 556.546
+      },
+      {
+        "requested_hold_ms": 300,
+        "actual_hold_ms": 310.533,
+        "gesture_index": 11,
+        "icon_oracle_match": true,
+        "region_changed_pixels": 607,
+        "latched_lines_during_contact": 2397,
+        "gt911_ready_ms_after_press": 7.53,
+        "first_source_bound_gpio48_poll_ms_after_press": 71.09,
+        "first_source_bound_poll_ms_after_ready": 63.56,
+        "in_hold_source_bound_poll_count": 5,
+        "other_gpio48_read_times_during_hold_ms": [
+          83.751,
+          154.897,
+          204.19,
+          253.212,
+          304.804
+        ],
+        "first_gt911_clear_ms_after_press": 72.498,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          81.551,
+          152.629,
+          201.769,
+          251.037,
+          302.419
+        ],
+        "gt911_release_report_ms_after_press": 312.101,
+        "gt911_empty_read_ms_after_press": 351.614
+      },
+      {
+        "requested_hold_ms": 500,
+        "actual_hold_ms": 501.972,
+        "gesture_index": 12,
+        "icon_oracle_match": false,
+        "region_changed_pixels": 666,
+        "latched_lines_during_contact": 3413,
+        "gt911_ready_ms_after_press": 7.535,
+        "first_source_bound_gpio48_poll_ms_after_press": 473.667,
+        "first_source_bound_poll_ms_after_ready": 466.132,
+        "in_hold_source_bound_poll_count": 1,
+        "other_gpio48_read_times_during_hold_ms": [
+          246.963,
+          263.693,
+          315.626,
+          320.482,
+          485.37
+        ],
+        "first_gt911_clear_ms_after_press": 475.053,
+        "gt911_pressed_status_read_times_during_hold_ms": [
+          483.833
+        ],
+        "gt911_release_report_ms_after_press": 542.585,
+        "gt911_empty_read_ms_after_press": 584.737
+      }
+    ],
+    "cleanup": {
+      "no_leases": true,
+      "stopped": true,
+      "mutable_flash_retained": false
+    }
+  },
+  "frozen_uninstrumented_controls": [
+    {
+      "condition": "pre-input visual transition",
+      "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "receipt_sha256": "ff7ecaa9d10f064939dae3ac6036d1c44e1ed616acf68c01eabd3510ed4f3c08",
+      "zip_sha256": "c4834947fa311da2effb4a72c1b5bf9fea39fe97479f0d05e664e62755cc6ca6",
+      "inputs_accepted": 0,
+      "stable_icon_trials": [],
+      "unclassified_stage": "before input, during EPD transition",
+      "stopped": true,
+      "active_leases": 0,
+      "mutable_flash_retained": false
+    },
+    {
+      "condition": "three-sample stable-frame oracle",
+      "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "runtime_sha256": "68d98b8491b09eeb91fc3c99ee2dd7d2752ac1b6b548bf0c93981f4c225fb05d",
+      "receipt_sha256": "59771fe2cef12568fed3a2997f1f220b52b1a1b7fe952a828f40d683537fa39d",
+      "zip_sha256": "5346e48893c9037564dfeb4a08879c0ac35b510dbe49673d5d54820857402d64",
+      "inputs_accepted": 12,
+      "stable_icon_trials": [
+        {
+          "hold_seconds": 0.15,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1910,
+          "changed_pixels": 0,
+          "scan_frame_delta": 68,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.3,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1910,
+          "changed_pixels": 0,
+          "scan_frame_delta": 65,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.5,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1910,
+          "changed_pixels": 0,
+          "scan_frame_delta": 69,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.5,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1755,
+          "changed_pixels": 607,
+          "scan_frame_delta": 17,
+          "matches": true
+        },
+        {
+          "hold_seconds": 0.3,
+          "x": 113,
+          "y": 347,
+          "black_before": 1755,
+          "black_after": 1910,
+          "changed_pixels": 607,
+          "scan_frame_delta": 18,
+          "matches": true
+        },
+        {
+          "hold_seconds": 0.15,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1755,
+          "changed_pixels": 607,
+          "scan_frame_delta": 15,
+          "matches": true
+        },
+        {
+          "hold_seconds": 0.3,
+          "x": 113,
+          "y": 347,
+          "black_before": 1755,
+          "black_after": 1755,
+          "changed_pixels": 0,
+          "scan_frame_delta": 66,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.5,
+          "x": 113,
+          "y": 347,
+          "black_before": 1755,
+          "black_after": 1755,
+          "changed_pixels": 0,
+          "scan_frame_delta": 74,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.15,
+          "x": 113,
+          "y": 347,
+          "black_before": 1755,
+          "black_after": 1910,
+          "changed_pixels": 607,
+          "scan_frame_delta": 16,
+          "matches": true
+        },
+        {
+          "hold_seconds": 0.5,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1910,
+          "changed_pixels": 0,
+          "scan_frame_delta": 71,
+          "matches": false
+        },
+        {
+          "hold_seconds": 0.3,
+          "x": 113,
+          "y": 347,
+          "black_before": 1910,
+          "black_after": 1910,
+          "changed_pixels": 0,
+          "scan_frame_delta": 69,
+          "matches": false
+        }
+      ],
+      "unclassified_stage": "final input, stable oracle timed out",
+      "stopped": true,
+      "active_leases": 0,
+      "mutable_flash_retained": false
+    }
+  ]
+}

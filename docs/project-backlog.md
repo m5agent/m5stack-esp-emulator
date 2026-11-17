@@ -81,7 +81,7 @@
 ## 新增主机剩余工作
 
 - CoreMatrix C158：验收 8 MiB Quad PSRAM、Wi-Fi 数据面和浏览器硬件复位。默认 Device Service 准入仍需独立验证固件上传契约和普通会话生命周期。
-- PaperS3、PaperDIY、初代 Cardputer：继续验收各型号的电源、音频、存储与其它外设。PaperS3 Factory V0.5 浏览器触控仍间歇漏响应。以同一原 BIN 关联已就绪报告的驱动服务间隔、前台绘图入队与其他应用操作，定位延后读取，再以稳定帧和同板真机对照验证连续点按。[浏览器总线与同帧证据](evidence/2026-11-18-papers3-browser-gt911/README.md)
+- PaperS3、PaperDIY、初代 Cardputer：继续验收各型号的电源、音频、存储与其它外设。PaperS3 Factory V0.5 触控仍间歇漏响应。把已证实的原生 GT911 迟采样与原版前台绘图入队或其他应用操作关联，再以稳定帧、浏览器和同板真机对照区分各运行时的延迟。[浏览器总线与同帧证据](evidence/2026-11-18-papers3-browser-gt911/README.md)
 
 ## 已完成，不再作为待办
 
