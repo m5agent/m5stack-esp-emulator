@@ -22,6 +22,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md)：Cardputer/StickS3 的 UIFlow2 LittleFS 与 Cardputer/StickS3/Dial 的 ESP-IDF SPIFFS 都通过真实数据分区夹具路径。保留原 artifact 和以有效 Flash SHA 核对区间外字节的结果。SD 另有停止后清单、哈希导出、重启复用及活动状态拒绝的证据。
 
+[ESP-IDF LittleFS](../tests/firmware/littlefs_partition/summary.json) 在初代 Cardputer、ADV 上用 5.5.4 通过 subtype `0x83` 预置、读取、写入、重新挂载及同会话复位。两份源镜像和可写区间外字节一致，空分区对照未读到预置文件。6.1.1 对照未到应用入口，LittleFS 未执行。
+
 [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)：ADV 原驱动 56 个物理键与旧 runtime 负对照，K132 Fn、StickS3 A+B/双击/4999 ms 长按和 Core2 两次接触均取得客体证据。Dial 默认对照控制器 9/9、原 RotaryIRQ 3/9，后续 35/50 ms 显式速度原驱动 6/6；StopWatch 原版复审提交关闭并保留应用行为 PARTIAL。
 [Device Service SPI SD 准入](evidence/2026-11-17-spi-sd-admission/README.md)在原生 Xtensa `06db397c…` 上验证初代 Cardputer、Cardputer-ADV 和 PaperS3 的 FAT32 目录、读写和重新挂载。初代 Cardputer另有跨会话读回和无卡负控。PaperDIY 卡检测、浏览器与实体设备仍未验证。 [导出复验](evidence/2026-11-17-spi-sd-admission/export-summary.json)在同一 FAT32 镜像校验目录时间戳修复、运行时拒绝、内容寻址导出和服务重启读回。
 

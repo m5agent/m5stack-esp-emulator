@@ -1,0 +1,122 @@
+{
+  "service_source": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+  "runtime_sha256": "eecf42ad4b393a76a9208c644abc2606030b585824b24ae53e5e9ecad2b4d4ed",
+  "baseline_flash_sha256": "8346d6abd56135fe3e369d46f91cdaab63035f4ae416d6fab5e84ef54c5f5e00",
+  "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+  "status": "PASS",
+  "cases": [
+    {
+      "device": "cardputer",
+      "name": "cardputer-fixture",
+      "status": "PASS",
+      "prepared_flash_sha256": "39f06fa29b112c173febbca21e37e784596e48c66a8741286b5cf7addf0b9f03",
+      "reset_restored": true,
+      "boot_markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE",
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "post_write_flash_sha256": "ddc896ca90b29474d9bfa4654cdeeee550702fb60c81591fb6fbb15c9fff1eef",
+      "outside_partition_unchanged": true,
+      "zip_sha256": "0e6fa7e648b5b49bb1a9eb614e26209e23badbb0ec10e622d39bfbda8b158a29",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "leases": 0
+      }
+    },
+    {
+      "device": "cardputer-adv",
+      "name": "cardputer-adv-fixture",
+      "status": "PASS",
+      "prepared_flash_sha256": "39f06fa29b112c173febbca21e37e784596e48c66a8741286b5cf7addf0b9f03",
+      "reset_restored": true,
+      "boot_markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE",
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=1 listed=1 prior=1",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "post_write_flash_sha256": "ddc896ca90b29474d9bfa4654cdeeee550702fb60c81591fb6fbb15c9fff1eef",
+      "outside_partition_unchanged": true,
+      "zip_sha256": "bb0df3650574e099aafd10c0f856c50bc27e48778c7e58b0de58825b9546e8fc",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "leases": 0
+      }
+    },
+    {
+      "device": "cardputer",
+      "name": "cardputer-empty-control",
+      "status": "PASS",
+      "boot_markers": [
+        "LITTLEFS_PROBE_PARTITION offset=0x110000 size=0x100000",
+        "LITTLEFS_PROBE_READ seeded=0 listed=0 prior=0",
+        "LITTLEFS_PROBE_REMOUNT wrote=1 restored=1 listed=1",
+        "LITTLEFS_PROBE_DONE"
+      ],
+      "post_write_flash_sha256": "114c99fefb05209ed4469941c724fcb7d7f810b3894c7051ceca3daea4e6ae9c",
+      "outside_partition_unchanged": true,
+      "zip_sha256": "76ceb43b8681ca2ead9dd9e595b7574d19f2c0d59d5fcb4493d49970f530aceb",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "leases": 0
+      }
+    }
+  ],
+  "validation": "virtual-device validation",
+  "source_artifacts_unchanged": true,
+  "isolated_service_closed": true,
+  "sdk": {
+    "version": "v5.5.4",
+    "source": "735507283d5b2f9fb363a1901172dbd9e847945d"
+  },
+  "littlefs_component": {
+    "version": "1.21.1",
+    "component_hash": "29eff7921c4e8bce021aeb7fff2723bfcafed661756de700646ea0f6223c2a32",
+    "fixture_generator": "littlefs-python 0.15.0"
+  },
+  "idfv61_comparison": {
+    "service_source": "fd08569f06b4afa478eb46da3654c4468e35a5bb",
+    "runtime_sha256": "eecf42ad4b393a76a9208c644abc2606030b585824b24ae53e5e9ecad2b4d4ed",
+    "baseline_flash_sha256": "b8fe2d8a0baf3466b60800713cf9070e8f030f9e60f057151dd47ccce28496bf",
+    "fixture_sha256": "7c6462fc7c499539df682815543e01e1c130a9d7caef5952f60c716ab71d9c81",
+    "status": "FAIL",
+    "cases": [
+      {
+        "device": "cardputer",
+        "name": "cardputer-fixture",
+        "status": "FAIL",
+        "cleanup": {
+          "stopped": true,
+          "flash_released": true,
+          "leases": 0
+        }
+      }
+    ],
+    "validation": "virtual-device validation",
+    "isolated_service_closed": true,
+    "sdk": {
+      "version": "v6.1.1",
+      "source": "051e4c4eb20346e043cdd47bc388fde75ff8af63"
+    },
+    "scope": "One Cardputer session with the same LittleFS fixture",
+    "observation": "ESP-IDF sleep GPIO initialization logged; app_main and LittleFS guest markers absent after 50 seconds",
+    "filesystem_runtime_status": "NOT RUN",
+    "console_sha256": "5cbe3a2f9ba8e2c9ed6600a3576c5f71a74de7987a2877d673c9c51c405720f9",
+    "console_bytes": 2648
+  },
+  "browser_wasm": "NOT RUN",
+  "hardware": "NOT RUN"
+}
