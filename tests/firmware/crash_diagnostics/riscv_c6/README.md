@@ -111,3 +111,28 @@ session history and recheck after stopping and restarting the service.
 same-artifact comparison. The metadata lookup exercises native
 `nesso-n1` and the two existing ELF32 UART integrity options. Other
 native ESP32-C6 boards keep the existing register-only task contexts.
+
+## Nesso N1 saved RV32 task backtraces
+
+Use the same two native UART probes and matching application ELFs as for
+task metadata. Read the retained API or same-session ZIP after the UART
+transfer. On a supported matched ELF the captured task rows may include
+`saved_backtrace`, with saved PC/SP pairs and an explicit termination reason.
+The lookup is limited to unaugmented RV32 ELF32 `.debug_frame` rules with an
+SP-relative canonical frame address. It reads return words from the
+SDK-emitted stack segment paired to that task's TCB. The first frame may use
+the saved link register. It follows at most 16 frames and stops on unsupported,
+ambiguous or missing evidence. An explicit undefined return register marks
+the completed end of a chain.
+
+Run Espressif RV32 GDB with the same application ELF and ELF body from the
+validated UART dump. With executable auto-loading disabled, use
+`thread apply all bt 17`. Compare each frame's `$pc` and `$sp` with the
+matching task in the receipt. The fixed CRC32 and SHA-256 probes each yield
+seven `main`, four `IDLE` and five `esp_timer` frames. A mismatched or
+absent application ELF retains the same saved top-level registers.
+Repeat the read after stopping the guest and restarting its service.
+
+[Scoped evidence](session-saved-backtrace-summary.json) covers the native
+Nesso N1 UART formats and both oracle comparisons. Flash dumps, other
+RISC-V targets and arbitrary DWARF expressions stay outside this scope.

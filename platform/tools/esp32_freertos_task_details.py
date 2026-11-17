@@ -7,6 +7,7 @@ import struct
 from itertools import islice
 from pathlib import Path
 
+from esp32_riscv_task_backtrace import annotate_riscv_backtraces
 from esp32_uart_coredump import core_loads
 from xtensa_elf_symbols import EF_RISCV_RVC, EM_RISCV, EM_XTENSA
 
@@ -181,6 +182,9 @@ def annotate_task_metadata(decoded: dict, checked_core: bytes, artifact: Path, *
         # Malformed optional debug data must not erase the observed PC/SP receipt.
         decoded["task_metadata"] = {"status": "unavailable", "reason": "unsupported_or_invalid_task_layout"}
         return
+
+    if machine == EM_RISCV and decoded.get("source") == "console_tail":
+        annotate_riscv_backtraces(decoded, checked_core, artifact, ELFFile, tcb_size=size)
 
     complete, recovered = 0, 0
     for task in decoded["tasks"]:

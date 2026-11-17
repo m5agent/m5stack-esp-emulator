@@ -1,0 +1,273 @@
+{
+  "status": "PASS",
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "device": "nesso-n1",
+  "runtime": "qemu",
+  "native_c6_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+  "base_device_service": "a2148953f1c22a2b2b066780f9c501b3daddcdf0",
+  "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "changed_source_sha256": {
+    "platform/tools/esp32_riscv_task_backtrace.py": "ce5c6228c07d946521b1ab9807a3401d115058e0bc4149fd5ad056f3f9fc859a",
+    "platform/tools/esp32_freertos_task_details.py": "960d727cf8f9f291eee68672db0971ca7d80bda3af9a578ff6b0ce87e86e029e"
+  },
+  "diagnostic_scope": "saved task registers and unaugmented version-3 .debug_frame CIE rules for ESP-IDF RV32 ELF32 UART dumps",
+  "cases": {
+    "crc32": {
+      "firmware_sha256": "1597b8eb3b63cceae7e511578dffb8398175f5560a5079af2ae08a27de2a931b",
+      "elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+      "zip_sha256": "eec863279f5e492f31f45b15df4ec4a2647a4177fa65b9ed9bf311af61e22c90",
+      "dump_sha256": "37f9625827026de8ca0fd35cd28d87d38aa598304ba19b5659ada8e2f0e6b5f3",
+      "dump_bytes": 3084,
+      "same_session_api_zip": true,
+      "format": "esp32c6_riscv_elf32_crc32",
+      "actual_guest_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "flash_released": true,
+      "remaining_leases": 0,
+      "retained_after_service_restart": true,
+      "no_elf_and_mismatched_elf_register_contexts_preserved": true,
+      "all_frames_pc_sp_match_independent_esp_rv32_gdb": true,
+      "tasks": {
+        "main": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40804cd6",
+              "sp": "0x408116b0"
+            },
+            {
+              "pc": "0x40804c94",
+              "sp": "0x408116b0"
+            },
+            {
+              "pc": "0x40809970",
+              "sp": "0x408116c0"
+            },
+            {
+              "pc": "0x4200c21e",
+              "sp": "0x40811730"
+            },
+            {
+              "pc": "0x4200c250",
+              "sp": "0x40811740"
+            },
+            {
+              "pc": "0x42012b92",
+              "sp": "0x40811750"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40811770"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "panic_abort",
+            "esp_system_abort",
+            "abort",
+            "trigger_riscv_abort",
+            "app_main",
+            "main_task",
+            "vPortTaskWrapper"
+          ]
+        },
+        "IDLE": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40802d48",
+              "sp": "0x40811e90"
+            },
+            {
+              "pc": "0x4201233e",
+              "sp": "0x40811ea0"
+            },
+            {
+              "pc": "0x408066ae",
+              "sp": "0x40811eb0"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40811ec0"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "esp_cpu_wait_for_intr",
+            "esp_vApplicationIdleHook",
+            "prvIdleTask",
+            "vPortTaskWrapper"
+          ]
+        },
+        "esp_timer": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40805e28",
+              "sp": "0x40810350"
+            },
+            {
+              "pc": "0x40805ebe",
+              "sp": "0x40810350"
+            },
+            {
+              "pc": "0x40807576",
+              "sp": "0x40810360"
+            },
+            {
+              "pc": "0x4200f8ba",
+              "sp": "0x40810370"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40810380"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "vPortClearInterruptMaskFromISR",
+            "vPortExitCritical",
+            "ulTaskGenericNotifyTake",
+            "timer_task",
+            "vPortTaskWrapper"
+          ]
+        }
+      }
+    },
+    "sha256": {
+      "firmware_sha256": "e5abbabdd16490c54db84fb85d8e627a0a3ef4f8b2dddbad892739ec2182fcc3",
+      "elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+      "zip_sha256": "91a5af3ec83f98fb596cb9824b94745b4d6817508e13cb2c4df5c80902fa809a",
+      "dump_sha256": "21b6c7f98c17e1edd6b6bdda15a5862ec490bc650b6f504cdc2d08aa82aacb30",
+      "dump_bytes": 3112,
+      "same_session_api_zip": true,
+      "format": "esp32c6_riscv_elf32_sha256",
+      "actual_guest_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "flash_released": true,
+      "remaining_leases": 0,
+      "retained_after_service_restart": true,
+      "no_elf_and_mismatched_elf_register_contexts_preserved": true,
+      "all_frames_pc_sp_match_independent_esp_rv32_gdb": true,
+      "tasks": {
+        "main": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40804cd6",
+              "sp": "0x408116b0"
+            },
+            {
+              "pc": "0x40804c94",
+              "sp": "0x408116b0"
+            },
+            {
+              "pc": "0x40809970",
+              "sp": "0x408116c0"
+            },
+            {
+              "pc": "0x4200c2b0",
+              "sp": "0x40811730"
+            },
+            {
+              "pc": "0x4200c2e2",
+              "sp": "0x40811740"
+            },
+            {
+              "pc": "0x42012c24",
+              "sp": "0x40811750"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40811770"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "panic_abort",
+            "esp_system_abort",
+            "abort",
+            "trigger_riscv_abort",
+            "app_main",
+            "main_task",
+            "vPortTaskWrapper"
+          ]
+        },
+        "IDLE": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40802d48",
+              "sp": "0x40811e90"
+            },
+            {
+              "pc": "0x420123d0",
+              "sp": "0x40811ea0"
+            },
+            {
+              "pc": "0x408066ae",
+              "sp": "0x40811eb0"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40811ec0"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "esp_cpu_wait_for_intr",
+            "esp_vApplicationIdleHook",
+            "prvIdleTask",
+            "vPortTaskWrapper"
+          ]
+        },
+        "esp_timer": {
+          "status": "complete",
+          "source": "matched_rv32_debug_frame",
+          "stop_reason": "return_address_undefined",
+          "frames": [
+            {
+              "pc": "0x40805e28",
+              "sp": "0x40810350"
+            },
+            {
+              "pc": "0x40805ebe",
+              "sp": "0x40810350"
+            },
+            {
+              "pc": "0x40807576",
+              "sp": "0x40810360"
+            },
+            {
+              "pc": "0x4200f94c",
+              "sp": "0x40810370"
+            },
+            {
+              "pc": "0x40805c68",
+              "sp": "0x40810380"
+            }
+          ],
+          "sdk_gdb_functions": [
+            "vPortClearInterruptMaskFromISR",
+            "vPortExitCritical",
+            "ulTaskGenericNotifyTake",
+            "timer_task",
+            "vPortTaskWrapper"
+          ]
+        }
+      }
+    }
+  },
+  "not_run": [
+    "physical",
+    "browser_wasm",
+    "other_nesso_profiles",
+    "flash_dump_backtrace",
+    "other_riscv_boards"
+  ],
+  "burner": "NOT SUBMITTED"
+}
