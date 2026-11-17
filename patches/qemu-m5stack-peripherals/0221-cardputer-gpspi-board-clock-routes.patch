@@ -1,0 +1,284 @@
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -8,6 +8,7 @@
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
+ #include "hw/sysbus.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/irq.h"
+ #include "exec/address-spaces.h"
+ #include "hw/dma/esp32s3_gdma.h"
+@@ -69,6 +70,10 @@
+     int dc_pin;
+     int panel_cs_pin;
+     int panel_cs_level;
++    int clock_signal;
++    int panel_clock_pin;
++    int panel_clock_mux;
++    int slave_clock_pin;
+     M5GpspiSlave slaves[M5_GPSPI_MAX_SLAVES];
+     int slave_count;
+     int active_slave;
+@@ -95,8 +100,23 @@
+     qemu_set_irq(s->irq_alias, level);
+ }
+ 
++static bool gpspi_clock_routed(Esp32s3GpspiState *s, int pin, int iomux_func)
++{
++    Esp32GpioPadSnapshot pad;
++
++    if (pin < 0) {
++        return true;
++    }
++    if (!esp32_gpio_pad_snapshot(esp32_gpio_get_controller(true), pin, &pad)) {
++        return false;
++    }
++    return (pad.mux_path == ESP32_GPIO_MUX_GPIO_MATRIX &&
++            pad.out_sel == s->clock_signal) ||
++           (iomux_func >= 0 && pad.iomux_valid && pad.mcu_sel == iomux_func);
++}
++
+ static void sink(Esp32s3GpspiState *s, const uint8_t *b, uint32_t n,
+-                 bool command_phase)
++                 bool command_phase, bool panel_selected)
+ {
+     if (s->dc_pin >= 0) {
+         command_phase = !esp32_gpio_get_line(s->dc_pin);
+@@ -105,21 +125,18 @@
+         fprintf(stderr, "[spi-xfer] %c len=%u first=%02x\n",
+                 command_phase ? 'C' : 'D', n, b[0]);
+     }
+-    if (s->panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (s->panel && n && panel_selected) {
+         co5300_write(s->panel, b, n);
+     }
+-    if (s->spi_panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (s->spi_panel && n && panel_selected) {
+         m5_spi_panel_write(s->spi_panel, b, n, command_phase);
+     }
+-    if (s->epd_panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (s->epd_panel && n && panel_selected) {
+         m5_epd_panel_write(s->epd_panel, b, n, command_phase);
+     }
+ }
+ 
+-static void gpspi_forward_slave(Esp32s3GpspiState *s,
++static void gpspi_forward_slave(Esp32s3GpspiState *s, int active_slave,
+                                 const uint8_t *tx, uint32_t n,
+                                 uint8_t *rx, bool capture)
+ {
+@@ -127,12 +144,12 @@
+ 
+     if (getenv("M5SW_SPI_XFER_TRACE")) {
+         fprintf(stderr, "[gpspi-forward] active=%d n=%u capture=%d\n",
+-                s->active_slave, n, capture);
+-    }
+-    if (s->active_slave < 0) {
++                active_slave, n, capture);
++    }
++    if (active_slave < 0) {
+         return;
+     }
+-    slave = &s->slaves[s->active_slave];
++    slave = &s->slaves[active_slave];
+     if (!slave->ops || slave->cs_level != 0) {
+         return;
+     }
+@@ -144,11 +161,11 @@
+     }
+ }
+ 
+-static uint32_t gpspi_active_dma_periph(Esp32s3GpspiState *s)
+-{
+-    if (s->active_slave >= 0 &&
+-        s->slaves[s->active_slave].gdma_periph >= 0) {
+-        return s->slaves[s->active_slave].gdma_periph;
++static uint32_t gpspi_active_dma_periph(Esp32s3GpspiState *s, int active_slave)
++{
++    if (active_slave >= 0 &&
++        s->slaves[active_slave].gdma_periph >= 0) {
++        return s->slaves[active_slave].gdma_periph;
+     }
+     return s->gdma_periph;
+ }
+@@ -189,10 +206,11 @@
+ }
+ 
+ /* Pull n bytes from the GDMA out-link chain bound to SPI2 */
+-static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, uint8_t *dst, uint32_t n)
++static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, int active_slave,
++                               uint8_t *dst, uint32_t n)
+ {
+     uint32_t got = 0;
+-    const uint32_t periph = gpspi_active_dma_periph(s);
++    const uint32_t periph = gpspi_active_dma_periph(s, active_slave);
+     if (!s->gdma) {
+         return 0;
+     }
+@@ -241,11 +259,21 @@
+ 
+ static void gpspi_exec(Esp32s3GpspiState *s)
+ {
++    /*
++     * A board may wire multiple clock pads to the GPIO matrix. A selected
++     * device receives a transaction only from the controller driving its
++     * clock, even if a chip-select pin for another bus is low.
++     */
++    const int active_slave = gpspi_clock_routed(s, s->slave_clock_pin, -1) ?
++                             s->active_slave : -1;
++    const bool panel_selected = active_slave < 0 &&
++        (s->panel_cs_pin < 0 || !s->panel_cs_level) &&
++        gpspi_clock_routed(s, s->panel_clock_pin, s->panel_clock_mux);
+     uint32_t user = s->regs[R_USER / 4];
+     uint8_t tmp[8];
+     uint8_t xfer[4096];
+     uint32_t xfer_len = 0;
+-    if (s->active_slave < 0) {
++    if (active_slave < 0) {
+         s->last_slave = -1;
+     }
+     memset(xfer, 0xff, sizeof(xfer));
+@@ -256,8 +284,8 @@
+         for (uint32_t i = 0; i < nb; i++) {
+             tmp[i] = v >> (8 * i);
+         }
+-        sink(s, tmp, nb, true);
+-        gpspi_forward_slave(s, tmp, nb, NULL, false);
++        sink(s, tmp, nb, true, panel_selected);
++        gpspi_forward_slave(s, active_slave, tmp, nb, NULL, false);
+     }
+     if (user & USER_ADDR) {
+         uint32_t bits = ((s->regs[R_USER1 / 4] >> 27) & 0x1f) + 1;
+@@ -266,8 +294,8 @@
+         for (uint32_t i = 0; i < nb; i++) {
+             tmp[i] = v >> (8 * (nb - 1 - i));
+         }
+-        sink(s, tmp, nb, false);
+-        gpspi_forward_slave(s, tmp, nb, NULL, false);
++        sink(s, tmp, nb, false, panel_selected);
++        gpspi_forward_slave(s, active_slave, tmp, nb, NULL, false);
+     }
+     if (user & USER_MOSI) {
+         uint32_t bits = (s->regs[R_MS_DLEN / 4] & 0x3ffff) + 1;
+@@ -277,10 +305,10 @@
+                 s->buf = g_realloc(s->buf, nb);
+                 s->buf_size = nb;
+             }
+-            uint32_t got = gpspi_dma_pull(s, s->buf, nb);
++            uint32_t got = gpspi_dma_pull(s, active_slave, s->buf, nb);
+             xfer_len = MIN(got, sizeof(xfer));
+             memcpy(xfer, s->buf, xfer_len);
+-            sink(s, s->buf, got, false);
++            sink(s, s->buf, got, false, panel_selected);
+         } else {
+             for (int i = 0; i < 16; i++) {
+                 uint32_t v = s->regs[R_W0 / 4 + i];
+@@ -288,7 +316,7 @@
+                 xfer[i * 4 + 2] = v >> 16; xfer[i * 4 + 3] = v >> 24;
+             }
+             xfer_len = MIN(nb, sizeof(xfer));
+-            sink(s, xfer, xfer_len, false);
++            sink(s, xfer, xfer_len, false, panel_selected);
+         }
+     }
+     if (user & USER_MISO) {
+@@ -297,13 +325,12 @@
+         uint32_t copy = MIN(nb, sizeof(xfer));
+ 
+         memset(s->rx, 0xff, sizeof(s->rx));
+-        if (s->spi_panel && s->active_slave < 0 &&
+-            (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++        if (s->spi_panel && panel_selected) {
+             m5_spi_panel_read(s->spi_panel, s->rx, MIN(bits / 8, copy));
+         }
+-        if (s->active_slave >= 0) {
+-            s->last_slave = s->active_slave;
+-            gpspi_forward_slave(s, xfer, copy, s->rx, true);
++        if (active_slave >= 0) {
++            s->last_slave = active_slave;
++            gpspi_forward_slave(s, active_slave, xfer, copy, s->rx, true);
+             if (getenv("M5SW_SPI_XFER_TRACE") && copy) {
+                 fprintf(stderr,
+                         "[spi-rx] len=%u first=%02x last=%02x"
+@@ -322,7 +349,7 @@
+         }
+         if (s->gdma && rx_dma) {
+             uint32_t ch;
+-            const uint32_t periph = gpspi_active_dma_periph(s);
++            const uint32_t periph = gpspi_active_dma_periph(s, active_slave);
+             if (esp_gdma_get_channel_periph(s->gdma, periph,
+                                             ESP_GDMA_IN_IDX, &ch)) {
+                 bool ok = esp_gdma_write_channel(s->gdma, ch,
+@@ -350,7 +377,7 @@
+             *word = (*word & ~(0xffu << shift)) | ((uint32_t)s->rx[i] << shift);
+         }
+     } else if (user & USER_MOSI) {
+-        gpspi_forward_slave(s, xfer, xfer_len, NULL, false);
++        gpspi_forward_slave(s, active_slave, xfer, xfer_len, NULL, false);
+     }
+     s->regs[R_DMA_INT_RAW / 4] |= INT_TRANS_DONE;
+     gpspi_update_irq(s);
+@@ -482,6 +509,9 @@
+     sysbus_init_irq(SYS_BUS_DEVICE(obj), &s->irq_alias);
+     s->active_slave = -1;
+     s->last_slave = -1;
++    s->panel_clock_pin = -1;
++    s->panel_clock_mux = -1;
++    s->slave_clock_pin = -1;
+     s->panel_cs_pin = -1;
+     s->panel_cs_level = 1;
+     s->debug_id = next_debug_id++;
+@@ -528,6 +558,18 @@
+ void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin)
+ {
+     ESP32S3_GPSPI(dev)->dc_pin = pin;
++}
++
++void esp32s3_gpspi_set_clock_routes(DeviceState *dev, int clock_signal,
++                                   int panel_clock_pin, int panel_clock_mux,
++                                   int slave_clock_pin)
++{
++    Esp32s3GpspiState *s = ESP32S3_GPSPI(dev);
++
++    s->clock_signal = clock_signal;
++    s->panel_clock_pin = panel_clock_pin;
++    s->panel_clock_mux = panel_clock_mux;
++    s->slave_clock_pin = slave_clock_pin;
+ }
+ 
+ void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin)
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+--- a/hw/m5stopwatch/m5cardputer.c
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -101,6 +101,14 @@
+     esp32s3_gpspi_attach(spi, gdma, NULL, panel, dma);
+     esp32s3_gpspi_set_dc_pin(spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 37);
++    /* GPIO36 is the panel clock; GPIO40 is microSD SCK. */
++    if (dma == GDMA_SPI2) {
++        /* FSPICLK matrix signal 101, or GPIO36 IOMUX function 2. */
++        esp32s3_gpspi_set_clock_routes(spi, 101, 36, 2, 40);
++    } else {
++        /* SPI3_CLK matrix signal 66. SPI3 has no direct IOMUX route. */
++        esp32s3_gpspi_set_clock_routes(spi, 66, 36, -1, 40);
++    }
+     m5_spi_sd_attach(spi, 12);
+ }
+ 
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -157,6 +157,9 @@
+                           Co5300State *co, M5SpiPanelState *spi,
+                           uint32_t gdma_periph);
+ void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin);
++void esp32s3_gpspi_set_clock_routes(DeviceState *dev, int clock_signal,
++                                   int panel_clock_pin, int panel_clock_mux,
++                                   int slave_clock_pin);
+ void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin);
+ void esp32s3_gpspi_connect_irqs(DeviceState *dev, DeviceState *intmatrix,
+                                 int irq_a, int irq_b);

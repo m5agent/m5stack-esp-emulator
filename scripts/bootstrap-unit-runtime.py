@@ -194,6 +194,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0216-s3-gpspi-idle-rx-dma.patch",
     "patches/qemu-m5stack-peripherals/0217-s3-sticks3-portal-station.patch",
     "patches/qemu-m5stack-peripherals/0218-dial-gc9a01-gpio-probe.patch",
+    "patches/qemu-m5stack-peripherals/0221-cardputer-gpspi-board-clock-routes.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",
