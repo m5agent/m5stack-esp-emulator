@@ -6881,9 +6881,12 @@ class DeviceServiceHttpTests(unittest.TestCase):
 
     def test_device_capabilities_preserves_unmodeled_and_unknown_targets(self):
         _, tab5 = self.request("/api/v1/devices/tab5/capabilities")
-        touch = next(component for component in tab5["components"] if component["id"] == "touch")
-        self.assertEqual(touch["device_status"], "partial")
-        self.assertEqual(touch["evidence"], {"status": "not_tested", "case_ids": []})
+        components = {row["id"]: row for row in tab5["components"]}
+        self.assertEqual(components["touch"]["device_status"], "simulated")
+        self.assertEqual(components["touch"]["evidence"],
+                         {"status": "case_registered", "case_ids": ["tab5-st7123"]})
+        self.assertEqual(components["camera"]["device_status"], "planned")
+        self.assertEqual(components["camera"]["evidence"], {"status": "not_tested", "case_ids": []})
         _, disabled = self.request("/api/v1/devices/cardputer-zero/capabilities")
         self.assertEqual(disabled["model_status"], "unsupported")
         self.assertEqual(disabled["runtime"]["local_status"], "not_applicable")
