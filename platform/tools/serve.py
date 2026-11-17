@@ -733,7 +733,12 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ServiceError("invalid_request", "SD export does not accept options", 400)
                 response = service.get_session(parts[1]).sd_storage_export()
             elif method == "GET" and len(parts) == 4 and parts[0] == "sessions" and parts[2:] == ["storage", "filesystem"]:
-                response = service.get_session(parts[1]).filesystem_storage_inventory()
+                include_source = query.get("include_source", ["0"])
+                if len(include_source) != 1 or include_source[0] not in {"0", "1"}:
+                    raise ServiceError("invalid_filesystem_source_flag", "include_source must be 0 or 1", 400)
+                response = service.get_session(parts[1]).filesystem_storage_inventory(
+                    include_source=include_source[0] == "1",
+                )
             elif method == "POST" and len(parts) == 5 and parts[0] == "sessions" and parts[2:] == ["storage", "filesystem", "export"]:
                 if self._read_json(required=False, max_bytes=512):
                     raise ServiceError("invalid_request", "filesystem export does not accept options", 400)

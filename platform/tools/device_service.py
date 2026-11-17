@@ -8388,9 +8388,31 @@ class DeviceSession:
         finally:
             self._lifecycle_lock.release()
 
-    def filesystem_storage_inventory(self) -> dict:
+    def filesystem_storage_inventory(self, *, include_source: bool = False) -> dict:
         data, metadata, receipt = self._read_stopped_filesystem()
-        return {**metadata, "filesystem": inspect_fs_snapshot(data, receipt)}
+        result = {**metadata, "filesystem": inspect_fs_snapshot(data, receipt)}
+        if include_source:
+            try:
+                source = self.service.artifacts.read(metadata["source_artifact_id"])
+            except ServiceError as error:
+                if error.code != "unknown_artifact":
+                    raise
+                raise ServiceError(
+                    "filesystem_source_unavailable", "the applied source fixture is no longer available", 409
+                ) from error
+            except OSError as error:
+                raise ServiceError(
+                    "filesystem_source_unavailable", "the applied source fixture cannot be read", 409
+                ) from error
+            if len(source) != len(data) or hashlib.sha256(source).hexdigest() != metadata["source_artifact_id"]:
+                raise ServiceError(
+                    "filesystem_source_mismatch", "source bytes differ from the applied fixture identity", 409
+                )
+            result["source_filesystem"] = (
+                result["filesystem"] if metadata["source_artifact_id"] == metadata["sha256"]
+                else inspect_fs_snapshot(source, receipt)
+            )
+        return result
 
     def filesystem_storage_export(self) -> dict:
         data, metadata, receipt = self._read_stopped_filesystem()

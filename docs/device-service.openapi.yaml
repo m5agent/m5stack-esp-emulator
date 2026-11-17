@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.82.0
+  version: 1.83.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2243,9 +2243,18 @@ paths:
       description: >-
         Stop with purge=0 and retain_flash=1 first. Requires storage.read and
         flash.read under a runtime ACL. Only the previously applied partition
-        is read. The listing contains metadata and file hashes.
+        is read from Flash. With include_source=1 the immutable fixture is
+        verified and inventoried separately. The listings contain metadata
+        and file hashes.
       parameters:
         - $ref: "#/components/parameters/SessionId"
+        - name: include_source
+          in: query
+          description: Include the verified original fixture inventory. Missing or mismatched fixture bytes return 409.
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
       responses:
         "200":
           description: Partition identity and bounded filesystem inventory
@@ -2260,6 +2269,12 @@ paths:
                       filesystem:
                         type: object
                         additionalProperties: true
+                      source_filesystem:
+                        type: object
+                        additionalProperties: true
+                        description: Present on successful requests with include_source=1.
+        "400":
+          $ref: "#/components/responses/Error"
         "403":
           $ref: "#/components/responses/Error"
         "404":

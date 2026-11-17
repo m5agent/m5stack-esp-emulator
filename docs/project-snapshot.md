@@ -150,20 +150,20 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`93` 个 Python 模块，`55747` 行；规模最大的模块如下。
+- `platform/tools`：`93` 个 Python 模块，`55774` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 13761 |
+| `device_service.py` | 13783 |
 | `firmware_manifest.py` | 3640 |
 | `user_firmware_matrix.py` | 2348 |
-| `serve.py` | 1924 |
+| `serve.py` | 1929 |
 | `network_sandbox.py` | 1794 |
 | `firmware_filesystems.py` | 1532 |
 
 - `tests/`：`181` 个可执行 Python 测试文件，分布在 `82` 个目录；`252` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`366` 个 patch 文件。
-- 文档：`739` 个 Markdown 页面；除本生成页外共 `79806` 行。
+- 文档：`739` 个 Markdown 页面；除本生成页外共 `79812` 行。
 
 ## 文档与测试
 

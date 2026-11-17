@@ -2388,6 +2388,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(receipt["offset"], start)
         self.assertEqual(receipt["source_artifact_id"], source["artifact_id"])
         self.assertEqual(receipt["filesystem"]["file_count"], 2)
+        self.assertNotIn("source_filesystem", receipt)
+        comparison = session.filesystem_storage_inventory(include_source=True)
+        self.assertEqual(comparison["sha256"], hashlib.sha256(saved).hexdigest())
+        self.assertEqual(comparison["filesystem"], receipt["filesystem"])
+        self.assertEqual(comparison["source_filesystem"]["file_count"], 1)
+        self.assertEqual(
+            [row["sha256"] for row in comparison["source_filesystem"]["files"]],
+            [hashlib.sha256(b"seed file").hexdigest()],
+        )
+        source_path = self.service.artifacts.path(source["artifact_id"])
+        source_path.write_bytes(saved)
+        with self.assertRaises(ServiceError) as mismatch:
+            session.filesystem_storage_inventory(include_source=True)
+        self.assertEqual(mismatch.exception.code, "filesystem_source_mismatch")
+        source_path.unlink()
+        with self.assertRaises(ServiceError) as absent:
+            session.filesystem_storage_inventory(include_source=True)
+        self.assertEqual(absent.exception.code, "filesystem_source_unavailable")
+        self.assertEqual(session.filesystem_storage_inventory(), receipt)
+        source_path.write_bytes(seed)
         exported = session.filesystem_storage_export()
         self.assertEqual(self.service.artifacts.read(exported["artifact_id"]), saved)
         self.assertEqual(self.service.artifacts.read(source["artifact_id"]), seed)
