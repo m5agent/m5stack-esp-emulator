@@ -33,10 +33,9 @@ class PlainQemuAudioTests(unittest.TestCase):
         return instance
 
     def test_default_audio_completion_and_paths_are_owned_per_session(self):
-        first = self.session("cores3")
-        second = self.session("cardputer-adv")
         paths = []
-        for session in (first, second):
+        for device in ("cores3", "cardputer", "cardputer-adv"):
+            session = self.session(device)
             environment = {
                 "M5SW_I2S_DMA_IRQ": "0",
                 "M5SW_I2S_PCM_FILE": "/unrelated-session/speaker.pcm",
@@ -47,7 +46,7 @@ class PlainQemuAudioTests(unittest.TestCase):
             self.assertEqual(Path(environment["M5SW_I2S_PCM_FILE"]).parent, session.dir)
             self.assertEqual(Path(environment["M5SW_I2S_RX_PCM_FILE"]).parent, session.dir)
             paths.append(environment["M5SW_I2S_PCM_FILE"])
-        self.assertNotEqual(*paths)
+        self.assertEqual(len(set(paths)), len(paths))
 
     def test_unvalidated_devices_and_other_runtimes_do_not_inherit_support(self):
         for device, runtime in (("atoms3r", "qemu"), ("stopwatch", "qemu-unified"), ("cores3", "qemu-unified")):
@@ -56,8 +55,8 @@ class PlainQemuAudioTests(unittest.TestCase):
                 self.session(device, runtime=runtime)._plain_qemu_audio_environment(environment)
                 self.assertEqual(environment, {})
 
-    def test_stopwatch_sticks3_and_core2_receive_owned_mono_fixtures(self):
-        for device in ("stopwatch", "sticks3", "core2"):
+    def test_plain_mono_profiles_receive_owned_fixtures(self):
+        for device in ("cardputer", "cardputer-adv", "stopwatch", "sticks3", "core2"):
             with self.subTest(device=device):
                 session = self.session(device)
                 environment = {}

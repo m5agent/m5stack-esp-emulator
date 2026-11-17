@@ -16,6 +16,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-17
 
+[Cardputer 原生音频](../tests/uiflow2/api_sweep/cardputer-audio-summary.json)在初代与 ADV 的普通 Device Service 会话各验证 440 Hz 麦克风注入和 660 Hz 扬声器输出。两个独立静音输入均读回全零，native I2S1 保留 pilot 后的静音采样。初代默认会话修正后保存生成源与真实 DMA PCM，覆盖注入仅保留 provenance。浏览器和物理声学未执行。
+
 [ESP32-S3 IWDT 时序取证](../tests/firmware/crash_diagnostics/s3-iwdt-timing-summary.json) 用同一 Cardputer 原生 QEMU、同一 ESP-IDF CPU1 watchdog 探针验证开启和默认关闭。两次均出现 guest CPU1 watchdog。开启时只输出一条 TIMERGROUP1 stage-0 摘要，包含 SYSTIMER 两目标、各核确认及 CPU0 喂狗距到期的实测间隔。NC1020 原版未在此候选运行时上验证。
 
 [SkyCompass Satellite 3.6 原版 STA](../tests/network/native_sta_peers/original_skycompass/README.md)从 Cardputer ADV 的原版界面完成扫描和 DHCP，在专用 Unix Ethernet 对端接收 DNS 和固定 SNTP，来宾读回指定 UTC。保留 DHCP/DNS 并扣留 NTP 响应时，原版无成功同步；公开 HTTP 和实体网络未执行。
