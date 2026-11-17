@@ -23,6 +23,8 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-17
 
+[StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)使用原版应用 `5c7c0b74…`、合成 Flash `9627c7bc…` 和新原生 QEMU `eca4ab4b…`。同一隔离会话取得真实关联、DORA、ARP 和 HTTP 200 完整首页。保留仅允许夹具 SSID 的同镜像负对照和来宾 HTTP 开启前拒绝连接的观察。
+
 [Cardputer 原生音频](../tests/uiflow2/api_sweep/cardputer-audio-summary.json)在初代与 ADV 的普通 Device Service 会话各验证 440 Hz 麦克风注入和 660 Hz 扬声器输出。两个独立静音输入均读回全零，native I2S1 保留 pilot 后的静音采样。初代默认会话修正后保存生成源与真实 DMA PCM，覆盖注入仅保留 provenance。浏览器和物理声学未执行。
 
 [ESP32-S3 IWDT 时序取证](../tests/firmware/crash_diagnostics/s3-iwdt-timing-summary.json) 用同一 Cardputer 原生 QEMU、同一 ESP-IDF CPU1 watchdog 探针验证开启和默认关闭。两次均出现 guest CPU1 watchdog。开启时只输出一条 TIMERGROUP1 stage-0 摘要，包含 SYSTIMER 两目标、各核确认及 CPU0 喂狗距到期的实测间隔。NC1020 原版未在此候选运行时上验证。

@@ -1695,6 +1695,12 @@ The default station-mode synthetic AP remains available through its original
 profile. Frame handling keeps the open peer scoped to its associated BSSID,
 clears its state on reset, and discards protected SoftAP frames.
 
+Layer `0214-s3-sticks3-open-softap-portal.patch` follows 0213 and adds the
+fixed `StickS3-Setup` selection when `open-softap-sticks3-portal` is enabled
+together with the open peer. The new selection uses the same management and
+Ethernet data paths. See the
+[original StickS3 portal evidence](../../docs/evidence/2026-11-17-sticks3-portal-page/README.md).
+
 ## ESP32-S3 BBPLL calibration completion (0211)
 
 ESP-IDF v6.1.1 polls the calibration status at analog I²C master register

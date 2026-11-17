@@ -1,0 +1,351 @@
+{
+  "device": "sticks3",
+  "validation": "virtual-device validation",
+  "author_release": "v0.2.4",
+  "runtime_mode": "qemu-wifi",
+  "author_source": "5faf4efaec9b9aa0d36fcb9514030cb9de649862",
+  "source_firmware_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+  "segments": [
+    {
+      "offset": 0,
+      "name": "bootloader.bin",
+      "sha256": "1776e4dd896a69d0a5c2e79957b0e2a88aa4129b1381d6478683515a1f6af343"
+    },
+    {
+      "offset": 32768,
+      "name": "partitions.bin",
+      "sha256": "a388634787e6301eb31711138e4dc4012483b79b140d63f2519acf41fd59d02d"
+    },
+    {
+      "offset": 57344,
+      "name": "boot_app0.bin",
+      "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+    },
+    {
+      "offset": 65536,
+      "name": "author app",
+      "sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6"
+    }
+  ],
+  "composed_firmware_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+  "runtime_sha256": "eca4ab4bce50c10834fc92b12a3bdb69fd4c504c3281bec03574322dc6b98187",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "service_source_files_sha256": {
+    "platform/tools/device_service.py": "48f68a0d7a62bc97660b7ecb069641b5305ba0af2531e166e730b9beb11b5641",
+    "platform/tools/device_service_softap_peer.py": "739f09b5b3a67115aa5ddcfbe9fc5ee40b616d5061a7ce42412dfd04edf905b0"
+  },
+  "native_patch_replay": {
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "native_patch_count": 161,
+    "changed_file_count": 155,
+    "ordered_forward_and_reverse_apply": "PASS",
+    "prepared_source_verification": "PASS",
+    "built_qemu_source_bytes_match": "PASS",
+    "changes_restored_to_pinned_tree": "PASS",
+    "final_patch_sha256": "f4dda4e91d4bcf60092f8744f930d095d12add67c6f120482d5bfe4174905867",
+    "before_reverse_recipe_sha256": "be34fa864b8cf21c4158613eceeb5d82b95afb81853a724ebdbf1668d77702de"
+  },
+  "initial_candidate_without_pre_get_retry": {
+    "status": "PARTIAL",
+    "profile": "sticks3-open-softap-portal",
+    "final_peer": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 1,
+      "status": "PARTIAL",
+      "released": true,
+      "dhcp": true,
+      "arp": true,
+      "http": false,
+      "stage": "http"
+    },
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "7b1dfbeab0e5dce4dc58ee55a1be4d9a5f70fb5e4d2d350f5ea363302d8c9413",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 0
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "588d915b2843c93580e48d550a735b714989da3785f0fc8436c72c17acb600df",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "wifi_guest_beacon_frames": 63,
+    "wifi_guest_auth_responses": 1,
+    "wifi_guest_association_responses": 1
+  },
+  "original_portal": {
+    "status": "PASS",
+    "profile": "sticks3-open-softap-portal",
+    "final_peer": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 1,
+      "status": "PASS",
+      "released": true,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "http_body_sha256": "155b87edfafcd2bdf6142868c48b1bdc94c8b4b6a8ac7f4576baa68bbdae7854",
+      "http_request_sha256": "10e9746b99051679209d136b5650fb45345c18190233817f05d06853096666ae"
+    },
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "ea026dfaa8b369126ce087f07e3a7bdb525a4fe41d9032cc0e8492fc4c6a4aa0",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 1
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "3213beea32b7a19ca3f84b4dd29d168c5d45481cde876e847c97301de34b5f7d",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "wifi_guest_beacon_frames": 9,
+    "wifi_guest_auth_responses": 1,
+    "wifi_guest_association_responses": 1,
+    "frame_sha256": "aaa288018447c3ca4fa8335e89dce4e8d6f95f74ff8dca74e68a290aaf430468",
+    "guest_console_sha256": "54ff35ea9161b4f8580043dcd463d7f47850ac5b138afd66f905b94c8624f3cf",
+    "input": [],
+    "independent_ethernet_readback": {
+      "http_status": 200,
+      "guest_tcp_resets_before_get": 1,
+      "requests": 1,
+      "request_method": "GET",
+      "request_path": "/",
+      "matched_setup_heading_and_configure_wifi_form": true,
+      "http_response_body_bytes": 5448,
+      "pcap_and_zip_receipt_agree": true,
+      "released": true
+    }
+  },
+  "original_with_legacy_ssid_selection": {
+    "status": "PARTIAL",
+    "profile": "sticks3-open-softap-fixture",
+    "final_peer": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 1,
+      "status": "PARTIAL",
+      "released": true,
+      "dhcp": false,
+      "arp": false,
+      "http": false,
+      "stage": "dhcp"
+    },
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "378cb5ee71eac6d497255e5b32941c0505bfc7eeff7412cfc2adb8fe33dd9d34",
+      "dhcpv4": {
+        "completed_dora_transactions": 0,
+        "leased_address_count": 0
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 0
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "8108343555cadb0b5cc2ad3f283779071c1bd656b2ca7415f52698baf7fc9d5a",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "wifi_guest_beacon_frames": 200,
+    "wifi_guest_auth_responses": 0,
+    "wifi_guest_association_responses": 0
+  },
+  "confirmed_legacy_sdk_fixture_after_reset": {
+    "status": "PASS",
+    "final_peer": {
+      "schema_version": 1,
+      "transport": "unix-socketpair",
+      "generation": 2,
+      "status": "PASS",
+      "released": true,
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+      "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+    },
+    "transport": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "f5bfc9421cbe641f0d18bd5350afa18919181cc2360a7deede21217bc85ed53e",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 2
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "isolation": {
+      "mode": "unix-socketpair",
+      "host_ip_backends": 0,
+      "cleanup_completed": true
+    },
+    "before_stop_evidence_sha256": "1f5cdef12aab12d77ae36768b3f7554a928af1ee19886ddd19de8c3679524731",
+    "worker_active_leases": 0,
+    "service_exited": true,
+    "firmware_sha256": "85eeb128b0d603fa3a10b421573015c713eb3e05587d11a2f525200597080d19",
+    "wifi_auth_association_responses": {
+      "auth": 2,
+      "assoc": 2
+    },
+    "checks": [
+      {
+        "pre_press_serial_sha256": "921cd981cf7df209249bc15fa0d90d2a54a8a5ddebc29be0bd32363d41aa6b97",
+        "pre_press_peer": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 1,
+          "status": "RUNNING",
+          "released": false,
+          "dhcp": false,
+          "arp": false,
+          "http": false
+        },
+        "observed_marker_order": [
+          "PROVISION_WAIT_BUTTON gpio=11 level=1",
+          "PROVISION_ENTER_BUTTON gpio=11 level=0",
+          "AP_FIXTURE_STARTED",
+          "AP_FIXTURE_HTTP_READY",
+          "AP_FIXTURE_JOINED",
+          "AP_FIXTURE_LEASED",
+          "AP_FIXTURE_HTTP_SENT"
+        ],
+        "serial_sha256": "1eaa52c21f283684e56a6bd9a953214425d11979eafd81f68924eef5ea7e6473",
+        "peer_after_press": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 1,
+          "status": "PASS",
+          "released": false,
+          "dhcp": true,
+          "arp": true,
+          "http": true,
+          "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+          "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+        },
+        "input": [
+          {
+            "control": "b",
+            "timing": {
+              "clock": "virtual",
+              "hold_seconds": 0.35,
+              "hold_time_ms": 350,
+              "presses": 1,
+              "completion": "queued"
+            },
+            "guest_readback": true
+          },
+          {
+            "control": "a",
+            "timing": {
+              "clock": "virtual",
+              "hold_seconds": 0.35,
+              "hold_time_ms": 350,
+              "presses": 1,
+              "completion": "queued"
+            }
+          }
+        ]
+      },
+      {
+        "pre_press_serial_sha256": "0da6379972e4c51e776a31204ceb8801ef8ceeb440a49128ee102551885a4c25",
+        "pre_press_peer": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 2,
+          "status": "RUNNING",
+          "released": false,
+          "dhcp": false,
+          "arp": false,
+          "http": false
+        },
+        "observed_marker_order": [
+          "PROVISION_WAIT_BUTTON gpio=11 level=1",
+          "PROVISION_ENTER_BUTTON gpio=11 level=0",
+          "AP_FIXTURE_STARTED",
+          "AP_FIXTURE_HTTP_READY",
+          "AP_FIXTURE_JOINED",
+          "AP_FIXTURE_LEASED",
+          "AP_FIXTURE_HTTP_SENT"
+        ],
+        "serial_sha256": "477e95975a3c506f1be8b563389e8e2919d3ddc5f7264c3b1c4fedaef62b09c5",
+        "peer_after_press": {
+          "schema_version": 1,
+          "transport": "unix-socketpair",
+          "generation": 2,
+          "status": "PASS",
+          "released": false,
+          "dhcp": true,
+          "arp": true,
+          "http": true,
+          "http_body_sha256": "fd2e56ef92574b4d170e2672e9665bbc64a62026f8e8ecea44cf8ee54cfe2645",
+          "http_request_sha256": "9de47ca90bcb85d8e1c9fb8dde487b5665197fa7266099e94d394ca5fd908dc6"
+        },
+        "input": [
+          {
+            "control": "a",
+            "timing": {
+              "clock": "virtual",
+              "hold_seconds": 0.35,
+              "hold_time_ms": 350,
+              "presses": 1,
+              "completion": "queued"
+            }
+          }
+        ]
+      }
+    ],
+    "profile": "sticks3-open-softap-fixture"
+  },
+  "limits": {
+    "credential_submission": "NOT RUN",
+    "original_station_mode": "NOT RUN",
+    "physical_rf": "NOT RUN",
+    "browser_wasm": "NOT RUN"
+  }
+}
