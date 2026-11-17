@@ -10,6 +10,7 @@ from device_service_softap_peer import (
     PROVISION_STATION_GATEWAY, PROVISION_STATION_LEASE, STICKS3_PROVISION_PROFILE,
 )
 from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
+from device_service_specs import CORE2_WIFI_PROFILE
 
 if TYPE_CHECKING:
     from device_service_specs import DeviceSpec
@@ -23,10 +24,16 @@ _CARDPUTER_STA_MACHINES = {
 
 def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
     """Advertise exercised native Wi-Fi paths for the exact board machine."""
+    if not backend_ready or not spec.supported or spec.service_kind != "qemu":
+        return {}
     if (
-        not backend_ready or not spec.supported or spec.service_kind != "qemu"
-        or spec.backend != "qemu-esp32s3"
+        spec.id == "core2" and spec.machine == "m5core2"
+        and spec.backend == "qemu-esp32lx6" and CORE2_WIFI_PROFILE in spec.network_profiles
     ):
+        return {"sta": {
+            "runtime": "qemu-wifi", "profile": CORE2_WIFI_PROFILE, "operation_assertions": False,
+        }}
+    if spec.backend != "qemu-esp32s3":
         return {}
     if spec.id == "sticks3" and spec.machine == "m5sticks3":
         return {"portal_provisioning_fixture": {

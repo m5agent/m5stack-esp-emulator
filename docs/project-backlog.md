@@ -52,6 +52,7 @@
    需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
+   [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
    已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。开放式 ESP-IDF 夹具已通过

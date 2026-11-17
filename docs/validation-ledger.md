@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 经典 Core2 受控 STA
+
+[隔离会话摘要](../tests/network/native_sta_peers/core2-linux-summary.json)绑定同一经典 ESP32 探针与 Linux arm64 QEMU。Reviewer 通过原生 `core2-openmac`
+执行计划、会话准入与 PCAP 回读；来宾验证 DHCP、DNS A/NXDOMAIN 和二进制 UDP。
+错一个回复字节保留连接证据，来宾拒绝载荷；缺少命名空间能力在租约分配前拒绝。
+原版云端固件、HTTP、WPA2、物理硬件和浏览器未验证。
+
 ## 2026-11-18 Cardputer ADV 原版 MP3 播放审核
 
 [同一原版 BIN 与 FAT32 的三轮 dry-run](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)

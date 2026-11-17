@@ -173,6 +173,21 @@ class NativeStaIntegrationTests(unittest.TestCase):
 
 
 class NativeStaCapabilityTests(unittest.TestCase):
+    def test_core2_offer_requires_exact_machine_and_radio_profile(self):
+        core2 = replace(load_device_specs()["core2"], network_profiles=("core2-openmac",))
+        expected = {"sta": {
+            "runtime": "qemu-wifi", "profile": "core2-openmac", "operation_assertions": False,
+        }}
+        self.assertEqual(native_sta_capability(core2, backend_ready=True), expected)
+        self.assertEqual(native_sta_capability(core2, backend_ready=False), {})
+        for wrong in (
+            replace(core2, network_profiles=()),
+            replace(core2, backend="qemu-esp32s3"),
+            replace(core2, machine="m5stack"),
+            replace(core2, id="atom-lite"),
+        ):
+            self.assertEqual(native_sta_capability(wrong, backend_ready=True), {})
+
     def test_only_matched_ready_native_cardputer_projects_sta_capability(self):
         specs = load_device_specs()
         expected = {"sta": {

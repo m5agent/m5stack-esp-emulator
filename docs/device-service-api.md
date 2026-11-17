@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.76.0` and bounded
+Status: local MVP with unified-device runtime contract `1.77.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2771,6 +2771,11 @@ namespace loopback and replies only to an exact request. Both peers require
 The allowlist adds only the specific protocol and fixture port on the guest
 gateway. Controlled DNS remains available through `egress=allowlist` and
 `dns=controlled` with the existing allowed-name policy.
+
+On the exact native Core2 machine, the explicitly configured classic radio
+runtime advertises `native_network.sta.profile=core2-openmac`. Its contained
+Open STA fixture covers DHCP, controlled DNS and binary UDP with
+`http_fixture=false`. The board capability is not a worker namespace check.
 
 The network response and evidence ZIP record the UDP peer's sent and ignored
 datagram counts and hashes of the two configured payloads. Check the same

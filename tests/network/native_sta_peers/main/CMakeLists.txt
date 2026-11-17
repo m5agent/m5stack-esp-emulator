@@ -6,3 +6,7 @@ endif()
 if(M5_NAMESPACE_DNS)
     target_compile_definitions(${COMPONENT_LIB} PRIVATE M5_NAMESPACE_DNS=1)
 endif()
+
+if(M5_FIXTURE_UDP_ONLY)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE M5_FIXTURE_UDP_ONLY=1)
+endif()

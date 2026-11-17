@@ -48,6 +48,7 @@ static void on_network(void *arg, esp_event_base_t base, int32_t id, void *data)
     }
 }
 
+#ifndef M5_FIXTURE_UDP_ONLY
 static bool fixed_http(void)
 {
     const char request[] = "GET /native-sta HTTP/1.0\r\nHost: native-sta.test\r\n\r\n";
@@ -97,6 +98,8 @@ static bool fixed_http(void)
     printf("STA_FIXTURE_HTTP response_bytes=%u body_match=%u\n", (unsigned)used, okay && exact);
     return okay && exact;
 }
+
+#endif
 
 static int fixed_udp_exchange(const char *host, int port, const unsigned char *request, size_t request_size,
                               unsigned char *response, size_t response_size)
@@ -188,10 +191,17 @@ void app_main(void)
         printf("STA_FIXTURE_RESULT NO_LEASE\n");
         return;
     }
+#ifndef M5_FIXTURE_UDP_ONLY
     bool http = fixed_http();
+#endif
     bool dns_allow = fixed_dns(true);
     bool dns_deny = fixed_dns(false);
     bool udp = fixed_datagram();
+#ifdef M5_FIXTURE_UDP_ONLY
+    printf("STA_FIXTURE_PEERS dns_a=%u dns_nxdomain=%u udp=%u\n", dns_allow, dns_deny, udp);
+    printf("STA_FIXTURE_RESULT %s\n", (dns_allow && dns_deny && udp) ? "PASS" : "NO_FIXTURE");
+#else
     printf("STA_FIXTURE_PEERS http=%u dns_a=%u dns_nxdomain=%u udp=%u\n", http, dns_allow, dns_deny, udp);
     printf("STA_FIXTURE_RESULT %s\n", (http && dns_allow && dns_deny && udp) ? "PASS" : "NO_FIXTURE");
+#endif
 }

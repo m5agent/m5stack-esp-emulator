@@ -76,3 +76,38 @@ The [original SkyCompass replay](original_skycompass/README.md) uses the
 unmodified v3.6 Cardputer ADV firmware to verify Wi-Fi UI, DHCP, DNS and SNTP
 on a dedicated Unix-only test peer. It withholds the NTP reply in the
 same-path negative case.
+
+## Classic Core2 DNS and binary UDP
+
+The same probe has a classic ESP32 build that leaves HTTP off. Use the
+ESP-IDF v5.5.4 checkout and the 16 MiB Core2 configuration.
+
+```sh
+idf.py -C tests/network/native_sta_peers -B <build-dir> \
+  -D IDF_TARGET=esp32 -D SDKCONFIG=<owned-sdkconfig> \
+  -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.esp32 \
+  -D M5_NAMESPACE_DNS=ON -D M5_FIXTURE_UDP_ONLY=ON build
+esptool --chip esp32 merge_bin --fill-flash-size 16MB \
+  --flash_mode dio --flash_size 16MB --flash_freq 40m -o <probe.bin> \
+  0x1000 <build-dir>/bootloader/bootloader.bin \
+  0x8000 <build-dir>/partition_table/partition-table.bin \
+  0x10000 <build-dir>/native_sta_fixture.bin
+```
+
+Use the outer Linux container with no network, the separate Device Service
+state and token, and the namespace settings from the Cardputer example.
+Configure the classic radio executable through `M5_CORE2_RADIO_QEMU` and
+register the image for `device_id=core2`. Set `network.profile=core2-openmac`,
+`network.http_fixture=false`, `network.policy.allowed_hosts=["lab.test"]`
+and keep the same binary UDP peer. Require one DORA exchange and
+`STA_FIXTURE_PEERS dns_a=1 dns_nxdomain=1 udp=1`. The wrong-reply variant must
+keep DHCP and DNS while producing `udp=0`, even if the finalized PCAP still
+has three bidirectional UDP flows. Omit namespace capability in a separate
+control and require preallocation rejection. Verify teardown and compare the
+ZIP's PCAP hash with the finalized transport receipt.
+
+The [Core2 Linux run](core2-linux-summary.json) also exercises the actual
+reviewer's execution plan, session admission and finalized transport reader.
+This scoped result covers the local IPv4 probe and Open Wi-Fi on the native
+Core2 model. HTTP, WLAN security variants and original cloud applications
+require their own evidence.
