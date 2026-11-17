@@ -14,6 +14,13 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-17 Tab5 ST7123 关机锁存
+
+原版 Arduventure 1.0.0 长按电源图标后，HP I²C1 上的 PI4IOE2
+输出使虚拟 P4 EN 进入低电平。保留最后一帧，来宾串口静默，显式会话
+复位后恢复原版帧。短按和图标外长按均保持运行，CarPlay GT911 单指拖动
+与确认页回归通过。[运行配置与精确摘要](evidence/2026-11-17-tab5-power-latch/README.md)
+
 ## 2026-11-17
 
 [Cardputer 原生音频](../tests/uiflow2/api_sweep/cardputer-audio-summary.json)在初代与 ADV 的普通 Device Service 会话各验证 440 Hz 麦克风注入和 660 Hz 扬声器输出。两个独立静音输入均读回全零，native I2S1 保留 pilot 后的静音采样。初代默认会话修正后保存生成源与真实 DMA PCM，覆盖注入仅保留 provenance。浏览器和物理声学未执行。

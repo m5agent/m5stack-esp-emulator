@@ -28,3 +28,20 @@ across the separate IRQ readbacks, ESP timer duration, and one release on the
 same guest's UART. On a drag-capable Part, two opposing drags verify the
 initial point, five moves, single release and the application's own
 drag-completion marker. The runner retains the evidence ZIP before stopping.
+
+## Original Arduventure power-off
+
+Configure the native DSI worker with the current standby-latch-enabled Part.
+Admit the normalized Flash SHA `0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063`
+for `st7123`. Provide the original Arduventure 1.0.0 upload BIN.
+
+```sh
+python3 tests/firmware/tab5_st7123/run_power.py \
+  --base-url "$DEVICE_API" --token-file "$CONTROL_TOKEN_FILE" \
+  --firmware "$ARDUVENTURE_BIN" --output "$POWER_EVIDENCE_DIR"
+```
+
+The runner includes short-tap and off-icon hold controls, the original power-off
+frame, the live and ZIP latch receipt, quiet UART, and a normal title frame
+after explicit Device Service reset.
+[Native co-sim evidence](../../../docs/evidence/2026-11-17-tab5-power-latch/README.md)

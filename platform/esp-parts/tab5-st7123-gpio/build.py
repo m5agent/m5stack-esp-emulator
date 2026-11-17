@@ -33,7 +33,7 @@ def main() -> None:
     ], cwd=HERE, env=launch, check=True)
     module = output / MODULE
     shutil.copyfile(target_dir / TARGET / "release" / MODULE, module)
-    shutil.copyfile(HERE / "board.json", output / "board.json")
+    shutil.copyfile(HERE / "board-power.json", output / "board.json")
     print(hashlib.sha256(module.read_bytes()).hexdigest(), module.name)
 
 

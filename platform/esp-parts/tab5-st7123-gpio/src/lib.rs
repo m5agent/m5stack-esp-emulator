@@ -16,6 +16,11 @@ const DRAG_STEPS: u8 = 5;
 const DRAG_STEP_NS: u64 = 60 * NS_PER_MS;
 const UNREAD_REPORT_TIMEOUT_NS: u64 = 1_000_000_000;
 const MAX_READ: u32 = 512;
+const POWER_EXPANDER: u8 = 0x44;
+const OUTPUT_DIRECTION: usize = 0x03;
+const OUTPUT_STATE: usize = 0x05;
+const OUTPUT_HIGH_IMPEDANCE: usize = 0x07;
+const POWER_OFF: u8 = 1 << 4;
 
 // The pinned esp-emu routes the entire claimed HP I²C port to the part.
 // Keep the same other devices as the service's static Tab5 fixtures.
@@ -77,6 +82,11 @@ impl Registers {
             pointer: 0,
             registers,
         }
+    }
+
+    fn power_off_signal(&self) -> bool {
+        let output = self.registers[OUTPUT_DIRECTION] & !self.registers[OUTPUT_HIGH_IMPEDANCE];
+        output & self.registers[OUTPUT_STATE] & POWER_OFF != 0
     }
 
     fn read(&mut self) -> u8 {
@@ -392,6 +402,10 @@ struct Bus {
     interrupt: u32,
     hardware_chips: Vec<Registers>,
     touch: St7123,
+    power_latch_wired: bool,
+    power_off_requested: bool,
+    power_latched_ns: Option<u64>,
+    chip_enabled: bool,
 }
 
 impl Bus {
@@ -504,11 +518,14 @@ impl Bus {
 impl Device for Bus {
     const NAME: &'static str = "software-i2c";
     const ON_BUS: bool = true;
+    const ON_MESSAGE: bool = true;
 
     fn configure(&mut self, config: &PartConfig) {
         self.sda = config.pins["SDA"];
         self.scl = config.pins["SCL"];
         self.interrupt = config.pins["INT"];
+        self.power_latch_wired = config.en_pins.iter().any(|pin| pin == "POWER_ENABLE");
+        self.chip_enabled = true;
         self.desired_level = true;
         self.driven_level = true;
         self.chips = vec![
@@ -518,7 +535,13 @@ impl Device for Bus {
         ];
         self.hardware_chips = HARDWARE_REGISTERS
             .iter()
-            .map(|(addr, seed)| Registers::new(*addr, 1, seed))
+            .map(|(addr, seed)| {
+                let mut chip = Registers::new(*addr, 1, seed);
+                if self.power_latch_wired && *addr == POWER_EXPANDER {
+                    chip.registers[OUTPUT_HIGH_IMPEDANCE] = u8::MAX;
+                }
+                chip
+            })
             .collect();
     }
 
@@ -527,6 +550,9 @@ impl Device for Bus {
             drives((1 << self.sda) | (1 << self.interrupt)),
             watches((1 << self.sda) | (1 << self.scl)),
         ];
+        if self.power_latch_wired {
+            claims.push(en());
+        }
         claims.extend(
             std::iter::once(TOUCH_ADDRESS)
                 .chain(
@@ -564,7 +590,14 @@ impl Device for Bus {
             .iter_mut()
             .find(|chip| u32::from(chip.address) == i2c.addr)
         {
-            chip.transfer(i2c)
+            let was_high = chip.power_off_signal();
+            let bytes = chip.transfer(i2c);
+            if self.power_latch_wired && chip.address == POWER_EXPANDER
+                && !was_high && chip.power_off_signal()
+            {
+                self.power_off_requested = true;
+            }
+            bytes
         } else {
             return Some(reply);
         };
@@ -602,7 +635,15 @@ impl Device for Bus {
         }
     }
 
+    fn on_en(&mut self, level: bool, _at_ns: u64) {
+        self.chip_enabled = level;
+    }
+
     fn poll(&mut self, now_ns: u64) -> Option<EmulatorMessage> {
+        if self.power_off_requested && self.power_latched_ns.is_none() {
+            self.power_latched_ns = Some(now_ns);
+            return Some(drive_en(false, now_ns));
+        }
         if self.driven_level != self.desired_level {
             self.driven_level = self.desired_level;
             return Some(drive(self.sda, self.desired_level, now_ns));
@@ -624,7 +665,10 @@ impl Device for Bus {
                 .set("coordinate_reads", self.touch.coordinate_reads)
                 .set("hold_ms", self.touch.hold_ms)
                 .set("drag_ms", self.touch.drag_ms)
-                .set("refresh_acknowledged", self.touch.refresh_acknowledged),
+                .set("refresh_acknowledged", self.touch.refresh_acknowledged)
+                .set("power_latched", self.power_latched_ns.is_some())
+                .set("power_latched_ns", self.power_latched_ns.unwrap_or(0))
+                .set("chip_enabled", self.chip_enabled),
         )
     }
 }
@@ -634,6 +678,46 @@ esp_part::export_part!(Bus, buffer = 1024);
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn write_expander(bus: &mut Bus, addr: u32, register: u8, value: u8) {
+        let reply = bus.on_bus(&BusRequest {
+            op: Some(bus_request::Op::I2c(I2cTransaction {
+                addr,
+                write: vec![register, value],
+                ..Default::default()
+            })),
+            ..Default::default()
+        }).unwrap();
+        assert!(reply.ack);
+    }
+
+    #[test]
+    fn shutdown_requires_the_power_expander_to_drive_p4_high() {
+        let mut config = PartConfig::default();
+        config.pins.extend([("SDA".into(), 31), ("SCL".into(), 32), ("INT".into(), 23)]);
+        config.en_pins.push("POWER_ENABLE".into());
+        let mut bus = Bus::default();
+        bus.configure(&config);
+        assert_eq!(bus.poll(0), Some(drive(23, true, 0)));
+
+        write_expander(&mut bus, 0x43, OUTPUT_STATE as u8, POWER_OFF);
+        write_expander(&mut bus, 0x44, OUTPUT_STATE as u8, POWER_OFF);
+        write_expander(&mut bus, 0x44, OUTPUT_DIRECTION as u8, POWER_OFF);
+        assert!(bus.poll(1).is_none());
+        write_expander(&mut bus, 0x44, OUTPUT_STATE as u8, 0);
+        write_expander(&mut bus, 0x44, OUTPUT_HIGH_IMPEDANCE as u8, 0);
+        assert!(bus.poll(2).is_none());
+
+        write_expander(&mut bus, 0x44, OUTPUT_STATE as u8, POWER_OFF);
+        let message = bus.poll(3).unwrap();
+        assert_eq!(message, drive_en(false, 3));
+        assert_eq!(bus.state().unwrap().get("chip_enabled"), Some("true"));
+        bus.on_en(false, 3);
+        assert_eq!(bus.state().unwrap().get("chip_enabled"), Some("false"));
+        assert_eq!(bus.state().unwrap().get("power_latched_ns"), Some("3"));
+        write_expander(&mut bus, 0x44, OUTPUT_STATE as u8, 0);
+        assert!(bus.poll(4).is_none());
+    }
 
     fn read_register(touch: &mut St7123, address: u16, read_len: u32) -> Vec<u8> {
         touch.transfer(&I2cTransaction {

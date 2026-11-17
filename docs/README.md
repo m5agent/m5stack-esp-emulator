@@ -100,6 +100,8 @@ setup/REPL、任意应用与物理等价仍需分别验证。
 [QEMU 执行优化决策](adr/0001-qemu-browser-hot-block-jit.md)保留单一 QEMU TCI，不引入第二套 JIT 后端。
 2026-11-04 后续[携已知问题部署](evidence/2026-11-04-pages-workbench-release/README.md)已按用户要求完成，全部HTTPS资产一致；HTTPS首6例SUBSET_PASS，其余34例NOT RUN/HOLD，不授全19线上通过。
 2026-11-05 的[统一 Web 工作台设计](plans/2026-11-05-unified-web-workbench.md)合并首页、Unit 装配与服务编程入口；浏览器和原生服务保留各自执行合同。
+[Tab5 原版关机和显式重启](evidence/2026-11-17-tab5-power-latch/README.md)记录 Arduventure 的 PI4IOE2 事务、虚拟 EN、无 ELF DSI 与会话 API 证据。
+
 新首页的同 guest 代码、PIR、真实帧与资源清理见[统一工作台验收](evidence/2026-11-05-unified-web-workbench/README.md)。
 后续[Unit 预览与本机访问设计](plans/2026-11-05-unit-preview-local-control.md)及[验收](evidence/2026-11-05-unit-preview-local-control/README.md)恢复目录模型，限定本机同源无 Token Preview。
 [部署前资格与Lite复位失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点，hosted及新本地完整门禁FAIL不因部署转为PASS。

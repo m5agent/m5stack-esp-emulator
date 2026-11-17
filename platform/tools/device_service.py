@@ -63,6 +63,7 @@ from device_service_tab5_dsi import (  # noqa: E402
     TAB5_ST7123_DRAG_PART_SHA256,
     TAB5_ST7123_HOLD_PART_SHA256,
     TAB5_ST7123_I2C_PART_SHA256,
+    TAB5_ST7123_POWER_PART_SHA256,
     Tab5DsiReceiver,
     Tab5Gt911Touch,
     Tab5St7123Touch,
@@ -3554,6 +3555,12 @@ class DeviceSession:
         # Snapshot consumers must not mutate another request's observation.
         return json.loads(json.dumps(cached))
 
+    def supports_device_state(self) -> bool:
+        if self.runtime in QEMU_QMP_RUNTIMES and self.spec.state_probes:
+            return True
+        power = (self.flash_info or {}).get("tab5", {}).get("power_model")
+        return power == "esp-emu-tab5-standby-latch"
+
     def snapshot(self) -> dict:
         if self._stop_event.is_set() and not self._stop_complete.is_set():
             return self._pending_stop_snapshot()
@@ -3674,10 +3681,7 @@ class DeviceSession:
                 ),
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
-                "device_state_supported": bool(
-                    self.runtime in QEMU_QMP_RUNTIMES
-                    and self.spec.state_probes
-                ),
+                "device_state_supported": self.supports_device_state(),
                 "last_device_state_available": self.device_state_path.is_file(),
                 "last_device_state_at": state_meta.get("captured_at"),
                 "completed_at": self.completed_at,
@@ -8321,6 +8325,9 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        if "device-state" in include and self.supports_device_state():
+            state_json = json.dumps(self.device_state(), ensure_ascii=False, indent=2) + "\n"
+            files["device-state.json"] = state_json.encode("utf-8")
         storage = self._storage_snapshot()
         if storage:
             files["storage/summary.json"] = (json.dumps(storage, ensure_ascii=False, indent=2) + "\n").encode()
@@ -9244,7 +9251,11 @@ class Tab5DeviceSession(DeviceSession):
                 if st_touch_part:
                     self._tab5_st7123_board, digest = stage_tab5_st7123_touch_part(st_touch_part, self.dir)
                     self._tab5_st7123_touch_enabled = True
-                    self._tab5_st7123_drag_enabled = digest == TAB5_ST7123_DRAG_PART_SHA256
+                    self._tab5_st7123_drag_enabled = digest in {
+                        TAB5_ST7123_DRAG_PART_SHA256, TAB5_ST7123_POWER_PART_SHA256,
+                    }
+                    if digest == TAB5_ST7123_POWER_PART_SHA256:
+                        identity["power_model"] = "esp-emu-tab5-standby-latch"
                     self._tab5_st7123_hold_enabled = (
                         self._tab5_st7123_drag_enabled or digest == TAB5_ST7123_HOLD_PART_SHA256
                     )
@@ -9621,6 +9632,41 @@ class Tab5DeviceSession(DeviceSession):
             "accepted": True,
         }
 
+    def device_state(self) -> dict:
+        if (self.flash_info or {}).get("tab5", {}).get("power_model") != "esp-emu-tab5-standby-latch":
+            return super().device_state()
+        with self._lock:
+            if self.state not in {"running", "booting"}:
+                try:
+                    persisted = json.loads(self.device_state_path.read_text())
+                except (OSError, ValueError):
+                    persisted = None
+                if isinstance(persisted, dict):
+                    return {**persisted, "state": self.state, "source": "persisted"}
+            response = {
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "state": self.state,
+                "supported": True,
+                "available": False,
+                "components": {},
+                "errors": {},
+            }
+            if not isinstance(self._tab5_native_touch, Tab5St7123Touch):
+                return response
+            try:
+                power = self._tab5_native_touch.power_state()
+            except ServiceError as error:
+                response["errors"]["power"] = {"probe": error.message}
+                return response
+            response.update(available=True, source="live", captured_at=iso_now())
+            response["components"]["power"] = {
+                "path": "esp-emu:software-i2c",
+                "properties": power,
+            }
+            atomic_write_json(self.device_state_path, response)
+            return response
+
     def _inject_tab5_native_touch(self, payload: dict) -> dict:
         acl_policy_id = self._require_runtime_permission("input.write")
         kind = payload.get("kind")
@@ -9720,6 +9766,7 @@ class Tab5DeviceSession(DeviceSession):
                         self._close_dsi_receiver()
                         self.last_frame_path.unlink(missing_ok=True)
                         self.last_frame_meta_path.unlink(missing_ok=True)
+                        self.device_state_path.unlink(missing_ok=True)
                         self._last_frame_persisted_at = 0
                 self.serial0.write_bytes(b"")
                 self._terminate_tab5()
@@ -11784,7 +11831,7 @@ class DeviceService:
                 "units": session.units, "display": session.spec.display,
                 "serial_bytes": serial_bytes, "serial_channels": session.serial_channels(), "last_frame_available": session.last_frame_path.is_file() and not purged,
                 "last_frame_captured_at": frame_meta.get("captured_at") if isinstance(frame_meta, dict) else None,
-                "device_state_supported": bool(session.runtime in QEMU_QMP_RUNTIMES and session.spec.state_probes),
+                "device_state_supported": session.supports_device_state(),
                 **({"management_binding": dict(session.management_binding)} if session.management_binding is not None else {}),
                 "interrupted": session.interrupted, "restored": session.restored,
                 "purged": purged or session._purged_snapshot is not None,

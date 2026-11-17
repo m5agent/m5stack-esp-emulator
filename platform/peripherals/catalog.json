@@ -524,6 +524,15 @@
         "stamplc"
       ]
     },
+    "tab5-standby-latch": {
+      "kind": "power-control",
+      "interface": "power-path",
+      "capabilities": ["io-expander", "power-control"],
+      "status": "simulated",
+      "injection": ["guest-i2c-expander-output", "session-reset"],
+      "data_plane": "Qualified ST7123 board only: HP I2C1 U7 P4 output asserts the virtual chip EN hold; session reset recreates the board with EN released",
+      "tested_devices": ["tab5"]
+    },
     "rx8130": {
       "kind": "rtc",
       "interface": "i2c",
@@ -2420,7 +2429,7 @@
         },
         {
           "model": "pi4ioe5v6408",
-          "reason": "Both U6/U7 device IDs 0xA2 and output-register write/readback pass, but GPIO side effects and interrupt injection remain absent"
+          "reason": "Both U6/U7 IDs and register readback pass. The qualified ST7123 board model drives P4 EN through the U7 P4 standby latch; other output side effects and IRQ injection remain open"
         },
         {
           "model": "es7210",
@@ -2493,6 +2502,10 @@
           "address": "0x44",
           "bus": "i2c1",
           "status": "partial"
+        },
+        {
+          "id": "standby-latch",
+          "model": "tab5-standby-latch"
         },
         {
           "id": "audio-adc",

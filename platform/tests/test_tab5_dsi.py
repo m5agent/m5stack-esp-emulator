@@ -147,6 +147,21 @@ class Tab5DsiTests(unittest.TestCase):
             touch.drag(0, 1279, 719, 0, lambda: None, timeout=0.075)
         self.assertEqual(raised.exception.code, "tab5_st7123_ack_timeout")
 
+    def test_st7123_poweroff_is_distinct_from_a_touch_ack_timeout(self):
+        touch = Tab5St7123Touch(1)
+        powered_off = "ok power_latched=true chip_enabled=false power_latched_ns=1234"
+        with mock.patch.object(touch, "_command", return_value=powered_off):
+            self.assertEqual(touch.power_state(), {
+                "latched": True, "chip_enabled": False, "latched_at_guest_ns": 1234,
+            })
+            with self.assertRaises(ServiceError) as raised:
+                touch.tap(10, 20, lambda: None)
+            self.assertEqual(raised.exception.code, "tab5_guest_powered_off")
+        with mock.patch.object(touch, "_command", return_value="ok ready=false"):
+            with self.assertRaises(ServiceError) as missing:
+                touch.power_state()
+            self.assertEqual(missing.exception.code, "tab5_st7123_unavailable")
+
     def test_st7123_touch_part_rejects_unqualified_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

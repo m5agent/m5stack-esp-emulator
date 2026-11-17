@@ -9,7 +9,7 @@ RUSTUP_TOOLCHAIN=1.88.0 python3 platform/esp-parts/tab5-st7123-gpio/build.py \
 ```
 
 The tested WASM SHA-256 is
-`56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d`.
+`655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9`.
 Set `M5_TAB5_ST7123_TOUCH_PART` to the absolute path of that module and select
 `st7123` in the [Device Service configuration](../../../docs/device-service-api.md#create-a-reference-uiflow2-device).
 
@@ -29,6 +29,13 @@ including the endpoint. The Part advances after the guest reads the
 previous report and releases one interval after the endpoint.
 [M5GFX detector](https://github.com/m5stack/M5GFX/blob/28d47949bdc84f30881623476f555398e2194313/src/board_detect/m5/esp32p4.inl)
 · [M5GFX runtime touch driver](https://github.com/m5stack/M5GFX/blob/28d47949bdc84f30881623476f555398e2194313/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.inl)
+
+The new module's board file wires the standby latch to the emulator's chip EN.
+When HP I²C1 configures PI4IOE2 (0x44) P4 as an enabled output and drives it
+high, the Part lowers EN and holds the P4 guest until a Device Service reset
+starts a new board instance. The latch observes the expander direction,
+high-impedance and output registers. Its state is available through the
+Device Service `device-state` endpoint. [Original power-off verification](../../../docs/evidence/2026-11-17-tab5-power-latch/README.md)
 
 See the [guest controller probe](../../../tests/firmware/tab5_st7123/README.md)
 for version, panel geometry, IRQ, coordinate and release verification.

@@ -3106,6 +3106,20 @@ readbacks and `timing.guest_drag_ms` and `timing.moves_acknowledged`.
 Unread reports or a clock reset can expire an active gesture. Multitouch
 remains outside this input path. Previously qualified older Parts retain
 their tap or hold capabilities under the same setting.
+With the qualified standby-latch module, `flash.tab5.power_model` is
+`esp-emu-tab5-standby-latch`. When guest I²C drives the expander's power-off
+output, the board holds the P4 chip EN low.
+`GET /sessions/{id}/device-state` reports
+`components.power.properties` with `latched`, `chip_enabled`, and
+`latched_at_guest_ns` (null before shutdown). The service session stays open
+for evidence and reset. In-flight or subsequent touch requests return
+`409 tab5_guest_powered_off` if shutdown prevents a guest receipt.
+The most recent DSI buffer remains readable as the last captured frame.
+Use `GET /sessions/{id}/evidence?include=manifest,frames,device-state` to bind
+power state and the captured frame. The session reset starts a fresh board
+instance with EN released. Physical backlight and standby power are outside
+this model.
+
 Workers with the prior identification-only binary configured as
 `M5_TAB5_ST7123_I2C_PART` retain native DSI with touch unavailable for
 no-ELF sessions. The new touch setting takes precedence for the ST7123

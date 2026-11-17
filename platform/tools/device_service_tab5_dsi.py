@@ -22,8 +22,10 @@ TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74b
 TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
 TAB5_ST7123_HOLD_PART_SHA256 = "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
 TAB5_ST7123_DRAG_PART_SHA256 = "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d"
+TAB5_ST7123_POWER_PART_SHA256 = "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9"
 TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
+MAX_PART_BYTES = 144 * 1024
 MAX_MESSAGE_BYTES = 128 * 1024
 MAX_PIXELS = 2 * 1024 * 1024
 MAX_DIMENSION = 2048
@@ -106,7 +108,8 @@ def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
 def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> tuple[Path, str]:
     return _stage_tab5_part(
         value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm",
-        (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256, TAB5_ST7123_DRAG_PART_SHA256),
+        (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256, TAB5_ST7123_DRAG_PART_SHA256,
+         TAB5_ST7123_POWER_PART_SHA256),
         "tab5_st7123_touch_part_unavailable",
     )
 
@@ -116,11 +119,14 @@ def _stage_tab5_part(
 ) -> tuple[Path, str]:
     try:
         with Path(value).open("rb") as stream:
-            part = stream.read(128 * 1024 + 1)
+            part = stream.read(MAX_PART_BYTES + 1)
+        if len(part) > MAX_PART_BYTES:
+            raise ValueError("ESP Part exceeds size limit")
         digest = hashlib.sha256(part).hexdigest()
         if digest not in expected:
             raise ValueError("unexpected ESP Part hash")
-        config = (TAB5_PARTS_SOURCE / source / "board.json").read_bytes()
+        board = "board-power.json" if digest == TAB5_ST7123_POWER_PART_SHA256 else "board.json"
+        config = (TAB5_PARTS_SOURCE / source / board).read_bytes()
         (session_dir / module).write_bytes(part)
         path = session_dir / "tab5-cosim-board.json"
         path.write_bytes(config)
@@ -167,6 +173,8 @@ class Tab5NativeTouch:
 
     def _state(self) -> tuple[int, int, int, bool]:
         values = self._part_state()
+        if values.get("power_latched") == "true" and values.get("chip_enabled") == "false":
+            raise ServiceError("tab5_guest_powered_off", "Tab5 board latch holds the guest powered off", 409)
         try:
             if values["ready"] in {"true", "false"} and values["contact"] in {"true", "false"}:
                 reports = int(values["reports"])
@@ -255,6 +263,21 @@ class Tab5St7123Touch(Tab5NativeTouch):
     ALLOW_EXPIRED_REPORTS = True
     DRAG_MOVES = 5
     DRAG_MIN_MS = 60 * (DRAG_MOVES + 1)
+
+    def power_state(self) -> dict:
+        values = self._part_state()
+        try:
+            latched, enabled = values["power_latched"], values["chip_enabled"]
+            at_ns = int(values["power_latched_ns"])
+            if latched in ("true", "false") and enabled in ("true", "false") and at_ns >= 0:
+                return {
+                    "latched": latched == "true",
+                    "chip_enabled": enabled == "true",
+                    "latched_at_guest_ns": at_ns if latched == "true" else None,
+                }
+        except (KeyError, ValueError):
+            pass
+        raise self._error("unavailable", "power latch state could not be read")
 
     def hold(self, x: int, y: int, milliseconds: int, check_cancelled, *, timeout: float = 20) -> tuple[dict, dict]:
         initial = self._idle_counters()

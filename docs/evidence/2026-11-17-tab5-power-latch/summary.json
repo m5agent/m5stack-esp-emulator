@@ -1,0 +1,114 @@
+{
+  "single_service": true,
+  "runtime_artifacts": {
+    "esp_emu": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "gt911": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+    "st7123": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9"
+  },
+  "cases": {
+    "arduventure": {
+      "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+      "normalized_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+      "status": "PASS",
+      "selected_board": "st7123",
+      "display_backend": "esp-emu-dsi",
+      "short_tap": {
+        "before": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "after": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348"
+      },
+      "outside_icon_hold": {
+        "timing": {
+          "completion": "guest-observed",
+          "hold_seconds": 3.0,
+          "guest_hold_ms": 3000,
+          "refresh_acknowledged": 186
+        },
+        "reports": {
+          "reports": 2,
+          "acknowledged": 2
+        },
+        "frame_hashes": [
+          "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348"
+        ]
+      },
+      "after_outside_icon": "be3cd61931a21ae99d6241a14d1f50e9c66b5fc25384fabe2cb4c65a6087c0a2",
+      "power_hold": {
+        "error": "tab5_guest_powered_off",
+        "status": 409,
+        "frame_hashes": [
+          "be3cd61931a21ae99d6241a14d1f50e9c66b5fc25384fabe2cb4c65a6087c0a2",
+          "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097"
+        ],
+        "visual_status": "PASS",
+        "terminal_status": "PASS",
+        "silent_observation_wall_seconds": 2.4
+      },
+      "power_after_hold": {
+        "latched": true,
+        "chip_enabled": false,
+        "latched_at_guest_ns": 8119160687
+      },
+      "input_after_off": "tab5_guest_powered_off",
+      "after_hold_frames": [
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+        "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097"
+      ],
+      "state_after_hold": "running",
+      "stop_reason": null,
+      "observed_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+      "serial_sha256": "e5a6654a86bb19679881edd582b1d1c81a05a9d6815e89aade9e6fc2887c0c9b",
+      "power_state_zip_sha256": "5efcde6a113f73240f03cf90d9838a1faefb13ba11ecfde25107e6c4e5f7f323",
+      "verified_evidence_sha256": "909912142da66c7ca4b957ddfe215c801cb5f79ad90a05bb359b67b8446be071",
+      "en_drive_at_guest_ns": 8119160687,
+      "en_low_at_guest_ns": 8119161375,
+      "restart_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      }
+    },
+    "carplay": {
+      "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "normalized_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "status": "PASS",
+      "selected_board": "gt911-ili9881c",
+      "display_backend": "esp-emu-dsi",
+      "blank_drag_controller_reports": {
+        "reports": 23,
+        "acknowledged": 23
+      },
+      "confirm_modal_sha256": "bf357f04e40dc9cb76f7e34df7b94a45a89f97da7df26f813fac35577103eed3",
+      "observed_frame_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767",
+      "serial_sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+      "verified_evidence_sha256": "8ae896b59332b83714bd695cb5ddce89752dca511cd22637af16c1436a859dee",
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "remaining_leases": 0
+      }
+    }
+  },
+  "status": "PASS",
+  "isolated_service_exited": true,
+  "checked_in_runner": {
+    "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+    "execution_flash_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+    "status": "PASS",
+    "power": {
+      "latched": true,
+      "chip_enabled": false,
+      "latched_at_guest_ns": 6727160687
+    },
+    "power_off_frame_sha256": "84f04dbb5fa1edffcd6acd0977b33aab77d99b8d03bfc951c38d50217f4c0097",
+    "evidence_zip_sha256": "39a0b7189e3359e051e9f1d956be520e91fca6d63c065d9dc41cd98f9c04d080",
+    "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "part_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+    "restart_frame_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+    "cleaned": true
+  }
+}

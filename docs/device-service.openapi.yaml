@@ -1993,7 +1993,10 @@ paths:
         - $ref: "#/components/parameters/SessionId"
       responses:
         "200":
-          description: Live or persisted device component state
+          description: >-
+            Live or persisted device component state. On the qualified Tab5
+            ST7123 profile, components.power.properties exposes latched,
+            chip_enabled, and latched_at_guest_ns.
           content:
             application/json:
               schema:
@@ -2040,6 +2043,8 @@ paths:
             usb-serial-jtag.log when a separate native USB capture is present
             and serial.read is allowed. serial.log remains the profile-defined
             default console; C6 HCI profiles already route USB there.
+            The device-state selection includes device-state.json on sessions
+            with a supported state probe.
             A serial or crash selection also includes diagnostics/crash.json
             when serial.read is allowed.
           content:
