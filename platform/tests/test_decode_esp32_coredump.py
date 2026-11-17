@@ -1,6 +1,7 @@
 """Exercise offline admission and report parsing without requiring retained assets."""
 
 import base64
+import hashlib
 from pathlib import Path
 import struct
 import unittest
@@ -8,7 +9,10 @@ import zlib
 
 from decode_esp32_coredump import task_summary, uart_dump, validate_dump
 from device_service_crash import crash_console_observations, serial_crash_observations
-from esp32_uart_coredump import decode_task_contexts
+from esp32_uart_coredump import (
+    ESP32C6_CHIP_ID, ESP32C6_ELF_CRC32, ESP32C6_ELF_SHA256, ESP32_ELF_CRC32,
+    decode_task_contexts,
+)
 
 
 def make_note(name, kind, description):
@@ -17,21 +21,22 @@ def make_note(name, kind, description):
     return struct.pack("<3I", len(name), len(description), kind) + padded_name + padded_description
 
 
-def make_dump(notes):
+def make_dump(notes, *, version=ESP32_ELF_CRC32, machine=94):
     elf = bytearray(52)
     elf[:7] = b"\x7fELF\x01\x01\x01"
-    struct.pack_into("<HH", elf, 16, 4, 94)  # ET_CORE, EM_XTENSA
+    struct.pack_into("<HH", elf, 16, 4, machine)  # ET_CORE
     struct.pack_into("<I", elf, 28, 52)
     struct.pack_into("<HH", elf, 42, 32, 1)
     elf.extend(struct.pack("<8I", 4, 84, 0, 0, len(notes), 0, 0, 0))
     elf.extend(notes)
-    data = struct.pack("<6I", 24 + len(elf) + 4, 0x0102, 0, 0, 0, 0) + elf
-    checksum = zlib.crc32(data)
-    return data + struct.pack("<I", checksum)
+    trailer_size = 32 if version == ESP32C6_ELF_SHA256 else 4
+    data = struct.pack("<6I", 24 + len(elf) + trailer_size, version, 0, 0, 0, 0) + elf
+    trailer = hashlib.sha256(data).digest() if trailer_size == 32 else struct.pack("<I", zlib.crc32(data))
+    return data + trailer
 
 
-def make_app_note():
-    note_desc = struct.pack("<I", 0x0102) + b"1916d0ba9".ljust(64, b"\0")
+def make_app_note(version=ESP32_ELF_CRC32):
+    note_desc = struct.pack("<I", version) + b"1916d0ba9".ljust(64, b"\0")
     return make_note(b"ESP_CORE_DUMP_INFO\0", 8266, note_desc)
 
 
@@ -101,6 +106,40 @@ class OfflineCoreDumpTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing saved task context"):
             decode_task_contexts(make_dump(notes + make_extra_note(0x3FFABCC0)), "1916d0ba")
 
+    def test_riscv_layout_and_checksum_follow_the_qualified_chip(self):
+        tcb = 0x408117A8
+        task = bytearray(204)
+        struct.pack_into("<I", task, 24, tcb)
+        struct.pack_into("<III", task, 72, 0x40804CD6, 0x40804A44, 0x408116B0)
+        registers = make_note(b"CORE\0", 1, task)
+        extra = make_note(b"ESP_EXTRA_INFO\0", 677, struct.pack("<II", tcb, 0))
+
+        for version, kind, checksum_key in (
+            (ESP32C6_ELF_CRC32, "crc32", "dump_crc32"),
+            (ESP32C6_ELF_SHA256, "sha256", "dump_embedded_sha256"),
+        ):
+            with self.subTest(version=version):
+                notes = make_app_note(version) + registers + extra
+                dump = make_dump(notes, version=version, machine=243)
+                result = decode_task_contexts(dump, "1916d0ba", chip_id=ESP32C6_CHIP_ID)
+                self.assertEqual(result["format"], f"esp32c6_riscv_elf32_{kind}")
+                self.assertIn(checksum_key, result)
+                self.assertEqual(result["tasks"], [{
+                    "tcb": "0x408117a8", "crashed": True, "context_status": "captured",
+                    "pc": "0x40804cd6", "sp": "0x408116b0",
+                }])
+                with self.assertRaisesRegex(ValueError, "dump version"):
+                    decode_task_contexts(dump, "1916d0ba")
+                with self.assertRaisesRegex(ValueError, "matching ELF32"):
+                    decode_task_contexts(make_dump(notes, version=version), "1916d0ba",
+                                         chip_id=ESP32C6_CHIP_ID)
+                with self.assertRaisesRegex(ValueError, "version.*application ELF note|application ELF note"):
+                    wrong_note = make_dump(make_app_note() + registers + extra, version=version, machine=243)
+                    decode_task_contexts(wrong_note, "1916d0ba", chip_id=ESP32C6_CHIP_ID)
+                with self.assertRaisesRegex(ValueError, "mismatch"):
+                    corrupt = dump[:-1] + bytes([dump[-1] ^ 1])
+                    decode_task_contexts(corrupt, "1916d0ba", chip_id=ESP32C6_CHIP_ID)
+
     def test_service_receipt_preserves_reported_delimiter_when_dump_is_corrupt(self):
         tcb = 0x3FFABC40
         dump = make_dump(make_app_note() + make_task_note(tcb, 0x400D7D19, 0x3FFB67D0)
@@ -112,7 +151,7 @@ class OfflineCoreDumpTests(unittest.TestCase):
         def receipt(data, enabled):
             transfer = b"".join(base64.b64encode(data[i:i + 48]) + b"\n" for i in range(0, len(data), 48))
             _, observed = crash_console_observations(
-                Path("unused"), "", header + transfer + delimiter, decode_core_dump=enabled,
+                Path("unused"), "", header + transfer + delimiter, core_dump_chip_id=0 if enabled else None,
             )
             return observed["core_dump"]
 

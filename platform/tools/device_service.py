@@ -6536,14 +6536,17 @@ class DeviceSession:
             raise ServiceError("invalid_elf_artifact_id", "elf_artifact_id must be a SHA-256 artifact id", 400)
         artifact = self.service.artifacts.path(elf_artifact_id) if elf_artifact_id else None
         stderr_source, stderr = output_tail(self.stderr_path, stderr_bytes)
+        chip_id = expected_chip_id(self.spec.soc)
+        native_qemu = self.spec.service_kind == "qemu" and self.runtime == "qemu"
+        core_dump_chip_id = chip_id if native_qemu and (
+            (self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6" and chip_id == 0x0000)
+            or (self.spec.backend == "qemu-esp32c6" and chip_id == 0x000D)
+        ) else None
         console_source, observed = crash_console_observations(
             self.serial0, stderr, console_bytes, native_s3=(
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
-            ), decode_core_dump=(
-                self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6"
-                and self.spec.service_kind == "qemu" and self.runtime == "qemu"
-            ),
+            ), core_dump_chip_id=core_dump_chip_id,
         )
         panic = observed["panic"] or {}
         reported = panic.get("elf_sha256_prefix")
@@ -6558,7 +6561,6 @@ class DeviceSession:
                     data = payload
             except (OSError, ServiceError):
                 pass
-        chip_id = expected_chip_id(self.spec.soc)
         try:
             elf = identify_crash_elf(
                 reported, data, self.spec.flash_size, chip_id,
@@ -6584,7 +6586,7 @@ class DeviceSession:
         # RISC-V symbols are qualified for the native ESP32-C6 guest path.
         expected_machine = (
             EM_RISCV
-            if chip_id == 0x000D and self.spec.service_kind == "qemu" and self.runtime == "qemu"
+            if chip_id == 0x000D and native_qemu
             else EM_XTENSA
         )
         symbols = crash_function_symbols(

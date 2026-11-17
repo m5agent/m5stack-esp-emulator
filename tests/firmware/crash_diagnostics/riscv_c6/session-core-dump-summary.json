@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-17",
+  "validation": "virtual-device validation",
+  "base_device_service": "5a87913bf60dcde84420661d279ab5e0c9c9154c",
+  "status": "PASS",
+  "device": "nesso-n1",
+  "runtime": "qemu",
+  "native_c6_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+  "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "cases": {
+    "crc32": {
+      "status": "PASS",
+      "firmware_sha256": "1597b8eb3b63cceae7e511578dffb8398175f5560a5079af2ae08a27de2a931b",
+      "elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+      "wrong_elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+      "uart_sha256": "c9e858cfb76ad42bc46e7f31c60be0c2309d719928d67145edeb87e5d6bc9606",
+      "zip_sha256": "231778b2634aee14a233a6f55b8eca87f6a2b3d3b6a2762b3c0d98a1df6c4189",
+      "dump_sha256": "f33a65e62e49d2dca7cbb941ddb490718a34b303e9a7eb08d6f468d15679fb57",
+      "dump_bytes": 3084,
+      "same_session_api_zip": true,
+      "format": "esp32c6_riscv_elf32_crc32",
+      "saved_tasks": 3,
+      "crashed_pc": "0x40804cd6",
+      "crashed_sp": "0x408116b0",
+      "crashed_function": "panic_abort",
+      "wrong_elf_symbols": false,
+      "not_uploaded_symbols": false,
+      "archive_receipt": "1c24d6621",
+      "flash_released": true,
+      "remaining_leases": 0,
+      "retained_after_service_restart": true,
+      "verified_checksum": "b391da23",
+      "gdb_counts_pc_sp_match": true,
+      "baseline": {
+        "status": "PASS",
+        "firmware_sha256": "1597b8eb3b63cceae7e511578dffb8398175f5560a5079af2ae08a27de2a931b",
+        "elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+        "wrong_elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+        "uart_sha256": "5728abeb1950717232fde2cccc833c2afc8c54b8ba04fa49638b596719aa5f42",
+        "zip_sha256": "8637196c00aa869d02d3d6ab3aaa1e81fa00a0562294455848927978742e48bf",
+        "dump_sha256": "af1d0682c3dac1acf663b425db4cf2a4f947d2be11dea969647705f60925787d",
+        "dump_bytes": 3084,
+        "same_session_api_zip": true,
+        "current_behavior": "delimiters_only",
+        "flash_released": true,
+        "remaining_leases": 0,
+        "retained_after_service_restart": true,
+        "current_parser_replays_archived_transfer": true
+      }
+    },
+    "sha256": {
+      "status": "PASS",
+      "firmware_sha256": "e5abbabdd16490c54db84fb85d8e627a0a3ef4f8b2dddbad892739ec2182fcc3",
+      "elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+      "wrong_elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+      "uart_sha256": "ff19fbdb5272e484236fdcf16f2af8dd7cc91b22f5aa73444bb7cd14c0000cf0",
+      "zip_sha256": "c2712c48ea3535f13075671566b5ca732931c1e77b976d8eb4755f206cf75474",
+      "dump_sha256": "f85c69e55e685ba1320c8b3d58d8b59dca3627671864e7d50d235aa0f51494f8",
+      "dump_bytes": 3112,
+      "same_session_api_zip": true,
+      "format": "esp32c6_riscv_elf32_sha256",
+      "saved_tasks": 3,
+      "crashed_pc": "0x40804cd6",
+      "crashed_sp": "0x408116b0",
+      "crashed_function": "panic_abort",
+      "wrong_elf_symbols": false,
+      "not_uploaded_symbols": false,
+      "archive_receipt": "3189217c7",
+      "flash_released": true,
+      "remaining_leases": 0,
+      "retained_after_service_restart": true,
+      "verified_checksum": "c3f1a335e1b6a561b5b63da524934798a5ad273c6696d21d40fc5eeef862b6bd",
+      "gdb_counts_pc_sp_match": true,
+      "baseline": {
+        "status": "PASS",
+        "firmware_sha256": "e5abbabdd16490c54db84fb85d8e627a0a3ef4f8b2dddbad892739ec2182fcc3",
+        "elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+        "wrong_elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+        "uart_sha256": "2411618ec0e42f3e189af176477078004bd469de2a937ce23f5b68dbcfa47878",
+        "zip_sha256": "ce0dcc0ff9942708e20fe6fe43222e6bd229c538ddc73450739360650c86b000",
+        "dump_sha256": "21b6c7f98c17e1edd6b6bdda15a5862ec490bc650b6f504cdc2d08aa82aacb30",
+        "dump_bytes": 3112,
+        "same_session_api_zip": true,
+        "current_behavior": "delimiters_only",
+        "flash_released": true,
+        "remaining_leases": 0,
+        "retained_after_service_restart": true,
+        "current_parser_replays_archived_transfer": true
+      }
+    }
+  },
+  "core2_regression": {
+    "watchdog": {
+      "status": "PASS",
+      "firmware_sha256": "b08ca814400aaf0a7ede66cf195597b8ec8ac0f52d1c2fa8a7ced079eecf42f5",
+      "runtime_sha256": "eca4ab4bce50c10834fc92b12a3bdb69fd4c504c3281bec03574322dc6b98187",
+      "dump_sha256": "17adb0c55ee70c298e607c996a37d5091636269f87c4e293334bbde710c26566",
+      "saved_tasks": 5,
+      "zip_sha256": "bc1f19db39b939ac10a30c5a66ab0b0ab8091460fa3612cd2d45add5034fbbce",
+      "api_zip_equal": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    },
+    "abort": {
+      "status": "PASS",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "runtime_sha256": "eca4ab4bce50c10834fc92b12a3bdb69fd4c504c3281bec03574322dc6b98187",
+      "dump_sha256": "959d7d81ff36e22bcd7fb9b6fbc0eee33d66833ea9244ddff58f9a2f78af77e6",
+      "saved_tasks": 6,
+      "zip_sha256": "332a41b1e0c31916da53297959b9ebce11aa41913a482ce1b3a3d25979b9399c",
+      "api_zip_equal": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    }
+  },
+  "test_harness_first_attempt": "CRC32 guest produced a matching API and ZIP. The observer used the wrong console-range key and stopped; a fresh run used offset and bytes.",
+  "not_run": [
+    "RISC-V stack unwinding",
+    "task names and priorities in the HTTP receipt",
+    "other SDK layouts, Flash dumps, browser runtimes and hardware"
+  ]
+}

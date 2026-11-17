@@ -2296,9 +2296,9 @@ paths:
         observations and backend warnings are separate from guest panic.
         When the truncated console tail has no panic, a recognized panic
         in the bounded console prefix appears as separate earlier_console evidence.
-        A separate USB stream is not concatenated. The native Core2 qemu path
-        can validate one complete Xtensa ELF32 CRC32 UART dump and report
-        saved task contexts. No live register sampling is performed.
+        A separate USB stream is not concatenated. The native Core2 and
+        ESP32-C6 qemu paths can validate a complete ELF32 UART dump and
+        report saved task contexts. No live register sampling is performed.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - $ref: "#/components/parameters/CrashElfArtifactId"
@@ -5824,20 +5824,34 @@ components:
               cpu_model: false
     UartCoreDumpDecoding:
       description: >
-        Bounded native Core2 Xtensa task contexts from one verified UART dump
-        associated with the latest observed panic. Optional symbols require the
-        exact application ELF to match both firmware and dump.
+        Bounded native Core2 Xtensa or ESP32-C6 RISC-V task contexts from one
+        verified UART dump associated with the latest observed panic. Optional
+        symbols require the exact application ELF to match both firmware and dump.
       oneOf:
         - type: object
           additionalProperties: false
-          required: [status, format, source, dump_sha256, dump_bytes, dump_crc32, dump_elf_sha256_prefix, crashed_tcb, tasks]
+          required: [status, format, source, dump_sha256, dump_bytes, dump_elf_sha256_prefix, crashed_tcb, tasks]
+          if:
+            properties:
+              format: {const: esp32c6_riscv_elf32_sha256}
+          then:
+            required: [dump_embedded_sha256]
+            not: {required: [dump_crc32]}
+          else:
+            required: [dump_crc32]
+            not: {required: [dump_embedded_sha256]}
           properties:
             status: {const: decoded}
-            format: {const: esp32_xtensa_elf32_crc32}
+            format:
+              enum: [esp32_xtensa_elf32_crc32, esp32c6_riscv_elf32_crc32, esp32c6_riscv_elf32_sha256]
             source: {const: console_tail}
             dump_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
             dump_bytes: {type: integer, minimum: 1, maximum: 524288}
             dump_crc32: {type: string, pattern: '^[0-9a-f]{8}$'}
+            dump_embedded_sha256:
+              type: string
+              pattern: '^[0-9a-f]{64}$'
+              description: Verified SHA-256 embedded in the container's checksum trailer.
             dump_elf_sha256_prefix: {type: string, pattern: '^[0-9a-f]{8,64}$'}
             crashed_tcb: {type: [string, "null"], pattern: '^0x[0-9a-f]{8}$'}
             tasks:

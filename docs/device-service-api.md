@@ -3238,12 +3238,14 @@ separate from `panic.abort_call_site_pc`. Unsupported, ambiguous and
 unresolved addresses are explicit. This endpoint reports symbol ranges.
 DWARF line decoding and stack unwinding remain outside this symbol lookup.
 
-On Core2 native `runtime=qemu`, a completed ESP-IDF UART transfer within the
-latest console window adds `core_dump.decoding`. The service binds one transfer
-to the latest observed panic, verifies the ESP32 Xtensa ELF32 CRC32 container
-and its application note, and reports a decoded byte count, CRC32 and SHA-256.
-It records the crashed task handle and up to 64 captured task contexts with
-saved PC and SP. An SDK placeholder is labeled `sdk_placeholder` and has null
+On native `runtime=qemu` for Core2 and ESP32-C6, a completed ESP-IDF UART
+transfer within the latest console window adds `core_dump.decoding`. The
+service binds one transfer to the latest observed panic and verifies the
+ELF32 machine, the chip-specific container version, and its application digest
+note. Core2 supports ELF32 CRC32, and ESP32-C6 supports ELF32 CRC32 and ELF32
+SHA-256. The receipt reports the verified embedded checksum and the full
+transfer's SHA-256 separately. It records the crashed task handle and up to 64
+captured task contexts with saved PC and SP. An SDK placeholder is labeled `sdk_placeholder` and has null
 registers. A skipped crashed task has a null handle. If a matching ELF artifact
 also agrees with the dump application note, task PC symbol ranges appear
 under `core_dump.decoding.symbols`. This symbol lookup is separate from the
@@ -3251,8 +3253,7 @@ panic register and backtrace symbols. Unsupported or damaged data returns
 `decoding.status=unavailable` with a reason, while the original delimiter
 observation is retained. Task names, priorities and stack usage are available
 via the [local offline decoder](../tests/firmware/crash_diagnostics/README.md).
-Flash dumps, other chips and other UART formats have status observations
-only.
+Flash dumps, other chips and the remaining UART formats have status observations only.
 
 ### Live native CPU PCs
 

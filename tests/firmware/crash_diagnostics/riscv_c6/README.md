@@ -62,3 +62,33 @@ The receipt also covers a post-ROM sample of the original Meshtastic RFID
 Demo image and a two-core native Core2 watchdog regression. RFID application
 functionality, other RISC-V runtimes, browser WASM and physical hardware are
 `NOT RUN` for these checks.
+
+## ELF32 UART core dump
+
+Build and merge the same probe with the CRC32 or SHA-256 UART option. Run the
+following from the fixture directory, using a different build and sdkconfig for
+each selection.
+
+```sh
+kind=crc32
+idf.py -B "$BUILD_DIR" -DSDKCONFIG="$BUILD_DIR/sdkconfig" \
+  "-DSDKCONFIG_DEFAULTS=$PWD/sdkconfig.defaults;$PWD/sdkconfig.coredump-$kind" \
+  -DIDF_TARGET=esp32c6 build
+(cd "$BUILD_DIR" && python -m esptool --chip esp32c6 merge_bin \
+  --fill-flash-size 16MB -o merged.bin @flash_args)
+```
+
+Repeat with `kind=sha256`. Use the same isolated Nesso N1 service flow.
+Wait for `CORE DUMP END` on the default UART. Confirm the receipt's format,
+embedded checksum, full dump SHA-256 and the three saved contexts. The matching
+ELF resolves the crashed PC to `panic_abort`. Compare the reported PC/SP
+and task count with the same emitted ELF dump loaded in RISC-V GDB. Both an
+absent ELF and the other build's ELF leave the contexts available without
+task symbols. Check equality between the live receipt and its ZIP, then stop
+and restart the isolated service and read the retained receipt again.
+
+[Same-session CRC32 and SHA-256 evidence](session-core-dump-summary.json)
+
+This path reports saved task contexts. It does not unwind the RISC-V stack or
+recover task names or priorities. The two tested builds use the same abort
+probe and ESP-IDF version.
