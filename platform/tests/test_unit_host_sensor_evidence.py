@@ -249,9 +249,10 @@ class SensorArchiveFixture:
         manifest = {"session": self.session, "units": {"units": [state_unit]}, "files": {name: {"size": len(raw), "sha256": evidence.digest(raw)} for name, raw in members.items()}}
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as archive:
+            # Rebuilding the synthetic receipt must preserve hashes across wall-clock boundaries.
             for name, raw in members.items():
-                archive.writestr(name, raw)
-            archive.writestr("manifest.json", json_bytes(manifest))
+                archive.writestr(zipfile.ZipInfo(name), raw)
+            archive.writestr(zipfile.ZipInfo("manifest.json"), json_bytes(manifest))
         self.report["evidence_sha256"] = self.controller["evidence_sha256"] = evidence.digest(buffer.getvalue())
         self.write(self.controller_dir / "evidence.zip", buffer.getvalue())
         self.write(self.controller_dir / "result.json", self.controller)
