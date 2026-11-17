@@ -88,6 +88,12 @@ class _PeerStopped(Exception):
     pass
 
 
+class _StationDiscovered(Exception):
+    def __init__(self, frame: bytes):
+        super().__init__("guest sent a station DHCP DISCOVER during AP discovery")
+        self.frame = frame
+
+
 def _portal_http_body(response: bytes, markers: tuple[bytes, ...] = _ROOT_MARKERS) -> bytes | None:
     header, separator, body = response.partition(b"\r\n\r\n")
     if len(header) > _PORTAL_MAX_HEADER:
@@ -260,9 +266,13 @@ class SoftAPPeer:
         udp = struct.pack("!HHHH", 68, 67, 8 + len(bootp), 0) + bootp
         self._send(_BROADCAST + self.mac + b"\x08\0" + self._ipv4(_ZERO_IP, _BROADCAST_IP, 17, udp))
 
-    def _dhcp_reply(self, xid: bytes, kind: int, deadline: float) -> tuple[bytes, bytes]:
+    def _dhcp_reply(
+        self, xid: bytes, kind: int, deadline: float, *, on_frame: Callable[[bytes], None] | None = None,
+    ) -> tuple[bytes, bytes]:
         while True:
             frame = self._next_frame(deadline)
+            if on_frame is not None:
+                on_frame(frame)
             if frame[:6] not in (self.mac, _BROADCAST):
                 continue
             ip = self._ip_payload(frame, 17)
@@ -283,12 +293,12 @@ class SoftAPPeer:
             ):
                 return lease, source
 
-    def _lease(self, xid: bytes) -> tuple[bytes, bytes]:
+    def _lease(self, xid: bytes, *, on_frame: Callable[[bytes], None] | None = None) -> tuple[bytes, bytes]:
         deadline = time.monotonic() + 25
         while True:
             self._dhcp_request(xid, b"\x35\x01\x01")
             try:
-                lease, server = self._dhcp_reply(xid, 2, min(deadline, time.monotonic() + 1))
+                lease, server = self._dhcp_reply(xid, 2, min(deadline, time.monotonic() + 1), on_frame=on_frame)
                 break
             except TimeoutError:
                 if time.monotonic() >= deadline:
@@ -441,17 +451,33 @@ class PortalStationPeer(SoftAPPeer):
             **SoftAPPeer._initial_protocol_state(),
             "save_http": False, "save_body_sha256": None,
             "station_dhcp": False, "station_arp": False,
-            "station_reconnect": False, "station_dhcp_xid": None, "capture_start_offset": None,
+            "station_reconnect": False, "station_on_start": False,
+            "station_dhcp_xid": None, "capture_start_offset": None,
         }
 
+    def _observe_station_discover(self, frame: bytes) -> None:
+        packet = self._station_dhcp_packet(frame)
+        if packet is not None and _dhcp_options(packet).get(53) == b"\x01":
+            raise _StationDiscovered(frame)
+
+    def _lease(self, xid: bytes, *, on_frame: Callable[[bytes], None] | None = None) -> tuple[bytes, bytes]:
+        if self._generation == 1:
+            on_frame = self._observe_station_discover
+        return super()._lease(xid, on_frame=on_frame)
+
     def _run(self) -> None:
-        if not self._station_proven:
-            super()._run()
-            return
         stage = "station-reconnect"
-        self._record(stage=stage, station_reconnect=True, capture_start_offset=self._capture_start_offset)
         try:
-            self._await_station()
+            if self._station_proven:
+                self._record(stage=stage, station_reconnect=True, capture_start_offset=self._capture_start_offset)
+                self._await_station()
+                return
+            try:
+                super()._run()
+            except _StationDiscovered as discover:
+                stage = "station-on-start"
+                self._record(stage=stage, station_on_start=True)
+                self._await_station(first_frame=discover.frame)
         except _PeerStopped:
             self._record(status="INTERRUPTED", stage=stage)
         except (EOFError, OSError, ValueError):
@@ -472,7 +498,7 @@ class PortalStationPeer(SoftAPPeer):
         except (EOFError, OSError, ValueError):
             self._record(status="PARTIAL", stage=stage)
 
-    def _await_station(self) -> None:
+    def _await_station(self, *, first_frame: bytes | None = None) -> None:
         station = self._station_mac
         mac = station.hex(":")
         gateway = PROVISION_STATION_GATEWAY.packed
@@ -495,17 +521,23 @@ class PortalStationPeer(SoftAPPeer):
             if probe_at is not None and time.monotonic() >= probe_at:
                 self._send(arp_request)
                 probe_at = time.monotonic() + 0.5
-            try:
-                frame = self._next_frame(min(deadline, probe_at or deadline))
-            except TimeoutError:
-                continue
+            if first_frame is not None:
+                frame, first_frame = first_frame, None
+            else:
+                try:
+                    frame = self._next_frame(min(deadline, probe_at or deadline))
+                except TimeoutError:
+                    continue
             if frame[6:12] != station:
                 continue
             if acknowledged_xid is not None and frame[:42] == arp_reply:
                 self._station_proven = True
                 self._record(station_arp=True, status="PASS")
                 return
-            reply = self._station_dhcp_reply(frame, dhcp, mac)
+            packet = self._station_dhcp_packet(frame)
+            if packet is None:
+                continue
+            reply = dhcp.handle(packet, source_mac=mac)
             if reply is None:
                 continue
             xid = reply[4:8].hex()
@@ -524,7 +556,9 @@ class PortalStationPeer(SoftAPPeer):
                 probe_at = time.monotonic()
         raise TimeoutError
 
-    def _station_dhcp_reply(self, frame: bytes, dhcp: LabDhcp, mac: str) -> bytes | None:
+    def _station_dhcp_packet(self, frame: bytes) -> bytes | None:
+        if frame[6:12] != self._station_mac:
+            return None
         ip = self._ip_payload(frame, socket.IPPROTO_UDP)
         if ip is None or len(ip[2]) < 8:
             return None
@@ -533,6 +567,6 @@ class PortalStationPeer(SoftAPPeer):
             return None
         packet = udp[8:]
         parsed = parse_dhcp_request(packet)
-        if parsed is None or parsed["mac"] != mac or parsed["message_type"] not in (1, 3):
+        if parsed is None or parsed["mac"] != self._station_mac.hex(":") or parsed["message_type"] not in (1, 3):
             return None
-        return dhcp.handle(packet, source_mac=mac)
+        return packet

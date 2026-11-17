@@ -1922,6 +1922,13 @@ finalized report matches the ID to a complete station DORA after that offset
 in the same capture. The guest may reuse a transaction ID after reset. Save a ZIP before each
 reset if the previous generation's receipt is needed.
 
+An imported Flash can boot directly in station mode. When generation one sends a
+valid DHCP DISCOVER from the session's guest STA identity before answering the
+SoftAP DHCP probe, the peer responds to that frame and records
+`station_on_start=true`. This path requires the isolated STA DORA and ARP
+response in the same new session, without a portal submission. The receipt
+reports station connectivity only.
+
 Cardputer ADV can use `runtime=qemu-wifi` with
 `network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins
 the open `fixturetest` AP and receives DHCP, DNS and SNTP through one

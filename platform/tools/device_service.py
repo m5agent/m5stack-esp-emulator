@@ -4689,7 +4689,7 @@ class DeviceSession:
                     "guest_station_lease": peer.get("station_dhcp") is True and peer.get("station_arp") is True,
                     "captured_station_dora": captured_provision_station_dora(capture, peer.get("station_dhcp_xid")),
                 }
-                if reconnect:
+                if reconnect or peer.get("station_on_start") is True:
                     evidence["checks"] = station_checks
                 else:
                     evidence["checks"].update(

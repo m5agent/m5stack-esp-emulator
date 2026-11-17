@@ -50,7 +50,7 @@
    [G0 存档与跨会话加载](../tests/firmware/spi_sd_media/nc1020-save-summary.json)。
    StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。补 Cardputer/ADV 的 Linux namespace 审核正向验证、更多原版应用的
-   SoftAP 门户，以及 StickS3 原版在新会话复用已配网 Flash。
+   SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
    已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。开放式 ESP-IDF 夹具已通过
    [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)；
