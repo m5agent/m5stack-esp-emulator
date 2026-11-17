@@ -64,6 +64,68 @@ def requirement_rows(
     return requirements
 
 
+def _device_model_cases(device_cases: list[str], case_models: dict) -> dict[str, list[str]]:
+    model_cases = {}
+    for case_id in device_cases:
+        for model_id in case_models.get(case_id, []):
+            model_cases.setdefault(model_id, []).append(case_id)
+    return model_cases
+
+
+def _device_component_rows(manifest: dict, models: dict, model_cases: dict) -> list[dict]:
+    blocker_reasons = {
+        row.get("model"): row.get("reason")
+        for row in manifest.get("peripheral_blockers", [])
+    }
+    component_rows = []
+    for component in manifest.get("components", []):
+        model_id = component["model"]
+        model = models[model_id]
+        component_rows.append(
+            {
+                "id": component.get("id"),
+                "model": model_id,
+                "kind": model.get("kind"),
+                "interface": component.get(
+                    "bus", component.get("interface", model.get("interface"))
+                ),
+                "address": component.get(
+                    "address", model.get("address")
+                ),
+                "qom_path": component.get("qom_path"),
+                "model_status": model.get("status"),
+                "device_status": component.get(
+                    "status", model.get("status")
+                ),
+                "capabilities": model.get("capabilities", []),
+                "injection": model.get("injection", []),
+                "data_plane": model.get("data_plane"),
+                "evidence": model.get("evidence", []),
+                "blocker": (
+                    component.get("blocker")
+                    or model.get("blocker")
+                    or blocker_reasons.get(model_id)
+                ),
+                "runtime_cases": model_cases.get(model_id, []),
+            }
+        )
+
+    return component_rows
+
+
+def read_device_components(device_id: str) -> list[dict]:
+    """Read declared components and the cases registered for this board only."""
+    peripheral = json.loads(PERIPHERALS.read_text())
+    manifest = peripheral["devices"].get(device_id)
+    if manifest is None:
+        return []
+    coverage = json.loads(COVERAGE.read_text())
+    group = coverage["device_case_groups"].get(device_id, {})
+    device_cases = group.get("matrix", []) + group.get("external", [])
+    model_cases = _device_model_cases(device_cases, coverage["case_models"])
+    return _device_component_rows(manifest, peripheral["models"], model_cases)
+
+
 def build_inventory() -> dict:
     devices, peripheral, profiles = load_inputs()
     coverage_errors, coverage_report = validate_runtime_coverage()
@@ -86,10 +148,6 @@ def build_inventory() -> dict:
         device_id = device["id"]
         manifest = manifests[device_id]
         components = manifest.get("components", [])
-        blocker_reasons = {
-            row.get("model"): row.get("reason")
-            for row in manifest.get("peripheral_blockers", [])
-        }
         requirements = requirement_rows(
             device.get("hardware", {}), models, components
         )
@@ -98,42 +156,8 @@ def build_inventory() -> dict:
             runtime_group.get("matrix", [])
             + runtime_group.get("external", [])
         )
-        model_cases = {}
-        for case_id in device_cases:
-            for model_id in case_models.get(case_id, []):
-                model_cases.setdefault(model_id, []).append(case_id)
-        component_rows = []
-        for component in components:
-            model_id = component["model"]
-            model = models[model_id]
-            component_rows.append(
-                {
-                    "id": component.get("id"),
-                    "model": model_id,
-                    "kind": model.get("kind"),
-                    "interface": component.get(
-                        "bus", component.get("interface", model.get("interface"))
-                    ),
-                    "address": component.get(
-                        "address", model.get("address")
-                    ),
-                    "qom_path": component.get("qom_path"),
-                    "model_status": model.get("status"),
-                    "device_status": component.get(
-                        "status", model.get("status")
-                    ),
-                    "capabilities": model.get("capabilities", []),
-                    "injection": model.get("injection", []),
-                    "data_plane": model.get("data_plane"),
-                    "evidence": model.get("evidence", []),
-                    "blocker": (
-                        component.get("blocker")
-                        or model.get("blocker")
-                        or blocker_reasons.get(model_id)
-                    ),
-                    "runtime_cases": model_cases.get(model_id, []),
-                }
-            )
+        model_cases = _device_model_cases(device_cases, case_models)
+        component_rows = _device_component_rows(manifest, models, model_cases)
 
         blocked = [
             row["model"]
@@ -171,9 +195,7 @@ def build_inventory() -> dict:
                 "completion_exemption": completion_allowlist.get(device_id),
                 "runtime_cases": {
                     **runtime_group,
-                    "measured_models": sorted(
-                        set(model_cases)
-                    ),
+                    "measured_models": sorted(model_cases),
                     "case_models": {
                         case_id: case_models.get(case_id, [])
                         for case_id in device_cases

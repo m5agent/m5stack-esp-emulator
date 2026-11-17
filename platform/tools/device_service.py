@@ -191,6 +191,7 @@ from uiflow_package_runtime import deploy_package, validate_mpy  # noqa: E402
 from uiflow_main_loader import main_loader_verified, probe_main_loader  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from observation_store import ObservationStore  # noqa: E402
+from peripheral_inventory import read_device_components  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
     UIFlowRuntimeError, live_bootstrap_files, run_mpy, run_source, synchronize_raw_repl,
@@ -10299,11 +10300,67 @@ class DeviceService:
             "devices": devices,
         }
 
-    def get_device(self, device_id: str) -> dict:
+    def _device_spec(self, device_id: str) -> DeviceSpec:
         spec = self.specs.get(device_id)
         if spec is None:
             raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
-        return self._public_device(spec)
+        return spec
+
+    def get_device(self, device_id: str) -> dict:
+        return self._public_device(self._device_spec(device_id))
+
+    def get_device_capabilities(self, device_id: str) -> dict:
+        spec = self._device_spec(device_id)
+        if not spec.supported:
+            local_status = "not_applicable"
+        elif spec.backend_ready:
+            local_status = "ready"
+        elif spec.missing_backend_files:
+            local_status = "files_missing"
+        elif spec.missing_backend_machine:
+            local_status = "machine_missing"
+        else:
+            local_status = "unavailable"
+        ready = local_status == "ready"
+        native_network = native_sta_capability(spec, backend_ready=ready)
+
+        sd = {"admission": "unsupported"}
+        if spec.supported and spec.service_kind == "qemu":
+            if not ready:
+                sd = {"admission": "backend_unavailable"}
+            elif spec.has_sd_card:
+                sd = {"admission": "eligible", "interface": storage_interface(spec)}
+
+        components = []
+        for row in read_device_components(device_id):
+            cases = row["runtime_cases"]
+            components.append({
+                **{key: row[key] for key in (
+                    "id", "model", "kind", "interface", "model_status", "device_status", "blocker",
+                )},
+                "evidence": {"status": "case_registered" if cases else "not_tested", "case_ids": cases},
+            })
+
+        return {
+            "schema_version": 1,
+            "device_id": spec.id,
+            "soc": spec.soc,
+            "model_status": "supported" if spec.supported else "unsupported",
+            "model_reason": None if spec.supported else spec.reason,
+            "runtime": {
+                "default_mode": "qemu" if spec.supported else None,
+                "backend": spec.backend, "machine": spec.machine or None,
+                "local_status": local_status,
+                "reference_available": spec.reference_available,
+            },
+            "network": {
+                "catalog_status": spec.network_status,
+                "catalog_profiles": list(spec.network_profiles),
+                **({"native": native_network} if native_network else {}),
+            },
+            "fixtures": {"sd": sd},
+            "components": components,
+        }
 
     def upload_artifact(
         self, data: bytes, *, name: str = "", content_type: str = ""

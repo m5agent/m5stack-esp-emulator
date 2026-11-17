@@ -6851,6 +6851,49 @@ class DeviceServiceHttpTests(unittest.TestCase):
         self.assertEqual(config["service_url"], self.base)
         self.assertEqual(config["schema_version"], 1)
 
+    def test_device_capabilities_distinguishes_readiness_and_device_case_scope(self):
+        device = "cardputer-adv"
+        endpoint = f"/api/v1/devices/{device}/capabilities"
+        ready = replace(self.service.specs[device], qemu=Path(sys.executable),
+                        rom_dir=Path(self.tmp.name), flash_emulator=None, require_machine_probe=False)
+        leases_before = self.service.worker_status()["active_lease_count"]
+        with mock.patch.dict(self.service.specs, {device: ready}):
+            with urlopen(self.base + endpoint, timeout=5) as response:
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                present = json.load(response)
+        self.assertEqual(present["model_status"], "supported")
+        self.assertEqual(present["runtime"]["local_status"], "ready")
+        self.assertEqual(present["runtime"]["default_mode"], "qemu")
+        self.assertEqual(present["fixtures"]["sd"], {"admission": "eligible", "interface": "spi"})
+        self.assertEqual(present["network"]["native"]["sta"]["runtime"], "qemu-wifi")
+        sd = next(component for component in present["components"] if component["id"] == "sd")
+        self.assertEqual(sd["evidence"], {"status": "case_registered", "case_ids": ["cardputer-adv-sd"]})
+
+        absent = replace(ready, qemu=Path(self.tmp.name) / "missing-qemu")
+        with mock.patch.dict(self.service.specs, {device: absent}):
+            _, missing = self.request(endpoint)
+        self.assertEqual(missing["runtime"]["local_status"], "files_missing")
+        self.assertEqual(missing["model_status"], "supported")
+        self.assertEqual(missing["fixtures"]["sd"], {"admission": "backend_unavailable"})
+        self.assertEqual(missing["components"], present["components"])
+        self.assertNotIn("native", missing["network"])
+        self.assertEqual(self.service.worker_status()["active_lease_count"], leases_before)
+
+    def test_device_capabilities_preserves_unmodeled_and_unknown_targets(self):
+        _, tab5 = self.request("/api/v1/devices/tab5/capabilities")
+        touch = next(component for component in tab5["components"] if component["id"] == "touch")
+        self.assertEqual(touch["device_status"], "partial")
+        self.assertEqual(touch["evidence"], {"status": "not_tested", "case_ids": []})
+        _, disabled = self.request("/api/v1/devices/cardputer-zero/capabilities")
+        self.assertEqual(disabled["model_status"], "unsupported")
+        self.assertEqual(disabled["runtime"]["local_status"], "not_applicable")
+        self.assertIsNone(disabled["runtime"]["default_mode"])
+        with self.assertRaises(HTTPError) as raised:
+            self.request("/api/v1/devices/XIAOZHI_CARD_KIT/capabilities")
+        self.assertEqual(raised.exception.code, 404)
+        with raised.exception as response:
+            self.assertEqual(json.load(response)["error"]["code"], "unknown_device")
+
     def test_v1_catalog_and_capacity(self):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)

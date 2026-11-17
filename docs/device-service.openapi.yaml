@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.68.0
+  version: 1.69.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -885,6 +885,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Device"
+        "404":
+          $ref: "#/components/responses/Error"
+  /devices/{device_id}/capabilities:
+    get:
+      summary: Read one device's runtime readiness and registered controller evidence
+      description: >
+        Reads device and backend gates without creating a session. Case IDs
+        identify registered device-local fixtures. Firmware requirements,
+        fixture arguments, worker policy and runtime ACL are evaluated on
+        session creation. Local readiness may change. The endpoint does not
+        test a firmware claim or assert physical hardware behavior.
+      parameters:
+        - $ref: "#/components/parameters/DeviceId"
+      responses:
+        "200":
+          description: Registered device availability, fixture admission, and same-board case references
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceCapabilities"
+        "401":
+          $ref: "#/components/responses/Error"
         "404":
           $ref: "#/components/responses/Error"
   /capacity:
@@ -3550,6 +3575,78 @@ components:
         one guest without starting the external BLE peer. network is the
         separate esp-emu diagnostic lane and cannot establish a whole-device
         PASS by itself.
+    DeviceCapabilities:
+      type: object
+      additionalProperties: false
+      required: [schema_version, device_id, soc, model_status, model_reason, runtime, network, fixtures, components]
+      properties:
+        schema_version: {type: integer, const: 1}
+        device_id: {type: string}
+        soc: {type: string}
+        model_status: {type: string, enum: [supported, unsupported]}
+        model_reason: {type: [string, "null"]}
+        runtime:
+          type: object
+          additionalProperties: false
+          required: [default_mode, backend, machine, local_status, reference_available]
+          properties:
+            default_mode:
+              enum: [qemu, null]
+              description: Default session request mode. On Tab5, the qemu request mode selects the configured native ESP32-P4 backend.
+            backend: {type: string}
+            machine: {type: [string, "null"]}
+            local_status:
+              type: string
+              enum: [ready, files_missing, machine_missing, unavailable, not_applicable]
+            reference_available: {type: boolean}
+        network:
+          type: object
+          additionalProperties: false
+          required: [catalog_status, catalog_profiles]
+          properties:
+            catalog_status: {type: string, enum: [validated, unverified, board-init-blocked, not-supported]}
+            catalog_profiles:
+              type: array
+              items: {type: string}
+              description: Profile selectors recorded in the catalog. Each selector has runtime-specific admission checks.
+            native:
+              $ref: "#/components/schemas/NativeNetworkCapability"
+        fixtures:
+          type: object
+          additionalProperties: false
+          required: [sd]
+          properties:
+            sd:
+              type: object
+              additionalProperties: false
+              required: [admission]
+              properties:
+                admission: {type: string, enum: [eligible, unsupported, backend_unavailable]}
+                interface: {type: string, enum: [spi, sdmmc]}
+        components:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, model, kind, interface, model_status, device_status, blocker, evidence]
+            properties:
+              id: {type: string}
+              model: {type: string}
+              kind: {type: [string, "null"]}
+              interface: {type: string}
+              model_status: {type: string, enum: [simulated, partial, planned]}
+              device_status: {type: string, enum: [simulated, partial, planned]}
+              blocker: {type: [string, "null"]}
+              evidence:
+                type: object
+                additionalProperties: false
+                required: [status, case_ids]
+                properties:
+                  status: {type: string, enum: [case_registered, not_tested]}
+                  case_ids:
+                    type: array
+                    items: {type: string}
+                    uniqueItems: true
     NativeNetworkCapability:
       type: object
       additionalProperties: false

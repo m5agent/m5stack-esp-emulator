@@ -47,6 +47,17 @@ and stores in a newly owned, ephemeral-port service. It exercises actual artifac
 package, firmware, worker HMAC, job-lease and retention operations without a guest
 or mocked store. It does not mutate the shared service's worker or history.
 
+For the [device-capabilities receipt](device-capabilities-summary.json), use a
+fresh owned authenticated service for each backend configuration. Query the
+device detail and capabilities endpoints with a valid Xtensa backend, a missing
+executable, and an executable that lacks the required `m5cardputer` machine.
+Confirm the local status, `Cache-Control: no-store`, and zero sessions and
+leases. Repeat with a disabled device, unknown model, and missing authorization.
+The separate ADV guest check uses the matching original MP3 image and raw FAT32
+fixture. Read its capabilities before creating the session, press Return on
+the file list, collect SPI SD reads and PCM, and request the evidence ZIP before
+stopping with Flash release.
+
 The live runner creates visible CoreS3 guests with a passive HUB, ENV III, NCIR
 and Encoder. It uses original firmware drivers, frozen GPIO wiring, explicit
 sensor/encoder fixtures, guest serial values, real controller transaction

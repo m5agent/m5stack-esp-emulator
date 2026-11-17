@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "source_base": "d4853980602d04823c22ea0339438229b309b18d",
+  "contract_version": "1.69.0",
+  "operation": "GET /api/v1/devices/{device_id}/capabilities",
+  "http_preflight": {
+    "status": "PASS",
+    "cases": {
+      "local-ready": {
+        "device_id": "cardputer-adv",
+        "http_status": 200,
+        "runtime": {
+          "default_mode": "qemu",
+          "backend": "qemu-esp32s3",
+          "machine": "m5cardputeradv",
+          "local_status": "ready",
+          "reference_available": false
+        },
+        "model_status": "supported",
+        "runtime_file_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+        "sd": {
+          "admission": "eligible",
+          "interface": "spi"
+        },
+        "sd_evidence": {
+          "status": "case_registered",
+          "case_ids": [
+            "cardputer-adv-sd"
+          ]
+        },
+        "isolated_service_exited": true
+      },
+      "disabled_device": {
+        "device_id": "cardputer-zero",
+        "http_status": 200,
+        "model_status": "unsupported",
+        "local_status": "not_applicable"
+      },
+      "unregistered_peripheral_scope": {
+        "device_id": "tab5",
+        "component": {
+          "id": "touch",
+          "model": "touch-st7123",
+          "kind": "touch",
+          "interface": "i2c1-dsi",
+          "model_status": "partial",
+          "device_status": "partial",
+          "blocker": "Add an ST7123 I2C model plus a native P4 I2C/QOM bridge, then inject touch through controller registers instead of the M5GFX raw-read hook",
+          "evidence": {
+            "status": "not_tested",
+            "case_ids": []
+          }
+        }
+      },
+      "unknown_device": {
+        "requested_model": "XIAOZHI_CARD_KIT",
+        "http_status": 404,
+        "error": "unknown_device"
+      },
+      "missing_authorization": {
+        "http_status": 401,
+        "error": "unauthorized"
+      },
+      "local-missing-file": {
+        "device_id": "cardputer-adv",
+        "http_status": 200,
+        "runtime": {
+          "default_mode": "qemu",
+          "backend": "qemu-esp32s3",
+          "machine": "m5cardputeradv",
+          "local_status": "files_missing",
+          "reference_available": false
+        },
+        "model_status": "supported",
+        "runtime_file_sha256": null,
+        "sd": {
+          "admission": "backend_unavailable"
+        },
+        "sd_evidence": {
+          "status": "case_registered",
+          "case_ids": [
+            "cardputer-adv-sd"
+          ]
+        },
+        "isolated_service_exited": true
+      },
+      "local-wrong-machine": {
+        "device_id": "cardputer",
+        "http_status": 200,
+        "runtime": {
+          "default_mode": "qemu",
+          "backend": "qemu-esp32s3",
+          "machine": "m5cardputer",
+          "local_status": "machine_missing",
+          "reference_available": false
+        },
+        "model_status": "supported",
+        "runtime_file_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+        "sd": {
+          "admission": "backend_unavailable"
+        },
+        "sd_evidence": {
+          "status": "case_registered",
+          "case_ids": [
+            "cardputer-spi-sd-media"
+          ]
+        },
+        "isolated_service_exited": true
+      }
+    },
+    "active_leases_after_reads": 0,
+    "sessions_created_by_reads": 0
+  },
+  "virtual_device_validation": {
+    "cardputer_adv_spi_sd": {
+      "status": "PASS",
+      "original_firmware_sha256": "c5918ff914a51b0dc4398f331c8306c25e26a4b157592d3e7d9c0dff2d0c5e45",
+      "normalized_flash_sha256": "10d42a08a69d3e1f628fd9078015a64b598a74f02437c26ecc7201cc2db3e78d",
+      "runtime_sha256": "5f8a5f38f0512db04a36fb7ca5cf13ec3d359d0fff1eb481fe9b2c06ab3580f2",
+      "boot_source_format": "merged",
+      "sd_fixture_sha256": "6e7c003e532f2912b5a6841ea24b6ffbe1ca113caf0dd83b26d750d0cbd7f4a0",
+      "spi_cmd17_before_input": 4,
+      "spi_cmd17_final": 66,
+      "frame_sha256": {
+        "list": "370b4236939c088e11013efe20609e33e927a03f1e9da07b3d68fc230ed28d7d",
+        "playing": "b32cb21b6d40f5d7b84151841e4b79b9c9a77704563600b538fbf39805c4ee24",
+        "progress": "07dda6c56b5a946c22166ea6c99106645660e84b563cb464e1299f3df7904c71"
+      },
+      "input": {
+        "kind": "key",
+        "key": "ret",
+        "hold_seconds": 0.1,
+        "settle_seconds": 1.4
+      },
+      "serial": {
+        "sha256": "07b8e9cff00a3a8f9324dc88697e89340137b735bb36c6e0cc3cdea265a94429",
+        "bytes": 701,
+        "boot_banners": 1,
+        "fatal_markers": []
+      },
+      "audio": {
+        "bytes": 104960,
+        "sha256": "0996a61dfdccdbecd7ad788511d9be476e6c021b0e0210fb7bd465f16463135a",
+        "peak_abs": 1352,
+        "nonzero_samples": 50780,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "fixture_tone_hz": 524,
+        "physical_acoustics": "NOT RUN",
+        "matching_window_count": 11
+      },
+      "evidence_zip_sha256": "667c7b5391345b41bf842e977ee31b701ee8087c45dd9b2fd8964df5c5827fde",
+      "source_artifact_unchanged": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      },
+      "capability_preflight": {
+        "model_status": "supported",
+        "runtime": {
+          "default_mode": "qemu",
+          "backend": "qemu-esp32s3",
+          "machine": "m5cardputeradv",
+          "local_status": "ready",
+          "reference_available": false
+        },
+        "sd": {
+          "admission": "eligible",
+          "interface": "spi"
+        },
+        "sd_case": {
+          "status": "case_registered",
+          "case_ids": [
+            "cardputer-adv-sd"
+          ]
+        },
+        "active_leases_before_launch": 0
+      },
+      "isolated_service_exit": true,
+      "firmware": "Cardputer ADV MP3 Player v1.0.0",
+      "frozen_runtime_source": "37fc8963d77bf806cde4fa16ea11e31b5a98b4d7"
+    }
+  },
+  "limits": {
+    "physical_hardware": "NOT RUN",
+    "other_firmware_claims": "NOT RUN",
+    "browser_wasm": "NOT RUN"
+  }
+}

@@ -68,7 +68,7 @@
    I2C/SPI 数据面。之后分别验收 PCM 播放/录音、IMU/Camera/IR、
    ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
-7. **P2 能力与故障**。将板型、执行模式、可用控制器/fixture 和证据状态放入稳定清单；
+7. **P2 能力与故障**。基于只读设备能力查询，继续按运行模式细化控制器与 fixture 准入。
    故障记录区分目标不支持、未建模、环境失败和有 guest 证据的应用失败。
    XIAOZHI_CARD_KIT 在受理阶段归入不支持的目标。
 

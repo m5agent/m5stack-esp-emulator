@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.68.0` and bounded
+Status: local MVP with unified-device runtime contract `1.69.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2845,6 +2845,30 @@ cannot be reconstructed. Missing/unreadable runtime records are shown as
 `state: "unknown"`, not restarted or inferred to be firmware failures. This
 display journal is not a replacement for same-session validation evidence.
 
+## Device capabilities
+
+`GET /api/v1/devices/{device_id}/capabilities` is a read-only preflight. A
+registered device can have `model_status=supported` while `runtime.local_status`
+reports `files_missing` or `machine_missing`. A registered but disabled device
+returns `200` with `model_status=unsupported` and `local_status=not_applicable`.
+An unknown identifier returns `404 unknown_device`. The response uses
+`Cache-Control: no-store` because local files and machine support may change.
+
+The runtime field identifies the default session request mode, its backend and
+its machine where applicable. Tab5 uses the `qemu` request mode for its native
+ESP32-P4 backend. `fixtures.sd` checks that this backend route can accept a raw
+SD image and identifies the board's SPI or SDMMC wiring when eligible. The
+actual image, firmware, worker capacity and policy are checked on session
+creation. `network.catalog_profiles` lists catalog selectors. Where present,
+`network.native` is the existing board-native STA capability. A network request
+still needs the appropriate runtime and policy. Use `GET /api/v1/units?device_id=<device_id>`
+for port-specific Unit attachment admission.
+
+Component `model_status` and `device_status` come from the peripheral registry.
+`evidence.status=case_registered` refers only to the listed controller cases
+for that board. `not_tested` means no exact case is registered for that board
+and controller. Firmware behavior requires a session and the matching evidence.
+
 ## Endpoints
 
 | Method | Path | Purpose |
@@ -2864,6 +2888,7 @@ display journal is not a replacement for same-session validation evidence.
 | GET | `/api/v1/health` | Service health and capacity |
 | GET | `/api/v1/devices` | Device catalog; add `?include_unsupported=0` to hide disabled rows |
 | GET | `/api/v1/devices/{device_id}` | One device profile |
+| GET | `/api/v1/devices/{device_id}/capabilities` | Model support, local backend readiness, SD admission, and registered controller cases |
 | GET | `/api/v1/capacity` | Global and per-device active lease counts |
 | GET | `/api/v1/worker` | Local worker identity, heartbeat, state, leases and restart classification |
 | POST | `/api/v1/worker/drain` | Stop new lease admission; active sessions continue |
