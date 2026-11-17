@@ -3164,6 +3164,17 @@ A task watchdog warning alone is recorded under `task_watchdog_reports`.
 Core-dump status records guest-reported delimiters or Flash checks. These
 observations do not perform live register sampling or validate dump contents.
 
+On native ESP32-S3, an instrumented QEMU started with host setting
+`M5SW_S3_IWDT_TRACE=1` can supply one `esp32s3_iwdt_stage0` entry in
+`backend_observations`. Its versioned `timing` object records virtual
+nanoseconds, accepted TIMG1 watchdog feeds and the last feeder, SYSTIMER
+TARGET0/1 alarm and per-CPU clear counters, and the watchdog/timer interrupt
+route and register snapshot. The entry comes from the same session's bounded
+runtime stderr. It remains a backend observation and does not assign a
+guest panic or firmware root cause. The runtime emits at most one entry
+per process, at its first interrupt-stage event. If unavailable or outside
+the retained stderr window, the entry is absent.
+
 Pass an uploaded ELF's SHA-256 as `elf_artifact_id` to compare its exact bytes
 against the normalized firmware's valid application descriptor and the guest's
 panic-time hash prefix. With a unique exact match, the service can attach

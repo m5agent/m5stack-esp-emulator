@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from bisect import bisect_left
 import hashlib
+import json
 from pathlib import Path
 import re
 
@@ -26,6 +27,32 @@ RESET = re.compile(r"^rst:(0x[0-9a-fA-F]+)\s*\(([^)]+)\)")
 BACKEND_ILLEGAL = re.compile(
     r"Illegal instruction (0x[0-9a-fA-F]{8}) at PC=(0x[0-9a-fA-F]{8}) hart=([01])\b"
 )
+S3_IWDT_STAGE0_PREFIX = "M5_S3_IWDT_STAGE0 "
+S3_IWDT_JSON_LIMIT = 2048
+_S3_IWDT_UINT32 = (0, (1 << 32) - 1)
+_S3_IWDT_UINT64 = (0, (1 << 64) - 1)
+_S3_IWDT_TIME = (0, (1 << 63) - 1)
+_S3_IWDT_DEADLINE = (-1, (1 << 63) - 1)
+_S3_IWDT_SCALARS = {
+    "schema_version": (1, 1), "now_ns": _S3_IWDT_TIME,
+    "feed_attempts": _S3_IWDT_UINT64, "feeds": _S3_IWDT_UINT64, "feed_cpu": (-1, 1),
+    "last_feed_ns": _S3_IWDT_TIME, "last_feed_deadline_ns": _S3_IWDT_DEADLINE,
+    "stage0_ticks": _S3_IWDT_UINT32, "stage1_ticks": _S3_IWDT_UINT32,
+    "wdt_config0": _S3_IWDT_UINT32, "wdt_prescaler": _S3_IWDT_UINT32,
+    "wdt_hz": _S3_IWDT_UINT64, "wdt_irq_enabled": (0, 1),
+}
+_S3_IWDT_VECTORS = {
+    "alarms": (2, _S3_IWDT_UINT64), "coalesced": (2, _S3_IWDT_UINT64),
+    "last_alarm_ns": (2, _S3_IWDT_TIME), "last_expire_ns": (2, _S3_IWDT_DEADLINE),
+    "irq_sources": (3, (0, 63)), "irq_rises": (3, _S3_IWDT_UINT64),
+    "irq_falls": (3, _S3_IWDT_UINT64), "irq_level": (3, (0, 1)),
+    "cpu_ps": (2, _S3_IWDT_UINT32), "cpu_intenable": (2, _S3_IWDT_UINT32),
+    "cpu_intset": (2, _S3_IWDT_UINT32),
+}
+_S3_IWDT_MATRICES = {
+    "acks": (2, _S3_IWDT_UINT64), "last_ack_ns": (2, _S3_IWDT_DEADLINE),
+    "routes": (3, (0, 31)),
+}
 
 
 CPU_PC_DUMP_LIMIT = 64 * 1024
@@ -139,7 +166,42 @@ def output_tail(path: Path, captured: bytes | None = None) -> tuple[dict, str]:
     }, ANSI_COLOR.sub("", body.decode("utf-8", errors="replace"))
 
 
-def serial_crash_observations(console: str, stderr: str) -> dict:
+def _s3_iwdt_stage0_observation(stderr: str) -> dict | None:
+    """Accept one bounded, versioned native trace line, independently of the guest console."""
+    lines = [line for line in stderr.splitlines() if line.startswith(S3_IWDT_STAGE0_PREFIX)]
+    if len(lines) != 1 or len(lines[0]) > S3_IWDT_JSON_LIMIT or not lines[0].isascii():
+        return None
+    try:
+        timing = json.loads(lines[0][len(S3_IWDT_STAGE0_PREFIX):])
+    except (ValueError, RecursionError):
+        return None
+    if not isinstance(timing, dict) or set(timing) != (
+        _S3_IWDT_SCALARS.keys() | _S3_IWDT_VECTORS.keys() | _S3_IWDT_MATRICES.keys()
+        | {"cpu_irq_snapshot_available"}
+    ):
+        return None
+
+    def integer(value, bounds):
+        return type(value) is int and bounds[0] <= value <= bounds[1]
+
+    def vector(value, size, bounds):
+        return isinstance(value, list) and len(value) == size and all(integer(item, bounds) for item in value)
+
+    if not all(integer(timing[key], bounds) for key, bounds in _S3_IWDT_SCALARS.items()):
+        return None
+    if not all(vector(timing[key], size, bounds) for key, (size, bounds) in _S3_IWDT_VECTORS.items()):
+        return None
+    for key, (rows, bounds) in _S3_IWDT_MATRICES.items():
+        matrix = timing[key]
+        if not isinstance(matrix, list) or len(matrix) != rows or not all(vector(row, 2, bounds) for row in matrix):
+            return None
+    if (timing["irq_sources"] != [55, 57, 58] or timing["feeds"] > timing["feed_attempts"]
+            or type(timing["cpu_irq_snapshot_available"]) is not bool):
+        return None
+    return {"kind": "esp32s3_iwdt_stage0", "source": "runtime_stderr", "timing": timing}
+
+
+def serial_crash_observations(console: str, stderr: str, *, native_s3: bool = False) -> dict:
     panic = None
     active = False
     core = None
@@ -229,6 +291,11 @@ def serial_crash_observations(console: str, stderr: str) -> dict:
                 "pc": match[2].lower(), "instruction": match[1].lower(),
                 "source": "runtime_stderr",
             }
+    backend = sorted(backend_observations.values(), key=lambda item: item["hart"])
+    if native_s3:
+        timing = _s3_iwdt_stage0_observation(stderr)
+        if timing is not None:
+            backend.append(timing)
     return {
         "panic": panic,
         "panic_count": panic_count,
@@ -237,7 +304,7 @@ def serial_crash_observations(console: str, stderr: str) -> dict:
                  "reboot_requests": reboot_requests, "reset_reports": reset_reports},
         "task_watchdog_reports": task_watchdog_reports,
         "core_dump": {"status": dump_status},
-        "backend_observations": sorted(backend_observations.values(), key=lambda item: item["hart"]),
+        "backend_observations": backend,
     }
 
 

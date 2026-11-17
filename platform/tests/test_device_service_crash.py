@@ -1,11 +1,14 @@
 """Guard postmortem attribution independently of any cached runtime assets."""
 
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
 
-from device_service_crash import CRASH_OUTPUT_LIMIT, output_tail, qmp_cpu_pc_sample, serial_crash_observations
+from device_service_crash import (
+    CRASH_OUTPUT_LIMIT, S3_IWDT_STAGE0_PREFIX, output_tail, qmp_cpu_pc_sample, serial_crash_observations,
+)
 from device_service_errors import ServiceError
 
 
@@ -104,6 +107,46 @@ class CpuPcSampleTests(unittest.TestCase):
 
 
 class CrashDiagnosticsTests(unittest.TestCase):
+    def test_native_s3_stage0_retains_timing_without_asserting_guest_panic(self):
+        timing = {
+            "schema_version": 1, "now_ns": 981700000,
+            "feed_attempts": 38, "feeds": 36, "feed_cpu": 0,
+            "last_feed_ns": 681140000, "last_feed_deadline_ns": 981140000,
+            "stage0_ticks": 600, "stage1_ticks": 1200, "wdt_config0": 3089072128,
+            "wdt_prescaler": 40000, "wdt_hz": 2000, "wdt_irq_enabled": 1,
+            "alarms": [72, 73], "coalesced": [0, 30], "last_alarm_ns": [979331000, 979342000],
+            "last_expire_ns": [977798000, 977798000], "acks": [[72, 0], [0, 42]],
+            "last_ack_ns": [[981212000, 0], [0, 671680000]], "irq_sources": [55, 57, 58],
+            "irq_rises": [1, 72, 43], "irq_falls": [0, 72, 42], "irq_level": [1, 0, 1],
+            "routes": [[24, 24], [3, 6], [6, 1]], "cpu_irq_snapshot_available": True,
+            "cpu_ps": [395808, 396835], "cpu_intenable": [318767150, 318767107], "cpu_intset": [0, 2],
+        }
+        line = S3_IWDT_STAGE0_PREFIX + json.dumps(timing) + "\n"
+        parsed = serial_crash_observations("", line, native_s3=True)
+        self.assertEqual(parsed["backend_observations"], [{
+            "kind": "esp32s3_iwdt_stage0", "source": "runtime_stderr", "timing": timing,
+        }])
+        self.assertIsNone(parsed["panic"])
+        self.assertEqual(parsed["cpus"], [])
+        without_ack_clock = timing | {"last_ack_ns": [[-1, 0], [0, -1]]}
+        no_clock_line = S3_IWDT_STAGE0_PREFIX + json.dumps(without_ack_clock)
+        self.assertEqual(
+            serial_crash_observations("", no_clock_line, native_s3=True)["backend_observations"][0]["timing"],
+            without_ack_clock,
+        )
+        self.assertEqual(serial_crash_observations("", line)["backend_observations"], [])
+        self.assertEqual(serial_crash_observations(line, "", native_s3=True)["backend_observations"], [])
+        bad = (
+            line + line, line.rstrip("\n") + " " * 2048, S3_IWDT_STAGE0_PREFIX + "{",
+            *(S3_IWDT_STAGE0_PREFIX + json.dumps(timing | invalid)
+              for invalid in ({"schema_version": True}, {"acks": [[72, 0], [42]]},
+                              {"irq_sources": [55, 58, 57]}, {"feed_attempts": 35},
+                              {"routes": [[24, 24], [3, 6], [6, 32]]}, {"payload": ["extra"]})),
+        )
+        for stderr in bad:
+            with self.subTest(stderr=stderr[:160]):
+                self.assertEqual(serial_crash_observations("", stderr, native_s3=True)["backend_observations"], [])
+
     def test_cpu_attribution_comes_from_panic_and_register_labels(self):
         parsed = serial_crash_observations(
             "Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).\n"

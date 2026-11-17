@@ -5839,8 +5839,56 @@ components:
               enum: [not_observed, uart_incomplete, uart_reported_complete, flash_reported_saved, flash_check_failed, write_failed]
         backend_observations:
           type: array
+          description: >-
+            Bounded runtime stderr observations independent of guest panic output.
+            An opt-in native ESP32-S3 build can report esp32s3_iwdt_stage0 with
+            versioned TIMG1 feed, SYSTIMER alarm/clear and interrupt timing.
           items:
             type: object
+            if:
+              required: [kind]
+              properties:
+                kind: {const: esp32s3_iwdt_stage0}
+            then:
+              required: [source, timing]
+              properties:
+                source: {const: runtime_stderr}
+                timing:
+                  type: object
+                  required:
+                    - schema_version
+                    - now_ns
+                    - feed_attempts
+                    - feeds
+                    - feed_cpu
+                    - last_feed_ns
+                    - last_feed_deadline_ns
+                    - stage0_ticks
+                    - stage1_ticks
+                    - wdt_config0
+                    - wdt_prescaler
+                    - wdt_hz
+                    - wdt_irq_enabled
+                    - alarms
+                    - coalesced
+                    - last_alarm_ns
+                    - last_expire_ns
+                    - acks
+                    - last_ack_ns
+                    - irq_sources
+                    - irq_rises
+                    - irq_falls
+                    - irq_level
+                    - routes
+                    - cpu_irq_snapshot_available
+                    - cpu_ps
+                    - cpu_intenable
+                    - cpu_intset
+                  properties:
+                    schema_version: {const: 1}
+                    feed_cpu: {enum: [-1, 0, 1]}
+                    irq_sources: {const: [55, 57, 58]}
+                    cpu_irq_snapshot_available: {type: boolean}
             additionalProperties: true
         elf:
           type: object

@@ -6473,7 +6473,12 @@ class DeviceSession:
         artifact = self.service.artifacts.path(elf_artifact_id) if elf_artifact_id else None
         console_source, console = output_tail(self.serial0, console_bytes)
         stderr_source, stderr = output_tail(self.stderr_path, stderr_bytes)
-        observed = serial_crash_observations(console, stderr)
+        observed = serial_crash_observations(
+            console, stderr, native_s3=(
+                self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
+                and self.runtime in QEMU_QMP_RUNTIMES
+            ),
+        )
         panic = observed["panic"] or {}
         reported = panic.get("elf_sha256_prefix")
         data = None
