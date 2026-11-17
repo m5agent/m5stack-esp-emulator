@@ -1,0 +1,116 @@
+{
+  "status": "PASS",
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "device": "nesso-n1",
+  "runtime": "qemu",
+  "native_c6_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+  "base_device_service": "8c65905e466c69a62239371f1fcd254c183b0712",
+  "sdk_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "changed_source_sha256": {
+    "platform/tools/device_service.py": "e793330fb388b37d7e8413f14701ec3cad02c5ff733f75332db7d25335f872a0",
+    "platform/tools/esp32_freertos_task_details.py": "824b71efe0a5d1a2e23b5513dbe4fd75c691f399dc8f81b090dec81292c14479"
+  },
+  "cases": {
+    "crc32": {
+      "firmware_sha256": "1597b8eb3b63cceae7e511578dffb8398175f5560a5079af2ae08a27de2a931b",
+      "elf_sha256": "1c24d6621c22226c0cb6ca68fc3a61eea3523449e348269e85e4d5876b97e07a",
+      "actual_guest_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "saved_tasks": 3,
+      "crashed_pc": "0x40804cd6",
+      "crashed_sp": "0x408116b0",
+      "baseline_dump_sha256": "a0b2a7fa8959eac21879893d1257b43a4620c94b529647e517e9f95c2e6856cb",
+      "metadata_dump_sha256": "14e5d3f113445985b67ed0a91065ad4249101a0668d8c1f1717c30ec77148f98",
+      "baseline_evidence_sha256": "65336c82cad81da60b38f900e9883b165d005ff9dfa423cce59b944266d5041d",
+      "metadata_evidence_sha256": "e1a09a45ee5e6714fb376f532e5cd43ee86f4f537106a150b68bd3204aafff50",
+      "format": "esp32c6_riscv_elf32_crc32",
+      "crashed_task": {
+        "name": "main",
+        "priority": 1,
+        "base_priority": 1,
+        "stack": {
+          "source": "tcb_saved_stack_bounds",
+          "used_bytes": 288,
+          "free_bytes": 3804
+        }
+      },
+      "crashed_function": "panic_abort",
+      "offline_all_fields_match": true,
+      "wrong_or_no_elf_preserves_task_pc_sp": true,
+      "same_session_api_zip": true,
+      "retained_after_service_restart": true,
+      "flash_released": true,
+      "remaining_leases": 0
+    },
+    "sha256": {
+      "firmware_sha256": "e5abbabdd16490c54db84fb85d8e627a0a3ef4f8b2dddbad892739ec2182fcc3",
+      "elf_sha256": "3189217c7ef5db1d22705ad868e8b831e287d91d5769d72cbb266875ef8413a5",
+      "actual_guest_runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "saved_tasks": 3,
+      "crashed_pc": "0x40804cd6",
+      "crashed_sp": "0x408116b0",
+      "baseline_dump_sha256": "dbcae5145653691c6693bdafa3ad17971c9b86fe62c98907b6b3d6f5448ef720",
+      "metadata_dump_sha256": "8ef7f67dcc3943a2a543a6e4c8e7430ee64262aff44b765e6eb006e2573571c7",
+      "baseline_evidence_sha256": "fbd1d38ffc72130f39b11045be71233cc0700fc312f15d4f54fa2ac5fa76b395",
+      "metadata_evidence_sha256": "7e350226e179adfd13cfcf881f3d757a13b51afa63922fadca36a6486f0bb484",
+      "format": "esp32c6_riscv_elf32_sha256",
+      "crashed_task": {
+        "name": "main",
+        "priority": 1,
+        "base_priority": 1,
+        "stack": {
+          "source": "tcb_saved_stack_bounds",
+          "used_bytes": 288,
+          "free_bytes": 3804
+        }
+      },
+      "crashed_function": "panic_abort",
+      "offline_all_fields_match": true,
+      "wrong_or_no_elf_preserves_task_pc_sp": true,
+      "same_session_api_zip": true,
+      "retained_after_service_restart": true,
+      "flash_released": true,
+      "remaining_leases": 0
+    }
+  },
+  "xtensa_controls": {
+    "core2": {
+      "status": "PASS",
+      "qemu_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "firmware_sha256": "ffb215be79beabd024e390c4fb3e9e8336e2e94e34b60fd42c690a8d2e634677",
+      "elf_sha256": "1efaa30640a12dc3d9f8ccbf0461ec4b0844e2b5b9da58af633d50d8a7f84f9b",
+      "bundle_sha256": "af6530240d554fa62cac0bd4905d6c154b1134f023c47f36f50e7313ce47a0b2",
+      "retained_diagnostics_after_service_restart": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    },
+    "cardputer_adv": {
+      "status": "PASS",
+      "qemu_sha256": "14ed4ae1ed1819f7cc03cf116e491ce163519b5f1182db02615649385d499fd4",
+      "firmware_sha256": "2f824ef6c954bd52ce18129f61ce322138266ee404318d9bc7debff076fce127",
+      "elf_sha256": "cfc0d0a22aae3ccf9987ca70583c1e5c17c39c430a48da4945bb83eb0cbe3b5a",
+      "bundle_sha256": "9adb96549cd2253f9b265414a3de4f4197391b37a29c81d90841932f761fc9e6",
+      "retained_diagnostics_after_service_restart": true,
+      "cleanup": {
+        "stopped": true,
+        "flash_released": true,
+        "active_leases": 0
+      }
+    }
+  },
+  "parser": {
+    "version": "pyelftools 0.33",
+    "module_sha256": "2615f5052b79d8f5065f5739920b5f29aafd4831e4915a8983030ebe1cc978cf"
+  },
+  "boundaries": {
+    "physical": "NOT RUN",
+    "browser_wasm": "NOT RUN",
+    "other_c6_boards_and_network_lanes": "NOT RUN",
+    "flash_dump": "NOT RUN",
+    "stack_unwinding": "NOT RUN",
+    "burner": "NOT SUBMITTED"
+  }
+}

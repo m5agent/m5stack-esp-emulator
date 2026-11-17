@@ -228,8 +228,8 @@ from firmware_analysis import (  # noqa: E402
     parse_partition_table,
 )
 from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
-from esp32_freertos_task_details import annotate_xtensa_tasks  # noqa: E402
-from esp32_uart_coredump import ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
+from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
+from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
     crash_console_observations, crash_function_symbols, identify_crash_elf,
     output_tail, qmp_cpu_pc_sample,
@@ -6618,22 +6618,23 @@ class DeviceSession:
         stderr_source, stderr = output_tail(self.stderr_path, stderr_bytes)
         chip_id = expected_chip_id(self.spec.soc)
         native_qemu = self.spec.service_kind == "qemu" and self.runtime == "qemu"
+        expected_machine = EM_RISCV if chip_id == ESP32C6_CHIP_ID and native_qemu else EM_XTENSA
         core_dump_chip_id = chip_id if native_qemu and (
             (self.spec.id == "core2" and self.spec.backend == "qemu-esp32lx6" and chip_id == ESP32_CHIP_ID)
             or (self.spec.id == "cardputer-adv" and self.spec.backend == "qemu-esp32s3" and chip_id == ESP32S3_CHIP_ID)
-            or (self.spec.backend == "qemu-esp32c6" and chip_id == 0x000D)
+            or (self.spec.backend == "qemu-esp32c6" and chip_id == ESP32C6_CHIP_ID)
         ) else None
+        dump_has_qualified_task_layout = (
+            core_dump_chip_id in {ESP32_CHIP_ID, ESP32S3_CHIP_ID}
+            or (core_dump_chip_id == ESP32C6_CHIP_ID and self.spec.id == "nesso-n1")
+        )
         task_core: list[bytes] = []
         console_source, observed = crash_console_observations(
             self.serial0, stderr, console_bytes, native_s3=(
                 self.spec.service_kind == "qemu" and self.spec.backend == "qemu-esp32s3"
                 and self.runtime in QEMU_QMP_RUNTIMES
             ), core_dump_chip_id=core_dump_chip_id,
-            capture_task_core=(
-                task_core.append
-                if core_dump_chip_id in {ESP32_CHIP_ID, ESP32S3_CHIP_ID} and artifact is not None
-                else None
-            ),
+            capture_task_core=task_core.append if dump_has_qualified_task_layout and artifact is not None else None,
         )
         panic = observed["panic"] or {}
         reported = panic.get("elf_sha256_prefix")
@@ -6659,7 +6660,7 @@ class DeviceSession:
                    "symbolization_eligible": False}
         decoded = observed["core_dump"].get("decoding") or {}
         if task_core and elf["symbolization_eligible"] and elf_artifact_id.startswith(decoded["dump_elf_sha256_prefix"]):
-            annotate_xtensa_tasks(decoded, task_core[0], artifact)
+            annotate_task_metadata(decoded, task_core[0], artifact, machine=expected_machine)
         boot = observed["boot"]
         if (
             panic or observed["task_watchdog_reports"] or observed["backend_observations"]
@@ -6673,12 +6674,6 @@ class DeviceSession:
             status = "no_evidence"
         else:
             status = "observation_unavailable"
-        # RISC-V symbols are qualified for the native ESP32-C6 guest path.
-        expected_machine = (
-            EM_RISCV
-            if chip_id == 0x000D and native_qemu
-            else EM_XTENSA
-        )
         symbols = crash_function_symbols(
             observed, artifact if elf["symbolization_eligible"] else None,
             expected_machine=expected_machine, artifact_sha256=elf_artifact_id,

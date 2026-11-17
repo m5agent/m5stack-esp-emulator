@@ -8,7 +8,7 @@ from itertools import islice
 from pathlib import Path
 
 from esp32_uart_coredump import core_loads
-from xtensa_elf_symbols import EM_XTENSA
+from xtensa_elf_symbols import EF_RISCV_RVC, EM_RISCV, EM_XTENSA
 
 MAX_DEBUG_ELF_BYTES = 8 * 1024 * 1024
 MAX_CAPTURED_STACK_BYTES = 1024 * 1024
@@ -17,6 +17,7 @@ RAW_FIELDS = (b"pxTopOfStack", b"uxPriority", b"uxBasePriority",
 CONSTANT_FORMS = {"DW_FORM_data1", "DW_FORM_data2", "DW_FORM_data4", "DW_FORM_udata"}
 KERNEL_TCB = b"tskTaskControlBlock"
 KERNEL_SOURCE = b"/freertos/FreeRTOS-Kernel/tasks.c"
+ELF_MACHINES = {EM_XTENSA: "EM_XTENSA", EM_RISCV: "EM_RISCV"}
 
 
 def _constant(die, name: str, *, default: int | None = None) -> int:
@@ -59,16 +60,18 @@ def _name_width(die) -> int:
     return width
 
 
-def _read_layout(path: Path, elf_reader) -> tuple[int, dict[bytes, tuple[int, int]]]:
+def _read_layout(path: Path, elf_reader, *, machine: int) -> tuple[int, dict[bytes, tuple[int, int]]]:
     with path.open("rb") as stream:
         file_size = stream.seek(0, 2)
         if not 0 < file_size <= MAX_DEBUG_ELF_BYTES:
             raise ValueError("application debug ELF exceeds its size limit")
         stream.seek(0)
         elf = elf_reader(stream)
-        if (elf.elfclass != 32 or not elf.little_endian or elf["e_machine"] != "EM_XTENSA"
+        if (elf.elfclass != 32 or not elf.little_endian or elf["e_machine"] != ELF_MACHINES.get(machine)
                 or elf["e_type"] != "ET_EXEC" or elf.num_sections() > 256):
-            raise ValueError("expected an executable ESP32 Xtensa ELF32")
+            raise ValueError("expected a matching executable ESP32 ELF32")
+        if machine == EM_RISCV and elf["e_flags"] not in {0, EF_RISCV_RVC}:
+            raise ValueError("unsupported RV32 application ELF ABI")
         seen = set()
         extents = []
         for section in elf.iter_sections():
@@ -164,7 +167,7 @@ def _task_fields(data: memoryview, fields: dict, *, captured_context: bool) -> d
     return result
 
 
-def annotate_xtensa_tasks(decoded: dict, checked_core: bytes, artifact: Path) -> None:
+def annotate_task_metadata(decoded: dict, checked_core: bytes, artifact: Path, *, machine: int) -> None:
     """Add metadata only from unique task memory and the checked application ELF."""
     try:
         from elftools.elf.elffile import ELFFile
@@ -172,8 +175,8 @@ def annotate_xtensa_tasks(decoded: dict, checked_core: bytes, artifact: Path) ->
         decoded["task_metadata"] = {"status": "unavailable", "reason": "pyelftools_unavailable"}
         return
     try:
-        size, fields = _read_layout(artifact, ELFFile)
-        loads = list(core_loads(checked_core, machine=EM_XTENSA))
+        size, fields = _read_layout(artifact, ELFFile, machine=machine)
+        loads = list(core_loads(checked_core, machine=machine))
     except Exception:
         # Malformed optional debug data must not erase the observed PC/SP receipt.
         decoded["task_metadata"] = {"status": "unavailable", "reason": "unsupported_or_invalid_task_layout"}

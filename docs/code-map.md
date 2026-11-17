@@ -107,7 +107,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_sta_time_peer.py` | Cardputer ADV STA 的会话私有 Unix DHCP、DNS 和 SNTP 对端 | 本地时间 profile、`test_device_service_sta_time_peer.py` |
 | `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告，按完整 ELF 哈希和应用描述符核对 Xtensa 与原生 C6 的函数地址，采样原生 Xtensa 和 C6 当前 CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
 | `platform/tools/esp32_uart_coredump.py` | 有界校验 Core2、Cardputer ADV Xtensa 和原生 ESP32-C6 RISC-V ELF32 UART dump 的 CRC32 或 SHA-256、ELF note 与保存上下文 | 会话崩溃证据、离线解码校验与 `test_decode_esp32_coredump.py` |
-| `platform/tools/esp32_freertos_task_details.py` | 使用精确匹配 ELF 的 DWARF 布局读取 Core2 和 Cardputer ADV UART dump 内的 TCB 名称、优先级和保存栈用量 | Device Service 崩溃证据与 `test_decode_esp32_coredump.py` |
+| `platform/tools/esp32_freertos_task_details.py` | 使用精确匹配 ELF 的 DWARF 布局读取 Core2、Cardputer ADV 和 Nesso N1 UART dump 内的 TCB 名称、优先级和保存栈用量 | Device Service 崩溃证据与 `test_decode_esp32_coredump.py` |
 | `platform/tools/decode_esp32_coredump.py` | 离线核对 Core2 同会话 ZIP、合并 Flash、应用 ELF 和 UART dump 的 CRC 与 ELF note，在 macOS 受限进程内解析 FreeRTOS 任务摘要 | Core2 崩溃探针、`test_decode_esp32_coredump.py` |
 | `platform/tools/device_service_execution_parsing.py` | 无状态 storage/NVS execution request 解析，保持 artifact、字段和 partition-label 契约 | `device_service.py` 兼容 re-export、execution parser tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
