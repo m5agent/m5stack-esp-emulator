@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.92.0` and bounded
+Status: local MVP with unified-device runtime contract `1.93.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3472,8 +3472,35 @@ returns `409 audio_capture_pending`. Stereo s16le offsets and lengths align
 to four-byte frames. Tab5 metrics derive the sample rate from the WAV and
 report left and right channel measurements. The ZIP retains the first 8 MiB
 of complete PCM and reports the observed length and truncation. The API
-serves additional retained ranges through the same endpoint. An API reset
-begins a new recording. This verifies digital I²S1 output.
+serves additional retained ranges through the same endpoint. This verifies
+digital I²S1 output.
+
+The configured Tab5 capability reports `fixtures.audio.cursor` and
+`fixtures.audio.scoped_evidence`. Both are tied to its normalized
+`firmware_sha256`. A reviewer can use this contract to bind an action to
+finalized audio:
+
+1. While recording, call `GET /api/v1/sessions/{id}/audio.pcm?format=cursor`.
+   Save `recording_id` and the four-byte-aligned `available_bytes` count. The
+   count excludes the native WAV header. The cursor returns no audio samples
+   or sample format. Collect cursors around the selected input.
+2. Stop with `purge=0`. Request finalized `audio.pcm` or
+   `audio.pcm?format=metrics` with `offset`, `limit`, and
+   `expected_recording_id`. A group of aligned offsets can delimit a quiet
+   window before input and an output window after input. The JSON metrics
+   include `recording_id`. The binary response includes
+   `X-Audio-Recording-ID`.
+3. To retain just those bytes, request
+   `evidence?include=manifest,audio&audio_offset=<offset>&audio_limit=<length>&expected_recording_id=<id>`.
+   The offset and length must align to four bytes, and length must be at most
+   1 MiB. The manifest binds `audio/speaker.pcm` to its SHA-256,
+   `recording_id`, `offset`, `next_offset`, and full `observed_bytes`.
+
+Cursor, PCM, and scoped ZIP access require `audio.read`. An exact request
+whose range exceeds the finalized recording returns `416 audio_range_unavailable`.
+An API reset begins a new recording and changes its identity. A finalized read
+for an earlier recording returns `409 audio_recording_changed`. A recording
+retained across a Device Service restart preserves its finalized identity.
 
 ### Dial AudioPlayer WAV media
 

@@ -237,8 +237,9 @@ from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from device_service_audio import (  # noqa: E402
     CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES,
     TAB5_AUDIO_EVIDENCE_BYTES, TAB5_AUDIO_MAX_LEASE_SECONDS, TAB5_AUDIO_SOURCE,
+    TAB5_AUDIO_WINDOW_EVIDENCE_BYTES,
     UNIT_AUDIO_MAX_CAPTURE_BYTES, UNIT_AUDIO_MAX_TRACKS, UNIT_AUDIO_SOURCE,
-    pcm_metrics, read_tab5_speaker_pcm, read_wave_artifact, tab5_stereo_pcm_metrics,
+    pcm_metrics, read_tab5_speaker_cursor, read_tab5_speaker_pcm, read_wave_artifact, tab5_stereo_pcm_metrics,
 )
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
@@ -8215,13 +8216,17 @@ class DeviceSession:
 
     def audio_capture(
         self, output_format: str, offset: int, limit: int, sample_rate_hz: int | None,
-        *, source: str = "speaker",
+        *, source: str = "speaker", expected_recording_id: str | None = None,
     ) -> tuple[bytes | None, dict]:
         DeviceSession._require_runtime_permission(self, "audio.read")
         if source not in {"speaker", "unit"}:
             raise ServiceError("invalid_audio_source", "audio source must be speaker or unit", 400)
+        if expected_recording_id is not None and not _is_sha256(expected_recording_id):
+            raise ServiceError("invalid_audio_recording", "expected_recording_id must be a SHA-256 identity", 400)
         if source == "speaker" and self._tab5_speaker_enabled():
-            return self._tab5_speaker_capture(output_format, offset, limit, sample_rate_hz)
+            return self._tab5_speaker_capture(output_format, offset, limit, sample_rate_hz, expected_recording_id)
+        if output_format == "cursor" or expected_recording_id is not None:
+            raise ServiceError("audio_unsupported", "recording identity requires an admitted Tab5 speaker capture", 409)
         unit = self._unit_audio_attachment() if source == "unit" else None
         if source == "unit":
             if unit is None or self.spec.id != "dial" or self.runtime != "qemu":
@@ -8285,17 +8290,40 @@ class DeviceSession:
             (self.flash_info or {}).get("tab5", {}).get("speaker_capture") == TAB5_AUDIO_SOURCE
         )
 
-    def _tab5_speaker_bytes(self, offset: int, limit: int) -> tuple[bytes, dict]:
-        if self.state not in {"stopped", "failed"}:
-            raise ServiceError("audio_capture_pending", "Tab5 speaker PCM becomes readable after the session stops", 409)
-        return read_tab5_speaker_pcm(self.dir / "tab5-speaker.wav", offset, limit)
+    def _tab5_speaker_seed(self) -> str | None:
+        generation = self._speaker_recording_generation
+        return f"{self.id}:{generation}" if generation else None
+
+    def _tab5_speaker_bytes(
+        self, offset: int, limit: int, *, expected_recording_id: str | None = None,
+    ) -> tuple[bytes, dict]:
+        with self._lock:
+            if self.state not in {"stopped", "failed"}:
+                raise ServiceError("audio_capture_pending", "Tab5 speaker PCM becomes readable after the session stops", 409)
+            return read_tab5_speaker_pcm(
+                self.dir / "tab5-speaker.wav", offset, limit,
+                recording_seed=self._tab5_speaker_seed(), expected_recording_id=expected_recording_id,
+            )
 
     def _tab5_speaker_capture(
         self, output_format: str, offset: int, limit: int, sample_rate_hz: int | None,
+        expected_recording_id: str | None,
     ) -> tuple[bytes | None, dict]:
+        if output_format == "cursor":
+            if offset != 0 or limit != 65536 or sample_rate_hz is not None or expected_recording_id is not None:
+                raise ServiceError("invalid_audio_range", "cursor does not accept range parameters", 400)
+            with self._lock:
+                seed = self._tab5_speaker_seed()
+                if self.state != "running" or not seed:
+                    raise ServiceError("audio_capture_unavailable", "Tab5 cursor requires an active recording", 409)
+                cursor = read_tab5_speaker_cursor(self.dir / "tab5-speaker.wav", seed)
+            return None, {
+                "session_id": self.id, "firmware_sha256": self.firmware_sha, "source": TAB5_AUDIO_SOURCE,
+                **cursor,
+            }
         if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
             raise ServiceError("invalid_audio_range", "expected pcm or metrics and a bounded byte range", 400)
-        data, layout = self._tab5_speaker_bytes(offset, limit)
+        data, layout = self._tab5_speaker_bytes(offset, limit, expected_recording_id=expected_recording_id)
         if sample_rate_hz is not None and (
             output_format != "metrics" or sample_rate_hz != layout["sample_rate_hz"]
         ):
@@ -8731,7 +8759,16 @@ class DeviceSession:
 
     def evidence_bundle(
         self, include: set[str] | None = None, *, elf_artifact_id: str | None = None,
+        audio_window: tuple[int, int, str] | None = None,
     ) -> bytes:
+        if audio_window is not None:
+            DeviceSession._require_runtime_permission(self, "audio.read")
+            offset, limit, recording_id = audio_window
+            if ("audio" not in (include or ()) or offset < 0 or not 1 <= limit <= TAB5_AUDIO_WINDOW_EVIDENCE_BYTES
+                    or not _is_sha256(recording_id)):
+                raise ServiceError("invalid_audio_range", "include audio and provide a bounded recording range", 400)
+            if not self._tab5_speaker_enabled():
+                raise ServiceError("audio_unsupported", "scoped audio evidence requires an admitted Tab5 recording", 409)
         include = include or {
             "manifest",
             "serial",
@@ -8865,16 +8902,21 @@ class DeviceSession:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
         if audio_read_allowed and "audio" in include and self._tab5_speaker_enabled():
+            offset, limit, expected = audio_window if audio_window else (0, TAB5_AUDIO_EVIDENCE_BYTES, None)
             try:
-                pcm, layout = self._tab5_speaker_bytes(0, TAB5_AUDIO_EVIDENCE_BYTES)
+                pcm, layout = self._tab5_speaker_bytes(offset, limit, expected_recording_id=expected)
             except ServiceError as error:
+                if audio_window is not None:
+                    raise
                 manifest["audio"] = {"status": "NOT_AVAILABLE", "reason": error.code}
             else:
                 files["audio/speaker.pcm"] = pcm
                 manifest["audio"] = {
                     **layout, "bytes": len(pcm), "sha256": hashlib.sha256(pcm).hexdigest(),
-                    "truncated": len(pcm) < layout["observed_bytes"],
+                    "truncated": audio_window is None and len(pcm) < layout["observed_bytes"],
                 }
+                if audio_window is not None:
+                    manifest["audio"].update(offset=offset, next_offset=offset + len(pcm))
         if audio_read_allowed and "audio" in include and self._unit_audio_attachment() is not None:
             if self.unit_audio_fixture.is_file():
                 files["audio/unit-fixture.json"] = self.unit_audio_fixture.read_bytes()
@@ -9913,7 +9955,11 @@ def _probe_tab5_symbols(spec: DeviceSpec, firmware_source: str, original: bytes,
 class Tab5DeviceSession(DeviceSession):
     """Tab5 esp-emu session with native DSI or matching-ELF framebuffer capture."""
 
-    def __init__(self, *args, speaker_capture: bool = False, **kwargs):
+    def __init__(
+        self, *args, speaker_capture: bool = False,
+        speaker_recording_generation: str | None = None, **kwargs,
+    ):
+        self._speaker_recording_generation = speaker_recording_generation
         super().__init__(*args, **kwargs)
         self._c6_proc: subprocess.Popen | None = None
         self._capture_tab5_speaker = speaker_capture
@@ -9931,6 +9977,12 @@ class Tab5DeviceSession(DeviceSession):
         self._tab5_st7123_hold_enabled = False
         self._tab5_st7123_drag_enabled = False
         self._tab5_native_touch: Tab5Gt911Touch | Tab5St7123Touch | None = None
+
+    def _session_record(self) -> dict:
+        record = super()._session_record()
+        if self._speaker_recording_generation:
+            record["speaker_recording_generation"] = self._speaker_recording_generation
+        return record
 
     def _prepare_tab5_identity(self) -> dict:
         """Admit the actual session image before starting either companion."""
@@ -10117,6 +10169,7 @@ class Tab5DeviceSession(DeviceSession):
         self._check_cancelled()
         if self._tab5_speaker_enabled():
             (self.dir / "tab5-speaker.wav").unlink(missing_ok=True)
+            self._speaker_recording_generation = uuid.uuid4().hex
         assert self.virtual_flash is not None
         assert self.spec.emulator is not None
         assert self.spec.rom is not None
@@ -11136,6 +11189,8 @@ class DeviceService:
                     else None
                 ),
                 persist=False,
+                **({"speaker_recording_generation": record.get("speaker_recording_generation")}
+                   if session_class is Tab5DeviceSession else {}),
             )
             virtual_flash = record_path.parent / "virtual-flash.bin"
             session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
@@ -11370,6 +11425,11 @@ class DeviceService:
                         "channels": 1, "applies_on": "next_i2s_rx_start",
                     },
                 }} if ready and spec.id in CARDPUTER_AUDIO_DEVICES else {}),
+                **({"audio": {
+                    "runtime": "qemu", "capture": TAB5_AUDIO_SOURCE,
+                    "firmware_sha256": TAB5_USERDEMO_FLASH_SHA256,
+                    "cursor": True, "scoped_evidence": True,
+                }} if ready and spec.id == "tab5" and self.tab5_userdemo_codec_part else {}),
             },
             "components": components,
         }

@@ -368,7 +368,7 @@ class Handler(SimpleHTTPRequestHandler):
             "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, "
             "X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, "
             "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, X-Frame-Rotation, X-Frame-Orientation, X-Frame-Coordinate-Space, X-Frame-Raw-SHA256, X-Frame-Presentation, "
-            "X-Preview-ID, X-Run-ID",
+            "X-Preview-ID, X-Run-ID, X-Audio-Recording-ID",
         )
         super().end_headers()
 
@@ -748,6 +748,15 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ServiceError("invalid_request", "filesystem export does not accept options", 400)
                 response = service.get_session(parts[1]).filesystem_storage_export()
             elif method == "GET" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "audio.pcm":
+                audio_query = parse_qs(urlparse(self.path).query, keep_blank_values=True)
+                output_format = query.get("format", ["pcm"])[0]
+                recording_ids = audio_query.get("expected_recording_id", [])
+                if len(recording_ids) > 1 or (recording_ids and not recording_ids[0]):
+                    raise ServiceError("invalid_audio_recording", "provide one expected_recording_id", 400)
+                if output_format == "cursor" and (
+                    set(audio_query) & {"offset", "limit", "sample_rate_hz", "expected_recording_id"}
+                ):
+                    raise ServiceError("invalid_audio_range", "cursor does not accept range parameters", 400)
                 try:
                     offset = int(query.get("offset", ["0"])[0])
                     limit = int(query.get("limit", ["65536"])[0])
@@ -755,8 +764,9 @@ class Handler(SimpleHTTPRequestHandler):
                 except ValueError as error:
                     raise ServiceError("invalid_audio_range", "audio range and sample rate must be integers", 400) from error
                 data, receipt = service.get_session(parts[1]).audio_capture(
-                    query.get("format", ["pcm"])[0], offset, limit, rate,
+                    output_format, offset, limit, rate,
                     source=query.get("source", ["speaker"])[0],
+                    **({"expected_recording_id": recording_ids[0]} if recording_ids else {}),
                 )
                 if data is not None:
                     self._send_bytes(data, "application/octet-stream", extra_headers={
@@ -764,6 +774,7 @@ class Handler(SimpleHTTPRequestHandler):
                         "X-Audio-SHA256": receipt["sha256"],
                         "X-Audio-Next-Offset": str(receipt["next_offset"]),
                         "X-Audio-Observed-Bytes": str(receipt["observed_bytes"]),
+                        **({"X-Audio-Recording-ID": receipt["recording_id"]} if "recording_id" in receipt else {}),
                     })
                     return
                 response = receipt
@@ -896,9 +907,21 @@ class Handler(SimpleHTTPRequestHandler):
                     if item.strip()
                 }
                 elf_artifact_id = query.get("elf_artifact_id", [None])[0]
-                evidence = session.evidence_bundle(include) if elf_artifact_id is None else session.evidence_bundle(
-                    include, elf_artifact_id=elf_artifact_id,
-                )
+                evidence_options = {"elf_artifact_id": elf_artifact_id} if elf_artifact_id is not None else {}
+                audio_query = parse_qs(urlparse(self.path).query, keep_blank_values=True)
+                audio_keys = ("audio_offset", "audio_limit", "expected_recording_id")
+                if set(audio_keys) & set(audio_query):
+                    if any(len(audio_query.get(key, [])) != 1 or not audio_query[key][0] for key in audio_keys):
+                        raise ServiceError("invalid_audio_range", "provide one audio_offset, audio_limit and expected_recording_id", 400)
+                    try:
+                        evidence_options["audio_window"] = (
+                            int(audio_query["audio_offset"][0]),
+                            int(audio_query["audio_limit"][0]),
+                            audio_query["expected_recording_id"][0],
+                        )
+                    except ValueError as error:
+                        raise ServiceError("invalid_audio_range", "audio range must use integer offsets and lengths", 400) from error
+                evidence = session.evidence_bundle(include, **evidence_options)
                 self._send_bytes(
                     evidence,
                     "application/zip",

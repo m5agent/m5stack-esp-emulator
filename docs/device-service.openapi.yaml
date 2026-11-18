@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.92.0
+  version: 1.93.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2047,10 +2047,26 @@ paths:
             type: string
             default: manifest,serial,frames,logs,qom
         - $ref: "#/components/parameters/CrashElfArtifactId"
+        - name: audio_offset
+          in: query
+          description: >-
+            First byte of an exact finalized Tab5 recording window. Include
+            audio and supply audio_limit and expected_recording_id together.
+            Both the offset and length must align to four bytes.
+          schema: {type: integer, minimum: 0, multipleOf: 4}
+        - name: audio_limit
+          in: query
+          schema: {type: integer, minimum: 4, maximum: 1048576, multipleOf: 4}
+        - name: expected_recording_id
+          in: query
+          schema: {type: string, pattern: '^[0-9a-f]{64}$'}
       responses:
         "200":
           description: >-
-            Evidence ZIP. The serial selection can include
+            Evidence ZIP. An exact Tab5 audio selection requires audio.read and
+            a terminal recording. The manifest audio entry binds the member
+            audio/speaker.pcm to its recording_id, offset, next_offset,
+            observed_bytes and SHA-256. The serial selection can include
             usb-serial-jtag.log when a separate native USB capture is present
             and serial.read is allowed. serial.log remains the profile-defined
             default console; C6 HCI profiles already route USB there.
@@ -2063,6 +2079,14 @@ paths:
               schema:
                 type: string
                 format: binary
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "416":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/qom/list:
     get:
       summary: List QOM properties at a path
@@ -2430,7 +2454,7 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/audio.pcm:
     get:
-      summary: Read native speaker or Dial AudioPlayer PCM and metrics
+      summary: Read native PCM, metrics, or a Tab5 recording cursor
       description: >
         Requires audio.read under a runtime ACL. Captured bytes are retained
         with the session. Cardputer and Cardputer ADV speaker capture supports
@@ -2440,7 +2464,12 @@ paths:
         Admitted Tab5 UserDemo sessions created with speaker_capture expose I2S1 TX after stopping, when
         the runtime has finalized its WAV. While running, the route returns
         409 audio_capture_pending for these Tab5 sessions. The returned PCM
-        uses stereo s16le and the native sample rate.
+        uses stereo s16le and the native sample rate. On a running Tab5
+        recording, format=cursor observes a four-byte-aligned available byte
+        count after the WAV header and an opaque generation identity. It
+        exposes neither samples nor layout. With expected_recording_id,
+        finalized reads require the same recording and return the exact range.
+        Reset begins a new recording with a new identity.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - name: source
@@ -2448,7 +2477,14 @@ paths:
           schema: {type: string, enum: [speaker, unit], default: speaker}
         - name: format
           in: query
-          schema: {type: string, enum: [pcm, metrics], default: pcm}
+          schema: {type: string, enum: [pcm, metrics, cursor], default: pcm}
+        - name: expected_recording_id
+          in: query
+          description: >-
+            Require this identity and an exact range for a finalized Tab5 PCM
+            or metrics request. Omit it and the range and sample rate
+            parameters for a live cursor request.
+          schema: {type: string, pattern: '^[0-9a-f]{64}$'}
         - name: offset
           in: query
           schema: {type: integer, minimum: 0, default: 0}
@@ -2466,17 +2502,20 @@ paths:
           schema: {type: integer, minimum: 8000, maximum: 192000}
       responses:
         "200":
-          description: Capture bytes or metrics bound to the same byte window
+          description: Capture bytes, finalized metrics, or a live Tab5 byte cursor
           headers:
             X-Audio-SHA256: {schema: {type: string}}
             X-Audio-Next-Offset: {schema: {type: integer}}
             X-Audio-Observed-Bytes: {schema: {type: integer}}
+            X-Audio-Recording-ID: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
           content:
             application/octet-stream:
               schema: {type: string, format: binary}
             application/json:
               schema:
-                $ref: "#/components/schemas/AudioCaptureMetrics"
+                oneOf:
+                  - $ref: "#/components/schemas/AudioCaptureMetrics"
+                  - $ref: "#/components/schemas/Tab5AudioCursor"
         "400":
           $ref: "#/components/responses/Error"
         "403":
@@ -4006,21 +4045,31 @@ components:
                 channels: {const: 1}
                 max_tracks: {const: 16}
             audio:
-              type: object
-              additionalProperties: false
-              required: [runtime, capture, microphone]
-              properties:
-                runtime: {const: qemu}
-                capture: {const: native_i2s_dma}
-                microphone:
-                  type: object
+              oneOf:
+                - type: object
                   additionalProperties: false
-                  required: [sample_format, sample_rate_hz, channels, applies_on]
+                  required: [runtime, capture, microphone]
                   properties:
-                    sample_format: {const: s16le}
-                    sample_rate_hz: {const: 16000}
-                    channels: {const: 1}
-                    applies_on: {const: next_i2s_rx_start}
+                    runtime: {const: qemu}
+                    capture: {const: native_i2s_dma}
+                    microphone:
+                      type: object
+                      additionalProperties: false
+                      required: [sample_format, sample_rate_hz, channels, applies_on]
+                      properties:
+                        sample_format: {const: s16le}
+                        sample_rate_hz: {const: 16000}
+                        channels: {const: 1}
+                        applies_on: {const: next_i2s_rx_start}
+                - type: object
+                  additionalProperties: false
+                  required: [runtime, capture, firmware_sha256, cursor, scoped_evidence]
+                  properties:
+                    runtime: {const: qemu}
+                    capture: {const: esp_emu_i2s1_tx}
+                    firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+                    cursor: {const: true}
+                    scoped_evidence: {const: true}
             sd:
               type: object
               additionalProperties: false
@@ -7045,6 +7094,16 @@ components:
           type: array
           items:
             type: string
+    Tab5AudioCursor:
+      type: object
+      additionalProperties: false
+      required: [session_id, firmware_sha256, source, recording_id, available_bytes]
+      properties:
+        session_id: {type: string}
+        firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        source: {const: esp_emu_i2s1_tx}
+        recording_id: {type: string, pattern: '^[0-9a-f]{64}$'}
+        available_bytes: {type: integer, minimum: 0, multipleOf: 4}
     AudioCaptureMetrics:
       type: object
       additionalProperties: false
@@ -7054,6 +7113,7 @@ components:
         firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
         source: {type: string, enum: [native_i2s_dma, native_n9301_unit, esp_emu_i2s1_tx]}
         unit_id: {type: string}
+        recording_id: {type: string, pattern: '^[0-9a-f]{64}$'}
         channels: {type: integer, enum: [1, 2]}
         offset: {type: integer, minimum: 0}
         bytes: {type: integer, minimum: 2, maximum: 524288}

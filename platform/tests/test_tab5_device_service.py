@@ -2,16 +2,24 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from http.server import ThreadingHTTPServer
+from io import BytesIO
 import hashlib
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest import mock
+from urllib.error import HTTPError
+from urllib.request import urlopen
 import wave
+from zipfile import ZipFile
 
 import device_service as service_module
 import test_tab5_image_contract as image_fixture
+from runtime_acl import RuntimeACL
+from serve import Handler
 
 
 class Tab5ServiceTests(unittest.TestCase):
@@ -303,6 +311,19 @@ class Tab5ServiceTests(unittest.TestCase):
             session.renew(60)
         self.assertEqual(raised.exception.code, "audio_capture_lease_fixed")
         self.assertEqual(session.expires_at, original_deadline)
+        generation = session._speaker_recording_generation
+        self.assertEqual(json.loads(session.session_record_path.read_bytes())["speaker_recording_generation"], generation)
+        old_recording = session.dir / "tab5-speaker.wav"
+        old_recording.write_bytes(b"prior generation")
+        with (
+            mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate),
+            mock.patch.object(service_module, "Tab5DsiReceiver"),
+            mock.patch.object(service_module, "Tab5Gt911Touch"),
+        ):
+            self.launch_commands(session, launch=session.reset)
+        self.assertNotEqual(session._speaker_recording_generation, generation)
+        self.assertFalse(old_recording.exists())
+        self.assertEqual(session.expires_at, original_deadline)
         session._proc = session._c6_proc = None
         session._terminate_tab5()
 
@@ -329,6 +350,111 @@ class Tab5ServiceTests(unittest.TestCase):
         with self.assertRaises(service_module.ServiceError) as raised:
             session.audio_capture("pcm", 0, 4, None)
         self.assertEqual(raised.exception.code, "audio_capture_unavailable")
+
+    def test_tab5_audio_cursor_and_exact_scoped_zip_stay_bound_to_session_recording(self):
+        session = self.session()
+        session.flash_info = {"tab5": {"speaker_capture": "esp_emu_i2s1_tx"}}
+        session._speaker_recording_generation = "fixture-generation"
+        session.state = "running"
+        self.service._sessions[session.id] = session
+        test_service = self.service
+
+        class AudioHandler(Handler):
+            service = test_service
+            api_token = None
+            previous_api_token = None
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), AudioHandler)
+        self.addCleanup(server.server_close)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        self.addCleanup(worker.join, 2)
+        self.addCleanup(server.shutdown)
+        base = f"http://127.0.0.1:{server.server_port}/api/v1/sessions/{session.id}"
+
+        def get(path):
+            return urlopen(base + path, timeout=5)
+
+        def expect_error(path, status, code):
+            with self.assertRaises(HTTPError) as rejected:
+                get(path)
+            self.assertEqual(rejected.exception.code, status)
+            with rejected.exception as response:
+                self.assertEqual(json.load(response)["error"]["code"], code)
+
+        path = session.dir / "tab5-speaker.wav"
+        start = 8 * 1024 * 1024 + 64
+        exact = b"\x10\x00\x80\xff" * 10
+        with wave.open(str(path), "wb") as wav:
+            wav.setparams((2, 2, 48000, 0, "NONE", "not compressed"))
+            wav.writeframes(bytes(start) + exact)
+        finalized = path.read_bytes()
+        # Native writers may append partial bytes while filling the WAV. A
+        # cursor exposes only complete four-byte groups and no sample data.
+        path.write_bytes(finalized + b"\xaa\xbb")
+        with get("/audio.pcm?format=cursor") as response:
+            cursor = json.load(response)
+        identity = cursor["recording_id"]
+        self.assertEqual(cursor, {
+            "session_id": session.id, "firmware_sha256": session.firmware_sha,
+            "source": "esp_emu_i2s1_tx", "recording_id": identity,
+            "available_bytes": start + len(exact),
+        })
+        query = f"offset={start}&limit={len(exact)}&expected_recording_id={identity}"
+        zip_query = (
+            f"include=manifest,audio&audio_offset={start}&audio_limit={len(exact)}"
+            f"&expected_recording_id={identity}"
+        )
+        expect_error("/audio.pcm?format=cursor&limit=4", 400, "invalid_audio_range")
+        expect_error("/audio.pcm?" + query, 409, "audio_capture_pending")
+        expect_error("/evidence?" + zip_query, 409, "audio_capture_pending")
+        expect_error("/evidence?include=manifest,audio&audio_offset=0", 400, "invalid_audio_range")
+        expect_error("/evidence?" + zip_query.replace("audio_limit=40", "audio_limit=1048580"), 400, "invalid_audio_range")
+        expect_error("/audio.pcm?expected_recording_id=", 400, "invalid_audio_recording")
+        path.write_bytes(finalized)
+        session.state = "stopped"
+        session._persist_session()
+        with get("/audio.pcm?" + query) as response:
+            self.assertEqual(response.headers["X-Audio-Recording-ID"], identity)
+            self.assertEqual(response.read(), exact)
+        with get("/audio.pcm?format=metrics&" + query) as response:
+            metrics = json.load(response)
+        self.assertEqual(metrics["recording_id"], identity)
+        self.assertEqual([channel["peak"] for channel in metrics["channel_metrics"]], [16, 128])
+        with get("/evidence?" + zip_query) as response, ZipFile(BytesIO(response.read())) as zip_file:
+            self.assertIsNone(zip_file.testzip())
+            self.assertEqual(zip_file.read("audio/speaker.pcm"), exact)
+            manifest = json.loads(zip_file.read("manifest.json"))
+        self.assertEqual(manifest["session"]["session_id"], session.id)
+        self.assertEqual(manifest["audio"], {
+            "source": "esp_emu_i2s1_tx", "sample_format": "s16le", "sample_rate_hz": 48000, "channels": 2,
+            "observed_bytes": start + len(exact), "recording_id": identity, "bytes": len(exact),
+            "sha256": hashlib.sha256(exact).hexdigest(), "truncated": False,
+            "offset": start, "next_offset": start + len(exact),
+        })
+        expect_error("/audio.pcm?" + query.replace("limit=40", "limit=44"), 416, "audio_range_unavailable")
+        expect_error("/evidence?" + zip_query.replace("audio_limit=40", "audio_limit=44"), 416, "audio_range_unavailable")
+
+        self.service.close_all()
+        restored_service = service_module.DeviceService(state_dir=self.service.state_dir)
+        self.addCleanup(restored_service.close_all)
+        AudioHandler.service = restored_service
+        restored = restored_service.get_session(session.id)
+        _, restored_metrics = restored.audio_capture("metrics", start, len(exact), None, expected_recording_id=identity)
+        self.assertEqual(restored_metrics, metrics)
+        replacement = path.with_suffix(".replacement")
+        replacement.write_bytes(finalized)
+        replacement.replace(path)
+        expect_error("/audio.pcm?" + query, 409, "audio_recording_changed")
+        expect_error("/evidence?" + zip_query, 409, "audio_recording_changed")
+
+        restored.state = "running"
+        restored_service.runtime_acl = RuntimeACL.from_document({
+            "schema_version": 1, "devices": {"tab5": {"allow": ["serial.read"]}},
+        })
+        expect_error("/audio.pcm?format=cursor", 403, "runtime_acl_denied")
+        expect_error("/evidence?" + zip_query, 403, "runtime_acl_denied")
+        restored.state = "stopped"
 
     def test_st7123_launch_keeps_hardware_i2c_and_does_not_offer_gt911_input(self):
         self.elf.write_bytes(b"wrong build")

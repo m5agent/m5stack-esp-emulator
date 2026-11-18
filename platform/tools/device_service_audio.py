@@ -24,6 +24,9 @@ UNIT_AUDIO_SOURCE = "native_n9301_unit"
 TAB5_AUDIO_SOURCE = "esp_emu_i2s1_tx"
 TAB5_AUDIO_EVIDENCE_BYTES = 8 * 1024 * 1024
 TAB5_AUDIO_MAX_LEASE_SECONDS = 180
+TAB5_AUDIO_WINDOW_EVIDENCE_BYTES = 1024 * 1024
+TAB5_WAV_HEADER_BYTES = 44
+TAB5_PCM_FRAME_BYTES = 4
 PCM_MAX_READ_BYTES = 512 * 1024
 SPECTRUM_MAX_FRAMES = 8192
 
@@ -67,27 +70,42 @@ def read_wave_artifact(path: Path, artifact_id: str) -> bytes:
     return pcm
 
 
-def read_tab5_speaker_pcm(path: Path, offset: int, limit: int) -> tuple[bytes, dict]:
+def _tab5_recording_id(seed: str, info: os.stat_result) -> str:
+    return sha256(f"{seed}:{info.st_dev}:{info.st_ino}".encode()).hexdigest()
+
+
+def read_tab5_speaker_cursor(path: Path, recording_seed: str) -> dict:
+    """Observe file growth without interpreting the live WAV as finalized PCM."""
+    try:
+        with path.open("rb") as stream:
+            header = stream.read(TAB5_WAV_HEADER_BYTES)
+            info = os.fstat(stream.fileno())
+    except OSError as error:
+        raise ServiceError("audio_capture_unavailable", "Tab5 I2S1 recording has not started", 409) from error
+    if (len(header) != TAB5_WAV_HEADER_BYTES or info.st_size < TAB5_WAV_HEADER_BYTES or header[:4] != b"RIFF"
+            or header[8:16] != b"WAVEfmt " or header[36:40] != b"data"):
+        raise ServiceError("audio_capture_unavailable", "Tab5 I2S1 recording has not started", 409)
+    return {
+        "recording_id": _tab5_recording_id(recording_seed, info),
+        "available_bytes": (info.st_size - TAB5_WAV_HEADER_BYTES) & ~(TAB5_PCM_FRAME_BYTES - 1),
+    }
+
+
+def read_tab5_speaker_pcm(
+    path: Path, offset: int, limit: int, *, recording_seed: str | None = None,
+    expected_recording_id: str | None = None,
+) -> tuple[bytes, dict]:
     """Read interleaved frames from the finalized native esp-emu recording."""
     try:
-        with path.open("rb") as stream, wave.open(stream, "rb") as wav:
-            channels, width = wav.getnchannels(), wav.getsampwidth()
-            sample_rate = wav.getframerate()
-            if channels != 2 or width != 2 or not 8000 <= sample_rate <= 192000:
-                raise wave.Error("unexpected native speaker layout")
-            frame_bytes = channels * width
-            observed = wav.getnframes() * frame_bytes
-            if observed == 0 or observed + 44 != os.fstat(stream.fileno()).st_size:
-                raise wave.Error("incomplete native speaker capture")
-            if offset % frame_bytes or limit % frame_bytes:
-                raise ServiceError("invalid_audio_layout", "Tab5 PCM byte ranges must align to stereo frames", 400)
-            if offset > observed:
-                raise ServiceError("audio_range_unavailable", "offset exceeds the observed capture length", 416)
-            wav.setpos(offset // frame_bytes)
-            count = min(limit, observed - offset)
-            data = wav.readframes(count // frame_bytes)
-            if len(data) != count:
-                raise wave.Error("native speaker capture changed during read")
+        with path.open("rb") as stream:
+            info = os.fstat(stream.fileno())
+            recording_id = _tab5_recording_id(recording_seed, info) if recording_seed else None
+            if expected_recording_id is not None and recording_id != expected_recording_id:
+                raise ServiceError("audio_recording_changed", "Tab5 speaker recording identity changed", 409)
+            with wave.open(stream, "rb") as wav:
+                data, sample_rate, channels, observed = _read_tab5_wav_window(
+                    wav, info.st_size, offset, limit, exact=expected_recording_id is not None,
+                )
     except (OSError, wave.Error, EOFError) as error:
         raise ServiceError("audio_capture_unavailable", "no finalized Tab5 I2S1 recording", 409) from error
     if sys.byteorder != "little":
@@ -97,7 +115,30 @@ def read_tab5_speaker_pcm(path: Path, offset: int, limit: int) -> tuple[bytes, d
     return data, {
         "source": TAB5_AUDIO_SOURCE, "sample_format": "s16le",
         "sample_rate_hz": sample_rate, "channels": channels, "observed_bytes": observed,
+        **({"recording_id": recording_id} if recording_id else {}),
     }
+
+
+def _read_tab5_wav_window(
+    wav: wave.Wave_read, size: int, offset: int, limit: int, *, exact: bool,
+) -> tuple[bytes, int, int, int]:
+    channels, width = wav.getnchannels(), wav.getsampwidth()
+    sample_rate = wav.getframerate()
+    if channels != 2 or width != 2 or not 8000 <= sample_rate <= 192000:
+        raise wave.Error("unexpected native speaker layout")
+    observed = wav.getnframes() * TAB5_PCM_FRAME_BYTES
+    if observed == 0 or observed + TAB5_WAV_HEADER_BYTES != size:
+        raise wave.Error("incomplete native speaker capture")
+    if offset % TAB5_PCM_FRAME_BYTES or limit % TAB5_PCM_FRAME_BYTES:
+        raise ServiceError("invalid_audio_layout", "Tab5 PCM byte ranges must align to stereo frames", 400)
+    if offset > observed or (exact and offset + limit > observed):
+        raise ServiceError("audio_range_unavailable", "requested range exceeds the observed capture length", 416)
+    wav.setpos(offset // TAB5_PCM_FRAME_BYTES)
+    count = min(limit, observed - offset)
+    data = wav.readframes(count // TAB5_PCM_FRAME_BYTES)
+    if len(data) != count:
+        raise wave.Error("native speaker capture changed during read")
+    return data, sample_rate, channels, observed
 
 
 def tab5_stereo_pcm_metrics(data: bytes, sample_rate_hz: int) -> dict:
