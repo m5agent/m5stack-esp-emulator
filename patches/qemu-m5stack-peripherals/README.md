@@ -1896,3 +1896,11 @@ for the internal `RC_FAST_D256` source. The default divide-by-256 model uses
 SYSTIMER while awake and timer-only light sleep from QMP suspend to wake.
 External 32.768 kHz oscillators and trim are outside this qualification.
 [Probe and negative control](../../tests/firmware/sticks3_rtc_slowclk/README.md)
+
+## AtomS3 three-wire LCD identification (0232)
+
+Connects the C123 panel to the GPIO probe on CS15, SCLK17, D/C33 and
+bidirectional SDIO21. The existing shared panel engine returns RDDID when
+the guest releases SDIO, then releases the line at transaction end.
+Both AtomS3 panel variants retain their own ID and GP-SPI path for drawing.
+AtomS3 Lite uses its separate displayless board initialization.

@@ -1763,6 +1763,15 @@ runtime name alone; use the profile matrix below.
 | `qemu-ble` | Legacy alias for unified profiles and radio-specific diagnostics | Depends on profile |
 | `network` | Separate `esp-emu` network/BLE diagnostic lane | No framebuffer, input, QOM or same-instance board state |
 
+For native AtomS3 C123 firmware, import the original BIN and create an
+`atoms3` session with `runtime="qemu"`. A runtime containing patch 0232
+supports the three-wire GPIO panel identification before GP-SPI drawing.
+The default panel is ST7735S. Set `runtime_env.M5SW_ATOMS3_GC9107` to `"1"`
+when targeting the GC9107 revision. Use a fresh `frame.png?max_age_ms=0`
+sample to check whether the guest actually drew its application. The
+`running` state confirms the runtime started. See the
+[AtomS3 original-firmware comparison](validation-ledger.md#2026-11-19-atoms3-原版面板探测).
+
 For a controlled StickS3 Wi-Fi observation, send an explicit fixture when
 creating a normal QEMU session.
 

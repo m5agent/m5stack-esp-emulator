@@ -14,6 +14,28 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 AtomS3 原版面板探测
+
+独立 Device Service 1.99.2（`f12b15fb`）分别导入 Spirit Level、Motion Face 和
+Pocket Clock 原版。旧原生运行时 `38549673…` 上三款各观察 60 秒和 30 张全黑帧，
+持续读 MPU6886，未产生硬件显示 SPI 传输或面板命令。同板官方 UIFlow2 正对照
+正常出帧。Spirit 首轮观察脚本曾误要求可选的 UART 应用偏移日志，原始回执保留
+`REVIEW`，解码帧、原版身份和总线观测均可独立复核。
+[三份原版与官方正对照基线](https://github.com/m5agent/agent-work-logs/blob/75d8c6886b66bdc5e4e0203e4ce55e0c22f7bfb3/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/README.md)。
+
+原生补丁 `0232` 将 C123 面板接到 GPIO 三线探测。候选 `04abc3ba…` 以同样的
+会话入口启动三份未改动的原版。面板先收到 GPIO 上的 `0x04`，再经 GP-SPI
+收到 `SWRESET`、`SLPOUT` 和像素写入。Spirit 的 LEVEL/BUBBLE、Motion 的 CAT、
+Pocket 的启动界面分别在会话进入 `running` 后约 2.07、2.06、2.04 秒采到。
+两次相反的 0.75 g 输入经过来宾 MPU6886 读回，Spirit 界面显示 −36.9° 和
++36.9°，Motion 的角色画面变化。Pocket 进入 Wi-Fi 设置页，配网未执行。
+官方 UIFlow2 正对照读回与旧运行时字节相同的画面。会话 ZIP、停止后的历史及
+租约和可写 Flash 释放均已核对。物理面板、浏览器和 AtomS3 USB CDC 未验。
+显式 GC9107 路径也用 Spirit 原版验收，观察到该面板的 FE/EF/B0 初始化与
+同样的 BUBBLE 姿态响应。Motion 和 Pocket 的本轮结果限默认 ST7735S。
+全量平台回归共 2,492 项，跳过 10 项。Burner 未提交。
+[原版、输入、面板变体及同会话清理记录](https://github.com/m5agent/agent-work-logs/blob/5f89d48f7bceccfcd54baaf57f29b8296e7df4a1/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/README.md)。
+
 ## 2026-11-19 Cardputer ADV Flash 容量结构化归因
 
 原版 16 MiB 合并 BIN 在 Device Service 1.99.1（`c9ec0f27`）的组合和导入

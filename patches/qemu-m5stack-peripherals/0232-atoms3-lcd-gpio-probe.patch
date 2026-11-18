@@ -1,0 +1,21 @@
+diff --git a/hw/m5stopwatch/m5atoms3.c b/hw/m5stopwatch/m5atoms3.c
+--- a/hw/m5stopwatch/m5atoms3.c
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -19,6 +19,7 @@
+ #include "hw/boards.h"
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/dma/esp_gdma.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+@@ -102,6 +103,9 @@
+     qdev_prop_set_bit(panel, "infer-command", false);
+     qdev_prop_set_bit(panel, "invert", st7735);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
++    /* The LCD SDIO line also carries the GPIO-based panel probe. */
++    m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
++                             esp32_gpio_get_controller(true), 15, 17, 33, 21);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 33);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 15);
