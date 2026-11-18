@@ -201,14 +201,17 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 - **98TAB5** 在 CPU0 应用入口和 CPU1 ROM 交接可读到正确的 DROM/IROM。
   故障样本到 CPU1 启动函数加载前，三个有效 Flash 地址均变为零。
   两轮分段观测同时定位到 CPU0 的 ROM 缓存维护，后续出现独立的 Cache error。
-  一轮诊断改变了执行时序，成功显示无启动盘画面。闭环须在正常冷启动
-  证明缓存操作前后映射和可见性正确，并用同一原版验证有盘和无盘分支。
+  只读诊断改变启动时序，进入无系统盘画面，也验证了有卡时 FAT16 挂载与
+  [合成 NHD 打开](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-synthetic-hdd-recognition-summary.json)。
+  闭环须在正常冷启动证明缓存映射可见性，并复验同一原版两条路径。
   [同原版 Flash 可见性](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)
-- **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取，当前两核停在
-  `wfi` 后，没有完整帧。闭环须捕获首次等待和应触发的中断，再验证应用画面。
-- **官方 UserDemo V0.4** 请求暂停 CPU1 时，控制寄存器读到 `0x00860000`，
-  两个调试线程读到的暂停状态位均为零，CPU0 没有越过等待。闭环须在正常
-  看门狗下验证暂停、确认、解除和任务心跳，并复跑同一原版。
+- **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取。原版只读采样
+  [核对了 IDLE0/1、两核 ISR 和调度 tick](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)，仍无完整帧。
+  继续检查应用任务的首次阻塞、实际外设事件和显示初始化。
+- **官方 UserDemo V0.4** 在请求暂停 CPU1 后状态位为零。发布源码的匹配 ELF
+  [同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)把 ES8388 初始化断言与之后的 panic 等待关联。
+  上游移除等待后仍触发该断言，普通会话转为反复软件复位。闭环须捕获
+  实际 I²C 交易，复验同一发布 BIN 的冷启动、画面和音频。
   [两份原版现场](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
 
 ### CoreMatrix C158：C61 官方固件运行边界

@@ -1,0 +1,150 @@
+{
+  "status": "PASS_SELECTED_SYNTHETIC_HDD_AFTER_READ_ONLY_STARTUP_TIMING",
+  "validation": "virtual-device validation",
+  "device": "tab5",
+  "panel_board": "gt911-ili9881c",
+  "source_commit": "57d397462e661e608e7c3ae2a878e80527d08e84",
+  "device_service_openapi_sha256": "28e57b04345a9bf6b5e65b1cb8e0a44d11bdb734d15a69581ebd6e60ad78cb55",
+  "backend_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "firmware_sha256": "ea4fb0889e4a2c68d472947137908c52c25a663152d3ff78262ce2605440dc6d",
+  "normalized_flash_sha256": "35c636324ea1fcebd12f4752e458936c2ac151a9d171a67f1d624d944b96b0ff",
+  "runtime_assets_sha256": {
+    "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+  },
+  "card_fixture": {
+    "blank_fat16_sha256": "758cd5e18a7bd98241cb2849645bb8cc1d6f1646e9eb6cc8985ca0546211cfa1",
+    "synthesized_fat16_sha256": "cafa440d3bfad10f4213ba9763393b238fa1d4f9e60513d582e57336f3c3ec68",
+    "synthesized_fat16_bytes": 33554432,
+    "nhd_file": {
+      "path": "/HDD.NHD",
+      "size": 20972032,
+      "sha256": "94f7948064616ca91c37fee1a3f00c0f88c6fbef10eb536619cbcc751e68c93a"
+    },
+    "nhd_magic": "T98HDDIMAGE.R0",
+    "geometry": {
+      "header_bytes": 512,
+      "cylinders": 320,
+      "heads": 4,
+      "sectors_per_track": 32,
+      "sector_bytes": 512
+    },
+    "payload_entirely_zero": true,
+    "format_reference": "https://github.com/joncampbell123/dosbox-x/blob/fb00033436026ae5f8bf5c54536b6505e11c249b/src/ints/bios_disk.cpp",
+    "exact_original_embedded_first_run_default": "/HDD.NHD",
+    "no_external_disk_content": true
+  },
+  "observations": {
+    "no_attachment_observed": {
+      "summary_sha256": "fdd25573cafda77ff876f2fe761398f05371f11c7911f81f8459714962ebcf66",
+      "same_session_evidence_zip_sha256": "0f5cae73783f54aeafbe98fbdd29e7ab747cfd44965965caead1b5ecaad8618e",
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "software_resets": 4,
+      "complete_frame_count": 21,
+      "png_samples_by_sha256": {
+        "740fc68976dfcbfa9cdb9e08de790a1395dfa9b97a587f9482c9137d975d9966": 1,
+        "75bdb285e5c43b2252701fcbb37f43208ab12860a43d77ab386dea0af2a44250": 20
+      },
+      "elapsed_seconds": 64.0,
+      "sd_source_unchanged": null,
+      "sd_storage_receipt_verified": null,
+      "sd_export_sha256": null
+    },
+    "empty_fat16_observed": {
+      "summary_sha256": "d0815d63f7eb32bff450754c84f0b0a72b532063c9b338fe194bf2e0272e692c",
+      "same_session_evidence_zip_sha256": "f641bc79736e215e496b187f8f24be40f855cd688530ff0765a85b02dfe8bd73",
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "software_resets": 4,
+      "complete_frame_count": 21,
+      "png_samples_by_sha256": {
+        "99c658a9ba0911e751d05eefc90b018200b168c3ab0d2d25cfcee729a1b84dee": 1,
+        "75bdb285e5c43b2252701fcbb37f43208ab12860a43d77ab386dea0af2a44250": 20
+      },
+      "elapsed_seconds": 64.005,
+      "sd_source_unchanged": true,
+      "sd_storage_receipt_verified": true,
+      "sd_export_sha256": "758cd5e18a7bd98241cb2849645bb8cc1d6f1646e9eb6cc8985ca0546211cfa1"
+    },
+    "synthetic_nhd_observed": {
+      "summary_sha256": "8dae8cf32557dde2016cc3fc74dc61b62325489bb6a211291b49d076796c8388",
+      "same_session_evidence_zip_sha256": "5607b374fdd88867ade425773e49aeea94ff4deae7107e3ea80ddbb03b85dafc",
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "software_resets": 4,
+      "complete_frame_count": 21,
+      "png_samples_by_sha256": {
+        "99c658a9ba0911e751d05eefc90b018200b168c3ab0d2d25cfcee729a1b84dee": 1,
+        "426151030bbdc76f0b39eaeccd20ec7cdd321bd209a90661ba3bbab0612261a8": 20
+      },
+      "elapsed_seconds": 64.001,
+      "sd_source_unchanged": true,
+      "sd_storage_receipt_verified": true,
+      "sd_export_sha256": "cafa440d3bfad10f4213ba9763393b238fa1d4f9e60513d582e57336f3c3ec68"
+    },
+    "synthetic_nhd_branch_trace": {
+      "summary_sha256": "ce158f577d500953c079f06d4a041ddc14373c2362a2076db526226feeadf9ac",
+      "same_session_evidence_zip_sha256": "8eb5b6c55e49a3d44bf5d4d3b0c4a6e6a053f9f45d9fe890aa796333e3e4a4ae",
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "software_resets": 4,
+      "complete_frame_count": 5,
+      "png_samples_by_sha256": {
+        "740fc68976dfcbfa9cdb9e08de790a1395dfa9b97a587f9482c9137d975d9966": 1,
+        "426151030bbdc76f0b39eaeccd20ec7cdd321bd209a90661ba3bbab0612261a8": 4
+      },
+      "elapsed_seconds": 31.005,
+      "sd_source_unchanged": true,
+      "sd_storage_receipt_verified": true,
+      "sd_export_sha256": "cafa440d3bfad10f4213ba9763393b238fa1d4f9e60513d582e57336f3c3ec68"
+    },
+    "no_attachment_cold": {
+      "summary_sha256": "0a38d630d21cf44679c7a6206e54e16aaf84c80a816a8e94a94f6babddd001ce",
+      "same_session_evidence_zip_sha256": "a53b6cff1c5606a2bc93b45185aa0b3321f1bfc121978f6fbf77e1d019deeb10",
+      "serial_sha256": "701805fecea6db9cdde51b8a97c57f744a87b322c82d236c3ca919d419202a50",
+      "software_resets": 16,
+      "complete_frame_count": 0,
+      "png_samples_by_sha256": {},
+      "elapsed_seconds": 31.001,
+      "sd_source_unchanged": null,
+      "sd_storage_receipt_verified": null,
+      "sd_export_sha256": null
+    },
+    "synthetic_nhd_cold": {
+      "summary_sha256": "d2a30f3d14c6aed7ce7605db881b98743729758ea8e61269d0687c0ee8ff1c7a",
+      "same_session_evidence_zip_sha256": "3c479908d5eb4c015c337fb39b43754e6596c44dd95e021939f88e316e497e96",
+      "serial_sha256": "701805fecea6db9cdde51b8a97c57f744a87b322c82d236c3ca919d419202a50",
+      "software_resets": 16,
+      "complete_frame_count": 0,
+      "png_samples_by_sha256": {},
+      "elapsed_seconds": 31.005,
+      "sd_source_unchanged": true,
+      "sd_storage_receipt_verified": true,
+      "sd_export_sha256": "cafa440d3bfad10f4213ba9763393b238fa1d4f9e60513d582e57336f3c3ec68"
+    }
+  },
+  "screen": {
+    "absent_attachment_and_empty_fat16_matched_20_stable_frames_each": "75bdb285e5c43b2252701fcbb37f43208ab12860a43d77ab386dea0af2a44250",
+    "visually_read": "No system disk. Insert one and reset.",
+    "synthetic_nhd_stable_frame": "426151030bbdc76f0b39eaeccd20ec7cdd321bd209a90661ba3bbab0612261a8",
+    "synthetic_nhd_stable_samples": 20
+  },
+  "original_executed_disk_success_branches": {
+    "observer": "GDB hardware breakpoints and read-only register/string reads, no matching ELF or guest writes",
+    "transcript_sha256": "7ce67190648cce1313655d2ebfe0423ca840630587a4cb6d6e36cc9868e300f7",
+    "cpu1_dispatch_target": "0x4ff00cca",
+    "fat_mount_success_pc": "0x4003526c",
+    "card_reported_name": "EMUSD",
+    "card_reported_mib": 32,
+    "card_reported_clock_khz": 40000,
+    "hdd_open_success_pc": "0x40021326",
+    "guest_selected_path": "/HDD.NHD",
+    "guest_selected_bus": "IDE",
+    "debugger_detached": true
+  },
+  "limit": "The timed read-only debugger sequence perturbs ordinary startup and is diagnostic. The synthetic NHD opens on IDE, with no operating system or executable sectors. No bootable PC-98 OS, proprietary media, touch, network, browser or physical hardware validated.",
+  "cleanup": {
+    "isolated_services_and_guests_exited": true,
+    "leases": 0,
+    "tokens_removed": true
+  },
+  "burner": "NOT SUBMITTED"
+}

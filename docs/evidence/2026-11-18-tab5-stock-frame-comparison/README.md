@@ -97,6 +97,43 @@ M5TabOS 的独立启动问题沿用此前记录。
 为准。M5TabOS 的双核等待和 UserDemo 的暂停确认缺失记录在
 [原版启动分流](tab5-startup-paths-summary.json)。实际启动盘、触控及真机未验证。
 
+## 98TAB5 原版识别合成硬盘
+
+从 Device Service 1.90.0 和原生 1.1.0 重新运行同一原版。普通冷启动的有盘、
+无盘两轮各记录 16 次软件复位，均取得零完整帧。只读调试改变了启动时序，
+在重复诊断中，无卡与空 FAT16 卡均显示 `No system disk. Insert one and reset.`。
+使用含 `/HDD.NHD` 的 FAT16 卡时，原版实际通过 FAT mount 和 HDD open
+成功分支，参数确认选中 `/HDD.NHD` 和 `IDE`，并得到另一稳定帧。NHD 数据区
+为全零，PC-98 操作系统启动仍未执行。六轮均校验同会话 ZIP 并释放租约。
+[原版、两种冷启动、磁盘识别和画面摘要](98tab5-synthetic-hdd-recognition-summary.json)
+
+## UserDemo V0.4 暂停确认对照
+
+独立 ESP-IDF 5.5.4 P4 探针分别以忙循环和 WFI 作为 CPU1 初始状态。
+忙循环暂停时 HP_SYSTEM 报告 CPU1 stalled。WFI 时硬件状态位仍为零，
+即使软件中断已入队且 CPU1 保持暂停。解除暂停后，CPU1 处理软件中断并
+继续更新心跳。原版 UserDemo 卡在相同状态寄存器的轮询处，原版进入
+该状态的完整因果路径仍待复验。[探针与串口证据](https://github.com/m5agent/agent-work-logs/tree/dd539076a653c42f574b348bb677f7804a321ac7/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tab5-pmu-wfi-control)
+[Espressif 后续移除该等待的改动](https://github.com/espressif/esp-idf/commit/d59b797d449c5b4010889cdb7fd91ae8c996502f)
+
+在同一 1.90.0 Device Service 上，用 V0.4 发布源码树和 ESP-IDF v5.4.2
+重建两份固件。发布 BIN 内嵌的源码提交与 V0.4 标签源码树相同，重建 BIN
+有独立哈希。基线和仅加入上游 WFI 变更的构建使用相同 SDK 版本字段、配置、
+依赖、bootloader 和分区表。65 秒普通会话中，发布 BIN 与基线均无完整帧。
+上游改动移除等待后转为 84 次软件复位，仍无完整帧。用各自匹配的本地 ELF
+只读定位，两份重建固件均触发 ES8388 扬声器初始化断言。基线在随后的 panic
+处理中卡在 CPU1 的暂停确认轮询。发布 BIN 用通用 I²C 寄存器文件试配板级
+音频地址，未取得完整帧或有效的 I²S 音频捕获。
+[源码、启动对照与边界](userdemo-wfi-source-ab-summary.json)
+
+## M5TabOS 0.9.1 周期中断
+
+同一原版的只读采样从来宾任务结构确认两个运行任务为 FreeRTOS
+`IDLE0`、`IDLE1`。两核各自的 SYSTIMER ISR 计数均从十六进制
+`cb4` 经 `255f` 增至 `3e39`，调度 tick 同步增长。会话仍没有完整帧。
+继续查应用任务的首次阻塞和显示初始化。
+[原版哈希、计数映射和会话摘要](m5tabos-idle-systimer-summary.json)
+
 ## 复现入口与清理
 
 1. 准备上述原 BIN、已固定 SHA 的后端与 GT911 Part，以及项目 Tab5 profile

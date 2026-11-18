@@ -1,0 +1,468 @@
+{
+  "status": "PARTIAL_STARTUP_CAUSAL_DIAGNOSIS",
+  "validation": "virtual-device validation",
+  "device": "tab5",
+  "release_input": "Published Tab5 UserDemo V0.4",
+  "embedded_project_version": "V0.3-1-g4b57c62",
+  "embedded_revision": "4b57c62a2aef99f6f68902c045c34fea467e21a7",
+  "release_tag_revision": "68b19d37fbf9cefd5f256992f5dca34794c62ab4",
+  "identical_source_tree": "e53580fbec760abf0e36bd599a8cef4f948dd03a",
+  "rebuild_sdk_revision": "f5c3654a1c2d2a01f7f67def7a0dc48e691f63c0",
+  "rebuild_sdk_version": "v5.4.2",
+  "rebuild_toolchain": "riscv32-esp-elf esp-14.2.0_20241119",
+  "rebuild_project_version": "V0.4",
+  "rebuild_environment": {
+    "source_date_epoch": 1780467004,
+    "esp_idf_version": "5.4",
+    "sdk_metadata": "v5.4.2 candidate version.txt matches unpatched git-derived version; same version in app descriptions"
+  },
+  "rebuild_dependencies": [
+    {
+      "repository": "https://github.com/Forairaaaaa/mooncake.git",
+      "tag": "v2.1.0",
+      "commit": "0dfc177b72fcc55095fd222b0bdc69595b001d9f"
+    },
+    {
+      "repository": "https://github.com/Forairaaaaa/mooncake_log.git",
+      "tag": "v1.0.0",
+      "commit": "41d00d9d7209668215cea09dbfb0cbac36b5a1c0"
+    },
+    {
+      "repository": "https://github.com/lvgl/lvgl.git",
+      "tag": "v9.2.2",
+      "commit": "7f07a129e8d77f4984fff8e623fd5be18ff42e74"
+    },
+    {
+      "repository": "https://github.com/Forairaaaaa/smooth_ui_toolkit.git",
+      "tag": "v2.0.0",
+      "commit": "3a749e5b7090c6aba81729cf556b7b88cb42ce54"
+    }
+  ],
+  "upstream_workaround": "d59b797d449c5b4010889cdb7fd91ae8c996502f",
+  "workaround_patch_sha256": "6cd28d3007281d2db6126b28bd2affe12b2fb291441bdf0bd4e2a90680824fc5",
+  "artifact_hashes": {
+    "unmodified_sdk": {
+      "sdkconfig": "e17a0d787524e85be062c58d3a60d7a7d18a73bdc5d90b82774130a94ea1c61a",
+      "flash_args": "5cd7cee10d0062df7a7135c0f7a8483a979a41de62fd2ee6c58486d6bc7fbe4d",
+      "m5stack_tab5.bin": "ea9521118386f2c53ac7212c85c5e78b29385f1a6644a4f19dc0f43f971ed711",
+      "bootloader.bin": "89f6dc073c551f78a765668bd7d0f62b35bf870a9db0affefd5c112d65062099",
+      "partition-table.bin": "97ce22d502aaae32ae3de440ee5de7dc4782501c4faca6a91aef0dfe90ad256c",
+      "dependencies.lock": "f5cf36637982b32bbe0ee90b173d5d09da9b3b69043699d679964db13d4c937f"
+    },
+    "wfi_workaround_sdk": {
+      "sdkconfig": "e17a0d787524e85be062c58d3a60d7a7d18a73bdc5d90b82774130a94ea1c61a",
+      "flash_args": "5cd7cee10d0062df7a7135c0f7a8483a979a41de62fd2ee6c58486d6bc7fbe4d",
+      "m5stack_tab5.bin": "5c9721dc89c601764ce4a38497d55b76ca14f2e21f16d4fa3acea900736275e5",
+      "bootloader.bin": "89f6dc073c551f78a765668bd7d0f62b35bf870a9db0affefd5c112d65062099",
+      "partition-table.bin": "97ce22d502aaae32ae3de440ee5de7dc4782501c4faca6a91aef0dfe90ad256c",
+      "dependencies.lock": "f5cf36637982b32bbe0ee90b173d5d09da9b3b69043699d679964db13d4c937f"
+    }
+  },
+  "service_source_commit": "57d397462e661e608e7c3ae2a878e80527d08e84",
+  "device_openapi_sha256": "28e57b04345a9bf6b5e65b1cb8e0a44d11bdb734d15a69581ebd6e60ad78cb55",
+  "runtime_version": "1.1.0",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "profile": "gt911-ili9881c",
+  "touch_part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+  "runtime_asset_sha256": {
+    "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+  },
+  "runs": [
+    {
+      "scenario": "original",
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_size": 5813840,
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "elapsed_seconds": 65.0,
+      "instrumentation": {
+        "input": 0,
+        "debugger": false,
+        "elf_uploaded": false,
+        "external_network_requested": false
+      },
+      "evidence_zip_sha256": "a4775825c7aac3babec424e77a4c92cd57fb3600ca01a4950b04d6b1b17d71e5",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "scenario": "baseline",
+      "original_sha256": "2d0afc3ba43661e818b0b202f393a3188c0fd80cb253388cc9457678ee629537",
+      "original_size": 16777216,
+      "normalized_sha256": "2d0afc3ba43661e818b0b202f393a3188c0fd80cb253388cc9457678ee629537",
+      "elapsed_seconds": 65.005,
+      "instrumentation": {
+        "input": 0,
+        "debugger": false,
+        "elf_uploaded": false,
+        "external_network_requested": false
+      },
+      "evidence_zip_sha256": "4d40e7697cd508f3417a24503eb206d47c334dcd01d3aa0b446ccb1c8044c3aa",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "32e58892e94e340cc622e5ea0526e76d22acbc4ee082a0b2b787ba81c437af1d",
+        "bytes": 4263,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "scenario": "upstream-wfi",
+      "original_sha256": "bb2c22921fe88111448f8d684d02f649a9d168f94488ba76ec609d610083c017",
+      "original_size": 16777216,
+      "normalized_sha256": "bb2c22921fe88111448f8d684d02f649a9d168f94488ba76ec609d610083c017",
+      "elapsed_seconds": 65.005,
+      "instrumentation": {
+        "input": 0,
+        "debugger": false,
+        "elf_uploaded": false,
+        "external_network_requested": false
+      },
+      "evidence_zip_sha256": "c2d293486fd1be21e6b0786dc69ce0b84c45dd696228c19efcd2529dd61367be",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "c11ed4c52a1c79f03447ce0f615a53e189bc93155b314fe55bc8a63cd434de45",
+        "bytes": 361262,
+        "rom_boots": 85,
+        "software_resets": 84,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "scenario": "baseline-diagnostic",
+      "original_sha256": "2d0afc3ba43661e818b0b202f393a3188c0fd80cb253388cc9457678ee629537",
+      "original_size": 16777216,
+      "normalized_sha256": "2d0afc3ba43661e818b0b202f393a3188c0fd80cb253388cc9457678ee629537",
+      "elapsed_seconds": 65.005,
+      "instrumentation": {
+        "input": 0,
+        "debugger": true,
+        "elf_uploaded": false,
+        "external_network_requested": false
+      },
+      "evidence_zip_sha256": "f387336cc271d5639aaeffed0d7ab0728a901d980824518a714d71c6ad2b0a3b",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "f8c59de4b09cc093891f40820c412f93ce7ca4de001c888b711491c962e86e3d",
+        "bytes": 8584,
+        "rom_boots": 2,
+        "software_resets": 0,
+        "lp_watchdog_resets": 1,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true,
+      "read_only_debugger": {
+        "transcript_sha256": "ea4f410ba53643404ac8480554d3a466fdc1f32382f325aba70df6ea0015fe27",
+        "matching_elf_sha256": "e054b3d66dfc0427d29c596f87fca14d83e5df1e262115ad4560bc7e36970f0b",
+        "telemetry": [
+          "THREAD1_PC=0x4ff16004",
+          "STALL_STATUS=0",
+          "PMU_STALL=0x860000",
+          "THREAD2_PC=0x4ff160d0",
+          "STALL_STATUS=0",
+          "PMU_STALL=0x860000"
+        ],
+        "detached": true
+      },
+      "cpu0_stack": [
+        "esp_cpu_stall",
+        "panic_handler",
+        "esp_system_abort",
+        "__assert_func",
+        "bsp_audio_codec_speaker_init"
+      ],
+      "cpu1_stack": [
+        "esp_cpu_wait_for_intr",
+        "esp_vApplicationIdleHook",
+        "prvIdleTask"
+      ],
+      "guest_assertion": "bsp_audio_codec_speaker_init m5stack_tab5.c:823 (es8388_dev)",
+      "symbol_source_note": "Matching unpatched ELF was loaded locally; its source lookup occurred in the patched SDK tree. Branch disassembly and ELF stack are the evidence."
+    },
+    {
+      "scenario": "upstream-wfi-diagnostic",
+      "original_sha256": "bb2c22921fe88111448f8d684d02f649a9d168f94488ba76ec609d610083c017",
+      "original_size": 16777216,
+      "normalized_sha256": "bb2c22921fe88111448f8d684d02f649a9d168f94488ba76ec609d610083c017",
+      "elapsed_seconds": 65.001,
+      "instrumentation": {
+        "input": 0,
+        "debugger": true,
+        "elf_uploaded": false,
+        "external_network_requested": false,
+        "native_i2c_codec_register_mode": null
+      },
+      "evidence_zip_sha256": "1619b1e134c0e218410ffd496131d28d127543c4807e1636c52737b56aa268cf",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "c11ed4c52a1c79f03447ce0f615a53e189bc93155b314fe55bc8a63cd434de45",
+        "bytes": 361262,
+        "rom_boots": 85,
+        "software_resets": 84,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true,
+      "read_only_debugger": {
+        "transcript_sha256": "13bf972d73ad1ae0b6b6e9a5951f4d8e8b968cbb53fefeb5ba0c8ebc0ec2c0df",
+        "matching_elf_sha256": "233afd8c512ba58a88b2d77c42f1d70181b404c0ad21cb04988660273a6ebaa7",
+        "telemetry": [
+          "THREAD1_PC=0x4ff1cbfc",
+          "STALL_STATUS=0",
+          "PMU_STALL=0xff0000",
+          "THREAD2_PC=0x4ff160b4",
+          "STALL_STATUS=0",
+          "PMU_STALL=0xff0000"
+        ],
+        "detached": true
+      },
+      "guest_assertion": "bsp_audio_codec_speaker_init m5stack_tab5.c:823 (es8388_dev)"
+    },
+    {
+      "scenario": "original-both-codecs",
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_size": 5813840,
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "elapsed_seconds": 65.001,
+      "instrumentation": {
+        "input": 0,
+        "debugger": false,
+        "elf_uploaded": false,
+        "external_network_requested": false,
+        "native_i2c_codec_register_mode": "both"
+      },
+      "evidence_zip_sha256": "49004b404a5abc4e16b6268f071efe8697ddd6c111080febc5dcfd5c67b3cd97",
+      "evidence_crc_and_manifest_verified": true,
+      "serial": {
+        "sha256": "13dffe4299b489a81592b1b75d34ddc9b358d8f03c361261ff36d45d72620651",
+        "bytes": 8606,
+        "rom_boots": 2,
+        "software_resets": 0,
+        "lp_watchdog_resets": 1,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 31
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "startup_markers": {
+        "Calling app_main()": 0,
+        "Returned from app_main()": 0,
+        "M5Tab5": 0,
+        "esp_lcd": 0,
+        "i2c.master": 0,
+        "task_wdt": 0,
+        "Stack protection fault": 0,
+        "No response": 0,
+        "invalid status": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "owned_service_exited": true,
+      "controller_arguments": {
+        "native_hp_i2c_register_files": [
+          "0:0x10,width=1,fill=0",
+          "0:0x40,width=1,fill=0"
+        ],
+        "native_i2s_tx_capture_instance": 0
+      },
+      "tx_capture": {
+        "bytes": 44,
+        "valid_wav": false,
+        "sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0"
+      }
+    }
+  ],
+  "conclusion": "The upstream wait removal changes the failure from a stall to a software reset loop. The diagnostic unpatched source rebuild has an ES8388 initialization assertion under the subsequent panic/stalled-state sequence. No ordinary lane produced a complete frame. The upstream workaround does not reach application readiness: the same assertion is still executed in the patched source build. Adding generic codec-address register files in the approved native backend did not yield a complete frame or valid transmitted-audio capture from the published BIN.",
+  "limits": "Native isolated Device Service only. No audio, ready UI, touch, hardware or browser verification in these runs. The official BIN lacked a matching ELF and was not replaced; source-built artifacts have different hashes from the published BIN. The two generic codec-address register files do not implement audio codec semantics; this run tested only a controller routing hypothesis.",
+  "burner": "NOT SUBMITTED"
+}

@@ -35,6 +35,25 @@ M5TabOS 在 1.1.0 越过早期旧 CSR，75 秒内无复位、无完整帧，只�
 CPU1，状态位未确认。保留此前同原版 60 秒审核中的一次 LP 看门狗复位。
 [原版与寄存器证据](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
 
+## 2026-11-18 Tab5 原版磁盘和 P4 暂停状态
+
+98TAB5 原版经只读诊断实际挂载 FAT16，并把合成的 `/HDD.NHD` 作为 IDE 磁盘
+打开。普通有盘、无盘冷启动各复位 16 次，均无完整帧。合成磁盘未含操作系统。
+[六轮会话与读盘证据](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-synthetic-hdd-recognition-summary.json)
+
+独立 P4 探针在 CPU1 忙循环时观察到 stalled 状态，CPU1 已在 WFI 时该状态位
+保持零。两条路径均能暂停和恢复 CPU1。此结果仅覆盖探针和 1.1.0 后端。
+[对照探针、寄存器与恢复心跳](https://github.com/m5agent/agent-work-logs/tree/dd539076a653c42f574b348bb677f7804a321ac7/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tab5-pmu-wfi-control)
+
+UserDemo V0.4 的同源码 ESP-IDF 5.4.2 对照在匹配 ELF 的诊断中确认两份构建
+均触发 ES8388 初始化断言。基线随后的 panic 卡在 CPU1 暂停确认，
+上游 WFI 改动的普通会话反复软件复位，均无完整帧。发布 BIN 独立保留。
+[发布 BIN、构建产物和对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)
+
+M5TabOS 0.9.1 原版仍无完整帧。只读观测确认采样处为 FreeRTOS
+双核空闲任务，两个 SYSTIMER ISR 计数和调度 tick 均持续增长。
+[同原版采样和会话证据](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)
+
 ## 2026-11-18 StickS3 原生 RTC 定时深睡
 
 同一 ESP-IDF 探针在旧运行时写入深睡请求并到达 RTC 比较门限，CPU 随后停在

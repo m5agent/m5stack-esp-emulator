@@ -1,0 +1,151 @@
+{
+  "status": "PARTIAL_ORIGINAL_NO_FRAME_SCHEDULER_INTERRUPTS_OBSERVED",
+  "validation": "virtual-device validation / ordinary isolated Device Service with read-only GDB sampling",
+  "device": "Tab5",
+  "firmware": "M5TabOS 0.9.1 original",
+  "source_commit": "57d397462e661e608e7c3ae2a878e80527d08e84",
+  "runtime": "esp-emu 1.1.0 (sha256 633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828)",
+  "openapi_sha256": "28e57b04345a9bf6b5e65b1cb8e0a44d11bdb734d15a69581ebd6e60ad78cb55",
+  "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+  "normalized_flash_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+  "firmware_esp_idf_version": "5.5.5 (guest boot output)",
+  "native_board": "gt911-ili9881c idle touch identification, no external network requested",
+  "idle_path": {
+    "current_tcb_pointer_array": "0x4ff4585c",
+    "tasks": [
+      "IDLE0",
+      "IDLE1"
+    ],
+    "esp_cpu_wait_for_intr_entry": "0x4ff08c7e",
+    "wfi_instruction": "0x4ff08c96",
+    "sampled_pc": "0x4ff08c9a",
+    "saved_pm_idle_wrapper_return": "0x4ff0ee0e"
+  },
+  "systimer": {
+    "irq_enabled_mask": 7,
+    "raw_masks_observed": [
+      1,
+      2
+    ],
+    "routes": {
+      "target0_hart0": 19,
+      "target1_hart1": 17
+    },
+    "isr_entry": "0x4ff11ef2",
+    "isr_clears_systimer_int_at": "0x4ff11f3e",
+    "per_hart_counter_store_pc": "0x4ff11f72",
+    "per_hart_counter_addresses": [
+      "0x4ff458a4",
+      "0x4ff458a8"
+    ],
+    "scheduler_tick_address": "0x4ff45848"
+  },
+  "runs": {
+    "run-irq-mmio-a2": {
+      "observation_window_seconds": 25,
+      "receipt_sha256": "06517576a75b64f030ca5353f26fe1de08ea0e4947e0de126adb2bb639116419",
+      "evidence_zip_sha256": "948c826f9a10123233d5dc01e4378f5f65ddf41f3b85a77b8f9069fced852cb9",
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "complete_frames": 0,
+      "rom_boots": 1,
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.079,
+          "gdb_log_sha256": "db74b2a690a5221a4d0c0d5de31b6886c8e1f08eb9b3a9bcc598e59813aac763"
+        },
+        {
+          "elapsed_host_seconds": 11.023,
+          "gdb_log_sha256": "cfdf3baa163b51b0cdae44dc65db63b27f4e713c3d739dadfcc1458af8ebbd8d"
+        },
+        {
+          "elapsed_host_seconds": 17.95,
+          "gdb_log_sha256": "53aaddf33c164d5a58c2fce08d0544790e9cdf62f20dc528482ddc21b3644b72"
+        }
+      ]
+    },
+    "run-scheduler-ticks-a3": {
+      "observation_window_seconds": 25,
+      "receipt_sha256": "8fe9c010815b3881380c0c36ad95ca40ec6535f7bdfd7aca5fcab785156fba16",
+      "evidence_zip_sha256": "b5018071c3a07b9f4edd925120a111c72f77d641a246f406b818d914b140ecc5",
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "complete_frames": 0,
+      "rom_boots": 1,
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.083,
+          "gdb_log_sha256": "5599ad9b5e758f2cbcaae81e2beb435849488a1fe457350106c1ca5c865e5d63"
+        },
+        {
+          "elapsed_host_seconds": 10.884,
+          "gdb_log_sha256": "27f2a01155657bc1c33944f463dec4326a878aa97c2ae8607c2bff94a15dd60b"
+        },
+        {
+          "elapsed_host_seconds": 17.598,
+          "gdb_log_sha256": "e891dd81c66d4d1dfa3af8da47516a28086ff547dd56de040d5b3ebe989f1035"
+        }
+      ]
+    },
+    "run-per-hart-isr-a4": {
+      "observation_window_seconds": 25,
+      "receipt_sha256": "2a9859baa6734c51495203370a36b73e9d552cda7947af8f55d3f18eb2419f4c",
+      "evidence_zip_sha256": "8eb601fc3bd85b04dfa0ae518f004accb903555cdc74bc18d79585e5ab95561c",
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "complete_frames": 0,
+      "rom_boots": 1,
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.078,
+          "gdb_log_sha256": "2e3dd28681c53647551a6325921650fabbd6143ed94e74dccf04214c370da1f7",
+          "freertos_tick_count": 3252,
+          "handled_systicks_by_hart": [
+            3252,
+            3252
+          ]
+        },
+        {
+          "elapsed_host_seconds": 10.521,
+          "gdb_log_sha256": "0388c5124720c9a951d0fbc2dc0911b8b86b86bf3317dfe5773f9b940b08b6c6",
+          "freertos_tick_count": 9567,
+          "handled_systicks_by_hart": [
+            9567,
+            9567
+          ]
+        },
+        {
+          "elapsed_host_seconds": 16.863,
+          "gdb_log_sha256": "1c5df9cad85205a2e4726618107c946fc28b54c98ab2745512b05ad0a29203c5",
+          "freertos_tick_count": 15928,
+          "handled_systicks_by_hart": [
+            15929,
+            15929
+          ]
+        }
+      ]
+    }
+  },
+  "conclusion": "The same stock firmware's already initialized scheduler services native periodic SYSTIMER interrupts on both harts. Repeated post-WFI PC samples correspond to IDLE0/IDLE1; a general WFI/tick delivery freeze does not explain the observations.",
+  "remaining": "No frame; initial application task blockage and display initialization remain unclassified. These late snapshots do not identify the first application-specific event. Physical hardware and browser not run. No Burner submission.",
+  "source_references": [
+    "https://github.com/espressif/esp-idf/blob/v5.5.5/components/esp_hw_support/cpu.c",
+    "https://github.com/espressif/esp-idf/blob/v5.5.5/components/esp_pm/pm_impl.c",
+    "https://github.com/espressif/esp-idf/blob/v5.5.5/components/freertos/port_systick.c"
+  ]
+}
