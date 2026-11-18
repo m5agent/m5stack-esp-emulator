@@ -492,8 +492,11 @@ class RuntimeACLHttpTests(unittest.TestCase):
 
     def test_sd_apis_require_bearer_and_runtime_read_permission(self):
         path = f"/api/v1/sessions/{self.session.id}/storage/sd"
-        for method, route in (("GET", path), ("GET", path + "/write-stamp"), ("POST", path + "/export")):
-            with self.subTest(method=method):
+        for method, route in (
+            ("GET", path), ("GET", path + "/write-stamp"),
+            ("GET", path + "/read-stats"), ("POST", path + "/export"),
+        ):
+            with self.subTest(method=method, route=route):
                 status, body = self.request(method, route, authenticated=False)
                 self.assertEqual((status, body["error"]["code"]), (401, "unauthorized"))
                 status, body = self.request(method, route)

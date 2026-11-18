@@ -370,6 +370,9 @@ MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 CARDPUTER_ADV_CAP_CC1101_ENV = "M5SW_CARDPUTER_ADV_CAP_CC1101"
+SPI_SD_READ_STATS_PROPERTY = "spi-sd-read-stats"
+SPI_SD_READ_STATS_DEVICES = {"cardputer", "cardputer-adv"}
+SPI_SD_READ_STATS_COUNTERS = ("reset_generation", "accepted_cmd17", "accepted_cmd18", "completed_blocks")
 STICKS3_USB_SERIAL_JTAG_CAPTURE_ENV = "M5SW_USB_SERIAL_JTAG_CAPTURE"
 ATOMS3_GC9107_ENV = "M5SW_ATOMS3_GC9107"
 USB_SERIAL_JTAG_LOG_NAME = "usb-serial-jtag.log"
@@ -2802,6 +2805,7 @@ class DeviceSession:
             dict(storage_info) if isinstance(storage_info, dict) else None
         )
         self._sd_attachment_generation = 0
+        self._sd_read_media_inode: tuple[int, int] | None = None
         self.filesystem_config = dict(filesystem_config or {})
         self.filesystem_info = dict(filesystem_info) if isinstance(filesystem_info, dict) else None
         self.nvs_config = dict(nvs_config or {})
@@ -4926,12 +4930,16 @@ class DeviceSession:
                 raise RuntimeError(
                     "session-isolated SD image checksum changed"
                 )
+            image_info = self.sd_card_image.stat()
+            if (self.runtime == "qemu" and self.spec.id in SPI_SD_READ_STATS_DEVICES
+                    and self.storage_config.get("interface") == "spi"):
+                self._sd_read_media_inode = (image_info.st_dev, image_info.st_ino)
             self.storage_info = {
                 "interface": self.storage_config.get("interface", "sdmmc"),
                 "format": "raw",
                 "artifact_id": artifact_id,
                 "sha256": storage_sha,
-                "bytes": self.sd_card_image.stat().st_size,
+                "bytes": image_info.st_size,
                 "session_isolated_copy": True,
                 "writable": True,
                 **({"initially_ejected": True} if self.storage_config.get("sd_initially_ejected") else {}),
@@ -7992,6 +8000,8 @@ class DeviceSession:
         DeviceSession._require_runtime_permission(self, permission)
 
     def qom_get(self, path: str, prop: str) -> dict:
+        if prop == SPI_SD_READ_STATS_PROPERTY:
+            raise ServiceError("qom_property_restricted", "use the session SD read-stats endpoint", 403)
         with self._lock:
             if prop in {STICKS3_RAW_TX_PROPERTY, STICKS3_RAW_TX_WINDOW_PROPERTY}:
                 self._require_raw_monitor_qom(path, "serial.read")
@@ -8034,6 +8044,7 @@ class DeviceSession:
                 field_type = str(field.get("type", ""))
                 if not name or name in {
                     STICKS3_RAW_RX_PROPERTY, STICKS3_RAW_TX_PROPERTY, STICKS3_RAW_TX_WINDOW_PROPERTY,
+                    SPI_SD_READ_STATS_PROPERTY,
                 }:
                     continue
                 budget["remaining"] -= 1
@@ -8235,6 +8246,88 @@ class DeviceSession:
         finally:
             self._lifecycle_lock.release()
         return receipt
+
+    def _sd_read_runtime_identity(self) -> tuple:
+        if (self.state != "running" or self._stop_event.is_set()
+                or not self._process_identity_matches()):
+            raise ServiceError("sd_read_stats_unavailable", "a live owned QEMU process is required", 409)
+        return (self.id, self.worker_generation, self.pid, self.process_start_token)
+
+    def _sd_read_attachment(self) -> tuple[str | None, str | None, int]:
+        epoch = self._sd_attachment_generation
+        source = self.storage_config.get("sd_image_artifact_id")
+        storage = self.storage_info
+        if source is None and storage is None:
+            return None, None, epoch
+        if (not isinstance(source, str) or not re.fullmatch(r"[0-9a-f]{64}", source)
+                or not storage or storage.get("artifact_id") != source
+                or storage.get("sha256") != source or storage.get("interface") != "spi"
+                or storage.get("session_isolated_copy") is not True):
+            raise ServiceError("sd_read_stats_invalid", "SD source and prepared attachment do not match", 409)
+        if self._sd_read_media_inode is None:
+            raise ServiceError("sd_read_stats_unavailable", "the original SD attachment identity is unavailable", 409)
+        try:
+            info = self.sd_card_image.lstat()
+        except OSError as error:
+            raise ServiceError("sd_read_stats_unavailable", "the original SD attachment is unavailable", 409) from error
+        if (not stat.S_ISREG(info.st_mode) or info.st_size != storage.get("bytes")
+                or (info.st_dev, info.st_ino) != self._sd_read_media_inode):
+            raise ServiceError("sd_read_stats_invalid", "the prepared SD attachment changed", 409)
+        media_identity = (self.id, source, info.st_dev, info.st_ino, info.st_size, epoch)
+        return source, hashlib.sha256(repr(media_identity).encode()).hexdigest(), epoch
+
+    def sd_read_stats(self) -> dict:
+        """Read one atomic SPI controller snapshot, bound to the live attachment."""
+        self._require_runtime_permission("storage.read")
+        if self.runtime != "qemu" or self.spec.id not in SPI_SD_READ_STATS_DEVICES:
+            raise ServiceError("sd_read_stats_unsupported", "native Cardputer or Cardputer ADV QEMU is required", 409)
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("sd_read_stats_unavailable", "session lifecycle operation is in progress", 409)
+        try:
+            with self._lock:
+                generation = self._sd_read_runtime_identity()
+                attachment = self._sd_read_attachment()
+                try:
+                    listing = self._qmp_call("qom-list", path="/machine")
+                except (ServiceError, OSError, RuntimeError) as error:
+                    raise ServiceError("sd_read_stats_unavailable", "the native QEMU controller is unavailable", 409) from error
+                fields = listing.get("return") if isinstance(listing, dict) else None
+                if (not isinstance(fields, list) or any(not isinstance(field, dict)
+                        or not isinstance(field.get("name"), str) for field in fields)):
+                    raise ServiceError("sd_read_stats_invalid", "native QEMU returned an invalid QOM property list", 409)
+                if not any(field.get("name") == SPI_SD_READ_STATS_PROPERTY for field in fields):
+                    raise ServiceError("sd_read_stats_unsupported", "the native QEMU controller has no SD read counters", 409)
+                try:
+                    result = self._qmp_call("qom-get", path="/machine", property=SPI_SD_READ_STATS_PROPERTY)
+                except (ServiceError, OSError, RuntimeError) as error:
+                    raise ServiceError("sd_read_stats_unavailable", "the native SD controller snapshot is unavailable", 409) from error
+                stats = result.get("return") if isinstance(result, dict) else None
+                if (not isinstance(stats, dict)
+                        or stats.keys() != {"schema_version", "media_present", *SPI_SD_READ_STATS_COUNTERS}
+                        or type(stats["schema_version"]) is not int or stats["schema_version"] != 1
+                        or type(stats["media_present"]) is not bool
+                        or any(type(stats[key]) is not int or not 0 <= stats[key] < 2**64
+                               for key in SPI_SD_READ_STATS_COUNTERS)):
+                    raise ServiceError("sd_read_stats_invalid", "native QEMU returned invalid SPI SD read counters", 409)
+                source, media_id, epoch = attachment
+                if (stats["media_present"] != (source is not None)
+                        or (source is None and any(stats[key] for key in SPI_SD_READ_STATS_COUNTERS[1:]))):
+                    raise ServiceError("sd_read_stats_invalid", "native media presence contradicts the session attachment", 409)
+                if generation != self._sd_read_runtime_identity() or attachment != self._sd_read_attachment():
+                    raise ServiceError("sd_read_stats_unavailable", "session or SD attachment changed during sampling", 409)
+                return {
+                    "session_id": self.id,
+                    "device_id": self.spec.id,
+                    "firmware_sha256": self.firmware_sha,
+                    "runtime": self.runtime,
+                    "runtime_generation": hashlib.sha256(repr(generation).encode()).hexdigest(),
+                    "source_artifact_id": source,
+                    "media_id": media_id,
+                    "attachment_generation": epoch,
+                    **stats,
+                }
+        finally:
+            self._lifecycle_lock.release()
 
     def sd_write_stamp(self) -> dict:
         """Observe flushed writes to an owned, running guest's SPI SD image."""

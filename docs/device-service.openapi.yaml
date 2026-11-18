@@ -2208,6 +2208,108 @@ paths:
           $ref: "#/components/responses/Error"
         "409":
           $ref: "#/components/responses/Error"
+  /sessions/{session_id}/storage/sd/read-stats:
+    get:
+      summary: Sample the native Cardputer or Cardputer ADV SPI SD read counters
+      description: >-
+        Requires storage.read when a runtime ACL is active. Samples one native
+        SPI controller on a running plain qemu session. Counts accepted CMD17
+        and CMD18 reads and fully transmitted read blocks. Compare samples
+        with matching process, media, attachment and reset generations. An
+        observed empty slot has null source/media IDs and zero read counters.
+        No sector or file contents are returned.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Atomic controller counters with session and attachment identity
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [schema_version, media_present, reset_generation, accepted_cmd17, accepted_cmd18, completed_blocks, session_id, device_id, firmware_sha256, runtime, runtime_generation, source_artifact_id, media_id, attachment_generation]
+                properties:
+                  schema_version:
+                    type: integer
+                    const: 1
+                  media_present:
+                    type: boolean
+                  reset_generation:
+                    type: integer
+                    minimum: 0
+                    maximum: 18446744073709551615
+                  accepted_cmd17:
+                    type: integer
+                    minimum: 0
+                    maximum: 18446744073709551615
+                  accepted_cmd18:
+                    type: integer
+                    minimum: 0
+                    maximum: 18446744073709551615
+                  completed_blocks:
+                    type: integer
+                    minimum: 0
+                    maximum: 18446744073709551615
+                  session_id:
+                    type: string
+                  device_id:
+                    type: string
+                    enum: [cardputer, cardputer-adv]
+                  firmware_sha256:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  runtime:
+                    type: string
+                    const: qemu
+                  runtime_generation:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  source_artifact_id:
+                    type: [string, "null"]
+                    pattern: "^[0-9a-f]{64}$"
+                  media_id:
+                    type: [string, "null"]
+                    pattern: "^[0-9a-f]{64}$"
+                  attachment_generation:
+                    type: integer
+                    minimum: 0
+                if:
+                  properties:
+                    media_present:
+                      const: false
+                then:
+                  properties:
+                    source_artifact_id:
+                      type: "null"
+                    media_id:
+                      type: "null"
+                    accepted_cmd17:
+                      const: 0
+                    accepted_cmd18:
+                      const: 0
+                    completed_blocks:
+                      const: 0
+                else:
+                  properties:
+                    source_artifact_id:
+                      type: string
+                    media_id:
+                      type: string
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          description: >-
+            sd_read_stats_unsupported for an unsupported runtime or missing
+            native property, sd_read_stats_unavailable when the live sample or
+            original attachment identity is unavailable, or sd_read_stats_invalid
+            when native counters or attachment metadata are inconsistent.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /sessions/{session_id}/storage/sd/export:
     post:
       summary: Export a stopped session's retained SD media as an artifact

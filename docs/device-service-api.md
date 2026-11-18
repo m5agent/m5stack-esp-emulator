@@ -2631,6 +2631,30 @@ quiet baseline and a post-input sample with the same media identity to observe f
 in an input window. The stamp does not count blocks, identify file contents
 or distinguish independent writes in that window.
 
+`GET /sessions/{id}/storage/sd/read-stats` samples the native SPI SD controller
+on Cardputer and Cardputer ADV with the plain `qemu` runtime. It requires
+`storage.read` under a runtime ACL. One controller snapshot reports
+`schema_version: 1`, `media_present`, `reset_generation`, `accepted_cmd17`,
+`accepted_cmd18` and `completed_blocks`. The command counters count accepted
+single-block and multi-block read commands. `completed_blocks` counts full
+read blocks transmitted by the controller. The response carries no sector
+contents or filenames.
+
+The receipt includes `session_id`, `device_id`, `firmware_sha256`, `runtime`, an
+opaque `runtime_generation`, the admitted `source_artifact_id`, an opaque
+`media_id` and `attachment_generation`. Compare samples with matching session,
+firmware, runtime, media, attachment and reset generations. An increase shows
+controller reads during that interval. Use guest or application evidence to
+identify a particular file or operation. A confirmed empty slot reports
+`media_present: false`, null source and media IDs and zero read counters.
+
+An older QEMU binary without the counters or an unsupported device/runtime
+returns `409 sd_read_stats_unsupported`. An inactive session, QEMU transport
+failure or reattached session without its original media identity returns
+`409 sd_read_stats_unavailable`. Malformed counters and conflicting attachment
+metadata return `409 sd_read_stats_invalid`. The counter property is unavailable
+through generic QOM reads and snapshots.
+
 Stop the guest with `purge=0` before inspecting or exporting its writable SD
 disk. Both endpoints require `storage.read` when runtime ACL is configured.
 `GET /sessions/{id}/storage/sd` reports the current disk SHA-256, original
@@ -3081,6 +3105,7 @@ and controller. Firmware behavior requires a session and the matching evidence.
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | GET | `/api/v1/sessions/{id}/storage/sd` | Inventory retained SD after the guest stops |
 | GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to an attached SPI SD image on a supported native QEMU guest |
+| GET | `/api/v1/sessions/{id}/storage/sd/read-stats` | Sample accepted read commands and complete read blocks on native Cardputer or Cardputer ADV |
 | POST | `/api/v1/sessions/{id}/storage/sd/export` | Export retained SD to a reusable media artifact |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |

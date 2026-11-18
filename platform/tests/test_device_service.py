@@ -2285,6 +2285,149 @@ class DeviceServiceUnitTests(unittest.TestCase):
             session.sd_write_stamp()
         self.assertEqual(unsupported.exception.code, "sd_write_stamp_unsupported")
 
+    def _native_sd_counter_session(self, *, attached=True):
+        session = self._stopped_session()
+        session.spec = self.service.specs["cardputer-adv"]
+        session.state = "running"
+        if attached:
+            source = "e" * 64
+            session.storage_config = {"sd_image_artifact_id": source, "interface": "spi"}
+            session.storage_info = {
+                "artifact_id": source, "sha256": source, "interface": "spi",
+                "bytes": 512, "session_isolated_copy": True, "writable": True,
+            }
+            session.sd_card_image.write_bytes(b"A" * 512)
+            info = session.sd_card_image.stat()
+            session._sd_read_media_inode = (info.st_dev, info.st_ino)
+        fields = {"return": [{"name": "spi-sd-read-stats", "type": "any"}]}
+        counters = {
+            "schema_version": 1, "media_present": attached, "reset_generation": 2,
+            "accepted_cmd17": 4 if attached else 0, "accepted_cmd18": 1 if attached else 0,
+            "completed_blocks": 9 if attached else 0,
+        }
+        return session, fields, counters
+
+    def test_native_sd_read_stats_are_bound_to_process_and_admitted_media(self):
+        session, fields, counters = self._native_sd_counter_session()
+        with (
+            mock.patch.object(session, "_process_identity_matches", return_value=True),
+            mock.patch.object(session, "_qmp_call", side_effect=[fields, {"return": counters}] * 4) as qmp,
+        ):
+            initial = session.sd_read_stats()
+            qmp.assert_has_calls([
+                mock.call("qom-list", path="/machine"),
+                mock.call("qom-get", path="/machine", property="spi-sd-read-stats"),
+            ])
+            self.assertEqual(qmp.call_count, 2)
+            session.sd_card_image.write_bytes(b"B" * 512)
+            self.assertEqual(session.sd_read_stats(), initial)
+            session._sd_attachment_generation += 1
+            next_attachment = session.sd_read_stats()
+            self.assertNotEqual(next_attachment["media_id"], initial["media_id"])
+            self.assertEqual(next_attachment["runtime_generation"], initial["runtime_generation"])
+            self.assertEqual(next_attachment["attachment_generation"], 1)
+            session.worker_generation += 1
+            session.spec = self.service.specs["cardputer"]
+            next_runtime = session.sd_read_stats()
+            self.assertNotEqual(next_runtime["runtime_generation"], next_attachment["runtime_generation"])
+            self.assertEqual(next_runtime["device_id"], "cardputer")
+
+        self.assertEqual(initial, {
+            **counters,
+            "session_id": session.id, "firmware_sha256": session.firmware_sha,
+            "device_id": "cardputer-adv", "runtime": "qemu", "source_artifact_id": "e" * 64,
+            "runtime_generation": initial["runtime_generation"], "media_id": initial["media_id"],
+            "attachment_generation": 0,
+        })
+        for key in ("runtime_generation", "media_id"):
+            self.assertRegex(initial[key], r"^[a-f0-9]{64}$")
+
+    def test_native_sd_read_stats_separates_empty_slot_from_missing_runtime_property(self):
+        session, fields, counters = self._native_sd_counter_session(attached=False)
+        with mock.patch.object(session, "_process_identity_matches", return_value=True):
+            with mock.patch.object(session, "_qmp_call", return_value={"return": []}) as qmp:
+                with self.assertRaises(ServiceError) as unsupported:
+                    session.sd_read_stats()
+                self.assertEqual((unsupported.exception.status, unsupported.exception.code), (409, "sd_read_stats_unsupported"))
+                qmp.assert_called_once_with("qom-list", path="/machine")
+            with mock.patch.object(session, "_qmp_call", side_effect=[fields, {"return": counters}]):
+                empty = session.sd_read_stats()
+                self.assertIsNone(empty["source_artifact_id"])
+                self.assertIsNone(empty["media_id"])
+                self.assertEqual({key: empty[key] for key in counters}, counters)
+            with mock.patch.object(session, "_qmp_call", side_effect=[fields, OSError]):
+                with self.assertRaises(ServiceError) as unavailable:
+                    session.sd_read_stats()
+                self.assertEqual(unavailable.exception.code, "sd_read_stats_unavailable")
+            for malformed in ([{"return": [{}]}], [fields, []]):
+                with self.subTest(malformed=malformed):
+                    with mock.patch.object(session, "_qmp_call", side_effect=malformed):
+                        with self.assertRaises(ServiceError) as invalid:
+                            session.sd_read_stats()
+                    self.assertEqual(invalid.exception.code, "sd_read_stats_invalid")
+            for changes in ({"media_present": True}, {"completed_blocks": 1}):
+                with self.subTest(changes=changes):
+                    with mock.patch.object(session, "_qmp_call", side_effect=[fields, {"return": {**counters, **changes}}]):
+                        with self.assertRaises(ServiceError) as invalid:
+                            session.sd_read_stats()
+                    self.assertEqual(invalid.exception.code, "sd_read_stats_invalid")
+
+    def test_native_sd_read_stats_rejects_malformed_state_and_changed_ownership(self):
+        session, fields, counters = self._native_sd_counter_session()
+        with mock.patch.object(session, "_process_identity_matches", return_value=True):
+            for changes in (
+                {"schema_version": True}, {"schema_version": 2}, {"media_present": False},
+                {"completed_blocks": True}, {"accepted_cmd18": -1}, {"accepted_cmd17": 2**64},
+                {"reset_generation": "2"}, {"data": "unexpected"},
+            ):
+                with self.subTest(changes=changes):
+                    with mock.patch.object(session, "_qmp_call", side_effect=[fields, {"return": {**counters, **changes}}]):
+                        with self.assertRaises(ServiceError) as invalid:
+                            session.sd_read_stats()
+                    self.assertEqual(invalid.exception.code, "sd_read_stats_invalid")
+
+            def replace_process(command, **_arguments):
+                if command == "qom-list":
+                    return fields
+                session.process_start_token = "different process"
+                return {"return": counters}
+
+            with mock.patch.object(session, "_qmp_call", side_effect=replace_process):
+                with self.assertRaises(ServiceError) as changed:
+                    session.sd_read_stats()
+            self.assertEqual(changed.exception.code, "sd_read_stats_unavailable")
+
+            session.sd_card_image.rename(session.dir / "old-sd.img")
+            session.sd_card_image.write_bytes(b"A" * 512)
+            with mock.patch.object(session, "_qmp_call") as qmp:
+                with self.assertRaises(ServiceError) as replaced:
+                    session.sd_read_stats()
+                self.assertEqual(replaced.exception.code, "sd_read_stats_invalid")
+                session._sd_read_media_inode = None
+                with self.assertRaises(ServiceError) as unknown_attachment:
+                    session.sd_read_stats()
+                self.assertEqual(unknown_attachment.exception.code, "sd_read_stats_unavailable")
+                qmp.assert_not_called()
+
+    def test_native_sd_read_stats_scopes_boards_and_disables_generic_qom_read(self):
+        session, fields, _ = self._native_sd_counter_session(attached=False)
+        with mock.patch.object(session, "_qmp_call", return_value=fields) as qmp:
+            session.runtime = "qemu-unified"
+            with self.assertRaises(ServiceError) as wrong_runtime:
+                session.sd_read_stats()
+            self.assertEqual(wrong_runtime.exception.code, "sd_read_stats_unsupported")
+            session.runtime = "qemu"
+            session.spec = self.service.specs["paperdiy"]
+            with self.assertRaises(ServiceError) as wrong_board:
+                session.sd_read_stats()
+            self.assertEqual(wrong_board.exception.code, "sd_read_stats_unsupported")
+            with self.assertRaises(ServiceError) as generic_qom:
+                session.qom_get("/machine", "spi-sd-read-stats")
+            self.assertEqual((generic_qom.exception.status, generic_qom.exception.code), (403, "qom_property_restricted"))
+            qmp.assert_not_called()
+            self.assertEqual(session.qom_snapshot()["nodes"], {})
+            qmp.assert_called_once_with("qom-list", path="/machine")
+
     def test_paperdiy_sd_write_stamp_is_bound_to_the_inserted_attachment(self):
         session = self._stopped_session()
         session.spec = self.service.specs["paperdiy"]
