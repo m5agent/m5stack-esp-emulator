@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 import math
 from pathlib import Path
 import sys
@@ -112,6 +113,52 @@ class DeviceInputValidationTests(unittest.TestCase):
         self.assertTrue(result["accepted"])
         self.session._qmp.cmd.assert_not_called()
         self.session._qmp_call.assert_called_once_with("qom-set", path="/machine", property="button-gpio9", value=True)
+
+    def test_atoms3_lcd_variants_queue_the_same_physical_button(self):
+        atom = device_service.load_device_specs()["atoms3"]
+        self.session.runtime = "qemu"
+        timing = {
+            "clock": "virtual", "hold_seconds": 0.6, "hold_time_ms": 600,
+            "presses": 1, "completion": "queued",
+        }
+        for spec in (atom, replace(atom, machine="m5atoms3")):
+            self.session.spec = spec
+            for control in ("a", "button"):
+                with self.subTest(machine=spec.machine, control=control):
+                    self.session._qmp_call.reset_mock()
+                    result = self.session.inject({
+                        "kind": "button", "control": control, "action": "hold",
+                        "seconds": 0.6, "settle_seconds": 0,
+                    })
+                    self.assertEqual(result, {
+                        "session_id": self.session.id, "input": f"button:{control}",
+                        "action": "hold", "accepted": True, "timing": timing,
+                    })
+                    self.session._qmp_call.assert_called_once_with(
+                        "send-key", keys=[{"type": "qcode", "data": "a"}],
+                        **{"hold-time": 600},
+                    )
+                    self.assertEqual(self.session._record_event.call_args.kwargs["timing"], timing)
+
+    def test_atoms3_variant_only_shares_its_own_no_touch_controls(self):
+        specs = device_service.load_device_specs()
+        atom = specs["atoms3"]
+        self.session.runtime = "qemu"
+        pressed = {"kind": "button", "control": "a", "settle_seconds": 0}
+        for spec in (atom, replace(atom, machine="m5atoms3")):
+            with self.subTest(machine=spec.machine):
+                self.session.spec = spec
+                self.reject(self.session.inject, {
+                    "kind": "touch", "action": "hold", "x": 64, "y": 64, "seconds": 0.6,
+                }, "unsupported_input")
+                self.reject(self.session.inject, pressed | {"control": "b"}, "unsupported_input")
+        for device_id in ("atoms3-lite", "atoms3r"):
+            with self.subTest(device_id=device_id):
+                other = specs[device_id]
+                self.session.spec = replace(other, machine=atom.machine)
+                self.reject(self.session.inject, pressed, "unsupported_input")
+                self.session.spec = replace(atom, machine=other.machine)
+                self.reject(self.session.inject, pressed, "unsupported_input")
 
     def test_key_tap_uses_actual_qmp_helper_with_guest_milliseconds(self):
         self.session._proc = mock.Mock()

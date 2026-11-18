@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.99.2` and bounded
+Status: local MVP with unified-device runtime contract `1.99.3` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -4017,6 +4017,12 @@ key by name. A board without the requested control returns HTTP 409
 their respective GPIO matrix and TCA8418 controller. The native ADV runtime
 must expose `/machine` property `keyboard-full-map`. The ADV's boot button
 still has no native input mapping.
+
+On native AtomS3 (C123), both the default ST7735S and legacy GC9107 variants
+use `kind:"button"` with `control:"a"` (alias `"button"`) for a screen press.
+This drives the active-low GPIO41 button. Semantic touch actions return
+HTTP 409 `unsupported_input`. A 0.6-second hold queues 600 virtual milliseconds
+and returns `timing.completion:"queued"`.
 
 ```json
 {"kind":"button","control":"b","action":"hold","seconds":5}

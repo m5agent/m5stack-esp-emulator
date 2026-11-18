@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.2
+  version: 1.99.3
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3004,6 +3004,9 @@ paths:
     post:
       summary: Inject native buttons, keyboard, chords, encoder or touch
       description: >-
+        Native AtomS3 (C123) ST7735S and GC9107 use kind=button with control=a
+        (alias button) for the GPIO41 screen press. Semantic touch returns
+        409 unsupported_input on these profiles.
         The optional native Tab5 GT911 lane accepts a tap or single-contact
         drag in the raw 720 by 1280 DSI frame (top-left origin). A drag takes
         integer x1, y1, x2 and y2. HTTP 409 tab5_gt911_ack_timeout means the
@@ -3035,6 +3038,8 @@ paths:
             cancel the queue; system_reset does not guarantee cancellation, while
             stopping the VM destroys it. Managed Preview default taps and NanoC6
             GPIO taps retain synchronous host timing and completion=events_sent.
+            Native AtomS3 button holds use timing.clock=virtual and
+            completion=queued. A 0.6-second hold reports hold_time_ms=600.
             A semantic native StickS3 button submitted in QMP suspended state
             uses direct QMP press and release edges with a host-side wait and
             returns timing.clock=host and completion=events_sent. For semantic

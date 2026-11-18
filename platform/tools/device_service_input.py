@@ -57,7 +57,11 @@ def control_name(value, field):
 
 def board_controls(spec):
     profile = input_profiles().get(spec.id)
-    if profile and profile["board"] == spec.machine:
+    # Both AtomS3 LCD variants expose the same GPIO41 A button.
+    if profile and (
+        profile["board"] == spec.machine
+        or (spec.id, spec.machine, profile["board"]) == ("atoms3", "m5atoms3-st7735", "m5atoms3")
+    ):
         controls = profile["inputs"]
         if spec.id == "cardputer-adv":
             # The published browser build has a GPIO0 mapping absent from the
