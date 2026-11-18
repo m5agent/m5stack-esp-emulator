@@ -404,6 +404,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
 | [PaperS3 浏览器 GT911](evidence/2026-11-18-papers3-browser-gt911/README.md) | 证据/差异 | `2026-11-18` | 原版 Press/Release 总线读回与稳定帧对照 |
 | [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md) | 证据/差异 | `2026-11-18` | 原版 16 MiB 提前拒绝与官方 8 MiB 对照 |
+| [CardputerDict 原版 HTTPS 朗读](evidence/2026-11-18-cardputerdict-https/README.md) | 证据/差异 | `2026-11-18` | Linux 隔离会话校时、缓存、PCM 和拒绝对照 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
 | [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |
 | [Tab5 原版正常启动取帧对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md) | 原生来宾证据 | `2026-11-18` | 98TAB5 新旧配置、CarPlay 无 ELF 显示正对照和未解决的 OTA 身份/重复复位 |

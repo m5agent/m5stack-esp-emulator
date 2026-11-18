@@ -41,7 +41,7 @@ class PlainQemuAudioTests(unittest.TestCase):
                 "M5SW_I2S_PCM_FILE": "/unrelated-session/speaker.pcm",
                 "M5SW_I2S_RX_PCM_FILE": "/unrelated-session/microphone.pcm",
             }
-            session._plain_qemu_audio_environment(environment)
+            session._native_qemu_audio_environment(environment)
             self.assertEqual(environment["M5SW_I2S_DMA_IRQ"], "1")
             self.assertEqual(Path(environment["M5SW_I2S_PCM_FILE"]).parent, session.dir)
             self.assertEqual(Path(environment["M5SW_I2S_RX_PCM_FILE"]).parent, session.dir)
@@ -52,7 +52,7 @@ class PlainQemuAudioTests(unittest.TestCase):
         for device, runtime in (("atoms3r", "qemu"), ("stopwatch", "qemu-unified"), ("cores3", "qemu-unified")):
             with self.subTest(device=device, runtime=runtime):
                 environment = {}
-                self.session(device, runtime=runtime)._plain_qemu_audio_environment(environment)
+                self.session(device, runtime=runtime)._native_qemu_audio_environment(environment)
                 self.assertEqual(environment, {})
 
     def test_plain_mono_profiles_receive_owned_fixtures(self):
@@ -60,7 +60,7 @@ class PlainQemuAudioTests(unittest.TestCase):
             with self.subTest(device=device):
                 session = self.session(device)
                 environment = {}
-                session._plain_qemu_audio_environment(environment)
+                session._native_qemu_audio_environment(environment)
                 self.assertEqual(environment["M5SW_I2S_DMA_IRQ"], "1")
                 self.assertEqual(Path(environment["M5SW_I2S_PCM_FILE"]), session.speaker_pcm)
                 self.assertEqual(
@@ -81,7 +81,7 @@ class PlainQemuAudioTests(unittest.TestCase):
     def test_explicit_diagnostic_overrides_remain_explicit_and_are_not_archived_as_fixture(self):
         session = self.session("cores3", runtime_env={"M5SW_I2S_DMA_IRQ": "0", "M5SW_I2S_RX_PCM_FILE": "/explicit-diagnostic/input.pcm"})
         environment = {}
-        session._plain_qemu_audio_environment(environment)
+        session._native_qemu_audio_environment(environment)
         self.assertEqual(environment["M5SW_I2S_DMA_IRQ"], "0")
         self.assertEqual(environment["M5SW_I2S_RX_PCM_FILE"], "/explicit-diagnostic/input.pcm")
         session.microphone_source_pcm.write_bytes(b"not the selected input")

@@ -66,7 +66,9 @@
    继续核对原版任务现场及真机画面。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
-   [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。任意 HTTPS 与云端协议仍为 `NOT RUN`，继续按原版应用保留可比对的数据面证据。
+   [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。
+   [CardputerDict 原版发音](evidence/2026-11-18-cardputerdict-https/README.md)已在初代 Cardputer 的隔离 Device Service 核对校时、TLS、缓存、默认 PCM 和端口拒绝。
+   继续补 Reviewer 的保存快照路径、ADV 和其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)

@@ -2430,8 +2430,10 @@ paths:
       summary: Read native Cardputer or Dial AudioPlayer PCM and metrics
       description: >
         Requires audio.read under a runtime ACL. Captured bytes are retained
-        with the session. Speaker metrics use the caller's declared s16le mono
-        sample rate. Dial Unit capture uses a fixed 16 kHz s16le mono stream.
+        with the session. Cardputer and Cardputer ADV speaker capture supports
+        plain native qemu and native qemu-wifi with generic-observe.
+        Speaker metrics use the caller's declared s16le mono sample rate.
+        Dial Unit capture uses a fixed 16 kHz s16le mono stream.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - name: source

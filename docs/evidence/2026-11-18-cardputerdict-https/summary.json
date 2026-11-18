@@ -1,0 +1,52 @@
+{
+  "validation": "virtual-device validation",
+  "device": "cardputer",
+  "runtime": "qemu-wifi/generic-observe",
+  "platform": "Linux arm64",
+  "firmware": "CardputerDict 0.6.4",
+  "original_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+  "normalized_flash_sha256": "dd5ae9b2d1af6dce97adfd27d55a2097fff9920cee5f7e2771c67e05011b2929",
+  "runtime_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "seed_fat32_sha256": "f68f5ea7d3a3e3b38ead3a2bdb3327eae356c73ac97e190e73e7ff69189f3b62",
+  "seed_has_audio": false,
+  "prior_release": {
+    "version": "1.88.0",
+    "admission": "400 allowlist_not_supported",
+    "leases_created": 0
+  },
+  "allowed": {
+    "status": "PASS",
+    "matched_sntp": true,
+    "bidirectional_tls_application_records": true,
+    "packet_capture_sha256": "e81529a9171c24e77161048dbf4efe1edd45e6f2371981a6aaad76c9e13b16c3",
+    "evidence_zip_sha256": "f28f107a537f62fb8d61fa0ae8b30277c67fbb3f2c6df3d438e1a685eca8c197",
+    "cache": {
+      "path": "/audio/cache/en/hello.mp3",
+      "bytes": 10605,
+      "sha256": "af59cee7bd7ca8d12fd145fcf8bfcee23c882aa3f7377fe97f06936474a77a50"
+    },
+    "speaker": {
+      "diagnostic_overrides": false,
+      "nonzero_api_pcm_observed": true,
+      "peak_absolute_s16le": 7051,
+      "zip_bytes": 61952,
+      "zip_sha256": "291703826613c1f34958a7906e47e575d8d78e8cb894a0aa12f214f2d556f98b",
+      "post_stop_api_bytes": 66560,
+      "post_stop_api_sha256": "15d7a2e64683513f3c23495059036ecec722c1237406492a90008a957014bdf0"
+    }
+  },
+  "denied": {
+    "status": "PASS_NEGATIVE_CONTROL",
+    "matched_sntp": true,
+    "tcp_443_attempted": true,
+    "tcp_443_response": false,
+    "cache_present": false,
+    "speaker_pcm_present": false,
+    "packet_capture_sha256": "00ec849664e2b509c8c0bb9a6c73175f9420289e68de082e6c49213924fe23a2",
+    "evidence_zip_sha256": "182c85662887d806c27438d527f6cd29d52de7578c20f83aa9fe6f37b6f839b3"
+  },
+  "closed_in_both": ["session lease", "private network namespace", "temporary NAT rules"],
+  "not_run": ["reviewer saved snapshot", "Cardputer ADV", "browser", "physical hardware", "Burner submission"]
+}

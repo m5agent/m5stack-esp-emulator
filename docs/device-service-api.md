@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-14`.
+Last reviewed: `2026-11-18`.
 
 Status: local MVP with unified-device runtime contract `1.89.0` and bounded
 storage retention implemented on `2026-10-24`.
@@ -3392,6 +3392,10 @@ and its current RX stream running. To verify consumption, read samples or
 a test marker from the guest after that RX start.
 
 `GET /api/v1/sessions/{id}/audio.pcm` returns the native I2S DMA byte window.
+Cardputer and Cardputer ADV also expose the speaker capture in native
+`qemu-wifi` sessions using `generic-observe`. These sessions enable the
+modeled I2S DMA interrupts and capture the session's speaker data. WAV
+microphone fixture staging remains available in the plain native runtime.
 Use `offset` and `limit` to read up to 524,288 bytes per request. Response
 headers report the window SHA-256, next offset and observed file size.
 The model starts capturing after its first nonzero output. Before that,

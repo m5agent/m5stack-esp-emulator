@@ -5633,16 +5633,25 @@ class DeviceSession:
     def _plain_qemu_audio_enabled(self) -> bool:
         return self.runtime == "qemu" and self.spec.id in PLAIN_QEMU_AUDIO_DEVICES
 
-    def _plain_qemu_audio_environment(self, env: dict[str, str]) -> None:
-        if not self._plain_qemu_audio_enabled():
+    def _qemu_wifi_speaker_enabled(self) -> bool:
+        return (
+            self.runtime == QEMU_WIFI_RUNTIME
+            and self.spec.id in CARDPUTER_AUDIO_DEVICES
+            and self.network_config.get("profile") == GENERIC_WIFI_PROFILE
+        )
+
+    def _native_qemu_audio_environment(self, env: dict[str, str]) -> None:
+        plain_audio = self._plain_qemu_audio_enabled()
+        if not (plain_audio or self._qemu_wifi_speaker_enabled()):
             return
         # Do not inherit another session's output/input paths from the server
         # shell. Existing explicit diagnostic runtime_env overrides are kept.
         defaults = {
             "M5SW_I2S_DMA_IRQ": "1",
             "M5SW_I2S_PCM_FILE": str(self.speaker_pcm),
-            "M5SW_I2S_RX_PCM_FILE": str(self.microphone_source_pcm),
         }
+        if plain_audio:
+            defaults["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
         for key, value in defaults.items():
             env[key] = self.runtime_env.get(key, value)
 
@@ -6182,7 +6191,7 @@ class DeviceSession:
         env.pop(CARDPUTER_ADV_CAP_CC1101_ENV, None)
         env.update(self.spec.env)
         env.update(self.runtime_env)
-        self._plain_qemu_audio_environment(env)
+        self._native_qemu_audio_environment(env)
         self._unit_audio_environment(env)
         self._qemu_storage_environment(env)
         # Never inherit another session's external wiring from the host shell.
@@ -8193,7 +8202,9 @@ class DeviceSession:
             "changed": changed,
         }
 
-    def _require_cardputer_audio(self) -> None:
+    def _require_cardputer_audio(self, *, speaker: bool = False) -> None:
+        if speaker and self._qemu_wifi_speaker_enabled():
+            return
         if self.runtime != "qemu" or self.spec.id not in CARDPUTER_AUDIO_DEVICES:
             raise ServiceError("audio_unsupported", "audio routes require a native Cardputer or Cardputer ADV session", 409)
 
@@ -8214,7 +8225,7 @@ class DeviceSession:
                 sample_rate_hz = MICROPHONE_RATE
             path = self.unit_audio_pcm
         else:
-            self._require_cardputer_audio()
+            self._require_cardputer_audio(speaker=True)
             path = self.speaker_pcm
         if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
             raise ServiceError("invalid_audio_range", "expected pcm or metrics and a bounded byte range", 400)
@@ -8826,6 +8837,7 @@ class DeviceSession:
                 self.network_config.get("profile") in UNIFIED_PROFILES
                 or self.network_config.get("profile") == NESSO_UNIFIED_PROFILE
                 or self._plain_qemu_audio_enabled()
+                or self._qemu_wifi_speaker_enabled()
             )
             and self.speaker_pcm.is_file()
         ):

@@ -113,6 +113,27 @@ class NativeAudioSessionTests(unittest.TestCase):
         self.assertEqual(forbidden.exception.status, 403)
         self.assertEqual(forbidden.exception.extra["operation"], "audio.inject")
 
+    def test_cardputer_generic_wifi_enables_session_owned_speaker_and_readback(self):
+        session = self.session
+        session.runtime = "qemu-wifi"
+        session.network_config = {"profile": "generic-observe"}
+        env = {"M5SW_I2S_PCM_FILE": "/other-session.pcm"}
+        session._native_qemu_audio_environment(env)
+        self.assertEqual(env, {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": str(session.speaker_pcm),
+        })
+        session.speaker_pcm.write_bytes(b"12345678")
+        self.assertEqual(session.audio_capture("pcm", 0, 8, None)[0], b"12345678")
+        with self.assertRaises(ServiceError) as caught:
+            session.audio_inject({"artifact_id": "a" * 64})
+        self.assertEqual(caught.exception.code, "audio_unsupported")
+
+        session.network_config = {"profile": "cardputer-open-softap-fixture"}
+        with self.assertRaises(ServiceError) as caught:
+            session.audio_capture("pcm", 0, 8, None)
+        self.assertEqual(caught.exception.code, "audio_unsupported")
+
     def test_unit_media_has_its_own_stage_and_fixed_clock_capture(self):
         session = self.session
         session.spec.id = "dial"

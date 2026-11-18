@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 CardputerDict 原版 HTTPS 朗读
+
+初代 Cardputer 的原版 0.6.4 在独立 Linux namespace 下经实体键位语义
+触发联网朗读。同会话取证包括 SNTP、TLS、实际写入的 MP3 和默认
+I2S PCM。对照只修改发音端口授权，观察到 TCP/443 请求及零缓存。
+两轮都清理了租约、命名空间和临时 NAT。早期 1.88 准入拒绝和
+候选清理失败保留。[同固件复验](evidence/2026-11-18-cardputerdict-https/README.md)
+
 ## 2026-11-18 StickS3 RTC 定时与 GPIO 混合浅睡
 
 当前发布基线在同一 ESP-IDF 100 ms／220 ms BIN 上首轮出现 CPU0 IWDT。
