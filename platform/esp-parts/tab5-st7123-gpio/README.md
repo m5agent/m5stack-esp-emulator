@@ -9,7 +9,7 @@ RUSTUP_TOOLCHAIN=1.88.0 python3 platform/esp-parts/tab5-st7123-gpio/build.py \
 ```
 
 The tested WASM SHA-256 is
-`655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9`.
+`6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3`.
 Set `M5_TAB5_ST7123_TOUCH_PART` to the absolute path of that module and select
 `st7123` in the [Device Service configuration](../../../docs/device-service-api.md#create-a-reference-uiflow2-device).
 
@@ -41,3 +41,8 @@ See the [guest controller probe](../../../tests/firmware/tab5_st7123/README.md)
 for version, panel geometry, IRQ, coordinate and release verification.
 Multitouch, reset-pin electrical timing, and other panel revisions are
 outside this ST7123 model.
+
+The part also models the standard BMI270 configuration upload at address
+`0x68` on HP I²C1. The guest supplies the configuration bytes and requests
+initialization. The model validates a complete upload before reporting
+success through `INTERNAL_STATUS`.

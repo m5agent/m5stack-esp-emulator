@@ -19,11 +19,14 @@ from device_service_errors import ServiceError
 
 TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828"
 TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
+TAB5_GT911_BMI270_PART_SHA256 = "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286"
 TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
 TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
 TAB5_ST7123_HOLD_PART_SHA256 = "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
 TAB5_ST7123_DRAG_PART_SHA256 = "56e83f9a99119642ce34bbfde838cd96556d8587c52baba411729569f3d1f63d"
 TAB5_ST7123_POWER_PART_SHA256 = "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9"
+TAB5_ST7123_BMI270_PART_SHA256 = "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3"
+TAB5_ST7123_POWER_PART_SHA256S = (TAB5_ST7123_POWER_PART_SHA256, TAB5_ST7123_BMI270_PART_SHA256)
 TAB5_PARTS_SOURCE = Path(__file__).resolve().parents[1] / "esp-parts"
 TAB5_GT911_SIZE = (720, 1280)
 MAX_PART_BYTES = 144 * 1024
@@ -89,16 +92,16 @@ def parse_tab5_board_overrides(value: str, allowed: frozenset[str]) -> dict[str,
     return overrides
 
 
-def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> Path:
+def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> tuple[Path, str]:
     """Bind the source board and exact ESP Part bytes to this guest."""
     if board != "gt911-ili9881c":
         raise ServiceError(
             "tab5_gt911_part_unavailable", "Tab5 GT911 requires the gt911-ili9881c board revision", 409
         )
     return _stage_tab5_part(
-        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm", (TAB5_GT911_PART_SHA256,),
-        "tab5_gt911_part_unavailable",
-    )[0]
+        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm",
+        (TAB5_GT911_PART_SHA256, TAB5_GT911_BMI270_PART_SHA256), "tab5_gt911_part_unavailable",
+    )
 
 
 def stage_tab5_st7123_i2c_part(value: str, session_dir: Path) -> Path:
@@ -112,7 +115,7 @@ def stage_tab5_st7123_touch_part(value: str, session_dir: Path) -> tuple[Path, s
     return _stage_tab5_part(
         value, session_dir, "tab5-st7123-gpio", "m5_tab5_gpio_i2c.wasm",
         (TAB5_ST7123_TOUCH_PART_SHA256, TAB5_ST7123_HOLD_PART_SHA256, TAB5_ST7123_DRAG_PART_SHA256,
-         TAB5_ST7123_POWER_PART_SHA256),
+         *TAB5_ST7123_POWER_PART_SHA256S),
         "tab5_st7123_touch_part_unavailable",
     )
 
@@ -128,7 +131,7 @@ def _stage_tab5_part(
         digest = hashlib.sha256(part).hexdigest()
         if digest not in expected:
             raise ValueError("unexpected ESP Part hash")
-        board = "board-power.json" if digest == TAB5_ST7123_POWER_PART_SHA256 else "board.json"
+        board = "board-power.json" if digest in TAB5_ST7123_POWER_PART_SHA256S else "board.json"
         config = (TAB5_PARTS_SOURCE / source / board).read_bytes()
         (session_dir / module).write_bytes(part)
         path = session_dir / "tab5-cosim-board.json"

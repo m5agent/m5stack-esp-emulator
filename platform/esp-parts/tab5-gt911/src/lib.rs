@@ -1,6 +1,9 @@
 //! Single-contact, early Tab5 GT911 report path through the real esp-emu I2C
 //! controller and GPIO INT line. Coordinates are in the panel's raw orientation.
 use esp_part::prelude::*;
+
+#[path = "../../tab5-bmi270.rs"]
+mod bmi270;
 use std::collections::VecDeque;
 
 const ADDRESS: u32 = 0x14;
@@ -24,7 +27,6 @@ const BOARD_REGISTERS: &[(u32, &[(u8, u8)])] = &[
     ),
     (0x43, &[(0x01, 0xa2)]),
     (0x44, &[(0x01, 0xa2)]),
-    (0x68, &[(0x00, 0x24)]),
 ];
 
 struct RegisterFile {
@@ -86,6 +88,7 @@ struct Gt911 {
     acknowledged: u32,
     rejected_inputs: u32,
     board: Vec<(u32, RegisterFile)>,
+    imu: bmi270::Bmi270,
     tap: Option<Tap>,
 }
 
@@ -160,6 +163,7 @@ impl Device for Gt911 {
 
     fn claims(&self) -> Vec<Claim> {
         let mut claims: Vec<_> = std::iter::once(ADDRESS)
+            .chain(std::iter::once(bmi270::ADDRESS))
             .chain(self.board.iter().map(|(addr, _)| *addr))
             .map(|addr| Claim {
                 what: Some(claim::What::I2c(I2cClaim {
@@ -185,6 +189,13 @@ impl Device for Gt911 {
             return Some(reply);
         };
         if i2c.read_len > MAX_READ {
+            return Some(reply);
+        }
+        if i2c.addr == bmi270::ADDRESS {
+            if let Some(data) = self.imu.transfer(i2c) {
+                reply.data = data;
+                reply.ack = true;
+            }
             return Some(reply);
         }
         if let Some((_, registers)) = self.board.iter_mut().find(|(addr, _)| *addr == i2c.addr) {
@@ -267,15 +278,16 @@ impl Device for Gt911 {
     }
 
     fn state(&self) -> Option<State> {
-        Some(
+        Some(self.imu.observe(
             State::new()
                 .set("ready", self.ready)
                 .set("contact", self.contact.is_some())
                 .set("reports", self.produced)
                 .set("acknowledged", self.acknowledged)
                 .set("rejected_inputs", self.rejected_inputs),
-        )
+        ))
     }
 }
 
-esp_part::export_part!(Gt911, buffer = 1024);
+// The 8 KiB BMI270 burst travels in one BusRequest, including its envelope.
+esp_part::export_part!(Gt911, buffer = 16384);

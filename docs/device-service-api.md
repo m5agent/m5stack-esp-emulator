@@ -3305,6 +3305,14 @@ readbacks and `timing.guest_drag_ms` and `timing.moves_acknowledged`.
 Unread reports or a clock reset can expire an active gesture. Multitouch
 remains outside this input path. Previously qualified older Parts retain
 their tap or hold capabilities under the same setting.
+The current GT911 and ST7123 modules support the board BMI270 initialization
+path on HP I²C controller 1 at address `0x68`. Their Part request buffer
+accommodates the standard 8 KiB configuration upload. The model accepts the
+supported standard configuration through addressed writes to `INIT_DATA`
+and reports completion after the guest requests initialization. Its scope
+covers configuration transfer and readback. `flash.tab5.touch_part_sha256`
+identifies the exact staged module.
+
 With the qualified standby-latch module, `flash.tab5.power_model` is
 `esp-emu-tab5-standby-latch`. When guest I²C drives the expander's power-off
 output, the board holds the P4 chip EN low.

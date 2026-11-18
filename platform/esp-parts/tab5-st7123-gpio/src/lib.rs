@@ -2,6 +2,9 @@
 
 use esp_part::prelude::*;
 
+#[path = "../../tab5-bmi270.rs"]
+mod bmi270;
+
 const TOUCH_ADDRESS: u32 = 0x55;
 const WIDTH: u16 = 720;
 const HEIGHT: u16 = 1280;
@@ -32,7 +35,6 @@ const HARDWARE_REGISTERS: &[(u8, &[(u8, u8)])] = &[
     ),
     (0x43, &[(0x01, 0xa2)]),
     (0x44, &[(0x01, 0xa2)]),
-    (0x68, &[(0x00, 0x24)]),
 ];
 
 #[derive(Clone, Copy)]
@@ -401,6 +403,7 @@ struct Bus {
     chips: Vec<Registers>,
     interrupt: u32,
     hardware_chips: Vec<Registers>,
+    imu: bmi270::Bmi270,
     touch: St7123,
     power_latch_wired: bool,
     power_off_requested: bool,
@@ -555,6 +558,7 @@ impl Device for Bus {
         }
         claims.extend(
             std::iter::once(TOUCH_ADDRESS)
+                .chain(std::iter::once(bmi270::ADDRESS))
                 .chain(
                     self.hardware_chips
                         .iter()
@@ -581,6 +585,13 @@ impl Device for Bus {
             return Some(reply);
         };
         if i2c.read_len > MAX_READ {
+            return Some(reply);
+        }
+        if i2c.addr == bmi270::ADDRESS {
+            if let Some(data) = self.imu.transfer(i2c) {
+                reply.data = data;
+                reply.ack = true;
+            }
             return Some(reply);
         }
         reply.data = if i2c.addr == TOUCH_ADDRESS && i2c.write.len() != 1 {
@@ -652,7 +663,7 @@ impl Device for Bus {
     }
 
     fn state(&self) -> Option<State> {
-        Some(
+        Some(self.imu.observe(
             State::new()
                 .set("recognized_addresses", self.addressed)
                 .set("write_bytes", self.data_bytes)
@@ -669,11 +680,12 @@ impl Device for Bus {
                 .set("power_latched", self.power_latched_ns.is_some())
                 .set("power_latched_ns", self.power_latched_ns.unwrap_or(0))
                 .set("chip_enabled", self.chip_enabled),
-        )
+        ))
     }
 }
 
-esp_part::export_part!(Bus, buffer = 1024);
+// The 8 KiB BMI270 burst travels in one BusRequest, including its envelope.
+esp_part::export_part!(Bus, buffer = 16384);
 
 #[cfg(test)]
 mod tests {

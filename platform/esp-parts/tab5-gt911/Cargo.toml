@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 esp-part = { git = "https://github.com/espressif/esp-emulator.git", rev = "34ba27a6e5a3da41743fc861b462cf2452f0ca28" }
+sha2 = { version = "=0.10.9", default-features = false, features = ["force-soft-compact"] }
 
 [profile.release]
 lto = true

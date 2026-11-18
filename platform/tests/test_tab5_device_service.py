@@ -221,8 +221,9 @@ class Tab5ServiceTests(unittest.TestCase):
         self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
         session = self.session()
         board = session.dir / "tab5-cosim-board.json"
+        digest = "b" * 64
         with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
-                mock.patch.object(service_module, "stage_tab5_gt911_part", return_value=board) as stage, \
+                mock.patch.object(service_module, "stage_tab5_gt911_part", return_value=(board, digest)) as stage, \
                 mock.patch.object(service_module, "Tab5DsiReceiver"), \
                 mock.patch.object(service_module, "Tab5Gt911Touch") as controller:
             self.provision(session)
@@ -233,6 +234,7 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertIn("--control-tcp", p4)
             self.assertNotIn("--i2c-dev", p4)
             self.assertEqual(session.flash_info["tab5"]["touch_model"], "esp-emu-gt911")
+            self.assertEqual(session.flash_info["tab5"]["touch_part_sha256"], digest)
             self.assertEqual(session.flash_info["tab5"]["touch_coordinate_space"], "panel-native")
             for x, y in ((720, 160), (640, 1280), (False, 160), (640.5, 160), (640, None)):
                 with self.subTest(x=x, y=y), self.assertRaises(service_module.ServiceError) as raised:

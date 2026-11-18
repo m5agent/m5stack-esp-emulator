@@ -61,12 +61,11 @@ from device_service_tab5_dsi import (  # noqa: E402
     DsiFrame,
     RGB565_LE,
     TAB5_DSI_RUNTIME_SHA256,
-    TAB5_GT911_PART_SHA256,
     TAB5_GT911_SIZE,
     TAB5_ST7123_DRAG_PART_SHA256,
     TAB5_ST7123_HOLD_PART_SHA256,
     TAB5_ST7123_I2C_PART_SHA256,
-    TAB5_ST7123_POWER_PART_SHA256,
+    TAB5_ST7123_POWER_PART_SHA256S,
     Tab5DsiReceiver,
     Tab5Gt911Touch,
     Tab5St7123Touch,
@@ -9916,9 +9915,9 @@ class Tab5DeviceSession(DeviceSession):
                     self._tab5_st7123_board, digest = stage_tab5_st7123_touch_part(st_touch_part, self.dir)
                     self._tab5_st7123_touch_enabled = True
                     self._tab5_st7123_drag_enabled = digest in {
-                        TAB5_ST7123_DRAG_PART_SHA256, TAB5_ST7123_POWER_PART_SHA256,
+                        TAB5_ST7123_DRAG_PART_SHA256, *TAB5_ST7123_POWER_PART_SHA256S,
                     }
-                    if digest == TAB5_ST7123_POWER_PART_SHA256:
+                    if digest in TAB5_ST7123_POWER_PART_SHA256S:
                         identity["power_model"] = "esp-emu-tab5-standby-latch"
                     self._tab5_st7123_hold_enabled = (
                         self._tab5_st7123_drag_enabled or digest == TAB5_ST7123_HOLD_PART_SHA256
@@ -9939,10 +9938,10 @@ class Tab5DeviceSession(DeviceSession):
                     board_probe_part_sha256=digest,
                 )
             elif part:
-                self._tab5_gt911_board = stage_tab5_gt911_part(part, board, self.dir)
+                self._tab5_gt911_board, digest = stage_tab5_gt911_part(part, board, self.dir)
                 identity.update(
                     touch_model="esp-emu-gt911",
-                    touch_part_sha256=TAB5_GT911_PART_SHA256,
+                    touch_part_sha256=digest,
                     touch_coordinate_space="panel-native",
                 )
         assert self.spec.efuse is not None
