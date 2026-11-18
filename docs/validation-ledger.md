@@ -236,6 +236,27 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 Linux 运行器意外退出与审核保护
+
+在独立空卷上，Reviewer 0.30.0（`b9426a2d`）经认证的受监督 Linux Worker
+和 Device Service 1.99.3（`2a7f979c`）运行原版 Core2 2048 保存快照。
+故障前只有一个活动租约及一个已绑定的创建意图。已保存包含八个成员的原生
+证据 ZIP，核对了可辨识棋盘、串口、`41db3680` 原版应用和 `cd13c9bc` 组合 Flash。
+
+通过 `SIGKILL` 只终止该试点的 VZ 运行器。控制器将原卷隔离，撤下入口，
+转发进程和监听均退出。宿主卷锁解除，但普通启动预检拒绝相同卷。没有正常
+停机、强制停机回调或可信冷恢复回执。临时 LaunchAgent 已卸载，前一试点的
+停机证据未变。
+
+以同一 SQLite、入口及 Worker 绑定重启 Reviewer。Linux 就绪返回
+`503 worker_unavailable`，待恢复原因是 `device_service_unavailable`，
+重试返回 HTTP 409。原任务为 `service_error / SIM_PARTIAL / E_SERVICE_RESTART`，
+原创建意图及证据保留，无新任务、无主后端请求。隔离卷仍保留旧租约条目，
+16 MiB 可写 Flash 与故障前证据逐字节一致。资源释放与可信冷恢复待验证。
+本轮为 virtual-device validation，
+宿主断电未执行，Burner 未提交。
+[运行器退出和审核保护证据](https://github.com/m5agent/agent-work-logs/blob/2176f8f59fe71c28bc4d6afcbbad7d9b6e07ec4e/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-routed-adv-and-create-recovery/followups/2026-11-19-core2-active-runner-exit/report.md)。
+
 ## 2026-11-19 托管 Linux 创建回复丢失恢复
 
 第 4 代受监督 Linux Worker 通过 Device Service 1.99.3（`2a7f979c`）为

@@ -817,7 +817,16 @@ Linux snapshot reviews. In the [lost create reply validation](validation-ledger.
 Reviewer 0.30.0 restarted with admission disabled and the Linux worker still
 running. It reconciled the original Core2 session, called the ordinary stop
 endpoint and released writable Flash. The review remained interrupted and no
-new session was created. A worker or host crash requires separate validation.
+new session was created.
+
+After an [abrupt VZ runner exit](validation-ledger.md#2026-11-19-linux-运行器意外退出与审核保护),
+Reviewer's `GET /api/ready/linux-snapshot` returned HTTP 503 `worker_unavailable`.
+It kept the original attempt and returned HTTP 409 from
+`POST /api/reviews/{job_id}/retry` while recovery was pending. The controller
+refused ordinary startup on the quarantined volume even after the host lock
+was released. The on-disk lease and writable Flash remained. Host power loss
+and resource release from this state require separate validation with trusted
+cold recovery evidence.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
