@@ -284,6 +284,7 @@ from network_policy import (  # noqa: E402
 )
 from device_service_namespace_recovery import (  # noqa: E402
     GATEWAY_HANDOFF_LOCK,
+    GatewayColdRecoveryReceipt,
     claim_drained_gateway_handoff,
     namespace_runtime_scope,
     namespace_supervisor_identity,
@@ -5051,6 +5052,13 @@ class DeviceSession:
 
     def _stop_recovered_gateway(self, launch_id: str | None) -> None:
         before = self._gateway_receipt(launch_id, self.pid, self.process_start_token)
+        authority = self.service.gateway_cold_recovery
+        previous_scope = before.get("worker_scope")
+        if authority is not None and before["schema_version"] == 3 and isinstance(previous_scope, dict):
+            successor_boot_id = namespace_runtime_scope()["boot_id"]
+            if previous_scope.get("boot_id") != successor_boot_id:
+                self._retire_cold_gateway(before, authority, successor_boot_id)
+                return
         pid, start_token = before["supervisor_pid"], before["supervisor_start_token"]
         stop_namespace_supervisor(
             pid, start_token=start_token, config_path=self.network_sandbox_config_path,
@@ -5059,6 +5067,31 @@ class DeviceSession:
         after = self._gateway_receipt(launch_id, pid, start_token)
         if not self._gateway_receipt_complete(after):
             self._cleanup_orphaned_gateway(after)
+
+    def _retire_cold_gateway(self, journal: dict, authority: GatewayColdRecoveryReceipt,
+                             successor_boot_id: str) -> None:
+        journal_sha = authority.match(
+            worker_id=self.service.worker.worker_id, session_worker_id=self.worker_id,
+            session_id=self.id, successor_boot_id=successor_boot_id, journal=journal,
+        )
+        if journal_sha is None:
+            raise ServiceError("session_cleanup_pending", "trusted gateway cold recovery receipt does not match this launch", 503)
+        # Keep both old journals intact. Only the startup authority can make
+        # this decision, even when a prior process wrote the evidence below.
+        path = self.dir / "network-gateway-cold-recovery.json"
+        try:
+            atomic_write_json(path, {
+                "schema_version": 1,
+                "status": "prior_vm_terminated",
+                "launch_id": journal["launch_id"],
+                "gateway_receipt_sha256": journal_sha,
+                "controller_receipt_sha256": authority.sha256,
+                "previous_boot_id": authority.previous_boot_id,
+                "successor_boot_id": successor_boot_id,
+            })
+        except OSError as error:
+            raise ServiceError("session_cleanup_pending", "cannot record gateway cold recovery", 503) from error
+        self._record_event("namespace_gateway_cold_recovered", controller_receipt_sha256=authority.sha256)
 
     def _cleanup_orphaned_gateway(self, receipt: dict) -> None:
         """Finish release after the outer supervisor is positively gone."""
@@ -10895,9 +10928,14 @@ class DeviceService:
         worker_heartbeat_interval: float | None = None,
         worker_stale_after: float | None = None,
         runtime_acl: RuntimeACL | None = None,
+        namespace_cold_recovery_receipt: Path | None = None,
     ):
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
+        self.gateway_cold_recovery = (
+            GatewayColdRecoveryReceipt.from_file(namespace_cold_recovery_receipt, self.state_dir)
+            if namespace_cold_recovery_receipt is not None else None
+        )
         self.storage_policy = storage_policy or StoragePolicy.from_env()
         self.tab5_dsi_emulator = os.environ.get("M5_TAB5_DSI_EMULATOR", "").strip()
         self.tab5_dsi_board = os.environ.get("M5_TAB5_DSI_BOARD", "").strip()

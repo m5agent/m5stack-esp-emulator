@@ -32,6 +32,7 @@ from device_service import (
     DeviceService,
     ServiceError,
 )
+from device_service_namespace_recovery import GatewayColdRecoveryConfigError
 from evidence_store import MAX_EVIDENCE_BYTES
 from frame_presentation import frame_representation, presentation_headers
 from peripheral_inventory import build_inventory
@@ -1566,6 +1567,10 @@ def main() -> None:
     parser.add_argument("--bind", default="127.0.0.1")
     parser.add_argument("--state-dir", type=Path, default=None)
     parser.add_argument(
+        "--namespace-cold-recovery-receipt", type=Path,
+        help="trusted host termination receipt outside the worker state directory",
+    )
+    parser.add_argument(
         "--browser-site", type=Path, help="verified browser export with --base-path /"
     )
     parser.add_argument(
@@ -1851,8 +1856,9 @@ def main() -> None:
             worker_heartbeat_interval=args.worker_heartbeat_interval,
             worker_stale_after=args.worker_stale_after,
             runtime_acl=runtime_acl,
+            namespace_cold_recovery_receipt=args.namespace_cold_recovery_receipt,
         )
-    except RuntimeACLConfigError as error:
+    except (RuntimeACLConfigError, GatewayColdRecoveryConfigError) as error:
         parser.error(str(error))
     Handler.service = service
     Handler.browser_site = browser_site

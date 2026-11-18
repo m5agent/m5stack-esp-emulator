@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import contextmanager
+from dataclasses import dataclass
 import fcntl
+from hashlib import sha256
+import json
 import os
 from pathlib import Path
 import re
@@ -16,10 +19,109 @@ from device_service_errors import ServiceError
 
 
 _BOOT_ID = re.compile(rb"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}")
+_BOOT_ID_TEXT = re.compile(_BOOT_ID.pattern.decode("ascii"))
+_LAUNCH_ID = re.compile(r"[0-9a-f]{32}")
+_SHA256 = re.compile(r"[0-9a-f]{64}")
+_COLD_RECEIPT_MAX_BYTES = 64 * 1024
 _PYTHON = re.compile(r"python(?:[0-9]+(?:\.[0-9]+)?)?d?")
 GATEWAY_HANDOFF_LOCK = "gateway-handoff.lock"
 _GATEWAY_GUARD_MARKER = b"m5-gateway-handoff-v1\n"
 _GATEWAY_GUARD_FLAGS = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+
+
+class GatewayColdRecoveryConfigError(ValueError):
+    """The operator's trusted cold-recovery input is unusable."""
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise GatewayColdRecoveryConfigError("duplicate field in gateway cold recovery receipt")
+        result[key] = value
+    return result
+
+
+def _matches(pattern, value) -> bool:
+    return isinstance(value, str) and pattern.fullmatch(value) is not None
+
+
+@dataclass(frozen=True)
+class GatewayColdRecoveryReceipt:
+    worker_id: str
+    previous_boot_id: str
+    successor_boot_id: str
+    launches: dict[str, tuple[str, str]]
+    sha256: str
+
+    @classmethod
+    def from_file(cls, path: Path, state_dir: Path) -> GatewayColdRecoveryReceipt:
+        """Read one startup authority supplied outside the restored worker volume."""
+        path = Path(path)
+        try:
+            if not path.is_absolute() or path.resolve(strict=True).is_relative_to(state_dir.resolve()):
+                raise GatewayColdRecoveryConfigError("gateway cold recovery receipt must be absolute and outside worker state")
+            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+            with os.fdopen(os.open(path, flags), "rb") as stream:
+                info = os.fstat(stream.fileno())
+                if (not stat.S_ISREG(info.st_mode) or info.st_mode & 0o022 or info.st_nlink != 1
+                        or not 0 < info.st_size <= _COLD_RECEIPT_MAX_BYTES):
+                    raise GatewayColdRecoveryConfigError("gateway cold recovery receipt must be a bounded, protected regular file")
+                raw = stream.read(_COLD_RECEIPT_MAX_BYTES + 1)
+                if len(raw) != info.st_size:
+                    raise GatewayColdRecoveryConfigError("gateway cold recovery receipt changed during read")
+            value = json.loads(raw, object_pairs_hook=_unique_object)
+        except GatewayColdRecoveryConfigError:
+            raise
+        except (OSError, ValueError, RuntimeError) as error:
+            raise GatewayColdRecoveryConfigError("cannot read gateway cold recovery receipt") from error
+
+        fields = {"schema_version", "worker_id", "previous_boot_id", "successor_boot_id", "launches"}
+        if (not isinstance(value, dict) or set(value) != fields
+                or type(value["schema_version"]) is not int or value["schema_version"] != 1):
+            raise GatewayColdRecoveryConfigError("invalid gateway cold recovery receipt schema")
+        worker_id = value["worker_id"]
+        previous_boot = value["previous_boot_id"]
+        successor_boot = value["successor_boot_id"]
+        entries = value["launches"]
+        if (not isinstance(worker_id, str) or not 1 <= len(worker_id) <= 128
+                or any(ord(char) < 32 for char in worker_id)
+                or not _matches(_BOOT_ID_TEXT, previous_boot) or not _matches(_BOOT_ID_TEXT, successor_boot)
+                or previous_boot == successor_boot or not isinstance(entries, list) or not 1 <= len(entries) <= 128):
+            raise GatewayColdRecoveryConfigError("invalid gateway cold recovery receipt scope")
+
+        launches = {}
+        launch_ids = set()
+        for entry in entries:
+            if (not isinstance(entry, dict) or set(entry) != {"session_id", "launch_id", "gateway_receipt_sha256"}
+                    or not _matches(_LAUNCH_ID, entry["session_id"]) or not _matches(_LAUNCH_ID, entry["launch_id"])
+                    or not _matches(_SHA256, entry["gateway_receipt_sha256"])
+                    or entry["session_id"] in launches or entry["launch_id"] in launch_ids):
+                raise GatewayColdRecoveryConfigError("invalid or duplicate gateway cold recovery launch")
+            launches[entry["session_id"]] = (entry["launch_id"], entry["gateway_receipt_sha256"])
+            launch_ids.add(entry["launch_id"])
+        return cls(worker_id, previous_boot, successor_boot, launches, sha256(raw).hexdigest())
+
+    def match(self, *, worker_id: str, session_worker_id: str | None, session_id: str,
+              successor_boot_id: str, journal: dict) -> str | None:
+        """Match the stopped gateway journal, never a PID in the successor kernel."""
+        scope = journal.get("worker_scope")
+        if (worker_id != self.worker_id or session_worker_id != self.worker_id
+                or successor_boot_id != self.successor_boot_id or not isinstance(scope, dict)
+                or scope.get("boot_id") != self.previous_boot_id or journal.get("schema_version") != 3
+                or journal.get("handoff_committed") is not True):
+            return None
+        old_boot_prefix = f"linux:{self.previous_boot_id}:"
+        outer_pid, inner_pid = journal.get("supervisor_pid"), journal.get("handoff_inner_pid")
+        if (type(outer_pid) is not int or outer_pid < 1 or type(inner_pid) is not int or inner_pid < 1
+                or inner_pid == outer_pid or any(
+                    not isinstance(value, str) or not value.startswith(old_boot_prefix)
+                    for value in (journal.get("supervisor_start_token"), journal.get("handoff_inner_start_token"))
+                )):
+            return None
+        encoded = json.dumps(journal, sort_keys=True, separators=(",", ":")).encode()
+        digest = sha256(encoded).hexdigest()
+        return digest if self.launches.get(session_id) == (journal.get("launch_id"), digest) else None
 
 
 def _pending(message: str) -> ServiceError:
