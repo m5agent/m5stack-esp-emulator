@@ -36,6 +36,31 @@ macOS 工作台和审核后端均更新为 Device Service `981fdcdf`。两个实
 Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由未运行。Burner 未提交。
 [本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0364fb870dfbe0a844a7e500627069d2f8846dae/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/followups/2026-11-19-resident-199-gateway-low-fd/README.md)。
 
+## 2026-11-19 CardputerDict ADV 原版标准发音复审
+
+同一原版 ADV 0.5.0 在旧 Reviewer 两种保存快照模式均于创建会话前返回
+`E_CARDPUTER_PRONUNCIATION_INCOMPATIBLE`。早期候选可以建会话，输入接口均确认，
+但没有 DHCP 或 DNS 流量。加入词典页就绪检查后仍复现。对照板载键盘与实际
+界面确认 ADV 的 Fn 使用 `compose`，旧输入序列套用了初代 `menu`。
+
+最终候选 Reviewer `e7e32f19` 绑定板型、原版及规范化 Flash，先从新帧确认原版
+词典页，再用 ADV 的 Fn。隔离 Linux VZ 中，标准保存快照放行轮完成了
+`done / SIM_VERIFIED`、可信 TLS、10,605 字节 SD 缓存和 84,992 字节数码 PCM。
+拒绝对照完成校时，发音连接、缓存和 PCM 均受限，返回
+`E_CARDPUTER_PRONUNCIATION_POLICY_DENIED`。同一候选的初代 Cardputer 0.6.4 正常通过。
+三轮均已核对成对 ZIP 的 PCAP，实测三次校时及两次可信 TLS，与宿主逐字节匹配。
+停止后可写 Flash 和租约均释放，Burner 未提交。
+[原版 ADV 放行、拒绝与初代兼容证据](https://github.com/m5agent/agent-work-logs/blob/090bc391d75dcecc69880a26ba800ba8a8785811/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/README.md)。
+
+首次本机切换在系统 Python 3.9.6 导入类型注解时失败。自动回滚恢复了 Reviewer
+0.27，129 条审核历史与抽查证据再次匹配。修订 `37d7675` 使用延迟求值的注解，
+已用同一个系统解释器在独立 macOS 服务验证实际 `/api/ready` 返回 HTTP 200，
+以及 301 项审核服务测试。该精确源码再次通过隔离 Linux 的 ADV 放行、拒绝和初代放行，
+两轮播放分别取得 84,992 字节一致 PCM。随后本机成功切换至 Reviewer 0.28.0，
+重新核验 129 条历史、抽查 ZIP、两个 Device Service 角色及其 OpenAPI 1.99.0。
+本机仍通过 macOS Worker 提供服务，常驻 Linux 路由待验。Burner 未提交。
+[Python 3.9 回滚、精确 Linux 复验与本机 0.28 回读](https://github.com/m5agent/agent-work-logs/blob/679b5cbaa2ef1dccf17c2fea7b1477d3b9388235/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/README.md)。
+
 ## 2026-11-19 Linux 控制器的持久卷独占
 
 在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷

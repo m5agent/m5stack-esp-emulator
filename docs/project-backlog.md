@@ -82,8 +82,8 @@
    [活动审核冷启动](validation-ledger.md#2026-11-19-linux-活动审核冷启动恢复)复现了跨内核作用域保留旧租约、
    Flash 和审核恢复记录。[可信回执冷启动对照](validation-ledger.md#可信停机回执与同原版重试)
    在独立 Linux VZ 验证了释放容量、原版重试和历史证据保留。[同卷控制器对照](validation-ledger.md#2026-11-19-linux-控制器的持久卷独占)验证了本机排他、错卷和可写恢复卷凭据拒绝。继续在常驻 Linux
-   路由验收实际控制器、持久卷独占和相关宿主资源的回收，并运行 ADV 原版发音的保存快照复审，
-   以及其他原版应用的 HTTPS 与云端协议。
+   路由验收实际控制器、持久卷独占和相关宿主资源的回收，以及其他原版应用的 HTTPS 与云端协议。[ADV 标准发音复审](validation-ledger.md#2026-11-19-cardputerdict-adv-原版标准发音复审)
+   已在隔离 Linux 验证放行、拒绝与初代兼容。继续在常驻 Linux 路由验证同一业务路径。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
