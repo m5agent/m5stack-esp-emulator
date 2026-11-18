@@ -14,6 +14,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import textwrap
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
@@ -185,6 +186,110 @@ class NetworkSandboxTests(unittest.TestCase):
                 for descriptor in (guard, permit):
                     with self.assertRaises(OSError):
                         os.fstat(descriptor)
+
+    def test_gateway_handoff_low_fds_survive_redirected_stdio(self):
+        # Closing standard streams is confined to this test subprocess.
+        exercise = textwrap.dedent(r'''
+            import errno
+            import fcntl
+            import json
+            import os
+            import subprocess
+            import sys
+            import tempfile
+            from pathlib import Path
+            from unittest import mock
+
+            sys.path.insert(0, sys.argv[1])
+            import network_sandbox as sandbox
+            from device_service_namespace_recovery import claim_drained_gateway_handoff
+
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                config = root / "network-sandbox.json"
+                config.write_text("{}")
+                guard_path = root / sandbox.GATEWAY_HANDOFF_LOCK
+                os.close(0)
+                os.close(1)
+                guard, identity = sandbox.open_gateway_handoff_guard(guard_path)
+                permit, writer = os.pipe()
+                assert (guard, permit) == (0, 1)
+                copies = []
+                mode = sys.argv[2]
+                native_fcntl = fcntl.fcntl
+
+                def duplicate(fd, op, floor):
+                    if mode == "duplication_error" and fd == permit:
+                        raise OSError(errno.EMFILE, "fixture descriptor exhaustion")
+                    copied = native_fcntl(fd, op, floor)
+                    copies.append(copied)
+                    return copied
+
+                try:
+                    with mock.patch.object(sandbox.fcntl, "fcntl", side_effect=duplicate):
+                        with sandbox.gateway_handoff_pass_fds((guard, permit)) as inherited:
+                            assert len(set(inherited)) == 2 and min(inherited) >= 3
+                            assert all(not os.get_inheritable(fd) for fd in inherited)
+                            for source, copy in zip((guard, permit), inherited):
+                                assert os.fstat(source) == os.fstat(copy)
+                            with sandbox.gateway_handoff_pass_fds((writer,)) as untouched:
+                                assert untouched == (writer,)
+                            os.fstat(writer)
+                            if mode == "spawn_error":
+                                subprocess.Popen([str(root / "absent")], stdin=subprocess.DEVNULL,
+                                                 stdout=subprocess.DEVNULL, pass_fds=inherited)
+                                raise AssertionError("unavailable command unexpectedly spawned")
+                            receipt = root / "gateway-recovery.json"
+                            initial = {"schema_version": 3, "launch_id": "fixture", "handoff_guard": identity}
+                            receipt.write_text(json.dumps(initial))
+                            child_code = (
+                                "import os,sys; from pathlib import Path\n"
+                                "sys.path.insert(0, sys.argv[1]); import network_sandbox as sandbox\n"
+                                "sandbox.namespace_supervisor_identity = lambda pid: f'fixture:{pid}'\n"
+                                "with sandbox.gateway_handoff_permitted(Path(sys.argv[2]), 'fixture') as allowed:\n"
+                                " assert allowed\n"
+                            )
+                            env = dict(os.environ, M5_GATEWAY_HANDOFF_GUARD=str(inherited[0]),
+                                       M5_GATEWAY_HANDOFF_PERMIT=str(inherited[1]))
+                            child = subprocess.Popen([sys.executable, "-B", "-c", child_code, sys.argv[1], str(config)],
+                                                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                                     pass_fds=inherited, env=env)
+                            try:
+                                committed = dict(initial, handoff_committed=True, handoff_inner_pid=child.pid,
+                                                 handoff_inner_start_token=f"fixture:{child.pid}")
+                                temporary = root / "receipt.tmp"
+                                temporary.write_text(json.dumps(committed))
+                                temporary.replace(receipt)
+                                os.write(writer, b"\x01")
+                                assert child.wait(timeout=5) == 0
+                            finally:
+                                if child.poll() is None:
+                                    child.kill()
+                                    child.wait(timeout=5)
+                except OSError as error:
+                    assert error.errno == {"duplication_error": errno.EMFILE, "spawn_error": errno.ENOENT}[mode]
+                else:
+                    assert mode == "success"
+                assert len(copies) == (1 if mode == "duplication_error" else 2)
+                for copy in copies:
+                    try:
+                        os.fstat(copy)
+                    except OSError as error:
+                        assert error.errno == errno.EBADF
+                    else:
+                        raise AssertionError("duplicated descriptor leaked")
+                # The original descriptors and guard remain the outer owner's responsibility.
+                for descriptor in (guard, permit, writer):
+                    os.fstat(descriptor)
+                    os.close(descriptor)
+                with claim_drained_gateway_handoff(guard_path, identity):
+                    pass
+        ''')
+        for mode in ("success", "duplication_error", "spawn_error"):
+            with self.subTest(mode=mode):
+                result = subprocess.run([sys.executable, "-B", "-c", exercise, str(ROOT / "platform/tools"), mode],
+                                        text=True, capture_output=True, timeout=12)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_controlled_dns_rejects_invalid_or_non_unicast_records(self):
         for records in (

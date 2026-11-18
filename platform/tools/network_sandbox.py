@@ -20,7 +20,7 @@ import sys
 import tempfile
 import threading
 import time
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -1910,6 +1910,21 @@ def run(
             signal.signal(signum, handler)
 
 
+@contextmanager
+def gateway_handoff_pass_fds(descriptors: tuple[int, ...]):
+    """Keep inherited handoff FDs distinct from the child's standard streams."""
+    with ExitStack() as copies:
+        inherited = []
+        for descriptor in descriptors:
+            if descriptor < 3:
+                # Duplicate the open description, including any held flock.
+                # The caller retains ownership of the original even on failure.
+                descriptor = fcntl.fcntl(descriptor, fcntl.F_DUPFD_CLOEXEC, 3)
+                copies.callback(os.close, descriptor)
+            inherited.append(descriptor)
+        yield tuple(inherited)
+
+
 def run_with_gateway(
     config: dict[str, Any],
     command: list[str],
@@ -1968,11 +1983,10 @@ def run_with_gateway(
         inner_environment["M5_EGRESS_GATEWAY"] = json.dumps(
             gateway.metadata()
         )
-        pass_fds = ()
+        handoff_fds = ()
         if guard_fd is not None:
             permit_read, permit_write = os.pipe()
-            pass_fds = (guard_fd, permit_read)
-            inner_environment.update(M5_GATEWAY_HANDOFF_GUARD=str(guard_fd), M5_GATEWAY_HANDOFF_PERMIT=str(permit_read))
+            handoff_fds = (guard_fd, permit_read)
         inner_command = [
             "ip",
             "netns",
@@ -1986,14 +2000,19 @@ def run_with_gateway(
             "--",
             *command,
         ]
-        process = subprocess.Popen(
-            inner_command,
-            cwd=Path.cwd(),
-            env=inner_environment,
-            stdin=subprocess.DEVNULL,
-            start_new_session=True,
-            pass_fds=pass_fds,
-        )
+        with gateway_handoff_pass_fds(handoff_fds) as pass_fds:
+            if pass_fds:
+                inherited_guard, inherited_permit = pass_fds
+                inner_environment.update(M5_GATEWAY_HANDOFF_GUARD=str(inherited_guard),
+                                         M5_GATEWAY_HANDOFF_PERMIT=str(inherited_permit))
+            process = subprocess.Popen(
+                inner_command,
+                cwd=Path.cwd(),
+                env=inner_environment,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True,
+                pass_fds=pass_fds,
+            )
         if permit_read is not None:
             os.close(permit_read)
             permit_read = None
