@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from hashlib import sha256
 import struct
 import sys
 import tempfile
@@ -58,16 +59,21 @@ def ipv4_tcp(
     *,
     source: str = "10.0.2.15",
     destination: str = "8.8.8.8",
+    source_port: int = 53001,
+    destination_port: int = 80,
+    sequence: int = 1,
+    acknowledgement: int = 0,
+    flags: int = 0x18,
 ) -> bytes:
     tcp = bytearray(
         struct.pack(
             ">HHIIBBHHH",
-            53001,
-            80,
-            1,
-            0,
+            source_port,
+            destination_port,
+            sequence,
+            acknowledgement,
             5 << 4,
-            0x18,
+            flags,
             65535,
             0,
             0,
@@ -415,6 +421,73 @@ class PcapSummaryTests(unittest.TestCase):
             120,
         )
         self.assertEqual(dhcp["guest_addresses"], ["10.0.2.15"])
+
+    @staticmethod
+    def fixture_tcp(port, request, reply, *, faults=()):
+        client, peer = "10.0.2.15", "10.0.2.2"
+        sequence, response = 0xffffffff, 700
+
+        def segment(payload=b"", *, incoming=False, seq, ack, flags=0x18):
+            return ethernet(ipv4_tcp(payload, source=peer if incoming else client, destination=client if incoming else peer,
+                                     source_port=port if incoming else 53001, destination_port=53001 if incoming else port,
+                                     sequence=seq, acknowledgement=ack, flags=flags))
+
+        frames = [segment(seq=sequence, ack=0, flags=2),
+                  segment(seq=response, ack=0, flags=0x12, incoming=True),
+                  segment(seq=0, ack=response + 1, flags=0x10),
+                  segment(request[3:], seq=3, ack=response + 1)]
+        if "gap" not in faults:
+            frames += [segment(request[:3], seq=0, ack=response + 1)]
+        if "overlap" in faults:
+            frames += [segment(b"invalid", seq=3, ack=response + 1)]
+        else:
+            frames += [segment(request[3:], seq=3, ack=response + 1)]
+        frames += [segment(reply, seq=response + 1, ack=len(request), incoming=True)]
+        if "reused" in faults:
+            frames += [segment(seq=sequence, ack=0, flags=2)]
+        return frames
+
+    def fixture_summary(self, frames, ports, *, truncate=False):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "fixture.pcap"
+            data = pcap(frames)
+            path.write_bytes(data[:-1] if truncate else data)
+            return summarize_pcap(path, fixture_tcp_ports=ports)
+
+    def test_fixture_streams_bind_tcp_data_and_http_body_after_reassembly(self):
+        sent, reply = b"\0\x03ab\x00", b"\0\x03cd\xff"
+        body, answer = b"a\0b", b"c\x00d"
+        http = b"POST /native-sta-post HTTP/1.1\r\nHost: post.native-sta.test:18193\r\nContent-Length: 3\r\n\r\n" + body
+        response = b"HTTP/1.1 200 OK\r\nContent-Length: 3\r\n\r\n" + answer
+        frames = self.fixture_tcp(19193, sent, reply) + self.fixture_tcp(18193, http, response)
+        result = self.fixture_summary(frames, {18193, 19193})
+        self.assertIs(result["tcp_fixture_streams_complete"], True)
+        self.assertEqual(len(result["tcp_fixture_streams"]), 2)
+        post, tcp = result["tcp_fixture_streams"]
+        self.assertEqual((post["kind"], post["request"]["authority"], post["reply"]["status_code"]),
+                         ("http_post", "post.native-sta.test", 200))
+        self.assertEqual(post["client"], "10.0.2.15:53001")
+        self.assertEqual(post["peer"], "10.0.2.2:18193")
+        self.assertEqual(post["request"]["body_sha256"], sha256(body).hexdigest())
+        self.assertEqual(post["reply"]["body_sha256"], sha256(answer).hexdigest())
+        self.assertEqual(tcp["request"]["wire_sha256"], sha256(sent).hexdigest())
+        self.assertEqual(tcp["reply"]["body_sha256"], sha256(reply[2:]).hexdigest())
+        legacy = self.fixture_summary(frames, set())
+        self.assertNotIn("tcp_fixture_streams", legacy)
+
+    def test_unconfirmed_streams_are_not_reported_complete(self):
+        sent, reply = b"\0\x03abc", b"\0\x03def"
+        for fault in ("gap", "overlap", "reused"):
+            with self.subTest(fault=fault):
+                result = self.fixture_summary(self.fixture_tcp(19193, sent, reply, faults=(fault,)), {19193})
+                self.assertIs(result["tcp_fixture_streams_complete"], False)
+                self.assertEqual(result["tcp_fixture_streams"], [])
+        incomplete_http = b"POST /native-sta-post HTTP/1.1\r\nHost: post.native-sta.test\r\nContent-Length: 4\r\n\r\nabc"
+        http_reply = b"HTTP/1.1 200 OK\r\nContent-Length: 3\r\n\r\ndef"
+        result = self.fixture_summary(self.fixture_tcp(18193, incomplete_http, http_reply), {18193})
+        self.assertIs(result["tcp_fixture_streams_complete"], False)
+        self.assertIs(self.fixture_summary(self.fixture_tcp(19193, sent, reply), {19193}, truncate=True)[
+            "tcp_fixture_streams_complete"], False)
 
     def test_rejects_pcapng_and_other_linktypes(self):
         with tempfile.TemporaryDirectory() as tmp:

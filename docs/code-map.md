@@ -161,6 +161,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/unified_http_guestfwd.py` | QEMU user-net `guestfwd` 的 per-connection HTTP fixture；避免并发 session 共享宿主 18089 端口 | Device Service、Core2 concurrent runner |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
+| `platform/tools/pcap_tcp_fixture.py` | 固定本地 TCP 对端的有界重组和请求、响应哈希 | pcap 摘要 |
 | `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay、hold、unified peer write settle 和 session-readiness-bound peer scan 的共享上限，以及按 cycle/delay 计算的 readiness workload 预算 | Device Service、BLE probe、Core2 runner |
 | `platform/tools/ble_probe.py` | 外部 BLE peer、NUS GATT 多轮验证与显式 HID 输入报告观察 | unified/BLE runners |
 | `platform/tools/ble_hid.py` | HID 服务与 Report Reference 发现、按需 SMP、CCCD 订阅及报告长度校验 | `ble_probe.py --protocol hid` |

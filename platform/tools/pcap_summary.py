@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from pcap_tcp_fixture import TcpFixtureStreams
+
 PCAP_MAGIC = {
     b"\xd4\xc3\xb2\xa1": ("<", 1_000_000),
     b"\xa1\xb2\xc3\xd4": (">", 1_000_000),
@@ -341,6 +343,7 @@ def summarize_pcap(
     include_dns_names: bool = True,
     max_flows: int = MAX_RECORDED_FLOWS,
     record_start_offset: int | None = None,
+    fixture_tcp_ports: set[int] | None = None,
 ) -> dict[str, Any]:
     capture_size = path.stat().st_size
     if capture_size > MAX_CAPTURE_BYTES:
@@ -426,6 +429,7 @@ def summarize_pcap(
     guest_addresses: set[str] = set()
     dhcp_transactions: dict[str, dict[str, Any]] = {}
     protocols = result["protocols"]
+    fixture_streams = TcpFixtureStreams(fixture_tcp_ports) if fixture_tcp_ports else None
     offset = 24
     while offset < len(data):
         record_start = offset
@@ -488,12 +492,18 @@ def summarize_pcap(
                 continue
             source_port, destination_port = struct.unpack_from(">HH", transport)
             protocol = "TCP" if protocol_number == 6 else "UDP"
+            if fixture_streams is not None and protocol_number == 6 and len(transport) < 20:
+                result["malformed_records"] += 1
+                continue
             if protocol_number == 6 and len(transport) >= 20:
                 data_offset = (transport[12] >> 4) * 4
                 if data_offset < 20 or data_offset > len(transport):
                     result["malformed_records"] += 1
                     continue
                 transport_payload = transport[data_offset:]
+                if fixture_streams is not None and parsed["version"] == 4:
+                    fixture_streams.observe(parsed["source"], parsed["destination"], transport, transport_payload,
+                                            fragment=bool(parsed["fragment"] & 0x2000))
             else:
                 udp_length = struct.unpack_from(">H", transport, 4)[0]
                 if udp_length < 8 or udp_length > len(transport):
@@ -664,6 +674,10 @@ def summarize_pcap(
             row["port"] or 0,
         ),
     )
+    if fixture_streams is not None:
+        if result["truncated_records"] or result["malformed_records"] or protocols.get("IP-fragment"):
+            fixture_streams.complete = False
+        result.update(fixture_streams.evidence())
     return result
 
 

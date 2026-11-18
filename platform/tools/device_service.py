@@ -277,6 +277,7 @@ from device_service_wifi_evidence import (  # noqa: E402
     captured_provision_station_dora, native_sta_capability, native_sta_data_plane,
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
+from pcap_tcp_fixture import POST_PORT as PCAP_POST_PORT, TCP_PORT as PCAP_TCP_PORT  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from runtime_acl import (  # noqa: E402
     RuntimeACL,
@@ -4626,8 +4627,15 @@ class DeviceSession:
             return None
         if not self.network_pcap.is_file():
             return None
+        fixture_ports = {
+            port for key, port in (("http_post_fixture", PCAP_POST_PORT), ("tcp_fixture", PCAP_TCP_PORT))
+            if self.network_config.get(key)
+        }
         try:
-            summary = summarize_pcap(self.network_pcap)
+            if fixture_ports:
+                summary = summarize_pcap(self.network_pcap, fixture_tcp_ports=fixture_ports)
+            else:
+                summary = summarize_pcap(self.network_pcap)
         except (OSError, PcapError) as error:
             failure = {
                 "schema_version": 1,
