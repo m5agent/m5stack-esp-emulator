@@ -1,0 +1,65 @@
+diff --git a/sdkconfig.defaults b/sdkconfig.defaults
+--- a/sdkconfig.defaults
++++ b/sdkconfig.defaults
+@@ -1 +1,3 @@
+ CONFIG_FATFS_VFS_FSTAT_BLKSIZE=4096
++
++CONFIG_ESP32P4_SELECTS_REV_LESS_V3=y
+diff --git a/main/sd_card_example_main.c b/main/sd_card_example_main.c
+--- a/main/sd_card_example_main.c
++++ b/main/sd_card_example_main.c
+@@ -69,8 +69,12 @@
+         ESP_LOGE(TAG, "Failed to open file for writing");
+         return ESP_FAIL;
+     }
+-    fprintf(f, data);
+-    fclose(f);
++    int write_result = fputs(data, f);
++    int close_result = fclose(f);
++    if (write_result < 0 || close_result != 0) {
++        ESP_LOGE(TAG, "SD file write or close failed");
++        return ESP_FAIL;
++    }
+     ESP_LOGI(TAG, "File written");
+ 
+     return ESP_OK;
+@@ -85,8 +89,12 @@
+         return ESP_FAIL;
+     }
+     char line[EXAMPLE_MAX_CHAR_SIZE];
+-    fgets(line, sizeof(line), f);
+-    fclose(f);
++    char *read_result = fgets(line, sizeof(line), f);
++    int close_result = fclose(f);
++    if (read_result == NULL || close_result != 0) {
++        ESP_LOGE(TAG, "SD file read or close failed");
++        return ESP_FAIL;
++    }
+ 
+     // strip newline
+     char *pos = strchr(line, '\n');
+@@ -184,10 +192,20 @@
+ #endif  // CONFIG_EXAMPLE_SDMMC_BUS_WIDTH_4
+ #endif  // CONFIG_SOC_SDMMC_USE_GPIO_MATRIX
+ 
+-    // Enable internal pullups on enabled pins. The internal pullups
+-    // are insufficient however, please make sure 10k external pullups are
+-    // connected on the bus. This is for debug / example purpose only.
+-    slot_config.flags |= SDMMC_SLOT_FLAG_INTERNAL_PULLUP;
++    // M5Tab5-UserDemo BSP revision fe8aa051, stock four-line removable slot.
++    host.slot = SDMMC_HOST_SLOT_0;
++    host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
++    slot_config.width = 4;
++    slot_config.clk = 43;
++    slot_config.cmd = 44;
++    slot_config.d0 = 39;
++    slot_config.d1 = 40;
++    slot_config.d2 = 41;
++    slot_config.d3 = 42;
++    ESP_LOGI(TAG, "TAB5_SLOT0_WIRING slot=%d width=%d max_freq_khz=%d clk=%d cmd=%d d0=%d d1=%d d2=%d d3=%d ldo=%d",
++             host.slot, slot_config.width, host.max_freq_khz, slot_config.clk,
++             slot_config.cmd, slot_config.d0, slot_config.d1, slot_config.d2,
++             slot_config.d3, CONFIG_EXAMPLE_SD_PWR_CTRL_LDO_IO_ID);
+ 
+     ESP_LOGI(TAG, "Mounting filesystem");
+     ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card);

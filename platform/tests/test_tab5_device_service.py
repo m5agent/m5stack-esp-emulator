@@ -32,7 +32,7 @@ class Tab5ServiceTests(unittest.TestCase):
         self.service.specs["tab5"] = self.spec
         self.sequence = 0
 
-    def session(self, *, source="uploaded"):
+    def session(self, *, source="uploaded", storage_config=None):
         self.sequence += 1
         return service_module.Tab5DeviceSession(
             self.service, session_id=f"test-{self.sequence}",
@@ -40,6 +40,7 @@ class Tab5ServiceTests(unittest.TestCase):
             firmware_path=self.image, firmware_sha=self.image_sha,
             firmware_source=source, source_artifacts=[], ttl_seconds=120,
             ready_marker=None, ready_timeout=1, ready_conditions={}, runtime="qemu",
+            storage_config=storage_config,
         )
 
     def provision(self, session):
@@ -408,6 +409,69 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual(raised.exception.extra["capture_status"], "connected")
             session._close_dsi_receiver()
             receiver.return_value.close.assert_called_once()
+
+    def test_native_sd_is_only_attached_to_p4_and_reopened_after_reset(self):
+        self.elf.write_bytes(b"unrelated reference ELF")
+        backend = self.root / "qualified-esp-emu"
+        self.service.tab5_dsi_emulator = str(backend)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+        seed = b"S" * (512 * 1024)
+        artifact = self.service.upload_artifact(seed)["artifact_id"]
+        session = self.session(storage_config={"interface": "sdmmc", "sd_image_artifact_id": artifact})
+        with (
+            mock.patch.object(service_module, "tab5_dsi_runtime", return_value=backend),
+            mock.patch.object(service_module, "Tab5DsiReceiver"),
+        ):
+            self.provision(session)
+            self.assertEqual(session.sd_card_image.read_bytes(), seed)
+            self.assertEqual(session.storage_info["sha256"], artifact)
+            self.assertTrue(session.storage_info["session_isolated_copy"])
+            sidecar, p4 = self.launch_commands(session)
+            self.assertNotIn("--sd", sidecar)
+            self.assertEqual(p4[p4.index("--sd") + 1], f"{session.sd_card_image.resolve()},slot=0")
+            written = b"G" + seed[1:]
+            session.sd_card_image.write_bytes(written)
+            sidecar, relaunched = self.launch_commands(session)
+            self.assertNotIn("--sd", sidecar)
+            self.assertEqual(relaunched[relaunched.index("--sd") + 1], p4[p4.index("--sd") + 1])
+            self.assertEqual(session.sd_card_image.read_bytes(), written)
+        self.assertEqual(self.service.artifacts.read(artifact), seed)
+
+    def test_tab5_sd_admission_rejects_legacy_elf_and_invalid_capacity_before_lease(self):
+        backend = self.root / "qualified-esp-emu"
+        self.service.tab5_dsi_emulator = str(backend)
+        self.service.tab5_dsi_board = "st7123"
+        self.service.tab5_dsi_firmware_sha256s = {"e" * 64}
+        supported_media = self.service.upload_artifact(b"F" * (512 * 1024))["artifact_id"]
+        misaligned_media = self.service.upload_artifact(b"G" * (512 * 1024 + 512))["artifact_id"]
+        firmware = {"device_id": "tab5", "sha256": self.image_sha, "source": {}}
+        request = {"device_id": "tab5", "firmware_id": self.image_sha}
+        with (
+            mock.patch.object(type(self.spec), "backend_ready", new_callable=mock.PropertyMock, return_value=True),
+            mock.patch.object(self.service.firmware, "get", return_value=firmware),
+            mock.patch.object(self.service.firmware, "path", return_value=self.image),
+            mock.patch.object(service_module, "tab5_dsi_runtime", return_value=backend),
+            mock.patch.object(service_module.Tab5DeviceSession, "start") as start,
+        ):
+            with self.assertRaises(service_module.ServiceError) as unlisted:
+                self.service.create_session({**request, "storage": {"sd_image_artifact_id": supported_media}})
+            self.assertEqual((unlisted.exception.status, unlisted.exception.code), (409, "storage_not_supported"))
+            self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+            with self.assertRaises(service_module.ServiceError) as legacy:
+                self.service.create_session({**request, "storage": {"sd_image_artifact_id": supported_media}})
+            self.assertEqual((legacy.exception.status, legacy.exception.code), (409, "storage_not_supported"))
+            self.elf.write_bytes(b"unrelated reference ELF")
+            with self.assertRaises(service_module.ServiceError) as misaligned:
+                self.service.create_session({**request, "storage": {"sd_image_artifact_id": misaligned_media}})
+            self.assertEqual((misaligned.exception.status, misaligned.exception.code), (400, "invalid_storage_image"))
+            with self.assertRaises(service_module.ServiceError) as ejected:
+                self.service.create_session({**request, "storage": {
+                    "sd_image_artifact_id": supported_media, "sd_initially_ejected": True,
+                }})
+            self.assertEqual((ejected.exception.status, ejected.exception.code), (409, "sd_hotplug_not_supported"))
+            self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+            start.assert_not_called()
 
     def test_tab5_public_qemu_selection_rejects_shared_frame_cache(self):
         session = self.session()

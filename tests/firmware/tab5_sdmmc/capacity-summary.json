@@ -1,0 +1,39 @@
+{
+  "status": "TAB5_48_MIB_SUPPORTED_512_BYTE_REMAINDER_INVISIBLE",
+  "validation": "virtual-device validation",
+  "native_runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+  "efuse_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+  "firmware_sha256": "2112cc6e26cd82fbe99646dc9eada27e9a89d9d3f9a0613e8db78e87627e8381",
+  "board_and_mode": "Tab5 P4 rev0 ROM with matching v1.0 eFuse, SDMMC hardware slot 0",
+  "upstream_reference": "https://github.com/espressif/esp-emulator/blob/v1.1.0/docs/guides/CLI.md#sd-card",
+  "cases": [
+    {
+      "input_file_bytes": 50331648,
+      "input_file_sha256": "f777698c6b9e7529f7ba1724d5363bf337e69cf9e0d13e3dd474598423715afe",
+      "guest_csd_sector_bytes": 512,
+      "guest_csd_sectors": 98304,
+      "guest_csd_capacity_bytes": 50331648,
+      "unrepresented_input_bytes": 0,
+      "mount_write_read_unmount": true,
+      "output_file_sha256": "91e07a9685cddbd00a83929a448126b0dde305a42ba5ffbef9bc5b8f10b68855",
+      "serial_sha256": "0ddba788bf329a924b5f70219af0f306c54be3842c03715f8494a64cf2e8dbd4",
+      "unrepresented_bytes_unchanged": true
+    },
+    {
+      "input_file_bytes": 50332160,
+      "input_file_sha256": "5118a28f476c242c1c97ec17e1ccef51f984afc69c70467a2879a371b23bc428",
+      "guest_csd_sector_bytes": 512,
+      "guest_csd_sectors": 98304,
+      "guest_csd_capacity_bytes": 50331648,
+      "unrepresented_input_bytes": 512,
+      "mount_write_read_unmount": true,
+      "output_file_sha256": "c1c0e89cade9ad7a307ee4a94e6ee280d96cb2962227c546dea143092d303650",
+      "serial_sha256": "0ddba788bf329a924b5f70219af0f306c54be3842c03715f8494a64cf2e8dbd4",
+      "unrepresented_bytes_unchanged": true
+    }
+  ],
+  "owned_runtime_processes_exited": true,
+  "hosted_or_hardware": "NOT RUN",
+  "admission_rule": "Tab5 exact 512 KiB multiple prevents silent loss of representable user data; standard QEMU unchanged."
+}

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.89.0
+  version: 1.90.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -5438,12 +5438,16 @@ components:
         that expose the read-only sd-card-detect-model machine property.
         Older binaries report features.storage false for PaperDIY and reject
         SD fixtures with storage_not_supported. Attach at session creation.
-        SPI profiles attach only to the native SPI endpoint. SDMMC profiles
-        use writable `if=sd` and require a power-of-two image size.
-        Requires a QEMU guest runtime. The separate network diagnostic lane
-        rejects SD fixtures with storage_not_supported. Storage metadata
-        reports the selected interface. The source artifact is never mounted
-        directly.
+        SPI profiles attach only to the native SPI endpoint. QEMU SDMMC
+        profiles use writable `if=sd` and require a power-of-two image size.
+        Tab5 admits uploaded firmware only on the hash-qualified esp-emu 1.1.0
+        DSI route with an explicit firmware admission and supported board profile.
+        The Tab5 SDMMC card is at fixed slot 0 and its raw size must be a
+        nonzero multiple of 512 KiB. Legacy matching-ELF Tab5 sessions and
+        the separate network diagnostic lane reject SD fixtures. A normal
+        Tab5 guest reset reopens the same session-owned image. Storage
+        metadata reports the selected interface. The source artifact stays
+        immutable.
       properties:
         sd_image_artifact_id:
           type: string

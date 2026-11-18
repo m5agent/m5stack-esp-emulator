@@ -4932,6 +4932,40 @@ class DeviceSession:
         atomic_write_json(self.nvs_summary_path, self.nvs_info)
         self._record_event("nvs_fixture_applied", **self.nvs_info)
 
+    def _prepare_sd_image(self) -> None:
+        """Copy the immutable SD input once; resets reuse the writable session copy."""
+        if self.storage_config:
+            artifact_id = self.storage_config["sd_image_artifact_id"]
+            source = self.service.artifacts.path(artifact_id)
+            shutil.copyfile(source, self.sd_card_image)
+            self._check_cancelled()
+            storage_sha = hashlib.sha256(
+                self.sd_card_image.read_bytes()
+            ).hexdigest()
+            if storage_sha != artifact_id:
+                raise RuntimeError(
+                    "session-isolated SD image checksum changed"
+                )
+            image_info = self.sd_card_image.stat()
+            if (self.runtime == "qemu" and self.spec.id in SPI_SD_READ_STATS_DEVICES
+                    and self.storage_config.get("interface") == "spi"):
+                self._sd_read_media_inode = (image_info.st_dev, image_info.st_ino)
+            self.storage_info = {
+                "interface": self.storage_config.get("interface", "sdmmc"),
+                "format": "raw",
+                "artifact_id": artifact_id,
+                "sha256": storage_sha,
+                "bytes": image_info.st_size,
+                "session_isolated_copy": True,
+                "writable": True,
+                **({"initially_ejected": True} if self.storage_config.get("sd_initially_ejected") else {}),
+            }
+            atomic_write_json(
+                self.storage_summary_path,
+                self.storage_info,
+            )
+            self._record_event("storage_prepared", **self.storage_info)
+
     def _provision(self) -> None:
         try:
             with self._lifecycle_operation():
@@ -4965,37 +4999,7 @@ class DeviceSession:
             "session_isolated_copy": True,
         }
         self._record_event("flash_prepared", **self.flash_info)
-        if self.storage_config:
-            artifact_id = self.storage_config["sd_image_artifact_id"]
-            source = self.service.artifacts.path(artifact_id)
-            shutil.copyfile(source, self.sd_card_image)
-            self._check_cancelled()
-            storage_sha = hashlib.sha256(
-                self.sd_card_image.read_bytes()
-            ).hexdigest()
-            if storage_sha != artifact_id:
-                raise RuntimeError(
-                    "session-isolated SD image checksum changed"
-                )
-            image_info = self.sd_card_image.stat()
-            if (self.runtime == "qemu" and self.spec.id in SPI_SD_READ_STATS_DEVICES
-                    and self.storage_config.get("interface") == "spi"):
-                self._sd_read_media_inode = (image_info.st_dev, image_info.st_ino)
-            self.storage_info = {
-                "interface": self.storage_config.get("interface", "sdmmc"),
-                "format": "raw",
-                "artifact_id": artifact_id,
-                "sha256": storage_sha,
-                "bytes": image_info.st_size,
-                "session_isolated_copy": True,
-                "writable": True,
-                **({"initially_ejected": True} if self.storage_config.get("sd_initially_ejected") else {}),
-            }
-            atomic_write_json(
-                self.storage_summary_path,
-                self.storage_info,
-            )
-            self._record_event("storage_prepared", **self.storage_info)
+        self._prepare_sd_image()
         if self.runtime not in QEMU_RADIO_RUNTIMES:
             self._apply_filesystem_fixture()
             self._apply_nvs_fixture()
@@ -9811,6 +9815,46 @@ class NetworkDeviceSession(DeviceSession):
         self._unavailable("network session reset")
 
 
+_TAB5_SD_BOARDS = frozenset({"st7123", "gt911-ili9881c"})
+# ESP-EMU's SDHC CSD represents capacity in units of 512 KiB.
+_TAB5_SD_CAPACITY_UNIT = 512 * 1024
+
+
+def _probe_tab5_symbols(spec: DeviceSpec, firmware_source: str, original: bytes, actual: bytes) -> tuple[dict, bytes | None]:
+    """Identify the selected app and any exact symbol match before choosing a backend."""
+    try:
+        identity = admit_tab5_image(
+            original, actual, None, probe_only=True,
+            allow_ota0=firmware_source != "reference",
+        )
+    except ValueError as error:
+        if firmware_source == "reference":
+            raise ServiceError("invalid_tab5_image", str(error), 400) from error
+        # Generic intake already admits uploaded P4 images. Identity can
+        # remain unresolved while the native DSI lane observes the guest.
+        identity = {
+            "application": None, "elf_sha256": None,
+            "gdb_app_identity_matched": False,
+            "symbols_unavailable_reason": str(error),
+        }
+    configured = spec.elf
+    elf_bytes = configured.read_bytes() if configured and configured.is_file() else None
+    elf_sha = hashlib.sha256(elf_bytes).hexdigest() if elf_bytes is not None else None
+    application = identity["application"] or {}
+    if application.get("selection") == "ota0_erased_otadata":
+        identity["symbols_unavailable_reason"] = "Tab5 source ELF binding requires a factory application"
+    elif elf_sha and elf_sha == application.get("elf_sha256"):
+        identity.update(elf_sha256=elf_sha, gdb_app_identity_matched=True)
+        return identity, elf_bytes
+    elif firmware_source == "reference":
+        raise ServiceError(
+            "tab5_elf_mismatch",
+            "Tab5 reference ELF does not match the actual application; "
+            "framebuffer and touch symbols are unsafe", 409,
+        )
+    return identity, None
+
+
 class Tab5DeviceSession(DeviceSession):
     """Tab5 esp-emu session with native DSI or matching-ELF framebuffer capture."""
 
@@ -9847,38 +9891,11 @@ class Tab5DeviceSession(DeviceSession):
                 "tab5_flash_mismatch",
                 "Tab5 execution image changed the admitted firmware bytes", 409,
             )
-        try:
-            identity = admit_tab5_image(
-                original, actual, None, probe_only=True,
-                allow_ota0=self.firmware_source != "reference",
-            )
-        except ValueError as error:
-            if self.firmware_source == "reference":
-                raise ServiceError("invalid_tab5_image", str(error), 400) from error
-            # Generic intake already admits uploaded P4 images. Identity can
-            # remain unresolved while the native DSI lane observes the guest.
-            identity = {
-                "application": None, "elf_sha256": None,
-                "gdb_app_identity_matched": False,
-                "symbols_unavailable_reason": str(error),
-            }
+        identity, elf_bytes = _probe_tab5_symbols(self.spec, self.firmware_source, original, actual)
         self._tab5_elf = None
-        configured = self.spec.elf
-        elf_bytes = configured.read_bytes() if configured and configured.is_file() else None
-        elf_sha = hashlib.sha256(elf_bytes).hexdigest() if elf_bytes is not None else None
-        application = identity["application"] or {}
-        if application.get("selection") == "ota0_erased_otadata":
-            identity["symbols_unavailable_reason"] = "Tab5 source ELF binding requires a factory application"
-        elif elf_sha and elf_sha == application.get("elf_sha256"):
+        if elf_bytes is not None:
             self._tab5_elf = self.dir / "runtime.elf"
             self._tab5_elf.write_bytes(elf_bytes)
-            identity.update(elf_sha256=elf_sha, gdb_app_identity_matched=True)
-        elif self.firmware_source == "reference":
-            raise ServiceError(
-                "tab5_elf_mismatch",
-                "Tab5 reference ELF does not match the actual application; "
-                "framebuffer and touch symbols are unsafe", 409,
-            )
         # An uploaded image may boot without the service reference's ELF. Never
         # hand symbols from another build to either esp-emu or the GDB helpers.
         identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
@@ -9996,6 +10013,7 @@ class Tab5DeviceSession(DeviceSession):
             "tab5": self._prepare_tab5_identity(),
         }
         self._record_event("flash_prepared", **self.flash_info)
+        self._prepare_sd_image()
         self._persist_session()
         self._set_state("booting")
         self._launch_tab5()
@@ -10009,6 +10027,27 @@ class Tab5DeviceSession(DeviceSession):
         elif self.ready_marker:
             self.wait_for_marker(self.ready_marker, self.ready_timeout)
         self._set_state("running")
+
+    def _tab5_sd_launch_args(self) -> list[str]:
+        if not self.storage_config:
+            return []
+        if self._tab5_dsi_emulator is None:
+            raise ServiceError("storage_not_supported", "Tab5 SD requires the native DSI runtime", 409)
+        image = self.sd_card_image
+        media = self.storage_info or {}
+        try:
+            info = image.lstat()
+            disk_path = image.resolve(strict=True)
+            session_dir = self.dir.resolve(strict=True)
+        except (OSError, RuntimeError) as error:
+            raise ServiceError("sd_media_unavailable", "session SD image is unavailable", 409) from error
+        if (not stat.S_ISREG(info.st_mode) or info.st_size != media.get("bytes")
+                or media.get("artifact_id") != self.storage_config["sd_image_artifact_id"]
+                or media.get("session_isolated_copy") is not True
+                or disk_path.parent != session_dir or "," in str(disk_path)):
+            raise ServiceError("invalid_storage_image", "invalid session-owned Tab5 SD image", 409)
+        # ESP-Hosted reserves slot 1 for the ESP32-C6 companion.
+        return ["--sd", f"{disk_path},slot=0"]
 
     def _launch_tab5(self) -> None:
         self._check_cancelled()
@@ -10040,6 +10079,7 @@ class Tab5DeviceSession(DeviceSession):
                 "tab5_efuse_not_isolated",
                 "Tab5 requires a session-owned eFuse seed before launch", 409,
             )
+        sd_args = self._tab5_sd_launch_args()
         try:
             self._hosted_socket.unlink()
         except FileNotFoundError:
@@ -10081,6 +10121,7 @@ class Tab5DeviceSession(DeviceSession):
             "--gdb", str(self._gdb_port),
             "--timeout", f"{int(self.ttl_seconds + 120)}s",
         ]
+        command.extend(sd_args)
         if elf:
             command.extend(["--elf", str(elf)])
         touch_board = self._tab5_gt911_board
@@ -11046,6 +11087,44 @@ class DeviceService:
                 return row
         raise KeyError(device_id)
 
+    def _tab5_sd_board(self, firmware_sha: str) -> str:
+        return self.tab5_dsi_board_overrides.get(firmware_sha, self.tab5_dsi_board)
+
+    def _tab5_sd_path_supported(self) -> bool:
+        # The CLI uses commas to delimit options in --sd FILE,slot=0.
+        try:
+            return "," not in str((self.state_dir / "sessions").resolve())
+        except (OSError, RuntimeError):
+            return False
+
+    def _tab5_sd_worker_ready(self) -> bool:
+        if (not self.tab5_dsi_emulator or not self._tab5_sd_path_supported()
+                or not any(self._tab5_sd_board(digest) in _TAB5_SD_BOARDS
+                           for digest in self.tab5_dsi_firmware_sha256s)):
+            return False
+        try:
+            tab5_dsi_runtime(self.tab5_dsi_emulator)
+        except ServiceError:
+            return False
+        return True
+
+    def _admit_tab5_sd(self, spec: DeviceSpec, source: str, firmware_path: Path,
+                       firmware_sha: str, runtime: str) -> None:
+        if (runtime != "qemu" or source != "uploaded" or not self.tab5_dsi_emulator
+                or firmware_sha not in self.tab5_dsi_firmware_sha256s
+                or self._tab5_sd_board(firmware_sha) not in _TAB5_SD_BOARDS
+                or not self._tab5_sd_path_supported()):
+            raise ServiceError(
+                "storage_not_supported", "Tab5 SD requires an admitted native DSI firmware and a supported session path", 409
+            )
+        tab5_dsi_runtime(self.tab5_dsi_emulator)
+        original = firmware_path.read_bytes()
+        if hashlib.sha256(original).hexdigest() != firmware_sha:
+            raise ServiceError("firmware_hash_mismatch", "Tab5 source firmware changed before launch", 409)
+        _, elf_bytes = _probe_tab5_symbols(spec, source, original, _padded(original, spec.flash_size))
+        if elf_bytes is not None:
+            raise ServiceError("storage_not_supported", "Tab5 matching-ELF sessions use the legacy backend", 409)
+
     def _public_device(self, spec: DeviceSpec) -> dict:
         reference_available = spec.reference_available
         backend_ready = spec.backend_ready
@@ -11094,7 +11173,8 @@ class DeviceService:
                 "input": spec.supported,
                 "qom": spec.supported and spec.service_kind == "qemu",
                 "device_state": bool(spec.state_probes),
-                "storage": spec.supported and spec.has_sd_card,
+                "storage": spec.supported and (spec.has_sd_card if spec.service_kind != "tab5"
+                                               else backend_ready and self._tab5_sd_worker_ready()),
                 "network": (
                     spec.network_status == "validated"
                     and bool(spec.network_profiles)
@@ -11153,7 +11233,12 @@ class DeviceService:
         native_network = native_sta_capability(spec, backend_ready=ready)
 
         sd = {"admission": "unsupported"}
-        if spec.supported and spec.service_kind == "qemu":
+        if spec.supported and spec.service_kind == "tab5" and self.tab5_dsi_firmware_sha256s:
+            if ready and self._tab5_sd_worker_ready():
+                sd = {"admission": "eligible", "interface": "sdmmc"}
+            elif self.tab5_dsi_emulator:
+                sd = {"admission": "backend_unavailable"}
+        elif spec.supported and spec.service_kind == "qemu":
             if not ready:
                 sd = {"admission": "backend_unavailable"}
             elif spec.has_sd_card:
@@ -11959,11 +12044,15 @@ class DeviceService:
                 raise ServiceError("invalid_fs_fixture", "storage.filesystem must be an object", 400)
             filesystem_request = parse_fs_fixture(storage_payload["filesystem"])
             storage_payload = {name: value for name, value in storage_payload.items() if name != "filesystem"} or None
-        storage_config = parse_storage_execution(spec, storage_payload)
+        tab5_storage = spec.service_kind == "tab5"
+        storage_config = parse_storage_execution(spec, storage_payload,
+                                                 has_sd_card=True if tab5_storage else None)
         if storage_config:
             if storage_config.get("sd_initially_ejected") and runtime != "qemu":
                 raise ServiceError("sd_hotplug_not_supported", "SD hot-plug requires the plain native QEMU runtime", 409)
-            if spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
+            if tab5_storage:
+                self._admit_tab5_sd(spec, source, firmware_path, firmware_sha, runtime)
+            elif spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES:
                 raise ServiceError(
                     "storage_not_supported",
                     f"{spec.id}/{runtime} cannot attach a session-owned SD image",
@@ -11979,7 +12068,12 @@ class DeviceService:
                     "SD image must be non-empty and a multiple of 512 bytes",
                     400,
                 )
-            if storage_config["interface"] == "sdmmc" and size & (size - 1):
+            if tab5_storage:
+                if size % _TAB5_SD_CAPACITY_UNIT:
+                    raise ServiceError(
+                        "invalid_storage_image", "Tab5 SD image capacity must be a multiple of 512 KiB", 400
+                    )
+            elif storage_config["interface"] == "sdmmc" and size & (size - 1):
                 raise ServiceError(
                     "invalid_storage_image",
                     "The QEMU SDMMC backend requires an SD image with a power-of-two byte size",

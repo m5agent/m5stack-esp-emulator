@@ -20,6 +20,8 @@ def storage_interface(spec: DeviceSpec) -> str:
 def parse_storage_execution(
     spec: DeviceSpec,
     value: Any,
+    *,
+    has_sd_card: bool | None = None,
 ) -> dict:
     if value is None:
         return {}
@@ -42,7 +44,7 @@ def parse_storage_execution(
     initially_ejected = value.get("sd_initially_ejected", False)
     if type(initially_ejected) is not bool:
         raise ServiceError("invalid_storage", "storage.sd_initially_ejected must be a boolean", 400)
-    if not spec.has_sd_card:
+    if not (spec.has_sd_card if has_sd_card is None else has_sd_card):
         raise ServiceError(
             "storage_not_supported",
             f"{spec.id} has no modeled SD-card interface",

@@ -38,6 +38,8 @@
 
 [2026-11-16 Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md)记录触摸探测、USB 断言和新版 P4 CSR 阻断。
 
+[2026-11-18 Tab5 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)保存标准会话的 FAT16 读写、停机导出、再挂载和容量对照。
+
 [2026-11-18 Tab5 原版正常启动取帧对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)记录 98TAB5 新旧后端、CarPlay 无 ELF 显示正对照，以及 OTA 应用身份与重复复位的未解决边界。
 
 [2026-11-14 UIFlow2 身份与 WebREPL 心跳](evidence/2026-11-14-uiflow-cloud-identity/README.md)分开记录真实配对码、云端身份拒绝、授权身份及协议 PONG 超时；稳定身份不替代云端绑定。

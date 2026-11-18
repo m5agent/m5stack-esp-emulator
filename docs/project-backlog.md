@@ -91,7 +91,7 @@
    官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
    [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。继续验证暂停状态位、解除与任务心跳，以及 M5TabOS 的首个应到中断和恢复。保留 UserDemo 的 `CHIP_LP_WDT_RESET` 历史。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
-   C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
+   [会话 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)已验证原生 FAT16 数据面。继续验证原版启动盘路径及 C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
    [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
 5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。[原生 C6 会话](../tests/firmware/crash_diagnostics/riscv_c6/session-core-dump-summary.json)已核验 ELF32 UART 的 CRC32 与 SHA-256 两种转储，保留各自的任务 PC/SP。[Core2 任务详情](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)已验证匹配 ELF 下的名称、优先级和保存栈用量。[Cardputer ADV 原生会话](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)验证了 ELF32 CRC32 与 SHA-256、保存任务详情及独立双核实时 PC。[Nesso N1 RV32 任务详情](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)已补齐两种校验格式的匹配 ELF 路径。[原生 Cardputer ADV Flash 转储](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)已验证两种校验格式、同会话 ZIP 与权限限制。[Nesso N1 原生 UART](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)的保存栈展开已逐帧对照 GDB。继续补其他运行时的任务详情、Flash 路径及栈展开。

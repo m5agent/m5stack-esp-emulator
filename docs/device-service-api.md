@@ -2621,9 +2621,21 @@ on SD attachment requests. Attach the image at session creation. SDMMC profiles
 report `interface: sdmmc` and attach the block backend with
 `-drive if=sd,format=raw`. QEMU SDMMC requires a power-of-two image size.
 SPI profiles attach the image only to the native SPI endpoint.
-SD fixtures require a QEMU guest runtime. The
-separate `runtime=network` diagnostic lane rejects them with `409
-storage_not_supported`. The source artifact is never mounted writable.
+The separate `runtime=network` diagnostic lane rejects SD fixtures with
+`409 storage_not_supported`. The source artifact stays immutable.
+
+Tab5 uses the native esp-emu 1.1.0 SDMMC controller through its public
+`runtime: qemu` session route. The worker must have a verified native DSI
+backend, an explicit allowlist and a supported GT911 or ST7123 board profile.
+The uploaded firmware's normalized SHA must be admitted. Tab5 sessions using the
+legacy matching-ELF path return `409 storage_not_supported` for SD requests.
+Valid Tab5 raw images have a nonzero size in exact 512 KiB units. The worker
+attaches the writable session copy at slot 0 and uses the same copy after
+session reset. The C6 ESP-Hosted companion uses slot 1. Tab5 supports the
+same stopped inventory and export endpoints after a retained stop.
+Device capability `fixtures.sd.admission=eligible` is worker readiness.
+Firmware admission is checked on session creation.
+[Tab5 SDMMC fixture](../tests/firmware/tab5_sdmmc/README.md)
 Session snapshots, persisted records and evidence bundles
 expose the artifact SHA, size, interface and session-isolated copy boundary.
 `platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16

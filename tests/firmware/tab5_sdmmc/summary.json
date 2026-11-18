@@ -1,0 +1,125 @@
+{
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "device": "tab5",
+  "source_archive_commit": "cf339f1aa297fb48463c46a1b5d7e3550a696b19",
+  "pins": {
+    "runtime": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "firmware": "2112cc6e26cd82fbe99646dc9eada27e9a89d9d3f9a0613e8db78e87627e8381",
+    "blank": "758cd5e18a7bd98241cb2849645bb8cc1d6f1646e9eb6cc8985ca0546211cfa1"
+  },
+  "board": "st7123",
+  "scope": "Isolated ordinary Device Service HTTP with synthetic ESP-IDF revision-0 firmware and an offline Tab5 emulator.",
+  "not_run": [
+    "physical hardware",
+    "display panel and touch",
+    "C6 guest network data plane",
+    "hot-plug"
+  ],
+  "burner": "NOT SUBMITTED",
+  "uncommitted_overlays": {
+    "platform/tools/device_service.py": "4af110cc56f74623c36711d1e4e717e97e19d55823481562c8574b1e613aceeb",
+    "platform/tools/device_service_execution_parsing.py": "09a7c6a3eac0389881769fb4859d44aac8c14e509ee77db9e3a3ab6cf4aa2bb4"
+  },
+  "normalized_firmware_sha256": "1de551ee51bce4f8607e2105d58d4b0162fbc5060b912b812100ec72c47eff05",
+  "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "owned_services_exited": [
+    "discover",
+    "eligible",
+    "unadmitted",
+    "legacy"
+  ],
+  "blank_session": {
+    "session_owned_sd_attachment": true,
+    "runtime_roles": [
+      "esp32c6",
+      "esp32p4"
+    ],
+    "hosted_p4_and_c6_same_bridge": true,
+    "explicit_user_media_slot": 0,
+    "serial_bytes": 3892,
+    "serial_sha256": "70ccbbe9966fbd33daa1fb3ed81276b9d96bb3992daac82cd1a340231427f34b",
+    "application_bytes_unchanged": true,
+    "guest_fat_write_read_unmount": true,
+    "active_inventory_export_blocked": true,
+    "evidence_sha256": "754053efdb638e2532698feb126e25e80de29cce1225f00aee5a0c5bec198ed3",
+    "evidence_size": 8076,
+    "evidence_zip_crc_manifest_verified": true,
+    "manifest_storage_receipt": true,
+    "active_leases_after_stop": 0,
+    "owned_guest_roles_exited": true,
+    "flash_released": true,
+    "export_sha256": "9352fc9e55cdaa35d391fa5ac522326a52c752fd104f827b18ec3d5103dc5193",
+    "source_sha256": "758cd5e18a7bd98241cb2849645bb8cc1d6f1646e9eb6cc8985ca0546211cfa1",
+    "export_size": 33554432,
+    "inventory_and_independent_fat_content_verified": true,
+    "immutable_input_artifact_verified": true
+  },
+  "export_reused_fresh_session": {
+    "session_owned_sd_attachment": true,
+    "runtime_roles": [
+      "esp32c6",
+      "esp32p4"
+    ],
+    "hosted_p4_and_c6_same_bridge": true,
+    "explicit_user_media_slot": 0,
+    "serial_bytes": 3892,
+    "serial_sha256": "70ccbbe9966fbd33daa1fb3ed81276b9d96bb3992daac82cd1a340231427f34b",
+    "application_bytes_unchanged": true,
+    "guest_fat_write_read_unmount": true,
+    "active_inventory_export_blocked": true,
+    "evidence_sha256": "72ed83995a504a3ca8e418da73268accaf072681e459ddea5c31f872f41d8cf3",
+    "evidence_size": 8065,
+    "evidence_zip_crc_manifest_verified": true,
+    "manifest_storage_receipt": true,
+    "active_leases_after_stop": 0,
+    "owned_guest_roles_exited": true,
+    "flash_released": true,
+    "export_sha256": "d9b0a98ccfc5d7b64d7a1e9eeaa70899127edfa131880817a7300ebaf2ce4382",
+    "source_sha256": "9352fc9e55cdaa35d391fa5ac522326a52c752fd104f827b18ec3d5103dc5193",
+    "export_size": 33554432,
+    "inventory_and_independent_fat_content_verified": true,
+    "immutable_input_artifact_verified": true
+  },
+  "no_media_control": {
+    "session_owned_sd_attachment": false,
+    "runtime_roles": [
+      "esp32c6",
+      "esp32p4"
+    ],
+    "hosted_p4_and_c6_same_bridge": true,
+    "explicit_user_media_slot": null,
+    "serial_bytes": 3505,
+    "serial_sha256": "93fb1bfdaf1dce9f82116f37666fc2c7eae45d857741384c698cbe2129864f12",
+    "application_bytes_unchanged": true,
+    "no_uploaded_media_guest_fat_mount_failed": true,
+    "evidence_sha256": "a339a65644d0ee5cc06550004c1a259b23d61a3705a1da9cd29017dfa8d5355c",
+    "evidence_size": 7501,
+    "evidence_zip_crc_manifest_verified": true,
+    "manifest_storage_receipt": false,
+    "active_leases_after_stop": 0,
+    "owned_guest_roles_exited": true,
+    "flash_released": true
+  },
+  "retained_stopped_history": 3,
+  "source_artifacts_unchanged": true,
+  "unadmitted": {
+    "http": 409,
+    "error": "storage_not_supported",
+    "history": 0,
+    "leases": 0,
+    "runtime_roles": 0,
+    "no_session_directory": true
+  },
+  "legacy": {
+    "http": 409,
+    "error": "storage_not_supported",
+    "history": 0,
+    "leases": 0,
+    "runtime_roles": 0,
+    "no_session_directory": true
+  }
+}

@@ -8,7 +8,7 @@
         "review_by": "2026-12-31"
       },
       "tab5": {
-        "reason": "The native ESP32-P4 backend still lacks dynamic I2C, I2S/PCM, MIPI-CSI, USB Host and SDIO data planes.",
+        "reason": "The native ESP32-P4 backend still lacks dynamic I2C, I2S/PCM, MIPI-CSI, USB Host and broader ESP-Hosted SDIO behavior.",
         "review_by": "2026-12-31"
       },
       "atoms3": {
@@ -1250,12 +1250,14 @@
       ],
       "status": "simulated",
       "injection": [
-        "qom-sd-image"
+        "qom-sd-image",
+        "esp-emu-sd-slot0-image"
       ],
-      "data_plane": "QEMU SD card block backend attached with -drive if=sd; raw image read/write sectors",
+      "data_plane": "QEMU SD block attachment and esp-emu 1.1.0 Tab5 SDMMC slot 0, with guest sector read/write on the session card",
       "tested_devices": [
         "papermono",
-        "cardputer-zero"
+        "cardputer-zero",
+        "tab5"
       ]
     },
     "sd-card-spi": {
@@ -2448,10 +2450,6 @@
           "reason": "No ESP32-P4 USB host controller or endpoint attachment model"
         },
         {
-          "model": "sd-card",
-          "reason": "No Tab5 SDIO1 block-device attachment has been exercised on the native P4 backend"
-        },
-        {
           "model": "ip2326",
           "reason": "PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging (0x00) and discharging (0x40), but no IP2326 analog current/termination state machine or hot state injection exists; changing state requires a new emulator launch"
         }
@@ -2557,8 +2555,7 @@
         {
           "id": "storage",
           "model": "sd-card",
-          "bus": "sdio1",
-          "status": "partial"
+          "bus": "sdmmc0"
         },
         {
           "id": "charger",
