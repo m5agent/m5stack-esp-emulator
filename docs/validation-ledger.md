@@ -31,6 +31,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 与历史横屏 PNG 字节相同。实际 PN532 读卡和实体测试未执行。
 [精确原版与首故障证据](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)
 
+## 2026-11-18 Tab5 原版 BMI270 配置及 ST7123 离线主页
+
+两款诊断 Part 通过实际 I²C 路径收到原版从 `0x5e` 发来的完整配置。
+GT911 拒绝对照仍能运行并记录实际负载。初始化放行后，原版读到
+`0x21` 就绪，GT911 仍报没有检测到面板。ST7123 使用同一原版镜像
+取得 V2.5.4 离线主页，108 秒窗口有 54 个非黑样本，完整主页帧有
+628 种颜色。触摸、联网、配对及正式 Part 交付均未执行。
+[同原版传输及帧回执](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)
+
 ## 2026-11-18 Tab5 UIFlow2 v2.5.4 原版在 esp-emu 1.1.0 的阻断
 
 GT911 和 ST7123 配置均在单次启动后停在 I²C Part，端口 1 地址
@@ -155,6 +164,15 @@ UserDemo 未准入对照保留 `E_EVIDENCE_UNAVAILABLE` 和 60 秒串口观察�
 A 键通过 GPIO11 检查后启动热点，侧面 B 键被来宾忽略，前置检查保留为部分验证。
 Headless 夹具的画面未就绪，与局部网络结论分别记录。同一原版 Assistant 的回归
 覆盖门户表单、STA DHCP 和 ARP。
+
+## 2026-11-18 NC1020 ESP-IDF SPI 锁修订重建对照
+
+按发布者源码及原配置重建，仅引入上游 SPI 总线锁的两处执行逻辑变更。
+同一原生 1.87、恢复态和 FAT32 夹具中，四次重建版均得到完整画面，
+三次独立原版对照中只有一次完整。七次都恢复同一 99,384 字节存档，
+执行 407 次 SD 单块读，并保留匹配的应用、ROM、NOR 和会话 ZIP。
+结果覆盖该重建版及该组存档，原发布包仍保留，真机未执行。
+[重建身份与原版对照](../tests/firmware/cardputer_k132_stock/nc1020-esp-idf-lock-backport-summary.json)
 
 ## 2026-11-18 NC1020 原版 SPI 锁交接指令对照
 

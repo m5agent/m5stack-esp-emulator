@@ -64,7 +64,7 @@
    [同 Flash 对照和跨服务恢复](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)
    已确认原版 G0 文件可在新服务恢复。[停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
    [原版双核指令](../tests/firmware/cardputer_k132_stock/nc1020-dual-core-spi-cas-summary.json)确认一次 ISR 退出遗漏等待任务的唤醒。
-   继续对照上游 SPI 总线锁修复、另一轮停刷的真实路径和真机画面。StickS3/Dial 外接 SD 需要独立接线模型。
+   [上游 SPI 锁修订的重建对照](../tests/firmware/cardputer_k132_stock/nc1020-esp-idf-lock-backport-summary.json)已验证相同存档和运行时的完整出帧。继续追踪另一轮原版停刷、对照真机并验证发布者更新后的固件。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
    [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。
@@ -164,7 +164,7 @@ eFuse 或生产 key。
 已满足的前置基线：实际 VFS/stock 保留、真实 UART/controller 观测与按固件绑定的
 原生修复已有独立执行证据，见[日期化问题证据](evidence/2026-11-05-latest-firmware-issues/README.md)。
 
-- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：[原版 v2.5.4 的 1.1.0 对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)已到 I²C 初始化，两个 Part 配置均因请求长度超限退出。需要确定 8,205 字节的产生位置，修复实际 I²C 控制器与 Part 交互，再用同一 BIN 验证 Python、完整帧和触摸。
+- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：[原版 v2.5.4 的 1.1.0 对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)已到 I²C 初始化，两个 Part 配置均因请求长度超限退出。[原版寄存器与画面](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)已验证这笔请求是 8,192 字节的 BMI270 配置。继续合并可复用的 Part 实现，并验证原版触摸、GT911 面板识别和联网。
 - [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
 

@@ -186,7 +186,11 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 [官方 esp-emu 1.1.0 同原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)
 在 GT911 和 ST7123 两个已发布的板型配置都走到 I²C Part。两轮均在端口 1 的
 地址 `0x68` 收到 8,205 字节请求，而 Part 缓冲容量为 1,024 字节。后端退出时
-没有完整画面或 MicroPython，早期 CSR 异常也没有出现。事务长度的来源仍待追踪。
+没有完整画面或 MicroPython，早期 CSR 异常也没有出现。后续隔离候选直接核对寄存器 `0x5e` 写入的 8,192 字节与原版配置相同。
+在候选缓冲区和有限配置初始化模型下，ST7123 取得原版离线主页，GT911
+读回初始化状态后仍未检测到面板。当前官方 DSI 读取返回零，未发现可由 DSI
+接收端注入真实读回的通道。普通触摸、网络和正式 Part 版本仍待验收。
+[配置拒绝及原版接收对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)
 
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
 首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller

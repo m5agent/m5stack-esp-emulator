@@ -1,0 +1,405 @@
+{
+  "scope": "native Cardputer K132 same-seed saved-state restore comparison",
+  "validation": "virtual-device validation",
+  "source": {
+    "publisher_source": "81b35b76cf88306cc2bfae425bff4b3e6fbf9ed1",
+    "esp_idf_base": "4c2820d377d1375e787bcef612f0c32c1427d183",
+    "upstream_backport": "2521f3887a78559496c0d2599b0f368ddc24e02b",
+    "sdkconfig_sha256": "c8fd590e10fca9ca7419ec3c3fe5a11f412f40602ed4fb83e9a42eea4cfdea4a",
+    "backport_build_patch_sha256": "4e6c3b1ee7192834d5a0c173ef2e82f3065e2ed8d40cc690a7ac031f3f4b6b7d",
+    "original_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "original_populated_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+    "candidate_app_sha256": "8664bacefb940ffee232423e0da7eace521fbf5fc2b211c5ebe1e4661c8b9f07",
+    "candidate_app_size": 632992,
+    "candidate_factory_region_sha256": "ccb3f87d2d35ceab9638e3e104d9b2cf3d28e39cdf9d370c08b7b916d71aac45",
+    "candidate_elf_sha256": "1dba6a09e835be084fd791cc226a068b8a9eeb7873e474de13a10804eee4ce3d",
+    "candidate_populated_flash_sha256": "47b4e571731cef3576e7b32bebc0daa9e2ab81f2ddc5a7a72cf04453fd104184",
+    "factory_region": {
+      "start": 65536,
+      "size": 1048576
+    },
+    "everything_outside_the_factory_partition_is_identical": true,
+    "storage_seed_and_runtime_unchanged_in_replay": true
+  },
+  "device_service_commit": "d25eae8db848918e9cafebc127a53a0f989941d4",
+  "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+  "seed_sha256": "c2eb71d31098aa4666e204732a21b49e8c154bf2a7aa6de43f972048c7aa4bd9",
+  "common_terminal_sd_sha256": "d43c8bcc6ff3c93caccb52707a213feebdf9abf94bffd82447ac809389ea5a39",
+  "expected_display_png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+  "counts": {
+    "original": {
+      "runs": 3,
+      "full_display": 1,
+      "partial_display": 2,
+      "state_restored": 3
+    },
+    "candidate": {
+      "runs": 4,
+      "full_display": 4,
+      "partial_display": 0,
+      "state_restored": 4
+    }
+  },
+  "trials": [
+    {
+      "trial": "candidate-a1",
+      "firmware_mode": "candidate",
+      "input_flash_sha256": "47b4e571731cef3576e7b32bebc0daa9e2ab81f2ddc5a7a72cf04453fd104184",
+      "display_result": "PASS",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 1
+      },
+      "frames": [
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 0.023
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 2.021
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 8.012
+        }
+      ],
+      "boot_serial_sha256": "65078949912a5a92a65ec7e871950b7bc6e6f22c803c681ed9175dc775ea1a14",
+      "evidence_sha256": "a91c671a483e444460f3dc028b60bd05c58c2d27fba2ccb7010f453a0daae15e",
+      "runtime_flash_partitions": {
+        "factory": "ccb3f87d2d35ceab9638e3e104d9b2cf3d28e39cdf9d370c08b7b916d71aac45",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "original-c1",
+      "firmware_mode": "original",
+      "input_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "display_result": "PASS",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 1
+      },
+      "frames": [
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 0.022
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 2.017
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 8.013
+        }
+      ],
+      "boot_serial_sha256": "a84290ee4dd3bf3f12fdbda31f8e5fd048e0efafde367d6e58e525e19802cd1b",
+      "evidence_sha256": "3d489a6fdd78905696d91d82b72e344defcd0d784681a8824a01f3c366b9a72a",
+      "runtime_flash_partitions": {
+        "factory": "deb49672951545caa29a32d64f526c62af461bc6f8b40655f6b503dfa3e6fd5f",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "candidate-a2",
+      "firmware_mode": "candidate",
+      "input_flash_sha256": "47b4e571731cef3576e7b32bebc0daa9e2ab81f2ddc5a7a72cf04453fd104184",
+      "display_result": "PASS",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 1
+      },
+      "frames": [
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 0.015
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 2.015
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 8.018
+        }
+      ],
+      "boot_serial_sha256": "ca689b6c8e5cd2b55ab013ebbae771c34b788ccb0dc3daa9925275dd1a4eaa18",
+      "evidence_sha256": "d74e49d49f6030ee0839f872c82887dc17f1c983725ea8b6f31e6b3a9fd9eefd",
+      "runtime_flash_partitions": {
+        "factory": "ccb3f87d2d35ceab9638e3e104d9b2cf3d28e39cdf9d370c08b7b916d71aac45",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "original-c2",
+      "firmware_mode": "original",
+      "input_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "display_result": "PARTIAL",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 0
+      },
+      "frames": [
+        {
+          "sha256": "ad340d7d3ce19045f4bd0a0e99b4ceedc6ac9ac61843009dbfa4e2f2df066c6e",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 1940,
+          "elapsed_seconds": 0.02
+        },
+        {
+          "sha256": "ad340d7d3ce19045f4bd0a0e99b4ceedc6ac9ac61843009dbfa4e2f2df066c6e",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 1940,
+          "elapsed_seconds": 2.015
+        },
+        {
+          "sha256": "ad340d7d3ce19045f4bd0a0e99b4ceedc6ac9ac61843009dbfa4e2f2df066c6e",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 1940,
+          "elapsed_seconds": 8.014
+        }
+      ],
+      "boot_serial_sha256": "3b1ea68e6bfb921fc4186a14f188289a4c23486599929bc26e6684a9863d90c5",
+      "evidence_sha256": "b71ce35167318370f683c949f44f069c35d120c49155425694e06f9cef845287",
+      "runtime_flash_partitions": {
+        "factory": "deb49672951545caa29a32d64f526c62af461bc6f8b40655f6b503dfa3e6fd5f",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "candidate-a3",
+      "firmware_mode": "candidate",
+      "input_flash_sha256": "47b4e571731cef3576e7b32bebc0daa9e2ab81f2ddc5a7a72cf04453fd104184",
+      "display_result": "PASS",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 1
+      },
+      "frames": [
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 0.015
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 2.013
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 8.02
+        }
+      ],
+      "boot_serial_sha256": "47d9dd70bbe4f60d938703c0fe0a08343976af363a8ca476ad88bd245586d027",
+      "evidence_sha256": "c337e3f64ef281489bea2c25f4943df7cb27b1783a5c6ddde812bff3985d6a5b",
+      "runtime_flash_partitions": {
+        "factory": "ccb3f87d2d35ceab9638e3e104d9b2cf3d28e39cdf9d370c08b7b916d71aac45",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "original-c3",
+      "firmware_mode": "original",
+      "input_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+      "display_result": "PARTIAL",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 0
+      },
+      "frames": [
+        {
+          "sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 120,
+          "elapsed_seconds": 0.02
+        },
+        {
+          "sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 120,
+          "elapsed_seconds": 2.02
+        },
+        {
+          "sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "authored_pattern_match": false,
+          "expected_pattern_fit": 0,
+          "nonblack_pixels": 120,
+          "elapsed_seconds": 8.034
+        }
+      ],
+      "boot_serial_sha256": "08624cf5d747be879eebbb1f557b3615f79eba563c270a6f35345790d3ae0a59",
+      "evidence_sha256": "725a60c05367e50f0d294058cc1cd5f22ecb2872c421194982920c953d32d4e0",
+      "runtime_flash_partitions": {
+        "factory": "deb49672951545caa29a32d64f526c62af461bc6f8b40655f6b503dfa3e6fd5f",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    },
+    {
+      "trial": "candidate-a4",
+      "firmware_mode": "candidate",
+      "input_flash_sha256": "47b4e571731cef3576e7b32bebc0daa9e2ab81f2ddc5a7a72cf04453fd104184",
+      "display_result": "PASS",
+      "storage_result": "PASS",
+      "sd_reads": {
+        "accepted_cmd17": 407,
+        "accepted_cmd18": 0,
+        "completed_blocks": 407
+      },
+      "state_file": {
+        "size": 99384,
+        "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+      },
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "draws_delta": 1
+      },
+      "frames": [
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 0.023
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 2.014
+        },
+        {
+          "sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "authored_pattern_match": true,
+          "expected_pattern_fit": 1.0,
+          "nonblack_pixels": 25112,
+          "elapsed_seconds": 8.012
+        }
+      ],
+      "boot_serial_sha256": "f1d62876845ae4597191715197d556a577cdfed37b36f35937bd116ac94ab3c8",
+      "evidence_sha256": "053e9983440bda2d9d8d2f16ce6e265f19f1a6ea4a4b724648ab7fbdbeaa8f66",
+      "runtime_flash_partitions": {
+        "factory": "ccb3f87d2d35ceab9638e3e104d9b2cf3d28e39cdf9d370c08b7b916d71aac45",
+        "romdata": "25117767e4ec0dff24c5b6f6d535ee306a39fe10da30e5cf629fe562daf6ff8b",
+        "nordata": "532d72411d3b255376cfe76d6266b30208256acafc6621cceb4a77baaab80bc4"
+      },
+      "owned_cleanup": "guest exited, Flash released, worker stopped, zero leases"
+    }
+  ],
+  "physical": "NOT RUN",
+  "original_publisher_release": "UNCHANGED",
+  "burner": "NOT SUBMITTED"
+}

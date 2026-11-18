@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "issue": 188,
+  "validation": "virtual-device validation",
+  "source_commit": "174c6d42048bf12f315e8b572948f17638d0bb77",
+  "device_service_openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "runtime": "esp-emu 1.1.0 native qemu/DSI",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+  "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+  "efuse_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+  "firmware": "Original UIFlow2 for Tab5 v2.5.4",
+  "original_firmware_size": 16121856,
+  "original_firmware_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+  "normalized_firmware_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+  "application_bytes_unchanged": true,
+  "parent_comparison_summary_sha256": "da25ef921ef0ffc42727895dbf37a630efdda6a33be84a33627da66f6969ba56",
+  "esp_part_git_dependency": "34ba27a6e5a3da41743fc861b462cf2452f0ca28",
+  "part_abi": {
+    "baseline_buffer_bytes": 1024,
+    "diagnostic_buffer_bytes": 16384,
+    "observed_baseline_request_bytes": 8205
+  },
+  "bmi270_config": {
+    "i2c_address": "0x68",
+    "data_register": "0x5e",
+    "read_status_register": "0x21",
+    "data_bytes": 8192,
+    "data_sha256": "2d75e68e343a13ff99be98261dfbd99d9e8c6f267da9e3c5aeb883276ad178db",
+    "original_firmware_offsets": [
+      "0x28ac70",
+      "0x3edf04"
+    ],
+    "byte_equal_public_driver_commit": "96576a14247ddc935149145aa6b51943464120f1"
+  },
+  "method": "Exact original normal offline session; admission digest substitution in an isolated Device Service copy. Part state inspected the transaction after decoding via the emulated hardware I2C port. No generic register overwrite or DSI reply change.",
+  "cases": {
+    "gt911_reject": {
+      "board": "gt911-ili9881c",
+      "diagnostic_mode": "reject",
+      "part_baseline_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "part_diagnostic_sha256": "2984cbc5a1995a7a7b751783c3902c1d0fa01c911bc5ff90af2062aad9cf43dd",
+      "part_diagnostic_source_sha256": "fe7ed59f6238b6572ad09e33c9376ad0c8e63c434c7f3809772e24d6c3e50016",
+      "isolated_admission_file_sha256": "b9120f99d7f14def6ab148db8613395d127b4eccb7d66eaceaf6bf78326b3fa2",
+      "observed_seconds": 32.0,
+      "first_proven_config_match_seconds": 2.151,
+      "both_pinned_runtime_roles_verified": true,
+      "end_before_stop": "running",
+      "bmi270": {
+        "bmi_address_zero": 1,
+        "bmi_config_accepted": false,
+        "bmi_config_matches": 1,
+        "bmi_ctrl_one": 1,
+        "bmi_ctrl_zero": 0,
+        "bmi_data_writes": 1,
+        "bmi_init_status": false,
+        "bmi_payload_bytes": 8192,
+        "bmi_status_reads": 0
+      },
+      "serial": {
+        "bytes": 406,
+        "sha256": "d17cfe20175feceb5974f7b55d66ea2afdd436ad8c8ce2050025fe698b891428",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "guest_input_actions": 0,
+      "bmi_part_fatal_reports": 0,
+      "dsi_zero_read_warnings": 1,
+      "gt_panel_detection_failed_reports": 1,
+      "frame_statuses": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 21
+      },
+      "frame_samples": [],
+      "valid_nonblack_frames": 0,
+      "evidence_zip_sha256": "603658f8055f6af40b090b4dcd4cda96bda943b1f065067325aec8ba73942316",
+      "zip_crc_and_manifest_verified": true,
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "owned_service_exited": true
+    },
+    "gt911_accept": {
+      "board": "gt911-ili9881c",
+      "diagnostic_mode": "accept",
+      "part_baseline_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "part_diagnostic_sha256": "a3b29783a22b512c0a5b01acf30ed13a30e625cc8b014bf7ff3aa88180a811d2",
+      "part_diagnostic_source_sha256": "fe7ed59f6238b6572ad09e33c9376ad0c8e63c434c7f3809772e24d6c3e50016",
+      "isolated_admission_file_sha256": "bc5684da6460962fee71c1a6cf50f9902036e689c356ac9b789569b0ec1f8e9a",
+      "observed_seconds": 108.001,
+      "first_proven_config_match_seconds": 3.999,
+      "both_pinned_runtime_roles_verified": true,
+      "end_before_stop": "running",
+      "bmi270": {
+        "bmi_address_zero": 1,
+        "bmi_config_accepted": true,
+        "bmi_config_matches": 1,
+        "bmi_ctrl_one": 1,
+        "bmi_ctrl_zero": 0,
+        "bmi_data_writes": 1,
+        "bmi_init_status": true,
+        "bmi_payload_bytes": 8192,
+        "bmi_status_reads": 1
+      },
+      "serial": {
+        "bytes": 406,
+        "sha256": "969070e2e9c606ae443dc65489a6e873120e91d127378487a47e70c6de965c76",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "guest_input_actions": 0,
+      "bmi_part_fatal_reports": 0,
+      "dsi_zero_read_warnings": 1,
+      "gt_panel_detection_failed_reports": 1,
+      "frame_statuses": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 58
+      },
+      "frame_samples": [],
+      "valid_nonblack_frames": 0,
+      "evidence_zip_sha256": "d539b62144cbdaafcb7570d769838fb4f993b9f60a7c16be2a702cf379935f1e",
+      "zip_crc_and_manifest_verified": true,
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "owned_service_exited": true
+    },
+    "st7123_accept": {
+      "board": "st7123",
+      "diagnostic_mode": "accept",
+      "part_baseline_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+      "part_diagnostic_sha256": "95afc139a85b5778472fa73c946b1e4421c252174b1815014429ea4773b78a0f",
+      "part_diagnostic_source_sha256": "67679efef4de99aa8c2c259a979daf29241c3ebca3eb86ef6cc70f40fba78eb3",
+      "isolated_admission_file_sha256": "c5fcd19535bfb465f0b34250e3a74070c4971a61a39642b68babe04d63996cca",
+      "observed_seconds": 108.006,
+      "first_proven_config_match_seconds": 2.366,
+      "both_pinned_runtime_roles_verified": true,
+      "end_before_stop": "running",
+      "bmi270": {
+        "bmi_address_zero": 1,
+        "bmi_config_accepted": true,
+        "bmi_config_matches": 1,
+        "bmi_ctrl_one": 1,
+        "bmi_ctrl_zero": 0,
+        "bmi_data_writes": 1,
+        "bmi_init_status": true,
+        "bmi_payload_bytes": 8192,
+        "bmi_status_reads": 1
+      },
+      "serial": {
+        "bytes": 351,
+        "sha256": "3a63a76b8b3290481dcbae6bed35d117561b356e481e2f38e68a04b2c1341cf6",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "guest_input_actions": 0,
+      "bmi_part_fatal_reports": 0,
+      "dsi_zero_read_warnings": 0,
+      "gt_panel_detection_failed_reports": 0,
+      "frame_statuses": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 2
+      },
+      "frame_samples": [
+        {
+          "frame_sha256": "317e615fcd80fa15a9f749aa166a91012a10dd0e0d2a67793869768d983eeb67",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 870334,
+          "unique_colors": 597
+        },
+        {
+          "frame_sha256": "740fc68976dfcbfa9cdb9e08de790a1395dfa9b97a587f9482c9137d975d9966",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 0,
+          "unique_colors": 1
+        },
+        {
+          "frame_sha256": "838d3e5d447c163488268ab1b7c399ee1fce00b492c7d1efdddbd4adc7c3cbe3",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 870334,
+          "unique_colors": 628
+        },
+        {
+          "frame_sha256": "bfb94fa2cc355c27a50faa6be748fa8d54a048154cf2c8b329b6718e88781f4a",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 921600,
+          "unique_colors": 1
+        },
+        {
+          "frame_sha256": "ca97f1008de3859806f236ac9d23114ce1c0a0dcef7c0ddad5a6aec86acfcaad",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 909924,
+          "unique_colors": 353
+        }
+      ],
+      "valid_nonblack_frames": 54,
+      "evidence_zip_sha256": "369b1d649d7ec28bd9fd69db6c05adcb184626ed6137dea3a498a19baca2267b",
+      "zip_crc_and_manifest_verified": true,
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "owned_service_exited": true,
+      "offline_ui_render": {
+        "status": "OBSERVED",
+        "confirmed_by": "visual inspection of exact native DSI frame",
+        "frame": {
+          "frame_sha256": "838d3e5d447c163488268ab1b7c399ee1fce00b492c7d1efdddbd4adc7c3cbe3",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 870334,
+          "unique_colors": 628
+        },
+        "recognized_landmarks": [
+          "UIFlow2",
+          "V2.5.4",
+          "Offline",
+          "Develop",
+          "WiFi Scan",
+          "I2C Scan",
+          "WEB IDE"
+        ],
+        "scope": "Firmware home rendering; no touch, connectivity, cloud pairing or browser confirmation."
+      },
+      "diagnostic_part_size": 122547,
+      "diagnostic_build_tuning": {
+        "rust": "1.88.0",
+        "opt_level": "z",
+        "codegen_units": 1
+      }
+    }
+  },
+  "model_init": "Accepted only a byte-identical full INIT_DATA burst following zero config address, plus INIT_CTRL=1 to publish internal completion. No firmware patching or sensor config execution. Explicit INIT_CTRL=0 was never observed in these runs.",
+  "ui_readiness": "ST7123 offline home rendered; GT911 display unavailable; input and pairing NOT RUN.",
+  "production": "NOT APPLIED",
+  "browser": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "cloud_pairing": "NOT RUN",
+  "external_network_requested": false,
+  "burner": "NOT SUBMITTED",
+  "st7123_initial_diagnostic_admission": {
+    "status": "SIZE_GUARD_REJECTED_WITHOUT_GUEST",
+    "part_sha256": "25acc6f3fe37e876818887ca1e946a09940c1b8b6955a76f6b5317d2e100b530",
+    "part_bytes": 161506,
+    "unchanged_part_limit_bytes": 147456,
+    "active_leases_after": 0,
+    "evidence_zip_sha256": "b563510a6df24791d2e4dd912f8c1260f89cf7008f6e36b9c14eeb8ac535ea7f"
+  }
+}
