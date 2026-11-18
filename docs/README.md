@@ -16,6 +16,8 @@
 [2026-11-17 原生语义输入](evidence/2026-11-17-semantic-native-input/README.md)记录实际输入、guest 读回、旧版 ADV 负对照和 Dial 剩余边界。
 [2026-11-17 CardputerDict 原版查词](evidence/2026-11-17-cardputerdict-stock/README.md)记录正常审核入口与两个同固件对照。
 
+[2026-11-18 NC1020 停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)记录同一原版存档的 SPI 总线锁等待与完整画面对照。
+
 [2026-11-18 PaperS3 浏览器 GT911](evidence/2026-11-18-papers3-browser-gt911/README.md)记录同一原版触控的总线读回和稳定图标帧对照。
 
 [2026-11-18 Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)记录 16 MiB 原版的错误放行、提前拒绝和 8 MiB 官方固件正对照。
@@ -404,7 +406,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 | [ESP32 ROM 引导偏移校验](evidence/2026-11-16-esp32-bootloader-offset/README.md) | 证据/差异 | `2026-11-16` | 同原版 BIN 复现及拒绝，官方固件正常启动 |
 | [PaperS3 浏览器 GT911](evidence/2026-11-18-papers3-browser-gt911/README.md) | 证据/差异 | `2026-11-18` | 原版 Press/Release 总线读回与稳定帧对照 |
 | [Cardputer ADV Flash 容量准入](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md) | 证据/差异 | `2026-11-18` | 原版 16 MiB 提前拒绝与官方 8 MiB 对照 |
-| [CardputerDict 原版 HTTPS 朗读](evidence/2026-11-18-cardputerdict-https/README.md) | 证据/差异 | `2026-11-18` | Linux 隔离会话校时、缓存、PCM 和拒绝对照 |
+| [CardputerDict 原版 HTTPS 朗读](evidence/2026-11-18-cardputerdict-https/README.md) | 证据/差异 | `2026-11-18` | Linux 隔离会话与保存快照审核的校时、缓存、PCM 和拒绝对照 |
 | [Cardputer GPIO 板型探测](evidence/2026-11-16-cardputer-gpio-board-detect/README.md) | 证据/差异 | `2026-11-16` | 四份原版映像黑帧和按键回归，ADV GPIO I2C 协议取证 |
 | [Tab5 原版启动](evidence/2026-11-16-tab5-original-startup/README.md) | 证据/差异 | `2026-11-16` | 同原版两后端对照，旧版触摸/USB 断言与新版 CSR 分阶段取证 |
 | [Tab5 原版正常启动取帧对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md) | 原生来宾证据 | `2026-11-18` | 98TAB5 新旧配置、CarPlay 无 ELF 显示正对照和未解决的 OTA 身份/重复复位 |

@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "scope": "Same uninstrumented K132 Cardputer runtime and restored original NC1020 application across two late PC-only and four late scheduler/queue trials",
+  "exact_original_binding_sha256": "89d789f6e92857a9d70747f6cfb5a2a806b712411cdbb6adcb553443b7c42f9c",
+  "fixed_executable_bytes_at_exact_vma": 392992,
+  "source_to_diagnostic": {
+    "source_revision": "d25eae8db848918e9cafebc127a53a0f989941d4",
+    "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+    "soc_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+    "cold_firmware_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "real_imported_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93"
+  },
+  "same_source_card_sha256": "c2eb71d31098aa4666e204732a21b49e8c154bf2a7aa6de43f972048c7aa4bd9",
+  "same_final_card_sha256": "d43c8bcc6ff3c93caccb52707a213feebdf9abf94bffd82447ac809389ea5a39",
+  "state_file": {
+    "size": 99384,
+    "sha256": "ae2f7d120f3cec3ef8774477c3e10ae266fe24024910e7cbd456184b9807e383"
+  },
+  "completed_sd_single_block_reads_each": 407,
+  "capture": {
+    "style": "Only after three equal framebuffer samples. Fresh isolated UNIX QMP connection; read-only CPU and typed original-guest addresses with no stop or writes.",
+    "pc_only_samples_each": 6,
+    "bounded_scheduler_samples_each": 2,
+    "targeted_dram_words_each_scheduler_sample": 111,
+    "replay_pcs_sha256": "5b0302bf7dd9b14fe35b24e09877f62b6e3f8160d6c8cb7fb3a3d50445ea6c5b",
+    "replay_scheduler_sha256": "65ee910c6d9c22b34e94302fc7e5ff80572528b7a92accce6173b43cc42386fb",
+    "targeted_snapshot_sha256": "f3550a12ed041445dc3c939fca7e0a0ba76bcb05f20764504f60605aa345fe62",
+    "state_binding": "The saved lcd TCB's xEventListItem container matches the named queue's receive list address; the same list independently identifies the lcd TCB as its waiter."
+  },
+  "verified_pc_bindings": {
+    "0x40041a76": {
+      "symbol": "ets_delay_us",
+      "line": "??:?",
+      "code_image": "frozen ROM .text",
+      "appeared_in_live_cpu_samples": [
+        "pcs-a1",
+        "pcs-a2",
+        "queue-a1"
+      ]
+    },
+    "0x400559e0": {
+      "symbol": "_xtos_set_intlevel",
+      "line": "??:?",
+      "code_image": "frozen ROM .text"
+    },
+    "0x40376a22": {
+      "symbol": "CpuExecuteOP",
+      "line": "w65c02op.cpp:35",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "pcs-a1",
+        "pcs-a2"
+      ]
+    },
+    "0x40376ad4": {
+      "symbol": "CpuExecuteOP",
+      "line": "w65c02.h:160",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "queue-a3"
+      ]
+    },
+    "0x40379414": {
+      "symbol": "CpuExecuteOP",
+      "line": "w65c02.h:173",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "pcs-a2",
+        "queue-a2"
+      ]
+    },
+    "0x4037fc75": {
+      "symbol": "CpuExecuteOP",
+      "line": "w65c02op.cpp:1495",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "queue-a2"
+      ]
+    },
+    "0x4038310e": {
+      "symbol": "esp_cpu_wait_for_intr",
+      "line": "cpu.c:64",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "pcs-a1",
+        "pcs-a2",
+        "queue-a1",
+        "queue-a2",
+        "queue-a3",
+        "queue-a4"
+      ]
+    },
+    "0x42024eae": {
+      "symbol": "gpio_ll_get_level",
+      "line": "gpio_ll.h:386",
+      "code_image": "original application executable segment",
+      "appeared_in_live_cpu_samples": [
+        "pcs-a1",
+        "queue-a1",
+        "queue-a3",
+        "queue-a4"
+      ]
+    }
+  },
+  "matching_control": {
+    "partial_count": 3,
+    "complete_count": 1,
+    "total_scheduler_trials": 4,
+    "storage_restores": 4,
+    "partial": "LCD pinned CPU1 is suspended waiting for SPI bus device semaphore. Semaphore empty with one waiter; SPI result queue holds one result, one LCD descriptor inflight and zero transfer-queue messages. Lock has LCD device's lock-request bit 20 and no assigned owner, request or pending background bits. Both samples agree.",
+    "complete": "LCD pinned CPU1 is suspended waiting on normal application display-frame queue, with zero inflight LCD descriptors, empty SPI result queue, no SPI device semaphore waiter and SPI bus-lock status zero.",
+    "scope_limit": "These are stable late snapshots of the listed sessions. The transaction/ISR interleaving creating this condition is unobserved here."
+  },
+  "minimal_causal_control": {
+    "proposal": "Capture selected original IRAM instructions for the same exact lock pointer, across both CPUs, using a private bounded execution hook and dump after settled frames. Compare full and partial; keep original flash bytes unchanged.",
+    "candidate_interleaving": "CPU0 checks remaining pending work before CPU1 issues acquire. CPU1 sets LOCK while PEND is present and waits. CPU0 clears PEND and then exits with NULL acquiring device because the exit branch only tests BG bits, leaving the LOCK bit with no owner. Candidate order remains unproven.",
+    "original_iram_control_points": {
+      "check_acquiring_device_status_load": "0x40382ee9",
+      "acquire_compare_exchange": "0x40381e5f",
+      "acquire_compare_exchange_success": "0x40381e67",
+      "acquire_semaphore_wait": "0x40381e79",
+      "pending_clear_compare_exchange": "0x40382eaf",
+      "pending_clear_observed_old_value": "0x40382eb2",
+      "exit_status_load": "0x40381fee",
+      "exit_owner_load": "0x40381ff6",
+      "exit_no_owner_branch": "0x4038201c",
+      "exit_mark_isr_inactive": "0x40382028",
+      "exit_give_semaphore_call": "0x40382015"
+    }
+  },
+  "original_firmware_binding": {
+    "original_merged_sha256": "d325ebaa890f4f996fdeec41f0c85c0c2e547787637ef7c325d0e89a84d3180f",
+    "restored_flash_sha256": "4d345b3c54bce553a28c7ee0f72e40e8784b072a0dbd236e2f805593f64e2b93",
+    "original_app_embedded_elf_sha256": "06374925e1686b6db691f10de985036bb2b544484fe5bb77ecae36d9e738f80c",
+    "manufacturer_release_source_revision": "81b35b76cf88306cc2bfae425bff4b3e6fbf9ed1",
+    "reference_sdk_revision": "4c2820d377d1375e787bcef612f0c32c1427d183",
+    "reference_sdk": "ESP-IDF v5.4.1",
+    "reference_toolchain": "xtensa-esp-elf GCC 14.2.0_20241119",
+    "reference_elf_sha256": "4c36c995ef2125ac13e1381b187639a76c0afb37b21b0bc2754c49ef29da39e8",
+    "image_segments": [
+      {
+        "vma": "0x3c050020",
+        "original_absolute_flash_offset": "0x10020",
+        "size_bytes": 230016,
+        "identical_bytes": 229942,
+        "original_sha256": "d021eadd971476017e693b329c114075e923a2ea4282f59b9f3cedf01c5f1ff6",
+        "reference_sha256": "f29ff0d31cf614f6fb55ffb9c2966bde55fb471eee964b183be484d96eb99412"
+      },
+      {
+        "vma": "0x3fc9c500",
+        "original_absolute_flash_offset": "0x482a8",
+        "size_bytes": 9616,
+        "identical_bytes": 9616,
+        "original_sha256": "7d1ab3cc950d26c2657a376dc1374cb2aa18d00f15d1e4c9b786cbbead670c63",
+        "reference_sha256": "7d1ab3cc950d26c2657a376dc1374cb2aa18d00f15d1e4c9b786cbbead670c63"
+      },
+      {
+        "vma": "0x40374000",
+        "original_absolute_flash_offset": "0x4a840",
+        "size_bytes": 22488,
+        "identical_bytes": 22488,
+        "original_sha256": "344037ab37f4f0d33e2cbd38c6bf71dfc4846ce6c4bdfc3562caf7cac0a37b9b",
+        "reference_sha256": "344037ab37f4f0d33e2cbd38c6bf71dfc4846ce6c4bdfc3562caf7cac0a37b9b"
+      },
+      {
+        "vma": "0x42000020",
+        "original_absolute_flash_offset": "0x50020",
+        "size_bytes": 293508,
+        "identical_bytes": 293508,
+        "original_sha256": "29b708e12d897e830e3ec18c0d0db7aca0e71715f126463aaf7adc7ad27a4ff6",
+        "reference_sha256": "29b708e12d897e830e3ec18c0d0db7aca0e71715f126463aaf7adc7ad27a4ff6"
+      },
+      {
+        "vma": "0x403797d8",
+        "original_absolute_flash_offset": "0x97aac",
+        "size_bytes": 76996,
+        "identical_bytes": 76996,
+        "original_sha256": "839f863bb14803a50203580af7ae5e3d6063708c54b947c4c5798bb6b871e364",
+        "reference_sha256": "839f863bb14803a50203580af7ae5e3d6063708c54b947c4c5798bb6b871e364"
+      },
+      {
+        "vma": "0x600fe100",
+        "original_absolute_flash_offset": "0xaa778",
+        "size_bytes": 28,
+        "identical_bytes": 28,
+        "original_sha256": "3addfb141cd7c9c4c6543a82191a3707ac29c7a041217782e61d4d91c691aee8",
+        "reference_sha256": "3addfb141cd7c9c4c6543a82191a3707ac29c7a041217782e61d4d91c691aee8"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "run": "pcs-a1",
+      "storage": "PASS",
+      "display": "PASS",
+      "evidence_zip_sha256": "fa9dded73ad34245b4610bd691605e4588a84cfd50321f300f66143b84a38f17",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "c1eadb3fc09bcb106902eeba7e6961034475c5ac2f72a132a05abe1a7c0fac65",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.023,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.015,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.012,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 1
+      },
+      "live_snapshot_sha256": "c0e461cc8e29f27f571880703f1df4c81e349a0848eb342f3ee8c1f96666684f",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    },
+    {
+      "run": "pcs-a2",
+      "storage": "PASS",
+      "display": "PARTIAL",
+      "evidence_zip_sha256": "58020fe1cb481d3a2d50641f7a4a9b68383945269654019f2e71cdc022bcb51c",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "814006f1683ed28069754825ac2eff904e3e50e683cead3efa332c2c29d74c21",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.018,
+          "png_sha256": "7d197265b15fea7d7616fd7eb668a7fa935e5ee380ededeeed14d59ad69d2dfc",
+          "nonblack_pixels": 12473,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.012,
+          "png_sha256": "7d197265b15fea7d7616fd7eb668a7fa935e5ee380ededeeed14d59ad69d2dfc",
+          "nonblack_pixels": 12473,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.012,
+          "png_sha256": "7d197265b15fea7d7616fd7eb668a7fa935e5ee380ededeeed14d59ad69d2dfc",
+          "nonblack_pixels": 12473,
+          "authored_pattern_match": false
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 0
+      },
+      "live_snapshot_sha256": "8ed4db3e486bb00192f8d1d1da8539196b8b30ea486af0dc4da5680d771e6943",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    },
+    {
+      "run": "queue-a1",
+      "storage": "PASS",
+      "display": "PARTIAL",
+      "evidence_zip_sha256": "3188e92ae3d38e858fe9791a9a6ab6b7a856e430ca5c9bf2504581a333d014ea",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "76fa222c2f3b05556297f8de52354acec92e25031be3f074bf3ea6e4c8dc659d",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.024,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.014,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.012,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 0
+      },
+      "live_snapshot_sha256": "7152d9f7f0335844aea8ecd8e56ba3ce8fab72be01d0e632b98b347563a558f8",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    },
+    {
+      "run": "queue-a2",
+      "storage": "PASS",
+      "display": "PARTIAL",
+      "evidence_zip_sha256": "612b0e67c5c3d7fbc4c329e853f14fb9c610ed7a602494d76f466231dfafe4be",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "755475447b7054e3e71549d655c3d4445828c0cf1fd626b039cda82a22c5f7fd",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.015,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.016,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.012,
+          "png_sha256": "0f28c4ae6384d5769231c7aac71f1a5db095270fddd44d971ced1942d54a91c1",
+          "nonblack_pixels": 120,
+          "authored_pattern_match": false
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 0
+      },
+      "live_snapshot_sha256": "48c468c5956faa258fe1cf8d45b9b3994f705bf6c4835c11ef1fd970490c3e80",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    },
+    {
+      "run": "queue-a3",
+      "storage": "PASS",
+      "display": "PARTIAL",
+      "evidence_zip_sha256": "52f823aeb55caa13cd66bafbad854334b96cf572ffd1eb14f73a6cf0838a53e4",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "c09fc7ea3645f952c75d2e5f4ccd04f0417720c5f8287bc96f53dd4c0771aecb",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.018,
+          "png_sha256": "fa0d3e22ba04f8d9040f8c2cc0b0d0f4703f2f4589260826d38552035f826033",
+          "nonblack_pixels": 20735,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.021,
+          "png_sha256": "fa0d3e22ba04f8d9040f8c2cc0b0d0f4703f2f4589260826d38552035f826033",
+          "nonblack_pixels": 20735,
+          "authored_pattern_match": false
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.019,
+          "png_sha256": "fa0d3e22ba04f8d9040f8c2cc0b0d0f4703f2f4589260826d38552035f826033",
+          "nonblack_pixels": 20735,
+          "authored_pattern_match": false
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 0
+      },
+      "live_snapshot_sha256": "f55d33a4d2973f75c821a39e21746e75ec41ae4eae7af42a1f1c358ecf5d5e2a",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    },
+    {
+      "run": "queue-a4",
+      "storage": "PASS",
+      "display": "PASS",
+      "evidence_zip_sha256": "bdb430ed5f8793d5acdd6a5a2456b0de2574c06fca61f48b32c12a8168b0613d",
+      "evidence_zip_crc_verified": true,
+      "serial_sha256": "9c7cca2762a7b2f4831ddb515859c05745b1740de3b16fc0f0076d8016d6a9f8",
+      "frames": [
+        {
+          "frame_index": 1,
+          "seconds_from_first_capture": 0.015,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        },
+        {
+          "frame_index": 2,
+          "seconds_from_first_capture": 2.018,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        },
+        {
+          "frame_index": 3,
+          "seconds_from_first_capture": 8.016,
+          "png_sha256": "1071a94985229558278c2784619cd833ee2b9187ef3156f4ec88db616f8c0174",
+          "nonblack_pixels": 25112,
+          "authored_pattern_match": true
+        }
+      ],
+      "first_heartbeat": {
+        "cycles": 164524339,
+        "rtc": "11:14:55",
+        "draws_delta": 1
+      },
+      "live_snapshot_sha256": "4480ea578580615d00a5ac25535a8471bc88db0395557e9f09fbbb7d48527698",
+      "active_leases_after": 0,
+      "worker_exited": true,
+      "guest_exited": true,
+      "flash_released": true,
+      "history_retained": true
+    }
+  ],
+  "physical_validation": "NOT RUN"
+}

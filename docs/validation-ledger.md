@@ -22,6 +22,11 @@ I2S PCM。对照只修改发音端口授权，观察到 TCP/443 请求及零缓�
 两轮都清理了租约、命名空间和临时 NAT。早期 1.88 准入拒绝和
 候选清理失败保留。[同固件复验](evidence/2026-11-18-cardputerdict-https/README.md)
 
+Reviewer 0.21.0 的保存快照 dry-run 取得同会话的 10,605 字节 MP3 和
+84,992 字节 PCM。端口拒绝对照与环境准入对照分别返回
+`POLICY_DENIED` 与 `PARTIAL`。两次实际启动均清理租约及网络资源。
+[原版审核回执](evidence/2026-11-18-cardputerdict-https/reviewer-saved-snapshot-summary.json)
+
 ## 2026-11-18 StickS3 RTC 定时与 GPIO 混合浅睡
 
 当前发布基线在同一 ESP-IDF 100 ms／220 ms BIN 上首轮出现 CPU0 IWDT。
@@ -126,6 +131,15 @@ UserDemo 未准入对照保留 `E_EVIDENCE_UNAVAILABLE` 和 60 秒串口观察�
 A 键通过 GPIO11 检查后启动热点，侧面 B 键被来宾忽略，前置检查保留为部分验证。
 Headless 夹具的画面未就绪，与局部网络结论分别记录。同一原版 Assistant 的回归
 覆盖门户表单、STA DHCP 和 ARP。
+
+## 2026-11-18 NC1020 原版停刷任务现场
+
+相同的 K132 原版 Flash、FAT32 及 G0 存档在四轮都恢复成功。三轮
+停刷时，LCD 任务等待无可用令牌的 SPI 总线锁信号量，SPI 结果队列
+各已保存一个完成结果。完整画面的一轮等待正常帧队列，SPI 总线
+无待处理结果。画面稳定后读取的两次状态一致，共有 392,992 字节
+原版可执行代码与参考构建在同一地址逐字节匹配。跨核锁交接时序
+与实体画面仍待验证。[停刷对照和原版地址绑定](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
 
 ## 2026-11-18 NC1020 同 Flash 显示对照与跨服务恢复
 

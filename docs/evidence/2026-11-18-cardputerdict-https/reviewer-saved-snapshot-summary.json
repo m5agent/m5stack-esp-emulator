@@ -1,0 +1,171 @@
+{
+  "scope": "isolated Linux native virtual device saved-snapshot dry-run",
+  "reviewer_source": "ecc8cfc3aadd5b2ae0289171784d2abac91bf855",
+  "reviewer_api_sha256": "60e185f8936c0ae46520c034592aad682f387c321e993dcdebb6c6cfff0a7e90",
+  "device_service_source": "1319222e0b7439789e35fd177d50b9f0371e3f11",
+  "api_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "board": "cardputer",
+  "firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+  "qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+  "seed_sha256": "f68f5ea7d3a3e3b38ead3a2bdb3327eae356c73ac97e190e73e7ff69189f3b62",
+  "physical_validation": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "cases": {
+    "offline-baseline-final": {
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "review_status": "manual_review",
+      "review_error": "E_NETWORK_PARTIAL",
+      "same_runtime_verified": 1,
+      "retained_sessions": 1,
+      "active_leases_end": 0,
+      "burner_submissions": 0,
+      "released_flash": true,
+      "typed": null
+    },
+    "final-playback": {
+      "reviewer_source": "ecc8cfc3aadd5b2ae0289171784d2abac91bf855",
+      "review_status": "done",
+      "review_error": null,
+      "same_runtime_verified": 1,
+      "retained_sessions": 1,
+      "active_leases_end": 0,
+      "burner_submissions": 0,
+      "released_flash": true,
+      "typed": {
+        "scope": "same-session-cardputerdict-https-pronunciation",
+        "status": "PASS",
+        "expect": "playback",
+        "phase": "complete",
+        "reason": "authenticated_download_and_i2s",
+        "same_guest": true,
+        "checks": {
+          "sntp_matched": true,
+          "https_attempted": true,
+          "https_reply": true,
+          "tls_exchange": true,
+          "dns": true,
+          "cache": true,
+          "pcm": true
+        },
+        "original_firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+        "capture_sha256": "156cb709ea49d013cd5cd99ef3902f3e7c0c9be9f2aa504a964219e44a6d5e92",
+        "evidence_zip_sha256": "ba0af747caeb8b7233f5680b80c4f62e09c30094e89d27e4fa1abb8035666cad",
+        "cache": {
+          "bytes": 10605,
+          "sha256": "af59cee7bd7ca8d12fd145fcf8bfcee23c882aa3f7377fe97f06936474a77a50"
+        },
+        "speaker": {
+          "zip_bytes": 84992,
+          "zip_pcm_sha256": "9be659af8f0699234c50409ff36423caadc522a3555931c7041393f767771a61",
+          "api_bytes": 84992,
+          "api_pcm_sha256": "9be659af8f0699234c50409ff36423caadc522a3555931c7041393f767771a61",
+          "peak_s16le": 7051
+        }
+      },
+      "independent": {
+        "expectation": "playback",
+        "dhcp_dora": 1,
+        "resolved_names": [
+          "dict.youdao.com",
+          "ntp.aliyun.com"
+        ],
+        "https_443": {
+          "requested": true,
+          "guest_payload_bytes": 561,
+          "response_payload_bytes": 15983
+        },
+        "mp3_cache": [
+          {
+            "size": 10605,
+            "sha256": "af59cee7bd7ca8d12fd145fcf8bfcee23c882aa3f7377fe97f06936474a77a50"
+          }
+        ],
+        "speaker_pcm_bytes": 84992,
+        "speaker_pcm_sha256": "9be659af8f0699234c50409ff36423caadc522a3555931c7041393f767771a61",
+        "capture_sha256": "156cb709ea49d013cd5cd99ef3902f3e7c0c9be9f2aa504a964219e44a6d5e92",
+        "evidence_sha256": "72c4838cbbecec3637fb9f91b78d9cbd430cc0f2610c4809a1d1f1c75dfa8566",
+        "namespace_removed": true,
+        "temporary_nat_removed": true
+      },
+      "input_actions": 18
+    },
+    "final-blocked": {
+      "reviewer_source": "ecc8cfc3aadd5b2ae0289171784d2abac91bf855",
+      "review_status": "manual_review",
+      "review_error": "E_CARDPUTER_PRONUNCIATION_POLICY_DENIED",
+      "same_runtime_verified": 1,
+      "retained_sessions": 1,
+      "active_leases_end": 0,
+      "burner_submissions": 0,
+      "released_flash": true,
+      "typed": {
+        "scope": "same-session-cardputerdict-https-pronunciation",
+        "status": "POLICY_DENIED",
+        "expect": "blocked",
+        "phase": "complete",
+        "reason": "tcp_443_outside_allowlist",
+        "same_guest": true,
+        "checks": {
+          "sntp_matched": true,
+          "https_attempted": true,
+          "https_reply": false,
+          "tls_exchange": false,
+          "dns": true,
+          "cache": false,
+          "pcm": false
+        },
+        "original_firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e",
+        "capture_sha256": "29150d483265da4fa0152e1c56aaf15215d146c8e211c2d5c88d4734e5bd0980",
+        "evidence_zip_sha256": "0497df34d24477570b66a33787c0340e87f17beaa8cb1a1d750863ede1d1673b"
+      },
+      "independent": {
+        "expectation": "blocked",
+        "dhcp_dora": 1,
+        "resolved_names": [
+          "dict.youdao.com",
+          "ntp.aliyun.com"
+        ],
+        "https_443": {
+          "requested": true,
+          "guest_payload_bytes": 0,
+          "response_payload_bytes": 0
+        },
+        "mp3_cache": [],
+        "speaker_pcm_bytes": 0,
+        "speaker_pcm_sha256": null,
+        "capture_sha256": "29150d483265da4fa0152e1c56aaf15215d146c8e211c2d5c88d4734e5bd0980",
+        "evidence_sha256": "47793c3643a72fe8fc8973b538a0616bcf7423c122137672fcd46fef0797230f",
+        "namespace_removed": true,
+        "temporary_nat_removed": true
+      },
+      "input_actions": 18
+    },
+    "final-no-namespace": {
+      "reviewer_source": "ecc8cfc3aadd5b2ae0289171784d2abac91bf855",
+      "review_status": "manual_review",
+      "review_error": "E_CARDPUTER_PRONUNCIATION_ENVIRONMENT",
+      "same_runtime_verified": 0,
+      "retained_sessions": 0,
+      "active_leases_end": 0,
+      "burner_submissions": 0,
+      "released_flash": true,
+      "typed": {
+        "scope": "same-session-cardputerdict-https-pronunciation",
+        "status": "PARTIAL",
+        "expect": "playback",
+        "phase": "admission",
+        "reason": "network_isolation_unavailable",
+        "same_guest": false,
+        "checks": {},
+        "original_firmware_sha256": "346240b38be5bfbeaf8180f7b885a5d844c700a665dcab90d9cc62ce4b386b7e"
+      }
+    }
+  },
+  "reviewer_version": "0.21.0",
+  "device_service_version": "1.89.0",
+  "normalized_flash_sha256": "dd5ae9b2d1af6dce97adfd27d55a2097fff9920cee5f7e2771c67e05011b2929",
+  "reviewer_unit_tests": {
+    "python_3_9": 269,
+    "python_3_13": 269
+  }
+}

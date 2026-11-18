@@ -27,5 +27,13 @@ NAT 和租约，上传的原件与 SD 夹具保持原样。
 1.88 的服务在相同的外部地址策略下停在受理阶段。早期候选有一次
 下载成功但清理回执未完成，并有无来宾触发的按键观察超时。单独的
 I2S 诊断开关先验证了播放，再通过默认 API 完成同路径复验。
-Reviewer 保存快照、ADV 原版联网、实体音频和浏览器仍待验收。
-Burner 提交数为零。
+Reviewer 0.21.0 使用同一原版、同一 SD 夹具与同一 Linux 原生路径执行
+保存快照 dry-run。放行轮为 `PASS`，同一会话保存了 10,605 字节 MP3
+缓存，停机后的 PCM API 与证据 ZIP 均读回同一份 84,992 字节音频。
+拒绝轮为 `POLICY_DENIED`，保留 DNS 与校时并记录 TCP/443 请求、零
+回应、零缓存和零 PCM。缺少 Linux 网络隔离权限时返回准入
+`PARTIAL`，分配会话数为零。Reviewer 0.20 的通用网络待复核结果保留。
+[Reviewer 保存快照结果](reviewer-saved-snapshot-summary.json)
+
+常驻 Linux 审核 worker 的持续运行、ADV 原版联网、实体音频和浏览器
+仍待验收。Burner 提交数为零。
