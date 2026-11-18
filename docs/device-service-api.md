@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-18`.
+Last reviewed: `2026-11-19`.
 
 Status: local MVP with unified-device runtime contract `1.99.3` and bounded
 storage retention implemented on `2026-10-24`.
@@ -684,6 +684,16 @@ results. `POST /worker/drain` stops new lease admission while allowing active
 sessions to finish; the state becomes `drained` when the last active lease is
 released. `POST /worker/resume` restores admission.
 
+Before routing to a restarted Worker, verify its `worker_id`, `generation`,
+`stale`, `accepting_leases`, and `active_lease_count` in `GET /worker`. For a
+planned restart on the same state volume, check that the Worker ID is stable
+and the generation advanced. A successful drain confirms admission control
+and zero leases once the state is `drained`. Confirm process exit separately.
+The isolated Linux review pilot returned HTTP `503` from its host bridge
+while no Worker was ready. For an interrupted session create, use the
+reconciliation protocol below before issuing another create.
+[Planned restart and evidence readback](validation-ledger.md#2026-11-19-linux-受监督审核-worker-重启).
+
 Each session records the worker ID and generation that owned it. When a new
 service generation finds active leases in the previous `worker.json`, those
 leases are recorded under `abandoned_leases`. A QEMU session can be re-adopted
@@ -801,9 +811,11 @@ This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production
 multi-host scheduler. Local QEMU/QMP control-plane re-attach and trusted-host
-unified HTTP/BLE companion continuity are implemented. Namespace-managed,
-Tab5 and cross-host companion recovery plus a continuous external evidence
-stream remain `NOT RUN`.
+unified HTTP/BLE companion continuity are implemented. The isolated Linux
+pilot has verified receipt-based cold cleanup of a namespace-managed lease.
+Live namespace-managed, Tab5 and cross-host companion re-attachment plus a
+continuous external evidence stream remain `NOT RUN`.
+[Cold recovery validation](validation-ledger.md#可信停机回执与同原版重试).
 
 ### Remote worker directory MVP
 

@@ -236,6 +236,38 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 Linux 受监督审核 Worker 重启
+
+使用 Reviewer 0.29.1（`3a45e3dd`）和 Device Service 1.99.3（`2a7f979c`），
+在隔离的无网卡 Linux ARM64 虚拟机上执行两份原版的标准保存快照干跑。
+CardputerDict ADV 0.5.0（`21b7a88e`）取得可信 HTTPS、10,605 字节 MP3
+缓存及 84,992 字节 I²S PCM。随后来宾在同一持久卷上正常停启，Worker 身份一致、
+代次递增，上一代 Device Service 注册表为 `drained`。重启期间宿主桥接保持
+监听，以 HTTP 503 报告未就绪。
+Core2 2048 1.0（`41db3680`）按原版应用和匹配的引导组件组合，在重启后确认
+上、下、左、右共八次有效棋盘变化。两个任务均为 `done / SIM_VERIFIED`。
+独立 Reviewer 正常重启后，从原 SQLite 读回两条审核、36 条事件和相同证据清单。
+
+首个测试卷的第二次关机读到截断的 virtiofs 命令 JSON，未取得正常停机回执。
+控制器确认隔离虚拟机已强制停止并封存测试卷，后续普通启动被拒绝。
+修订候选改用每代独立的关机指令。另建测试卷后再次通过原版 ADV 审核，随后
+确认 Device Service 正常退出、虚拟机正常下电、监听关闭及独占锁释放。
+第二个宿主监督进程接回同卷和同一个回环入口，Worker 身份不变、代次递增。
+从 API 重新下载上一次 ADV 会话，15 个 ZIP 载荷文件的长度和 SHA-256 全部一致。
+第二轮 Core2 原版的八次拖动均由控制器接受，上下左右各至少有一次棋盘变化
+通过审核断言。最后一次向下拖动的两张新截图完全一致，但原审核器的三个采样点
+均落在白色数字 `16` 上，无法识别这一格的底色。原记录保留七次确认和
+`SIM_PARTIAL / E_CORE2_2048_MOVES_PARTIAL`。
+同配置标准重试通过八次有效移动，保存首轮全部 41 个证据文件。Reviewer 再次
+正常重启后读回两条审核及 52 条事件。两代 Device Service 都以零租约正常退出，
+都取得虚拟机正常停机回执。最终确认桥接监听关闭、持久卷独占锁释放。
+
+常驻 Reviewer 0.29.1 就绪，仍使用 macOS Worker。工作台和审核后端对外提供的
+Device Service OpenAPI 均与 1.99.3 发布合同逐字节一致。同卷活跃故障恢复、
+系统重启和常驻路由切换仍需按部署路径验收。
+本轮为 virtual-device validation，真机和 Burner 未运行。
+[同卷重启、两份原版及失败对照](https://github.com/m5agent/agent-work-logs/tree/a325a930fb3c8a2afcd6bb084384f38383de3be6/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-managed-worker-two-originals)。
+
 ## 2026-11-19 Linux 控制器的持久卷独占
 
 在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷

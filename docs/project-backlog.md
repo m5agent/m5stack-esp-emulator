@@ -49,7 +49,7 @@
    均通过。[当前原版 5 ms 回归](validation-ledger.md#2026-11-18-dial-原版旋钮交付和选曲对照)
    将一次选曲差异绑定到来宾轮询漏读。[原版 8 ms 同轮读回](validation-ledger.md#2026-11-19-dial-原版-8-ms-漏选)进一步复现原版漏读完整相位，
    已交付的控制器序列在同一失败轮保持完整。继续定位原版轮询空档及验证同一 BIN 的实体旋钮。旋转、触摸和按钮的独立结果见
-   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。[Core2 原版 2048](validation-ledger.md#2026-11-19-core2-原版-2048-四向标准复审)已由 Reviewer 0.28 四向复验。当前测试台尚无可确认 Core2 与触摸装置，继续等可执行同一 BIN 的真机对照。
+   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。[Core2 原版 2048](validation-ledger.md#2026-11-19-core2-原版-2048-四向标准复审)已由 Reviewer 0.28 四向复验。[0.29.1 原版复审](validation-ledger.md#2026-11-19-linux-受监督审核-worker-重启)另发现数字覆盖固定底色采样点，需用原始截图复验棋盘识别。当前测试台尚无可确认 Core2 与触摸装置，继续等可执行同一 BIN 的真机对照。
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    [Core2 与 Nesso N1](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)已在 ESP-IDF 5.5.4 验证 LittleFS 停止后导出、服务重启与新会话复用。
@@ -86,8 +86,10 @@
    路由验收实际控制器、持久卷独占和相关宿主资源的回收，以及其他原版应用的 HTTPS 与云端协议。[ADV 标准发音复审](validation-ledger.md#2026-11-19-cardputerdict-adv-原版标准发音复审)
    已在隔离 Linux 验证放行、拒绝与初代兼容。[macOS Reviewer 经 VSOCK 接入 Linux](validation-ledger.md#2026-11-19-macos-reviewer-接入隔离-linux-的-adv-原版复审)
    完成标准 ADV 放行与拒绝对照。[跨系统同卷冷启动](validation-ledger.md#2026-11-19-macos-reviewer-与-linux-同卷冷启动)
-   已在 Reviewer 0.28 与 0.29 的真实活动租约上验证无回执拒绝、有回执清理及同原版重试。常驻 Linux
-   路由仍需独立验收稳定控制器、持久卷和实际部署的故障恢复。
+   已在 Reviewer 0.28 与 0.29 的真实活动租约上验证无回执拒绝、有回执清理及同原版重试。
+   [受监督 Worker 原版复验](validation-ledger.md#2026-11-19-linux-受监督审核-worker-重启)
+   已验证 ADV 与 Core2 的标准 dry-run、同卷正常重启和 Reviewer 历史读回。继续建立实际托管，
+   验收带活动租约的故障恢复、系统重启和真实常驻路由切换。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
