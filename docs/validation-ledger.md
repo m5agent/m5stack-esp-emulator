@@ -36,6 +36,18 @@ macOS 工作台和审核后端均更新为 Device Service `981fdcdf`。两个实
 Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由未运行。Burner 未提交。
 [本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0364fb870dfbe0a844a7e500627069d2f8846dae/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/followups/2026-11-19-resident-199-gateway-low-fd/README.md)。
 
+## 2026-11-19 Dial 原版 8 ms 漏选
+
+原版 Arduino R1F30 在 Device Service 1.99 的独立原生会话执行真实旋钮注入，
+显式 8 ms 的选曲断言为 19/20，35 ms 对照为 20/20。独立只读指令观测
+运行时为 18/20 和 20/20。两次观测失败各交付了全部 64 个 Gray 相位。
+第 14 和第 4 相位在数毫秒的 GPIO 轮询空档中都没有被原应用读取。以同轮原版
+实际读取的 GPIO 值重放，其状态表均累积 +60，实际 UART 选择轨 7，预期轨 1。
+另一次未采到单个相位时仍累积 +64，UART 正确选择轨 1。
+两轮保留原 BIN、同会话 ZIP 与实际输入回执，租约已释放。同初始曲目和方向的
+六次独立 35 ms 对照也通过。空档的调度来源和真机仍待验证。
+[原版 8 ms GPIO 回读与 UART 对照](https://github.com/m5agent/agent-work-logs/blob/6f7f2576483ce64a52f15b30cfb51af26330762a/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-dial-encoder-track-review/followups/2026-11-18-dial-199-original-cadence/followups/2026-11-19-dial-8ms-original-phase-readback/README.md)。
+
 ## 2026-11-19 Linux 活动审核冷启动恢复
 
 在隔离的无网卡 Linux VZ 中，保存快照方式审核同一原版 CardputerDict。旧来宾
@@ -49,6 +61,20 @@ Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由�
 `device_service_recovery_unconfirmed`。冷启动回收目标为 FAIL，原版发音本轮未重跑。
 隔离虚拟机和本轮创建的网络资源已清理，Burner 未提交。
 [同后端冷启动复现及证据读回](https://github.com/m5agent/agent-work-logs/blob/a08c13b053a9c02be882056d9dae93ddb4a93397/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/README.md)。
+
+### 可信停机回执与同原版重试
+
+Device Service `97339c11` 在独立无网卡 Linux VZ 使用同一持久卷和认证后端。
+宿主确认旧虚拟机停止后，新内核内先启动无回执对照。旧会话仍有一条租约及可写
+Flash，Reviewer 返回 HTTP 409。随后在同一个新内核启动带匹配只读回执的服务。
+旧会话以中断状态收尾，释放租约与可写 Flash，两个原始网关日志逐字节保留，
+旧 PCAP 在磁盘和前后证据包一致。
+
+同一原版 CardputerDict 标准保存快照重试返回 HTTP 202，终态为
+`done / SIM_VERIFIED`。独立测到校时和可信 TLS、10,605 字节 SD 上的 MP3 缓存，
+以及 ZIP 与 API 中一致的 84,992 字节 PCM。新会话完成清理，租约为零。Burner 未提交。
+常驻 Linux 控制器和物理硬件另待验收。
+[真实停机回执、旧证据和同原版重试](https://github.com/m5agent/agent-work-logs/blob/3996f5ceb00fc380d8bd925689d5f571130047e6/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/followups/2026-11-19-linux-active-cold-gateway-controller-receipt/README.md)。
 
 ## 2026-11-19 PaperColor 原厂固件 USB MSC 块读取
 

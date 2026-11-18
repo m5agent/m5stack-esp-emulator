@@ -702,6 +702,31 @@ command-SHA256 checks. Companion ownership failure rejects the re-attach.
 Unverified, expired or incompatible sessions become interrupted `failed`
 history. Stopped/failed sessions and their last-known evidence remain readable.
 
+A trusted Linux VM controller can start Device Service with
+`--namespace-cold-recovery-receipt /absolute/path/to/receipt.json` after it
+confirms the previous VM stopped, revokes any surviving lease-specific host
+resources, and attaches the same worker state volume exclusively to the
+successor VM. Supply the receipt through a controller-managed, read-only path
+outside the worker state directory. The startup option accepts a protected
+regular file up to 64 KiB.
+
+The receipt has these fields:
+
+- `schema_version` is `1`.
+- `worker_id` matches the durable worker identity.
+- `previous_boot_id` and `successor_boot_id` are different Linux boot UUIDs.
+- `launches` lists up to 128 distinct pairs of `session_id` and `launch_id`.
+  Each entry includes `gateway_receipt_sha256`, the SHA-256 of its saved
+  version-3 gateway journal after parsing JSON and encoding it with
+  `json.dumps(journal, sort_keys=True, separators=(",", ":")).encode()`.
+
+The service validates each listed committed handoff separately. A match
+records `namespace_gateway_cold_recovered` and an independent local recovery
+record, keeps the original journals and captures, and finishes the interrupted
+session through the normal lease and Flash policy. A pending or unmatched
+handoff keeps its cleanup fence. Ordinary same-kernel recovery still checks
+the original supervisor and kernel resource ownership.
+
 The native StickS3 QEMU runtime with RTC layer `0229` keeps the service
 session active during guest light sleep. A guest-armed RTC timer, a configured
 digital GPIO level, or both can complete that sleep. The default RC slow clock
@@ -4332,7 +4357,7 @@ restart.
   supervisor journal and verification that the old namespace binding, host
   virtual link and NAT table are gone. After the outer supervisor disappears,
   version-2 journals allow cleanup using the launch-bound inner supervisor and
-  kernel resource identities. Automatic recovery requires the same Linux boot
+  kernel resource identities. Cooperative recovery requires the same Linux boot
   and worker PID, mount and network namespaces, verified guest termination
   and an empty old network namespace. Version-3 journals also record a
   per-launch inherited lock and a committed inner process before the guest
@@ -4352,7 +4377,9 @@ restart.
   observed `stopping` and `stop_pending` after the kernel scope changed.
   The old evidence remained readable while its lease and writable Flash
   were retained. Reviewer returned HTTP 409 on the same saved-snapshot
-  retry while session recovery remained pending;
+  retry while session recovery remained pending. A matching controller receipt
+  permits [cold retirement](#local-worker-lifecycle) for the exact stopped
+  launch;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

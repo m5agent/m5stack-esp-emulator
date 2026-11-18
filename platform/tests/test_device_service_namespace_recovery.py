@@ -1,3 +1,5 @@
+from hashlib import sha256
+import json
 import os
 from pathlib import Path
 import select
@@ -10,6 +12,8 @@ from unittest.mock import Mock, call, patch
 from device_service_errors import ServiceError
 from device_service_namespace_recovery import (
     GATEWAY_HANDOFF_LOCK,
+    GatewayColdRecoveryConfigError,
+    GatewayColdRecoveryReceipt,
     claim_drained_gateway_handoff,
     namespace_runtime_scope,
     namespace_supervisor_identity,
@@ -23,6 +27,48 @@ BOOT_ID = "12345678-1234-1234-1234-123456789abc"
 PID = 42
 PIDFD = 19
 TOKEN = f"linux:{BOOT_ID}:123456"
+SUCCESSOR_BOOT_ID = "87654321-1234-1234-1234-123456789abc"
+GATEWAY_SESSION_ID = "a" * 32
+GATEWAY_LAUNCH_ID = "e" * 32
+
+
+def gateway_cold_journal():
+    return {
+        "schema_version": 3,
+        "launch_id": GATEWAY_LAUNCH_ID,
+        "supervisor_pid": PID,
+        "supervisor_start_token": TOKEN,
+        "worker_scope": {"boot_id": BOOT_ID, "net": [1, 2], "mnt": [1, 3], "pid": [1, 4]},
+        "handoff_guard": [2, 5],
+        "handoff_committed": True,
+        "handoff_inner_pid": PID + 1,
+        "handoff_inner_start_token": f"linux:{BOOT_ID}:123457",
+        "inner_exited": False,
+        "inner_cleanup_completed": False,
+        "gateway_cleanup_completed": False,
+        "ownership": {
+            "token": "f" * 32,
+            "namespace": {"device": 1, "inode": 5},
+            "host_link": {"ifindex": 8},
+            "nat_table": {"family": "inet", "handle": 10},
+        },
+    }
+
+
+def gateway_cold_authority(worker_id, journal):
+    return {
+        "schema_version": 1,
+        "worker_id": worker_id,
+        "previous_boot_id": BOOT_ID,
+        "successor_boot_id": SUCCESSOR_BOOT_ID,
+        "launches": [{
+            "session_id": GATEWAY_SESSION_ID,
+            "launch_id": journal["launch_id"],
+            "gateway_receipt_sha256": sha256(
+                json.dumps(journal, sort_keys=True, separators=(",", ":")).encode(),
+            ).hexdigest(),
+        }],
+    }
 
 
 class NamespaceSupervisorRecoveryTests(unittest.TestCase):
@@ -147,6 +193,97 @@ class NamespaceSupervisorRecoveryTests(unittest.TestCase):
         (namespaces / "pid").unlink()
         with self.assertRaisesRegex(ServiceError, "original gateway worker context"):
             namespace_runtime_scope(proc_root=self.root)
+
+
+class GatewayColdRecoveryReceiptTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
+        self.state_dir = self.root / "worker-state"
+        self.state_dir.mkdir()
+        self.authority_path = self.root / "cold-recovery.json"
+        self.worker_id = "cold-recovery-worker"
+        self.journal = gateway_cold_journal()
+        self.authority = gateway_cold_authority(self.worker_id, self.journal)
+
+    def write_receipt(self, payload=None):
+        self.authority_path.write_text(json.dumps(self.authority if payload is None else payload))
+        return GatewayColdRecoveryReceipt.from_file(self.authority_path, self.state_dir)
+
+    def test_receipt_matches_only_committed_launch_for_exact_worker_and_boot_pair(self):
+        receipt = self.write_receipt()
+        args = {
+            "worker_id": self.worker_id,
+            "session_worker_id": self.worker_id,
+            "session_id": GATEWAY_SESSION_ID,
+            "successor_boot_id": SUCCESSOR_BOOT_ID,
+            "journal": dict(reversed(tuple(self.journal.items()))),
+        }
+        self.assertEqual(receipt.sha256, sha256(self.authority_path.read_bytes()).hexdigest())
+        self.assertEqual(receipt.match(**args), self.authority["launches"][0]["gateway_receipt_sha256"])
+        for field, wrong in (
+            ("worker_id", "other-worker"), ("session_worker_id", "other-worker"),
+            ("session_id", "b" * 32), ("successor_boot_id", BOOT_ID),
+            ("journal", {**self.journal, "launch_id": "b" * 32}),
+            ("journal", {**self.journal, "ownership": {**self.journal["ownership"], "host_link": None}}),
+        ):
+            with self.subTest(field=field, wrong=wrong):
+                self.assertIsNone(receipt.match(**{**args, field: wrong}))
+
+        for field, wrong in (
+            ("schema_version", 2), ("handoff_committed", False), ("handoff_inner_pid", PID),
+            ("worker_scope", {**self.journal["worker_scope"], "boot_id": SUCCESSOR_BOOT_ID}),
+            ("handoff_inner_start_token", f"linux:{SUCCESSOR_BOOT_ID}:123457"),
+        ):
+            with self.subTest(field=field):
+                journal = {**self.journal, field: wrong}
+                bound = self.write_receipt(gateway_cold_authority(self.worker_id, journal))
+                self.assertIsNone(bound.match(**{**args, "journal": journal}))
+
+    def test_unprotected_or_worker_owned_paths_are_not_authority(self):
+        self.write_receipt()
+        raw = self.authority_path.read_bytes()
+        in_state = self.state_dir / "restored.json"
+        in_state.write_bytes(raw)
+        alias = self.root / "to-state"
+        alias.symlink_to(self.state_dir, target_is_directory=True)
+        symlink = self.root / "symlink.json"
+        symlink.symlink_to(self.authority_path)
+        writable = self.root / "writable.json"
+        writable.write_bytes(raw)
+        writable.chmod(0o662)
+        fifo = self.root / "not-a-file"
+        os.mkfifo(fifo, 0o600)
+        for path in (Path("relative.json"), in_state, alias / in_state.name, symlink, writable, fifo):
+            with self.subTest(path=path.name), self.assertRaises(GatewayColdRecoveryConfigError):
+                GatewayColdRecoveryReceipt.from_file(path, self.state_dir)
+
+        self.authority_path.with_suffix(".link").hardlink_to(self.authority_path)
+        with self.assertRaises(GatewayColdRecoveryConfigError):
+            GatewayColdRecoveryReceipt.from_file(self.authority_path, self.state_dir)
+
+    def test_parser_rejects_ambiguous_fields_duplicate_launches_and_oversize_data(self):
+        launch = self.authority["launches"][0]
+        invalid = {
+            "bool schema": json.dumps({**self.authority, "schema_version": True}),
+            "same boot": json.dumps({**self.authority, "successor_boot_id": BOOT_ID}),
+            "duplicate field": json.dumps(self.authority).replace(
+                '"launch_id":', f'"launch_id": "{GATEWAY_LAUNCH_ID}", "launch_id":',
+            ),
+            "duplicate session": json.dumps({
+                **self.authority, "launches": [launch, {**launch, "launch_id": "b" * 32}],
+            }),
+            "duplicate launch": json.dumps({
+                **self.authority, "launches": [launch, {**launch, "session_id": "b" * 32}],
+            }),
+            "invalid digest": json.dumps({
+                **self.authority, "launches": [{**launch, "gateway_receipt_sha256": "x" * 64}],
+            }),
+            "oversize": " " * (64 * 1024 + 1),
+        }
+        for label, text in invalid.items():
+            with self.subTest(label=label), self.assertRaises(GatewayColdRecoveryConfigError):
+                self.authority_path.write_text(text)
+                GatewayColdRecoveryReceipt.from_file(self.authority_path, self.state_dir)
 
 
 class GatewayHandoffGuardTests(unittest.TestCase):

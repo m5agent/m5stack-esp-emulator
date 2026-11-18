@@ -46,9 +46,16 @@ from device_service import (
     default_session_ready_timeout,
     effective_session_ready_timeout,
 )
+from device_service_namespace_recovery import GatewayColdRecoveryReceipt
 from nvs_image import PAGE_SIZE, build_string_nvs_image
 from network_egress import EgressEndpoint
 from serve import Handler, _wait_for_session, service_origin_from_host
+from test_device_service_namespace_recovery import (
+    GATEWAY_SESSION_ID,
+    SUCCESSOR_BOOT_ID,
+    gateway_cold_authority,
+    gateway_cold_journal,
+)
 from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
 
@@ -7346,6 +7353,168 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(restored["state"], "failed")
             self.assertFalse(restored["flash_retained"])
             self.assertNotIn(session.id, self.service.worker_status()["active_lease_ids"])
+
+    def _cold_named_gateway_fixture(self):
+        session = self._stopped_session(session_id=GATEWAY_SESSION_ID)
+        journal = gateway_cold_journal()
+        session.runtime = "qemu-wifi"
+        session.network_config = {
+            "policy": {"isolation": "namespace", "egress": "allowlist"},
+            "capture_pcap": True,
+        }
+        session.state = "running"
+        session.completed_at = None
+        session.pid = journal["supervisor_pid"]
+        session.process_start_token = journal["supervisor_start_token"]
+        session._worker_lease_active = True
+        self.service.worker.reserve_lease(session.id)
+        session._persist_session()
+        config = {"launch_id": journal["launch_id"], "isolation_evidence": str(session.network_isolation_path)}
+        session.network_sandbox_config_path.write_text(json.dumps(config, indent=2) + "\n")
+        session.network_gateway_recovery_path.write_text(json.dumps(journal, indent=2) + "\n")
+        gateway = device_service_module.EgressGateway.from_ownership(journal["ownership"])
+        session.network_isolation_path.write_text(json.dumps({
+            "launch_id": journal["launch_id"],
+            "supervisor_pid": journal["handoff_inner_pid"],
+            "supervisor_start_token": journal["handoff_inner_start_token"],
+            "private_network_namespace": True,
+            "external_route": True,
+            "gateway": gateway.metadata(),
+            "cleanup_completed": False,
+        }, indent=2) + "\n")
+        session.network_pcap.write_bytes(b"\xd4\xc3\xb2\xa1" + struct.pack("<HHiIII", 2, 4, 0, 0, 262144, 1))
+        unchanged = (session.serial0, session.network_pcap, session.network_sandbox_config_path,
+                     session.network_gateway_recovery_path, session.network_isolation_path)
+        authority = gateway_cold_authority(self.service.worker.worker_id, journal)
+        control_dir = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
+        authority_path = control_dir / "cold-recovery.json"
+        authority_path.write_text(json.dumps(authority) + "\n")
+        authority_path.chmod(0o600)
+        live_scope = {**journal["worker_scope"], "boot_id": SUCCESSOR_BOOT_ID}
+        return session, authority_path, authority, live_scope, {path: path.read_bytes() for path in unchanged}
+
+    def _assert_cold_recovery_pending(self, session):
+        snapshot = session.snapshot()
+        self.assertEqual(snapshot["state"], "stopping")
+        self.assertTrue(snapshot["stop_pending"])
+        self.assertTrue(session.virtual_flash.is_file())
+        self.assertIn(session.id, self.service.worker_status()["active_lease_ids"])
+
+    def test_startup_cold_gateway_recovery_finalizes_interrupted_session_with_original_evidence(self):
+        old, path, authority, live_scope, unchanged = self._cold_named_gateway_fixture()
+        old_service = self.service
+        old_generation = old_service.worker.generation
+        old_service._stop.set()
+        old_service._janitor.join(timeout=5)
+        self.assertFalse(old_service._janitor.is_alive())
+        old_service.worker.close()
+        old_service._observations.close()
+        with (
+            mock.patch("device_service.namespace_runtime_scope", return_value=live_scope),
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+            mock.patch("device_service.EgressGateway.cleanup") as cleanup_gateway,
+        ):
+            self.service = DeviceService(
+                state_dir=old_service.state_dir, max_sessions=2, max_per_device=1,
+                namespace_cold_recovery_receipt=path,
+            )
+            restored = self.service.get_session(old.id)
+            snapshot = restored.snapshot()
+            self.assertEqual(snapshot["state"], "failed")
+            self.assertTrue(snapshot["restored"])
+            self.assertTrue(snapshot["interrupted"])
+            self.assertFalse(snapshot.get("stop_pending", False))
+            self.assertFalse(snapshot["flash_retained"])
+            self.assertIsNone(snapshot["pid"])
+            self.assertEqual(self.service.worker.generation, old_generation + 1)
+            self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+            self.assertEqual(self.service.capacity()["active_sessions"], 0)
+            self.assertFalse((restored.dir / "virtual-flash.bin").exists())
+            proof_path = restored.dir / "network-gateway-cold-recovery.json"
+            proof_bytes = proof_path.read_bytes()
+            proof = json.loads(proof_bytes)
+            self.assertEqual(proof["status"], "prior_vm_terminated")
+            self.assertEqual(proof["launch_id"], authority["launches"][0]["launch_id"])
+            self.assertEqual(proof["gateway_receipt_sha256"], authority["launches"][0]["gateway_receipt_sha256"])
+            self.assertEqual(proof["controller_receipt_sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
+            events = self.service.session_events(old.id)["events"]
+            self.assertEqual(sum(event["event"] == "namespace_gateway_cold_recovered" for event in events), 1)
+            self.assertEqual({item: item.read_bytes() for item in unchanged}, unchanged)
+            with zipfile.ZipFile(io.BytesIO(restored.evidence_bundle({"manifest", "serial"}))) as capture:
+                self.assertIsNone(capture.testzip())
+                self.assertEqual(capture.read("serial.log"), unchanged[old.serial0])
+                self.assertEqual(capture.read("network/capture.pcap"), unchanged[old.network_pcap])
+                self.assertEqual(json.loads(capture.read("manifest.json"))["session"]["state"], "failed")
+            self.assertEqual(restored.stop()["state"], "failed")
+            self.assertEqual(proof_path.read_bytes(), proof_bytes)
+            after = self.service.session_events(old.id)["events"]
+            for name in ("namespace_gateway_cold_recovered", "worker_lease_released"):
+                self.assertEqual(sum(event["event"] == name for event in after), 1)
+            stop_supervisor.assert_not_called()
+            cleanup_gateway.assert_not_called()
+
+    def test_wrong_cold_gateway_binding_holds_lease_and_ignores_mutable_sidecar(self):
+        session, path, authority, live_scope, unchanged = self._cold_named_gateway_fixture()
+        wrong_launch = {**authority["launches"][0], "gateway_receipt_sha256": "0" * 64}
+        denied = path.with_name("wrong-binding.json")
+        denied.write_text(json.dumps({**authority, "launches": [wrong_launch]}))
+        self.service.gateway_cold_recovery = GatewayColdRecoveryReceipt.from_file(denied, self.service.state_dir)
+        sidecar = session.dir / "network-gateway-cold-recovery.json"
+        untrusted = b'{"schema_version":1,"status":"prior_vm_terminated"}\n'
+        sidecar.write_bytes(untrusted)
+        with (
+            mock.patch("device_service.namespace_runtime_scope", return_value=live_scope),
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+            mock.patch("device_service.EgressGateway.cleanup") as cleanup_gateway,
+        ):
+            try:
+                self.service._restore_namespace_stop(session, "running")
+                self._assert_cold_recovery_pending(session)
+                stop_supervisor.assert_not_called()
+                self.service.gateway_cold_recovery = None
+                with self.assertRaises(ServiceError) as pending:
+                    session.stop()
+                self.assertEqual(pending.exception.code, "session_cleanup_pending")
+                self._assert_cold_recovery_pending(session)
+                self.assertEqual(sidecar.read_bytes(), untrusted)
+                self.assertEqual({item: item.read_bytes() for item in unchanged}, unchanged)
+                events = self.service.session_events(session.id)["events"]
+                self.assertNotIn("namespace_gateway_cold_recovered", [event["event"] for event in events])
+                cleanup_gateway.assert_not_called()
+            finally:
+                self.service.gateway_cold_recovery = GatewayColdRecoveryReceipt.from_file(path, self.service.state_dir)
+                session.stop()
+
+    def test_cold_gateway_sidecar_failure_retains_lease_and_flash_until_retry(self):
+        session, path, _, live_scope, unchanged = self._cold_named_gateway_fixture()
+        self.service.gateway_cold_recovery = GatewayColdRecoveryReceipt.from_file(path, self.service.state_dir)
+        sidecar = session.dir / "network-gateway-cold-recovery.json"
+        write_json = device_service_module.atomic_write_json
+
+        def fail_sidecar(target, payload):
+            if target == sidecar:
+                raise OSError("unit test sidecar write failure")
+            write_json(target, payload)
+
+        with (
+            mock.patch("device_service.namespace_runtime_scope", return_value=live_scope),
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+            mock.patch("device_service.EgressGateway.cleanup") as cleanup_gateway,
+        ):
+            try:
+                with mock.patch("device_service.atomic_write_json", side_effect=fail_sidecar):
+                    self.service._restore_namespace_stop(session, "running")
+                    self._assert_cold_recovery_pending(session)
+                    self.assertFalse(sidecar.exists())
+            finally:
+                terminal = session.stop()
+            self.assertEqual(terminal["state"], "failed")
+            self.assertFalse(terminal["flash_retained"])
+            self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+            self.assertTrue(sidecar.is_file())
+            self.assertEqual({item: item.read_bytes() for item in unchanged}, unchanged)
+            stop_supervisor.assert_not_called()
+            cleanup_gateway.assert_not_called()
 
     def test_orphaned_gateway_checks_worker_context_and_inner_namespace_before_deleting(self):
         session = self._stopped_session()
