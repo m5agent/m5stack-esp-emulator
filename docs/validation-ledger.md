@@ -76,6 +76,14 @@ Flash，Reviewer 返回 HTTP 409。随后在同一个新内核启动带匹配只
 常驻 Linux 控制器和物理硬件另待验收。
 [真实停机回执、旧证据和同原版重试](https://github.com/m5agent/agent-work-logs/blob/3996f5ceb00fc380d8bd925689d5f571130047e6/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/followups/2026-11-19-linux-active-cold-gateway-controller-receipt/README.md)。
 
+### Linux 冷恢复修复后的本机回读
+
+两套 macOS Device Service 更新为 `9837c3f8`，各自正常接收租约并提供字节相同的
+OpenAPI 1.99.0。两套实例合计保留 153 条会话。Reviewer `f0101b6` 重连后就绪检查
+返回 HTTP 200，129 条审核记录与抽查证据核对一致。本机两套服务均使用原生
+macOS 默认配置。Linux 冷恢复结果来自前述独立验证。Burner 未提交。
+[本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0b0fdaac80e283cf9c4c935c55d41243c609b738/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/followups/2026-11-19-linux-active-cold-gateway-controller-receipt/followups/2026-11-19-resident-199-gateway-cold-recovery/README.md)。
+
 ## 2026-11-19 PaperColor 原厂固件 USB MSC 块读取
 
 在 Device Service `981fdcdf` 管理的离线 PaperColor 会话中，实际 DWC2 Buffer DMA 端点
