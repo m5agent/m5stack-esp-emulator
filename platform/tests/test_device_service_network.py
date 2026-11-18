@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -13,6 +14,7 @@ if str(TOOLS) not in sys.path:
 import device_service
 import device_service_errors
 import device_service_network
+from device_service_specs import load_device_specs
 from network_egress import EgressEndpoint
 
 
@@ -93,6 +95,43 @@ class DeviceServiceNetworkBoundaryTests(unittest.TestCase):
             )
         self.assertEqual(caught.exception.code, "invalid_network")
         self.assertEqual(caught.exception.status, 400)
+
+    def test_controlled_host_records_use_only_existing_egress_grants(self):
+        policy_value = self.policy_value()
+        policy_value["allowed_domains"] = []
+        policy_value["allowed_endpoints"] = [
+            {"protocol": "tcp", "address": "192.0.2.77", "port": 443},
+            {"protocol": "udp", "address": "192.0.2.78", "port": 123},
+        ]
+        records = {"ORIGIN.fixture.test.": "192.0.2.77", "api.fixture.test": "192.0.2.78"}
+        with patch.object(device_service, "require_network_capabilities"):
+            network = device_service.parse_qemu_wifi_execution(
+                load_device_specs()["cardputer"],
+                {"profile": "generic-observe", "policy": policy_value, "dns_host_records": records},
+            )
+        self.assertEqual(
+            network["dns_host_records"],
+            {"origin.fixture.test": "192.0.2.77", "api.fixture.test": "192.0.2.78"},
+        )
+        self.assertEqual(network["policy"]["allowed_endpoints"], policy_value["allowed_endpoints"])
+
+    def test_controlled_host_records_fail_closed_on_invalid_bindings(self):
+        policy = device_service_network.parse_network_policy(
+            self.policy_value(), implicit_endpoints=(EgressEndpoint("tcp", "10.0.2.2", 18443),),
+        )
+        cases = [
+            ({"origin.fixture.test": "10.0.2.9"}, {}),
+            ({"origin.fixture.test": "::ffff:10.0.2.2"}, {}),
+            ({"outside.fixture.test": "10.0.2.2"}, {}),
+            ({"origin.fixture.test": "10.0.2.2", "ORIGIN.fixture.test.": "10.0.2.2"}, {}),
+            ({"origin.fixture.test": "10.0.2.2"}, {"origin.fixture.test": "api.fixture.test"}),
+            ({"origin.fixture.test": ["10.0.2.2"]}, {}),
+        ]
+        for records, aliases in cases:
+            with self.subTest(records=records, aliases=aliases):
+                with self.assertRaises(device_service_errors.ServiceError) as caught:
+                    device_service_network.parse_dns_host_records(records, policy, aliases)
+                self.assertEqual((caught.exception.code, caught.exception.status), ("invalid_network", 400))
 
     def test_reexported_network_parsers_keep_identity(self):
         self.assertIs(

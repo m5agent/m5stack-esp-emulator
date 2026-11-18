@@ -102,6 +102,7 @@ from device_service_native_hid import (  # noqa: E402
 from device_service_network import (  # noqa: E402
     STA_STREAM_PORTS,
     parse_dns_cname_records,
+    parse_dns_host_records,
     parse_network_policy,
     parse_sta_stream_fixtures,
     parse_udp_fixture,
@@ -832,12 +833,15 @@ def require_allowlist_http_fixture(
     policy: NetworkPolicy,
     *,
     http_fixture: bool = True,
+    dns_host_records: dict[str, str] | None = None,
+    cname_records: dict[str, str] | None = None,
 ) -> None:
     if policy.egress != "allowlist" or (
         http_fixture and profile in UNIFIED_HTTP_PORTS
     ):
         return
-    controlled_names = policy.allowed_hosts or policy.allowed_domains
+    default_hosts = set(policy.allowed_hosts).difference(dns_host_records or (), cname_records or ())
+    controlled_names = default_hosts or policy.allowed_domains
     if controlled_names and policy.dns == "controlled":
         slirp_host = ipaddress.ip_address("10.0.2.2")
         if not any(
@@ -1221,10 +1225,13 @@ def parse_qemu_wifi_execution(
         value.get("cname_records"),
         policy,
     )
+    dns_host_records = parse_dns_host_records(value.get("dns_host_records"), policy, cname_records)
     require_allowlist_http_fixture(
         profile,
         policy,
         http_fixture=http_fixture,
+        dns_host_records=dns_host_records,
+        cname_records=cname_records,
     )
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
@@ -1249,6 +1256,7 @@ def parse_qemu_wifi_execution(
         **streams,
         "policy": policy.evidence(),
         "cname_records": cname_records,
+        **({"dns_host_records": dns_host_records} if dns_host_records else {}),
     }
 
 
@@ -1417,10 +1425,13 @@ def parse_qemu_ble_execution(
         value.get("cname_records"),
         policy,
     )
+    dns_host_records = parse_dns_host_records(value.get("dns_host_records"), policy, cname_records)
     require_allowlist_http_fixture(
         profile,
         policy,
         http_fixture=http_fixture,
+        dns_host_records=dns_host_records,
+        cname_records=cname_records,
     )
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
@@ -1529,6 +1540,7 @@ def parse_qemu_ble_execution(
         "ble_peer_role":ble_peer_role,
         "policy": policy.evidence(),
         "cname_records": cname_records,
+        **({"dns_host_records": dns_host_records} if dns_host_records else {}),
         "elf_artifact_id": elf_artifact_id,
         "nic": (
             "misc.esp32_wifi"
@@ -6236,8 +6248,9 @@ class DeviceSession:
                     )
                     else {}
                 )
+                dns_host_records = self.network_config.get("dns_host_records", {})
                 dns_hosts = {
-                    host: "10.0.2.2"
+                    host: dns_host_records.get(host, "10.0.2.2")
                     for host in policy.allowed_hosts
                     if host not in cname_records
                 }

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.88.0` and bounded
+Status: local MVP with unified-device runtime contract `1.89.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1822,13 +1822,21 @@ a suffix allowlist with DNS-label boundaries: `allowy.test` also matches
 `api.allowy.test`, but not `evilallowy.test`; exact records win and the
 longest suffix wins. Every suffix must have explicit resolver answers covered
 by an allowed endpoint. Exact A/AAAA records and CNAME terminal answers use
-the same endpoint check; IPv4-mapped IPv6 DNS records are rejected. Managed
-profiles bind Host/domain grants to
-`10.0.2.2` and therefore require a controlled HTTP profile or an exact
-`10.0.2.2` endpoint. A domain suffix never authorizes arbitrary addresses
-from an outside resolver. The sandbox core accepts exact A/AAAA records and
-can bind an IPv6 `ControlledHttp`; the Device Service's managed controlled
-HTTP fixture still exposes its existing IPv4 path.
+the same endpoint check. IPv4-mapped IPv6 DNS records are rejected. A domain
+suffix never authorizes arbitrary addresses from an outside resolver. The
+Device Service's managed controlled HTTP fixture exposes the IPv4 path.
+
+In managed QEMU Wi-Fi sessions, `network.dns_host_records` can bind up to 32
+exact names to one IPv4 or IPv6 address each. Set `policy.dns=controlled`
+and list each name in `policy.allowed_hosts`. Every address must already be
+covered by `policy.allowed_endpoints` or a session fixture's endpoint. The
+optional DNS map describes what the resolver answers. The kernel still
+enforces each endpoint's protocol and port. Names that also own a CNAME,
+duplicate normalized names, and uncovered addresses are rejected. Other
+exact hosts and domain suffixes keep the existing local `10.0.2.2` answer.
+They still require a controlled HTTP profile or a suitable `10.0.2.2`
+endpoint.
+
 A standalone UIFlow2 test build in a Linux private network namespace has
 completed controlled AAAA, allowed IPv6 HTTP, denied-port blocking, pcap,
 namespace cleanup and QEMU reap in one guest lifecycle. That closes `NET-06`

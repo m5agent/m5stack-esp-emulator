@@ -8,7 +8,7 @@ from network_egress import EgressEndpoint
 from network_policy import NetworkPolicy, NetworkPolicyError
 from network_sandbox import (
     STA_STREAM_PORTS, SandboxError, validate_cname_record_bindings,
-    validate_sta_stream_fixture, validate_udp_fixture,
+    validate_exact_record_bindings, validate_sta_stream_fixture, validate_udp_fixture,
 )
 
 
@@ -69,6 +69,37 @@ def parse_dns_cname_records(
             str(error),
             400,
         ) from error
+
+
+def parse_dns_host_records(
+    value: Any,
+    policy: NetworkPolicy,
+    cname_records: dict[str, str],
+) -> dict[str, str]:
+    if value is None or value == {}:
+        return {}
+    if not isinstance(value, dict) or len(value) > 32 or any(
+        not isinstance(address, str) or "%" in address for address in value.values()
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.dns_host_records requires at most 32 names mapped to IP addresses",
+            400,
+        )
+    if policy.dns != "controlled":
+        raise ServiceError("invalid_network", "network.dns_host_records requires controlled DNS", 400)
+    try:
+        records = validate_exact_record_bindings(value, policy.allowed_endpoints)
+    except SandboxError as error:
+        raise ServiceError("invalid_network", str(error), 400) from error
+    names = set(records)
+    if len(records) != len(value) or names.difference(policy.allowed_hosts) or names.intersection(cname_records):
+        raise ServiceError(
+            "invalid_network",
+            "network.dns_host_records requires unique allowed hosts without CNAME aliases",
+            400,
+        )
+    return {name: str(addresses[0]) for name, addresses in records.items()}
 
 
 def parse_udp_fixture(value: Any) -> dict[str, int | str] | None:

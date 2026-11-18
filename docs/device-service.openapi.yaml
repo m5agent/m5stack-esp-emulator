@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.88.0
+  version: 1.89.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -5815,6 +5815,19 @@ components:
           additionalProperties:
             type: string
             pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+        dns_host_records:
+          type: object
+          maxProperties: 32
+          description: >-
+            Optional exact-name A/AAAA bindings for managed QEMU Wi-Fi with
+            namespace isolation, policy.egress=allowlist, and
+            policy.dns=controlled. Each normalized name must belong to
+            policy.allowed_hosts and cannot also own a CNAME. Each address
+            must be covered by an existing allowed endpoint. DNS grants no
+            additional protocol, port, or address access. Other allowed hosts
+            and configured domain suffixes retain the local fixture address.
+          additionalProperties:
+            type: string
         ble_peer_role:
           type: string
           enum: [central, peripheral]

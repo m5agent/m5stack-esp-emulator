@@ -1301,7 +1301,7 @@ def wait_for_text(
     raise SandboxError(f"timed out waiting for log marker {marker!r}")
 
 
-def terminate_process(process: subprocess.Popen | None) -> None:
+def terminate_process(process: subprocess.Popen | None, *, grace_seconds: float = 5) -> None:
     if process is None or process.poll() is not None:
         return
     try:
@@ -1309,7 +1309,7 @@ def terminate_process(process: subprocess.Popen | None) -> None:
     except (OSError, ProcessLookupError):
         process.terminate()
     try:
-        process.wait(timeout=5)
+        process.wait(timeout=grace_seconds)
     except subprocess.TimeoutExpired:
         try:
             os.killpg(process.pid, signal.SIGKILL)
@@ -1658,8 +1658,7 @@ def run(
         if terminating:
             return
         terminating = True
-        terminate_process(qemu_process)
-        terminate_process(ble_process)
+        # Unwind Popen.wait before attempting another wait on its child.
         raise SystemExit(143)
 
     for signum in (signal.SIGTERM, signal.SIGINT):
@@ -1831,6 +1830,7 @@ def run(
         )
         return qemu_process.wait()
     finally:
+        terminating = True
         terminate_process(qemu_process)
         terminate_process(ble_process)
         if ble_process is not None:
@@ -1905,18 +1905,17 @@ def run_with_gateway(
         if terminating:
             return
         terminating = True
-        terminate_process(process)
         raise SystemExit(143)
 
     try:
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            previous[signum] = signal.getsignal(signum)
+            signal.signal(signum, stop)
         gateway.start()
         inner_environment = os.environ.copy()
         inner_environment["M5_EGRESS_GATEWAY"] = json.dumps(
             gateway.metadata()
         )
-        for signum in (signal.SIGTERM, signal.SIGINT):
-            previous[signum] = signal.getsignal(signum)
-            signal.signal(signum, stop)
         inner_command = [
             "ip",
             "netns",
@@ -1939,10 +1938,13 @@ def run_with_gateway(
         )
         return process.wait()
     finally:
-        terminate_process(process)
-        for signum, handler in previous.items():
-            signal.signal(signum, handler)
-        gateway.cleanup()
+        terminating = True
+        try:
+            terminate_process(process, grace_seconds=12)
+            gateway.cleanup()
+        finally:
+            for signum, handler in previous.items():
+                signal.signal(signum, handler)
 
 
 def main() -> int:
