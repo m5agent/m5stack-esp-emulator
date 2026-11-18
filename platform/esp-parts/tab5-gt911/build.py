@@ -16,6 +16,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cargo", default="cargo")
+    parser.add_argument(
+        "--codec-control", action="store_true", help="include Tab5 audio codec I2C controls"
+    )
     args = parser.parse_args()
 
     output = args.output.resolve()
@@ -27,10 +30,13 @@ def main() -> None:
         f"--remap-path-prefix={cargo_home}=/m5-gt911-cargo",
         f"--remap-path-prefix={target_dir}=/m5-gt911-target",
     )))
-    subprocess.run([
+    command = [
         args.cargo, "build", "--locked", "--release", "--target", TARGET,
         "--target-dir", str(target_dir), "--manifest-path", str(HERE / "Cargo.toml"),
-    ], cwd=HERE, env=launch, check=True)
+    ]
+    if args.codec_control:
+        command.extend(["--features", "codec-control"])
+    subprocess.run(command, cwd=HERE, env=launch, check=True)
     module = output / MODULE
     shutil.copyfile(target_dir / TARGET / "release" / MODULE, module)
     shutil.copyfile(HERE / "board.json", output / "board.json")

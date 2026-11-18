@@ -290,4 +290,11 @@ impl Device for Gt911 {
 }
 
 // The 8 KiB BMI270 burst travels in one BusRequest, including its envelope.
+#[cfg(not(feature = "codec-control"))]
 esp_part::export_part!(Gt911, buffer = 16384);
+
+#[cfg(feature = "codec-control")]
+mod codecs;
+
+#[cfg(feature = "codec-control")]
+esp_part::export_part!(codecs::Gt911WithCodecs, buffer = 16384);
