@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.94.0",
-  "contract_sha256": "6ebca285314de432a13012f2df0f8e2497b3f71842f26739ca7deee488db1abe",
+  "contract_version": "1.95.0",
+  "contract_sha256": "2af1690dd1da99bf3346c067d4b82cd70e54760bc5ad833fb68e80465d900db7",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -861,6 +861,15 @@
       "case_ids": [
         "POST /sessions invalid-admission"
       ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/reconcile-create",
+      "method": "POST",
+      "path": "/sessions/reconcile-create",
+      "phase": "isolated-control-plane",
+      "required_fixtures": ["disposable-service-state", "authenticated-review-create-intent"],
+      "case_ids": [],
       "positive_status": "NOT RUN"
     },
     {

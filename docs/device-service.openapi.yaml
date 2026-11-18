@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.94.0
+  version: 1.95.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1852,6 +1852,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "409":
+          description: Session admission denied, idempotency conflict or review-v1 create already sealed.
+        "410":
+          description: review-v1 create key expired.
         "422":
           $ref: "#/components/responses/Error"
         "507":
@@ -1891,6 +1895,68 @@ paths:
                     type: integer
                   purged:
                     type: boolean
+  /sessions/reconcile-create:
+    post:
+      summary: Resolve and seal a Reviewer session create
+      description: >-
+        Requires configured Bearer control authentication. Resolve only the
+        exact review-v1 attempt and persist a seal under the session allocation
+        lock. This operation never creates or stops a session. A retained
+        record can be returned after expiry. An expired key with no retained
+        record returns 410 because it cannot prove a past create was absent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [key_sha256, request_sha256, expires_at, nonce]
+              properties:
+                key_sha256:
+                  type: string
+                  pattern: "^[0-9a-f]{64}$"
+                  description: SHA-256 of the reconstructed review-v1 key.
+                request_sha256:
+                  type: string
+                  pattern: "^[0-9a-f]{64}$"
+                  description: SHA-256 of the original compact JSON request body with sorted keys, UTF-8, unescaped Unicode and no idempotency_key.
+                expires_at:
+                  type: integer
+                  minimum: 1
+                  maximum: 9999999999
+                  description: Unix seconds in the original key, at most 600 seconds in the future.
+                nonce:
+                  type: string
+                  pattern: "^[0-9a-f]{32}$"
+                  description: Original key suffix, used to verify expiry and never persisted on the worker.
+      responses:
+        "200":
+          description: Bound session or sealed pre-allocation cancellation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [state, session_id, worker_id]
+                properties:
+                  state:
+                    type: string
+                    enum: [bound, not_created]
+                  session_id:
+                    type: [string, "null"]
+                    description: Original session ID for bound or null for not_created.
+                  worker_id:
+                    type: string
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "409":
+          description: Key identity or canonical request hash conflicts.
+        "410":
+          description: Expired key has no retained create record.
+        "503":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}:
     get:
       summary: Read session state
@@ -5333,7 +5399,10 @@ components:
           description: >
             Optional caller-stable key for safe create retries. The service
             persists only SHA256(key) and the canonical request hash. Reusing
-            the key with different request content returns 409.
+            the key with different request content returns 409. The reserved
+            form review-v1:<unix expiry>:<32 lowercase hex nonce> enables
+            authenticated recovery. A sealed key returns 409. Expired create
+            and replay return 410 before allocating a lease.
         firmware_id:
           type: string
           description: Omit to use the cached reference UIFlow2 image.
@@ -7214,6 +7283,10 @@ components:
       additionalProperties: true
       required: [schema_version, worker_id, generation, state, accepting_leases]
       properties:
+        session_create_recovery:
+          type: string
+          const: review-v1
+          description: Available with configured Bearer control authentication and a readable recovery journal.
         schema_version:
           type: integer
         worker_id:

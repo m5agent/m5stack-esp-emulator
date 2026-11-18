@@ -555,7 +555,8 @@ class Handler(SimpleHTTPRequestHandler):
             if parts and parts[0] == "previews":
                 self._handle_preview(method, parts, query, request_id)
                 return
-            if method in {"POST", "DELETE"} and len(parts) >= 2 and parts[0] == "sessions":
+            if (method in {"POST", "DELETE"} and len(parts) >= 2 and parts[0] == "sessions"
+                    and not (method == "POST" and parts == ["sessions", "reconcile-create"])):
                 read_actions = {"wait", "qom-snapshot", "flash-snapshot"}
                 if method == "DELETE" or len(parts) < 3 or parts[2] not in read_actions:
                     target_session = service.get_session(parts[1])
@@ -1218,6 +1219,11 @@ class Handler(SimpleHTTPRequestHandler):
                         "unknown remote worker action",
                         404,
                     )
+            elif method == "POST" and parts == ["sessions", "reconcile-create"]:
+                if not (self.api_token or self.previous_api_token):
+                    raise ServiceError("session_create_recovery_auth_required",
+                                       "review-v1 requires configured Bearer authentication", 503)
+                response = service.reconcile_session_create(self._read_json(max_bytes=4096, reject_duplicate_keys=True))
             elif method == "POST" and parts == ["sessions"]:
                 response = service.create_session(self._read_json())
                 status = 202

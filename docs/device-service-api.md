@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.94.0` and bounded
+Status: local MVP with unified-device runtime contract `1.95.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -740,6 +740,36 @@ retry returns the original session with `idempotent_replay=true`; reusing the
 key for different request content returns HTTP `409`
 `session_idempotency_conflict`. The mapping survives service restart. Raw keys
 and request bodies are not written to the mapping file.
+
+#### Recover an interrupted Reviewer session create
+
+A worker advertising `session_create_recovery: review-v1` at `GET /worker`
+accepts the `review-v1:<unix expiry>:<32 lowercase hex nonce>` form in the
+existing `POST /sessions` `idempotency_key` field. The expiry must be at most
+600 seconds ahead. Both admission and replay reject expired keys with HTTP 410.
+
+Before create, keep the intended key and canonical request hash in the caller's
+private attempt journal. Canonicalization removes `idempotency_key`, sorts all
+JSON object keys, uses compact separators (`","` and `":"`) and encodes
+unescaped Unicode as UTF-8. SHA-256 the resulting bytes. After interruption,
+`POST /sessions/reconcile-create` with `key_sha256`, `request_sha256`,
+`expires_at` and `nonce` resolves the exact recorded attempt. The nonce verifies
+that the expiry belongs to the key digest. The Device Service journal stores
+digests and bindings without the raw key, nonce or request body.
+
+The response contains `worker_id`, `state`, and `session_id`. `bound` supplies
+the original session ID, which the caller can verify and stop through the
+ordinary lifecycle. `not_created` seals an attempt that had not allocated. Both
+results seal subsequent creates and replay with the same key. Reconciliation
+neither starts nor stops a session. A mismatched identity or request hash
+returns HTTP 409. A retained record remains available after expiry. An expired
+key with no retained record returns HTTP 410 because there is no evidence that
+it *never* allocated. Journal unavailability returns HTTP 503. Ordinary create
+keys keep their existing behavior.
+
+The route requires configured Bearer control authentication. It is intended for
+trusted Reviewer recovery on the same worker state; `owner` labels and this
+protocol do not add tenant authorization to session lifecycle operations.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does

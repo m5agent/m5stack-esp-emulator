@@ -196,6 +196,17 @@ def seal_manifest(manifest: dict) -> dict:
     return manifest
 
 
+def review_create_request(*, expires_at=None):
+    expires_at = int(time.time()) + 300 if expires_at is None else expires_at
+    nonce = uuid.uuid4().hex
+    key = f"review-v1:{expires_at}:{nonce}"
+    body = {"device_id": "sticks3", "ttl_seconds": 60}
+    canonical = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    proof = {"expires_at": expires_at, "nonce": nonce, "key_sha256": hashlib.sha256(key.encode()).hexdigest(),
+             "request_sha256": hashlib.sha256(canonical).hexdigest()}
+    return {**body, "idempotency_key": key}, proof
+
+
 class DeviceServiceUnitTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -547,6 +558,169 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])
         self.assertTrue(payload["network_enabled"])
+
+    def test_review_create_publish_after_missing_reconcile_is_fenced(self):
+        self.service.set_api_tokens("test-auth-value")
+        request, proof = review_create_request()
+        reached, resume = threading.Event(), threading.Event()
+        blocked_errors = []
+
+        def block_capacity(_):
+            reached.set()
+            if not resume.wait(5):
+                raise AssertionError("test did not release admission")
+
+        def blocked_create():
+            try:
+                self.service.create_session(request)
+            except Exception as error:
+                blocked_errors.append(error)
+
+        with mock.patch.object(self.service, "_ensure_storage_capacity", side_effect=block_capacity), \
+             mock.patch.object(DeviceSession, "start", autospec=True) as start:
+            worker = threading.Thread(target=blocked_create)
+            worker.start()
+            try:
+                self.assertTrue(reached.wait(5))
+                reply = self.service.reconcile_session_create(proof)
+                self.assertEqual(reply, {"session_id": None, "state": "not_created",
+                                         "worker_id": self.service.worker.worker_id})
+            finally:
+                resume.set()
+                worker.join(5)
+            self.assertFalse(worker.is_alive())
+            start.assert_not_called()
+        self.assertEqual([error.code for error in blocked_errors], ["session_create_reconciled"])
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+        self.assertEqual(self.service.list_sessions()["sessions"], [])
+
+    def test_review_create_bound_reconcile_and_tombstone_survive_restart(self):
+        self.service.set_api_tokens("test-auth-value")
+        request, proof = review_create_request()
+        missing, missing_proof = review_create_request()
+        with mock.patch.object(DeviceSession, "start", autospec=True) as start:
+            created = self.service.create_session(request)
+            replayed = self.service.create_session(request)
+            self.assertTrue(replayed["idempotent_replay"])
+            self.assertEqual(replayed["session_id"], created["session_id"])
+            bound = self.service.reconcile_session_create(proof)
+            tombstone = self.service.reconcile_session_create(missing_proof)
+            self.assertEqual(bound["state"], "bound")
+            self.assertEqual(bound["session_id"], created["session_id"])
+            self.assertEqual(tombstone["state"], "not_created")
+            self.assertEqual(self.service.worker_status()["active_lease_count"], 1)
+            start.assert_called_once()
+        with self.assertRaises(ServiceError) as conflict:
+            self.service.reconcile_session_create({**proof, "expires_at": proof["expires_at"] + 1})
+        self.assertEqual(conflict.exception.code, "session_idempotency_conflict")
+        with self.assertRaises(ServiceError) as conflict:
+            self.service.reconcile_session_create({**proof, "request_sha256": "0" * 64})
+        self.assertEqual(conflict.exception.code, "session_idempotency_conflict")
+        journal = self.service.state_dir / "review-session-create.json"
+        raw = journal.read_text()
+        for value in (request["idempotency_key"], proof["nonce"], missing_proof["nonce"]):
+            self.assertNotIn(value, raw)
+        self.assertEqual(journal.stat().st_mode & 0o777, 0o600)
+        specs = self.service.specs
+        self.service.close_all()
+        self.service = DeviceService(state_dir=self.service.state_dir, api_token="test-auth-value")
+        self.service.specs = specs
+        self.assertEqual(self.service.reconcile_session_create(proof), bound)
+        self.assertEqual(self.service.reconcile_session_create(missing_proof), tombstone)
+        for body in (request, missing):
+            with self.assertRaises(ServiceError) as sealed:
+                self.service.create_session(body)
+            self.assertEqual(sealed.exception.code, "session_create_reconciled")
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+
+    def test_review_create_expiry_and_storage_error_fail_closed(self):
+        self.service.set_api_tokens("test-auth-value")
+        expired, expired_proof = review_create_request(expires_at=int(time.time()) - 1)
+        future, future_proof = review_create_request(expires_at=int(time.time()) + 601)
+        for request, proof, status in ((expired, expired_proof, 410), (future, future_proof, 400)):
+            for operation, body in ((self.service.create_session, request),
+                                    (self.service.reconcile_session_create, proof)):
+                with self.assertRaises(ServiceError) as rejected:
+                    operation(body)
+                self.assertEqual(rejected.exception.status, status)
+        request, proof = review_create_request()
+        with mock.patch("device_service_create_recovery.os.replace", side_effect=OSError("write failed")), \
+             mock.patch.object(DeviceSession, "start", autospec=True) as start:
+            with self.assertRaises(ServiceError) as rejected:
+                self.service.reconcile_session_create(proof)
+            self.assertEqual(rejected.exception.code, "session_create_recovery_unavailable")
+            start.assert_not_called()
+        # A failed write does not get reported as a durable success on retry.
+        self.assertEqual(self.service.reconcile_session_create(proof)["state"], "not_created")
+        with self.assertRaises(ServiceError) as sealed:
+            self.service.create_session(request)
+        self.assertEqual(sealed.exception.code, "session_create_reconciled")
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+
+    def test_review_create_expiry_is_checked_again_at_allocation(self):
+        self.service.set_api_tokens("test-auth-value")
+        now = int(time.time())
+        request, _ = review_create_request(expires_at=now + 10)
+        with mock.patch("device_service_create_recovery.time") as clock, \
+             mock.patch.object(self.service, "_ensure_storage_capacity") as gate, \
+             mock.patch.object(DeviceSession, "start", autospec=True) as start:
+            clock.time.return_value = now
+
+            def expire(_):
+                clock.time.return_value = now + 10
+
+            gate.side_effect = expire
+            with self.assertRaises(ServiceError) as rejected:
+                self.service.create_session(request)
+            self.assertEqual(rejected.exception.code, "session_create_expired")
+            gate.assert_called_once()
+            start.assert_not_called()
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+
+    def test_review_create_journal_pressure_retains_active_and_unexpired_entries(self):
+        self.service.set_api_tokens("test-auth-value")
+        now = int(time.time())
+        active, active_proof = review_create_request(expires_at=now + 10)
+        _, protected = review_create_request(expires_at=now + 300)
+        _, proposed = review_create_request(expires_at=now + 300)
+        with mock.patch("device_service_create_recovery.MAX_ENTRIES", 2), \
+             mock.patch("device_service_create_recovery.time") as clock, \
+             mock.patch.object(DeviceSession, "start", autospec=True):
+            clock.time.return_value = now
+            session = self.service.create_session(active)
+            self.service.reconcile_session_create(protected)
+            clock.time.return_value = now + 10
+            with self.assertRaises(ServiceError) as full:
+                self.service.reconcile_session_create(proposed)
+            self.assertEqual(full.exception.code, "session_create_recovery_full")
+            self.assertEqual(self.service.reconcile_session_create(active_proof)["session_id"], session["session_id"])
+            self.assertEqual(self.service.reconcile_session_create(protected)["state"], "not_created")
+            self.service.delete_session(session["session_id"], purge=False, retain_flash=False)
+            self.assertEqual(self.service.reconcile_session_create(proposed)["state"], "not_created")
+            with self.assertRaises(ServiceError) as expired:
+                self.service.reconcile_session_create(active_proof)
+            self.assertEqual(expired.exception.code, "session_create_expired")
+        self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
+
+    def test_review_create_corrupt_journal_does_not_affect_ordinary_keys(self):
+        specs = self.service.specs
+        state = self.service.state_dir
+        self.service.close_all()
+        journal = state / "review-session-create.json"
+        journal.write_text("{broken")
+        self.service = DeviceService(state_dir=state, api_token="test-auth-value")
+        self.service.specs = specs
+        request, proof = review_create_request()
+        self.assertNotIn("session_create_recovery", self.service.worker_status())
+        for operation, body in ((self.service.create_session, request),
+                                (self.service.reconcile_session_create, proof)):
+            with self.assertRaises(ServiceError) as rejected:
+                operation(body)
+            self.assertEqual(rejected.exception.code, "session_create_recovery_unavailable")
+        with mock.patch.object(DeviceSession, "start", autospec=True) as start:
+            self.service.create_session({**request, "idempotency_key": "legacy-ordinary-key"})
+            start.assert_called_once()
+        self.assertEqual(journal.read_text(), "{broken")
 
     def test_session_create_idempotency_replays_and_persists(self):
         request = {
@@ -7499,6 +7673,27 @@ class DeviceServiceHttpTests(unittest.TestCase):
         request = Request(self.base + path, method=method, data=data, headers=headers or {})
         with urlopen(request, timeout=5) as response:
             return response.status, json.load(response)
+
+    def test_reconcile_create_http_requires_configured_auth(self):
+        _, proof = review_create_request()
+        path = "/api/v1/sessions/reconcile-create"
+        data = json.dumps(proof).encode()
+        with self.assertRaises(HTTPError) as unconfigured:
+            self.request(path, method="POST", data=data)
+        self.assertEqual(unconfigured.exception.code, 503)
+        with mock.patch.object(Handler, "api_token", "test-auth-value"):
+            with self.assertRaises(HTTPError) as unauthenticated:
+                self.request(path, method="POST", data=data)
+            self.assertEqual(unauthenticated.exception.code, 401)
+            auth = {"Authorization": "Bearer test-auth-value", "Content-Type": "application/json"}
+            _, worker = self.request("/api/v1/worker", headers=auth)
+            before = worker["active_lease_count"]
+            self.assertEqual(worker["session_create_recovery"], "review-v1")
+            status, result = self.request(path, method="POST", data=data, headers=auth)
+            self.assertEqual(status, 200)
+            self.assertEqual(result, {"state": "not_created", "session_id": None, "worker_id": worker["worker_id"]})
+            _, after = self.request("/api/v1/worker", headers=auth)
+            self.assertEqual(after["active_lease_count"], before)
 
     def test_site_config_exposes_only_the_serving_device_service_origin(self):
         status, config = self.request("/platform/web/site-config.json")

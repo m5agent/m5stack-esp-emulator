@@ -48,6 +48,9 @@ from ble_runtime_limits import (  # noqa: E402
     ble_peer_scan_timeout_seconds,
     reconnect_workload_timeout_seconds,
 )
+from device_service_create_recovery import (  # noqa: E402
+    PROTOCOL as REVIEW_CREATE_PROTOCOL, SessionCreateRecovery, parse_reconcile, review_expiration,
+)
 from device_service_errors import ServiceError  # noqa: E402
 from device_service_fs_fixture import (  # noqa: E402
     MAX_FS_FIXTURE_BYTES,
@@ -10716,6 +10719,7 @@ class DeviceService:
             self.state_dir / "session-idempotency.json"
         )
         self._session_idempotency = self._load_session_idempotency()
+        self._review_create = SessionCreateRecovery(self.state_dir / "review-session-create.json")
         self._flash_lock = threading.Lock()
         self._reference_cache: dict[str, dict] = {}
         self._last_storage_prune_at: float | None = None
@@ -10911,9 +10915,19 @@ class DeviceService:
         self,
         key_hash: str | None,
         request_hash: str | None,
+        expires_at: int | None = None,
     ) -> DeviceSession | None:
         if key_hash is None or request_hash is None:
             return None
+        if expires_at is not None:
+            self._require_review_create_auth()
+            sid = self._review_create.replay(key_hash, request_hash, expires_at)
+            if sid is None:
+                return None
+            session = self._sessions.get(sid)
+            if session is None:
+                raise ServiceError("session_create_binding_unavailable", "review-v1 session binding remains reserved", 409)
+            return session
         entry = self._session_idempotency.get(key_hash)
         if entry is None:
             return None
@@ -10935,8 +10949,12 @@ class DeviceService:
         key_hash: str | None,
         request_hash: str | None,
         session_id: str,
+        expires_at: int | None = None,
     ) -> None:
         if key_hash is None or request_hash is None:
+            return
+        if expires_at is not None:
+            self._review_create.bind(key_hash, request_hash, expires_at, session_id, self._active_review_create_ids())
             return
         self._session_idempotency[key_hash] = {
             "request_sha256": request_hash,
@@ -10955,6 +10973,24 @@ class DeviceService:
         except Exception:
             self._session_idempotency.pop(key_hash, None)
             raise
+
+    def _require_review_create_auth(self) -> None:
+        if not self.api_tokens:
+            raise ServiceError("session_create_recovery_auth_required", "review-v1 requires configured Bearer authentication", 503)
+
+    def _active_review_create_ids(self) -> set[str]:
+        return {session_id for session_id, session in self._sessions.items()
+                if session.state in OCCUPIED_STATES or session._worker_lease_active}
+
+    def reconcile_session_create(self, payload: dict) -> dict:
+        self._require_review_create_auth()
+        key_hash, request_hash, expires_at = parse_reconcile(payload)
+        with self._lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
+            sid = self._review_create.reconcile(key_hash, request_hash, expires_at, self._active_review_create_ids())
+            return {"state": "bound" if sid is not None else "not_created", "session_id": sid,
+                    "worker_id": self.worker.worker_id}
 
     def _restore_history(self) -> None:
         """Restore history and safely re-attach only verified live QEMU PIDs."""
@@ -11914,12 +11950,14 @@ class DeviceService:
         idempotency_key_hash, idempotency_request_hash = (
             self._session_idempotency_fields(payload)
         )
+        review_expires_at = review_expiration(payload.get("idempotency_key"))
         with self._lock:
             if self._stop.is_set():
                 raise ServiceError("service_stopping", "device service is shutting down", 503)
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
+                review_expires_at,
             )
             if replayed is not None:
                 self._require_session_binding(replayed, _management_binding)
@@ -12347,6 +12385,7 @@ class DeviceService:
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
+                review_expires_at,
             )
             if replayed is not None:
                 self._require_session_binding(replayed, _management_binding)
@@ -12731,6 +12770,7 @@ class DeviceService:
                     idempotency_key_hash,
                     idempotency_request_hash,
                     session.id,
+                    review_expires_at,
                 )
             except Exception:
                 self._sessions.pop(session.id, None)
@@ -13591,7 +13631,10 @@ class DeviceService:
 
     def worker_status(self) -> dict:
         try:
-            return self.worker.snapshot()
+            snapshot = self.worker.snapshot()
+            if self.api_tokens and self._review_create.available:
+                snapshot["session_create_recovery"] = REVIEW_CREATE_PROTOCOL
+            return snapshot
         except WorkerRegistryError as error:
             raise ServiceError(
                 error.code,

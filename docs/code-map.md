@@ -93,6 +93,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/observation_store.py` | 本地展示页的有界 SQLite 生命周期投影、全局游标、缺口与保留；独立于可清理的会话内容 | Device Service、`test_observation_store.py` |
+| `platform/tools/device_service_create_recovery.py` | Reviewer `review-v1` 创建绑定、持久取消和恢复 identity 校验 | Device Service `POST /sessions/reconcile-create` 与 session admission；`test_device_service.py` |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_input.py` | 原生语义化按键、键盘、组合键和触摸的校验与 QMP 提交 | Device Service session input |
 | `platform/tools/device_service_encoder.py` | Dial 正交控制器目标与物理边沿读回 | Device Service session input、`test_device_service_encoder.py` |
