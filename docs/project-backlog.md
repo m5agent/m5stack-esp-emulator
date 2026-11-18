@@ -62,7 +62,8 @@
    已对同一原版核验 G0 动作写入、指定文件和缺失文件对照。
    [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。
    [同 Flash 对照和跨服务恢复](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)
-   已确认原版 G0 文件可在新服务恢复。[停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
+   已确认原版 G0 文件可在新服务恢复。[1.99 双 Worker 复验](validation-ledger.md#2026-11-19-nc1020-原版存档跨-worker-读回)
+   再次核对原版写入、停机导出和冷启读回，完整出帧仍待解决。[停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
    [原版双核指令](../tests/firmware/cardputer_k132_stock/nc1020-dual-core-spi-cas-summary.json)确认一次 ISR 退出遗漏等待任务的唤醒。
    [上游 SPI 锁修订的重建对照](../tests/firmware/cardputer_k132_stock/nc1020-esp-idf-lock-backport-summary.json)已验证相同存档和运行时的完整出帧。继续追踪另一轮原版停刷、对照真机并验证发布者更新后的固件。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
@@ -76,13 +77,15 @@
    [Linux 持久卷冷启动](validation-ledger.md#2026-11-18-审核就绪-api-与-linux-持久卷冷启动)
    已覆盖独立虚拟机的正常重启，原版 Core2 标准干跑另通过受控 Virtio VSOCK
    完成会话创建、取证和清理。无网卡 Linux 上，初代 CardputerDict 原版通过可信 HTTPS
-   发音及拒绝对照。继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
+   发音及拒绝对照，[关闭 stdin 的网关复验](validation-ledger.md#2026-11-19-linux-网关闭合-stdin-复验)覆盖了启动和清理。
+   继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
    保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
-   已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。开放式 ESP-IDF 夹具已通过
-   [同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)；
+   已取得关联、DHCP、ARP 和只读首页收据。随后[同会话表单与 STA](evidence/2026-11-17-sticks3-portal-station/README.md)通过开放 AP 的关联、DORA 和 ARP，[原版两次复位](evidence/2026-11-18-sticks3-station-rejoin/README.md)验证同会话恢复 STA。
+   [当前 Reviewer 原版配网](validation-ledger.md#2026-11-19-sticks3-原版配网标准审核)另保存首页、表单和 STA 的同会话数据，云端协议继续单独验收。
+   开放式 ESP-IDF 夹具已通过[同 guest DHCP、ARP 和固定 HTTP](../tests/network/native_open_softap/README.md)。
    StickS3 夹具另有[按键触发和复位对照](../tests/network/native_open_softap/sticks3-button-summary.json)。
    [保存快照热点审核](../tests/network/native_open_softap/saved-review-summary.json)在 Cardputer、
    ADV 和 StickS3 接入同会话的固定 HTTP 夹具，并区分前置按键和数据面结果。

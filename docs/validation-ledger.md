@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-18`
+日期：`2026-11-19`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -14,6 +14,42 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 Linux 网关闭合 stdin 复验
+
+同一无网卡 Linux VZ、原版 CardputerDict 0.6.4、同一份 FAT32 字典及同一 Reviewer
+做标准保存快照对照。基线 `1939e398` 的外层网关在 FD 0 关闭时取得保护 FD 0，
+内层因不合法的交接描述符拒绝启动。审核返回 `service_error / E_SIM_STARTUP_FAILED`，
+证据包含失败路径的资源回收。
+
+候选 `4216d548` 仍从相同的关闭 stdin 条件启动，仅把需要交接的低位描述符复制到
+标准流以上。真实内层取得不同的合法 FD 并通过已有身份及许可校验。拒绝对照保留
+校时、阻断发音连接。放行轮完成可信 TLS、10,605 字节 MP3 缓存及 84,992 字节 PCM，
+审核返回 `done / SIM_VERIFIED`。两轮同会话 ZIP、PCAP、Flash、租约和隔离网络清理
+均已核对。Burner 未提交，常驻 Linux 接入未验证。
+[关闭 stdin 的原版对照证据](https://github.com/m5agent/agent-work-logs/blob/def9dc0370258483b4ead5cff64c7cc3c2ebf6b4/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/README.md)。
+
+## 2026-11-19 NC1020 原版存档跨 Worker 读回
+
+Device Service 1.99 运行同一原版 NC1020、含 ROM/NOR 的 Flash 和既有 FAT32 存档。
+第一台 Worker 通过实际 SPI 单块读恢复状态，语义 G0 按键触发保存并推进写戳。
+停止后导出 SD，第二台 Worker 以该卡和同一份含 ROM/NOR 的 Flash 启动并恢复
+`/sd/nc1020.state`。停止后导出的 FAT 清单保留同一 99,384 字节文件及 SHA-256。
+两轮保留原版分区与会话历史，释放可写 Flash 和租约。
+
+两轮均未取得完整测试图案。各自出现稳定但不完整的非黑帧，串口心跳仍继续。
+本轮确认显示缺口仍可复现，未定位这两轮的 SPI 锁状态或验证真机。Burner 未提交。
+[原版跨 Worker 存档证据](https://github.com/m5agent/agent-work-logs/blob/5cd144aa2ad647b4efaf4aef6a0ef117754255ca/records/esp-emulator/2026-11-18-native-integrated-guest-validation/followups/2026-11-18-nc1020-restored-187/followups/2026-11-19-nc1020-199-cold-restore/README.md)。
+
+## 2026-11-19 StickS3 原版配网标准审核
+
+Device Service 1.99 和 Reviewer `f0101b6` 经标准保存快照入口执行同一原版 StickS3。
+审核报告的 `ap_provisioning` 通过。终态 ZIP 的独立 PCAP 重组核对两次 HTTP 200，
+按时序先经 SoftAP 获取首页，再提交配网表单，随后同一来宾取得 STA DHCP 租约与 ARP。
+停机 Flash 读回显示 4,344 字节 NVS 变化，原应用在 `0x10000` 的字节一致。缺少启动基底
+元数据的早期对照在会话前拒绝。整体保持 `SIM_PARTIAL / E_NETWORK_PARTIAL`，
+云端未运行。租约、Flash 和临时对端已释放，Burner 未提交。
+[标准审核与独立抓包证据](https://github.com/m5agent/agent-work-logs/blob/26ad73fb99ca6920689b78d0b30caf0c596a26ed/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-sticks3-reviewer-199-original-portal/README.md)。
+
 ## 2026-11-18 审核就绪 API 与 Linux 持久卷冷启动
 
 - 无网卡 Linux ARM64 使用两条固定地址和协议的 Virtio VSOCK 转发，原版
@@ -22,7 +58,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   来宾发出 443 请求后无响应，没有发音缓存或 PCM。两轮均释放 Flash、隔离资源和租约。
   一次启动准备失败保留为基础设施对照。独立复现确认关闭标准输入可使保护描述符
   取得 FD 0 并触发同一校验，首轮未采样实际描述符。后续运行用 `/dev/null` 保留
-  标准输入。常驻接入和这一启动条件的代码修复仍待验收。
+  标准输入。关闭 stdin 的后续修复见[同原版复验](#2026-11-19-linux-网关闭合-stdin-复验)。
   [可信 HTTPS 放行与拒绝证据](https://github.com/m5agent/agent-work-logs/blob/8d28b4852997636a99166d91ac10273a74c14dce/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-vz-cardputerdict-trusted-https/README.md)。
 - 在无网卡的 Linux ARM64 客体中，用 Virtio VSOCK 读取真实 Device Service 1.99
   的 `GET /api/v1/worker`。宿主监听仅绑定环回。缺失或错误的 Bearer 返回 401，
