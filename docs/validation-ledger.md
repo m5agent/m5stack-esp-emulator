@@ -236,6 +236,41 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 Reviewer 的 Linux 保存快照分流
+
+Reviewer 0.30.0（`b9426a2d`）以系统 Python 3.9.6 启动一个独立审核进程，
+连接两个不同的认证 Device Service 入口。主入口为 macOS，同版 1.99.3 的
+Linux Worker 仅接收显式启用的原版 Core2 2048 保存快照。标准重试 API 返回
+HTTP 202，实际会话创建记录绑定到 Linux Worker。原版应用字节核对一致，
+八次有效滑动覆盖四个方向。两份证据 ZIP 校验通过，macOS 主入口没有新会话，
+Linux 会话停止后保留历史、释放可写 Flash 并归零租约。
+
+使用同一 SQLite 重启 Reviewer，原任务和 17 条事件逐项一致。关闭准入和测试
+Linux 入口不可达时，主后端 `/api/ready` 均保持就绪，独立 Linux 就绪接口返回
+503。恢复原批准入口后返回 200。本轮未在活动租约中切断第二入口。可配置的 ADV
+分流另需在此 Reviewer 版本中完成实际原版审核，Burner 未提交。
+
+常驻 Reviewer 已更新到 0.30.0。主后端继续使用 macOS，`/api/ready` 返回 200，
+Linux 独立接口返回 `503 not_configured`。更新前后 131 条审核及 SQLite 摘要
+一致，抽查最早和最近的旧证据 ZIP 字节一致。工作台和审核后端的 Device Service
+OpenAPI 均回读为 1.99.3。三个托管测试 Worker 代次已正常停机，临时入口已卸载。
+[原版分流、创建绑定和就绪隔离证据](https://github.com/m5agent/agent-work-logs/blob/34a39d9d3bdde715f43eb2277765842ee4217c9f/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/report.md)。
+
+## 2026-11-19 LaunchAgent 下的 ADV 原版发音复验
+
+同一个 Linux Worker、持久卷和认证入口从第二代恢复到第三代。仅宿主转发
+进程切换到已校验的 Python 3.13.15。Reviewer 0.29.2（`88ca2e3c`）经
+Device Service 1.99.3（`2a7f979c`）执行 CardputerDict ADV 0.5.0
+原版（`21b7a88e`）的标准保存快照 dry-run。原始应用分区与组合 Flash 已核对。
+
+复验完成 DHCP、受控 DNS、SNTP 和可信 HTTPS。宿主和 Linux 转发日志中的
+SNTP 请求、应答及 TLS 密文字节计数和摘要逐项一致。SD 缓存读回 10,605 字节，
+三份独立导出的证据归档包含逐字节一致的 84,992 字节 PCM。原版结果为
+`done / SIM_VERIFIED`，会话正常停止、可写 Flash 释放、活动租约归零。
+保留第二代 Python 3.9 导入失败以及校时无回复的 `SIM_PARTIAL`。本轮为
+virtual-device validation，未提交 Burner。
+[同原版转发故障与复验](https://github.com/m5agent/agent-work-logs/blob/4985746c28f59a50fc9c2707ad9cf932f5c58ca9/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-launchd-active-drain/followups/2026-11-19-adv-host-relay-python313/report.md)。
+
 ## 2026-11-19 LaunchAgent 下的 Linux 审核排空
 
 在 macOS 用户 LaunchAgent 中运行隔离 Linux ARM64 Worker。首个托管进程中
