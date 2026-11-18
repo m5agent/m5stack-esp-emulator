@@ -87,4 +87,21 @@ B 键按下后保持，直到 `RTC_GPIO_REJECT_PASS` 或失败标记再释放。
 `sleep_raw=0x0`。最后通过 W1C 写入清除拒绝原因并检查读回。
 `RTC_GPIO_REJECT_PASS` 表示这些断言在一次启动中均满足。
 
+## GPIO 与定时器竞争唤醒
+
+在独立构建目录为默认构建命令增加 `-D M5_RTC_MIXED_WAKE=ON`。
+GPIO12 的低电平唤醒和定时唤醒均通过 ESP-IDF API 启用。同一来宾执行三轮浅睡。
+
+1. 保持 B 键释放，等待 120 ms 定时唤醒。来宾应报告 `timer_cause`。
+2. 串口出现 `RTC_MIXED_ENTER step=2` 后，在 2 秒定时器到期前通过
+   正常 Device Service B 键路径按下，等 `RTC_MIXED_RETURN step=2` 后释放。
+   来宾应报告 `gpio_cause`，按下状态为低电平。
+3. 释放 B 后来宾自动发起 3 秒浅睡。保持无输入，等定时唤醒。
+   来宾验证第三轮在旧定时器到期前启动，且实际等待了新的时长。
+
+每次返回记录控制器 RTC tick、SDK 慢时钟校准值、换算后的 RTC 耗时和
+`esp_timer_get_time` 耗时。定时唤醒允许相对请求早 10 ms 或晚 80 ms。
+观察到旧 2 秒定时器提前唤醒第三轮、唤醒源不符、重启或缺少
+`RTC_MIXED_PASS` 均不通过。保留来宾串口、主机等待时长、B 键输入与同会话 ZIP。
+
 [ESP-IDF 来宾观测](rtc-light-sleep-fixture.summary.json)保存定时基线、旧版 GPIO 失败、中间候选及最终唤醒和拒绝结果。
