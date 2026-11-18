@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.84.0",
-  "contract_sha256": "991d6cf4325207be82fbb60cae9926713ed2f0a45738827091e913e9b765bea7",
+  "contract_sha256": "9df91cebdf124293da93191df4002cb25b9331e73741e8b3c6089706c9a73b2c",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1222,6 +1222,22 @@
       ],
       "case_ids": [
         "GET /sessions/{session_id}/storage/sd/write-stamp missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/storage/sd/read-stats",
+      "method": "GET",
+      "path": "/sessions/{session_id}/storage/sd/read-stats",
+      "phase": "native-spi-sd-read-observation",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "cardputer-or-adv-native-qemu-with-spi-sd-read-counters",
+        "session-owned-spi-sd-image-and-empty-slot-control",
+        "storage-read-permission"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/storage/sd/read-stats missing-resource"
       ],
       "positive_status": "NOT RUN"
     },
@@ -2506,6 +2522,16 @@
       ]
     },
     {
+      "case_id": "GET /sessions/{session_id}/storage/sd/read-stats missing-resource",
+      "operation_id": "GET /sessions/{session_id}/storage/sd/read-stats",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/storage/sd/read-stats",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
       "case_id": "POST /sessions/{session_id}/storage/sd/export missing-resource",
       "operation_id": "POST /sessions/{session_id}/storage/sd/export",
       "method": "POST",
@@ -2646,6 +2672,7 @@
     "visible-preview": "Create visible Preview; poll ready; run immutable checkpoint twice in the same PID; validate application READY, input, cancel/recovery, Run-bound frame, renew, ZIP-before-close and retained history.",
     "checkpoint-store": "Store exact complete checkpoint; retry bytes under alternate encoding; verify immutable ID, metadata, full file bytes and error cases.",
     "visible-session": "Exercise this operation only on an owned visible guest; bind outputs to firmware/PID/execution and capture evidence ZIP before stop purge=0.",
+    "native-spi-sd-read-observation": "Sample an owned plain Cardputer or Cardputer ADV QEMU session before and after a guest SD read. Require matching session, firmware, runtime, media, attachment and reset identity and positive completed-block delta. Verify the same firmware with an empty slot and verify an older QEMU without the property returns the typed unsupported error. Capture evidence before stop purge=0.",
     "catalog-and-health": "Read actual configured service metadata; distinguish supported, backend-ready, host admission and current runtime capabilities.",
     "isolated-control-plane": "Use a separately bound service/state directory; exercise worker HMAC, job lease fencing, retention, and drain/resume without affecting shared sessions.",
     "worker-evidence": "Use a real authenticated WorkerAgent and live job lease; upload a multi-MiB ZIP, inject response loss, replay identical bytes, restart the control plane, read metadata/content, reject different bytes/result bindings and delete only the owned evidence record.",
