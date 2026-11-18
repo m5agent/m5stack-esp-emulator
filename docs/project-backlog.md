@@ -29,7 +29,7 @@
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
 - [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的原版 Maker Fighter 在 esp-emu 1.1.0 已初始化 DWC 并注册客户端。根端口供电，仍需真实的外设连接、HID/MSC 枚举、数据传输及应用画面。[当前版本与能力接口对照](https://github.com/m5agent/agent-work-logs/blob/cb240b4d96bfa470ff7aa19926c8c9f74931a418/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/README.md)。
-- PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
+- PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；[无 USB 原版对照](validation-ledger.md#2026-11-19-papercolor-原版启动互斥锁断言)确认断言时两核任务关系，继续定位完整锁操作与共享外设事务。
 - C6 身份剩余范围：NanoC6 真实 controller/drive 与 guest API 的隔离和复位稳定性已验证；802.15.4 extended-address 寄存器数据面仍需实现，再验收 Zigbee 身份及协议。不将 NanoC6 子路径转授其它板型或用报告字段伪造读值。
 - Nesso N1 中断剩余范围：[普通 CPU GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已通过实际 IDF ISR 和原版 UIFlow `Pin.irq`，共享 GPIO3 pad/扩展器锁存回归通过。仍需实现 BMI270 数据/运动事件与 IRQ 输出使能、FT6336 模式/脉冲/扫描时序，以及独立 NMI/source 31、睡眠唤醒/滤波；各自须经过原驱动、真实控制器输入和复位对照，不由普通 GPIO 结果关闭。
 - Honeypot 的 AP 关联及 HTTP 数据面需另行验收，配置控制台通过不转授联网能力。见[原版应用边界](evidence/2026-11-14-native-identity-delivery/README.md)。
@@ -81,7 +81,7 @@
    发音及拒绝对照，[关闭 stdin 的网关复验](validation-ledger.md#2026-11-19-linux-网关闭合-stdin-复验)覆盖了启动和清理。
    [活动审核冷启动](validation-ledger.md#2026-11-19-linux-活动审核冷启动恢复)复现了跨内核作用域保留旧租约、
    Flash 和审核恢复记录。[可信回执冷启动对照](validation-ledger.md#可信停机回执与同原版重试)
-   在独立 Linux VZ 验证了释放容量、原版重试和历史证据保留。继续在常驻 Linux
+   在独立 Linux VZ 验证了释放容量、原版重试和历史证据保留。[同卷控制器对照](validation-ledger.md#2026-11-19-linux-控制器的持久卷独占)验证了本机排他、错卷和可写恢复卷凭据拒绝。继续在常驻 Linux
    路由验收实际控制器、持久卷独占和相关宿主资源的回收，并运行 ADV 原版发音的保存快照复审，
    以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
@@ -101,7 +101,7 @@
    [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)保留旧版无 ELF 取帧限制、新版 DSI 重复复位和 CarPlay 出帧对照。已核对单 OTA0 的 Flash 身份与实际加载偏移。[Flash 可见性复验](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)把工作收窄到 CPU0 缓存维护与 CPU1 启动读交叠的窗口。只读诊断已确认[原版挂载 FAT16 并打开合成 IDE 磁盘](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-synthetic-hdd-recognition-summary.json)。继续修复正常冷启动的有盘和无盘画面，再补 PC-98 启动验证及多应用 OTA 数据。
    [取帧准入与 60 秒审核复验](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)已验证 CarPlay 在首帧等待后持续出帧，
    官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
-   [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。继续验证其他固件的音频、麦克风与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入，后续验证其他页面和设备能力。
+   [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。继续验证其他固件的音频、麦克风与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入。[1.99 时区与离线选项](validation-ledger.md#2026-11-19-tab5-m5tabos-原版时区与页面往返)已取得加减、恢复及页面返回，继续核对快速触摸、完整向导及跨重启保存。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    [会话 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)已验证原生 FAT16 数据面。继续验证原版启动盘路径及 C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的独立关闭条件。

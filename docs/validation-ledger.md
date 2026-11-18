@@ -36,6 +36,37 @@ macOS 工作台和审核后端均更新为 Device Service `981fdcdf`。两个实
 Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由未运行。Burner 未提交。
 [本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0364fb870dfbe0a844a7e500627069d2f8846dae/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/followups/2026-11-19-resident-199-gateway-low-fd/README.md)。
 
+## 2026-11-19 Linux 控制器的持久卷独占
+
+在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷
+均先于启机被拒。宿主拒绝重用旧虚拟机身份与把停机回执移到另一卷。后继 Linux
+在启动服务前拒绝可写恢复卷上的匹配回执及指回该卷的符号链接，原历史、网关记录、
+抓包和可写 Flash 的字节均未改变。
+
+同一后继来宾无回执时返回 409，宿主独立只读回执可终结原会话并重跑同一
+CardputerDict 原版至 `SIM_VERIFIED`。保留旧 PCAP，取得实测 MP3 及 PCM，
+所有测试租约释放。生产路由和跨宿主卷独占未执行。Burner 未提交。
+[卷独占、回执拒绝及同原版复验](https://github.com/m5agent/agent-work-logs/blob/dc478cbfde28bfef3a7c0301c5c0f6d4552abb76/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/followups/2026-11-19-linux-active-cold-gateway-controller-receipt/followups/2026-11-19-linux-controller-volume-exclusivity/README.md)。
+
+## 2026-11-19 Tab5 M5TabOS 原版时区与页面往返
+
+同一原版 M5TabOS 0.9.1 在 Device Service 1.99 及 ST7123 的离线原生会话中，
+八次输入均收到按下和释放确认，实际画面显示时区分别变更到 UTC−2:30、
+UTC−3:30，再复原到 UTC−3:00。应用前进到地区网络设置页，选择不使用互联网，
+随后返回原时区画面。保存同会话串口、已核验的 ZIP 及精确区域摘要。
+较短间隔的首次对照仍有两次已确认但画面未更新的操作。快速操作、完成向导后的
+跨重启保存、另一板型及真机另待验收。两轮均完成清理，Burner 未提交。
+[原版按键、页面和漏响应对照](https://github.com/m5agent/agent-work-logs/blob/a85da77011371917a11ddcfd2a2ed16e875a5d8e/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/README.md)。
+
+## 2026-11-19 PaperColor 原版启动互斥锁断言
+
+同一 PaperColor 原厂 BIN 在独立普通冷启动未接收宿主 USB 请求，仍发生
+`xTaskPriorityDisinherit` 断言与重启。独立只读任务观测确认断言当时为
+`app_mgr` 执行，锁持有者 `LedStatusIndica` 在另一核运行。另一观测的任务
+名称解析不完整，该轮只采用串口和清理证据。三个同会话 ZIP 及租约归零均已核对。
+完整锁操作顺序和同 BIN 真机仍待验证。Burner 未提交。
+[无 USB 请求对照与任务观测](https://github.com/m5agent/agent-work-logs/blob/329e0b9e0f2754ea9e12a72e9b0577e2470048e8/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-19-papercolor-original-msc-bulk-read/followups/2026-11-19-papercolor-no-host-usb-mutex/README.md)。
+
 ## 2026-11-19 Dial 原版 8 ms 漏选
 
 原版 Arduino R1F30 在 Device Service 1.99 的独立原生会话执行真实旋钮注入，
