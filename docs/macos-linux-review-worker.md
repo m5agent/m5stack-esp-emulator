@@ -43,6 +43,11 @@ python3 "$tool/install.py" control --package "$PACKAGE" status
 
 启动返回 `worker_ready: true` 后，从认证的 `/api/v1/worker` 读回 `worker_id`，从认证的 `/api/v1/openapi.yaml` 核对摘要。无需复制或输出令牌，文件在 `$PACKAGE/$INSTANCE/scenarios/control-token`。使用这些值配置 Reviewer 的 `managed_linux_worker`。先运行该配置允许的原版保存快照 dry-run，再核对同一会话的固件、输入、输出和证据。
 
+Reviewer 0.31 支持 `POST /api/reviews/{job_id}/snapshots`。指定
+`sourceMode=saved_snapshot`、独立的 `idempotencyKey` 和需要的验证选项，即可从
+原任务保存的 BIN 和描述生成新 dry-run。使用返回的新任务 ID 查状态和证据，
+原任务的终态、事件和证据入口保持可读。遇到响应丢失时，以原请求和同一键重发。
+
 来宾没有直接网络接口。需要联网的已验证快照使用原有受控转发策略。这个路径的证据覆盖所用固件和策略，虚拟结果的范围见[原版审核证据台账](validation-ledger.md#2026-11-19-reviewer-的-linux-保存快照分流)。
 
 ## 正常排空与故障处理

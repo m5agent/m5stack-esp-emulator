@@ -830,6 +830,11 @@ cold recovery evidence.
 
 The [macOS-hosted Linux review worker](macos-linux-review-worker.md) runbook
 covers sealed installation, authenticated readiness, normal drain and restart.
+Reviewer 0.31 can create a separate local dry-run from a saved BIN and
+description through `POST /api/reviews/{job_id}/snapshots`. The new job owns
+its session and evidence while the source review stays readable. The
+[independent snapshot validation](validation-ledger.md#2026-11-19-reviewer-独立保存快照复审)
+exercised the original Core2 firmware, duplicate requests and restart.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does

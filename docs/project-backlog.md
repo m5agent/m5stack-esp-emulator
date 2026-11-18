@@ -100,8 +100,9 @@
    已通过 Reviewer 重启后的同会话对账、证据保留和资源回收。
    [运行器意外退出](validation-ledger.md#2026-11-19-linux-运行器意外退出与审核保护)
    已验证隔离原卷、阻止重试并保留证据。[安装组件](macos-linux-review-worker.md)已在
-   独立卷验证重复安装、原版 Core2 和同卷重启。仍需验证实际常驻准入、配置新 Worker
-   时保留旧入口和 Worker 的待恢复绑定、可信冷恢复、宿主断电及系统重启。
+   独立卷验证重复安装、原版 Core2 和同卷重启。[独立保存快照](validation-ledger.md#2026-11-19-reviewer-独立保存快照复审)
+   已验证保留原任务与重放幂等。仍需验证实际常驻准入、配置新 Worker 时保留旧
+   入口和 Worker 的待恢复绑定、可信冷恢复、宿主断电及系统重启。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)

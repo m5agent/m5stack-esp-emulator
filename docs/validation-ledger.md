@@ -236,6 +236,26 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 Reviewer 独立保存快照复审
+
+以 Reviewer 0.31.0（`1151dda0`）和 Device Service 1.99.3（`2a7f979c`）经
+已安装的第 3 代 Linux Worker，从一条真实原版 Core2 2048 终态生成独立
+dry-run。首次 `POST /api/reviews/{job_id}/snapshots` 返回 HTTP 202 并新建一条
+子任务。相同请求重放返回原子任务且新增入队数为零，同键改用另一组合法输入
+返回 HTTP 409。重启隔离 Reviewer 后同键仍返回原子任务。
+
+父任务的数据库行、17 条事件、49 个文件和原终态 Device 证据不变，原版本的
+日常待审查询继续指向父任务。子任务绑定独立原生会话，核对了原版 `41db3680`、
+组合 Flash `cd13c9bc` 和两份证据 ZIP。60.042 秒内覆盖四向共八次有效滑动，
+结果为 `SIM_VERIFIED`。无新 macOS 主后端会话，子任务 Flash 已释放，无待对账
+创建或活动租约。试点正常停机卸载。此轮为 virtual-device validation，Burner 未提交。
+
+同一提交已进入 Reviewer 主线并装到常驻服务。升级回读保持原 SQLite 和 131 条
+审核、批次、事件摘要及历史证据，新增关系表与待对账创建均为空。Reviewer
+0.31.0 和 macOS 主后端就绪，Linux 就绪端点返回 `503 not_configured`。
+工作台与审核后端的 Device Service OpenAPI 读回仍为 1.99.3。
+[独立快照与原版 Core2 复审证据](https://github.com/m5agent/agent-work-logs/blob/dfcda24c90e76a544c1cf0a926d209c8889cb233/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-installed-linux-worker-component/followups/2026-11-19-independent-saved-snapshot-clone/report.md)。
+
 ## 2026-11-19 可重复安装的 macOS Linux 审核 Worker
 
 从仓库中的 Swift 源码构建并签名 ARM64 VZ 运行器（`30ec2214`）。安装命令封存
