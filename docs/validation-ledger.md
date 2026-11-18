@@ -101,6 +101,25 @@ SD 缓存与 84,992 字节 I²S PCM。拒绝轮完成 DNS 和校时，目标 HTT
 Linux 持久卷和故障恢复需在实际部署中验证。Burner 未提交。
 [两次标准复审与跨系统证据](https://github.com/m5agent/agent-work-logs/blob/95ce5f45d12c7d8ba57bac2c25c340a2d401fc11/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/README.md)。
 
+## 2026-11-19 macOS Reviewer 与 Linux 同卷冷启动
+
+macOS 系统 Python 3.9.6 的 Reviewer 0.28.0（`37d7675`）经同一个认证 VSOCK
+入口连接 Device Service 1.99.1（`c9ec0f27`）。两次无网卡 Linux 来宾启动复用
+同一个独占状态卷。三个 Reviewer 进程依次使用同一 SQLite 和后端地址，Worker
+身份保持一致，代次依次为 1、2、3。
+
+第一轮原版 CardputerDict ADV 审核持有真实 QEMU、可写 Flash、已交接网关和
+创建日志。终止独立 Reviewer 后，宿主确认旧虚拟机停止并撤销其桥接与出站代理。
+后继来宾在无停机回执时拒绝回收，原审核返回 `E_SERVICE_RESTART`，重试返回
+HTTP 409，旧租约、Flash 和 PCAP 保留。提供独立控制器的只读回执后，旧租约、
+Flash 和待处理创建意图被释放。历史日志与 PCAP 逐字节一致。
+
+同一原版的保存快照重试返回 `done / SIM_VERIFIED`，取得 10,605 字节
+MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独立重读四份
+证据 ZIP 和退出回执后确认两轮来宾资源与桥接均释放。初次取证脚本问题单独保留。
+本轮为隔离演练。常驻路由、宿主断电和 Reviewer 0.29 的同卷路径待验，Burner 未提交。
+[冷启动拒绝、授权恢复及原版重试](https://github.com/m5agent/agent-work-logs/blob/e9d18d4c1a78323d1060ae47cf39b0d3d01cd52a/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/README.md)。
+
 ## 2026-11-19 Linux 控制器的持久卷独占
 
 在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷
@@ -155,6 +174,18 @@ OpenAPI 1.99.1。两个实例分别保留 55 和 98 条会话历史。Reviewer 0
 重连 macOS 后端后恢复就绪，130 条审核历史及抽查证据保持一致。
 Tab5 原版的成功和异常路径来自独立原生会话。Burner 未提交。
 [切换回读及历史保留](https://github.com/m5agent/agent-work-logs/blob/a2a6f0696f4b14d8eebe5d1981d2bc920d15b515/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-resident-1991-tab5-retained-reset/README.md)。
+
+## 2026-11-19 Tab5 原版 CarPlay 板型探测复验
+
+CarPlay 1.0.0 原版（`4f3bb118…`）经 Device Service 1.99.1（`c9ec0f27`）
+使用 esp-emu 1.1.0 和原生 GT911 Part 普通冷启动。没有申请 ELF 或调试器。
+2.328 秒记录第一张 720×1280 主页，之后三次取帧一致。空白点击保持主页，
+按钮点击打开清除配对确认框。两次触摸各有 13 条控制器报告被来宾确认，
+确认框未提交。22.419 秒观察只出现一次启动，串口和运行日志均无旧版
+BSP 断言、非法指令或软件复位。保留同会话 ZIP，P4/C6、租约和 Flash 已释放。
+原版板型探测和首帧通过验收，[#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 已关闭。
+USB/iPhone、其他板型和真机另验。Burner 未提交。
+[同会话原版主页、输入与退出证据](https://github.com/m5agent/agent-work-logs/blob/8380223b0970e80e3c91d6a23f7a4de589cb7c71/records/esp-emulator/2026-11-17-tab5-st7123-gt911-gestures/followups/2026-11-18-tab5-227-carplay-199/followups/2026-11-19-tab5-227-carplay-1991/README.md)。
 
 ## 2026-11-19 PaperColor 原版启动互斥锁断言
 

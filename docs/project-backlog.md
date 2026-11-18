@@ -84,7 +84,9 @@
    在独立 Linux VZ 验证了释放容量、原版重试和历史证据保留。[同卷控制器对照](validation-ledger.md#2026-11-19-linux-控制器的持久卷独占)验证了本机排他、错卷和可写恢复卷凭据拒绝。继续在常驻 Linux
    路由验收实际控制器、持久卷独占和相关宿主资源的回收，以及其他原版应用的 HTTPS 与云端协议。[ADV 标准发音复审](validation-ledger.md#2026-11-19-cardputerdict-adv-原版标准发音复审)
    已在隔离 Linux 验证放行、拒绝与初代兼容。[macOS Reviewer 经 VSOCK 接入 Linux](validation-ledger.md#2026-11-19-macos-reviewer-接入隔离-linux-的-adv-原版复审)
-   完成标准 ADV 放行与拒绝对照。继续在常驻 Linux 路由验证同一业务路径、持久卷和恢复记录。
+   完成标准 ADV 放行与拒绝对照。[跨系统同卷冷启动](validation-ledger.md#2026-11-19-macos-reviewer-与-linux-同卷冷启动)
+   已用旧审核的真实活动租约验证无回执拒绝、有回执清理及同原版重试。常驻 Linux
+   路由仍需独立验收稳定控制器、持久卷和实际部署的故障恢复。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
@@ -107,8 +109,8 @@
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    [会话 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)已验证原生 FAT16 数据面。继续验证原版启动盘路径及 C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的独立关闭条件。
-   [#227 原版 CarPlay](validation-ledger.md#2026-11-18-tab5-原版正常启动与无-elf-取帧)已在当前
-   GT911 板型验证普通启动和 BSP 触摸。USB/iPhone 交互仍待单独验收。
+   [原版 CarPlay 板型探测](validation-ledger.md#2026-11-19-tab5-原版-carplay-板型探测复验)已在
+   GT911 上复验普通启动和实际触摸。继续单独验收 USB/iPhone 数据面。
 5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。[原生 C6 会话](../tests/firmware/crash_diagnostics/riscv_c6/session-core-dump-summary.json)已核验 ELF32 UART 的 CRC32 与 SHA-256 两种转储，保留各自的任务 PC/SP。[Core2 任务详情](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)已验证匹配 ELF 下的名称、优先级和保存栈用量。[Cardputer ADV 原生会话](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)验证了 ELF32 CRC32 与 SHA-256、保存任务详情及独立双核实时 PC。[Nesso N1 RV32 任务详情](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)已补齐两种校验格式的匹配 ELF 路径。[原生 Cardputer ADV Flash 转储](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)已验证两种校验格式、同会话 ZIP 与权限限制。[Nesso N1 原生 UART](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)的保存栈展开已逐帧对照 GDB。继续补其他运行时的任务详情、Flash 路径及栈展开。
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
