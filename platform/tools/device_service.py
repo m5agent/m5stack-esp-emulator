@@ -2924,6 +2924,7 @@ class DeviceSession:
         self.sta_time_fixture_receipt = self.dir / "sta-time-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_sandbox_config_path = self.dir / "network-sandbox.json"
+        self.network_gateway_recovery_path = self.dir / "gateway-recovery.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self._cloud_observation = None
@@ -3987,6 +3988,16 @@ class DeviceSession:
                 "status": "FAIL",
                 "reason": "network isolation evidence is not an object",
             }
+        if evidence.get("gateway") is not None and evidence.get("launch_id") is not None:
+            evidence["inner_cleanup_completed"] = evidence.get("cleanup_completed") is True
+            try:
+                receipt = self._gateway_receipt(evidence.get("launch_id"))
+                evidence["gateway_cleanup_completed"] = self._gateway_receipt_complete(receipt)
+            except ServiceError:
+                evidence["gateway_cleanup_completed"] = False
+            evidence["cleanup_completed"] = (
+                evidence["inner_cleanup_completed"] and evidence["gateway_cleanup_completed"]
+            )
         evidence["status"] = (
             "PASS"
             if evidence.get("cleanup_completed") is True
@@ -4997,20 +5008,74 @@ class DeviceSession:
             self._stop_recovered_namespace()
         self._terminate_process()
 
+    def _gateway_receipt(self, launch_id: str | None, pid: int | None = None,
+                         start_token: str | None = None) -> dict:
+        try:
+            receipt = json.loads(self.network_gateway_recovery_path.read_text())
+        except (OSError, ValueError) as error:
+            raise ServiceError("session_cleanup_pending", "named gateway receipt is unavailable", 503) from error
+        if (not isinstance(launch_id, str) or re.fullmatch(r"[0-9a-f]{32}", launch_id) is None
+                or not isinstance(receipt, dict) or receipt.get("schema_version") != 1
+                or receipt.get("launch_id") != launch_id
+                or type(receipt.get("supervisor_pid")) is not int or receipt["supervisor_pid"] < 1
+                or not isinstance(receipt.get("supervisor_start_token"), str)
+                or not receipt["supervisor_start_token"].startswith("linux:")
+                or pid not in (None, receipt["supervisor_pid"])
+                or start_token not in (None, receipt["supervisor_start_token"])):
+            raise ServiceError("session_cleanup_pending", "named gateway does not match the recorded launch", 503)
+        return receipt
+
+    @staticmethod
+    def _gateway_receipt_complete(receipt: dict) -> bool:
+        cleanup = receipt.get("gateway_cleanup")
+        return (receipt.get("inner_exited") is True and receipt.get("inner_cleanup_completed") is True
+                and receipt.get("gateway_cleanup_completed") is True
+                and isinstance(cleanup, dict) and all(cleanup.get(field) is True for field in (
+                    "namespace_removed", "host_link_removed", "nat_table_removed",
+                )))
+
+    def _stop_recovered_gateway(self, launch_id: str | None) -> None:
+        before = self._gateway_receipt(launch_id, self.pid, self.process_start_token)
+        pid, start_token = before["supervisor_pid"], before["supervisor_start_token"]
+        stop_namespace_supervisor(
+            pid, start_token=start_token, config_path=self.network_sandbox_config_path,
+            sandbox_path=SANDBOX_RUNNER,
+        )
+        if not self._gateway_receipt_complete(self._gateway_receipt(launch_id, pid, start_token)):
+            raise ServiceError("session_cleanup_pending", "named gateway cleanup has not been confirmed", 503)
+
     def _stop_recovered_namespace(self) -> None:
         def pending(message: str) -> ServiceError:
             return ServiceError("session_cleanup_pending", message, 503)
 
         try:
             config = json.loads(self.network_sandbox_config_path.read_text())
+        except (OSError, ValueError) as error:
+            raise pending("namespace launch evidence is unavailable") from error
+        if not isinstance(config, dict):
+            raise pending("namespace launch config is invalid")
+        launch_id = config.get("launch_id")
+        if self.network_gateway_recovery_path.exists():
+            self._stop_recovered_gateway(launch_id)
+        else:
+            self._stop_recovered_local_namespace(launch_id)
+        self._namespace_recovery_pending = False
+        self.pid = None
+        self.process_start_token = None
+        self._record_event("namespace_recovery_cleaned")
+
+    def _stop_recovered_local_namespace(self, launch_id: str | None) -> None:
+        def pending(message: str) -> ServiceError:
+            return ServiceError("session_cleanup_pending", message, 503)
+
+        try:
             before = json.loads(self.network_isolation_path.read_text())
         except (OSError, ValueError) as error:
             raise pending("namespace launch evidence is unavailable") from error
-        if (not isinstance(config, dict) or not isinstance(before, dict)
+        if (not isinstance(before, dict)
                 or before.get("private_network_namespace") is not True
                 or before.get("external_route") is not False or before.get("gateway") is not None):
             raise pending("local namespace ownership has not been confirmed")
-        launch_id = config.get("launch_id")
         if launch_id is None:
             # The legacy format can prove a cleanup transition only while the
             # previously recorded supervisor can still be identified.
@@ -5037,10 +5102,6 @@ class DeviceSession:
                 or after.get("cleanup_completed") is not True or after.get("qemu_process_reaped") is not True
                 or (launch_id is not None and (after.get("supervisor_pid"), after.get("supervisor_start_token")) != (pid, start_token))):
             raise pending("namespace cleanup has not been confirmed")
-        self._namespace_recovery_pending = False
-        self.pid = None
-        self.process_start_token = None
-        self._record_event("namespace_recovery_cleaned")
 
     def _provision_runtime(self) -> None:
         self._set_state("flashing")
@@ -6395,6 +6456,7 @@ class DeviceSession:
             )
             sandbox_config["launch_id"] = uuid.uuid4().hex
             self.network_isolation_path.unlink(missing_ok=True)
+            self.network_gateway_recovery_path.unlink(missing_ok=True)
             atomic_write_json(self.network_sandbox_config_path, sandbox_config)
             try:
                 launch_command = build_sandbox_command(
@@ -9389,8 +9451,18 @@ class DeviceSession:
                 proc.terminate()
                 proc.wait(timeout=termination_timeout)
             except subprocess.TimeoutExpired:
+                if self.network_gateway_recovery_path.exists():
+                    raise ServiceError("session_cleanup_pending", "named gateway cooperative stop is pending", 503)
                 proc.kill()
                 proc.wait(timeout=5)
+        if proc is not None and self.network_gateway_recovery_path.exists():
+            try:
+                config = json.loads(self.network_sandbox_config_path.read_text())
+            except (OSError, ValueError) as error:
+                raise ServiceError("session_cleanup_pending", "named gateway launch config is unavailable", 503) from error
+            if (not isinstance(config, dict) or not self._gateway_receipt_complete(
+                    self._gateway_receipt(config.get("launch_id"), self.pid, self.process_start_token))):
+                raise ServiceError("session_cleanup_pending", "named gateway cleanup has not been confirmed", 503)
         if external_pid is not None:
             def owns_external_process() -> bool:
                 identity = inspect_process(external_pid)

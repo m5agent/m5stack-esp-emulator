@@ -2,19 +2,23 @@
 """Kernel-enforced destination policy for isolated QEMU networking."""
 from __future__ import annotations
 
+from collections.abc import Callable
 import ipaddress
 import json
 import os
 import secrets
 import shutil
+import stat
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TypeAlias
 
 IP = "ip"
 NFT = "nft"
+NETNS_DIRECTORY = Path("/run/netns")
+GATEWAY_COMMAND_TIMEOUT = 5
 SLIRP_HOST_ADDRESS = ipaddress.ip_address("10.0.2.2")
 SLIRP_HOST_ADDRESS_V6 = ipaddress.ip_address("fec0::2")
 IPAddress: TypeAlias = ipaddress.IPv4Address | ipaddress.IPv6Address
@@ -311,34 +315,57 @@ def _require_binary(name: str) -> str:
     return path
 
 
-def _run(command: list[str]) -> None:
-    completed = subprocess.run(
-        command,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+def _run(command: list[str], *, body: str | None = None) -> str:
+    try:
+        completed = subprocess.run(
+            command, input=body, text=True, capture_output=True, check=False,
+            timeout=GATEWAY_COMMAND_TIMEOUT,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise EgressError(f"egress gateway command unavailable ({' '.join(command)})") from error
     if completed.returncode != 0:
         detail = completed.stderr.strip() or completed.stdout.strip()
         raise EgressError(
             f"egress gateway command failed ({' '.join(command)}): {detail}"
         )
+    return completed.stdout
+
+
+def _objects(command: list[str], *, key: str | None = None) -> list[dict]:
+    try:
+        result = json.loads(_run(command))
+    except ValueError as error:
+        raise EgressError("gateway kernel inspection returned invalid JSON") from error
+    if key is not None:
+        result = result.get(key) if isinstance(result, dict) else None
+    if not isinstance(result, list) or any(not isinstance(row, dict) for row in result):
+        raise EgressError("gateway kernel inspection returned invalid objects")
+    return result
+
+
+def _remove_owned(probe, expected, delete: list[str]) -> bool:
+    try:
+        actual = probe()
+        if actual is None:
+            return True
+        if actual != expected:
+            return False
+        _run(delete)
+        return probe() is None
+    except EgressError:
+        return False
 
 
 def _default_interface(family: int, *, required: bool = True) -> str:
-    completed = subprocess.run(
-        [IP, f"-{family}", "route", "show", "default"],
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if completed.returncode != 0:
+    try:
+        output = _run([IP, f"-{family}", "route", "show", "default"])
+    except EgressError as error:
         if not required:
             return ""
         raise EgressError(
             f"cannot inspect the worker IPv{family} default route"
-        )
-    for line in completed.stdout.splitlines():
+        ) from error
+    for line in output.splitlines():
         fields = line.split()
         if "dev" in fields:
             index = fields.index("dev")
@@ -385,10 +412,14 @@ class EgressGateway:
     guest_ipv6_address: str
     ipv6_prefix_length: int
     started: bool = False
+    _token: str = field(default_factory=lambda: secrets.token_hex(16), repr=False)
+    _namespace_id: tuple[int, int] | None = field(default=None, init=False)
+    _host_ifindex: int | None = field(default=None, init=False)
+    _nat_handle: int | None = field(default=None, init=False)
 
     @classmethod
     def allocate(cls, *, ipv6_required: bool = False) -> EgressGateway:
-        token = secrets.token_hex(8)
+        token = secrets.token_hex(16)
         index = int(token[:8], 16) % 16384
         third = (index >> 6) & 0xFF
         fourth = (index & 0x3F) * 4
@@ -410,6 +441,7 @@ class EgressGateway:
             host_ipv6_address=f"{ipv6_prefix}::1",
             guest_ipv6_address=f"{ipv6_prefix}::2",
             ipv6_prefix_length=126,
+            _token=token,
         )
 
     def metadata(self) -> dict:
@@ -430,7 +462,53 @@ class EgressGateway:
             "ipv6_prefix_length": self.ipv6_prefix_length,
         }
 
-    def start(self) -> None:
+    @property
+    def _nat_owner(self) -> str:
+        return "m5-gateway:" + self._token
+
+    def ownership(self) -> dict:
+        """Return the observed identities of this launch's kernel objects."""
+        return {
+            "token": self._token,
+            "namespace": (dict(zip(("device", "inode"), self._namespace_id)) if self._namespace_id is not None else None),
+            "host_link": {"ifindex": self._host_ifindex} if self._host_ifindex is not None else None,
+            "nat_table": {"family": "inet", "handle": self._nat_handle} if self._nat_handle is not None else None,
+        }
+
+    def _inspect_namespace(self) -> tuple[int, int] | None:
+        binding = NETNS_DIRECTORY / self.namespace
+        try:
+            info = binding.lstat()
+        except FileNotFoundError:
+            return None
+        except OSError as error:
+            raise EgressError("cannot inspect gateway namespace binding") from error
+        if not stat.S_ISREG(info.st_mode):
+            raise EgressError("gateway namespace binding is not a regular namespace handle")
+        return info.st_dev, info.st_ino
+
+    def _inspect_host_link(self) -> int | None:
+        links = _objects([IP, "-j", "link", "show"])
+        if any(not isinstance(link.get("ifname"), str) or type(link.get("ifindex")) is not int for link in links):
+            raise EgressError("cannot inspect gateway host link identity")
+        return next((link["ifindex"] for link in links if link["ifname"] == self.host_interface), None)
+
+    def _inspect_nat_table(self) -> tuple[int, str | None] | None:
+        objects = _objects([NFT, "-j", "-a", "list", "ruleset"], key="nftables")
+        for entry in objects:
+            if "table" not in entry:
+                continue
+            table = entry["table"]
+            if not isinstance(table, dict) or not isinstance(table.get("family"), str) or not isinstance(table.get("name"), str):
+                raise EgressError("cannot inspect gateway NAT table identity")
+            if table["family"] == "inet" and table["name"] == self.nat_table:
+                handle, owner = table.get("handle"), table.get("comment")
+                if type(handle) is not int or handle <= 0 or owner is not None and not isinstance(owner, str):
+                    raise EgressError("cannot inspect gateway NAT table ownership")
+                return handle, owner
+        return None
+
+    def start(self, *, on_ownership_change: Callable[[dict], None] | None = None) -> None:
         _require_binary(IP)
         _require_binary(NFT)
         _require_forwarding(ipv6_required=self.ipv6_required)
@@ -442,6 +520,11 @@ class EgressGateway:
             )
         try:
             _run([IP, "netns", "add", self.namespace])
+            self._namespace_id = self._inspect_namespace()
+            if self._namespace_id is None:
+                raise EgressError("gateway namespace binding disappeared after creation")
+            if on_ownership_change is not None:
+                on_ownership_change(self.ownership())
             _run(
                 [
                     IP,
@@ -455,6 +538,11 @@ class EgressGateway:
                     self.guest_interface,
                 ]
             )
+            self._host_ifindex = self._inspect_host_link()
+            if self._host_ifindex is None:
+                raise EgressError("gateway host link disappeared after creation")
+            if on_ownership_change is not None:
+                on_ownership_change(self.ownership())
             _run(
                 [
                     IP,
@@ -572,8 +660,8 @@ class EgressGateway:
                 )
             nat_rules = [
                 (
-                    f'    ip saddr {self.guest_address} '
-                    f'oifname "{self.default_interface}" masquerade'
+                    f"ip saddr {self.guest_address} "
+                    f"oifname {json.dumps(self.default_interface)} masquerade"
                 )
             ]
             if (
@@ -582,64 +670,48 @@ class EgressGateway:
             ):
                 nat_rules.append(
                     (
-                        f"    ip6 saddr {self.guest_ipv6_address} "
-                        f'oifname "{self.default_ipv6_interface}" '
+                        f"ip6 saddr {self.guest_ipv6_address} "
+                        f"oifname {json.dumps(self.default_ipv6_interface)} "
                         "masquerade"
                     )
                 )
             nat_script = "\n".join(
                 [
-                    f"table inet {self.nat_table} {{",
-                    "  chain postrouting {",
-                    (
-                        "    type nat hook postrouting priority srcnat; "
-                        "policy accept;"
-                    ),
-                    *nat_rules,
-                    "  }",
-                    "}",
+                    f'create table inet {self.nat_table} {{ comment "{self._nat_owner}"; }}',
+                    f"add chain inet {self.nat_table} postrouting {{ type nat hook postrouting priority srcnat; policy accept; }}",
+                    *(f"add rule inet {self.nat_table} postrouting {rule}" for rule in nat_rules),
                     "",
                 ]
             )
-            completed = subprocess.run(
-                [NFT, "-f", "-"],
-                input=nat_script,
-                text=True,
-                capture_output=True,
-                check=False,
-            )
-            if completed.returncode != 0:
-                detail = completed.stderr.strip() or completed.stdout.strip()
-                raise EgressError(
-                    f"cannot install worker NAT rules: {detail}"
-                )
+            _run([NFT, "-f", "-"], body=nat_script)
+            table = self._inspect_nat_table()
+            if table is None or table[1] != self._nat_owner:
+                raise EgressError("gateway NAT table owner did not match after creation")
+            self._nat_handle = table[0]
+            if on_ownership_change is not None:
+                on_ownership_change(self.ownership())
             self.started = True
         except (EgressError, OSError):
             self.cleanup()
             raise
 
-    def cleanup(self) -> None:
-        if self.nat_table:
-            try:
-                subprocess.run(
-                    [NFT, "delete", "table", "inet", self.nat_table],
-                    text=True,
-                    capture_output=True,
-                    check=False,
-                )
-            except OSError:
-                pass
-        if self.namespace:
-            try:
-                subprocess.run(
-                    [IP, "netns", "delete", self.namespace],
-                    text=True,
-                    capture_output=True,
-                    check=False,
-                )
-            except OSError:
-                pass
-        self.started = False
+    def cleanup(self) -> dict[str, bool]:
+        """Close only positively matched objects and recheck their absence."""
+        closed = {
+            "host_link_removed": _remove_owned(
+                self._inspect_host_link, self._host_ifindex, [IP, "link", "delete", "dev", self.host_interface],
+            ),
+            "nat_table_removed": _remove_owned(
+                self._inspect_nat_table, (self._nat_handle, self._nat_owner),
+                [NFT, "delete", "table", "inet", "handle", str(self._nat_handle)],
+            ),
+            "namespace_removed": _remove_owned(
+                self._inspect_namespace, self._namespace_id, [IP, "netns", "delete", self.namespace],
+            ),
+        }
+        if all(closed.values()):
+            self.started = False
+        return closed
 
 
 def capability(

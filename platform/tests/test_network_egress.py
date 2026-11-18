@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import ipaddress
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
@@ -262,6 +265,116 @@ class NetworkEgressTests(unittest.TestCase):
             metadata["guest_ipv6_address"].rsplit(":", 1)[1],
             "2",
         )
+
+
+class GatewayOwnershipTests(unittest.TestCase):
+    def setUp(self):
+        self.gateway = EgressGateway.allocate(ipv6_required=True)
+        self.netns_dir = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.binding = self.netns_dir / self.gateway.namespace
+        self.host_link = None
+        self.nat_table = None
+        self.commands = []
+        self.fail_command = None
+        self.keep_nat_after_delete = False
+        self.enterContext(patch("network_egress.NETNS_DIRECTORY", self.netns_dir))
+        self.enterContext(patch("network_egress._require_binary"))
+        self.enterContext(patch("network_egress._require_forwarding"))
+        self.enterContext(patch("network_egress._default_interface", return_value="eth2"))
+        self.enterContext(patch("network_egress._run", side_effect=self.kernel_command))
+
+    def kernel_command(self, argv, *, body=None):
+        gateway = self.gateway
+        self.commands.append((argv, body))
+        if argv == self.fail_command:
+            raise EgressError("forced kernel command failure")
+        if argv == ["ip", "netns", "add", gateway.namespace]:
+            if self.binding.exists():
+                raise EgressError("namespace already exists")
+            self.binding.touch()
+        elif argv == ["ip", "netns", "delete", gateway.namespace]:
+            self.binding.unlink()
+        elif argv[:3] == ["ip", "link", "add"]:
+            self.host_link = {"ifname": gateway.host_interface, "ifindex": 20}
+        elif argv == ["ip", "link", "delete", "dev", gateway.host_interface]:
+            self.host_link = None
+        elif argv == ["ip", "-j", "link", "show"]:
+            return json.dumps([self.host_link] if self.host_link is not None else [])
+        elif argv == ["nft", "-f", "-"]:
+            if self.nat_table is not None:
+                raise EgressError("table already exists")
+            self.nat_table = {"family": "inet", "name": gateway.nat_table, "handle": 51,
+                              "comment": "m5-gateway:" + gateway.ownership()["token"]}
+        elif argv == ["nft", "-j", "-a", "list", "ruleset"]:
+            return json.dumps({"nftables": [{"metainfo": {}}, *([{"table": self.nat_table}] if self.nat_table else [])]})
+        elif argv == ["nft", "delete", "table", "inet", "handle", "51"] and not self.keep_nat_after_delete:
+            self.nat_table = None
+        return ""
+
+    def test_start_receipts_bind_exact_objects_and_cleanup_checks_readback(self):
+        states = []
+        gateway = self.gateway
+        gateway.start(on_ownership_change=states.append)
+        self.assertEqual([list(key for key in row if row[key] is not None) for row in states],
+                         [["token", "namespace"], ["token", "namespace", "host_link"],
+                          ["token", "namespace", "host_link", "nat_table"]])
+        binding = self.binding.stat()
+        self.assertEqual(states[-1]["namespace"], {"device": binding.st_dev, "inode": binding.st_ino})
+        self.assertEqual(states[-1]["host_link"], {"ifindex": 20})
+        self.assertEqual(states[-1]["nat_table"], {"family": "inet", "handle": 51})
+        script, = (body for argv, body in self.commands if argv == ["nft", "-f", "-"])
+        self.assertIn(f'create table inet {gateway.nat_table} {{ comment "m5-gateway:{states[-1]["token"]}"; }}', script)
+        self.assertIn(f'ip saddr {gateway.guest_address} oifname "eth2" masquerade', script)
+        self.assertIn(f'ip6 saddr {gateway.guest_ipv6_address} oifname "eth2" masquerade', script)
+        expected = {"host_link_removed": True, "nat_table_removed": True, "namespace_removed": True}
+        self.assertEqual(gateway.cleanup(), expected)
+        self.assertEqual(gateway.cleanup(), expected)
+        self.assertIn((["nft", "delete", "table", "inet", "handle", "51"], None), self.commands)
+        self.assertFalse(self.binding.exists())
+
+    def test_failure_before_peer_move_removes_owned_host_link(self):
+        gateway = self.gateway
+        self.fail_command = ["ip", "addr", "add", f"{gateway.host_address}/{gateway.prefix_length}",
+                             "dev", gateway.host_interface]
+        with self.assertRaisesRegex(EgressError, "forced kernel command failure"):
+            gateway.start()
+        self.assertIsNone(self.host_link)
+        self.assertFalse(self.binding.exists())
+        self.assertIn((["ip", "link", "delete", "dev", gateway.host_interface], None), self.commands)
+
+    def test_colliding_names_cannot_be_removed(self):
+        gateway = self.gateway
+        self.nat_table = {"family": "inet", "name": gateway.nat_table, "handle": 51, "comment": "other"}
+        self.binding.touch()
+        with self.assertRaisesRegex(EgressError, "namespace already exists"):
+            gateway.start()
+        self.assertTrue(self.binding.exists())
+        self.binding.unlink()
+        with self.assertRaisesRegex(EgressError, "table already exists"):
+            gateway.start()
+        self.assertEqual(self.nat_table["comment"], "other")
+        self.assertFalse(any(argv[:2] == ["nft", "delete"] for argv, _ in self.commands))
+        self.assertFalse(self.binding.exists())
+        self.assertIsNone(self.host_link)
+
+    def test_replaced_objects_and_unreadable_state_are_not_removed(self):
+        gateway = self.gateway
+        gateway.start()
+        self.binding.rename(self.binding.with_suffix(".old"))
+        self.binding.touch()
+        self.host_link["ifindex"] = 21
+        self.fail_command = ["nft", "-j", "-a", "list", "ruleset"]
+        self.commands.clear()
+        self.assertEqual(gateway.cleanup(), {"host_link_removed": False, "nat_table_removed": False,
+                                             "namespace_removed": False})
+        self.assertFalse(any("delete" in argv for argv, _ in self.commands))
+
+    def test_successful_delete_without_absence_observation_stays_pending(self):
+        gateway = self.gateway
+        gateway.start()
+        self.keep_nat_after_delete = True
+        self.assertEqual(gateway.cleanup(), {"host_link_removed": True, "nat_table_removed": False,
+                                             "namespace_removed": True})
 
 
 if __name__ == "__main__":

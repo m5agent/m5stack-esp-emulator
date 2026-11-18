@@ -7316,6 +7316,37 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertNotIn(session.id, self.service.worker_status()["active_lease_ids"])
             qmp.assert_not_called()
 
+    def test_named_gateway_recovery_requires_all_kernel_cleanup_observations(self):
+        session = self._stopped_session()
+        session.runtime = "qemu-wifi"
+        session.virtual_flash = session.dir / "virtual-flash.bin"
+        session.virtual_flash.write_bytes(b"old virtual flash")
+        launch_id = "e" * 32
+        receipt = {
+            "schema_version": 1, "launch_id": launch_id, "supervisor_pid": 12345,
+            "supervisor_start_token": "linux:boot:123", "inner_exited": True,
+            "inner_cleanup_completed": True, "gateway_cleanup_completed": True,
+            "gateway_cleanup": {
+                "namespace_removed": True, "host_link_removed": False, "nat_table_removed": True,
+            },
+        }
+        session.network_sandbox_config_path.write_text(json.dumps({"launch_id": launch_id}))
+        session.network_gateway_recovery_path.write_text(json.dumps(receipt))
+        with mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor:
+            self.service._restore_namespace_stop(session, "running")
+            self.assertEqual(session.snapshot()["state"], "stopping")
+            self.assertTrue(session.virtual_flash.exists())
+            self.assertIn(session.id, self.service.worker_status()["active_lease_ids"])
+            self.assertEqual(stop_supervisor.call_args.kwargs["start_token"], receipt["supervisor_start_token"])
+
+            receipt["gateway_cleanup"]["host_link_removed"] = True
+            session.network_gateway_recovery_path.write_text(json.dumps(receipt))
+            restored = session.stop(retain_flash=False)
+            self.assertTrue(restored["interrupted"])
+            self.assertEqual(restored["state"], "failed")
+            self.assertFalse(restored["flash_retained"])
+            self.assertNotIn(session.id, self.service.worker_status()["active_lease_ids"])
+
     def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):

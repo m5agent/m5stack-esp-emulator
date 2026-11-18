@@ -138,6 +138,20 @@ class NetworkSandboxTests(unittest.TestCase):
         self.assertTrue(evidence["cleanup_completed"])
         self.assertTrue(evidence["qemu_process_reaped"])
 
+    def test_gateway_requires_inner_cleanup_from_its_own_launch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "isolation.json"
+            config = {"isolation_evidence": str(path)}
+            finished = {"launch_id": "older", "cleanup_completed": True, "qemu_process_reaped": True}
+            path.write_text(json.dumps(finished))
+            self.assertFalse(network_sandbox.gateway_worker_cleaned(config, "current"))
+            finished.update(launch_id="current", qemu_process_reaped=False)
+            path.write_text(json.dumps(finished))
+            self.assertFalse(network_sandbox.gateway_worker_cleaned(config, "current"))
+            finished.update(qemu_process_reaped=True)
+            path.write_text(json.dumps(finished))
+            self.assertTrue(network_sandbox.gateway_worker_cleaned(config, "current"))
+
     def test_controlled_dns_rejects_invalid_or_non_unicast_records(self):
         for records in (
             {"invalid.test": []},

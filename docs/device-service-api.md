@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.96.0` and bounded
+Status: local MVP with unified-device runtime contract `1.97.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -4320,7 +4320,10 @@ restart.
   the old lease and writable Flash only after the supervisor exits and the
   sandbox confirms the guest and its fixtures were cleaned up. If ownership
   or cleanup is uncertain, the session stays `stopping` and keeps its resources
-  for another check. This recovery does not cover named egress gateways;
+  for another check. A named egress gateway also needs a matching outer
+  supervisor journal and verification that the old namespace binding, host
+  virtual link and NAT table are gone. Legacy gateways and loss of both gateway
+  supervisors can leave cleanup pending when their ownership cannot be proven;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

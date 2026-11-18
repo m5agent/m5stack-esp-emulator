@@ -428,45 +428,46 @@ def write_isolation_evidence(
         control = {}
     launch_id = (config or {}).get("launch_id")
     supervisor = {}
-    if launch_id is not None and gateway is None:
+    if launch_id is not None:
         pid = os.getpid()
         supervisor = {"launch_id": launch_id, "supervisor_pid": pid,
                       "supervisor_start_token": namespace_supervisor_identity(pid)}
+    write_evidence(
+        path,
+        {
+            "schema_version": 1,
+            "platform": sys.platform,
+            "private_network_namespace": True,
+            "interfaces": interfaces,
+            "external_route": external_route,
+            "egress": policy.get("egress", "deny-all"),
+            "dns": policy.get("dns", "deny"),
+            "allowed_hosts": policy.get("allowed_hosts", []),
+            "allowed_domains": policy.get("allowed_domains", []),
+            "allowed_endpoints": policy.get("allowed_endpoints", []),
+            "control_tcp_ports": control.get("tcp_ports", []),
+            "control_udp_ports": control.get("udp_ports", []),
+            "egress_enforcement": (
+                "nftables-input-output-default-drop"
+                if policy.get("egress") == "allowlist"
+                else "namespace-no-external-route"
+            ),
+            "gateway": gateway,
+            "tls_gateway": bool(http.get("tls")),
+            "controlled_dns": dns.get("mode") == "controlled",
+            "dns_records": dns.get("hosts", {}),
+            "dns_domain_records": dns.get("domain_records", {}),
+            "dns_cname_records": dns.get("cname_records", {}),
+            "cleanup_completed": False,
+            **supervisor,
+        },
+    )
+
+
+def write_evidence(path: Path, evidence: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    temporary.write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "platform": sys.platform,
-                "private_network_namespace": True,
-                "interfaces": interfaces,
-                "external_route": external_route,
-                "egress": policy.get("egress", "deny-all"),
-                "dns": policy.get("dns", "deny"),
-                "allowed_hosts": policy.get("allowed_hosts", []),
-                "allowed_domains": policy.get("allowed_domains", []),
-                "allowed_endpoints": policy.get("allowed_endpoints", []),
-                "control_tcp_ports": control.get("tcp_ports", []),
-                "control_udp_ports": control.get("udp_ports", []),
-                "egress_enforcement": (
-                    "nftables-input-output-default-drop"
-                    if policy.get("egress") == "allowlist"
-                    else "namespace-no-external-route"
-                ),
-                "gateway": gateway,
-                "tls_gateway": bool(http.get("tls")),
-                "controlled_dns": dns.get("mode") == "controlled",
-                "dns_records": dns.get("hosts", {}),
-                "dns_domain_records": dns.get("domain_records", {}),
-                "dns_cname_records": dns.get("cname_records", {}),
-                "cleanup_completed": False,
-                **supervisor,
-            },
-            indent=2,
-        )
-        + "\n"
-    )
+    temporary.write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n")
     temporary.replace(path)
 
 
@@ -483,11 +484,7 @@ def update_isolation_evidence(
     if not isinstance(evidence, dict):
         raise SandboxError("isolation evidence must be an object")
     evidence.update(fields)
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    temporary.write_text(
-        json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"
-    )
-    temporary.replace(path)
+    write_evidence(path, evidence)
 
 
 class ControlledHttp:
@@ -1925,19 +1922,36 @@ def run_with_gateway(
     process: subprocess.Popen | None = None
     previous: dict[int, Any] = {}
     terminating = False
+    preparing = True
+    launch_id = config.get("launch_id")
+    receipt_path = config_path.with_name("gateway-recovery.json")
+    receipt = {}
 
     def stop(_signum: int, _frame: object) -> None:
         nonlocal terminating
         if terminating:
             return
         terminating = True
-        raise SystemExit(143)
+        if not preparing:
+            raise SystemExit(143)
+
+    def record_ownership(ownership: dict[str, Any]) -> None:
+        if receipt:
+            receipt["ownership"] = ownership
+            write_evidence(receipt_path, receipt)
 
     try:
         for signum in (signal.SIGTERM, signal.SIGINT):
             previous[signum] = signal.getsignal(signum)
             signal.signal(signum, stop)
-        gateway.start()
+        if launch_id is not None:
+            receipt.update(schema_version=1, launch_id=launch_id, supervisor_pid=os.getpid(),
+                           supervisor_start_token=namespace_supervisor_identity(os.getpid()),
+                           inner_exited=False, inner_cleanup_completed=False, gateway_cleanup_completed=False)
+            record_ownership(gateway.ownership())
+        gateway.start(on_ownership_change=record_ownership)
+        if terminating:
+            raise SystemExit(143)
         inner_environment = os.environ.copy()
         inner_environment["M5_EGRESS_GATEWAY"] = json.dumps(
             gateway.metadata()
@@ -1962,15 +1976,55 @@ def run_with_gateway(
             stdin=subprocess.DEVNULL,
             start_new_session=True,
         )
+        preparing = False
+        if terminating:
+            raise SystemExit(143)
         return process.wait()
     finally:
         terminating = True
         try:
-            terminate_process(process, grace_seconds=12)
-            gateway.cleanup()
+            inner_exited = stop_gateway_worker(process)
+            inner_cleaned = inner_exited and (
+                process is None or gateway_worker_cleaned(config, launch_id)
+            )
+            cleanup = gateway.cleanup() if inner_cleaned else {}
+            if receipt:
+                receipt.update(inner_exited=inner_exited, inner_cleanup_completed=inner_cleaned,
+                               gateway_cleanup=cleanup, gateway_cleanup_completed=inner_cleaned and bool(cleanup)
+                               and all(value is True for value in cleanup.values()))
+                record_ownership(gateway.ownership())
         finally:
             for signum, handler in previous.items():
                 signal.signal(signum, handler)
+
+
+def stop_gateway_worker(process: subprocess.Popen | None) -> bool:
+    if process is None or process.poll() is not None:
+        return True
+    try:
+        # The inner supervisor owns QEMU and the fixtures in other process groups.
+        process.terminate()
+        process.wait(timeout=12)
+    except ProcessLookupError:
+        return process.poll() is not None
+    except subprocess.TimeoutExpired:
+        return False
+    return True
+
+
+def gateway_worker_cleaned(config: dict[str, Any], launch_id: str | None) -> bool:
+    path = config.get("isolation_evidence")
+    if not path:
+        return launch_id is None
+    try:
+        evidence = json.loads(Path(path).read_text())
+    except FileNotFoundError:
+        # The inner runner publishes evidence before starting QEMU or any fixture.
+        return True
+    except (OSError, ValueError):
+        return False
+    return (isinstance(evidence, dict) and evidence.get("launch_id") == launch_id
+            and evidence.get("cleanup_completed") is True and evidence.get("qemu_process_reaped") is True)
 
 
 def main() -> int:
