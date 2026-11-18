@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "cases": [
+    {
+      "case": "first candidate, same-BIN GPIO regression",
+      "device": "StickS3",
+      "original": "All day watch v0.3.8",
+      "status": "PASS",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "window_seconds_after_inputs": 65.085,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "input_dispatch": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.334054,
+          "receipt_s_after_first_frame": 3.338818
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.366623,
+          "receipt_s_after_first_frame": 4.378539
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.449899,
+          "receipt_s_after_first_frame": 4.561888
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.734059,
+          "receipt_s_after_first_frame": 6.78836
+        }
+      ],
+      "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4",
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "runner_wake_input": {
+        "input": "button:b",
+        "action": "click",
+        "accepted": true,
+        "timing": {
+          "clock": "host",
+          "hold_seconds": 0.12,
+          "presses": 1,
+          "completion": "events_sent"
+        }
+      },
+      "backend_iwdt_stage0_count": 0,
+      "uart_panic_count": 0,
+      "bundle_bytes": 10715,
+      "bundle_sha256": "8cb3068f33daeed31fd316135a74674e04676cf8cb77b52651df2f7749f6c658",
+      "serial_bytes": 817,
+      "serial_sha256": "56159f27777bf0c382c3f16c27f9e9ad78051a71ff8c403fc004a88f3c32572e",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "terminal_frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0"
+    },
+    {
+      "case": "final v3, same-BIN GPIO regression",
+      "device": "StickS3",
+      "original": "All day watch v0.3.8",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "window_seconds_after_inputs": 65.078,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "input_dispatch": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.328195,
+          "receipt_s_after_first_frame": 3.330915
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.368254,
+          "receipt_s_after_first_frame": 4.373003
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.447615,
+          "receipt_s_after_first_frame": 4.549865
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.72912,
+          "receipt_s_after_first_frame": 6.784099
+        }
+      ],
+      "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4",
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "runner_wake_input": {
+        "input": "button:b",
+        "action": "click",
+        "accepted": true,
+        "timing": {
+          "clock": "host",
+          "hold_seconds": 0.12,
+          "presses": 1,
+          "completion": "events_sent"
+        }
+      },
+      "backend_iwdt_stage0_count": 0,
+      "uart_panic_count": 0,
+      "bundle_bytes": 10717,
+      "bundle_sha256": "925c11a639278b9916ccb852cce28e03bd95e4d0d026ee2bf97c3ca34d8e794a",
+      "serial_bytes": 817,
+      "serial_sha256": "df8b1ac053585bd1b6130e7a67e6e31b8b127bc435a900bef73608e457bc56d9",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "terminal_frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0"
+    }
+  ]
+}

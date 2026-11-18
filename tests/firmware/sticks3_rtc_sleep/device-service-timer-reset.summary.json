@@ -1,0 +1,73 @@
+{
+  "device": "sticks3",
+  "runtime": "qemu",
+  "service_source": "4daeb4092c67f1f59c6880e85aafa7bf6c460b97",
+  "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+  "native_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "cases": {
+    "reset": {
+      "pre_reset_suspended_mmio": {
+        "slp_timer0": 311365,
+        "slp_timer1": 0,
+        "state0": 2147483648,
+        "wakeup_state": 393216,
+        "int_raw": 0,
+        "reject_conf": 3221274624,
+        "clk_conf": 536870912,
+        "pwc": 2304,
+        "dig_pwc": 131088,
+        "dig_iso": 268435584,
+        "pad_hold": 0,
+        "dig_pad_hold": 0,
+        "reject_cause": 0,
+        "wakeup_cause": 0,
+        "gpio12": 1536,
+        "io_mux12": 6912,
+        "rtcio12": 1073741824
+      },
+      "normal_http_reset_response": {
+        "state": "running",
+        "reset": true
+      },
+      "http_response_ms": 2,
+      "direct_qmp_control_after_session_start": false,
+      "events_through_fresh_first_wake": [
+        "RESET",
+        "RESUME",
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND"
+      ],
+      "reset_event": {
+        "guest": false,
+        "reason": "host-qmp-system-reset"
+      },
+      "confirmed_boots": 2,
+      "confirmed_step_one_returns": 2,
+      "same_session_and_pid": true,
+      "service_reset_events": 1,
+      "virtual_observation": "PASS",
+      "qmp_states": [
+        "suspended",
+        "running",
+        "suspended"
+      ],
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND",
+        "RESET",
+        "RESUME",
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND"
+      ],
+      "zip_sha256": "eeda253e284b6a6772571df635504c970d3395c62277a4fdb6551dbe8364b6c4",
+      "serial_sha256": "6a1be4f117d1f0f660b0d844d53f27e7aa786ec0b94b9ffc89e614df8f20206a",
+      "isolated_session_released": true
+    }
+  },
+  "offline": true,
+  "isolated_service_stopped": true
+}

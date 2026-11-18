@@ -1,0 +1,834 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "cases": [
+    {
+      "case": "Device Service 1.87 native runtime timer-only baseline",
+      "status": "FAIL",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000"
+      ],
+      "rom_reset_banners": 2,
+      "elapsed_timeout": true,
+      "observation_seconds": 38.39,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 12135,
+      "bundle_sha256": "91d4d74950d307de5a688c765fe99cad497fa7a8c1d95dbb1633827b19ef6a89",
+      "serial_bytes": 5754,
+      "serial_sha256": "e8ef6b2583dfa9a212b62e69468976d5702d57d88ee1d6bd3df52fe4e5748700",
+      "crash_status": "observed",
+      "manifest_identity_and_bytes_verified": true,
+      "uart_panic": {
+        "core": 0,
+        "kind": "watchdog",
+        "reason": "Interrupt wdt timeout on CPU0"
+      }
+    },
+    {
+      "case": "first timer candidate, timer only",
+      "status": "PASS",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=99814",
+        "RTC_SLEEP_ENTER iteration=2 requested_us=220000",
+        "RTC_SLEEP_RETURN iteration=2 status=0 cause=4 elapsed_us=231518",
+        "RTC_SLEEP_PASS iterations=2"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.209,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11395,
+      "bundle_sha256": "00842a2651e37b9b60ba8db8af44aa4082f342ad41c83d0d6b5c16b5d25cc187",
+      "serial_bytes": 3313,
+      "serial_sha256": "443387769b1cc828751365d9e287dce59231de1807aafe3f024d869d71af57f1",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "second timer candidate, timer only",
+      "status": "FAIL",
+      "runtime_sha256": "c44d4c80fd84281063be9ba85c35cfa97ea8b3810b2586e14ea376b9dd1c4134",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=94730",
+        "RTC_SLEEP_FAIL iteration=1 phase=return"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.286,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11372,
+      "bundle_sha256": "2f87b77608f2c0b2c865847d4a27807cabbd776bbba7ae636089edf79956a859",
+      "serial_bytes": 3211,
+      "serial_sha256": "437cf7cabb04454a1f32305a4fe388db515d32762df674885921faf60aec3c49",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "first timer candidate, timer GPIO and old deadline replacement",
+      "status": "PASS",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "fixture_source": "7c2b4c3805c5e3a9f8647caed2906ae754149855",
+      "fixture_elf_sha256": "8b45dc62897c6520e66cf4a241ec82847d00e78111a63770ecfce54fbd17c74e",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=24864 end_ticks=41866 slowclk_period=3854828 rtc_elapsed_us=125007 esp_elapsed_us=124795",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=42051 end_ticks=81158 slowclk_period=3854828 rtc_elapsed_us=287534 esp_elapsed_us=287513",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=84744 end_ticks=494309 slowclk_period=3854828 rtc_elapsed_us=3011327 esp_elapsed_us=3011315",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=313900"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 6.463,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "4b02a7c73037619ef50b2f32d9aeeda814eb6fdc8ba5e40010960511cb97e4fb",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 24864,
+          "end_ticks": 41866,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 125007,
+          "esp_elapsed_us": 124795
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 42051,
+          "end_ticks": 81158,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 287534,
+          "esp_elapsed_us": 287513
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 84744,
+          "end_ticks": 494309,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3011327,
+          "esp_elapsed_us": 3011315
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11584,
+      "bundle_sha256": "12318ead8c548ba16ea353142facc2c878af9fb37ce266b3d871e3f9cf7ec4cf",
+      "serial_bytes": 3747,
+      "serial_sha256": "d717c5afad45d24c95278c8a39cfb9a61889888757e7ce0035193bb6a5893e66",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "second timer candidate, timer GPIO and old deadline replacement",
+      "status": "PASS",
+      "runtime_sha256": "c44d4c80fd84281063be9ba85c35cfa97ea8b3810b2586e14ea376b9dd1c4134",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "fixture_source": "7c2b4c3805c5e3a9f8647caed2906ae754149855",
+      "fixture_elf_sha256": "8b45dc62897c6520e66cf4a241ec82847d00e78111a63770ecfce54fbd17c74e",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=25217 end_ticks=41124 slowclk_period=3854828 rtc_elapsed_us=116956 esp_elapsed_us=116785",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=41280 end_ticks=73990 slowclk_period=3854828 rtc_elapsed_us=240500 esp_elapsed_us=240487",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=77899 end_ticks=486937 slowclk_period=3854828 rtc_elapsed_us=3007452 esp_elapsed_us=3007429",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=269241"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 6.359,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "15cab38d7af4be8a1be3dabe475b74915edfec8eb29fb6ee3c22396bfe582489",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 25217,
+          "end_ticks": 41124,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 116956,
+          "esp_elapsed_us": 116785
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 41280,
+          "end_ticks": 73990,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 240500,
+          "esp_elapsed_us": 240487
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 77899,
+          "end_ticks": 486937,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3007452,
+          "esp_elapsed_us": 3007429
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11586,
+      "bundle_sha256": "e6f84c0958a993c7c6df382e2a996313f45d9e4b76bacae47e6d24bde802a132",
+      "serial_bytes": 3748,
+      "serial_sha256": "e9c7973661fcbea529278fe007b4f009b36c7d0d38238b0c663a5cca99f2646a",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "first timer candidate, mixed sources with already-active reject",
+      "status": "PASS",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "35c6bcc624e74c73b9b9f761da07af11f352319d2b4ca8f55ad769df7567c296",
+      "fixture_source": "369f2303e3bdfffc0b506bf23baa2c723ba91e96",
+      "fixture_elf_sha256": "733bce9e6b8bd15d3aaa29158246ebb8add6d0fe06c48d6bc4761d51cc2ea8bb",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=24464 end_ticks=40589 slowclk_period=3854828 rtc_elapsed_us=118559 esp_elapsed_us=118359",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=40772 end_ticks=82571 slowclk_period=3854828 rtc_elapsed_us=307327 esp_elapsed_us=307290",
+        "RTC_MIXED_REJECT_ENTER requested_us=1400000 b_level=0 before_cause=0x0 start_ticks=82845",
+        "RTC_MIXED_REJECT_RETURN status=259 cause=0x4 sleep_raw=0x0 b_level=0 end_ticks=83155 slowclk_period=3854828",
+        "RTC_MIXED_REJECT_CLEAR cause=0x0",
+        "RTC_MIXED_REJECT_PASS elapsed_us=2279",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=115157 end_ticks=523343 slowclk_period=3854828 rtc_elapsed_us=3001187 esp_elapsed_us=3001157",
+        "RTC_MIXED_REJECT_DEADLINE old_timer_us=1400000 gap_us=237574",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=546915"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 6.153,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "9d7d16894741904abcf9255125799784f809f41e8b62df3d5ffb19174ada5dbd",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 24464,
+          "end_ticks": 40589,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 118559,
+          "esp_elapsed_us": 118359
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 40772,
+          "end_ticks": 82571,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 307327,
+          "esp_elapsed_us": 307290
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 115157,
+          "end_ticks": 523343,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3001187,
+          "esp_elapsed_us": 3001157
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11684,
+      "bundle_sha256": "fcd3b63d8e7be36b1a4f297f5f5dbea51c187a5afe7c7dffa6316a3491335506",
+      "serial_bytes": 4082,
+      "serial_sha256": "317a2f94faccd8a4d66128482078cb8dd4949c90bf390e883db81bdb754fb8b9",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "second timer candidate, mixed sources with already-active reject",
+      "status": "PASS",
+      "runtime_sha256": "c44d4c80fd84281063be9ba85c35cfa97ea8b3810b2586e14ea376b9dd1c4134",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "35c6bcc624e74c73b9b9f761da07af11f352319d2b4ca8f55ad769df7567c296",
+      "fixture_source": "369f2303e3bdfffc0b506bf23baa2c723ba91e96",
+      "fixture_elf_sha256": "733bce9e6b8bd15d3aaa29158246ebb8add6d0fe06c48d6bc4761d51cc2ea8bb",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=22794 end_ticks=38971 slowclk_period=3854828 rtc_elapsed_us=118941 esp_elapsed_us=118664",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=39170 end_ticks=77296 slowclk_period=3854828 rtc_elapsed_us=280321 esp_elapsed_us=280303",
+        "RTC_MIXED_REJECT_ENTER requested_us=1400000 b_level=0 before_cause=0x0 start_ticks=77400",
+        "RTC_MIXED_REJECT_RETURN status=259 cause=0x4 sleep_raw=0x0 b_level=0 end_ticks=77537 slowclk_period=3854828",
+        "RTC_MIXED_REJECT_CLEAR cause=0x0",
+        "RTC_MIXED_REJECT_PASS elapsed_us=1007",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=107462 end_ticks=516056 slowclk_period=3854828 rtc_elapsed_us=3004187 esp_elapsed_us=3004167",
+        "RTC_MIXED_REJECT_DEADLINE old_timer_us=1400000 gap_us=221030",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=502116"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 6.247,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "7303bf7d080c1928b541f3aff84fdece40716b07ad5e4f6cb73093d09c2594c1",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 22794,
+          "end_ticks": 38971,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 118941,
+          "esp_elapsed_us": 118664
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 39170,
+          "end_ticks": 77296,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 280321,
+          "esp_elapsed_us": 280303
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 107462,
+          "end_ticks": 516056,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3004187,
+          "esp_elapsed_us": 3004167
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11678,
+      "bundle_sha256": "02114bd1fd4b0a922631f69f9052b47cd1d8bd569a11b3fa0863e0aa3dcef54a",
+      "serial_bytes": 4083,
+      "serial_sha256": "3ece6f1dba37561ae234230e9c0f4730d5a427d9d0169e4e4ed416d2eb2d579d",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "final timer candidate, cold timer attempt 1",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=99465",
+        "RTC_SLEEP_ENTER iteration=2 requested_us=220000",
+        "RTC_SLEEP_RETURN iteration=2 status=0 cause=4 elapsed_us=225941",
+        "RTC_SLEEP_PASS iterations=2"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.098,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11386,
+      "bundle_sha256": "8855de3abf34716ff6eb6c51de94a585cf57ac232dd224c7e71af99e5e5d2482",
+      "serial_bytes": 3314,
+      "serial_sha256": "bb6a8f0d74390fa75a4c5e406a66cc33e878c2dfa8062df2f13287d4010f848f",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "final timer candidate, cold timer attempt 2",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=97958",
+        "RTC_SLEEP_ENTER iteration=2 requested_us=220000",
+        "RTC_SLEEP_RETURN iteration=2 status=0 cause=4 elapsed_us=225913",
+        "RTC_SLEEP_PASS iterations=2"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.157,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11385,
+      "bundle_sha256": "6046e4c77046238d26ff2cf811c2625e0a8d058d41ed885e5c486b62426119f9",
+      "serial_bytes": 3313,
+      "serial_sha256": "62e4c069bf722cf8c8b531714bcfa62524615a5e170e39336d0a6b88a39e9888",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "final timer candidate, cold timer attempt 3",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=99300",
+        "RTC_SLEEP_ENTER iteration=2 requested_us=220000",
+        "RTC_SLEEP_RETURN iteration=2 status=0 cause=4 elapsed_us=226223",
+        "RTC_SLEEP_PASS iterations=2"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.179,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11386,
+      "bundle_sha256": "d41a66d0f9d3773baa7be79c9f1e2ccc381d0b67b4536a020b4537d7ff2d28a1",
+      "serial_bytes": 3314,
+      "serial_sha256": "fe30c2e4ffe3659d4f833838a9026300a31652e6c881e5f60f643f3835180ce8",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "final timer candidate, timer during concurrent host activity",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "fixture_elf_sha256": "38af26ff6465606db0fea7079d836d23ff23fee8613a9ecd09d888bf3cc48133",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000",
+        "RTC_SLEEP_RETURN iteration=1 status=0 cause=4 elapsed_us=97572",
+        "RTC_SLEEP_ENTER iteration=2 requested_us=220000",
+        "RTC_SLEEP_RETURN iteration=2 status=0 cause=4 elapsed_us=225292",
+        "RTC_SLEEP_PASS iterations=2"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 12.089,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11385,
+      "bundle_sha256": "8fd817e066c5e6a47e31b27e4f2ac8fec272bf4e779ab5ba36d70f9a794246ed",
+      "serial_bytes": 3314,
+      "serial_sha256": "516b894858f1cc3cc69ade94f24ff595b02d486e5fba932945ae9ef42908f6a2",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true
+    },
+    {
+      "case": "final timer candidate, timer GPIO and old deadline replacement",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "fixture_source": "7c2b4c3805c5e3a9f8647caed2906ae754149855",
+      "fixture_elf_sha256": "8b45dc62897c6520e66cf4a241ec82847d00e78111a63770ecfce54fbd17c74e",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=22570 end_ticks=38579 slowclk_period=3854828 rtc_elapsed_us=117706 esp_elapsed_us=117579",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=38757 end_ticks=72220 slowclk_period=3854828 rtc_elapsed_us=246036 esp_elapsed_us=246028",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=75695 end_ticks=484131 slowclk_period=3854828 rtc_elapsed_us=3003026 esp_elapsed_us=3003012",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=271586"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 6.188,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "0c1e96915f6bfa0746e8de4dfde5f345ded2d36c828fed871508c30a3d5890e3",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 22570,
+          "end_ticks": 38579,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 117706,
+          "esp_elapsed_us": 117579
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 38757,
+          "end_ticks": 72220,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 246036,
+          "esp_elapsed_us": 246028
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 75695,
+          "end_ticks": 484131,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3003026,
+          "esp_elapsed_us": 3003012
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11581,
+      "bundle_sha256": "5528629fcccd4ccba252e3f7f50b2ba6694f13a9d463f423b1199d1685bd0e2f",
+      "serial_bytes": 3748,
+      "serial_sha256": "84033047918a9aacdd076dd1a7857bbb4bd172c1f2630e00a1f9a3bca89b2bcd",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "case": "final timer candidate, mixed sources with already-active reject",
+      "status": "PASS",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "firmware_sha256": "35c6bcc624e74c73b9b9f761da07af11f352319d2b4ca8f55ad769df7567c296",
+      "fixture_source": "369f2303e3bdfffc0b506bf23baa2c723ba91e96",
+      "fixture_elf_sha256": "733bce9e6b8bd15d3aaa29158246ebb8add6d0fe06c48d6bc4761d51cc2ea8bb",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "markers": [
+        "RTC_MIXED_BOOT reset_reason=1 timer_cause=4 gpio_cause=7",
+        "RTC_MIXED_ENTER step=1 requested_us=120000 b_level=1",
+        "RTC_MIXED_RETURN step=1 status=0 cause=4 b_level=1 start_ticks=22400 end_ticks=38460 slowclk_period=3854828 rtc_elapsed_us=118081 esp_elapsed_us=117933",
+        "RTC_MIXED_ENTER step=2 requested_us=2000000 b_level=1",
+        "RTC_MIXED_RETURN step=2 status=0 cause=7 b_level=0 start_ticks=38630 end_ticks=72914 slowclk_period=3854828 rtc_elapsed_us=252073 esp_elapsed_us=252062",
+        "RTC_MIXED_REJECT_ENTER requested_us=1400000 b_level=0 before_cause=0x0 start_ticks=73153",
+        "RTC_MIXED_REJECT_RETURN status=259 cause=0x4 sleep_raw=0x0 b_level=0 end_ticks=73432 slowclk_period=3854828",
+        "RTC_MIXED_REJECT_CLEAR cause=0x0",
+        "RTC_MIXED_REJECT_PASS elapsed_us=2051",
+        "RTC_MIXED_ENTER step=3 requested_us=3000000 b_level=1",
+        "RTC_MIXED_RETURN step=3 status=0 cause=4 b_level=1 start_ticks=103021 end_ticks=511308 slowclk_period=3854828 rtc_elapsed_us=3001930 esp_elapsed_us=3001908",
+        "RTC_MIXED_REJECT_DEADLINE old_timer_us=1400000 gap_us=219604",
+        "RTC_MIXED_PASS old_timer_us=2000000 gap_us=473434"
+      ],
+      "rom_reset_banners": 1,
+      "elapsed_timeout": false,
+      "observation_seconds": 7.274,
+      "qmp_state_before_mixed_b": "suspended",
+      "mixed_pre_input_serial_sha256": "a276347d1bfd6ad44e06b220d53ef46722d28c23aa8d107a612e8801253da9c4",
+      "mixed_observations": [
+        {
+          "step": 1,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 22400,
+          "end_ticks": 38460,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 118081,
+          "esp_elapsed_us": 117933
+        },
+        {
+          "step": 2,
+          "status": 0,
+          "cause": 7,
+          "b_level": 0,
+          "start_ticks": 38630,
+          "end_ticks": 72914,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 252073,
+          "esp_elapsed_us": 252062
+        },
+        {
+          "step": 3,
+          "status": 0,
+          "cause": 4,
+          "b_level": 1,
+          "start_ticks": 103021,
+          "end_ticks": 511308,
+          "slowclk_period": 3854828,
+          "rtc_elapsed_us": 3001930,
+          "esp_elapsed_us": 3001908
+        }
+      ],
+      "independent_rtc_tick_math_matches": true,
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "bundle_bytes": 11673,
+      "bundle_sha256": "b775fcfe4c7bc1d7571fd24feff65daa4d1b17cc33f1a2da0aa008cc78c27823",
+      "serial_bytes": 4082,
+      "serial_sha256": "35e3a42a9e4e8e46863031fe560c4ab2e2cb49ecc2c572158a71dfe8f4460ef4",
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "input": [
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "down",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        },
+        {
+          "request": {
+            "kind": "key",
+            "key": "b",
+            "action": "up",
+            "settle_seconds": 0.02
+          },
+          "accepted": true
+        }
+      ]
+    }
+  ]
+}

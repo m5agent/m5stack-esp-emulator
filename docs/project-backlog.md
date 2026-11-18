@@ -92,8 +92,8 @@
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
-   已验证原版 GPIO 浅睡和 B 键唤醒。继续补定时与组合唤醒源、深睡及睡眠期间 RTC 慢时钟，
-   并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
+   已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。继续补深睡、
+   其他 RTC 唤醒源、非默认慢钟与 RTC 跨复位保留，并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
    98TAB5 的失败与“已保存”冲突，下一步需要独立证据定位复位来源。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)

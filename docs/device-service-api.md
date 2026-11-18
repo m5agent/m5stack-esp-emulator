@@ -708,6 +708,10 @@ digital GPIO level, or both can complete that sleep. The default RC slow clock
 uses the same nominal rate as the S3 Timer Group calibration. Management pause
 freezes the sleep deadline, and reset discards a pending alarm. The firmware can
 read the RTC wake cause and elapsed slow-clock ticks through its usual APIs.
+For a guest-suspended QEMU session, `POST /sessions/{session_id}/reset`
+confirms the host reset and resumes the new boot from QEMU `prelaunch`.
+If the reset cannot be confirmed within the QMP timeout, the service reports
+`504 qmp_timeout`.
 [Native StickS3 validation](../tests/firmware/sticks3_rtc_sleep/README.md)
 
 `POST /sessions` accepts an optional non-secret `owner` label of at most 128

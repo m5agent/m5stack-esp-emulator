@@ -2980,6 +2980,10 @@ paths:
   /sessions/{session_id}/reset:
     post:
       summary: Reset the guest
+      description: >
+        Resets the current guest. If native QEMU had suspended for guest
+        sleep, the service observes the host reset and resumes the new boot
+        when QEMU enters its prelaunch state.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
@@ -2991,6 +2995,8 @@ paths:
                 type: object
                 additionalProperties: true
         "403":
+          $ref: "#/components/responses/Error"
+        "504":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/renew:
     post:

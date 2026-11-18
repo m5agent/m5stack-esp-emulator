@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "cases": [
+    {
+      "candidate": "v1",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "events_before_explicit_cont": [
+        "RESET"
+      ],
+      "failure": "fresh boot and newly armed timer",
+      "old_threshold_observed_ms": 2561,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND",
+        "RESET",
+        "RESUME"
+      ],
+      "qmp_states": [
+        "suspended",
+        "prelaunch",
+        "running"
+      ],
+      "virtual_observation": "FAIL",
+      "isolated_session_released": true,
+      "bundle_bytes": 11713,
+      "bundle_sha256": "41376db7cc3d4c5cb8e90f1b0301a146ab481783df34ee5f8bac537e09e7bb32",
+      "serial_bytes": 6416,
+      "serial_sha256": "cfaf806ab0951ea9113d01ad419b7eafd659db16a60594951d821945f87b6b12",
+      "crash_status": "observed",
+      "manifest_identity_and_bytes_verified": true,
+      "timer_and_sleep_registers": {
+        "pre_reset_suspended_mmio": {
+          "slp_timer0": "0x0004ca2b",
+          "slp_timer1": "0x00000000",
+          "state0": "0x80000000",
+          "int_raw": "0x00000000",
+          "wakeup_cause": "0x00000000"
+        },
+        "post_reset_stalled_mmio": {
+          "slp_timer0": "0x00072304",
+          "slp_timer1": "0x00000000",
+          "state0": "0x80000000",
+          "int_raw": "0x00000400",
+          "wakeup_cause": "0x00000000"
+        }
+      }
+    },
+    {
+      "candidate": "v2",
+      "runtime_sha256": "c44d4c80fd84281063be9ba85c35cfa97ea8b3810b2586e14ea376b9dd1c4134",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "events_before_explicit_cont": [
+        "RESET"
+      ],
+      "failure": "fresh boot and newly armed timer",
+      "old_threshold_observed_ms": 2630,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND",
+        "RESET",
+        "RESUME"
+      ],
+      "qmp_states": [
+        "suspended",
+        "prelaunch",
+        "running"
+      ],
+      "virtual_observation": "FAIL",
+      "isolated_session_released": true,
+      "bundle_bytes": 11704,
+      "bundle_sha256": "dfe74aab1457e262b32d30b5c2877745e00a5aefbdfdf65075fbcee3fa3a4244",
+      "serial_bytes": 6416,
+      "serial_sha256": "fd338cbb6f4c7da5d181a555d3844818d4f72b726898adc58948c5ff61cb4aec",
+      "crash_status": "observed",
+      "manifest_identity_and_bytes_verified": true,
+      "timer_and_sleep_registers": {
+        "pre_reset_suspended_mmio": {
+          "slp_timer0": "0x0004c1de",
+          "slp_timer1": "0x00000000",
+          "state0": "0x80000000",
+          "int_raw": "0x00000000",
+          "wakeup_cause": "0x00000000"
+        },
+        "post_reset_prelaunch_mmio": {
+          "slp_timer0": "0x0004c1de",
+          "slp_timer1": "0x00000000",
+          "state0": "0x80000000",
+          "int_raw": "0x00000400",
+          "wakeup_cause": "0x00000000"
+        },
+        "post_reset_stalled_mmio": {
+          "slp_timer0": "0x0006b47c",
+          "slp_timer1": "0x00000000",
+          "state0": "0x80000000",
+          "int_raw": "0x00000400",
+          "wakeup_cause": "0x00000000"
+        }
+      }
+    },
+    {
+      "host_pause_ms": 2564,
+      "events_during_host_pause": [
+        "STOP"
+      ],
+      "host_resume_until_wake_ms": 1999,
+      "timer_return": {
+        "step": 2,
+        "status": 0,
+        "cause": 4,
+        "b_level": 1,
+        "start_ticks": 38757,
+        "end_ticks": 311197,
+        "slowclk_period": 3854828,
+        "rtc_elapsed_us": 2003115,
+        "esp_elapsed_us": 2003108
+      },
+      "fixture_expected_gpio_but_intentionally_left_idle": true,
+      "virtual_observation": "PASS",
+      "qmp_states": [
+        "suspended",
+        "paused",
+        "suspended",
+        "running"
+      ],
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND",
+        "STOP",
+        "RESUME",
+        "WAKEUP"
+      ],
+      "zip_sha256": "f02e0c0dce9e37fbc2d436b5941c55e0fa15bcd19411c20b5c1413f007790be7",
+      "serial_sha256": "3fb95ae0ae96471058fdb96869cb321ed3d9b93f6a45da5b8159cd360c5b3653",
+      "isolated_session_released": true,
+      "bundle_bytes": 11467,
+      "bundle_sha256": "f02e0c0dce9e37fbc2d436b5941c55e0fa15bcd19411c20b5c1413f007790be7",
+      "serial_bytes": 3524,
+      "crash_status": "no_evidence",
+      "manifest_identity_and_bytes_verified": true,
+      "case": "pause",
+      "candidate": "final v3",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "raw_summary_sha256": "5274d50c54e2f26fd0af3fa78c38f1d535fe2209ced092ca5fa03415cf6cb7a4"
+    },
+    {
+      "pre_reset_suspended_mmio": {
+        "slp_timer0": 311120,
+        "slp_timer1": 0,
+        "state0": 2147483648,
+        "int_raw": 0,
+        "wakeup_cause": 0
+      },
+      "old_threshold_observed_ms": 2579,
+      "events_before_explicit_cont": [
+        "RESET"
+      ],
+      "post_reset_prelaunch_mmio": {
+        "slp_timer0": 0,
+        "slp_timer1": 0,
+        "state0": 0,
+        "int_raw": 0,
+        "wakeup_cause": 0
+      },
+      "events_after_cont": [
+        "RESET",
+        "RESUME",
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND"
+      ],
+      "confirmed_boots": 2,
+      "confirmed_step_one_returns": 2,
+      "virtual_observation": "PASS",
+      "qmp_states": [
+        "suspended",
+        "prelaunch",
+        "running",
+        "suspended"
+      ],
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND",
+        "RESET",
+        "RESUME",
+        "SUSPEND",
+        "WAKEUP",
+        "SUSPEND"
+      ],
+      "zip_sha256": "6ec9f85edb2e1447910e94f3a8b7a4b005298c699b6ef84753d1adfa3dbdac7e",
+      "serial_sha256": "244356b139981591bd082033f02f60dd0e9ad6ca9946408fe2322a7909a3141a",
+      "isolated_session_released": true,
+      "bundle_bytes": 11738,
+      "bundle_sha256": "6ec9f85edb2e1447910e94f3a8b7a4b005298c699b6ef84753d1adfa3dbdac7e",
+      "serial_bytes": 6675,
+      "crash_status": "observed",
+      "manifest_identity_and_bytes_verified": true,
+      "case": "reset",
+      "candidate": "final v3",
+      "runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "9b8c59f93cf00dfbd0df52ca7d0f5ca2a032c3677a7ebd53f3cd960952f82275",
+      "service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "raw_summary_sha256": "5274d50c54e2f26fd0af3fa78c38f1d535fe2209ced092ca5fa03415cf6cb7a4"
+    }
+  ]
+}

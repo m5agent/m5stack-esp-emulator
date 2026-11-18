@@ -25,7 +25,7 @@ ESP32-S3 [RTC 寄存器定义](https://github.com/espressif/esp-idf/blob/v5.4.1/
 和 [SDK 完成轮询](https://github.com/espressif/esp-idf/blob/v5.4.1/components/esp_hw_support/port/esp32s3/rtc_sleep.c)
 限定本项为数字 GPIO 浅睡的拒绝与唤醒。RTC 慢时钟睡眠期间的耗时、定时、组合唤醒源、深睡、浏览器和真机是独立验收项。
 
-## 定时唤醒负对照
+## 独立 RTC 定时唤醒
 
 该 ESP-IDF 探针通过 `esp_sleep_enable_timer_wakeup` 和
 `esp_light_sleep_start` 测试 ESP32-S3 定时唤醒。来宾依次请求
@@ -113,3 +113,24 @@ W1C 读回。短暂继续按住 B，第三轮应在释放后才启动，且在�
 的起点间隔。用独立主机时间和同一会话串口核对按键顺序与唤醒结果。
 
 [ESP-IDF 来宾观测](rtc-light-sleep-fixture.summary.json)保存定时基线、旧版 GPIO 失败、中间候选及最终唤醒和拒绝结果。
+
+## 0229 管理暂停与复位验收
+
+以 [定时与混合唤醒证据](sdk-timer-and-combined.summary.json)中的固件和运行时 SHA 为准。
+RTC 的 48 位慢计数在来宾浅睡期间继续。CPU 和数字看门狗停在原虚拟时间域。
+默认 RC 慢钟与 Timer Group 校准使用相同的 136 kHz 标称速率。检测到唤醒源后，
+模型按固件配置等待 XTAL 和 CK8M 周期后才继续运行来宾。
+
+使用独立本地 QMP 观察端口，在第二轮混合睡眠到达 `suspended` 后进行管理暂停。
+超过旧阈值的墙钟等待期间应保持 `paused`，继续后仍由同一来宾定时唤醒。
+复位对照在第二轮 `suspended` 时发起系统复位并保持 `prelaunch`，等待越过旧阈值，
+确认无 `WAKEUP`，且旧阈值、睡眠和中断状态已清除。显式继续后，同一固件重新完成定时睡眠。
+[生命周期对照](reset-rearm-candidates.summary.json)
+
+正常接口的复验在同一混合探针第二轮睡眠时只发送一次
+`POST /sessions/{session_id}/reset`。另用只读 QMP 观测确认复位、自动继续、第二次串口启动和新定时唤醒。
+[正常接口复位证据](device-service-timer-reset.summary.json)
+
+[常醒主 RTC 比较探针](../sticks3_rtc_awake_compare/README.md)验证独立主中断寄存器和显式装载。
+[原版手表回归证据](original-watch-timer-regression.summary.json)保留通过语义 B 键唤醒的前后帧与观察窗口。
+非默认慢钟、跨复位 RTC 时间保留、深睡与真机仍需各自验证。
