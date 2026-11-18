@@ -1,0 +1,223 @@
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+index 6d8152d3..d20bbc69 100644
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -11,6 +11,10 @@
+ #include "qemu/osdep.h"
+ #include "m5stopwatch.h"
+ #include "hw/ssi/esp32_spi.h"
++#include "qapi/visitor.h"
++#include "qapi/qmp/qdict.h"
++#include "qapi/qmp/qnum.h"
++#include "sysemu/reset.h"
+ 
+ #define SD_BLOCK_SIZE 512
+ #define SD_RESP_SIZE  1024
+@@ -30,7 +34,18 @@ typedef enum {
+     SD_READ_NEXT,
+ } SdSpiMode;
+ 
++struct M5SpiSdReadStats {
++    uint64_t reset_generation;
++    uint64_t accepted_cmd17;
++    uint64_t accepted_cmd18;
++    uint64_t completed_blocks;
++    bool media_present;
++};
++
+ struct M5SpiSdState {
++    M5SpiSdReadStats *read_stats;
++    uint64_t read_generation;
++    bool read_response_pending;
+     FILE *image;
+     uint64_t image_size;
+     SdSpiMode mode;
+@@ -131,6 +146,21 @@ static const M5SpiSlaveOps sd_spi_ops = {
+     .transfer = sd_spi_transfer,
+ };
+ 
++static void sd_spi_observe_cs(void *opaque, int level)
++{
++    M5SpiSdState *s = opaque;
++
++    if (level) {
++        /* The observer discards a response interrupted by deasserting CS. */
++        s->read_response_pending = false;
++    }
++}
++
++static const M5SpiSlaveOps sd_spi_observed_ops = {
++    .set_cs = sd_spi_observe_cs,
++    .transfer = sd_spi_transfer,
++};
++
+ static void sd_set_response_lead(M5SpiSdState *s, const uint8_t *data,
+                                  uint32_t size, uint32_t lead)
+ {
+@@ -143,6 +173,7 @@ static void sd_set_response_lead(M5SpiSdState *s, const uint8_t *data,
+     s->response_pos = 0;
+     s->next_mode = SD_IDLE;
+     s->mode = size ? SD_RESPONSE : SD_IDLE;
++    s->read_response_pending = false;
+ }
+ 
+ static void sd_set_response(M5SpiSdState *s, const uint8_t *data,
+@@ -195,6 +226,19 @@ static void sd_read_block(M5SpiSdState *s, bool first)
+     response[prefix + SD_BLOCK_SIZE] = crc >> 8;
+     response[prefix + SD_BLOCK_SIZE + 1] = crc & 0xff;
+     sd_set_response_lead(s, response, prefix + SD_BLOCK_SIZE + 2, first ? 2 : 1);
++    if (s->read_stats) {
++        if (first) {
++            s->read_generation = s->read_stats->reset_generation;
++            if (s->multi_read) {
++                s->read_stats->accepted_cmd18++;
++            } else {
++                s->read_stats->accepted_cmd17++;
++            }
++        }
++        /* Keep the whole CMD18 stream in the epoch of its accepted command. */
++        s->read_response_pending =
++            s->read_generation == s->read_stats->reset_generation;
++    }
+     if (s->multi_read) {
+         s->sector++;
+         s->next_mode = SD_READ_NEXT;
+@@ -392,6 +436,11 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+     case SD_RESPONSE:
+         out = s->response[s->response_pos++];
+         if (s->response_pos >= s->response_len) {
++            if (s->read_response_pending &&
++                s->read_generation == s->read_stats->reset_generation) {
++                s->read_stats->completed_blocks++;
++            }
++            s->read_response_pending = false;
+             s->mode = s->next_mode;
+             s->next_mode = SD_IDLE;
+             s->response_len = 0;
+@@ -497,6 +546,60 @@ bool m5_spi_sd_attach(DeviceState *spi, int cs_pin)
+     return s->image != NULL;
+ }
+ 
++static void sd_read_stats_reset(void *opaque)
++{
++    M5SpiSdReadStats *stats = opaque;
++
++    stats->reset_generation++;
++    stats->accepted_cmd17 = 0;
++    stats->accepted_cmd18 = 0;
++    stats->completed_blocks = 0;
++}
++
++static void sd_get_read_stats(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    const M5SpiSdReadStats *stats = opaque;
++    QDict *result = qdict_new();
++    QObject *value = QOBJECT(result);
++
++    qdict_put_int(result, "schema_version", 1);
++    qdict_put_bool(result, "media_present", stats->media_present);
++    qdict_put(result, "reset_generation", qnum_from_uint(stats->reset_generation));
++    qdict_put(result, "accepted_cmd17", qnum_from_uint(stats->accepted_cmd17));
++    qdict_put(result, "accepted_cmd18", qnum_from_uint(stats->accepted_cmd18));
++    qdict_put(result, "completed_blocks", qnum_from_uint(stats->completed_blocks));
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void sd_release_read_stats(Object *obj, const char *name, void *opaque)
++{
++    qemu_unregister_reset(sd_read_stats_reset, opaque);
++    g_free(opaque);
++}
++
++M5SpiSdReadStats *m5_spi_sd_register_read_stats(Object *machine)
++{
++    M5SpiSdReadStats *stats = g_new0(M5SpiSdReadStats, 1);
++
++    /* Supported slots have fixed media for the lifetime of this machine. */
++    qemu_register_reset(sd_read_stats_reset, stats);
++    object_property_add(machine, "spi-sd-read-stats", "any", sd_get_read_stats,
++                        NULL, sd_release_read_stats, stats);
++    return stats;
++}
++
++void m5_spi_sd_attach_observed(DeviceState *spi, int cs_pin,
++                              M5SpiSdReadStats *stats)
++{
++    M5SpiSdState *s = m5_spi_sd_create();
++
++    s->read_stats = stats;
++    stats->media_present |= s->inserted;
++    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_observed_ops, s, cs_pin);
++}
++
+ M5SpiSdState *m5_spi_sd_attach_s3_pair(DeviceState *spi_a, DeviceState *spi_b,
+                                       int cs_pin)
+ {
+diff --git a/hw/m5stopwatch/m5cardputer.c b/hw/m5stopwatch/m5cardputer.c
+index 6db90bf4..3f36b075 100644
+--- a/hw/m5stopwatch/m5cardputer.c
++++ b/hw/m5stopwatch/m5cardputer.c
+@@ -90,7 +90,8 @@ static DeviceState *cardputer_i2c(MemoryRegion *sys_mem,
+ 
+ static void cardputer_spi(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                   ESPGdmaState *gdma, hwaddr address,
+-                                  int dma, int irq, M5SpiPanelState *panel)
++                                  int dma, int irq, M5SpiPanelState *panel,
++                                  M5SpiSdReadStats *sd_stats)
+ {
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+@@ -109,7 +110,7 @@ static void cardputer_spi(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         /* SPI3_CLK matrix signal 66. SPI3 has no direct IOMUX route. */
+         esp32s3_gpspi_set_clock_routes(spi, 66, 36, -1, 40);
+     }
+-    m5_spi_sd_attach(spi, 12);
++    m5_spi_sd_attach_observed(spi, 12, sd_stats);
+ }
+ 
+ void m5cardputer_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+@@ -157,8 +158,10 @@ void m5cardputer_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     m5_spi_panel_attach_gpio(M5_SPI_PANEL(panel),
+                              esp32_gpio_get_controller(true), 37, 36, 34, 35);
+ 
++    M5SpiSdReadStats *sd_stats =
++        m5_spi_sd_register_read_stats(qdev_get_machine());
+     cardputer_spi(sys_mem, intmatrix, gdma, 0x60024000, GDMA_SPI2,
+-                  ETS_SPI2_INTR_SOURCE, M5_SPI_PANEL(panel));
++                  ETS_SPI2_INTR_SOURCE, M5_SPI_PANEL(panel), sd_stats);
+     cardputer_spi(sys_mem, intmatrix, gdma, 0x60025000, GDMA_SPI3,
+-                  ETS_SPI3_INTR_SOURCE, M5_SPI_PANEL(panel));
++                  ETS_SPI3_INTR_SOURCE, M5_SPI_PANEL(panel), sd_stats);
+ }
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index 5d4a20ff..b4705aa9 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -96,7 +96,9 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_gpspi_attach(sd_spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
+     esp32s3_gpspi_set_dc_pin(sd_spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(sd_spi, 37);
+-    m5_spi_sd_attach(sd_spi, 12);
++    M5SpiSdReadStats *sd_stats =
++        m5_spi_sd_register_read_stats(qdev_get_machine());
++    m5_spi_sd_attach_observed(sd_spi, 12, sd_stats);
+     /* Cap CC1101 adds both chips on the external connector. A bare
+      * Cardputer ADV has neither device on G5/G6. */
+     if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_CC1101"), "1") == 0) {
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 20ee2d34..f4afb183 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -175,6 +175,10 @@ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ typedef struct M5SpiSdState M5SpiSdState;
++typedef struct M5SpiSdReadStats M5SpiSdReadStats;
++M5SpiSdReadStats *m5_spi_sd_register_read_stats(Object *machine);
++void m5_spi_sd_attach_observed(DeviceState *spi, int cs_pin,
++                              M5SpiSdReadStats *stats);
+ bool m5_spi_sd_attach(DeviceState *spi, int cs_pin);
+ M5SpiSdState *m5_spi_sd_attach_s3_pair(DeviceState *spi_a, DeviceState *spi_b,
+                                       int cs_pin);

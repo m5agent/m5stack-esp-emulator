@@ -10,6 +10,7 @@ from test_unit_flashlight_cold_pad_patch import ROOT, bootstrap_stack
 
 PATCH = "patches/qemu-m5stack-peripherals/0056-spi-sd-multiblock-transfers.patch"
 INIT_PATCH = "patches/qemu-m5stack-peripherals/0166-spi-sd-card-init-state.patch"
+READ_STATS_PATCH = "patches/qemu-m5stack-peripherals/0227-cardputer-spi-sd-read-stats.patch"
 SOURCE = "hw/m5stopwatch/m5_spi_sd.c"
 STUBS = r'''
 #include <assert.h>
@@ -20,7 +21,9 @@ STUBS = r'''
 #include <string.h>
 #include <sys/types.h>
 #define MIN(a,b) ((a)<(b)?(a):(b))
-typedef struct { void (*set_cs)(void*,bool); uint8_t (*transfer)(void*,uint8_t); } M5SpiSlaveOps;
+typedef struct { void (*set_cs)(void*,int); uint8_t (*transfer)(void*,uint8_t); } M5SpiSlaveOps;
+typedef struct M5SpiSdState M5SpiSdState;
+typedef struct M5SpiSdReadStats M5SpiSdReadStats;
 '''
 MAIN = r'''
 static uint8_t transfer(M5SpiSdState *s,uint8_t tx) {return sd_spi_transfer(s,tx);}
@@ -187,6 +190,70 @@ int main(void)
 }
 '''
 
+READ_STATS_MAIN = r'''
+static void drain_response(M5SpiSdState *card)
+{
+    while (card->mode == SD_RESPONSE) {
+        sd_spi_transfer(card, 0xff);
+    }
+}
+
+static void drain_next_block(M5SpiSdState *card)
+{
+    assert(card->mode == SD_READ_NEXT);
+    sd_spi_transfer(card, 0xff);
+    drain_response(card);
+}
+
+int main(void)
+{
+    M5SpiSdReadStats stats = {0};
+    M5SpiSdState card = {
+        .image = tmpfile(), .image_size = 2048,
+        .inserted = true, .read_stats = &stats,
+    };
+    assert(card.image);
+    for (unsigned i = 0; i < card.image_size; ++i) {
+        fputc((i / 512) + 42, card.image);
+    }
+    assert(!fflush(card.image));
+    sd_read_stats_reset(&stats);
+    assert(send(&card, 17, 0) & SD_R1_ILLEGAL);
+    card.card_ready = true;
+    card.crc_enabled = true;
+    assert(raw_command(&card, 17, 0, command_crc(17, 0) ^ 2) == SD_R1_CRC_ERROR);
+    assert(send(&card, 17, card.image_size) == 0x20);
+    assert(stats.accepted_cmd17 == 0 && stats.completed_blocks == 0);
+
+    assert(send(&card, 17, 0) == 0);
+    while (card.response_pos + 1 < card.response_len) {
+        sd_spi_transfer(&card, 0xff);
+    }
+    assert(stats.accepted_cmd17 == 1 && stats.completed_blocks == 0);
+    sd_spi_observed_ops.set_cs(&card, 1);
+    drain_response(&card);
+    assert(stats.completed_blocks == 0);
+
+    assert(send(&card, 18, 0) == 0);
+    drain_response(&card);
+    drain_next_block(&card);
+    assert(stats.accepted_cmd18 == 1 && stats.completed_blocks == 2);
+    sd_spi_transfer(&card, 0xff);
+    assert(card.mode == SD_RESPONSE);
+    sd_read_stats_reset(&stats);
+    drain_response(&card);
+    drain_next_block(&card);
+    assert(stats.reset_generation == 2 && stats.accepted_cmd18 == 0);
+    assert(stats.completed_blocks == 0);
+    assert(send(&card, 12, 0) == 0);
+    drain_response(&card);
+    assert(send(&card, 17, 512) == 0);
+    drain_response(&card);
+    assert(stats.accepted_cmd17 == 1 && stats.completed_blocks == 1);
+    fclose(card.image);
+}
+'''
+
 
 @unittest.skipUnless(shutil.which("git") and shutil.which("cc"), "git and C compiler required")
 class SpiSdMultiBlockPatchTests(unittest.TestCase):
@@ -199,10 +266,10 @@ class SpiSdMultiBlockPatchTests(unittest.TestCase):
                 subprocess.run(["git", "apply", "--include=" + SOURCE, str(ROOT / prior)], cwd=root, check=True, capture_output=True)
         self.fail(f"{patch} is missing from the native bootstrap stack")
 
-    def compile_harness(self, root, label, source, main):
-        body = source[source.index("#define SD_BLOCK_SIZE"):source.index("void m5_spi_sd_attach")]
+    def compile_harness(self, root, label, source, main, *, before="void m5_spi_sd_attach", extra=""):
+        body = source[source.index("#define SD_BLOCK_SIZE"):source.index(before)]
         path, binary = root / (label + ".c"), root / label
-        path.write_text(STUBS + body + main)
+        path.write_text(STUBS + body + extra + main)
         compilation = subprocess.run([shutil.which("cc"), "-std=c11", "-D_DARWIN_C_SOURCE", "-D_POSIX_C_SOURCE=200809L", "-Wno-excess-initializers", str(path), "-o", str(binary)], capture_output=True, text=True)
         self.assertEqual(compilation.returncode, 0, compilation.stderr)
         return binary
@@ -243,3 +310,20 @@ class SpiSdMultiBlockPatchTests(unittest.TestCase):
                         self.assertEqual(run.returncode, 0, run.stderr)
                     else:
                         self.assertNotEqual(run.returncode, 0, "preimage falsely answers with no card")
+
+    def test_read_stats_requires_a_complete_block_in_the_accepting_epoch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.source_before(root, READ_STATS_PATCH)
+            patch = str(ROOT / READ_STATS_PATCH)
+            subprocess.run(["git", "apply", "--include=" + SOURCE, patch], cwd=root,
+                           check=True, capture_output=True)
+            source = (root / SOURCE).read_text()
+            reset = source[source.index("static void sd_read_stats_reset"):
+                           source.index("static void sd_get_read_stats")]
+            command_helpers = INIT_MAIN[:INIT_MAIN.index("int main(")]
+            binary = self.compile_harness(root, "read-stats", source, READ_STATS_MAIN,
+                                          before="static M5SpiSdState *m5_spi_sd_create",
+                                          extra=reset + command_helpers)
+            run = subprocess.run([str(binary)], capture_output=True, text=True, timeout=5)
+            self.assertEqual(run.returncode, 0, run.stderr)

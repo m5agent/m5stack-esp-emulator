@@ -1834,3 +1834,21 @@ is bounded to 16 MiB per session. The class exposes media support for
 admission and per-attachment loaded tracks and emitted byte count for data
 plane checks. Unset media paths preserve the scalar indexed fixture.
 See the [original Dial playback evidence](../../docs/evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json).
+
+## Cardputer SPI SD read statistics (0227)
+
+Cardputer and Cardputer-ADV expose a read-only `spi-sd-read-stats` property on
+the native `/machine` QOM object. Cardputer's two routed GP-SPI controllers
+share the statistics while keeping their existing protocol state. The card
+counts CMD17/CMD18 after protocol checks and successful loading of the first
+512-byte sector. It counts a complete block after the modeled controller
+clocks the entire response, including the data token and CRC. Chip-select
+deassertion cancels a pending block. A guest reset starts a fresh generation
+and fences any unfinished CMD18 stream from the prior generation.
+
+The snapshot contains counters, media presence and the reset generation. It
+does not carry sector addresses or data and does not establish that guest
+software consumed the controller response. Media is fixed for the lifetime of
+these two board models. The scoped Device Service endpoint binds the snapshot
+to the current session's runtime and attachment. Browser patch selection and
+PaperDIY hot-plug are outside this change.

@@ -4,6 +4,7 @@
 #include "driver/gpio.h"
 #include "driver/sdspi_host.h"
 #include "driver/spi_common.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
@@ -24,6 +25,25 @@
 
 static const char seed[] = "M5EMU_SEEDED_FAT32_PAYLOAD";
 static const char proof[] = "M5EMU_PERSISTENT_SD_WRITE";
+
+#if defined(PROBE_SD_READ_STATS)
+DMA_ATTR static uint8_t test_sectors[1024];
+
+static void check_multiblock_read(sdmmc_card_t *card)
+{
+    memset(test_sectors, 0xa5, sizeof(test_sectors));
+    esp_err_t result = sdmmc_read_sectors(card, test_sectors, 0, 2);
+    /* The synthetic FAT32+MBR image starts with an MBR and an empty sector. */
+    const bool mbr = test_sectors[450] == 0x0c && test_sectors[455] == 0x08 &&
+                     test_sectors[510] == 0x55 && test_sectors[511] == 0xaa;
+    bool blank = true;
+    for (size_t i = 512; i < sizeof(test_sectors); ++i) {
+        blank = blank && test_sectors[i] == 0;
+    }
+    printf("STORAGE_PROBE_MULTIBLOCK rc=%s mbr=%d blank=%d\n",
+           esp_err_to_name(result), mbr, blank);
+}
+#endif
 
 static bool matches(const char *path, const char *value)
 {
@@ -100,6 +120,9 @@ void app_main(void)
         puts("STORAGE_PROBE_DONE");
         return;
     }
+#if defined(PROBE_SD_READ_STATS)
+    check_multiblock_read(card);
+#endif
     const bool seed_ok = contains_file() && matches(MOUNT_PATH "/FIXTURE/ROM.BIN", seed);
     const bool prior_write = matches(MOUNT_PATH "/PROOF.BIN", proof);
     printf("STORAGE_PROBE_MOUNT seed=%d prior=%d\n", seed_ok, prior_write);

@@ -179,3 +179,23 @@ stay unchanged, and the attachment identities must differ. Queries while
 ejected must return `409 sd_media_ejected`. The stopped inventory still
 checks `/PROOF.BIN` byte-for-byte by SHA-256.
 [SD write-stamp evidence](paperdiy-write-stamp-summary.json)
+
+## Native Cardputer and ADV read statistics
+
+Use the standard merged probe and FAT32+MBR seed described above in an owned
+native Device Service with patch 0227. Leave `M5SW_SPI_SD_TRACE` unset.
+After `STORAGE_PROBE_DONE`, query `GET /sessions/{id}/storage/sd/read-stats`
+while the same session is running. Require positive `accepted_cmd17` and
+`completed_blocks`, the exact firmware and source digest, and `media_present`
+true. Repeat without a card to require `media_present` false and all three
+read counters zero. A native runtime built before patch 0227 must return
+`409 sd_read_stats_unsupported`. Collect the evidence ZIP before stop and
+verify the lease and runtime are released.
+
+For the multiblock case, build the same project with `-DPROBE_SD_READ_STATS=ON`
+in a separate build and sdkconfig path. The guest uses ESP-IDF SDSPI to read
+the first two sectors in a DMA-capable buffer. Require
+`STORAGE_PROBE_MULTIBLOCK rc=ESP_OK mbr=1 blank=1`, one accepted CMD18 and two
+additional completed blocks for the read. A standard reset in the same
+session advances `reset_generation`. Compare samples for deltas only within
+the same reset, attachment and runtime generations.
