@@ -236,6 +236,37 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 LaunchAgent 下的 Linux 审核排空
+
+在 macOS 用户 LaunchAgent 中运行隔离 Linux ARM64 Worker。首个托管进程中
+Linux 确实启动，但宿主桥接未处理系统 Python 3.9 的 `socket.timeout`，认证入口
+提前退出。该代未创建审核会话，核对零租约后取得原生正常停机回执。原隔离卷的
+不确定状态和日志保留，普通启动仍禁止。修正后两个实际 Socket 对照通过。
+
+新测试卷使用相同的签名 VZ 运行器和 Device Service 1.99.3（`2a7f979c`）。
+Reviewer 0.29.2（`88ca2e3c`）开始原版 Core2 2048 审核，创建意图和租约已
+绑定到原版会话。向实际 LaunchAgent 发送 `SIGTERM` 时有一个活动租约。后端
+拒绝新建会话并返回 `503 worker_stopping`，现有会话状态和证据 ZIP 仍可认证
+读取。原版标准 dry-run 完成 `SIM_VERIFIED`，已验证 Device Service 正常退出、
+虚拟机正常关机、卷锁及桥接端口释放。运行期观察器在关闭连接时遇到瞬时断开，
+最终停机状态由 LaunchAgent、VZ 和持久卷回执复验。
+
+同一 LaunchAgent 目标重新启动后，宿主进程和 Linux 启动身份改变，Worker
+身份、持久卷和认证入口一致。Reviewer 保持运行，从同一 SQLite 和 Device API
+读回原任务、会话及证据。停机前与重启后的 ZIP 中七个载荷文件逐项一致，
+无待处理创建意图、重复会话或活动租约。原版四向共八次有效移动。
+
+第二代另跑同版 Reviewer 的原版 CardputerDict ADV。应用启动、DHCP 与获准
+DNS 都有同会话证据，校时 UDP 请求没有回复。宿主转发进程使用系统 Python
+3.9 导入 `dataclass(slots=True)` 时失败，HTTPS、SD 缓存和 PCM 未验证。
+此轮保留 `SIM_PARTIAL`。修订候选显式使用已校验的 Python 3.13.15 执行转发，
+隔离导入测试通过。工作盘低于现有来宾启动预留，修订后的原版端到端复验未运行。
+
+两代 Worker 均正常停机，两个审核会话保留，临时 LaunchAgent 已卸载。
+常驻 Reviewer 0.29.2 仍就绪并连接 macOS Worker，两个 Device Service 角色的
+OpenAPI 1.99.3 已回读。正式路由切换、系统重启与未计划中断未验。未提交 Burner。
+[活动排空、同卷读回及 ADV 失败对照](https://github.com/m5agent/agent-work-logs/blob/6db33a77280f0039824f300e4f7a6a2da6c79797/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-launchd-active-drain/report.md)。
+
 ## 2026-11-19 Core2 2048 棋盘底色识别
 
 此前 Linux Worker 保留的原版 2048 Game 1.0 第八次向下拖动取得两张逐字节

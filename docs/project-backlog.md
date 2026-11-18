@@ -88,8 +88,12 @@
    完成标准 ADV 放行与拒绝对照。[跨系统同卷冷启动](validation-ledger.md#2026-11-19-macos-reviewer-与-linux-同卷冷启动)
    已在 Reviewer 0.28 与 0.29 的真实活动租约上验证无回执拒绝、有回执清理及同原版重试。
    [受监督 Worker 原版复验](validation-ledger.md#2026-11-19-linux-受监督审核-worker-重启)
-   已验证 ADV 与 Core2 的标准 dry-run、同卷正常重启和 Reviewer 历史读回。继续建立实际托管，
-   验收带活动租约的故障恢复、系统重启和真实常驻路由切换。
+   已验证 ADV 与 Core2 的标准 dry-run、同卷正常重启和 Reviewer 历史读回。
+   [LaunchAgent 活动排空](validation-ledger.md#2026-11-19-launchagent-下的-linux-审核排空)已验证
+   Core2 原版审核运行时关闭新建准入、保留取证，以及同卷重启读回。ADV 原版的校时阻断已定位到
+   宿主转发解释器，先在修订托管环境复验 HTTPS、SD 缓存和 PCM。继续在 Reviewer 中按尝试绑定
+   明确的后端和 Worker 身份，为满足条件的保存快照接入 Linux，保留其他常驻审核路径。
+   验收实际常驻路由、退出或断电时在途审核恢复和系统重启。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)

@@ -689,6 +689,10 @@ Before routing to a restarted Worker, verify its `worker_id`, `generation`,
 planned restart on the same state volume, check that the Worker ID is stable
 and the generation advanced. A successful drain confirms admission control
 and zero leases once the state is `drained`. Confirm process exit separately.
+During a planned drain, keep the current authenticated session endpoints
+reachable so existing jobs can finish device operations, collect evidence, and
+stop their sessions. Withdraw the transport after the worker releases its leases.
+[Planned drain with an active review](validation-ledger.md#2026-11-19-launchagent-下的-linux-审核排空).
 The isolated Linux review pilot returned HTTP `503` from its host bridge
 while no Worker was ready. For an interrupted session create, use the
 reconciliation protocol below before issuing another create.
