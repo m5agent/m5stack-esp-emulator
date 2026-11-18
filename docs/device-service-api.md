@@ -4332,8 +4332,14 @@ restart.
   and worker PID, mount and network namespaces, verified guest termination
   and an empty old network namespace. Version-3 journals also record a
   per-launch inherited lock and a committed inner process before the guest
-  can start. An exited outer also ends the initial QMP wait without keeping
-  the startup transaction open for its normal timeout. If the outer exits
+  can start. The outer launcher transfers the lock and permit above the three
+  standard-stream descriptors, including when it starts with stdin closed.
+  The inner still validates the descriptor identities and launch receipt
+  before starting QEMU. The original CardputerDict firmware passed a
+  [closed-stdin allow/deny comparison](validation-ledger.md#2026-11-19-linux-网关闭合-stdin-复验)
+  on a Linux worker with no virtual NIC. An exited outer also ends the initial
+  QMP wait without holding the startup transaction until its normal timeout.
+  If the outer exits
   before inner evidence exists, the service
   can release fully identified resources after the original lock is
   available and the namespace contains no tasks. Legacy or incomplete

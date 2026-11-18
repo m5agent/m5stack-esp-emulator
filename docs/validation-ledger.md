@@ -28,6 +28,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 均已核对。Burner 未提交，常驻 Linux 接入未验证。
 [关闭 stdin 的原版对照证据](https://github.com/m5agent/agent-work-logs/blob/def9dc0370258483b4ead5cff64c7cc3c2ebf6b4/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/README.md)。
 
+### 本机常驻更新
+
+macOS 工作台和审核后端均更新为 Device Service `981fdcdf`。两个实例正常接收租约，
+读回同一份 OpenAPI 1.99.0 文档，并核对原有 153 条会话和各自的运行时。Reviewer
+`f0101b6` 重连 macOS 后端后，就绪检查返回 HTTP 200，129 条审核记录与抽查证据保持一致。
+Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由未运行。Burner 未提交。
+[本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0364fb870dfbe0a844a7e500627069d2f8846dae/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/followups/2026-11-19-resident-199-gateway-low-fd/README.md)。
+
 ## 2026-11-19 NC1020 原版存档跨 Worker 读回
 
 Device Service 1.99 运行同一原版 NC1020、含 ROM/NOR 的 Flash 和既有 FAT32 存档。
