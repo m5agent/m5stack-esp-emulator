@@ -64,10 +64,6 @@ class SessionCreateRecovery:
             # recovery journal must never be interpreted as empty or replaced.
             self._entries = None
 
-    @property
-    def available(self) -> bool:
-        return self._entries is not None
-
     def _load(self) -> dict[str, dict]:
         if self.path.is_symlink():
             raise ValueError("recovery journal cannot be a symlink")

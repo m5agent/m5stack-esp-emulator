@@ -711,7 +711,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service = DeviceService(state_dir=state, api_token="test-auth-value")
         self.service.specs = specs
         request, proof = review_create_request()
-        self.assertNotIn("session_create_recovery", self.service.worker_status())
+        self.assertEqual(self.service.worker_status()["session_create_recovery"], "review-v1")
         for operation, body in ((self.service.create_session, request),
                                 (self.service.reconcile_session_create, proof)):
             with self.assertRaises(ServiceError) as rejected:
@@ -7694,6 +7694,31 @@ class DeviceServiceHttpTests(unittest.TestCase):
             self.assertEqual(result, {"state": "not_created", "session_id": None, "worker_id": worker["worker_id"]})
             _, after = self.request("/api/v1/worker", headers=auth)
             self.assertEqual(after["active_lease_count"], before)
+
+    def test_reconcile_create_http_keeps_capability_when_journal_is_corrupt(self):
+        request, proof = review_create_request()
+        auth = {"Authorization": "Bearer test-auth-value", "Content-Type": "application/json"}
+        ready = replace(self.service.specs["sticks3"], qemu=Path(sys.executable),
+                        rom_dir=Path(self.tmp.name), flash_emulator=None, require_machine_probe=False)
+        with tempfile.TemporaryDirectory() as folder:
+            journal = Path(folder) / "review-session-create.json"
+            journal.write_text("{corrupt")
+            recovery = type(self.service._review_create)(journal)
+            with mock.patch.object(Handler, "api_token", "test-auth-value"), \
+                 mock.patch.object(self.service, "_review_create", recovery), \
+                 mock.patch.dict(self.service.specs, {"sticks3": ready}):
+                _, worker = self.request("/api/v1/worker", headers=auth)
+                self.assertEqual(worker["session_create_recovery"], "review-v1")
+                for path, payload in (("/api/v1/sessions", request),
+                                      ("/api/v1/sessions/reconcile-create", proof)):
+                    with self.assertRaises(HTTPError) as failure:
+                        self.request(path, method="POST", data=json.dumps(payload).encode(), headers=auth)
+                    self.assertEqual(failure.exception.code, 503)
+                    with failure.exception as response:
+                        self.assertEqual(json.load(response)["error"]["code"], "session_create_recovery_unavailable")
+                _, after = self.request("/api/v1/worker", headers=auth)
+                self.assertEqual(after["active_lease_count"], worker["active_lease_count"])
+            self.assertEqual(journal.read_text(), "{corrupt")
 
     def test_site_config_exposes_only_the_serving_device_service_origin(self):
         status, config = self.request("/platform/web/site-config.json")

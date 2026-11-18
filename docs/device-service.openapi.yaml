@@ -7286,7 +7286,9 @@ components:
         session_create_recovery:
           type: string
           const: review-v1
-          description: Available with configured Bearer control authentication and a readable recovery journal.
+          description: >-
+            Protocol support with configured Bearer control authentication.
+            A recovery journal failure returns 503 on protected requests.
         schema_version:
           type: integer
         worker_id:

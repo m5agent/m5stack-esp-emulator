@@ -764,8 +764,9 @@ results seal subsequent creates and replay with the same key. Reconciliation
 neither starts nor stops a session. A mismatched identity or request hash
 returns HTTP 409. A retained record remains available after expiry. An expired
 key with no retained record returns HTTP 410 because there is no evidence that
-it *never* allocated. Journal unavailability returns HTTP 503. Ordinary create
-keys keep their existing behavior.
+it *never* allocated. The worker still advertises `review-v1` when its journal
+is unavailable. Protected create and reconcile return HTTP 503 in that case.
+Ordinary create keys keep their existing behavior.
 
 The route requires configured Bearer control authentication. It is intended for
 trusted Reviewer recovery on the same worker state; `owner` labels and this

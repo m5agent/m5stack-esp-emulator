@@ -13632,7 +13632,9 @@ class DeviceService:
     def worker_status(self) -> dict:
         try:
             snapshot = self.worker.snapshot()
-            if self.api_tokens and self._review_create.available:
+            if self.api_tokens:
+                # Advertise the implemented protocol during journal failures as
+                # well so upstream Reviewers cannot fall back to ordinary creates.
                 snapshot["session_create_recovery"] = REVIEW_CREATE_PROTOCOL
             return snapshot
         except WorkerRegistryError as error:
