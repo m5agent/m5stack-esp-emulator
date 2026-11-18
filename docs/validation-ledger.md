@@ -14,6 +14,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 原版音乐保存快照复审
+
+官方 UserDemo V0.4 在相同板型和原生 I²S1 路径做两轮保存快照复审。两轮均核对实际触摸和画面。点击播放后，提示音区间之后的一秒双声道 PCM 超过阈值。仅打开 Music Test 的对照只在短提示音阶段有信号，测量区间低于阈值。保留了隔离环境缺文件、运行中 WAV 占位判断失败和短提示音误判三次早期对照。两轮释放租约及可写 Flash，未提交 Burner。远端联网和实机声输出未验证。[完整路径与有界摘要](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)
+
+[#188 同原版](https://github.com/m5agent/agent-work-logs/blob/2299e79d00a8ef37bd83b2cd69f1631fd3d99ce9/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-v110-part-gap/followups/2026-11-18-tab5-bmi270-transport/followups/2026-11-18-tab5-bmi270-native-part/followups/2026-11-18-tab5-gt911-dsi-panel-read/README.md)在 GT911 面板命令 `0x00` 读取 1 字节 `00` 后进入未识别分支。两种观测窗口均无完整帧。[#226 同原版](https://github.com/m5agent/agent-work-logs/blob/923679586152244e76f3992e5305962bf9043ec6/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/README.md)已核对 USB Host 初始化和客户端注册返回成功，根端口上电但未连接外设。枚举和传输待验证。
+
 ## 2026-11-18 Tab5 保存快照复审的 SDMMC 写入
 
 ST7123 板型的 ESP-IDF 探针在保存快照复审中收到中心触摸和松手，通过

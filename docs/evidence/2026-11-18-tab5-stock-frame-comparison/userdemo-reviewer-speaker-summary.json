@@ -1,0 +1,527 @@
+{
+  "validation": "virtual-device validation",
+  "release": "https://github.com/m5stack/M5Tab5-UserDemo/releases/tag/V0.4",
+  "asset_size": 5813840,
+  "runtime": {
+    "backend": "esp-emu 1.1.0",
+    "board": "gt911-ili9881c",
+    "native_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "codec_part_sha256": "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270"
+  },
+  "path": "new locally staged snapshot from verified official release asset, normal HTTP saved_snapshot retry",
+  "samples": "s16le stereo, 48 kHz. 4096 pre-touch quiet frames, first 48000 post-cursor transient frames, next 48000 measured frames.",
+  "runs": {
+    "play": {
+      "result": "PASS",
+      "validation": "virtual-device validation",
+      "firmware_source": "official GitHub release",
+      "snapshot_scope": "new isolated local snapshot seeded from verified official metadata",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "device_source": "c6d7eb8c6c9c0eecc8f79d14c201c2d6dec13f5f",
+      "reviewer_source": "aebbe38ce0fa2ba5c278270554ef8af6f5da8a32",
+      "device_openapi_sha256": "4046970596e4b21913eb1ddc2339bd366cdf13d6cf7fa55579df8af90a9dd79d",
+      "reviewer_openapi_sha256": "482ad5ffe2279a46cc79f641cfb165416786eb00abfb77ae92b9c1a28bb96bce",
+      "test_mode": "play",
+      "analysis_inputs": {
+        "touch_plan": {
+          "frame_size": [
+            720,
+            1280
+          ],
+          "button_bindings": {},
+          "steps": [
+            {
+              "name": "touch_music_test",
+              "x": 640,
+              "y": 417,
+              "region": [
+                453,
+                245,
+                46,
+                46
+              ],
+              "before_sha256": "5cd8da4b507febe44fe50a9848762e1d4a3bf81983649a626ea1a298a7968a7b",
+              "after_sha256": "58cda2771ea99b176f572e63332f2e08d01d32f94cbdff41adf5329230b70a6f",
+              "timeout_seconds": 12
+            },
+            {
+              "name": "touch_play_music",
+              "x": 474,
+              "y": 270,
+              "region": [
+                453,
+                245,
+                46,
+                46
+              ],
+              "before_sha256": "58cda2771ea99b176f572e63332f2e08d01d32f94cbdff41adf5329230b70a6f",
+              "after_sha256": "c3e0c6ea8e97359297c2866a7f22830268b8599712a719e24fdb0f3f1ea82726",
+              "timeout_seconds": 12
+            }
+          ]
+        },
+        "tab5_speaker_playback": {
+          "after_input": "touch_play_music",
+          "maximum_quiet_rms": 8,
+          "minimum_rms": 128
+        }
+      },
+      "physical_hardware": "NOT RUN",
+      "burner": "NOT SUBMITTED",
+      "retry_http_202": true,
+      "native_touches": [
+        {
+          "name": "touch_music_test",
+          "kind": "touch",
+          "controller": "gt911",
+          "reports": 7,
+          "acknowledged": 7,
+          "frame_changed": true
+        },
+        {
+          "name": "touch_play_music",
+          "kind": "touch",
+          "controller": "gt911",
+          "reports": 7,
+          "acknowledged": 7,
+          "frame_changed": true
+        }
+      ],
+      "job_status": "manual_review",
+      "job_error_code": "E_NETWORK_PARTIAL",
+      "device_state": "stopped",
+      "main_evidence_members": 6,
+      "main_evidence_sha256": "c6cfab51255f2997644f4aa5e307fa110d7e59aeb89a6c5a5d97d04b7df4b974",
+      "scoped_zip_members": 1,
+      "audio_evidence_sha256": "53f6b77b4e4f5bc1dfe394615adb3966d3201db520ec7e87914a18a39eeed50f",
+      "raw_audio_window_split": [
+        {
+          "bytes": 16384,
+          "sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "rms": [
+            0.0,
+            0.0
+          ],
+          "nonzero_samples": 0
+        },
+        {
+          "bytes": 192000,
+          "sha256": "2473846b3cf5fa3c3fadedc3b27020623d7408db37ccfede4f51d0cea20d6276",
+          "rms": [
+            2490.267,
+            3371.788
+          ],
+          "nonzero_samples": 69434
+        },
+        {
+          "bytes": 192000,
+          "sha256": "32081e3301ccf939f295b62aa82cc3e0b733cd08f7894fe3e2ed00a04a3cf397",
+          "rms": [
+            3825.987,
+            4725.522
+          ],
+          "nonzero_samples": 95995
+        }
+      ],
+      "audio_result": "PASS",
+      "audio_reason": "tab5_audio_after_verified_tap",
+      "layout": {
+        "source": "esp_emu_i2s1_tx",
+        "sample_format": "s16le",
+        "sample_rate_hz": 48000,
+        "channels": 2
+      },
+      "visual": {
+        "before_region_sha256": "58cda2771ea99b176f572e63332f2e08d01d32f94cbdff41adf5329230b70a6f",
+        "after_region_sha256": "c3e0c6ea8e97359297c2866a7f22830268b8599712a719e24fdb0f3f1ea82726"
+      },
+      "archived_offset": 1421120,
+      "action_offset": 1437504,
+      "audio_assertion_sha256": "2aa0b62161ac83ea03dfca836a07ee694c0e5bbbfa43aada7ac57446a07a6daf",
+      "flash_released": true,
+      "active_leases_before_cleanup": 0,
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "tracked_source_files_unchanged": true,
+      "official_bin_unchanged": true
+    },
+    "idle": {
+      "result": "PASS",
+      "validation": "virtual-device validation",
+      "firmware_source": "official GitHub release",
+      "snapshot_scope": "new isolated local snapshot seeded from verified official metadata",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "device_source": "c6d7eb8c6c9c0eecc8f79d14c201c2d6dec13f5f",
+      "reviewer_source": "aebbe38ce0fa2ba5c278270554ef8af6f5da8a32",
+      "device_openapi_sha256": "4046970596e4b21913eb1ddc2339bd366cdf13d6cf7fa55579df8af90a9dd79d",
+      "reviewer_openapi_sha256": "482ad5ffe2279a46cc79f641cfb165416786eb00abfb77ae92b9c1a28bb96bce",
+      "test_mode": "idle",
+      "analysis_inputs": {
+        "touch_plan": {
+          "frame_size": [
+            720,
+            1280
+          ],
+          "button_bindings": {},
+          "steps": [
+            {
+              "name": "touch_music_test",
+              "x": 640,
+              "y": 417,
+              "region": [
+                453,
+                245,
+                46,
+                46
+              ],
+              "before_sha256": "5cd8da4b507febe44fe50a9848762e1d4a3bf81983649a626ea1a298a7968a7b",
+              "after_sha256": "58cda2771ea99b176f572e63332f2e08d01d32f94cbdff41adf5329230b70a6f",
+              "timeout_seconds": 12
+            }
+          ]
+        },
+        "tab5_speaker_playback": {
+          "after_input": "touch_music_test",
+          "maximum_quiet_rms": 8,
+          "minimum_rms": 128
+        }
+      },
+      "physical_hardware": "NOT RUN",
+      "burner": "NOT SUBMITTED",
+      "retry_http_202": true,
+      "native_touches": [
+        {
+          "name": "touch_music_test",
+          "kind": "touch",
+          "controller": "gt911",
+          "reports": 7,
+          "acknowledged": 7,
+          "frame_changed": true
+        }
+      ],
+      "job_status": "manual_review",
+      "job_error_code": "E_TAB5_SPEAKER_PARTIAL",
+      "device_state": "stopped",
+      "main_evidence_members": 6,
+      "main_evidence_sha256": "ca9b0f95fd8b76ac9fec80e951681cc3b72258368f0e3f0ed8752f8f1b48c3bf",
+      "scoped_zip_members": 1,
+      "audio_evidence_sha256": "e38110b42b8d12ba7f89e234361a6d548bd59944ecbdf55af6340c4ff5e9c610",
+      "raw_audio_window_split": [
+        {
+          "bytes": 16384,
+          "sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "rms": [
+            0.0,
+            0.0
+          ],
+          "nonzero_samples": 0
+        },
+        {
+          "bytes": 192000,
+          "sha256": "7357e9c53aa381d2ad7c320703f314629107fbe8b158abdecf25dd1c49cb9a71",
+          "rms": [
+            1444.768,
+            1444.768
+          ],
+          "nonzero_samples": 9598
+        },
+        {
+          "bytes": 192000,
+          "sha256": "ea0787f65f73b0013d03b359490e3125211b28ad5c1502ffb1544c0ded4192f5",
+          "rms": [
+            0.0,
+            0.0
+          ],
+          "nonzero_samples": 0
+        }
+      ],
+      "audio_result": "PARTIAL",
+      "audio_reason": "tab5_audio_playback_below_threshold",
+      "layout": {
+        "source": "esp_emu_i2s1_tx",
+        "sample_format": "s16le",
+        "sample_rate_hz": 48000,
+        "channels": 2
+      },
+      "visual": {
+        "before_region_sha256": "5cd8da4b507febe44fe50a9848762e1d4a3bf81983649a626ea1a298a7968a7b",
+        "after_region_sha256": "58cda2771ea99b176f572e63332f2e08d01d32f94cbdff41adf5329230b70a6f"
+      },
+      "archived_offset": 1091840,
+      "action_offset": 1108224,
+      "audio_assertion_sha256": "8e6833bb252447b557eac93dcb7384818e961bbefd196eab22b12d12abfa22cd",
+      "flash_released": true,
+      "active_leases_before_cleanup": 0,
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "tracked_source_files_unchanged": true,
+      "official_bin_unchanged": true
+    }
+  },
+  "earlier_attempts": {
+    "play-a1": {
+      "device_source": "5e773a528add01ad8a2e46e4e70409eaca4436da",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_SIM_COVERAGE",
+      "observation": {
+        "category": "environment_unavailable",
+        "source_code": "files_missing",
+        "phase": "model_admission"
+      }
+    },
+    "idle-a1": {
+      "device_source": "5e773a528add01ad8a2e46e4e70409eaca4436da",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_SIM_COVERAGE",
+      "observation": {
+        "category": "environment_unavailable",
+        "source_code": "files_missing",
+        "phase": "model_admission"
+      }
+    },
+    "play-a2": {
+      "device_source": "5e773a528add01ad8a2e46e4e70409eaca4436da",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_TAB5_SPEAKER_PARTIAL",
+      "audio_assessment": {
+        "status": "PARTIAL",
+        "reason": "tab5_audio_quiet_window_unavailable"
+      }
+    },
+    "idle-a2": {
+      "device_source": "5e773a528add01ad8a2e46e4e70409eaca4436da",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_TAB5_SPEAKER_PARTIAL",
+      "audio_assessment": {
+        "status": "PARTIAL",
+        "reason": "tab5_audio_quiet_window_unavailable"
+      }
+    },
+    "play-a3": {
+      "device_source": "c6d7eb8c6c9c0eecc8f79d14c201c2d6dec13f5f",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_NETWORK_PARTIAL",
+      "audio_assessment": {
+        "status": "PASS",
+        "reason": "tab5_audio_after_verified_tap"
+      },
+      "scoped_zip_sha256": "fc843001ac273e23f5db416f4ed2fa06d2235055fc3616f015816377a7e9ccc4",
+      "first_post_tap_second_segments_100ms": [
+        {
+          "start_ms": 0,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 100,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 200,
+          "channel_rms": [
+            0.685,
+            0.575
+          ],
+          "different_channel_frames": 205
+        },
+        {
+          "start_ms": 300,
+          "channel_rms": [
+            3469.083,
+            4787.504
+          ],
+          "different_channel_frames": 4779
+        },
+        {
+          "start_ms": 400,
+          "channel_rms": [
+            3086.278,
+            3886.937
+          ],
+          "different_channel_frames": 4800
+        },
+        {
+          "start_ms": 500,
+          "channel_rms": [
+            2526.324,
+            2702.76
+          ],
+          "different_channel_frames": 4800
+        },
+        {
+          "start_ms": 600,
+          "channel_rms": [
+            3142.233,
+            5152.038
+          ],
+          "different_channel_frames": 4800
+        },
+        {
+          "start_ms": 700,
+          "channel_rms": [
+            2214.948,
+            3131.662
+          ],
+          "different_channel_frames": 4800
+        },
+        {
+          "start_ms": 800,
+          "channel_rms": [
+            2631.69,
+            3402.386
+          ],
+          "different_channel_frames": 4800
+        },
+        {
+          "start_ms": 900,
+          "channel_rms": [
+            3281.225,
+            4311.018
+          ],
+          "different_channel_frames": 4799
+        }
+      ]
+    },
+    "idle-a3": {
+      "device_source": "c6d7eb8c6c9c0eecc8f79d14c201c2d6dec13f5f",
+      "reviewer_source": "a8357ad804b8959ae311b11921be2a1f64d17222",
+      "firmware_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "active_leases_after_cleanup": 0,
+      "owned_services_exited": true,
+      "official_bin_unchanged": true,
+      "review_status": "manual_review",
+      "review_error_code": "E_NETWORK_PARTIAL",
+      "audio_assessment": {
+        "status": "PASS",
+        "reason": "tab5_audio_after_verified_tap"
+      },
+      "scoped_zip_sha256": "4ef93c0d506f39e9e110cf993ce4f3516e43fa8d9e63706f2f7b5a42f71d3423",
+      "first_post_tap_second_segments_100ms": [
+        {
+          "start_ms": 0,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 100,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 200,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 300,
+          "channel_rms": [
+            3875.338,
+            3875.338
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 400,
+          "channel_rms": [
+            2419.773,
+            2419.773
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 500,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 600,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 700,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 800,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        },
+        {
+          "start_ms": 900,
+          "channel_rms": [
+            0.0,
+            0.0
+          ],
+          "different_channel_frames": 0
+        }
+      ]
+    }
+  },
+  "network": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "browser_wasm": "NOT RUN",
+  "burner": "NOT SUBMITTED"
+}
