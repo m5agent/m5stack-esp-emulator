@@ -16,6 +16,11 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-18 审核就绪 API 与 Linux 持久卷冷启动
 
+- 在无网卡的 Linux ARM64 客体中，用 Virtio VSOCK 读取真实 Device Service 1.99
+  的 `GET /api/v1/worker`。宿主监听仅绑定环回。缺失或错误的 Bearer 返回 401，
+  正确凭证返回 200，Worker 可接收租约。桥接拒绝其他路由和写请求，试验前后租约均为零，
+  服务、监听和虚拟机均已退出。此轮尚未通过桥接执行固件或切换常驻审核流量。
+  [无网卡就绪链路证据](https://github.com/m5agent/agent-work-logs/blob/aaaf7bcbe4d1ac40c57646524be3b9f93f77fb5f/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-vz-worker-vsock/README.md)。
 - Reviewer OpenAPI 0.27（`a2d468b989139450ab95929597622bfa2074b7c3`）通过
   配置的 Device Service 1.99（`a729e24b1e4724b783ab2d59eec689cfdfeb24b3`）
   查询真实 Worker。接收租约和恢复接收时返回 HTTP 200，暂停接收或后端不可达时返回 503。
@@ -35,6 +40,19 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   [磁盘保护中断对照](https://github.com/m5agent/agent-work-logs/blob/fa5a484e49eecb7b5f2d03afd8f44f271bcd9bef/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/README.md)。
 
 隔离试点覆盖正常关闭后冷启动。常驻 Linux 路由和活动中断恢复仍待验证。两条路径均未提交 Burner。
+
+## 2026-11-18 XIAOZHI 目标受理
+
+用已保存的原版 v1.1 发布元数据，通过实际 Reviewer 审核 API 复现了默认路径和 DSH
+配置不可用对照。此前 DSH 配置错误会覆盖不支持目标。Reviewer
+`f0101b6bb0926a69ef2f8477ae81e991338391f5` 在基本内容检查通过后先判断板型，
+两次均返回 `manual_review / E_NO_SIM_PROFILE`，回执为 `unsupported_target / model_admission`，
+固件为 `NOT EVALUATED`。没有下载 BIN 或启动会话。既有违规内容拒绝保持原路径。
+
+同版另以原版 Core2 2048 做保存快照干跑，验证四向棋盘变化、同会话证据和租约释放。
+常驻 Reviewer 更新后读到就绪的 macOS Worker，原有 126 条记录、统计和抽查证据保持一致。
+本轮未提交 Burner。
+[准入、原版回归与常驻回读证据](https://github.com/m5agent/agent-work-logs/blob/7858d77937dff02c5e179e01dadd9065a4b632f3/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-reviewer-027-worker-readiness/followups/2026-11-18-xiaozhi-unsupported-intake/README.md)。
 
 ## 2026-11-18 Reviewer 创建中断恢复
 

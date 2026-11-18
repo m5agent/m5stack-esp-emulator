@@ -74,7 +74,8 @@
    [ADV 0.5.0 原版发音](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/evidence/adv050-https-audio-summary.json)已通过 Device Service 直测。
    [隔离 Reviewer 创建恢复](validation-ledger.md#2026-11-18-reviewer-创建中断恢复)已验证 Linux ARM64 的 Cardputer ADV STA。仅重启 Reviewer 后回收原会话和隔离命名空间、保留原 PCAP，并在新会话完成同固件标准重试。macOS Core2 另通过迟到创建拦截和其他活动会话保留对照。
    [Linux 持久卷冷启动](validation-ledger.md#2026-11-18-审核就绪-api-与-linux-持久卷冷启动)
-   已覆盖独立虚拟机的正常重启。继续验收常驻 Linux 审核路由、异常中断后活动会话与伴随进程的恢复、
+   已覆盖独立虚拟机的正常重启和受凭证保护的只读 Virtio VSOCK 链路。
+   继续验证常规复审通过 Linux 受控链路完成会话创建、证据读取与清理，随后验收常驻路由及异常中断恢复，
    ADV 原版发音的保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
@@ -119,7 +120,8 @@
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
 7. **P2 能力与故障**。基于只读设备能力查询，继续按运行模式细化控制器与 fixture 准入。
    故障记录区分目标不支持、未建模、环境失败和有 guest 证据的应用失败。
-   XIAOZHI_CARD_KIT 在受理阶段归入不支持的目标。
+   [XIAOZHI_CARD_KIT 的受理阶段归因](validation-ledger.md#2026-11-18-xiaozhi-目标受理)
+   已通过真实审核入口对照。
 
 ## 新增主机剩余工作
 
