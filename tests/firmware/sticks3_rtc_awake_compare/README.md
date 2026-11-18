@@ -33,7 +33,7 @@ deadline. Clearing the sleep wake and reject bits leaves main raw bit 10
 set. Clearing bit 10 then removes it from raw status.
 
 The [observed controls](awake-compare.summary.json) retain the same binary
-on the earlier runtime and the timer candidate. The earlier runtime
-reached the guest but failed compare-register readback. The candidate
+on the earlier runtime and the two timer candidates. The earlier runtime
+reached the guest but failed compare-register readback. Both candidates
 completed the register and timing assertions. The tests used the ESP-IDF
 [RTC register definitions](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/soc/esp32s3/register/soc/rtc_cntl_reg.h).

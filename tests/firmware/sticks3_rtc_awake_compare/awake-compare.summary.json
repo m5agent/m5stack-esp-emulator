@@ -80,6 +80,44 @@
         "mutable_flash_retained": false
       },
       "owned_service_exited": true
+    },
+    {
+      "device": "sticks3",
+      "runtime": "qemu",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "runtime_sha256": "c44d4c80fd84281063be9ba85c35cfa97ea8b3810b2586e14ea376b9dd1c4134",
+      "esp_idf_source": "735507283d5b2f9fb363a1901172dbd9e847945d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "b9f41f0a6910babe4668e6bde75ca2b3cdf65b516fa0df1ed8d62ffa9337ba34",
+      "fixture_elf_sha256": "e3e69fc166c919e6192993299f4a9da60fe0c20d2bf449ec7e9221620e21cebd",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "network": "offline",
+      "observation_seconds": 2.659,
+      "qmp_status_observed": [
+        "running"
+      ],
+      "evidence_zip_sha256": "cccf0c510579fa5632fdce7e3a6bd374152850681cd974a683a12315eba89621",
+      "evidence_zip_bytes": 11431,
+      "serial_sha256": "e2cea2d46d5bd2761f3fdf33c7c0287d16072d1ed50707b9f25d9d479d23cee9",
+      "serial_bytes": 3248,
+      "markers": [
+        "RTC_AWAKE_BOOT slow_hz=136000",
+        "RTC_AWAKE_READBACK low=89abcdef high=5aa5",
+        "RTC_AWAKE_STAGED_PAST deadline=30325 counter=39545",
+        "RTC_AWAKE_FIRED armed=62246 staged_alternate=107580 fired=62290 raw_before=00000400 raw_after=00000000",
+        "RTC_AWAKE_REPLACED canceled=85170 replacement=130504 fired=130708",
+        "RTC_AWAKE_PASS"
+      ],
+      "crash_status": "no_evidence",
+      "rom_boot_count": 1,
+      "status": "PASS",
+      "cleanup": {
+        "history_retained": true,
+        "guest_exited": true,
+        "active_leases": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_exited": true
     }
   ]
 }
