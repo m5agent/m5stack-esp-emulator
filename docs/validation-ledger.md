@@ -83,6 +83,30 @@ UTC−3:30，再复原到 UTC−3:00。应用前进到地区网络设置页，�
 跨重启保存、另一板型及真机另待验收。两轮均完成清理，Burner 未提交。
 [原版按键、页面和漏响应对照](https://github.com/m5agent/agent-work-logs/blob/a85da77011371917a11ddcfd2a2ed16e875a5d8e/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/README.md)。
 
+## 2026-11-19 Core2 原版 2048 四向标准复审
+
+同一份仅应用 BIN 经过 Reviewer 0.28.0 的保存快照干跑，使用本机常驻版
+Device Service 1.99.0 的配套原生 QEMU，返回 `done / SIM_VERIFIED`。
+16 张实际画面证实八次合法滑动，上下左右各两次。每次均核对整张棋盘及
+唯一新增格。按分区偏移回读确认原应用字节完整。无效滑动参数在排队和
+分配租约前被拒绝。已保留同会话 ZIP，测试租约和可写 Flash 已释放。
+同一 BIN 的真机对照待有可用 Core2 和触摸装置。Burner 未提交。
+[原版、棋盘回执与清理证据](https://github.com/m5agent/agent-work-logs/blob/26a3b6e7aa712c38c45ef8c554c625673151cb58/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-reviewer-027-worker-readiness/followups/2026-11-18-reviewer-027-core2-resident/followups/2026-11-19-core2-2048-reviewer-028/README.md)。
+
+## 2026-11-19 Tab5 M5TabOS 原版设置跨重启
+
+同一原版 M5TabOS 0.9.1 在 ST7123 离线原生会话完成向导，选择 UTC−2:30，
+关闭 Wi-Fi 和 Mesh。Device Service 1.99.0 复位后回到原欢迎页，24 KiB
+NVS 仍与原版一致。1.99.1 `76e734f5` 在相同 esp-emu 1.1.0（`633a35f9`）
+环境将 P4 的修改保存到会话专用 Flash，再启动 P4 和 C6。标准
+`POST /api/v1/sessions/{id}/reset` 回到应用主页，设置与 Mesh 页画面和
+复位前相同。NVS 有 910 字节变化。停机保留 Flash 再读回 16 MiB，证实
+复位后作出的时区修改也已保存，应用字节保持原样，测试租约已释放。
+另用同一原版和独立租约模拟 P4 异常退出。标准复位返回
+`409 tab5_flash_save_failed`，没有拉起替代进程，终态 ZIP 和租约释放均已核验。
+本轮范围是已准入的原生 DSI 后端。联网、其他板型与真机待验。Burner 未提交。
+[原版设置、NVS 及正常停机证据](https://github.com/m5agent/agent-work-logs/blob/f304c67f0ba1c68bc3a92b3f103f5fede9d85034/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/README.md)。
+
 ## 2026-11-19 PaperColor 原版启动互斥锁断言
 
 同一 PaperColor 原厂 BIN 在独立普通冷启动未接收宿主 USB 请求，仍发生

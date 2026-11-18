@@ -222,7 +222,8 @@ Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发�
 - **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取。原版只读采样
   [核对了 IDLE0/1、两核 ISR 和调度 tick](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)。
   [同原版板型和触摸复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)在 GT911 记录 0×0 与 DSI 无视频，
-  在 ST7123 正常取得画面，并通过实际触摸进入时区页；其它页面仍待验。
+  [ST7123 原版离线设置复验](validation-ledger.md#2026-11-19-tab5-m5tabos-原版设置跨重启)
+  完成向导，以真实触摸和 NVS 读回验证正常复位。联网设置和其他板型仍待验证。
 - **官方 UserDemo V0.4** 在请求暂停 CPU1 后状态位为零。发布源码的匹配 ELF
   [同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)把 ES8388 初始化断言与之后的 panic 等待关联。
   上游移除等待后仍触发该断言，原会话转为反复软件复位。后续定位 HP I²C0
