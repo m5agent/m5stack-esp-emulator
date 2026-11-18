@@ -3274,6 +3274,13 @@ must also be in that allowlist. A matching override takes precedence over
 admitted Arduventure image. Uploaded firmware outside the allowlist keeps the
 legacy path.
 
+M5TabOS 0.9.1 with normalized Flash SHA-256
+`8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec`
+uses the `st7123` override. The native ST7123 touch Part produced the stock
+720 × 1280 welcome screen and advanced to the time-zone screen through one
+touch. The GT911 comparison stayed at 0 × 0.
+[Original firmware board and touch evidence](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)
+
 For the original ILI9881C/GT911 board revision, set
 `M5_TAB5_DSI_BOARD=gt911-ili9881c`. By default the board adds the stock BSP's
 GT911 probe acknowledgement, product ID and idle registers on HP I²C

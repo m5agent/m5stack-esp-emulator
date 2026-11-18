@@ -63,6 +63,13 @@ M5TabOS 0.9.1 原版仍无完整帧。只读观测确认采样处为 FreeRTOS
 双核空闲任务，两个 SYSTIMER ISR 计数和调度 tick 均持续增长。
 [同原版采样和会话证据](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)
 
+## 2026-11-18 M5TabOS 原版 ST7123 取帧与触摸
+
+同一 M5TabOS 0.9.1 原版在 GT911 配置完成系统初始化后仍未激活视频。
+ST7123 的完整 Part 和识别控制均出帧。无调试器的完整 Part 会话
+核对 GPIO23、I²C 的按压与释放和欢迎页到时区页的两个实际画面。
+[原版、板型对照与 ZIP 摘要](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)
+
 ## 2026-11-18 StickS3 原生 RTC 定时深睡
 
 同一 ESP-IDF 探针在旧运行时写入深睡请求并到达 RTC 比较门限，CPU 随后停在

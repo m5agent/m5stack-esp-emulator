@@ -380,7 +380,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | FirmwareManifest / WebBurner | 可用 | Device Service `1.51.0` operator runtime ACL 可用；guest filesystem 自身 ACL、live trust root、生产 key 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
-| Tab5 | `partial` | CSI、I2S/PCM、USB Host、动态 I2C 与 ST7123 原版拖动语义、多点及其他板型的电源路径待验证；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已在原版 Arduventure 通过虚拟 EN 和显式重启复验；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已覆盖正反向轨迹；[原生长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已覆盖关机请求。98TAB5 普通冷启动复位，M5TabOS 仍无完整帧。只读诊断确认 98TAB5 打开合成 IDE 磁盘，并在 UserDemo 重建对照定位 ES8388 初始化断言。[原版启动证据](evidence/2026-11-18-tab5-stock-frame-comparison/README.md) |
+| Tab5 | `partial` | CSI、I2S/PCM、USB Host、动态 I2C 与 ST7123 原版拖动语义、多点及其他板型的电源路径待验证；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已在原版 Arduventure 通过虚拟 EN 和显式重启复验；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已覆盖正反向轨迹；[原生长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已覆盖关机请求。98TAB5 普通冷启动复位。[M5TabOS 0.9.1 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)在 ST7123 取得完整帧并由一次实际触摸从欢迎页进入时区页，GT911 对照仍无完整帧。只读诊断确认 98TAB5 打开合成 IDE 磁盘，并在 UserDemo 重建对照定位 ES8388 初始化断言。[原版启动证据](evidence/2026-11-18-tab5-stock-frame-comparison/README.md) |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
 | 设备视觉 | 42 主机、184 Unit | 固定公开模型 `dcb64c3`。当前运行登记与仅视觉差集以[自动项目快照](project-snapshot.md)为准。CardputerZero RJ45 使用独立固定补丁。文档单独固定在 `3681a648`。 |
 

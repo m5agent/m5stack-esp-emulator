@@ -1,0 +1,879 @@
+{
+  "status": "PASS_ST7123_BOOT_AND_ONE_VISIBLE_TAP",
+  "validation": "virtual-device validation / isolated standard Device Service APIs",
+  "device": "Tab5",
+  "firmware": "M5TabOS 0.9.1 original",
+  "source_commit": "57d397462e661e608e7c3ae2a878e80527d08e84",
+  "runtime": "esp-emu 1.1.0",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "openapi_sha256": "28e57b04345a9bf6b5e65b1cb8e0a44d11bdb734d15a69581ebd6e60ad78cb55",
+  "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+  "normalized_flash_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+  "asset_sha256": {
+    "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+  },
+  "runs": {
+    "a5": {
+      "observation": "read-only startup journal; incomplete task-list command",
+      "board": "gt911-ili9881c",
+      "touch_model": "idle-identification-registers",
+      "part_sha256": null,
+      "host_observation_seconds": 25.001,
+      "complete_frames": 0,
+      "nonblack_frames": 0,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": null,
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "8bfcd6217386a8674d4fc40c73f905a76d256997d1453dd7c9f2876dbc9e4ada",
+      "evidence_zip_sha256": "e74848f88baa3321d891025ea039a11a72940163eeac18c44e85516a544b0bdb",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.083,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "9dc574677dafbcafb82cd3df612c1be09979ecaac3e4738773963f9a276aa1a5"
+        },
+        {
+          "elapsed_host_seconds": 10.54,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "554f5d949e84714657a8fd7c9cc613d658cd5e9b662a79df5b3d5870f2cb9c8b"
+        },
+        {
+          "elapsed_host_seconds": 16.933,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "19a4e841396f6512a359356ff7f02b9bf3463f0c904ebb8460131de8699e874c"
+        }
+      ]
+    },
+    "a6": {
+      "observation": "read-only startup journal, tasks and DSI state",
+      "board": "gt911-ili9881c",
+      "touch_model": "idle-identification-registers",
+      "part_sha256": null,
+      "host_observation_seconds": 25.005,
+      "complete_frames": 0,
+      "nonblack_frames": 0,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": null,
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "7a2a9a426a258e780a260f007006a1e603dab2381dc088e40a93356da9e78e33",
+      "evidence_zip_sha256": "0f3a5af3629bfa9d3d188b0bdbfaa7516abe97e854ba84d004ba25dd94e6bd9c",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.082,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "80d382a5afa89f3fa9107591bb9240ca2fa9579c83fcbe0c07e3b594b2beacbc",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 3242,
+          "panel_object_is_noop": true,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 3306,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 4088,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 4147,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 5105,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30105,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        },
+        {
+          "elapsed_host_seconds": 10.658,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "0c3bdb38c8dcad6861c59451c8384383c78bdf80cfd3bf9cb5e03583e1acf279",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 9713,
+          "panel_object_is_noop": true,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 9772,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 10105,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 10108,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 10147,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30105,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        },
+        {
+          "elapsed_host_seconds": 17.188,
+          "journal_sha256": "0a19d1faf488f111fa3a9403360cb11728f10478f334d178c5570de2cca83c6d",
+          "gdb_sha256": "cabedfb2042d3e41ab62e10b08b54d07c3536f3247474aae592ea438cc3ab985",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 16257,
+          "panel_object_is_noop": true,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 16319,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 17108,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 17147,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 20105,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30105,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        }
+      ]
+    },
+    "a7": {
+      "observation": "read-only startup journal, tasks and DSI state",
+      "board": "gt911-ili9881c",
+      "touch_model": "esp-emu-gt911",
+      "part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+      "host_observation_seconds": 25.002,
+      "complete_frames": 0,
+      "nonblack_frames": 0,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": null,
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "2943462c18deec537bc3adb5bdac859878109e544450c6147372f49aa7d58198",
+      "evidence_zip_sha256": "82b3f11889c34d053fca57c8a44bd9831442a3c23f1164a145509486b985e1e4",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.127,
+          "journal_sha256": "c351220e98dabbfed8df48d383ad63ffd5820846239267ff941881ec1b1ebed6",
+          "gdb_sha256": "7aea1673f58796cdc1610f7b59ff192288fa5233055af6152968031525d44f76",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 3208,
+          "panel_object_is_noop": true
+        },
+        {
+          "elapsed_host_seconds": 10.787,
+          "journal_sha256": "c351220e98dabbfed8df48d383ad63ffd5820846239267ff941881ec1b1ebed6",
+          "gdb_sha256": "2b091707ed83f6561f25305cba999ec12406357a2fb243c25dfebbd63b83849c",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 9125,
+          "panel_object_is_noop": true
+        },
+        {
+          "elapsed_host_seconds": 17.306,
+          "journal_sha256": "c351220e98dabbfed8df48d383ad63ffd5820846239267ff941881ec1b1ebed6",
+          "gdb_sha256": "50d01553a42499c7eef76f237c822ed361b7c4c2291366eeeca196f70b2fa7cf",
+          "app_display_size": [
+            0,
+            0
+          ],
+          "dsi_power_up": 0,
+          "dsi_mode_cfg": 1,
+          "dsi_bridge_enable": 0,
+          "guest_tick": 15453,
+          "panel_object_is_noop": true,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 15510,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 16243,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 16301,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 20259,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30259,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        }
+      ]
+    },
+    "a8": {
+      "observation": "read-only startup journal, tasks and DSI state",
+      "board": "st7123",
+      "touch_model": "esp-emu-st7123",
+      "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+      "host_observation_seconds": 25.004,
+      "complete_frames": 11,
+      "nonblack_frames": 10,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": "f1d8e382782fb44cdc22c81582e4276c1aa09a4bf4a271640592200c0dfc5f7c",
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "185c3f5a70d6b1ffe92c298e237b160423f101b53565e54320b673654e1d7e17",
+      "evidence_zip_sha256": "7d396a3cc0ec9439eb5166c80bd070e4f894712d26f1df19b76983516e2e3eee",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.429,
+          "journal_sha256": "45fd061c020e50ac10039937e25e0a317ce3a7d91d0bff5f5fbf3f3418933a55",
+          "gdb_sha256": "e146cded7effdf6e87dfa737744b3d5fdb74cb6fb68afd3b0ea863a148b602a6",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 2264
+        },
+        {
+          "elapsed_host_seconds": 11.584,
+          "journal_sha256": "45fd061c020e50ac10039937e25e0a317ce3a7d91d0bff5f5fbf3f3418933a55",
+          "gdb_sha256": "785e02e681f8de40f7d40fbdc7076bc7a7fa5579dd4b4973d55f4b3d59c0e494",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 9064,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 9135,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 9561,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 9604,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 10577,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30577,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        },
+        {
+          "elapsed_host_seconds": 16.107,
+          "journal_sha256": "45fd061c020e50ac10039937e25e0a317ce3a7d91d0bff5f5fbf3f3418933a55",
+          "gdb_sha256": "1a0ffa070b1ae7d4132b65dd990344f583a9fd870abff42ab7ad8a12783dcfc4",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 13509,
+          "delayed_tasks": [
+            {
+              "name": "cartao",
+              "wake_tick": 13561,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 13604,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 15577,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30577,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        }
+      ]
+    },
+    "a9": {
+      "observation": "normal cold boot, no debugger or native trace",
+      "board": "st7123",
+      "touch_model": "esp-emu-st7123",
+      "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+      "host_observation_seconds": 35.005,
+      "complete_frames": 16,
+      "nonblack_frames": 15,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": "f1d8e382782fb44cdc22c81582e4276c1aa09a4bf4a271640592200c0dfc5f7c",
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "b628d2af905c0ce98d8e87ca229dc35464b77261ff351fe2ff53b24c22a84584",
+      "evidence_zip_sha256": "d556d7c43ef817dcd9aedf1e9aa494d58503e46fece7367a61d5eaf6c07857bd",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      }
+    },
+    "a11": {
+      "observation": "normal HTTP touch, no debugger, native GPIO/I2C trace enabled",
+      "board": "st7123",
+      "touch_model": "esp-emu-st7123",
+      "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+      "host_observation_seconds": 35.005,
+      "complete_frames": 16,
+      "nonblack_frames": 15,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": "afe3a4b0870cce295a549c9bdb1bb3f17ac456d5d7907926aba04b4cfafb6a9a",
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "3b847cf9f665469b0f76b9d954fec5c8787499ebe2cbd84e35e754dc1fd32096",
+      "evidence_zip_sha256": "cbacc787bef5133eee3ad4ab923eb157322426f9d3eaa4e39f7386fd3a6f3d7a",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      }
+    },
+    "a12": {
+      "observation": "read-only startup journal, tasks and DSI state",
+      "board": "st7123",
+      "touch_model": "idle-identification-registers",
+      "part_sha256": "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106",
+      "host_observation_seconds": 25.005,
+      "complete_frames": 11,
+      "nonblack_frames": 11,
+      "runtime_zero_read_warnings": 0,
+      "retained_latest_frame_sha256": "f1d8e382782fb44cdc22c81582e4276c1aa09a4bf4a271640592200c0dfc5f7c",
+      "rom_boots": 1,
+      "software_resets": 0,
+      "serial_sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+      "receipt_sha256": "f2764d736e5acb8d96a4de82002f1eea3b8045185c1b34f705cf8b9bb343cce5",
+      "evidence_zip_sha256": "90021982ed8a2f0f3f0b4955b236cd9a1abb19a6a955f9a862973db9d5a6fa9d",
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "samples": [
+        {
+          "elapsed_host_seconds": 4.417,
+          "journal_sha256": "995d897b221f5260af32cd72410c6cba09dc398e892c19912146889c8c0c4a62",
+          "gdb_sha256": "eea349954b6ba1602fb213aaf18739b6ac2aa8d16358cceec4ca7053916e9749",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 3423,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 3503,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 4406,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 4450,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 5423,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30423,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        },
+        {
+          "elapsed_host_seconds": 11.299,
+          "journal_sha256": "995d897b221f5260af32cd72410c6cba09dc398e892c19912146889c8c0c4a62",
+          "gdb_sha256": "444922cb3f235bd59c26799d541525a6b9646dd65334e18a709db1454b8794df",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 10225,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 10289,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 10423,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 10426,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 10450,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30423,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        },
+        {
+          "elapsed_host_seconds": 17.844,
+          "journal_sha256": "995d897b221f5260af32cd72410c6cba09dc398e892c19912146889c8c0c4a62",
+          "gdb_sha256": "cecafae5a5f9a6316c08d2d784d5de1a084c7a3a35292b92bafdd8ca4fdb68c2",
+          "app_display_size": [
+            720,
+            1280
+          ],
+          "dsi_power_up": 1,
+          "dsi_mode_cfg": 0,
+          "dsi_bridge_enable": 1,
+          "guest_tick": 16774,
+          "delayed_tasks": [
+            {
+              "name": "ui",
+              "wake_tick": 16837,
+              "priority": 4,
+              "has_event_list": false
+            },
+            {
+              "name": "cartao",
+              "wake_tick": 17426,
+              "priority": 2,
+              "has_event_list": false
+            },
+            {
+              "name": "monitor",
+              "wake_tick": 17450,
+              "priority": 1,
+              "has_event_list": false
+            },
+            {
+              "name": "wifi",
+              "wake_tick": 20423,
+              "priority": 3,
+              "has_event_list": true
+            },
+            {
+              "name": "espnow",
+              "wake_tick": 30423,
+              "priority": 3,
+              "has_event_list": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "excluded_run": {
+    "subcase": "a10",
+    "reason": "ST7123 identification asset not configured; service refused before native roles started",
+    "receipt_sha256": "cd245feef79dffa15f8b996262681039375e1592f5ebd44670b65685ba789815",
+    "evidence_zip_sha256": "fd63ba97cb0b530cfc017e6a99d6b4a637a74929107f755612e4843fa75aae02",
+    "terminal": "failed",
+    "active_leases": 0
+  },
+  "boot_journal": {
+    "gt911_static_a6": [
+      {
+        "guest_ms": 765,
+        "stage": "boot: app_main"
+      },
+      {
+        "guest_ms": 769,
+        "stage": "ajustes (NVS)"
+      },
+      {
+        "guest_ms": 829,
+        "stage": "M5.begin (painel, toque)"
+      },
+      {
+        "guest_ms": 829,
+        "stage": "emoji"
+      },
+      {
+        "guest_ms": 833,
+        "stage": "fontes"
+      },
+      {
+        "guest_ms": 833,
+        "stage": "pool de vagas"
+      },
+      {
+        "guest_ms": 833,
+        "stage": "cartao (tarefa)"
+      },
+      {
+        "guest_ms": 834,
+        "stage": "log (tarefa+buffer)"
+      },
+      {
+        "guest_ms": 870,
+        "stage": "idiomas"
+      },
+      {
+        "guest_ms": 870,
+        "stage": "monitor (tarefa)"
+      },
+      {
+        "guest_ms": 870,
+        "stage": "wifi (tarefa, sem radio)"
+      },
+      {
+        "guest_ms": 871,
+        "stage": "espnow (tarefa)"
+      },
+      {
+        "guest_ms": 871,
+        "stage": "ble (tarefa, sem radio)"
+      },
+      {
+        "guest_ms": 873,
+        "stage": "console (tarefa)"
+      },
+      {
+        "guest_ms": 874,
+        "stage": "apps de fora"
+      },
+      {
+        "guest_ms": 878,
+        "stage": "ui + registro (tarefas)"
+      },
+      {
+        "guest_ms": 912,
+        "stage": "USB-A"
+      },
+      {
+        "guest_ms": 913,
+        "stage": "sistema_iniciar (fim)"
+      }
+    ],
+    "st7123_full_a8": [
+      {
+        "guest_ms": 765,
+        "stage": "boot: app_main"
+      },
+      {
+        "guest_ms": 769,
+        "stage": "ajustes (NVS)"
+      },
+      {
+        "guest_ms": 1301,
+        "stage": "M5.begin (painel, toque)"
+      },
+      {
+        "guest_ms": 1301,
+        "stage": "emoji"
+      },
+      {
+        "guest_ms": 1305,
+        "stage": "fontes"
+      },
+      {
+        "guest_ms": 1306,
+        "stage": "pool de vagas"
+      },
+      {
+        "guest_ms": 1306,
+        "stage": "cartao (tarefa)"
+      },
+      {
+        "guest_ms": 1306,
+        "stage": "log (tarefa+buffer)"
+      },
+      {
+        "guest_ms": 1342,
+        "stage": "idiomas"
+      },
+      {
+        "guest_ms": 1342,
+        "stage": "monitor (tarefa)"
+      },
+      {
+        "guest_ms": 1342,
+        "stage": "wifi (tarefa, sem radio)"
+      },
+      {
+        "guest_ms": 1343,
+        "stage": "espnow (tarefa)"
+      },
+      {
+        "guest_ms": 1343,
+        "stage": "ble (tarefa, sem radio)"
+      },
+      {
+        "guest_ms": 1345,
+        "stage": "console (tarefa)"
+      },
+      {
+        "guest_ms": 1346,
+        "stage": "apps de fora"
+      },
+      {
+        "guest_ms": 1350,
+        "stage": "ui + registro (tarefas)"
+      },
+      {
+        "guest_ms": 1383,
+        "stage": "USB-A"
+      },
+      {
+        "guest_ms": 1384,
+        "stage": "sistema_iniciar (fim)"
+      }
+    ],
+    "gt911_ui_priority": 4,
+    "gt911_ui_wake_ticks": [
+      3306,
+      9772,
+      16319
+    ],
+    "gt911_ui_has_event_list": false
+  },
+  "visible_tap_a11": {
+    "panel_coordinate": [
+      530,
+      1147
+    ],
+    "api_delivery_receipt": {
+      "reports": 2,
+      "acknowledged": 2
+    },
+    "part_counter_delta": {
+      "reports": 2,
+      "acknowledged": 2,
+      "status_reads": 10,
+      "coordinate_reads": 9
+    },
+    "irq_edges": [
+      {
+        "pin": 23,
+        "guest_ns": 7958133812,
+        "level": false
+      },
+      {
+        "pin": 23,
+        "guest_ns": 7970089562,
+        "level": true
+      },
+      {
+        "pin": 23,
+        "guest_ns": 8150132437,
+        "level": false
+      },
+      {
+        "pin": 23,
+        "guest_ns": 8158749000,
+        "level": true
+      }
+    ],
+    "bus": 1,
+    "i2c_addr": "0x55",
+    "press_reads": {
+      "0x10": [
+        8
+      ],
+      "0x9": [
+        1
+      ],
+      "0x14": [
+        130,
+        18,
+        4,
+        123,
+        20,
+        20,
+        0
+      ]
+    },
+    "release_reads": {
+      "0x10": [
+        0
+      ]
+    },
+    "before_title_visually_read": "Bem-vindo ao M5tabOS",
+    "after_title_visually_read": "Fuso horário",
+    "before_frame_sha256": "6c6294dfbe39975438e1595e6814890b3e96bb53e48af044c9af41a5bf2c33fc",
+    "after_frame_sha256": "d4ece884a2decc4f6c9357332c51191f4090d3ab14fbe4e9d62debe5d434ab45",
+    "before_sample_host_seconds": 9.01,
+    "after_sample_host_seconds": 11.304,
+    "native_trace_sha256": "9c348827444f811396a4ed4cdff9ae4a922a7f782b60675ea24a5bf6f1f68f92",
+    "controller_idle_after": true,
+    "evidence_zip_sha256": "cbacc787bef5133eee3ad4ab923eb157322426f9d3eaa4e39f7386fd3a6f3d7a"
+  },
+  "scope": "Same stock image initialized its app on both profiles. Tested GT911 configurations retain a 0x0 inactive display. ST7123 board identification is sufficient for boot/display; the full ST7123 Part additionally validated one visible touch. No Wi-Fi account action, external network, browser, physical hardware, or Burner validation/submission."
+}

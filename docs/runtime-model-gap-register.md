@@ -206,8 +206,9 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
   闭环须在正常冷启动证明缓存映射可见性，并复验同一原版两条路径。
   [同原版 Flash 可见性](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)
 - **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取。原版只读采样
-  [核对了 IDLE0/1、两核 ISR 和调度 tick](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)，仍无完整帧。
-  继续检查应用任务的首次阻塞、实际外设事件和显示初始化。
+  [核对了 IDLE0/1、两核 ISR 和调度 tick](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)。
+  [同原版板型和触摸复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)在 GT911 记录 0×0 与 DSI 无视频，
+  在 ST7123 正常取得画面，并通过实际触摸进入时区页；其它页面仍待验。
 - **官方 UserDemo V0.4** 在请求暂停 CPU1 后状态位为零。发布源码的匹配 ELF
   [同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)把 ES8388 初始化断言与之后的 panic 等待关联。
   上游移除等待后仍触发该断言，普通会话转为反复软件复位。闭环须捕获
