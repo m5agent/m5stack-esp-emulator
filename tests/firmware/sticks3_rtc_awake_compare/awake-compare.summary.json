@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "scope": "native ESP32-S3 RTC main comparator while awake",
+  "source_files_sha256": {
+    "CMakeLists.txt": "5cfe8fe5175d96ccda258033627b3effaab59cf6e6ddb3c8aa25e34b4d4441ed",
+    "sdkconfig.defaults": "f369b1217f27690c2cf10e2fc8f76e33114ae9f0fc7562aff8ab4a5fb6445bad",
+    "main/CMakeLists.txt": "ad2cd0a570e787045208aceb37f943770cf1cf0f4b9a6932ba701fe6140a6e54",
+    "main/main.c": "7ea635caf17098d621b3a6054a684bf7267fbab744e041e5b0035287dc49969d"
+  },
+  "cases": [
+    {
+      "device": "sticks3",
+      "runtime": "qemu",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "esp_idf_source": "735507283d5b2f9fb363a1901172dbd9e847945d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "b9f41f0a6910babe4668e6bde75ca2b3cdf65b516fa0df1ed8d62ffa9337ba34",
+      "fixture_elf_sha256": "e3e69fc166c919e6192993299f4a9da60fe0c20d2bf449ec7e9221620e21cebd",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "network": "offline",
+      "observation_seconds": 0.646,
+      "qmp_status_observed": [
+        "running"
+      ],
+      "evidence_zip_sha256": "57fa49f1ff8abc04a26b2008a07f590209ab8c78b06b7e183b896d850a4bb2e2",
+      "evidence_zip_bytes": 11320,
+      "serial_sha256": "634a2e22c6f18abdf318096106513c3df91c994c632725a4c453ed8c9d8a9a7e",
+      "serial_bytes": 3023,
+      "markers": [
+        "RTC_AWAKE_BOOT slow_hz=136000",
+        "RTC_AWAKE_FAIL phase=programmed-low32-high16 raw=00000000"
+      ],
+      "crash_status": "no_evidence",
+      "rom_boot_count": 1,
+      "status": "FAIL",
+      "cleanup": {
+        "history_retained": true,
+        "guest_exited": true,
+        "active_leases": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_exited": true
+    },
+    {
+      "device": "sticks3",
+      "runtime": "qemu",
+      "device_service_source": "d25eae8db848918e9cafebc127a53a0f989941d4",
+      "runtime_sha256": "5cfb8aeb54a1badc258315a3fad16e0ee561779d84e6382beb195b4d92768943",
+      "esp_idf_source": "735507283d5b2f9fb363a1901172dbd9e847945d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "b9f41f0a6910babe4668e6bde75ca2b3cdf65b516fa0df1ed8d62ffa9337ba34",
+      "fixture_elf_sha256": "e3e69fc166c919e6192993299f4a9da60fe0c20d2bf449ec7e9221620e21cebd",
+      "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+      "network": "offline",
+      "observation_seconds": 1.825,
+      "qmp_status_observed": [
+        "running"
+      ],
+      "evidence_zip_sha256": "02724c98b59f4cfcc24df60f2bcad05539b9cec4fca69c90724bb244abaf76ac",
+      "evidence_zip_bytes": 11436,
+      "serial_sha256": "af8e9a2bedee83dafcbd64cb11d980d1cd9261a22f5d692b9992cb233b6370de",
+      "serial_bytes": 3247,
+      "markers": [
+        "RTC_AWAKE_BOOT slow_hz=136000",
+        "RTC_AWAKE_READBACK low=89abcdef high=5aa5",
+        "RTC_AWAKE_STAGED_PAST deadline=29343 counter=38487",
+        "RTC_AWAKE_FIRED armed=61193 staged_alternate=106527 fired=61222 raw_before=00000400 raw_after=00000000",
+        "RTC_AWAKE_REPLACED canceled=83980 replacement=129314 fired=129336",
+        "RTC_AWAKE_PASS"
+      ],
+      "crash_status": "no_evidence",
+      "rom_boot_count": 1,
+      "status": "PASS",
+      "cleanup": {
+        "history_retained": true,
+        "guest_exited": true,
+        "active_leases": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_exited": true
+    }
+  ]
+}
