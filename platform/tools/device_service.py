@@ -275,9 +275,14 @@ from network_egress import (
 from network_policy import (  # noqa: E402
     NetworkPolicy,
     NetworkPolicyError,
+    SANDBOX_RUNNER,
     build_sandbox_command,
     namespace_capability,
     qemu_user_netdev,
+)
+from device_service_namespace_recovery import (  # noqa: E402
+    namespace_supervisor_identity,
+    stop_namespace_supervisor,
 )
 from device_service_wifi_evidence import (  # noqa: E402
     captured_provision_station_dora, native_sta_capability, native_sta_data_plane,
@@ -2869,6 +2874,7 @@ class DeviceSession:
         self.pid: int | None = None
         self.process_start_token = process_start_token
         self._reattached_process = bool(reattached_process)
+        self._namespace_recovery_pending = False
         self.flash_info = flash_info
         self.virtual_flash: Path | None = None
         self.qmp_path = Path("/tmp") / f"m5-service-{session_id}.sock"
@@ -2917,6 +2923,7 @@ class DeviceSession:
         self.softap_fixture_receipt = self.dir / "softap-fixture.json"
         self.sta_time_fixture_receipt = self.dir / "sta-time-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
+        self.network_sandbox_config_path = self.dir / "network-sandbox.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self._cloud_observation = None
@@ -4986,7 +4993,54 @@ class DeviceSession:
             pass
 
     def _terminate_runtime(self) -> None:
+        if self._namespace_recovery_pending:
+            self._stop_recovered_namespace()
         self._terminate_process()
+
+    def _stop_recovered_namespace(self) -> None:
+        def pending(message: str) -> ServiceError:
+            return ServiceError("session_cleanup_pending", message, 503)
+
+        try:
+            config = json.loads(self.network_sandbox_config_path.read_text())
+            before = json.loads(self.network_isolation_path.read_text())
+        except (OSError, ValueError) as error:
+            raise pending("namespace launch evidence is unavailable") from error
+        if (not isinstance(config, dict) or not isinstance(before, dict)
+                or before.get("private_network_namespace") is not True
+                or before.get("external_route") is not False or before.get("gateway") is not None):
+            raise pending("local namespace ownership has not been confirmed")
+        launch_id = config.get("launch_id")
+        if launch_id is None:
+            # The legacy format can prove a cleanup transition only while the
+            # previously recorded supervisor can still be identified.
+            pid, start_token = self.pid, self.process_start_token
+            if before.get("cleanup_completed") is not False:
+                raise pending("legacy namespace cleanup has no launch-bound receipt")
+        else:
+            pid, start_token = before.get("supervisor_pid"), before.get("supervisor_start_token")
+            if (not isinstance(launch_id, str) or re.fullmatch(r"[0-9a-f]{32}", launch_id) is None
+                    or before.get("launch_id") != launch_id
+                    or self.pid not in (None, pid) or self.process_start_token not in (None, start_token)):
+                raise pending("namespace supervisor does not match the recorded launch")
+        if type(pid) is not int or pid < 1 or not start_token:
+            raise pending("namespace supervisor identity is unavailable")
+        stop_namespace_supervisor(
+            pid, start_token=start_token, config_path=self.network_sandbox_config_path,
+            sandbox_path=SANDBOX_RUNNER, legacy_start_token=lambda value: inspect_process(value)["start_token"],
+        )
+        try:
+            after = json.loads(self.network_isolation_path.read_text())
+        except (OSError, ValueError) as error:
+            raise pending("namespace cleanup receipt is unavailable") from error
+        if (not isinstance(after, dict) or after.get("launch_id") != launch_id
+                or after.get("cleanup_completed") is not True or after.get("qemu_process_reaped") is not True
+                or (launch_id is not None and (after.get("supervisor_pid"), after.get("supervisor_start_token")) != (pid, start_token))):
+            raise pending("namespace cleanup has not been confirmed")
+        self._namespace_recovery_pending = False
+        self.pid = None
+        self.process_start_token = None
+        self._record_event("namespace_recovery_cleaned")
 
     def _provision_runtime(self) -> None:
         self._set_state("flashing")
@@ -6336,15 +6390,16 @@ class DeviceSession:
                         if key == "BLE_HCI_TRACE"
                     },
                 }
-            sandbox_config_path = self.dir / "network-sandbox.json"
             sandbox_config["isolation_evidence"] = str(
                 self.network_isolation_path
             )
-            atomic_write_json(sandbox_config_path, sandbox_config)
+            sandbox_config["launch_id"] = uuid.uuid4().hex
+            self.network_isolation_path.unlink(missing_ok=True)
+            atomic_write_json(self.network_sandbox_config_path, sandbox_config)
             try:
                 launch_command = build_sandbox_command(
                     command,
-                    config_path=sandbox_config_path,
+                    config_path=self.network_sandbox_config_path,
                 )
             except NetworkPolicyError as error:
                 raise ServiceError(
@@ -6380,12 +6435,11 @@ class DeviceSession:
             stdout.close()
             stderr.close()
         self.pid = self._proc.pid
-        identity = inspect_process(self.pid)
-        self.process_start_token = (
-            str(identity["start_token"])
-            if identity["exists"] and identity["start_token"]
-            else None
-        )
+        if policy.isolation == "namespace":
+            self.process_start_token = namespace_supervisor_identity(self.pid)
+        else:
+            identity = inspect_process(self.pid)
+            self.process_start_token = identity["start_token"] if identity["exists"] else None
         self._reattached_process = False
         self._persist_session()
         if native_vhci:
@@ -11231,9 +11285,14 @@ class DeviceService:
             virtual_flash = record_path.parent / "virtual-flash.bin"
             session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
             session.pid = persisted_pid
-            if not reattach_candidate:
-                session._worker_lease_active = False
-            if reattach_candidate:
+            restore_namespace = (
+                persisted_state in OCCUPIED_STATES and runtime in QEMU_QMP_RUNTIMES
+                and (session.network_config.get("policy") or {}).get("isolation") == "namespace"
+                and (persisted_pid is not None or session.network_sandbox_config_path.exists())
+            )
+            if restore_namespace:
+                self._restore_namespace_stop(session, persisted_state)
+            elif reattach_candidate:
                 try:
                     session.reattach()
                 except ServiceError as error:
@@ -11241,16 +11300,39 @@ class DeviceService:
                         persisted_state,
                         f"safe re-attach rejected: {error.message}",
                     )
-            elif interrupted:
-                session.mark_interrupted(
-                    persisted_state,
-                    "service restarted before session completion",
-                )
             else:
-                session._persist_session()
+                session._worker_lease_active = False
+                if interrupted:
+                    session.mark_interrupted(
+                        persisted_state,
+                        "service restarted before session completion",
+                    )
+                else:
+                    session._persist_session()
             self._sessions[session.id] = session
             session._observation_registered = True
             self._observe_session(session)
+
+    def _restore_namespace_stop(self, session: DeviceSession, previous_state: str) -> None:
+        """Recover ownership before releasing a namespace session's resources."""
+        self.worker.reserve_lease(session.id, owner="service-restart-cleanup")
+        session.worker_generation = self.worker.generation
+        session._worker_lease_active = True
+        session._namespace_recovery_pending = True
+        session.state = "stopping"
+        session.interrupted = True
+        session.completed_at = None
+        session._provision_error = (
+            f"service restarted before the namespace session completed; previous state was {previous_state}"
+        )
+        session._persist_session()
+        try:
+            session.stop()
+        except ServiceError as error:
+            if error.code != "session_cleanup_pending":
+                raise
+            # Stop persisted the pending state. The janitor retries while the
+            # session keeps its lease and writable Flash.
 
     def raw_device(self, device_id: str) -> dict:
         for row in self.raw_matrix["devices"]:

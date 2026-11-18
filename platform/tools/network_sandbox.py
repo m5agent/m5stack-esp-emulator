@@ -19,10 +19,12 @@ import sys
 import tempfile
 import threading
 import time
+from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
+from device_service_namespace_recovery import namespace_supervisor_identity
 from network_egress import (
     EgressEndpoint,
     EgressError,
@@ -424,8 +426,15 @@ def write_isolation_evidence(
     control = (config or {}).get("control", {})
     if not isinstance(control, dict):
         control = {}
+    launch_id = (config or {}).get("launch_id")
+    supervisor = {}
+    if launch_id is not None and gateway is None:
+        pid = os.getpid()
+        supervisor = {"launch_id": launch_id, "supervisor_pid": pid,
+                      "supervisor_start_token": namespace_supervisor_identity(pid)}
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(
         json.dumps(
             {
                 "schema_version": 1,
@@ -452,11 +461,13 @@ def write_isolation_evidence(
                 "dns_domain_records": dns.get("domain_records", {}),
                 "dns_cname_records": dns.get("cname_records", {}),
                 "cleanup_completed": False,
+                **supervisor,
             },
             indent=2,
         )
         + "\n"
     )
+    temporary.replace(path)
 
 
 def update_isolation_evidence(
@@ -1635,14 +1646,6 @@ def run(
         except EgressError as error:
             raise SandboxError(str(error)) from error
     evidence_path = config.get("isolation_evidence")
-    if evidence_path:
-        write_isolation_evidence(
-            Path(str(evidence_path)),
-            config,
-            gateway=gateway,
-            external_route=gateway is not None,
-        )
-
     http_config = config.get("http")
     http: ControlledHttp | None = None
     udp: ControlledUdp | None = None
@@ -1652,19 +1655,38 @@ def run(
     qemu_process: subprocess.Popen | None = None
     previous: dict[int, Any] = {}
     terminating = False
+    launching_child = False
 
     def stop(_signum: int, _frame: object) -> None:
         nonlocal terminating
         if terminating:
             return
         terminating = True
+        if launching_child:
+            return
         # Unwind Popen.wait before attempting another wait on its child.
         raise SystemExit(143)
+
+    @contextmanager
+    def launch_child():
+        nonlocal launching_child
+        launching_child = True
+        try:
+            yield
+        finally:
+            launching_child = False
+        # Retain the child handle before unwinding into cooperative cleanup.
+        if terminating:
+            raise SystemExit(143)
 
     for signum in (signal.SIGTERM, signal.SIGINT):
         previous[signum] = signal.getsignal(signum)
         signal.signal(signum, stop)
     try:
+        if evidence_path:
+            write_isolation_evidence(
+                Path(str(evidence_path)), config, gateway=gateway, external_route=gateway is not None,
+            )
         if dns_config is not None:
             if not isinstance(dns_config, dict):
                 raise SandboxError("sandbox DNS config must be an object")
@@ -1809,11 +1831,12 @@ def run(
                 for key, value in ble_env.items()
             ):
                 raise SandboxError("sandbox ble_probe env is invalid")
-            ble_process = start_logged_process(
-                ble_command,
-                log_path=Path(ble_log),
-                env_overrides=ble_env,
-            )
+            with launch_child():
+                ble_process = start_logged_process(
+                    ble_command,
+                    log_path=Path(ble_log),
+                    env_overrides=ble_env,
+                )
             wait_for_text(
                 Path(ble_log),
                 str(ble_config.get("ready_marker", "BLE_PROBE_READY")),
@@ -1821,13 +1844,14 @@ def run(
                 process=ble_process,
             )
 
-        qemu_process = subprocess.Popen(
-            command,
-            cwd=Path.cwd(),
-            env=os.environ.copy(),
-            stdin=subprocess.DEVNULL,
-            start_new_session=True,
-        )
+        with launch_child():
+            qemu_process = subprocess.Popen(
+                command,
+                cwd=Path.cwd(),
+                env=os.environ.copy(),
+                stdin=subprocess.DEVNULL,
+                start_new_session=True,
+            )
         return qemu_process.wait()
     finally:
         terminating = True
@@ -1847,9 +1871,7 @@ def run(
             stream.close()
         if resolv_path is not None:
             resolv_path.unlink(missing_ok=True)
-        for signum, handler in previous.items():
-            signal.signal(signum, handler)
-        if evidence_path:
+        if evidence_path and Path(str(evidence_path)).is_file():
             qemu_process_reaped = (
                 qemu_process is None or qemu_process.poll() is not None
             )
@@ -1865,18 +1887,22 @@ def run(
                 {
                     "cleanup_completed": (
                         qemu_process_reaped
+                        and (ble_process is None or ble_process.poll() is not None)
                         and dns_closed
                         and http_closed
                         and udp_closed
                         and all(stream_cleanup.values())
                     ),
                     "qemu_process_reaped": qemu_process_reaped,
+                    "ble_process_reaped": ble_process is None or ble_process.poll() is not None,
                     "dns_closed": dns_closed,
                     "http_closed": http_closed,
                     "udp_closed": udp_closed,
                     **stream_cleanup,
                 },
             )
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
 
 
 def run_with_gateway(

@@ -72,7 +72,8 @@
    [审核保存快照](evidence/2026-11-18-cardputerdict-https/reviewer-saved-snapshot-summary.json)
    已验证 Linux 隔离环境的发音通过、策略拒绝和环境准入。[隔离 worker 冷启动恢复](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-linux-worker-idle-restart/evidence/linux-worker-idle-restart-summary.json)保存完成历史、ZIP 和 PCAP，并在隔离失败时拒绝新租约。
    [ADV 0.5.0 原版发音](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/evidence/adv050-https-audio-summary.json)已通过 Device Service 直测。
-   继续验证常驻 Linux 审核 worker、活动会话恢复、ADV 审核路径和其他原版应用的 HTTPS 与云端协议。
+   [隔离 Reviewer 创建恢复](validation-ledger.md#2026-11-18-reviewer-创建中断恢复)已验证 Linux ARM64 的 Cardputer ADV STA。仅重启 Reviewer 后回收原会话和隔离命名空间、保留原 PCAP，并在新会话完成同固件标准重试。macOS Core2 另通过迟到创建拦截和其他活动会话保留对照。
+   继续验收常驻 Linux 审核 worker、Reviewer 与 Device Service 同时中断时的活动会话及伴随进程恢复、ADV 原版发音的保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)

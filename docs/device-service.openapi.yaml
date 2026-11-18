@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.95.0
+  version: 1.96.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -30,8 +30,11 @@ info:
     session QMP ownership and query-status checks; this restores QEMU/QMP
     control. For trusted-host unified sessions, the service also recreates the
     in-process HTTP fixture and adopts a surviving BLE peer only after exact
-    PID, start-time and command ownership checks. Namespace-managed, Tab5 and
-    cross-host companions are not implied.
+    PID, start-time and command ownership checks. An interrupted local Linux
+    QEMU namespace is stopped using its saved supervisor identity and launch
+    cleanup receipt. Until release is confirmed the session remains stopping
+    and retains its lease and writable Flash. Named gateways, Tab5 and
+    cross-host companions have separate recovery boundaries.
     The service can be exposed over HTTPS with verified server certificates
     and optional required client certificates (mTLS); worker HMAC remains a
     separate application authentication layer.

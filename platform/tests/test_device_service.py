@@ -7282,6 +7282,40 @@ class DeviceServiceUnitTests(unittest.TestCase):
         finally:
             restarted.close_all()
 
+    def test_namespace_restart_retains_lease_and_flash_until_launch_cleanup_is_confirmed(self):
+        session = self._stopped_session()
+        session.runtime = "qemu-wifi"
+        session.virtual_flash = session.dir / "virtual-flash.bin"
+        session.virtual_flash.write_bytes(b"old virtual flash")
+        launch_id = "e" * 32
+        supervisor = {
+            "launch_id": launch_id, "supervisor_pid": 12345,
+            "supervisor_start_token": "linux:boot:123",
+            "private_network_namespace": True, "external_route": False,
+            "gateway": None, "cleanup_completed": False,
+        }
+        session.network_sandbox_config_path.write_text(json.dumps({"launch_id": launch_id}))
+        session.network_isolation_path.write_text(json.dumps(supervisor))
+        with (
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+            mock.patch("device_service.wait_qmp") as qmp,
+        ):
+            self.service._restore_namespace_stop(session, "running")
+            self.assertEqual(session.snapshot()["state"], "stopping")
+            self.assertTrue(session.virtual_flash.exists())
+            self.assertIn(session.id, self.service.worker_status()["active_lease_ids"])
+            stop_supervisor.assert_called_once()
+
+            session.network_isolation_path.write_text(json.dumps({
+                **supervisor, "cleanup_completed": True, "qemu_process_reaped": True,
+            }))
+            restored = session.stop(retain_flash=False)
+            self.assertTrue(restored["interrupted"])
+            self.assertEqual(restored["state"], "failed")
+            self.assertFalse(restored["flash_retained"])
+            self.assertNotIn(session.id, self.service.worker_status()["active_lease_ids"])
+            qmp.assert_not_called()
+
     def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):

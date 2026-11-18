@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Reviewer 创建中断恢复
+
+同一轮虚拟设备验证固定 Device Service 1.95.0（`5b4b664272cab0a419257327baf42b26b12d79f6`）和 Reviewer 0.25.0（`0f732ea5c62596c0137e8ca0cd3a32e7aa3c3988`）。
+
+- Linux ARM64 的 Cardputer ADV STA 在活动会话期间仅终止 Reviewer，Device Service 继续运行。旧版对照需手动清理仍存活的会话。新版恢复准确绑定的会话并释放其租约、可写 Flash 和网络命名空间，原 PCAP 得以保留。同一固件的标准保存快照复审启动新会话，STA 断言通过，审核结论仍为 `manual_review / E_NO_FRAME`。
+- macOS ARM64 的 Core2 验证了成功创建但回复丢失后的回收、原请求迟到时的拦截，以及相同固件的另一活动会话保持可用。标准重试另有独立对照。两条路径均完成隔离环境清理，未提交 Burner。
+
+Reviewer 与 Device Service 同时中断、生产常驻 Linux worker 和真机属于后续验收范围。[创建恢复 API](device-service-api.md#recover-an-interrupted-reviewer-session-create) · [已归档的两个隔离结果](https://github.com/m5agent/agent-work-logs/blob/4220deb264b0961235315673cc28f7332025d387/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-reviewer-active-create-recovery/README.md)
+
 ## 2026-11-18 StickS3 分频内部 RTC 慢钟
 
 同版 ESP-IDF 两个配置分别选择默认 RC_SLOW 和 RC_FAST_D256。旧原生后端的

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.95.0` and bounded
+Status: local MVP with unified-device runtime contract `1.96.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -4314,6 +4314,13 @@ restart.
 - a verified running QEMU process can be re-attached across service restart;
   Tab5/network lanes, paused QEMU, stale PIDs, changed start times and missing
   QMP sockets remain interrupted history;
+- local Linux QEMU namespace sessions use the process boot identity, start
+  time and session-specific launch receipt for restart cleanup. The service
+  requests cooperative supervisor stop without a QMP connection. It releases
+  the old lease and writable Flash only after the supervisor exits and the
+  sandbox confirms the guest and its fixtures were cleaned up. If ownership
+  or cleanup is uncertain, the session stays `stopping` and keeps its resources
+  for another check. This recovery does not cover named egress gateways;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;
