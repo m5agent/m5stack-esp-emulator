@@ -135,6 +135,8 @@
    故障记录区分目标不支持、未建模、环境失败和有 guest 证据的应用失败。
    [XIAOZHI_CARD_KIT 的受理阶段归因](validation-ledger.md#2026-11-18-xiaozhi-目标受理)
    已通过真实审核入口对照。
+   [Cardputer ADV Flash 容量归因](validation-ledger.md#2026-11-19-cardputer-adv-flash-容量结构化归因)
+   已通过原版 16 MiB 拒绝及官方 8 MiB 正对照。继续扩展其他板型和固件布局。
 
 ## 新增主机剩余工作
 

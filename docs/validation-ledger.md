@@ -14,6 +14,29 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 Cardputer ADV Flash 容量结构化归因
+
+原版 16 MiB 合并 BIN 在 Device Service 1.99.1（`c9ec0f27`）的组合和导入
+接口均返回 `409 firmware_flash_contract_mismatch`。从旧库存尝试创建会话
+也在分配租约前被拒绝。Reviewer 0.28 保留 `E_STATIC` 和文字结论，
+详情读不到结构化容量。
+
+Reviewer 0.29（`69386c6`）经系统 Python 3.9.6 对同一原版走标准保存快照。
+详情和证据中的 `static_effective.admission` 绑定原 BIN SHA、目标板型及
+组合阶段，记录 `firmware_target_incompatible`，读取设备 8,388,608 字节、
+需求 16,777,216 字节和两个原始容量依据。任务保持 `failed / E_STATIC`，
+无来宾或租约。官方 8 MiB UIFlow2 正对照通过同一 Device Service 普通会话，
+取得实际 240×135 非黑画面，已核对 ZIP 并释放 Flash 和租约。Burner 未提交。
+[原版拒绝、结构化回执和官方正对照](https://github.com/m5agent/agent-work-logs/blob/4dd757e4c041a3e981a334989cc1cc604de79474/records/m5stack-esp-emulator/2026-11-17-cardputer-adv-16mb-flash-intake/followups/2026-11-18-cardputer-adv-flash-capacity-current/followups/2026-11-19-cardputer-adv-structured-flash-admission/README.md)。
+
+### 本机更新与问题关闭
+
+审核主分支和本机 Reviewer 已更新为 0.29.0，系统 Python 3.9.6 启动后
+`/api/ready` 返回 HTTP 200。130 条审核历史和抽查证据 ZIP 核对一致。
+两处 Device Service 返回精确的 OpenAPI 1.99.1。[#234](https://github.com/m5agent/m5stack-esp-emulator/issues/234)
+已按原问题的准入条件验收并关闭。
+[常驻回读、历史镜像复验及关闭状态](https://github.com/m5agent/agent-work-logs/blob/6821f1ddb645cf0f9a065f118290b6a7f75599b6/records/m5stack-esp-emulator/2026-11-17-cardputer-adv-16mb-flash-intake/followups/2026-11-18-cardputer-adv-flash-capacity-current/followups/2026-11-19-cardputer-adv-structured-flash-admission/followups/2026-11-19-reviewer-029-structured-flash-admission-resident/README.md)。
+
 ## 2026-11-19 Linux 网关闭合 stdin 复验
 
 同一无网卡 Linux VZ、原版 CardputerDict 0.6.4、同一份 FAT32 字典及同一 Reviewer
