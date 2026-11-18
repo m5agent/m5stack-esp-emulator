@@ -49,7 +49,7 @@
    均通过。[当前原版 5 ms 回归](validation-ledger.md#2026-11-18-dial-原版旋钮交付和选曲对照)
    将一次选曲差异绑定到来宾轮询漏读。[原版 8 ms 同轮读回](validation-ledger.md#2026-11-19-dial-原版-8-ms-漏选)进一步复现原版漏读完整相位，
    已交付的控制器序列在同一失败轮保持完整。继续定位原版轮询空档及验证同一 BIN 的实体旋钮。旋转、触摸和按钮的独立结果见
-   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。[Core2 原版 2048](validation-ledger.md#2026-11-19-core2-原版-2048-四向标准复审)已由 Reviewer 0.28 四向复验。[0.29.1 原版复审](validation-ledger.md#2026-11-19-linux-受监督审核-worker-重启)另发现数字覆盖固定底色采样点，需用原始截图复验棋盘识别。当前测试台尚无可确认 Core2 与触摸装置，继续等可执行同一 BIN 的真机对照。
+   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。[Core2 原版 2048](validation-ledger.md#2026-11-19-core2-原版-2048-四向标准复审)已由 Reviewer 0.28 四向复验。[Reviewer 0.29.2](validation-ledger.md#2026-11-19-core2-2048-棋盘底色识别)修正数字覆盖棋盘底色取样的误判，通过原始截图与原版标准 dry-run。当前测试台尚无可确认 Core2 与触摸装置，继续等待可执行同一 BIN 的真机对照。
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    [Core2 与 Nesso N1](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)已在 ESP-IDF 5.5.4 验证 LittleFS 停止后导出、服务重启与新会话复用。

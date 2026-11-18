@@ -236,6 +236,31 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 Core2 2048 棋盘底色识别
+
+此前 Linux Worker 保留的原版 2048 Game 1.0 第八次向下拖动取得两张逐字节
+一致的截图。Reviewer 0.29.1 的三个固定采样点都落在白色 `16` 字形笔画上，
+导致稳定棋盘被误报为 `board_postcondition_unavailable`。原审核结论和证据保留。
+
+Reviewer 0.29.2（`88ca2e3c`）改为每格从数字上、下各采三个底色像素。六点须
+为同一种已知颜色，两张新截图须读出相同棋盘，再核对方向、合并及一次新增棋子。
+实际发布候选代码回放 54 张原始 PNG，三轮四向均通过。上述失败帧识别出
+合并后的 `16` 和合法新增的 `4`，未知颜色、底色不一致、两帧棋盘不同仍拒绝。
+系统 Python 3.9.6 的 306 项 Reviewer 测试通过。OpenAPI 0.29.2 更新上述断言说明。
+
+以同一发布候选和 Device Service 1.99.3（`2a7f979c`）在隔离 macOS 原生
+Core2 会话复审原版。匹配引导组件与原应用 SHA-256 不变。应用就绪后在 60 秒
+窗口取得 13 次画面采样，独立核验八次合法移动覆盖四向，返回 `SIM_VERIFIED`。
+该轮最高棋子为 `8`，字形 `16` 由先前原始画面回放覆盖。停机前保存证据 ZIP，
+停机后会话历史保留、可写 Flash 释放、租约归零。未提交 Burner。
+
+常驻 Reviewer 更新到 0.29.2，`/api/ready` 返回就绪。更新前后 131 条审核及
+SQLite 批次、事件和任务摘要一致，抽验最早和最近的证据 ZIP 字节一致。
+审核后端仍为 macOS Device Service，工作台及审核后端提供的 OpenAPI 同为 1.99.3。
+
+实机对照未运行。测试台未发现可用的实体 Core2 或触摸执行装置。
+[原始帧对照及原版复审证据](https://github.com/m5agent/agent-work-logs/tree/da9b7869d1bea1a8a32dfe02a317b2baab0ebc99/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-managed-worker-two-originals/followups/2026-11-19-core2-2048-glyph-overlap)。
+
 ## 2026-11-19 Linux 受监督审核 Worker 重启
 
 使用 Reviewer 0.29.1（`3a45e3dd`）和 Device Service 1.99.3（`2a7f979c`），
