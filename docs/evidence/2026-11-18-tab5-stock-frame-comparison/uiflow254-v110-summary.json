@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "issue": 188,
+  "source": "0e376abc91ddf8252eb565cb1b54204be8e1f089",
+  "validation": "virtual-device validation",
+  "runtime_openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "firmware": "original Tab5 UIFlow2 V2.5.4",
+  "backend": "official native esp-emu 1.1.0/Device Service qemu DSI",
+  "inputs": {
+    "original_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+    "normalized_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+    "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+    "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+    "efuse_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e"
+  },
+  "runs": {
+    "gt911-ili9881c": {
+      "status": "PARTIAL",
+      "classification": "observed_runtime_part_transport_failure",
+      "part_sha256": "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9",
+      "part_name": "gt911",
+      "request_address": "0x68",
+      "controller_port": 1,
+      "request_bytes": 8205,
+      "part_buffer_bytes": 1024,
+      "exit_status": 1,
+      "boot_banners": 1,
+      "old_csr_word_occurrences": 0,
+      "micropython_banner": false,
+      "guest_panic_reported": false,
+      "serial_bytes": 277,
+      "serial_sha256": "a826cb7fa3dcf7c3f63a1940c42efed4b817795c1c1daac66d45d518cd3ead4e",
+      "p4_stderr_sha256": "fb3e28266b736744809740261edc52a41c36d54429e96e08f06ff7aaffe8c71c",
+      "c6_stdout_sha256": "abd62276d9ae97feab53879752215ed938d0800aac39dc29010f43f5b7acc304",
+      "panel_not_detected_uart": true,
+      "observed_frame": "no valid frame",
+      "evidence_zip_sha256": "ff8b0ceaa0a7af6875046d8b728486cad7e32f1d3be65db15fee8bbb0bfe0555",
+      "evidence_crc_and_file_manifest_verified": true,
+      "resources": {
+        "terminal_history": "failed",
+        "p4_process_absent": true,
+        "owned_lane_commands_absent": true,
+        "flash_retained": false,
+        "lease_active": false,
+        "private_control_token_removed": true
+      },
+      "first_terminal_sample_after_session_request_seconds": 2.537
+    },
+    "st7123": {
+      "status": "PARTIAL",
+      "classification": "observed_runtime_part_transport_failure",
+      "part_sha256": "655ee4735028357d21ab9341c9d3a6cf14bc6720b6869be763f29b1458feb0a9",
+      "part_name": "software-i2c",
+      "request_address": "0x68",
+      "controller_port": 1,
+      "request_bytes": 8205,
+      "part_buffer_bytes": 1024,
+      "exit_status": 1,
+      "boot_banners": 1,
+      "old_csr_word_occurrences": 0,
+      "micropython_banner": false,
+      "guest_panic_reported": false,
+      "serial_bytes": 222,
+      "serial_sha256": "3225a595d826b05bf1ae75b79ca4e3a8562a749d71b4b5a3cb098a60dffec9cc",
+      "p4_stderr_sha256": "75ef270717e81956cb47c277dd57809a1a10a3b1ff6dc6231f50c6d9207a09c1",
+      "c6_stdout_sha256": "abd62276d9ae97feab53879752215ed938d0800aac39dc29010f43f5b7acc304",
+      "panel_not_detected_uart": false,
+      "observed_frame": "720x1280 all-black DSI frame",
+      "evidence_zip_sha256": "2c308501d149648f31b22c425fe896ab84a027c2c228d474149f7b7e1895e3ef",
+      "evidence_crc_and_file_manifest_verified": true,
+      "resources": {
+        "terminal_history": "failed",
+        "p4_process_absent": true,
+        "owned_lane_commands_absent": true,
+        "flash_retained": false,
+        "lease_active": false,
+        "private_control_token_removed": true
+      },
+      "samples": [
+        {
+          "after_start_s": 0.0,
+          "state": "flashing",
+          "frame_http": 409,
+          "frame_code": "session_not_running"
+        },
+        {
+          "after_start_s": 0.503,
+          "state": "running",
+          "frame_http": 409,
+          "frame_code": "tab5_dsi_frame_unavailable"
+        },
+        {
+          "after_start_s": 1.007,
+          "state": "running",
+          "frame_http": 409,
+          "frame_code": "tab5_dsi_frame_unavailable"
+        },
+        {
+          "after_start_s": 1.509,
+          "state": "running",
+          "frame_sha256": "740fc68976dfcbfa9cdb9e08de790a1395dfa9b97a587f9482c9137d975d9966",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 0,
+          "unique_colors": 1
+        },
+        {
+          "after_start_s": 2.234,
+          "state": "failed",
+          "frame_sha256": "740fc68976dfcbfa9cdb9e08de790a1395dfa9b97a587f9482c9137d975d9966",
+          "size": [
+            720,
+            1280
+          ],
+          "nonblack_pixels": 0,
+          "unique_colors": 1
+        }
+      ],
+      "observed_seconds": 2.267,
+      "frame_errors": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 2
+      },
+      "valid_nonblack_frames": 0
+    }
+  },
+  "status": "PARTIAL / OPEN",
+  "input_actions": 0,
+  "burner": "NOT SUBMITTED",
+  "boundaries": [
+    "Both configured Parts stop at an overlong I2C request. Source controls bind the model/runtime failure to the same original BIN.",
+    "This does not establish whether the guest requested a legitimate large transfer or the I2C emulation/transport formed an invalid request.",
+    "Earlier old-CSR resets did not reappear before the new blocker. Absence in these short runs does not establish comprehensive CLIC compatibility.",
+    "Application readiness, UI, touch, browser and physical hardware remain unverified.",
+    "The first observer wrongly required a stopped terminal enum even for real native process failure. Retained raw history and independent readback establish failed terminal state with clean release."
+  ]
+}

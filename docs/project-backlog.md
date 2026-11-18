@@ -25,7 +25,7 @@
 
 身份协商与 C6 普通 GPIO 修复已完成 main 和指定工作台后验。这里保留未解决的固件和模型范围；[最终交付证据](evidence/2026-11-14-native-identity-delivery/README.md)与[历史时钟/USB 交付](evidence/2026-11-13-native-clock-usb-followup/README.md)分开。
 
-- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。Meshtastic RFID 原版另有 IDLE 订阅未喂狗问题，Zigbee 无对应数据面，整项不关闭。
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。[Meshtastic RFID 原版复验](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)确认当前模型上 IDLE 订阅未喂狗，UART 等待正常返回。后续验收含固件修订、PN532 UART 读卡和独立 Zigbee 数据面。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
 - [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227)：原 CarPlay 在 0.50.0 的板型探测断言仍复现。1.0.0 的可扩展 I2C 器件接口可用于后续实现，但原 BIN 先遇到旧 P4 CSR 阻断。[对照](evidence/2026-11-16-tab5-original-startup/README.md)保留两套后端的实际边界。闭环须验证触摸寄存器、复位、IRQ、接触报告和原 BSP 输入。
@@ -47,7 +47,7 @@
    确认了 5 ms 漏选，原版 GPIO40/41 注册进入轮询分支。[来宾寄存器读回](evidence/2026-11-18-dial-fast-rotary/README.md#原版实际读取-gpio-的复验)
    将三次漏选绑定到实际漏读相位。公开 R1F27 的[两份中断构建对照](evidence/2026-11-18-dial-fast-rotary/rebuilt-r1f27-summary.json)
    均通过。继续为原版 R1F30 核对轮询间隔、应用计数和同一 BIN 的实体旋钮并保留 35 ms 对照。旋转、触摸和按钮的独立结果见
-   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。
+   [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。 [Core2 原版 2048](../tests/firmware/evidence-2026-11-18-core2-2048-current-review.json)已在当前原生审核运行验证四方向，继续做同一 BIN 的实体触控对照。
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
    [Core2 与 Nesso N1](../tests/firmware/littlefs_partition/cross-chip-persistence-summary.json)已在 ESP-IDF 5.5.4 验证 LittleFS 停止后导出、服务重启与新会话复用。
@@ -63,8 +63,8 @@
    [SPI2/SPI3 IRQ 路由](../tests/firmware/spi_sd_media/cardputer_irq_route/summary.json)已验证独立中断。
    [同 Flash 对照和跨服务恢复](../tests/firmware/cardputer_k132_stock/nc1020-storage-and-display-summary.json)
    已确认原版 G0 文件可在新服务恢复。[停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
-   已区分 SPI 总线锁等待和完整画面的正常队列等待。继续捕获原版两核的锁交接先后顺序，
-   对照真机画面。StickS3/Dial 外接 SD 需要独立接线模型。
+   [原版双核指令](../tests/firmware/cardputer_k132_stock/nc1020-dual-core-spi-cas-summary.json)确认一次 ISR 退出遗漏等待任务的唤醒。
+   继续对照上游 SPI 总线锁修复、另一轮停刷的真实路径和真机画面。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
    [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。
@@ -164,7 +164,7 @@ eFuse 或生产 key。
 已满足的前置基线：实际 VFS/stock 保留、真实 UART/controller 观测与按固件绑定的
 原生修复已有独立执行证据，见[日期化问题证据](evidence/2026-11-05-latest-firmware-issues/README.md)。
 
-- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：完整 Flash/ELF 身份与诊断首触摸已修；仍需上游修复旧 P4 CLIC CSR 和 DSI PHY 状态机，再用未改应用字节证明 Python/UI/touch。旧参考应用的 GDB mailbox 不替代最新应用或 controller touch 验收。
+- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：[原版 v2.5.4 的 1.1.0 对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)已到 I²C 初始化，两个 Part 配置均因请求长度超限退出。需要确定 8,205 字节的产生位置，修复实际 I²C 控制器与 Part 交互，再用同一 BIN 验证 Python、完整帧和触摸。
 - [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
 

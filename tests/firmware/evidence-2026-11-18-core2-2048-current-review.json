@@ -1,0 +1,695 @@
+{
+  "emulator_source": "0e376abc91ddf8252eb565cb1b54204be8e1f089",
+  "native_runtime_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+  "reviewer_source": "ecc8cfc3aadd5b2ae0289171784d2abac91bf855",
+  "session_type": "virtual-device validation",
+  "physical": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "runs": {
+    "2048": {
+      "original_sha256": "41db3680f167565dc3ba06e30493e5bb9d6985ee2c5c9e7706940d003a1fdcaa",
+      "original_bytes": 505760,
+      "firmware_sha256": "cd13c9bc7594ea3ad1994b1192d7bdd620ab1e6fa2adb2abf23152ebd80020d8",
+      "status": "done",
+      "error_code": null,
+      "lane": "SIM_VERIFIED",
+      "boot_ui_status": "PASS",
+      "observation_status": "PASS",
+      "required_semantic_names": [],
+      "actions": [
+        {
+          "name": "drag_right_1",
+          "input": {
+            "kind": "drag",
+            "x1": 65,
+            "y1": 165,
+            "x2": 245,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:65,165,245,165",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_left_1",
+          "input": {
+            "kind": "drag",
+            "x1": 245,
+            "y1": 165,
+            "x2": 65,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:245,165,65,165",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_up_1",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 220,
+            "x2": 155,
+            "y2": 78,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:155,220,155,78",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_down_1",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 78,
+            "x2": 155,
+            "y2": 220,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:155,78,155,220",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_right_2",
+          "input": {
+            "kind": "drag",
+            "x1": 65,
+            "y1": 165,
+            "x2": 245,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:65,165,245,165",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_left_2",
+          "input": {
+            "kind": "drag",
+            "x1": 245,
+            "y1": 165,
+            "x2": 65,
+            "y2": 165,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:245,165,65,165",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_up_2",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 220,
+            "x2": 155,
+            "y2": 78,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:155,220,155,78",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        },
+        {
+          "name": "drag_down_2",
+          "input": {
+            "kind": "drag",
+            "x1": 155,
+            "y1": 78,
+            "x2": 155,
+            "y2": 220,
+            "settle_seconds": 2.0
+          },
+          "accepted": true,
+          "input_receipt": {
+            "input": "drag:155,78,155,220",
+            "action": "tap"
+          },
+          "semantic_assertion": null,
+          "frame_changed": true
+        }
+      ],
+      "burner": "NOT SUBMITTED",
+      "device_id": "core2",
+      "runtime": "qemu",
+      "stopped": true,
+      "flash_released": true,
+      "evidence_zip_sha256": "f250d932ab1cc556dfe2e55193397a5296bed35ec384d2e9bee1608c5dcc9dae",
+      "actual_native_executable_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+      "actual_native_process_exited": true,
+      "legal_moves": [
+        {
+          "input": "drag_right_1",
+          "before": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              4,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "spawn": [
+            0,
+            0,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "9caf8970da79d2c15701e15b407745a0624fcbc7c469e069b7a18f119546fb83"
+        },
+        {
+          "input": "drag_left_1",
+          "before": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              4,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ]
+          ],
+          "spawn": [
+            3,
+            3,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "0a5f2f2a5b0232d950469b46d773b17b2771c2d05de029da89c0df7fd817672e"
+        },
+        {
+          "input": "drag_up_1",
+          "before": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ]
+          ],
+          "after": [
+            [
+              2,
+              2,
+              0,
+              2
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              4
+            ]
+          ],
+          "spawn": [
+            3,
+            3,
+            4
+          ],
+          "status": "PASS",
+          "frame_sha256": "50d3164a0505f1c1ed3d21856d8312e47ccab6586ea2b346e213d7b984890080"
+        },
+        {
+          "input": "drag_down_1",
+          "before": [
+            [
+              2,
+              2,
+              0,
+              2
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              4
+            ]
+          ],
+          "after": [
+            [
+              0,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              2
+            ],
+            [
+              4,
+              2,
+              0,
+              4
+            ]
+          ],
+          "spawn": [
+            0,
+            2,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "3b670c5ff363865ee0a548007fb1489827da1e82dad2450e5266ba427b2e4e2e"
+        },
+        {
+          "input": "drag_right_2",
+          "before": [
+            [
+              0,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              2
+            ],
+            [
+              4,
+              2,
+              0,
+              4
+            ]
+          ],
+          "after": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              4
+            ],
+            [
+              0,
+              4,
+              2,
+              4
+            ]
+          ],
+          "spawn": [
+            1,
+            0,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "a4bc9bfd8fe4da567a4fe8d9db25a8238dbfcbd242ec12d933a612c20d3a356c"
+        },
+        {
+          "input": "drag_left_2",
+          "before": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              4
+            ],
+            [
+              0,
+              4,
+              2,
+              4
+            ]
+          ],
+          "after": [
+            [
+              2,
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              2,
+              4,
+              0
+            ]
+          ],
+          "spawn": [
+            0,
+            1,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "cf8db6ccf164f0ded0528e03496687af949199f241d554b598d1371a1cbfcba2"
+        },
+        {
+          "input": "drag_up_2",
+          "before": [
+            [
+              2,
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              2,
+              4,
+              0
+            ]
+          ],
+          "after": [
+            [
+              4,
+              4,
+              4,
+              2
+            ],
+            [
+              8,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "spawn": [
+            0,
+            3,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "fb8e7998935e2ac27b6331047f905d5bb7000c945b75f64c186a459ba8aa8306"
+        },
+        {
+          "input": "drag_down_2",
+          "before": [
+            [
+              4,
+              4,
+              4,
+              2
+            ],
+            [
+              8,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "after": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              4,
+              4,
+              2
+            ]
+          ],
+          "spawn": [
+            1,
+            3,
+            2
+          ],
+          "status": "PASS",
+          "frame_sha256": "1b908e9731c1f355ed50e247b87c44aa8006f8c4e88a5d61d1c28eead6215fe0"
+        }
+      ],
+      "unchanged_apps": [
+        true
+      ],
+      "serial": {
+        "sha256": "353121f7108a20d9818c1e92d2fb9aa2a213d9bf07927bd56d8827fcd1cb3d7c",
+        "bytes": 325,
+        "boot_banners": 1,
+        "fatal_markers": []
+      },
+      "reviewer_semantic_assertions": "NOT RUN",
+      "independent_board_oracle": "PASS",
+      "direction_counts": {
+        "left": 2,
+        "right": 2,
+        "up": 2,
+        "down": 2
+      }
+    }
+  },
+  "remaining_owned_leases": 0,
+  "services_stopped": true,
+  "previous_instrumentation_attempt": "Reviewer completed. The independent observer lacked a JSON dependency at Flash readback. Corrected observer and reran the full dry-run.",
+  "physical_scope": "No matching Core2 in current test-center inventory or local serial discovery."
+}

@@ -183,6 +183,11 @@ QMP 图标区域一致。后续同一镜像的 300 ms 接触有实际虚拟时�
 1.0.0-rc2 和[正式 v1.0.0 原版复测](evidence/2026-11-14-tab5-stable-originals/README.md)均在旧 P4 `mintstatus` CSR `0x346` 读取处触发非法指令；后者的 Maker Fighter 也未到 USB 初始化，不能据缺少 DWC 断言关闭 USB 缺口。已使用
 rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需上游补齐
 修订版 CLIC 和实际 DSI PHY 状态转换，再从原 BIN 验证 Python/UI/touch。
+[官方 esp-emu 1.1.0 同原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)
+在 GT911 和 ST7123 两个已发布的板型配置都走到 I²C Part。两轮均在端口 1 的
+地址 `0x68` 收到 8,205 字节请求，而 Part 缓冲容量为 1,024 字节。后端退出时
+没有完整画面或 MicroPython，早期 CSR 异常也没有出现。事务长度的来源仍待追踪。
+
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
 首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller
 触摸缺口。两种原版失败及旧参考正控见[有界证据](evidence/2026-11-13-tab5-service-boundaries/README.md)。

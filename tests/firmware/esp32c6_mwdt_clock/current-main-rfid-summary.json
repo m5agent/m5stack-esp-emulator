@@ -1,0 +1,256 @@
+{
+  "validation": "virtual-device validation",
+  "rfid_read": "NOT RUN",
+  "physical": "NOT RUN",
+  "burner": "NOT SUBMITTED",
+  "artifact_source": "saved immutable original",
+  "trials": {
+    "current-main-untraced": {
+      "device_service_commit": "0e376abc91ddf8252eb565cb1b54204be8e1f089",
+      "firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "application_status": "FAIL",
+      "observed_seconds": 150.021,
+      "bundle_sha256": "9ea2e771477efe0df519db54863bfd11f5be79c53fe511bbf57ad89200372e19",
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "source_padded_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "runtime_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "source_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "runtime_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "boot_and_peripheral_serial": {
+        "serial.log": {
+          "sha256": "1bec08d2e776d0485e627adfecfa8a3a2a51c0766fa191399f23eec844768c0a",
+          "markers": {
+            "ESP-ROM:esp32c6": 1,
+            "Rebooting...": 1,
+            "Core  0 register dump:": 1,
+            "POWERON": 1,
+            "LP_SW_HPSYS": 0,
+            "PN532Killer failed to initialize": 0,
+            "PN532 -> Timeout or invalid response length": 0
+          }
+        },
+        "usb-serial-jtag.log": {
+          "sha256": "c052393d027544a2ffefc21d95b439274efeee3daf73c49f143a84f185826fa5",
+          "markers": {
+            "ESP-ROM:esp32c6": 2,
+            "Rebooting...": 0,
+            "Core  0 register dump:": 1,
+            "POWERON": 1,
+            "LP_SW_HPSYS": 1,
+            "PN532Killer failed to initialize": 2,
+            "PN532 -> Timeout or invalid response length": 4
+          }
+        }
+      },
+      "evidence_frame": {
+        "raw_panel_dimensions": [
+          135,
+          240
+        ],
+        "presentation_rotation_cw": 270,
+        "madctl": 108,
+        "raw_png_sha256": "e8760b683c9e5f29e1f2775547590216752beb8887408dfc36137af5ec89750c",
+        "offline_canonical_display_dimensions": [
+          240,
+          135
+        ],
+        "offline_canonical_display_png_sha256": "22258fcb8689000ac156a3266d39146e193300dcc7f0e16a637b19cc4ff70b7f",
+        "offline_canonical_display_pixels_sha256": "301dc7f0cca81b49206f25540c9aa526d9ee52587f53b84c97a8c9dd2c5864a4",
+        "nonblack_pixels": 7649
+      },
+      "cleanup": {
+        "stopped": true,
+        "flash_retained": false,
+        "active_leases": 0
+      }
+    },
+    "current-main-first-fault": {
+      "device_service_commit": "0e376abc91ddf8252eb565cb1b54204be8e1f089",
+      "firmware_sha256": "1ea35725b85cf66745724daaaf8005ba1dcac522b2b10005671b7f7cf2cf86c8",
+      "runtime_sha256": "69493c4edccaab5bc24961982ddb9097dda11c9b3418f9cdc0aaa2b27ae865a4",
+      "rom_sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "application_status": "FAIL",
+      "observed_seconds": 25.032,
+      "bundle_sha256": "2ba44d1d45acced707ecae8bda8223cac969cd29087eea724ec1a39dd3cbe1b4",
+      "application_partitions": [
+        {
+          "offset": 65536,
+          "size": 2424832,
+          "source_padded_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "runtime_sha256": "bc0eee8904c620c5a037c27c416a00d056c3cac6d81a81f7757c5d2321780e36",
+          "unchanged": true
+        },
+        {
+          "offset": 2490368,
+          "size": 655360,
+          "source_padded_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "runtime_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+          "unchanged": true
+        }
+      ],
+      "boot_and_peripheral_serial": {
+        "serial.log": {
+          "sha256": "1bec08d2e776d0485e627adfecfa8a3a2a51c0766fa191399f23eec844768c0a",
+          "markers": {
+            "ESP-ROM:esp32c6": 1,
+            "Rebooting...": 1,
+            "Core  0 register dump:": 1,
+            "POWERON": 1,
+            "LP_SW_HPSYS": 0,
+            "PN532Killer failed to initialize": 0,
+            "PN532 -> Timeout or invalid response length": 0
+          }
+        },
+        "usb-serial-jtag.log": {
+          "sha256": "f9bc64a5c5d4d338fc4b5726ad2a3187a02a946789714dce80836dec0af633a4",
+          "markers": {
+            "ESP-ROM:esp32c6": 2,
+            "Rebooting...": 0,
+            "Core  0 register dump:": 1,
+            "POWERON": 1,
+            "LP_SW_HPSYS": 1,
+            "PN532Killer failed to initialize": 2,
+            "PN532 -> Timeout or invalid response length": 4
+          }
+        }
+      },
+      "evidence_frame": {
+        "raw_panel_dimensions": [
+          135,
+          240
+        ],
+        "presentation_rotation_cw": 270,
+        "madctl": 108,
+        "raw_png_sha256": "4795acff87baaee01a19148b2987df4844fa2b1e9a8bc116e7c6c40b595aba7a",
+        "offline_canonical_display_dimensions": [
+          240,
+          135
+        ],
+        "offline_canonical_display_png_sha256": "465905048f08bb9e2135ce46a0e6a7b152dc2bf3da54a7821f7c4df23ae487fc",
+        "offline_canonical_display_pixels_sha256": "7d0a1d635ef1f57bcc74add472f4156c37e0d9e03d28a2c56f95d532ce7aa597",
+        "nonblack_pixels": 7653
+      },
+      "cleanup": {
+        "stopped": true,
+        "flash_retained": false,
+        "active_leases": 0
+      },
+      "first_fault": {
+        "trace_sha256": "d7a69b2ca30e8201c271a66f3193483e243b9d283d8e64d673ec74b6a3e230a8",
+        "gdb_log_sha256": "7e7c5d6eb1917318ddcf6ca0fb016c0afe362324ff5b8300f6adae3d17426228",
+        "init_calls": [
+          {
+            "tick": 0,
+            "timeout_ms": 5000,
+            "idle_core_mask": 0,
+            "trigger_panic": 1
+          },
+          {
+            "tick": 353,
+            "timeout_ms": 90000,
+            "idle_core_mask": 0,
+            "trigger_panic": 1
+          }
+        ],
+        "init_return_codes": [
+          "0x0",
+          "0x103"
+        ],
+        "hardware_feeds": [
+          {
+            "event": "twdt-enable-feed",
+            "tick": 25,
+            "hal_context": "0x40822ce0"
+          },
+          {
+            "event": "twdt-hardware-feed",
+            "tick": 25,
+            "hal_context": "0x40822ce0"
+          }
+        ],
+        "pn532_commands": [
+          {
+            "tick": 1200,
+            "command": "0xaa"
+          },
+          {
+            "tick": 2217,
+            "command": "0x14"
+          }
+        ],
+        "uart1_reads": [
+          {
+            "entered_tick": 1201,
+            "returned_tick": 2203,
+            "duration_ticks": 1002,
+            "configured_ticks": 1000,
+            "bytes_returned": 0
+          },
+          {
+            "entered_tick": 2219,
+            "returned_tick": 3221,
+            "duration_ticks": 1002,
+            "configured_ticks": 1000,
+            "bytes_returned": 0
+          }
+        ],
+        "idle_subscription_to_isr_ticks": 5002,
+        "first_reset_after_irq": true,
+        "isr": {
+          "pc": "0x420a962c",
+          "tick": 5026,
+          "csr": {
+            "mepc": "0x4080a5de",
+            "mcause": "0x8000000b",
+            "mtval": "0x0"
+          },
+          "mmio": {
+            "0x60096044": "0x400000",
+            "0x60096050": "0x400000",
+            "0x60008048": "0xb81f8000",
+            "0x6000804c": "0x4e200000",
+            "0x60008050": "0x2710",
+            "0x60008054": "0x4e20",
+            "0x60008058": "0x0",
+            "0x6000805c": "0x0",
+            "0x60009048": "0xb81f8000",
+            "0x6000904c": "0x4e200000"
+          },
+          "task_state": {
+            "pointer": "0x4087ccf8",
+            "entries": [
+              {
+                "task_name": "loopTask",
+                "has_reset": 1
+              },
+              {
+                "task_name": "IDLE",
+                "has_reset": 0
+              }
+            ],
+            "idle_core_mask": 0,
+            "flags": "0x1"
+          },
+          "interrupted_task": "IDLE"
+        },
+        "observed_reset_calls": {
+          "loopTask": 12
+        }
+      }
+    }
+  },
+  "caveat": "Display derivative calculated by the exact source package from same-session ZIP PNG and presentation metadata; the live display-orient route was not separately invoked."
+}

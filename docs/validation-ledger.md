@@ -14,6 +14,30 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Core2 原版 2048 四向审核复验
+
+原版 2048 Game 1.0 的保存快照在 Reviewer 0.21.0 和 Device Service
+1.89.0 得到 `SIM_VERIFIED`。独立棋盘解析核对每个动作的移动、合并和新增块，
+向左、右、上、下各两次均通过。虚拟 Flash 中的应用字节逐字节一致。
+实体 Core2 和浏览器未执行，Burner 提交为零。
+[原版、实际 QEMU 与棋盘回执](../tests/firmware/evidence-2026-11-18-core2-2048-current-review.json)
+
+## 2026-11-18 Nesso N1 原版 RFID 的当前 TWDT 与横屏复验
+
+150 秒无追踪基线出现一次非请求重启。首次中断诊断确认两次 UART1 超时
+均按约 1 秒返回。当固件尝试以 90 秒再次初始化 TWDT 时返回 `0x103`，
+有效超时仍是 5 秒。达到 5,002 个来宾 tick 时 `loopTask` 已喂狗，
+被加入的 `IDLE` 尚未喂狗。按帧的方向元数据转换为 240×135 后，欢迎页
+与历史横屏 PNG 字节相同。实际 PN532 读卡和实体测试未执行。
+[精确原版与首故障证据](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)
+
+## 2026-11-18 Tab5 UIFlow2 v2.5.4 原版在 esp-emu 1.1.0 的阻断
+
+GT911 和 ST7123 配置均在单次启动后停在 I²C Part，端口 1 地址
+`0x68` 的 8,205 字节请求超出 1,024 字节缓冲。GT911 没有可用帧，
+ST7123 只有黑帧，两次均未获得 MicroPython 启动。旧 CSR 证据保留，
+新运行的请求长度来源仍待核验。[两份同固件 ZIP 摘要](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)
+
 ## 2026-11-18 CardputerDict 原版 HTTPS 朗读
 
 初代 Cardputer 的原版 0.6.4 在独立 Linux namespace 下经实体键位语义
@@ -131,6 +155,16 @@ UserDemo 未准入对照保留 `E_EVIDENCE_UNAVAILABLE` 和 60 秒串口观察�
 A 键通过 GPIO11 检查后启动热点，侧面 B 键被来宾忽略，前置检查保留为部分验证。
 Headless 夹具的画面未就绪，与局部网络结论分别记录。同一原版 Assistant 的回归
 覆盖门户表单、STA DHCP 和 ARP。
+
+## 2026-11-18 NC1020 原版 SPI 锁交接指令对照
+
+同一份原版恢复态在 1.87 的三轮有界双核取证中有两轮停刷、一轮全帧。
+其中一轮 CPU1 成功登记锁请求后阻塞，CPU0 清除待处理位，读到
+保持请求而持有者为空，结束 ISR 时未向匹配的信号量发出唤醒。正常对照
+选出持有者后发出了唤醒。另一轮停刷的结果队列为空，未确认同一先后顺序。
+1.89 独立的单次无追踪回放取得完整画面。
+[实际双核指令与锁值](../tests/firmware/cardputer_k132_stock/nc1020-dual-core-spi-cas-summary.json) ·
+[上游 ESP-IDF SPI 锁逻辑变更](https://github.com/espressif/esp-idf/commit/2521f3887a78559496c0d2599b0f368ddc24e02b)
 
 ## 2026-11-18 NC1020 原版停刷任务现场
 
