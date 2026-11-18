@@ -29,5 +29,5 @@ idf.py -C tests/firmware/sticks3_rtc_deep_sleep \
    串口和同一会话。以 `purge=0` 停止，核对租约归零与可写 Flash 已释放。
 
 [验证摘要](summary.json)保存同一探针在旧运行时上的失败和新运行时的
-结果，以及原版 All day watch 0.3.8 的独立浅睡回归。定时 deep-sleep
-不覆盖 EXT0/EXT1、ULP、touch、其他慢钟、RTC RAM 电源域组合或物理功耗。
+结果，以及原版 All day watch 0.3.8 的独立浅睡回归。
+[RC_FAST_D256 定时深睡](https://github.com/m5agent/agent-work-logs/blob/122ba36b10b565de62db2fc089beb00943b45dc5/records/esp-emulator/2026-11-18-sticks3-rtc-deep-sleep/followups/2026-11-18-sticks3-d256-deep-sleep/README.md)以同源探针通过两次独立回放。用 `CONFIG_RTC_CLK_SRC_INT_8MD256=y` 选择分频内部慢钟，运行期间在挂起的两次查询之间读取 RTC 选择器。复验范围为定时唤醒、RTC 保留和同会话 HTTP 复位。EXT0/EXT1、ULP、touch、外部慢钟、其他 RTC RAM 电源域组合和物理功耗仍待验证。

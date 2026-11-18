@@ -21,7 +21,8 @@ D256 计数约 31.2 kHz，但 Timer Group 校准约 68.4 kHz，500 ms 定时浅�
 约 1.08 秒。原生层 `0231` 对齐两处速率。同一 D256 镜像在新后端同时通过
 原始 RTC 计数与独立 QMP 唤醒区间校验。默认慢钟旧、新结果保持通过。
 另复验了原版 All day watch 的 GPIO 浅睡与唤醒，以及旧探针的定时深睡。
-外部慢钟、物理振荡器和分频慢钟深睡仍未验证。[同固件对照](../tests/firmware/sticks3_rtc_slowclk/summary.json)
+外部慢钟和物理振荡器仍未验证。[同固件对照](../tests/firmware/sticks3_rtc_slowclk/summary.json)
+冻结 Device Service 1.94 另完成分频内部慢钟的两次独立定时深睡回放。每轮先定时唤醒两次，随后在同一会话经 HTTP 复位再完成两次。RTC 选择器在挂起期间读回 `2`，650 和 1,500 ms 请求的 QMP 样本最大值分别约 661 和 1,511 ms。RTC 数据和时间保留，数字域普通内存重新初始化。[深睡证据](https://github.com/m5agent/agent-work-logs/blob/122ba36b10b565de62db2fc089beb00943b45dc5/records/esp-emulator/2026-11-18-sticks3-rtc-deep-sleep/followups/2026-11-18-sticks3-d256-deep-sleep/README.md)
 
 ## 2026-11-18 Tab5 原版音乐保存快照复审
 
