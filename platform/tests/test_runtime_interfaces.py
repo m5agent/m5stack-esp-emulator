@@ -96,7 +96,8 @@ class RuntimeInterfaceTests(unittest.TestCase):
             {"m5stackchan"},
         )
         tab5 = self.payload["devices"]["tab5"]
-        self.assertEqual(len(tab5["external"]), 5)
+        self.assertEqual(len(tab5["external"]), 6)
+        self.assertEqual(tab5["case_models"]["tab5-sdmmc-slot0"], ["sd-card"])
         self.assertEqual(tab5["case_models"]["tab5-st7123"], ["touch-st7123"])
         self.assertEqual(tab5["case_models"]["tab5-st7123-power-latch"], ["tab5-standby-latch"])
         self.assertIn(
