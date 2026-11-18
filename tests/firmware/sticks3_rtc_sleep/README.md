@@ -104,4 +104,12 @@ GPIO12 的低电平唤醒和定时唤醒均通过 ESP-IDF API 启用。同一来
 观察到旧 2 秒定时器提前唤醒第三轮、唤醒源不符、重启或缺少
 `RTC_MIXED_PASS` 均不通过。保留来宾串口、主机等待时长、B 键输入与同会话 ZIP。
 
+在另一个构建目录为混合模式同时加 `-D M5_RTC_MIXED_REJECT=ON`，检查 GPIO 与
+定时器共同启用且 B 已按住时的请求拒绝。第二轮 GPIO 唤醒后保持 B 键，直到
+`RTC_MIXED_REJECT_PASS`。探针在低电平期间请求新的 1.4 秒定时睡眠，验证
+`ESP_ERR_SLEEP_REJECT`、实际 RTC GPIO 拒绝原因、SDK 清除的中断状态及拒绝原因
+W1C 读回。短暂继续按住 B，第三轮应在释放后才启动，且在两条旧定时器到期前
+启动，并完整等待新的 3 秒。`RTC_MIXED_REJECT_DEADLINE` 记录被拒绝请求与第三轮
+的起点间隔。用独立主机时间和同一会话串口核对按键顺序与唤醒结果。
+
 [ESP-IDF 来宾观测](rtc-light-sleep-fixture.summary.json)保存定时基线、旧版 GPIO 失败、中间候选及最终唤醒和拒绝结果。

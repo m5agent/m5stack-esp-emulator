@@ -11,6 +11,10 @@
 #include "freertos/task.h"
 #include "soc/rtc.h"
 
+#ifdef M5_RTC_MIXED_REJECT
+#include "soc/rtc_cntl_reg.h"
+#endif
+
 static const gpio_num_t button_b = GPIO_NUM_12;
 static const uint64_t cancelled_timer_us = 2000000;
 
@@ -18,6 +22,51 @@ typedef struct {
     uint64_t start_ticks;
     uint32_t slowclk_period;
 } sleep_observation_t;
+
+#ifdef M5_RTC_MIXED_REJECT
+static const uint64_t rejected_timer_us = 1400000;
+
+static bool verify_mixed_reject(sleep_observation_t *observation)
+{
+    int level = gpio_get_level(button_b);
+    uint32_t before = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(rejected_timer_us));
+    uint64_t start_ticks = rtc_time_get();
+    printf("RTC_MIXED_REJECT_ENTER requested_us=%" PRIu64 " b_level=%d before_cause=0x%" PRIx32
+           " start_ticks=%" PRIu64 "\n", rejected_timer_us, level, before, start_ticks);
+    fflush(stdout);
+    if (level != 0 || before != 0) {
+        printf("RTC_MIXED_FAIL step=2 phase=reject_precondition\n");
+        fflush(stdout);
+        return false;
+    }
+
+    esp_err_t status = esp_light_sleep_start();
+    uint64_t end_ticks = rtc_time_get();
+    uint32_t slowclk_period = esp_clk_slowclk_cal_get();
+    uint32_t cause = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    uint32_t raw = REG_READ(RTC_CNTL_INT_RAW_REG) &
+                   (RTC_CNTL_SLP_REJECT_INT_RAW | RTC_CNTL_SLP_WAKEUP_INT_RAW);
+    level = gpio_get_level(button_b);
+    printf("RTC_MIXED_REJECT_RETURN status=%d cause=0x%" PRIx32 " sleep_raw=0x%" PRIx32 " b_level=%d"
+           " end_ticks=%" PRIu64 " slowclk_period=%" PRIu32 "\n", status, cause, raw, level, end_ticks, slowclk_period);
+    REG_SET_BIT(RTC_CNTL_STATE0_REG, RTC_CNTL_SLP_REJECT_CAUSE_CLR);
+    uint32_t after = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    printf("RTC_MIXED_REJECT_CLEAR cause=0x%" PRIx32 "\n", after);
+    uint64_t rejected_elapsed_us = end_ticks >= start_ticks ?
+        rtc_time_slowclk_to_us(end_ticks - start_ticks, slowclk_period) : UINT64_MAX;
+    if (status != ESP_ERR_SLEEP_REJECT || cause != RTC_GPIO_TRIG_EN || raw != 0 || level != 0 ||
+        after != 0 || slowclk_period == 0 || rejected_elapsed_us >= 500000) {
+        printf("RTC_MIXED_FAIL step=2 phase=reject_return\n");
+        fflush(stdout);
+        return false;
+    }
+    *observation = (sleep_observation_t){.start_ticks = start_ticks, .slowclk_period = slowclk_period};
+    printf("RTC_MIXED_REJECT_PASS elapsed_us=%" PRIu64 "\n", rejected_elapsed_us);
+    fflush(stdout);
+    return true;
+}
+#endif
 
 static bool sleep_with_gpio_and_timer(unsigned step, uint64_t requested_us,
                                       esp_sleep_wakeup_cause_t expected,
@@ -101,8 +150,16 @@ void app_main(void)
     sleep_observation_t cancelled;
     sleep_observation_t followup;
     if (!sleep_with_gpio_and_timer(1, 120000, ESP_SLEEP_WAKEUP_TIMER, NULL) ||
-        !sleep_with_gpio_and_timer(2, cancelled_timer_us, ESP_SLEEP_WAKEUP_GPIO, &cancelled) ||
-        !wait_for_b_release() ||
+        !sleep_with_gpio_and_timer(2, cancelled_timer_us, ESP_SLEEP_WAKEUP_GPIO, &cancelled)) {
+        return;
+    }
+#ifdef M5_RTC_MIXED_REJECT
+    sleep_observation_t rejected;
+    if (!verify_mixed_reject(&rejected)) {
+        return;
+    }
+#endif
+    if (!wait_for_b_release() ||
         !sleep_with_gpio_and_timer(3, 3000000, ESP_SLEEP_WAKEUP_TIMER, &followup)) {
         return;
     }
@@ -114,6 +171,16 @@ void app_main(void)
         fflush(stdout);
         return;
     }
+#ifdef M5_RTC_MIXED_REJECT
+    uint64_t reject_gap_us = followup.start_ticks > rejected.start_ticks ?
+        rtc_time_slowclk_to_us(followup.start_ticks - rejected.start_ticks, rejected.slowclk_period) : 0;
+    if (reject_gap_us == 0 || reject_gap_us > rejected_timer_us - 50000) {
+        printf("RTC_MIXED_FAIL step=3 phase=rejected_timer_setup gap_us=%" PRIu64 "\n", reject_gap_us);
+        fflush(stdout);
+        return;
+    }
+    printf("RTC_MIXED_REJECT_DEADLINE old_timer_us=%" PRIu64 " gap_us=%" PRIu64 "\n", rejected_timer_us, reject_gap_us);
+#endif
     printf("RTC_MIXED_PASS old_timer_us=%" PRIu64 " gap_us=%" PRIu64 "\n", cancelled_timer_us, gap_us);
     fflush(stdout);
 }
