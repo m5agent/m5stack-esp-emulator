@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "issue": 188,
+  "validation": "virtual-device validation",
+  "scope": "Isolated HTTP Device Service with original firmware and native ESP32-P4/C6 1.1.0, no change to DSI response.",
+  "service_base_source_commit": "174c6d42048bf12f315e8b572948f17638d0bb77",
+  "device_service_openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "isolated_admission_file_sha256": "034986a5ee71a1bce19176056a7b4a711d5a42345e6673dd3a4083e0812c42ff",
+  "isolated_service_change": "Substituted only exact two candidate Part digests in temporary source copy. Part size ceiling retained.",
+  "part_source_commit": "bdf4588f8f15236185a07d4efe4d0b3e91c8a54a",
+  "part_model_source_sha256": "51d01639dff1f8e70e157e4a19282d12eb64920b856ab073f7354e62a84e4fb7",
+  "rust_toolchain": "1.88.0",
+  "rust_tests": {
+    "gt911": 3,
+    "st7123": 5
+  },
+  "bmi270_config": {
+    "standard_bosch_revision": "41129fcfe39c583ee5462d79195741945d51c1fe",
+    "sha256": "2d75e68e343a13ff99be98261dfbd99d9e8c6f267da9e3c5aeb883276ad178db",
+    "bytes": 8192,
+    "guest_provided": true,
+    "blob_vendored": false,
+    "initialization_status_register": "0x21"
+  },
+  "part_abi_buffer_bytes": 16384,
+  "unchanged_part_size_ceiling": 147456,
+  "part_artifacts": {
+    "gt911": {
+      "bytes": 118355,
+      "sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286"
+    },
+    "st7123": {
+      "bytes": 130425,
+      "sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3"
+    }
+  },
+  "runtime": "esp-emu 1.1.0 native qemu/DSI",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+  "efuse_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+  "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+  "runs": {
+    "stock_st7123": {
+      "board": "st7123",
+      "original_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+      "original_size": 16121856,
+      "normalized_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+      "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+      "part_size": 130425,
+      "observed_seconds": 15.83,
+      "latest_bmi_state": {
+        "bmi270_config_bytes": 8192,
+        "bmi270_init_status": 1,
+        "bmi270_status_reads": 1
+      },
+      "serial": {
+        "bytes": 436,
+        "sha256": "6d3a4e6c5d0bfb860fa35b10efdbc1a1dd214895079a9c2719227c6d1aac04e9",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "diagnostics": {
+        "buffer_fatal_reports": 0,
+        "dsi_zero_read_warnings": 0,
+        "gt_panel_not_detected_reports": 0,
+        "st_panel_detected_reports": 0,
+        "dsi_dma_scanout_markers": 0
+      },
+      "frame_errors": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 2
+      },
+      "valid_nonblack_frames": 9,
+      "evidence_zip_sha256": "dc73861ebfe3ca0a33e29eaa988b22d7beaf6966fc6a62a98b34a5e7faf6d86e",
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "runtime_roles_verified": true,
+      "application_bytes_unchanged": true,
+      "owned_service_exited": true,
+      "evidence_zip_crc_and_manifest_valid": true,
+      "input_actions": 1,
+      "result": "PASS_OFFLINE_LAUNCHER_AND_I2C_SCAN_MENU",
+      "touch": {
+        "input": "touch",
+        "raw": [
+          83,
+          308
+        ],
+        "accepted": true,
+        "controller": "st7123",
+        "coordinate_space": "panel-native",
+        "controller_reports": {
+          "reports": 2,
+          "acknowledged": 2
+        },
+        "before_sha256": "317e615fcd80fa15a9f749aa166a91012a10dd0e0d2a67793869768d983eeb67"
+      },
+      "after_frame": {
+        "frame_sha256": "9963d5edcd9f6fccd58f7daf4709092bc234ef2064946d8f604f4f103513fb41",
+        "change_bounds": [
+          137,
+          120,
+          675,
+          1270
+        ],
+        "dimensions": [
+          720,
+          1280
+        ],
+        "unique_colors": 989
+      },
+      "after_frame_exactly_present_in_zip": false,
+      "guest_touch_receipt_matched_persisted_event": true,
+      "semantic_change": "UIFlow2 v2.5.4 offline launcher to I2C Scan menu with address grid and scan button; visually confirmed.",
+      "scan_button_pressed": false
+    },
+    "arduventure_st7123": {
+      "board": "st7123",
+      "original_sha256": "e2f228813b719b81c47a8deaa7576f1b83e61e950c6178c5cf570bfaca7b8616",
+      "original_size": 623152,
+      "normalized_sha256": "0922e46d70edc11d285fd3d4023a18f061d4d95fd8e7a1729e00702cc3dba063",
+      "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+      "part_size": 130425,
+      "observed_seconds": 6.287,
+      "latest_bmi_state": {
+        "bmi270_config_bytes": 0,
+        "bmi270_init_status": 0,
+        "bmi270_status_reads": 0
+      },
+      "serial": {
+        "bytes": 4273,
+        "sha256": "6d6bdb820a3abbe63f67caeb4deb329813774cceefd61502b718f421c8a7174a",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "diagnostics": {
+        "buffer_fatal_reports": 0,
+        "dsi_zero_read_warnings": 0,
+        "gt_panel_not_detected_reports": 0,
+        "st_panel_detected_reports": 1,
+        "dsi_dma_scanout_markers": 1
+      },
+      "frame_errors": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 1
+      },
+      "valid_nonblack_frames": 6,
+      "evidence_zip_sha256": "37db4546d83f5e76af56b47e774edacfce6cd21202af235ef644aafb9653e97b",
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "runtime_roles_verified": true,
+      "application_bytes_unchanged": true,
+      "owned_service_exited": true,
+      "evidence_zip_crc_and_manifest_valid": true,
+      "input_actions": 1,
+      "result": "PASS_NATIVE_SPEED_CONTROL_1X_TO_2X",
+      "touch": {
+        "input": "touch",
+        "raw": [
+          358,
+          548
+        ],
+        "accepted": true,
+        "controller": "st7123",
+        "coordinate_space": "panel-native",
+        "controller_reports": {
+          "reports": 2,
+          "acknowledged": 2
+        },
+        "before_sha256": "b132be51149e62583817538364084b4f31f31f16b54e9f8c89313dd861bc4348",
+        "before_speed_roi_sha256": "87ec6124e34b878a4551ddef9f8672308efb4aace5ecabc2c9053ab9a897216c",
+        "after_speed_roi_sha256": "9cace6a30775d3daf70c114afe8f728431a97341471a0cff1fec67a8171a5548"
+      },
+      "after_frame": {
+        "frame_sha256": "77d55abdf419e4d5b33bebf8062fcadde861a4f069ef8ee053ab468a6e47af92",
+        "change_bounds": [
+          261,
+          521,
+          459,
+          583
+        ],
+        "dimensions": [
+          720,
+          1280
+        ],
+        "unique_colors": 2
+      },
+      "after_frame_exactly_present_in_zip": false,
+      "guest_touch_receipt_matched_persisted_event": true
+    },
+    "carplay_gt911": {
+      "board": "gt911-ili9881c",
+      "original_sha256": "4f3bb118a5570a6ba885a234fce55b66e28ef26091cfe4f3f2e4c33711471ea3",
+      "original_size": 2221360,
+      "normalized_sha256": "ff578ccc3f4f93a6f431eff0809b1e46bfb3951101c81bc676774d3f3a36387b",
+      "part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+      "part_size": 118355,
+      "observed_seconds": 8.359,
+      "latest_bmi_state": {
+        "bmi270_config_bytes": 0,
+        "bmi270_init_status": 0,
+        "bmi270_status_reads": 0
+      },
+      "serial": {
+        "bytes": 4151,
+        "sha256": "171d673458bbf4204ffbc41a1cb7f7e98cfed781f6b73ec0e1bdcd5e0d9757d3",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "diagnostics": {
+        "buffer_fatal_reports": 0,
+        "dsi_zero_read_warnings": 1,
+        "gt_panel_not_detected_reports": 0,
+        "st_panel_detected_reports": 0,
+        "dsi_dma_scanout_markers": 0
+      },
+      "frame_errors": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 1
+      },
+      "valid_nonblack_frames": 7,
+      "evidence_zip_sha256": "ba2bc5503ebd11c2460c76e0536471ff2484f7c2389f2ab26a200a85d37157ae",
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "runtime_roles_verified": true,
+      "application_bytes_unchanged": true,
+      "owned_service_exited": true,
+      "evidence_zip_crc_and_manifest_valid": true,
+      "input_actions": 1,
+      "result": "PASS_NATIVE_OFFLINE_CONFIRMATION_MODAL",
+      "touch": {
+        "input": "touch",
+        "raw": [
+          640,
+          160
+        ],
+        "accepted": true,
+        "controller": "gt911",
+        "coordinate_space": "panel-native",
+        "controller_reports": {
+          "reports": 13,
+          "acknowledged": 13
+        },
+        "before_sha256": "b9caf8f325d9b9ec1ee5d7ae3b49f3c709d584b0a5dce54d2ffd2fc62708f767"
+      },
+      "after_frame": {
+        "frame_sha256": "bf357f04e40dc9cb76f7e34df7b94a45a89f97da7df26f813fac35577103eed3",
+        "change_bounds": [
+          49,
+          48,
+          689,
+          1232
+        ],
+        "dimensions": [
+          720,
+          1280
+        ],
+        "unique_colors": 71
+      },
+      "after_frame_exactly_present_in_zip": true,
+      "guest_touch_receipt_matched_persisted_event": true,
+      "modal_confirmed": false
+    },
+    "stock_gt911": {
+      "board": "gt911-ili9881c",
+      "original_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+      "original_size": 16121856,
+      "normalized_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+      "part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+      "part_size": 118355,
+      "observed_seconds": 18.01,
+      "latest_bmi_state": {
+        "bmi270_config_bytes": 8192,
+        "bmi270_init_status": 1,
+        "bmi270_status_reads": 1
+      },
+      "serial": {
+        "bytes": 406,
+        "sha256": "6e050172021b16359af90700fd2206b7ad87a98be65fdb3427f347c25872a64e",
+        "boot_banners": 1,
+        "sw_cpu_resets": 0,
+        "csr_0x346_value_hits": 0,
+        "panic": 0,
+        "micropython_banner": false,
+        "uiflow2_serial_marker": false,
+        "usb_identity_asserts": 0
+      },
+      "diagnostics": {
+        "buffer_fatal_reports": 0,
+        "dsi_zero_read_warnings": 1,
+        "gt_panel_not_detected_reports": 1,
+        "st_panel_detected_reports": 0,
+        "dsi_dma_scanout_markers": 0
+      },
+      "frame_errors": {
+        "session_not_running": 1,
+        "tab5_dsi_frame_unavailable": 14
+      },
+      "valid_nonblack_frames": 0,
+      "evidence_zip_sha256": "b69f45dda69713d32cd5da1c886d35dddee3cfcfacc9ec90447e7ad53b0dae5f",
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      },
+      "runtime_roles_verified": true,
+      "application_bytes_unchanged": true,
+      "owned_service_exited": true,
+      "evidence_zip_crc_and_manifest_valid": true,
+      "input_actions": 0,
+      "result": "PARTIAL_BMI270_INITIALIZED_PANEL_IDENTIFICATION_GAP"
+    }
+  },
+  "earlier_attempts": {
+    "stock_st7123_part_v1": {
+      "result": "FAIL_BMI270_INIT_STATUS",
+      "reason": "mistyped model digest",
+      "part_source_commit": "4069a991d6f0f7be8c5af0c760cc34482fc36cd8",
+      "observed": {
+        "bmi270_config_bytes": 8192,
+        "bmi270_init_status": 2,
+        "bmi270_status_reads": 1
+      },
+      "evidence_zip_sha256": "49fbfb66720740ce8c8bfb8114cdfec97760122329e0e08ad3a5519b3f4c7512",
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      }
+    },
+    "carplay_gt911_v2_first_harness": {
+      "result": "HARNESS_ORACLE_FAILED_AFTER_REAL_TOUCH",
+      "reason": "ST7123 exact two-report expectation applied to GT911; persisted real GT911 reports reconciled",
+      "actual_reports": {
+        "reports": 13,
+        "acknowledged": 13
+      },
+      "cleanup": {
+        "session_terminal": "stopped",
+        "flash_released": true,
+        "active_leases": 0,
+        "no_remaining_owned_guest_children": true
+      }
+    }
+  },
+  "physical_hardware": "NOT RUN",
+  "browser": "NOT RUN",
+  "internet_connectivity": "NOT RUN",
+  "cloud_pairing": "NOT RUN",
+  "sensor_motion_and_config_program_execution": "NOT MODELED",
+  "burner": "NOT SUBMITTED"
+}

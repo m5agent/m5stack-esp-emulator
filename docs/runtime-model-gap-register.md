@@ -189,7 +189,7 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 没有完整画面或 MicroPython，早期 CSR 异常也没有出现。后续隔离候选直接核对寄存器 `0x5e` 写入的 8,192 字节与原版配置相同。
 在候选缓冲区和有限配置初始化模型下，ST7123 取得原版离线主页，GT911
 读回初始化状态后仍未检测到面板。当前官方 DSI 读取返回零，未发现可由 DSI
-接收端注入真实读回的通道。普通触摸、网络和正式 Part 版本仍待验收。
+接收端注入真实读回的通道。正式的共享 BMI270 模型通过同一路径，原版 ST7123 的点击从离线主页进入 I²C Scan。继续验证 GT911 原版面板读回、网络和配对。[四个原版对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json)
 [配置拒绝及原版接收对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)
 
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考

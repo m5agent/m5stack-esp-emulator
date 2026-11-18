@@ -1,0 +1,108 @@
+{
+  "source_commit": "f7f6b53eed43257b21d9bec291088c8c5e2648f6",
+  "source_files_sha256": {
+    "platform/tools/serve.py": "71fec02eaa4597de86d993339fb34f46f57c4aaeca299d7c5c4f67787c4a64d1",
+    "platform/tools/device_service.py": "d1c226c4bc6587d735ce9c2edf1395a99086efffd7cdf4ba4e9e3a190e30eb22",
+    "platform/tools/device_service_tab5_dsi.py": "e2147da545306c2375ef9fe7e34770bd07e9d6ae30fbcde318886b3d7a17df93",
+    "docs/device-service.openapi.yaml": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+    "tests/uiflow2/device_matrix.json": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321"
+  },
+  "part_source_commit": "bdf4588f8f15236185a07d4efe4d0b3e91c8a54a",
+  "part_size": 130425,
+  "part_sha256": "6ecac188e0ebd7659b6af627c3f1fcf9c5143e2f36b5f9a4b8cb187468de14f3",
+  "part_buffer_bytes": 16384,
+  "runtime": "esp-emu 1.1.0 native qemu/DSI",
+  "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "rom_sha256": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+  "efuse_sha256": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+  "c6_firmware_sha256": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554",
+  "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "original_sha256": "94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37",
+  "original_size": 16121856,
+  "normalized_sha256": "507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7",
+  "returned_capabilities": {
+    "touch_model": "esp-emu-st7123",
+    "touch_hold_supported": true,
+    "touch_drag_supported": true,
+    "power_model": "esp-emu-tab5-standby-latch",
+    "touch_coordinate_space": "panel-native"
+  },
+  "latest_bmi_state": {
+    "bmi270_config_bytes": 8192,
+    "bmi270_init_status": 1,
+    "bmi270_status_reads": 1
+  },
+  "touch": {
+    "input": "touch",
+    "raw": [
+      83,
+      308
+    ],
+    "accepted": true,
+    "controller": "st7123",
+    "coordinate_space": "panel-native",
+    "controller_reports": {
+      "reports": 2,
+      "acknowledged": 2
+    },
+    "before_sha256": "317e615fcd80fa15a9f749aa166a91012a10dd0e0d2a67793869768d983eeb67"
+  },
+  "candidate_touch_frame": {
+    "frame_sha256": "9963d5edcd9f6fccd58f7daf4709092bc234ef2064946d8f604f4f103513fb41",
+    "change_bounds": [
+      137,
+      120,
+      675,
+      1270
+    ],
+    "dimensions": [
+      720,
+      1280
+    ],
+    "unique_colors": 989
+  },
+  "serial": {
+    "bytes": 436,
+    "sha256": "496ab21826313f5502bb6e3c98dce0c32795016c7fb0fdd23e54535b25bdfe11",
+    "boot_banners": 1,
+    "sw_cpu_resets": 0,
+    "csr_0x346_value_hits": 0,
+    "panic": 0,
+    "micropython_banner": false,
+    "uiflow2_serial_marker": false,
+    "usb_identity_asserts": 0
+  },
+  "observed_seconds": 15.936,
+  "valid_nonblack_frames": 9,
+  "input_actions": 1,
+  "evidence_zip_sha256": "0b6ddcde7fc8cc33a1940980305a4c3ab450c29cbd9bc4fb79c4bf0c88008a2a",
+  "cleanup": {
+    "session_terminal": "stopped",
+    "flash_released": true,
+    "active_leases": 0,
+    "no_remaining_owned_guest_children": true
+  },
+  "schema_version": 1,
+  "issue": 188,
+  "validation": "virtual-device validation",
+  "status": "PASS_OFFLINE_LAUNCHER_AND_I2C_SCAN_MENU",
+  "scope": "Unmodified tracked source from exact git archive. Pinned local runtime assets and both Parts, isolated native Device Service with explicit ST7123 admission of the exact original.",
+  "isolated_board_config_sha256": "7c4542d1a4d5c7eb520a595629a18a61731d917561ea0957faaf6f2e9d7fb610",
+  "application_bytes_unchanged": true,
+  "no_symbols": true,
+  "exact_full_binary_readback": true,
+  "part_report_matched_persisted_history": true,
+  "evidence_crc_and_manifest_valid": true,
+  "owned_service_exited": true,
+  "semantic_transition": "Offline UIFlow2 v2.5.4 launcher to I2C Scan menu with address grid and scan button.",
+  "hold_drag_power": "Capability metadata and actual staged board configuration verified; hold, drag and shutdown not exercised in this replay.",
+  "earlier_setup_attempt": {
+    "status": "NO_GUEST_REFERENCE_ASSET_MISSING",
+    "service_cleaned": true
+  },
+  "cloud_pairing": "NOT RUN",
+  "internet_connectivity": "NOT RUN",
+  "physical_hardware": "NOT RUN",
+  "browser": "NOT RUN",
+  "burner": "NOT SUBMITTED"
+}

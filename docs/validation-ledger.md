@@ -31,6 +31,16 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 与历史横屏 PNG 字节相同。实际 PN532 读卡和实体测试未执行。
 [精确原版与首故障证据](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)
 
+## 2026-11-18 Tab5 原版 BMI270 正式 Part 与离线交互
+
+新的 GT911 和 ST7123 模块在同一官方 1.1.0 后端完成原版标准配置写入
+和来宾状态读回。原版 UIFlow2 v2.5.4 在 ST7123 可从离线主页进入
+I²C Scan。Arduventure 的速度 1× 到 2× 与 CarPlay 的原版菜单各有同
+会话的控制器回读和帧证据。原版 UIFlow2 的 GT911 配置仍未检测到面板。
+真机、联网和云端配对未执行，Burner 提交为零。
+[两个 Part 与四条原版记录](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json) ·
+[从最终服务源码归档复验](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-service-summary.json)
+
 ## 2026-11-18 Tab5 原版 BMI270 配置及 ST7123 离线主页
 
 两款诊断 Part 通过实际 I²C 路径收到原版从 `0x5e` 发来的完整配置。
