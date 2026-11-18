@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.90.0` and bounded
+Status: local MVP with unified-device runtime contract `1.91.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2661,18 +2661,20 @@ leaves the session-owned image available for reinsertion or stopped export.
 The session cannot swap to a different image at runtime.
 
 `GET /sessions/{id}/storage/sd/write-stamp` samples the metadata of an attached
-writable SPI SD image on native QEMU when the device reports
-`fixtures.sd.write_stamp: true`. This includes Cardputer, Cardputer ADV and
-PaperDIY with the native hot-plug model. It requires `storage.read` under a
-runtime ACL. The response binds a decimal nanosecond modification stamp
-to the session, composed firmware,
-source SD artifact and opaque media identity. A regular file, the expected
-size and a running guest are required. An ejected PaperDIY card returns
-`409 sd_media_ejected`. Each validated PaperDIY presence command invalidates
-the prior media identity, including reinsertion of the same image. Compare a
-quiet baseline and a post-input sample with the same media identity to observe flushed writes
-in an input window. The stamp does not count blocks, identify file contents
-or distinguish independent writes in that window.
+writable native SD image when the device reports `fixtures.sd.write_stamp: true`.
+This covers SPI on Cardputer, Cardputer ADV and PaperDIY with the native
+hot-plug model, and SDMMC on admitted Tab5 esp-emu sessions. It requires
+`storage.read` under a runtime ACL. The response binds a decimal nanosecond
+modification stamp to the session, composed firmware, source SD artifact and
+opaque media identity. A regular file, the expected size and a running guest
+are required. An ejected PaperDIY card returns `409 sd_media_ejected`. A
+PaperDIY presence command or Tab5 API reset invalidates the prior media
+identity, including when it preserves the same image.
+
+Compare a quiet baseline and a post-input sample with the same media identity
+to observe flushed writes during that interval. The stamp includes background
+writes. To attribute a write to an action, check guest output and, where
+applicable, the stopped image's FAT inventory. Read counters are separate.
 
 `GET /sessions/{id}/storage/sd/read-stats` samples the native SPI SD controller
 on Cardputer and Cardputer ADV with the plain `qemu` runtime. It requires
@@ -3165,7 +3167,7 @@ and controller. Firmware behavior requires a session and the matching evidence.
 | POST | `/api/v1/sessions/{id}/flash-snapshot` | Store a virtual flash snapshot |
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | GET | `/api/v1/sessions/{id}/storage/sd` | Inventory retained SD after the guest stops |
-| GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to an attached SPI SD image on a supported native QEMU guest |
+| GET | `/api/v1/sessions/{id}/storage/sd/write-stamp` | Sample writes to an attached native SPI or Tab5 SDMMC image when the device advertises write stamps |
 | GET | `/api/v1/sessions/{id}/storage/sd/read-stats` | Sample accepted read commands and complete read blocks on native Cardputer or Cardputer ADV |
 | POST | `/api/v1/sessions/{id}/storage/sd/export` | Export retained SD to a reusable media artifact |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |

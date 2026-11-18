@@ -141,7 +141,7 @@ class Tab5ServiceTests(unittest.TestCase):
         self.assertIsNone(identity["elf_sha256"])
         self.assertNotIn("--elf", self.launch_commands(session)[1])
 
-    def launch_commands(self, session):
+    def launch_commands(self, session, launch=None):
         commands = []
         def spawn(command, **kwargs):
             commands.append(command)
@@ -150,7 +150,7 @@ class Tab5ServiceTests(unittest.TestCase):
                 mock.patch.object(service_module, "wait_for_fs_path"), \
                 mock.patch.object(service_module, "wait_for_tcp_port"), \
                 mock.patch.object(service_module, "free_tcp_port", return_value=12345):
-            session._launch_tab5()
+            (launch or session._launch_tab5)()
         return commands
 
     def test_launch_uses_owned_seed_and_matching_elf_snapshot(self):
@@ -472,6 +472,47 @@ class Tab5ServiceTests(unittest.TestCase):
             self.assertEqual((ejected.exception.status, ejected.exception.code), (409, "sd_hotplug_not_supported"))
             self.assertEqual(self.service.worker_status()["active_lease_count"], 0)
             start.assert_not_called()
+
+    def test_native_sd_write_stamp_requires_a_live_owned_p4_and_rotates_on_reset(self):
+        self.elf.write_bytes(b"unrelated reference ELF")
+        backend = self.root / "qualified-esp-emu"
+        self.service.tab5_dsi_emulator = str(backend)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+        seed = b"S" * (512 * 1024)
+        artifact = self.service.upload_artifact(seed)["artifact_id"]
+        session = self.session(storage_config={"interface": "sdmmc", "sd_image_artifact_id": artifact})
+        with (
+            mock.patch.object(service_module, "tab5_dsi_runtime", return_value=backend),
+            mock.patch.object(service_module, "Tab5DsiReceiver"),
+            mock.patch.object(type(self.spec), "backend_ready", new_callable=mock.PropertyMock, return_value=True),
+        ):
+            self.provision(session)
+            self.assertEqual(
+                self.service.get_device_capabilities("tab5")["fixtures"]["sd"],
+                {"admission": "eligible", "interface": "sdmmc", "write_stamp": True},
+            )
+            with self.assertRaises(service_module.ServiceError) as missing_process:
+                session.sd_write_stamp()
+            self.assertEqual(missing_process.exception.code, "sd_session_not_running")
+            self.launch_commands(session)
+            before = session.sd_write_stamp()
+            self.assertEqual(session.sd_write_stamp(), before)
+            self.assertEqual(before["source_artifact_id"], artifact)
+            self.assertEqual(before["firmware_sha256"], self.image_sha)
+            self.assertEqual(before["session_id"], session.id)
+
+            real_launch = session._launch_tab5
+            # Keep the same mocked PID so the generation check can also catch PID reuse.
+            with mock.patch.object(session, "_launch_tab5", side_effect=lambda: self.launch_commands(session, real_launch)):
+                session.reset()
+            after = session.sd_write_stamp()
+            self.assertEqual(after["modified_ns"], before["modified_ns"])
+            self.assertNotEqual(after["media_id"], before["media_id"])
+            session._proc.poll.return_value = 1
+            with self.assertRaises(service_module.ServiceError) as exited:
+                session.sd_write_stamp()
+            self.assertEqual(exited.exception.code, "sd_session_not_running")
 
     def test_tab5_public_qemu_selection_rejects_shared_frame_cache(self):
         session = self.session()

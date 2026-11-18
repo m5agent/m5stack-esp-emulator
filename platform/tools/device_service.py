@@ -8400,23 +8400,32 @@ class DeviceSession:
             self._lifecycle_lock.release()
 
     def sd_write_stamp(self) -> dict:
-        """Observe flushed writes to an owned, running guest's SPI SD image."""
+        """Observe flushed writes to an owned, running guest's SD image."""
         self._require_runtime_permission("storage.read")
         if not self._lifecycle_lock.acquire(blocking=False):
             raise ServiceError("sd_session_busy", "session lifecycle operation is in progress", 409)
         try:
             storage = self.storage_info or {}
+            native_tab5 = (
+                self.spec.service_kind == "tab5" and storage.get("interface") == "sdmmc"
+                and (self.flash_info or {}).get("tab5", {}).get("runtime_sha256") == TAB5_DSI_RUNTIME_SHA256
+            )
+            spi = self.spec.has_sd_write_stamp and storage.get("interface") == "spi"
             if (
                 self.runtime != "qemu"
-                or not self.spec.has_sd_write_stamp
-                or storage.get("interface") != "spi"
+                or not (spi or native_tab5)
                 or storage.get("session_isolated_copy") is not True
                 or storage.get("writable") is not True
             ):
-                raise ServiceError("sd_write_stamp_unsupported", "a supported session-owned SPI SD fixture is required", 409)
+                raise ServiceError("sd_write_stamp_unsupported", "a supported session-owned SD fixture is required", 409)
             with self._lock:
                 generation = self._frame_generation()
-                if generation[0] != "running" or generation[1] or not self._process_identity_matches():
+                # Native Tab5 owns the esp-emu child directly and has no QMP socket.
+                live = (
+                    self._proc is not None and self._proc.pid == self.pid and self._proc.poll() is None
+                    if native_tab5 else self._process_identity_matches()
+                )
+                if generation[0] != "running" or generation[1] or not live:
                     raise ServiceError("sd_session_not_running", "a live guest is required for an SD write stamp", 409)
                 if self.spec.id == "paperdiy":
                     present = self.qom_get("/machine/et047tc1", "sd-card-present")["value"]
@@ -10488,6 +10497,7 @@ class Tab5DeviceSession(DeviceSession):
                 with self._lock:
                     self._set_state("booting")
                     if self._tab5_dsi_emulator is not None:
+                        self._frame_epoch += 1
                         self._close_dsi_receiver()
                         self.last_frame_path.unlink(missing_ok=True)
                         self.last_frame_meta_path.unlink(missing_ok=True)
@@ -11235,7 +11245,7 @@ class DeviceService:
         sd = {"admission": "unsupported"}
         if spec.supported and spec.service_kind == "tab5" and self.tab5_dsi_firmware_sha256s:
             if ready and self._tab5_sd_worker_ready():
-                sd = {"admission": "eligible", "interface": "sdmmc"}
+                sd = {"admission": "eligible", "interface": "sdmmc", "write_stamp": True}
             elif self.tab5_dsi_emulator:
                 sd = {"admission": "backend_unavailable"}
         elif spec.supported and spec.service_kind == "qemu":

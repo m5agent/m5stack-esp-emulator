@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 保存快照复审的 SDMMC 写入
+
+ST7123 板型的 ESP-IDF 探针在保存快照复审中收到中心触摸和松手，通过
+SDMMC 写入并读回两个 FAT16 文件。复审记录了输入前的稳定时间戳、输入后的
+增量和停机后的文件哈希。Arduventure 1.0.0 原版接受触摸，卡镜像与时间戳
+保持不变。对旧 Device Service 的复审保留 SD 挂载，写入断言为 `NOT RUN`。
+零输入 API 复位轮换介质身份，卡镜像 inode、哈希和时间戳保持一致。
+[虚拟设备和收据](../tests/firmware/tab5_sdmmc_action/summary.json)
+
 ## 2026-11-18 Tab5 会话 SDMMC 槽位 0
 
 ESP-IDF 板级探针经原生 1.1.0 的 Device Service 挂载 FAT16，在来宾写入并读回

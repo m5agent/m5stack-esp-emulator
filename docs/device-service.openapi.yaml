@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.90.0
+  version: 1.91.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2172,14 +2172,17 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/storage/sd/write-stamp:
     get:
-      summary: Sample the write stamp of an attached native QEMU SPI SD fixture
+      summary: Sample the write stamp of an attached native SD fixture
       description: >-
         Requires storage.read when a runtime ACL is active. Returns metadata
-        for an attached session-owned SPI SD image when fixtures.sd.write_stamp
-        is true. PaperDIY returns sd_media_ejected while the slot is empty.
-        A PaperDIY presence command invalidates the prior media identity.
-        Compare stamps around an accepted action only when the media identity
-        is unchanged and the pre-action baseline is quiet.
+        for an attached session-owned SD image when fixtures.sd.write_stamp
+        is true. This covers supported native QEMU SPI fixtures and admitted
+        Tab5 esp-emu SDMMC fixtures. PaperDIY returns sd_media_ejected while the
+        slot is empty. A PaperDIY presence command or a Tab5 API reset
+        invalidates the prior media identity. Compare stamps around an
+        accepted action with the same media identity and a quiet pre-action
+        baseline. A stamp records flushed writes from any guest activity
+        during the sampled interval.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
@@ -4024,7 +4027,7 @@ components:
                   description: Present and true for PaperDIY with the native SD hot-plug model.
                 write_stamp:
                   type: boolean
-                  description: Present and true when this native SPI SD fixture supports live write stamps.
+                  description: Present and true when the native SD fixture supports live write stamps.
         components:
           type: array
           items:
