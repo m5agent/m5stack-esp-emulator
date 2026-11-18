@@ -61,6 +61,23 @@ Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由�
 本机仍通过 macOS Worker 提供服务，常驻 Linux 路由待验。Burner 未提交。
 [Python 3.9 回滚、精确 Linux 复验与本机 0.28 回读](https://github.com/m5agent/agent-work-logs/blob/679b5cbaa2ef1dccf17c2fea7b1477d3b9388235/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/README.md)。
 
+## 2026-11-19 macOS Reviewer 接入隔离 Linux 的 ADV 原版复审
+
+macOS 系统 Python 3.9.6 运行 Reviewer 0.28.0（`37d7675`），经仅绑定回环的
+认证 Virtio VSOCK 接入无网卡 Linux 来宾的 Device Service 1.99.1（`c9ec0f27`）。
+错误或缺失认证返回 401，超出试验路由或固件范围的请求返回 403。
+首轮在提交审核前因取证脚本的名称冲突中止，证据已保留。修订脚本在相同服务
+和原版 CardputerDict ADV 0.5.0 上执行两次标准保存快照干跑。
+
+放行轮返回 `done / SIM_VERIFIED`，通过可信 TLS 下载，取得 10,605 字节
+SD 缓存与 84,992 字节 I²S PCM。拒绝轮完成 DNS 和校时，目标 HTTPS
+端口不在许可范围内，返回 `E_CARDPUTER_PRONUNCIATION_POLICY_DENIED`，
+没有缓存或播放。两轮审核与 Device Service 的 ZIP 中 PCAP 和 PCM
+逐字节对照一致，宿主和来宾匹配两次校时与一次 TLS 事务。两轮租约归零，
+已核对可写 Flash、QEMU、网关、桥接监听和虚拟机释放。常驻路由仍为 macOS，
+Linux 持久卷和故障恢复需在实际部署中验证。Burner 未提交。
+[两次标准复审与跨系统证据](https://github.com/m5agent/agent-work-logs/blob/95ce5f45d12c7d8ba57bac2c25c340a2d401fc11/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/README.md)。
+
 ## 2026-11-19 Linux 控制器的持久卷独占
 
 在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷
@@ -106,6 +123,15 @@ NVS 仍与原版一致。1.99.1 `76e734f5` 在相同 esp-emu 1.1.0（`633a35f9`�
 `409 tab5_flash_save_failed`，没有拉起替代进程，终态 ZIP 和租约释放均已核验。
 本轮范围是已准入的原生 DSI 后端。联网、其他板型与真机待验。Burner 未提交。
 [原版设置、NVS 及正常停机证据](https://github.com/m5agent/agent-work-logs/blob/f304c67f0ba1c68bc3a92b3f103f5fede9d85034/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/README.md)。
+[强制终止 P4 的独立对照](https://github.com/m5agent/agent-work-logs/blob/b9837d1523dee11bf503a40c9845cfa59a6f6a06/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-tabos-p4-reset-save-fence/README.md)。
+
+### 本机常驻更新
+
+两个 Device Service 角色已更新至 `c9ec0f27`，均返回 HTTP 200 和精确的
+OpenAPI 1.99.1。两个实例分别保留 55 和 98 条会话历史。Reviewer 0.28
+重连 macOS 后端后恢复就绪，130 条审核历史及抽查证据保持一致。
+Tab5 原版的成功和异常路径来自独立原生会话。Burner 未提交。
+[切换回读及历史保留](https://github.com/m5agent/agent-work-logs/blob/a2a6f0696f4b14d8eebe5d1981d2bc920d15b515/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-resident-1991-tab5-retained-reset/README.md)。
 
 ## 2026-11-19 PaperColor 原版启动互斥锁断言
 
