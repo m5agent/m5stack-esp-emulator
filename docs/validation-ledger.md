@@ -14,6 +14,16 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 StickS3 原版 All day watch 数字 GPIO 浅睡
+
+同一原版 All day watch 0.3.8 在现有原生运行时的长按对照取得 IWDT 第 0 阶段，快速释放对照没有同类记录。
+独立寄存器观测确认原版将 GPIO11、GPIO12 设置为低电平唤醒，来宾 CPU1 发起 GPIO 浅睡请求后进入 RTC 完成轮询。
+最终候选经 B 键恢复，观察 65.098 秒，保留一个上电启动、出帧和零看门狗记录。
+独立 ESP-IDF 探针验证了无输入挂起、B 键唤醒、B 已按下时的拒绝和拒绝原因 W1C 清除。
+Device Service 1.87 在隔离服务中断后接回原挂起会话和 QEMU 进程，经语义 B 键唤醒，同一来宾仍为一次启动。
+同 SDK 的定时唤醒基线仍阻塞在 RTC 完成轮询。慢时钟跨睡眠耗时、深睡和真机继续开放。
+[复现条件与精确证据](../tests/firmware/sticks3_rtc_sleep/README.md)
+
 ## 2026-11-18 Cardputer 和 ADV 原生 STA 固定 POST 与 TCP
 
 同一个 ESP-IDF 探针在隔离 Linux namespace 的两款板型均通过固定 POST 和二进制 TCP。

@@ -41,6 +41,11 @@
       "test": "tests/uiflow2/unified_sticks3/run_test.py",
       "evidence": "tests/uiflow2/unified_sticks3/evidence-2026-10-23.json"
     },
+    "sticks3-rtc-gpio-light-sleep": {
+      "device": "sticks3",
+      "test": "tests/firmware/sticks3_rtc_sleep/main/gpio_wake.c",
+      "evidence": "tests/firmware/sticks3_rtc_sleep/rtc-light-sleep-fixture.summary.json"
+    },
     "cores3-unified": {
       "device": "cores3",
       "test": "tests/uiflow2/unified_cores3/run_test.py",
@@ -168,6 +173,9 @@
     }
   },
   "case_models": {
+    "sticks3-rtc-gpio-light-sleep": [
+      "gpio-button"
+    ],
     "sticks3-unified": [
       "m5pm1",
       "bmi270",
@@ -627,7 +635,8 @@
         "sticks3-ir-rx"
       ],
       "external": [
-        "sticks3-unified"
+        "sticks3-unified",
+        "sticks3-rtc-gpio-light-sleep"
       ],
       "models": [
         "m5pm1",
@@ -1139,7 +1148,8 @@
         "nesso-gpio-irq"
       ],
       "external": [
-        "paperdiy-et047-factory"
+        "paperdiy-et047-factory",
+        "sticks3-rtc-gpio-light-sleep"
       ]
     },
     "pwr-button": {

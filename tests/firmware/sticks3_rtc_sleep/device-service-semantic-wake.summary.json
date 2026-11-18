@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "observations": [
+    {
+      "case": "Device Service 1.87 semantic B click while suspended",
+      "scope": "original application on offline native virtual device",
+      "result": "PASS",
+      "device_service_source": "018e34048af6a062d01b9bf2960f425e04786414",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.327305,
+          "receipt_s_after_first_frame": 3.33034
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.366405,
+          "receipt_s_after_first_frame": 4.372979
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.452305,
+          "receipt_s_after_first_frame": 4.554292
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.729061,
+          "receipt_s_after_first_frame": 6.783963
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.088,
+      "watchdog_stage_zero_receipt": null,
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "0f5f7a7d02453f8eea768cf0e82a43b77fa50247c350f943325ede7d1d5b4112",
+      "bundle_bytes": 10724,
+      "serial_sha256": "66a5b285e8b43fe0c4c3bcf580e7393990dd4bbb523684f1e6bf1b6518d154e7",
+      "serial_bytes": 817,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4",
+      "device_service_version": "1.87.0",
+      "wake_input": {
+        "input": "button:b",
+        "action": "click",
+        "accepted": true,
+        "timing": {
+          "clock": "host",
+          "hold_seconds": 0.12,
+          "presses": 1,
+          "completion": "events_sent"
+        }
+      },
+      "wake_input_sha256": "012f2cf5bd79694246783186a06ba4dde8827b3b7aebb789b1d68831453eef7d"
+    }
+  ]
+}

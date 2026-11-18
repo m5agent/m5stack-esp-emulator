@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "service_version": "1.87.0",
+  "runtime": "native ESP32-S3 QEMU",
+  "network": "offline",
+  "status": "PASS",
+  "service_source": "018e34048af6a062d01b9bf2960f425e04786414",
+  "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+  "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+  "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "openapi_sha256": "32c89158fb1c4ac97c2210fff027dc1f845e19961472c99ee1b3bb1e07a02aba",
+  "flash_admission_emulator_sha256": "dea564e36990fcea727eb11e33c5430eccdfe673fc5462c0604e0001d25d84a0",
+  "initial_no_input_seconds": 5.005,
+  "same_guest_pid_and_identity": true,
+  "same_service_session": true,
+  "service_only_sigkill": true,
+  "reattached_qmp_state": "suspended",
+  "recovery_scope": "qemu-control-plane",
+  "worker_generations": [
+    1,
+    2
+  ],
+  "gpio12_released_readback": true,
+  "input": {
+    "kind": "button",
+    "control": "b",
+    "action": "click"
+  },
+  "input_timing": {
+    "clock": "host",
+    "hold_seconds": 0.12,
+    "presses": 1,
+    "completion": "events_sent"
+  },
+  "input_wall_seconds": 0.453,
+  "qmp_state_after_click": "running",
+  "serial_markers": [
+    "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+    "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1",
+    "RTC_GPIO_SLEEP_RETURN status=0 cause=7 b_level=0 elapsed_us=9858",
+    "RTC_GPIO_SLEEP_PASS"
+  ],
+  "rom_boot_count": 1,
+  "evidence_zip_sha256": "c2a92f2acc9012c2d0e9f910420589e1e07ccf034a3b42267cba5389db3ab016",
+  "serial_sha256": "f51d0e7a06d70b388b1932a81770efe8720295c1cbbdf6261cd24567a5c75837",
+  "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+  "frame_scope": "serial-only fixture",
+  "normal_stop": true,
+  "retained_history": true,
+  "guest_exited": true,
+  "active_leases": 0,
+  "mutable_flash_retained": false,
+  "service_processes_exited": true,
+  "fallback_guest_kill_used": false,
+  "evidence_zip_bytes": 11487,
+  "serial_bytes": 3200,
+  "same_session_manifest_and_crash_checked": true,
+  "uart_panic_count": 0,
+  "watchdog_stage_zero_count": 0
+}

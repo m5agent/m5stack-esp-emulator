@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "runtime": "qemu",
+  "qemu_machine": "m5sticks3",
+  "network": "offline",
+  "observations": [
+    {
+      "case": "current runtime, retained long input timing",
+      "scope": "original application on offline native virtual device",
+      "result": "PARTIAL",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "26f753119896c70d6287f516cc54e941ad9fa328b0464b7af7385c3b9387d12d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.328696,
+          "receipt_s_after_first_frame": 3.331614
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.36977,
+          "receipt_s_after_first_frame": 4.374724
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.452304,
+          "receipt_s_after_first_frame": 4.55446
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.729058,
+          "receipt_s_after_first_frame": 6.782893
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.109,
+      "watchdog_stage_zero_receipt": {
+        "first_observed_wall_seconds_after_inputs": 25.026,
+        "last_feed_age_virtual_ms": 300.098,
+        "last_alarms_age_virtual_ms": [
+          0.005,
+          0.005
+        ],
+        "last_acks_age_virtual_ms": [
+          300.108,
+          300.095
+        ]
+      },
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "14d14a416ba23878eb9603ec3e383836cba4273f6e64ed1cda851a3fceaa8792",
+      "bundle_bytes": 11474,
+      "serial_sha256": "e146a741f3a7f57a07f4ff3594249e79d3701467a08f2b3e15628ae9fac78573",
+      "serial_bytes": 628,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "current runtime, quick release control",
+      "scope": "original application on offline native virtual device",
+      "result": "PARTIAL",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "26f753119896c70d6287f516cc54e941ad9fa328b0464b7af7385c3b9387d12d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 0.006434,
+          "receipt_s_after_first_frame": 1.008557
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 1.019914,
+          "receipt_s_after_first_frame": 2.023046
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 2.034903,
+          "receipt_s_after_first_frame": 2.141335
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 2.141483,
+          "receipt_s_after_first_frame": 2.194041
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        false
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.076,
+      "watchdog_stage_zero_receipt": null,
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "e3bb6d81aba17a562addc31ca3fc5f50e55247419488b5024560e47f5a3415f9",
+      "bundle_bytes": 11499,
+      "serial_sha256": "472b2021b981070bb15aa30b23686a0b99bfbe82fbcd1ec2ba1a45dc9ec70585",
+      "serial_bytes": 497,
+      "frames_readback_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "expanded register instrumentation, retained long timing",
+      "scope": "original application on offline native virtual device",
+      "result": "PARTIAL",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "b3563608efafc7d726df0847f0e954839aafbb6edaa60e26b75765e056513b30",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.33025,
+          "receipt_s_after_first_frame": 3.337114
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.369635,
+          "receipt_s_after_first_frame": 4.375122
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.447431,
+          "receipt_s_after_first_frame": 4.549567
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.729057,
+          "receipt_s_after_first_frame": 6.782884
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.109,
+      "watchdog_stage_zero_receipt": {
+        "first_observed_wall_seconds_after_inputs": 25.037,
+        "last_feed_age_virtual_ms": 300.981,
+        "last_alarms_age_virtual_ms": [
+          0.004,
+          0.004
+        ],
+        "last_acks_age_virtual_ms": [
+          299.741,
+          299.732
+        ]
+      },
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "039e0659185e2381bf57d016cbe0934c6176cfad9203a48a93ab7d447dff5368",
+      "bundle_bytes": 11738,
+      "serial_sha256": "47920a78c0fd9ea7c27bc3ea9a280c6eb99e5a2dc8b63384f72d4058e3988c42",
+      "serial_bytes": 629,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "first GPIO model, retained long timing",
+      "scope": "original application on offline native virtual device",
+      "result": "FAIL",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "f12dfa34f09163057330b9bb37301410a415c4cdea5e4ae4ae380220e08f2214",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.332417,
+          "receipt_s_after_first_frame": 3.34425
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.370138,
+          "receipt_s_after_first_frame": 4.381944
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.447531,
+          "receipt_s_after_first_frame": 4.554454
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.724456,
+          "receipt_s_after_first_frame": 6.784239
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.118,
+      "watchdog_stage_zero_receipt": {
+        "first_observed_wall_seconds_after_inputs": 25.044,
+        "last_feed_age_virtual_ms": 300.939,
+        "last_alarms_age_virtual_ms": [
+          1.509,
+          1.509
+        ],
+        "last_acks_age_virtual_ms": [
+          300.949,
+          300.952
+        ]
+      },
+      "uart_panic": {
+        "kind": "watchdog",
+        "core": 1,
+        "reason": "Interrupt wdt timeout on CPU1"
+      },
+      "serial_poweron": 1,
+      "serial_sw_reset": 1,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "c80ecc960cbac86f2e1af39ac68f9a16db439850cf51dbd3d6e02111ef5dc15b",
+      "bundle_bytes": 12514,
+      "serial_sha256": "26f5cb7c2e9e5287362c11aadd91226125505d0c0f15c298bb6fe7463ea2bae4",
+      "serial_bytes": 1829,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "second GPIO model, retained long timing and wake",
+      "scope": "original application on offline native virtual device",
+      "result": "FAIL",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "fc509a6ee237176d4d9ee7e199b45e659d23884b23bc9e43f4289fc1f9639bea",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.328206,
+          "receipt_s_after_first_frame": 3.334874
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.368165,
+          "receipt_s_after_first_frame": 4.375028
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.452309,
+          "receipt_s_after_first_frame": 4.559251
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.729059,
+          "receipt_s_after_first_frame": 6.786823
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.093,
+      "watchdog_stage_zero_receipt": {
+        "first_observed_wall_seconds_after_inputs": 0.0,
+        "last_feed_age_virtual_ms": 1732.657,
+        "last_alarms_age_virtual_ms": [
+          0.002,
+          0.002
+        ],
+        "last_acks_age_virtual_ms": [
+          1732.663,
+          1732.756
+        ]
+      },
+      "uart_panic": {
+        "kind": "watchdog",
+        "core": 1,
+        "reason": "Interrupt wdt timeout on CPU1"
+      },
+      "serial_poweron": 1,
+      "serial_sw_reset": 1,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "90f1712cacfea06a1a17d90dacda67a582412963eef0fac1449d35c0f644ba27",
+      "bundle_bytes": 12223,
+      "serial_sha256": "98a5a61e6e33629c2a8d0914d3be429ac3d3f772b69929d5e6cf07953ebf84fd",
+      "serial_bytes": 1829,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "wake_frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0"
+    },
+    {
+      "case": "third GPIO model, retained long timing and wake",
+      "scope": "original application on offline native virtual device",
+      "result": "PASS",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "72c3be41d14ae1c342e427537da0fdcc00f144a2a6976b88dd8a368d85eb9fa7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.33124,
+          "receipt_s_after_first_frame": 3.333356
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.366897,
+          "receipt_s_after_first_frame": 4.369834
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.450226,
+          "receipt_s_after_first_frame": 4.552579
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.729058,
+          "receipt_s_after_first_frame": 6.785662
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.081,
+      "watchdog_stage_zero_receipt": null,
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "8479a2b5d75183b6a554a0da5d45338a415ac6ced75c0477184cbd84cf6ab51d",
+      "bundle_bytes": 10690,
+      "serial_sha256": "e88cd32c154335baf6d66ee5ff716f9334c2fe02b1c2af610b0a5978f4c8cec0",
+      "serial_bytes": 817,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4"
+    },
+    {
+      "case": "final GPIO model, retained long timing and wake",
+      "scope": "original application on offline native virtual device",
+      "result": "PASS",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+      "firmware_bytes": 1840512,
+      "normalized_flash_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+      "watchdog_trace_enabled": true,
+      "input": [
+        {
+          "kind": "key_a",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 2.326443,
+          "receipt_s_after_first_frame": 3.329855
+        },
+        {
+          "kind": "key_b",
+          "action": "tap",
+          "dispatch_s_after_first_frame": 3.365713,
+          "receipt_s_after_first_frame": 4.372447
+        },
+        {
+          "kind": "hold_b",
+          "action": "down",
+          "dispatch_s_after_first_frame": 4.448525,
+          "receipt_s_after_first_frame": 4.555184
+        },
+        {
+          "kind": "hold_b",
+          "action": "up",
+          "dispatch_s_after_first_frame": 6.726825,
+          "receipt_s_after_first_frame": 6.783455
+        }
+      ],
+      "frames_changed_after_each_step": [
+        true,
+        false,
+        true
+      ],
+      "initial_frame_sha256": "660d9b46e49fe21880e831d7d1b35b881c2c5914468d42fc2b40e2e1a235c07d",
+      "observation_wall_seconds_after_inputs": 65.098,
+      "watchdog_stage_zero_receipt": null,
+      "uart_panic": null,
+      "serial_poweron": 1,
+      "serial_sw_reset": 0,
+      "cleanup": {
+        "lease_state": "stopped",
+        "active_lease_count": 0,
+        "mutable_flash_retained": false
+      },
+      "owned_service_stopped": true,
+      "bundle_sha256": "dcb94960ef6b20dc68e2e3060a1f446f5cea2fc2f001f78a632e4d871b22fd98",
+      "bundle_bytes": 10697,
+      "serial_sha256": "749d1400ddf9125b71c638116dcab8fe843bc416750b3db1556172f40c831f64",
+      "serial_bytes": 817,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true,
+      "runstate_before_wake": "suspended",
+      "runstate_after_wake_down": "running",
+      "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4"
+    }
+  ]
+}

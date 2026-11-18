@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "device": "StickS3",
+  "runtime": "qemu",
+  "qemu_machine": "m5sticks3",
+  "network": "offline",
+  "observations": [
+    {
+      "case": "timer wake probe, current runtime",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "8927b76cc3579ab9b00961575fe4b16af5ad2a57",
+      "runtime": "qemu",
+      "runtime_sha256": "26f753119896c70d6287f516cc54e941ad9fa328b0464b7af7385c3b9387d12d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "14a157a59d8092a5a3c2d7f8eae0de45ff3da38cc7b5b66d6f0587e7a30be44c",
+      "status": "FAIL",
+      "observation_seconds": 38.437,
+      "elapsed_timeout": true,
+      "markers": [
+        "RTC_SLEEP_BOOT reset_reason=1 timer_cause=4",
+        "RTC_SLEEP_ENTER iteration=1 requested_us=100000"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 2,
+      "crash_status": "observed",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "uart_panic": {
+        "kind": "watchdog",
+        "core": 0,
+        "reason": "Interrupt wdt timeout on CPU0"
+      },
+      "bundle_sha256": "0fbe92b8ca3d0560766101e10d4c0feb570bc306a4ca1eade34fa0e1dbe2af65",
+      "bundle_bytes": 12132,
+      "serial_sha256": "e049282061945978602a8aac2884bbb8add0cb6dc93b852a55f98b37e1c024d5",
+      "serial_bytes": 5754,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "GPIO wake probe, current runtime",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+      "runtime": "qemu",
+      "runtime_sha256": "26f753119896c70d6287f516cc54e941ad9fa328b0464b7af7385c3b9387d12d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+      "status": "FAIL",
+      "observation_seconds": 4.784,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 2.007,
+      "qmp_status_at_entry": "running",
+      "qmp_status_before_press": "running",
+      "no_early_result": false,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 2,
+      "crash_status": "observed",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "ff9e2afe133d740cfff9178244376f3e9eeeb93f719fc0c24cd53c6f8b75543a",
+      "uart_panic": {
+        "kind": "watchdog",
+        "core": 0,
+        "reason": "Interrupt wdt timeout on CPU0"
+      },
+      "bundle_sha256": "f545b5d6e08478fbd97061fcd75c88fa8a4b874554beb3420251ea7af75c26b9",
+      "bundle_bytes": 12127,
+      "serial_sha256": "ff9e2afe133d740cfff9178244376f3e9eeeb93f719fc0c24cd53c6f8b75543a",
+      "serial_bytes": 5739,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "GPIO wake probe, second candidate",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+      "runtime": "qemu",
+      "runtime_sha256": "fc509a6ee237176d4d9ee7e199b45e659d23884b23bc9e43f4289fc1f9639bea",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+      "fixture_elf_sha256": "50c2641aa2cd512190ace2acf7de319b979df4c06bdfe5394c2b6881411e2c37",
+      "status": "FAIL",
+      "observation_seconds": 13.181,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 2.008,
+      "qmp_status_at_entry": "suspended",
+      "qmp_status_before_press": "suspended",
+      "qmp_status_after_press": "running",
+      "no_early_result": true,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 1,
+      "crash_status": "no_evidence",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "87a4fea7bf2791820c9b3e34cdbd49f067c5f30d8b5e416764494f9820d49e4c",
+      "uart_panic": null,
+      "bundle_sha256": "81bf9c3588c41d4db2d0ddbe73c76885cda8023f29453aa72945709d43a85484",
+      "bundle_bytes": 11398,
+      "serial_sha256": "87a4fea7bf2791820c9b3e34cdbd49f067c5f30d8b5e416764494f9820d49e4c",
+      "serial_bytes": 3069,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true,
+      "matched_fixture_elf_cpu_snapshots": [
+        {
+          "sha256": "9e5c8479982fa3e4c67ef6582961f7f9064050fbaaea24181f4d76b9c1b7207d",
+          "cpus": {
+            "0": {
+              "PC": "4200237f",
+              "EPC4": "4037906c",
+              "EXCCAUSE": "00000004",
+              "PS": "00060025",
+              "PC_symbol": "0x4200237f: panic_handler at components/esp_system/port/panic_handler.c:174 (discriminator 1)",
+              "EPC4_symbol": "0x4037906c: rtc_sleep_start at components/esp_hw_support/port/esp32s3/rtc_sleep.c:281"
+            },
+            "1": {
+              "PC": "40377f90",
+              "EPC4": "40378112",
+              "EXCCAUSE": "00000004",
+              "PS": "00000025",
+              "PC_symbol": "0x40377f90: esp_ipc_isr_waiting_for_finish_cmd at components/esp_system/port/arch/xtensa/esp_ipc_isr_routines.S:29",
+              "EPC4_symbol": "0x40378112: esp_cpu_wait_for_intr at components/esp_hw_support/cpu.c:64"
+            }
+          }
+        },
+        {
+          "sha256": "9e5c8479982fa3e4c67ef6582961f7f9064050fbaaea24181f4d76b9c1b7207d",
+          "cpus": {
+            "0": {
+              "PC": "4200237f",
+              "EPC4": "4037906c",
+              "EXCCAUSE": "00000004",
+              "PS": "00060025",
+              "PC_symbol": "0x4200237f: panic_handler at components/esp_system/port/panic_handler.c:174 (discriminator 1)",
+              "EPC4_symbol": "0x4037906c: rtc_sleep_start at components/esp_hw_support/port/esp32s3/rtc_sleep.c:281"
+            },
+            "1": {
+              "PC": "40377f90",
+              "EPC4": "40378112",
+              "EXCCAUSE": "00000004",
+              "PS": "00000025",
+              "PC_symbol": "0x40377f90: esp_ipc_isr_waiting_for_finish_cmd at components/esp_system/port/arch/xtensa/esp_ipc_isr_routines.S:29",
+              "EPC4_symbol": "0x40378112: esp_cpu_wait_for_intr at components/esp_hw_support/cpu.c:64"
+            }
+          }
+        },
+        {
+          "sha256": "fc9126fac06662a560a88b52692d5f30b3b70589739776889e592fc750a29242",
+          "cpus": {
+            "0": {
+              "PC": "4200237f",
+              "EPC4": "4037906c",
+              "EXCCAUSE": "00000004",
+              "PS": "00060025",
+              "PC_symbol": "0x4200237f: panic_handler at components/esp_system/port/panic_handler.c:174 (discriminator 1)",
+              "EPC4_symbol": "0x4037906c: rtc_sleep_start at components/esp_hw_support/port/esp32s3/rtc_sleep.c:281"
+            },
+            "1": {
+              "PC": "40377f90",
+              "EPC4": "40378112",
+              "EXCCAUSE": "00000004",
+              "PS": "00000025",
+              "PC_symbol": "0x40377f90: esp_ipc_isr_waiting_for_finish_cmd at components/esp_system/port/arch/xtensa/esp_ipc_isr_routines.S:29",
+              "EPC4_symbol": "0x40378112: esp_cpu_wait_for_intr at components/esp_hw_support/cpu.c:64"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "GPIO wake probe, third candidate, two-second idle window",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+      "runtime": "qemu",
+      "runtime_sha256": "72c3be41d14ae1c342e427537da0fdcc00f144a2a6976b88dd8a368d85eb9fa7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+      "fixture_elf_sha256": "50c2641aa2cd512190ace2acf7de319b979df4c06bdfe5394c2b6881411e2c37",
+      "status": "PASS",
+      "observation_seconds": 4.684,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 2.008,
+      "qmp_status_at_entry": "suspended",
+      "qmp_status_before_press": "suspended",
+      "qmp_status_after_press": "running",
+      "no_early_result": true,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1",
+        "RTC_GPIO_SLEEP_RETURN status=0 cause=7 b_level=0 elapsed_us=12261",
+        "RTC_GPIO_SLEEP_PASS"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 1,
+      "crash_status": "no_evidence",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "d72156671eab495828d2aca5c7bb5fde2549f0a84a6e46c806fa8f95bd17113e",
+      "uart_panic": null,
+      "bundle_sha256": "a78472bdc3eb09d1f37ad900a1c50d6d5b9635207f5f33719064d9e77e8cfdf7",
+      "bundle_bytes": 11436,
+      "serial_sha256": "650282614eda504047b84e9c79d70e2d584c2e7f41fe93639ec7b71b28635a81",
+      "serial_bytes": 3201,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "GPIO wake probe, third candidate, five-second idle window",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+      "runtime": "qemu",
+      "runtime_sha256": "72c3be41d14ae1c342e427537da0fdcc00f144a2a6976b88dd8a368d85eb9fa7",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+      "fixture_elf_sha256": "50c2641aa2cd512190ace2acf7de319b979df4c06bdfe5394c2b6881411e2c37",
+      "status": "PASS",
+      "observation_seconds": 7.833,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 5.008,
+      "qmp_status_at_entry": "suspended",
+      "qmp_status_before_press": "suspended",
+      "qmp_status_after_press": "running",
+      "no_early_result": true,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1",
+        "RTC_GPIO_SLEEP_RETURN status=0 cause=7 b_level=0 elapsed_us=11626",
+        "RTC_GPIO_SLEEP_PASS"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 1,
+      "crash_status": "no_evidence",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "8ba26744901577b0ed5e2db68753dfffaed8dcf7005031c7575ad02e28d85508",
+      "uart_panic": null,
+      "bundle_sha256": "8621730bef6f71492558501668a747abd041b1ba6cf4cdb1196dd005aaebf1cc",
+      "bundle_bytes": 11440,
+      "serial_sha256": "9c5b97537d783e6231313fe3334b8f474d962506cfb3ba9c95f1e78df29031f8",
+      "serial_bytes": 3201,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "GPIO wake probe, final runtime, five-second idle window",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "ad03956cbccc76084acf172cd7c903647725b154",
+      "runtime": "qemu",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "c6e37819a8913f1517d9d74cf18b1ab047c0897983751019b4bf21110616a874",
+      "fixture_elf_sha256": "50c2641aa2cd512190ace2acf7de319b979df4c06bdfe5394c2b6881411e2c37",
+      "status": "PASS",
+      "observation_seconds": 7.672,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 5.008,
+      "qmp_status_at_entry": "suspended",
+      "qmp_status_before_press": "suspended",
+      "qmp_status_after_press": "running",
+      "no_early_result": true,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1",
+        "RTC_GPIO_SLEEP_RETURN status=0 cause=7 b_level=0 elapsed_us=11754",
+        "RTC_GPIO_SLEEP_PASS"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 1,
+      "crash_status": "no_evidence",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "1c27a6a13799713582fe0b96cd2dd064959da752db17f46c014cc8657538db45",
+      "uart_panic": null,
+      "bundle_sha256": "fc0f3a37a867cc8a995da344c77fb641388811e3c83399d590ce019d97ef19b4",
+      "bundle_bytes": 11435,
+      "serial_sha256": "8b1cd7c73aaf46c16aaf9cfc00b928f36e65f164371f0380adbcdf9cfdf346d9",
+      "serial_bytes": 3201,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    },
+    {
+      "case": "GPIO wake then active-at-entry sleep rejection and clear, final runtime",
+      "device_service_source": "7781a8f1a2af4e084dc6e90d1de5d6ac19d553a5",
+      "fixture_source": "9e71732c65a770dc408a7dae6df6b8b601d71d0f",
+      "runtime": "qemu",
+      "runtime_sha256": "ca3ace33a00982d49b99fd850f6a39f5021abab5f3b590bcbc4d0b33d0fb450d",
+      "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "firmware_sha256": "1f9b94f269f9b11087a707a29be8a23ca9fe35b32563425e5f3cacebf1912a50",
+      "fixture_elf_sha256": "1c036cc72d1d3e22ec6fa4692cdac8446e6de1e8b0f58dc36d8c5de8bbb1195f",
+      "status": "PASS",
+      "observation_seconds": 4.9,
+      "elapsed_timeout": false,
+      "no_input_window_seconds": 2.008,
+      "qmp_status_at_entry": "suspended",
+      "qmp_status_before_press": "suspended",
+      "qmp_status_after_press": "running",
+      "no_early_result": true,
+      "markers": [
+        "RTC_GPIO_SLEEP_BOOT reset_reason=1 gpio_cause=7",
+        "RTC_GPIO_SLEEP_ENTER pin=12 active_low=1 b_level=1",
+        "RTC_GPIO_SLEEP_RETURN status=0 cause=7 b_level=0 elapsed_us=12490",
+        "RTC_GPIO_SLEEP_PASS",
+        "RTC_GPIO_REJECT_ENTER b_level=0 before_cause=0x0 expected_status=259",
+        "RTC_GPIO_REJECT_RETURN status=259 cause=0x4 sleep_raw=0x0",
+        "RTC_GPIO_REJECT_CLEAR cause=0x0",
+        "RTC_GPIO_REJECT_PASS"
+      ],
+      "boot_markers": 1,
+      "rom_reset_banners": 1,
+      "crash_status": "no_evidence",
+      "cleanup": {
+        "history_retained": true,
+        "active_leases": 0,
+        "flash_retained": false,
+        "guest_exited": true
+      },
+      "owned_device_service_stopped": true,
+      "pre_input_serial_sha256": "aa96b24562ffc6eba68537e01e966c858aa848610b5395e97f36f654d2fd0b75",
+      "uart_panic": null,
+      "bundle_sha256": "86e9c2ec242a107f5f29c0f3343dbb07cb81f14a0d2d95c915740c48a0d325ea",
+      "bundle_bytes": 11487,
+      "serial_sha256": "6045bf94a26b9763f3f83405823a7f56a52d346410027fa8bd7e5aaa4f6acd54",
+      "serial_bytes": 3385,
+      "frames_readback_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+      "manifest_contents_verified": true
+    }
+  ]
+}

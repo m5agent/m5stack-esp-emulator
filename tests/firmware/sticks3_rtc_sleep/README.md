@@ -1,4 +1,31 @@
-# StickS3 RTC 定时唤醒探针
+# StickS3 原生 RTC 浅睡与唤醒
+
+## 原版 All day watch 0.3.8
+
+以 [留存原版和同会话记录](all-day-watch-native.summary.json)中的上传 BIN、
+规范化 Flash 和 ROM SHA-256 为准，在独立 Device Service 启动 `sticks3`、
+`runtime=qemu` 的离线会话。以第一次有效帧作为输入顺序的起点。
+先点 A、点 B，再按下 B 并间隔约 2.28 秒释放。历史顺序的各次派发约为
+2.33、3.37、4.45、6.73 秒。快速释放负对照使用相同按键顺序且取消额外等待。
+
+等待独立 QMP `query-status` 读到 `suspended`，保留无输入观察，
+再通过 Device Service 输入 B 键。验收读取 QMP `running`、最终非黑帧、
+一个上电启动、65 秒内的串口与后端看门狗记录。先获取证据 ZIP，
+以 `purge=0` 停止并核对租约释放。原始失败、观测版和中间候选分别保留。
+
+Device Service 1.87 的复验在挂起后使用 `kind=button control=b action=click`，
+回执记录宿主计时及已发送按下和释放。原版保持一个启动且观察窗内无 IWDT。
+[语义按钮同会话证据](device-service-semantic-wake.summary.json)
+
+服务接管的复验在同一隔离设备服务中断后使用原状态目录启动下一代服务。
+接回挂起的同一 QEMU 进程与会话，语义 B 键唤醒来宾，并通过 GPIO12 读回确认释放。
+[服务重启与唤醒证据](device-service-suspend-reattach.summary.json)
+
+ESP32-S3 [RTC 寄存器定义](https://github.com/espressif/esp-idf/blob/v5.4.1/components/soc/esp32s3/register/soc/rtc_cntl_reg.h)
+和 [SDK 完成轮询](https://github.com/espressif/esp-idf/blob/v5.4.1/components/esp_hw_support/port/esp32s3/rtc_sleep.c)
+限定本项为数字 GPIO 浅睡的拒绝与唤醒。RTC 慢时钟睡眠期间的耗时、定时、组合唤醒源、深睡、浏览器和真机是独立验收项。
+
+## 定时唤醒负对照
 
 该 ESP-IDF 探针通过 `esp_sleep_enable_timer_wakeup` 和
 `esp_light_sleep_start` 测试 ESP32-S3 定时唤醒。来宾依次请求
@@ -59,3 +86,5 @@ B 键按下后保持，直到 `RTC_GPIO_REJECT_PASS` 或失败标记再释放。
 `ESP_ERR_SLEEP_REJECT`、RTC 拒绝原因为 GPIO，及 SDK 清除中断状态后
 `sleep_raw=0x0`。最后通过 W1C 写入清除拒绝原因并检查读回。
 `RTC_GPIO_REJECT_PASS` 表示这些断言在一次启动中均满足。
+
+[ESP-IDF 来宾观测](rtc-light-sleep-fixture.summary.json)保存定时基线、旧版 GPIO 失败、中间候选及最终唤醒和拒绝结果。

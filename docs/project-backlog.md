@@ -91,8 +91,9 @@
 5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。[原生 C6 会话](../tests/firmware/crash_diagnostics/riscv_c6/session-core-dump-summary.json)已核验 ELF32 UART 的 CRC32 与 SHA-256 两种转储，保留各自的任务 PC/SP。[Core2 任务详情](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)已验证匹配 ELF 下的名称、优先级和保存栈用量。[Cardputer ADV 原生会话](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)验证了 ELF32 CRC32 与 SHA-256、保存任务详情及独立双核实时 PC。[Nesso N1 RV32 任务详情](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)已补齐两种校验格式的匹配 ELF 路径。[原生 Cardputer ADV Flash 转储](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)已验证两种校验格式、同会话 ZIP 与权限限制。[Nesso N1 原生 UART](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)的保存栈展开已逐帧对照 GDB。继续补其他运行时的任务详情、Flash 路径及栈展开。
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
-   将 CPU1 WDT 定位到 RTC 睡眠完成轮询附近。验证 ESP32-S3 RTC 的唤醒与拒绝状态模型，
-   并用同一固件检查原版交互。继续分别定位 M5TabOS 重复复位和 98TAB5 无画面。
+   将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
+   已验证原版 GPIO 浅睡和 B 键唤醒。继续补定时与组合唤醒源、深睡及睡眠期间 RTC 慢时钟，
+   并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
    98TAB5 的失败与“已保存”冲突，下一步需要独立证据定位复位来源。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
