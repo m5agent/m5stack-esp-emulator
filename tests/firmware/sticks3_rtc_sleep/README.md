@@ -48,5 +48,14 @@ idf.py -C tests/firmware/sticks3_rtc_sleep \
 验收需要一个 `RTC_GPIO_SLEEP_BOOT`、B 键动作前无返回、动作后
 `status=0`、`cause` 匹配启动行的 `gpio_cause` 及 `RTC_GPIO_SLEEP_PASS`。
 记录输入事件、返回串口和同会话 ZIP。另起会话保持 B 键释放可校验
-观察窗口内无自发返回。GPIO 模式覆盖 B 键唤醒。睡眠请求前已按住 B 键的
-拒绝路径仍待独立验证。
+观察窗口内无自发返回。
+
+## 检查进入睡眠时已为低电平的 B 键
+
+在新构建目录对 GPIO 版本同时加 `-D M5_RTC_GPIO_REJECT=ON`。
+B 键按下后保持，直到 `RTC_GPIO_REJECT_PASS` 或失败标记再释放。
+同一来宾先完成睡眠和唤醒，再通过 `esp_light_sleep_start` 请求第二次睡眠。
+第二次请求前 B 键必须为低电平，RTC 拒绝原因应为零。检查 API 返回
+`ESP_ERR_SLEEP_REJECT`、RTC 拒绝原因为 GPIO，及 SDK 清除中断状态后
+`sleep_raw=0x0`。最后通过 W1C 写入清除拒绝原因并检查读回。
+`RTC_GPIO_REJECT_PASS` 表示这些断言在一次启动中均满足。

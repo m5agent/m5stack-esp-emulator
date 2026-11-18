@@ -6,6 +6,42 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 
+#ifdef M5_RTC_GPIO_REJECT
+#include "soc/rtc.h"
+#include "soc/rtc_cntl_reg.h"
+
+static void verify_active_gpio_reject(gpio_num_t button_b)
+{
+    uint32_t before = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    int level = gpio_get_level(button_b);
+    printf("RTC_GPIO_REJECT_ENTER b_level=%d before_cause=0x%" PRIx32 " expected_status=%d\n",
+           level, before, ESP_ERR_SLEEP_REJECT);
+    fflush(stdout);
+    if (before != 0 || level != 0) {
+        printf("RTC_GPIO_REJECT_FAIL phase=precondition\n");
+        fflush(stdout);
+        return;
+    }
+
+    esp_err_t status = esp_light_sleep_start();
+    uint32_t cause = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    uint32_t sleep_raw = REG_READ(RTC_CNTL_INT_RAW_REG) &
+                         (RTC_CNTL_SLP_REJECT_INT_RAW | RTC_CNTL_SLP_WAKEUP_INT_RAW);
+    printf("RTC_GPIO_REJECT_RETURN status=%d cause=0x%" PRIx32 " sleep_raw=0x%" PRIx32 "\n",
+           status, cause, sleep_raw);
+
+    REG_SET_BIT(RTC_CNTL_STATE0_REG, RTC_CNTL_SLP_REJECT_CAUSE_CLR);
+    uint32_t after = REG_GET_FIELD(RTC_CNTL_SLP_REJECT_CAUSE_REG, RTC_CNTL_REJECT_CAUSE);
+    printf("RTC_GPIO_REJECT_CLEAR cause=0x%" PRIx32 "\n", after);
+    if (status == ESP_ERR_SLEEP_REJECT && cause == RTC_GPIO_TRIG_EN && sleep_raw == 0 && after == 0) {
+        printf("RTC_GPIO_REJECT_PASS\n");
+    } else {
+        printf("RTC_GPIO_REJECT_FAIL phase=return\n");
+    }
+    fflush(stdout);
+}
+#endif
+
 void app_main(void)
 {
     const gpio_num_t button_b = GPIO_NUM_12;
@@ -46,4 +82,7 @@ void app_main(void)
 
     printf("RTC_GPIO_SLEEP_PASS\n");
     fflush(stdout);
+#ifdef M5_RTC_GPIO_REJECT
+    verify_active_gpio_reject(button_b);
+#endif
 }
