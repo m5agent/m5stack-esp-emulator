@@ -1,1 +1,5 @@
-idf_component_register(SRCS "main.c" REQUIRES esp_hw_support esp_timer)
+set(probe_source "main.c")
+if(M5_RTC_GPIO_WAKE)
+    set(probe_source "gpio_wake.c")
+endif()
+idf_component_register(SRCS "${probe_source}" REQUIRES esp_driver_gpio esp_hw_support esp_timer)
