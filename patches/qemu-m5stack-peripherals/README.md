@@ -1852,3 +1852,17 @@ software consumed the controller response. Media is fixed for the lifetime of
 these two board models. The scoped Device Service endpoint binds the snapshot
 to the current session's runtime and attachment. Browser patch selection and
 PaperDIY hot-plug are outside this change.
+
+## ESP32-S3 digital GPIO light sleep (0228)
+
+The native RTC controller uses the ESP32-S3 GPIO wake-enable and level
+configuration and samples the actual digital receiver. An already asserted
+eligible pad rejects entry when rejection is enabled. An inactive eligible
+pad lets the guest suspend, and an asserted level then sets the RTC wake
+cause and raw status before the guest resumes. The RTC interrupt and W1C
+acknowledgment travel through the native interrupt matrix.
+
+GPIO-only light sleep stops the digital tick clock while QEMU is suspended.
+The RTC slow-clock elapsed time across sleep, timer wake, mixed wake sources,
+deep sleep and browser builds have separate coverage boundaries. See the
+[Stock and ESP-IDF regression](../../tests/firmware/sticks3_rtc_sleep/README.md).

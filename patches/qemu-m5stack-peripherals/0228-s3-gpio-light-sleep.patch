@@ -1,0 +1,444 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+index eb6c559..67e48d5 100644
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -24,6 +24,9 @@
+ #include "hw/misc/esp32_rtc_cntl.h"
+ #include "../m5stopwatch/m5stopwatch.h"
+ 
++static void (*s3_sleep_input_callback)(void *opaque);
++static void *s3_sleep_input_opaque;
++
+ 
+ 
+ /*
+@@ -567,7 +570,13 @@ void esp32_gpio_set_input(int pin, int level)
+     else { g_ext_in &= ~(1ULL << pin); }
+     esp32_gpio_notify_pads(g_gpio_device, observed, ESP32_GPIO_PAD_EXTERNAL);
+     gpio_transition_irq(before, gpio_line64());
+-    if (!g_gpio_s3) { esp32_rtc_gpio_input_changed(pin, level); }
++    if (g_gpio_s3) {
++        if (s3_sleep_input_callback) {
++            s3_sleep_input_callback(s3_sleep_input_opaque);
++        }
++    } else {
++        esp32_rtc_gpio_input_changed(pin, level);
++    }
+     if (getenv("M5SW_GPIO_TRACE") &&
+         (pin == 11 || pin == 12 || pin == gpio_trace_pin())) {
+         fprintf(stderr, "[gpio] ext input pin=%d level=%d line=%d\n",
+@@ -714,6 +723,40 @@ static uint64_t gpio_input64(void)
+     return line;
+ }
+ 
++bool esp32s3_gpio_sleep_wakeup(bool *active)
++{
++    bool armed = false;
++
++    *active = false;
++    if (!g_gpio_s3 || !g_gpio_device) {
++        return false;
++    }
++    for (unsigned pin = 0; pin < 49; pin++) {
++        uint32_t cfg = g_regs[0x74 / 4 + pin];
++        unsigned type = (cfg >> 7) & 7;
++        Esp32GpioPadSnapshot pad;
++
++        if (!(cfg & (1u << 10))) {
++            continue;
++        }
++        if ((type != 4 && type != 5) ||
++            !esp32_gpio_pad_snapshot(g_gpio_device, pin, &pad) ||
++            !pad.fun_ie || !pad.receiver_known) {
++            return false;
++        }
++        armed = true;
++        *active |= pad.receiver_level == (type == 5);
++    }
++    return armed;
++}
++
++void esp32s3_gpio_set_sleep_input_callback(void (*callback)(void *opaque),
++                                          void *opaque)
++{
++    s3_sleep_input_callback = callback;
++    s3_sleep_input_opaque = opaque;
++}
++
+ static void gpio_update_irq(void)
+ {
+     if (!g_gpio_device) { return; }
+diff --git a/hw/gpio/esp32s3_gpio_pad_aux.c b/hw/gpio/esp32s3_gpio_pad_aux.c
+index 851c764..633bd19 100644
+--- a/hw/gpio/esp32s3_gpio_pad_aux.c
++++ b/hw/gpio/esp32s3_gpio_pad_aux.c
+@@ -149,7 +149,7 @@ bool esp32s3_gpio_pad_aux_cntl_read(hwaddr addr, uint32_t *value)
+     return true;
+ }
+ 
+-bool esp32s3_gpio_pad_aux_cntl_write(hwaddr addr, uint32_t value)
++static bool cntl_write(hwaddr addr, uint32_t value, bool modeled_gpio_sleep)
+ {
+     Esp32GpioPadSnapshot before[54];
+     int index = cntl_index(addr);
+@@ -163,7 +163,8 @@ bool esp32s3_gpio_pad_aux_cntl_write(hwaddr addr, uint32_t value)
+     if (addr == CNTL_DIG_ISO && (value & CNTL_DIG_AUTOHOLD_CLEAR)) {
+         pad_aux->cntl[index] &= ~CNTL_DIG_AUTOHOLD_STATE;
+     }
+-    if ((addr == CNTL_STATE0 && (value & CNTL_SLEEP_REQUEST)) ||
++    if ((addr == CNTL_STATE0 && (value & CNTL_SLEEP_REQUEST) &&
++         !modeled_gpio_sleep) ||
+         (addr == CNTL_PWC && (value & CNTL_RTC_FORCE_PD))) {
+         pad_aux->power_history_unknown = true;
+     }
+@@ -171,6 +172,16 @@ bool esp32s3_gpio_pad_aux_cntl_write(hwaddr addr, uint32_t value)
+     return true;
+ }
+ 
++bool esp32s3_gpio_pad_aux_cntl_write(hwaddr addr, uint32_t value)
++{
++    return cntl_write(addr, value, false);
++}
++
++void esp32s3_gpio_pad_aux_gpio_sleep_state(uint32_t value)
++{
++    cntl_write(CNTL_STATE0, value, true);
++}
++
+ bool esp32s3_gpio_pad_aux_cntl_read_access(hwaddr addr, unsigned size,
+                                          uint64_t *value)
+ {
+diff --git a/hw/misc/esp32s3_rtc_cntl.c b/hw/misc/esp32s3_rtc_cntl.c
+index df996ef..e0303f2 100644
+--- a/hw/misc/esp32s3_rtc_cntl.c
++++ b/hw/misc/esp32s3_rtc_cntl.c
+@@ -20,11 +20,124 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/misc/esp32s3_reg.h"
+ #include "hw/misc/esp32s3_rtc_cntl.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/gpio/esp32s3_gpio_pad_aux.h"
++#include "qemu/main-loop.h"
++#include "sysemu/cpu-timers.h"
++#include "sysemu/runstate.h"
+ 
+ static void esp32s3_rtc_update_cpu_stall(Esp32s3RtcCntlState* s);
+ static void esp32s3_rtc_update_clk(Esp32s3RtcCntlState* s);
+ 
++REG32(RTC_CNTL_STATE0, 0x18)
++REG32(RTC_CNTL_WAKEUP_STATE, 0x3c)
++REG32(RTC_CNTL_INT_ENA, 0x40)
++REG32(RTC_CNTL_INT_RAW, 0x44)
++REG32(RTC_CNTL_INT_ST, 0x48)
++REG32(RTC_CNTL_INT_CLR, 0x4c)
++REG32(RTC_CNTL_SLP_REJECT_CONF, 0x68)
++REG32(RTC_CNTL_DIG_PWC, 0x90)
++REG32(RTC_CNTL_SLP_REJECT_CAUSE, 0x128)
++REG32(RTC_CNTL_SLP_WAKEUP_CAUSE, 0x130)
++REG32(RTC_CNTL_INT_ENA_W1TS, 0x138)
++REG32(RTC_CNTL_INT_ENA_W1TC, 0x13c)
++
++#define RTC_SLEEP_EN              (1u << 31)
++#define RTC_SLEEP_REJECT          (1u << 30)
++#define RTC_SLEEP_WAKEUP          (1u << 29)
++#define RTC_SLEEP_REJECT_CLEAR    (1u << 1)
++#define RTC_LIGHT_SLEEP_REJECT_EN (1u << 30)
++#define RTC_DIG_WRAP_PD_EN        (1u << 31)
++#define RTC_SLEEP_REJECT_IRQ      (1u << 1)
++#define RTC_SLEEP_WAKEUP_IRQ      (1u << 0)
++#define RTC_SLEEP_IRQ_MASK        (RTC_SLEEP_REJECT_IRQ | RTC_SLEEP_WAKEUP_IRQ)
++#define RTC_GPIO_TRIGGER          (1u << 2)
++#define RTC_WAKEUP_ENABLE_SHIFT   15
++#define RTC_REJECT_ENABLE_SHIFT   12
++
++static void esp32s3_rtc_sleep_irq(Esp32s3RtcCntlState *s)
++{
++    qemu_set_irq(s->irq, !!(s->sleep_raw & s->sleep_enable));
++}
++
++static void esp32s3_rtc_resume_clock(Esp32s3RtcCntlState *s)
++{
++    if (s->gpio_sleep_clock_stopped) {
++        s->gpio_sleep_clock_stopped = false;
++        cpu_enable_ticks();
++    }
++}
++
++static void esp32s3_rtc_set_gpio_sleep_state(Esp32s3RtcCntlState *s,
++                                             uint32_t value)
++{
++    s->sleep_state = value;
++    esp32s3_gpio_pad_aux_gpio_sleep_state(value);
++}
++
++static void esp32s3_rtc_try_gpio_wake(void *opaque)
++{
++    Esp32s3RtcCntlState *s = opaque;
++    bool active;
++
++    if (!s->gpio_sleep_pending || !runstate_check(RUN_STATE_SUSPENDED) ||
++        !esp32s3_gpio_sleep_wakeup(&active) || !active) {
++        return;
++    }
++    s->gpio_sleep_pending = false;
++    esp32s3_rtc_set_gpio_sleep_state(s, (s->sleep_state & ~RTC_SLEEP_EN) |
++                                   RTC_SLEEP_WAKEUP);
++    s->wakeup_cause = RTC_GPIO_TRIGGER;
++    s->sleep_raw |= RTC_SLEEP_WAKEUP_IRQ;
++    esp32s3_rtc_sleep_irq(s);
++    esp32s3_rtc_resume_clock(s);
++    qemu_system_wakeup_request(QEMU_WAKEUP_REASON_OTHER, &error_abort);
++}
++
++static void esp32s3_rtc_suspended(Notifier *notifier, void *data)
++{
++    Esp32s3RtcCntlState *s = container_of(notifier, Esp32s3RtcCntlState,
++                                        suspend_notifier);
++    if (s->gpio_sleep_pending) {
++        /* In the native non-icount lane, disabling timer dispatch does not
++         * stop the virtual clock's underlying tick counter. The digital
++         * watchdog must not gain the wall time spent in GPIO light sleep. */
++        cpu_disable_ticks();
++        s->gpio_sleep_clock_stopped = true;
++        /* The notifier runs before the run-state transition commits. */
++        qemu_bh_schedule(s->wake_bh);
++    }
++}
++
++static bool esp32s3_rtc_start_gpio_sleep(Esp32s3RtcCntlState *s, uint32_t value)
++{
++    bool active;
++
++    /* This path models digital GPIO light sleep only. A sleep using a
++     * different or additional source still requires that source's model. */
++    if (s->gpio_sleep_pending || (s->digital_power & RTC_DIG_WRAP_PD_EN) ||
++        (s->wakeup_state >> RTC_WAKEUP_ENABLE_SHIFT) != RTC_GPIO_TRIGGER ||
++        !esp32s3_gpio_sleep_wakeup(&active)) {
++        return false;
++    }
++    value &= ~(RTC_SLEEP_REJECT | RTC_SLEEP_WAKEUP | RTC_SLEEP_REJECT_CLEAR);
++    s->wakeup_cause = 0;
++    s->reject_cause = 0;
++    if (active && (s->sleep_reject & RTC_LIGHT_SLEEP_REJECT_EN) &&
++        (s->sleep_reject & (RTC_GPIO_TRIGGER << RTC_REJECT_ENABLE_SHIFT))) {
++        esp32s3_rtc_set_gpio_sleep_state(s, (value & ~RTC_SLEEP_EN) |
++                                       RTC_SLEEP_REJECT);
++        s->reject_cause = RTC_GPIO_TRIGGER;
++        s->sleep_raw |= RTC_SLEEP_REJECT_IRQ;
++        esp32s3_rtc_sleep_irq(s);
++        return true;
++    }
++    esp32s3_rtc_set_gpio_sleep_state(s, value);
++    s->gpio_sleep_pending = true;
++    qemu_system_suspend_request();
++    return true;
++}
++
+ static uint64_t esp32s3_rtc_cntl_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32s3RtcCntlState *s = ESP32S3_RTC_CNTL(opaque);
+@@ -57,6 +170,25 @@ static uint64_t esp32s3_rtc_cntl_read(void *opaque, hwaddr addr, unsigned int si
+         r = s->time_reg >> 32;
+         break;
+ 
++    case A_RTC_CNTL_STATE0:
++        return s->sleep_state;
++    case A_RTC_CNTL_WAKEUP_STATE:
++        return s->wakeup_state;
++    case A_RTC_CNTL_INT_ENA:
++        return s->sleep_enable;
++    case A_RTC_CNTL_INT_RAW:
++        return s->sleep_raw;
++    case A_RTC_CNTL_INT_ST:
++        return s->sleep_raw & s->sleep_enable;
++    case A_RTC_CNTL_SLP_REJECT_CONF:
++        return s->sleep_reject;
++    case A_RTC_CNTL_DIG_PWC:
++        return s->digital_power;
++    case A_RTC_CNTL_SLP_REJECT_CAUSE:
++        return s->reject_cause;
++    case A_RTC_CNTL_SLP_WAKEUP_CAUSE:
++        return s->wakeup_cause;
++
+     case A_RTC_CNTL_RESET_STATE:
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, RESET_CAUSE_PROCPU, s->reset_cause[0]);
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, RESET_CAUSE_APPCPU, s->reset_cause[1]);
+@@ -96,10 +228,46 @@ static void esp32s3_rtc_cntl_write(void *opaque, hwaddr addr, uint64_t value,
+ {
+     Esp32s3RtcCntlState *s = ESP32S3_RTC_CNTL(opaque);
+ 
++    if (addr == A_RTC_CNTL_STATE0 && size == 4) {
++        if (value & RTC_SLEEP_REJECT_CLEAR) {
++            s->reject_cause = 0;
++        }
++        if ((value & RTC_SLEEP_EN) && esp32s3_rtc_start_gpio_sleep(s, value)) {
++            return;
++        }
++    }
+     if (esp32s3_gpio_pad_aux_cntl_write_access(addr, size, value)) {
+         return;
+     }
+     switch (addr) {
++    case A_RTC_CNTL_STATE0:
++        s->sleep_state = value & ~RTC_SLEEP_REJECT_CLEAR;
++        break;
++    case A_RTC_CNTL_WAKEUP_STATE:
++        s->wakeup_state = value & (UINT32_MAX << RTC_WAKEUP_ENABLE_SHIFT);
++        break;
++    case A_RTC_CNTL_SLP_REJECT_CONF:
++        s->sleep_reject = value & (UINT32_MAX << RTC_REJECT_ENABLE_SHIFT);
++        break;
++    case A_RTC_CNTL_DIG_PWC:
++        s->digital_power = value;
++        break;
++    case A_RTC_CNTL_INT_ENA:
++        s->sleep_enable = value & RTC_SLEEP_IRQ_MASK;
++        esp32s3_rtc_sleep_irq(s);
++        break;
++    case A_RTC_CNTL_INT_ENA_W1TS:
++        s->sleep_enable |= value & RTC_SLEEP_IRQ_MASK;
++        esp32s3_rtc_sleep_irq(s);
++        break;
++    case A_RTC_CNTL_INT_ENA_W1TC:
++        s->sleep_enable &= ~value;
++        esp32s3_rtc_sleep_irq(s);
++        break;
++    case A_RTC_CNTL_INT_CLR:
++        s->sleep_raw &= ~value;
++        esp32s3_rtc_sleep_irq(s);
++        break;
+     case A_RTC_CNTL_OPTIONS0:
+         if (value & R_RTC_CNTL_OPTIONS0_SW_SYS_RESET_MASK) {
+             s->reset_cause[0] = ESP32_SW_SYS_RESET;
+@@ -201,6 +369,20 @@ static void esp32s3_rtc_cntl_reset_hold(Object *obj, ResetType type)
+     Esp32s3RtcCntlState *s = ESP32S3_RTC_CNTL(obj);
+ 
+     s->time_base_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    if (s->sleep_state) {
++        esp32s3_rtc_set_gpio_sleep_state(s, 0);
++    }
++    s->wakeup_state = 0xc << RTC_WAKEUP_ENABLE_SHIFT;
++    s->sleep_reject = 0;
++    s->digital_power = 0;
++    s->sleep_raw = 0;
++    s->sleep_enable = 0;
++    s->wakeup_cause = 0;
++    s->reject_cause = 0;
++    s->gpio_sleep_pending = false;
++    esp32s3_rtc_resume_clock(s);
++    qemu_bh_cancel(s->wake_bh);
++    esp32s3_rtc_sleep_irq(s);
+ }
+ 
+ static void esp32s3_rtc_cntl_realize(DeviceState *dev, Error **errp)
+@@ -216,6 +398,10 @@ static void esp32s3_rtc_cntl_init(Object *obj)
+                           TYPE_ESP32S3_RTC_CNTL, ESP32S3_RTC_CNTL_SIZE);
+     sysbus_init_mmio(sbd, &s->iomem);
+     sysbus_init_irq(sbd, &s->irq);
++    esp32s3_gpio_set_sleep_input_callback(esp32s3_rtc_try_gpio_wake, s);
++    s->wake_bh = qemu_bh_new(esp32s3_rtc_try_gpio_wake, s);
++    s->suspend_notifier.notify = esp32s3_rtc_suspended;
++    qemu_register_suspend_notifier(&s->suspend_notifier);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->dig_reset_req, ESP32S3_RTC_DIG_RESET_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cpu_reset_req[0], ESP32S3_RTC_CPU_RESET_GPIO, ESP32S3_CPU_COUNT);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cpu_stall_req[0], ESP32S3_RTC_CPU_STALL_GPIO, ESP32S3_CPU_COUNT);
+@@ -238,6 +424,15 @@ static Property esp32s3_rtc_cntl_properties[] = {
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
++static void esp32s3_rtc_cntl_finalize(Object *obj)
++{
++    Esp32s3RtcCntlState *s = ESP32S3_RTC_CNTL(obj);
++
++    notifier_remove(&s->suspend_notifier);
++    qemu_bh_delete(s->wake_bh);
++    esp32s3_gpio_set_sleep_input_callback(NULL, NULL);
++}
++
+ static void esp32s3_rtc_cntl_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+@@ -253,6 +448,7 @@ static const TypeInfo esp32s3_rtc_cntl_info = {
+     .parent = TYPE_SYS_BUS_DEVICE,
+     .instance_size = sizeof(Esp32s3RtcCntlState),
+     .instance_init = esp32s3_rtc_cntl_init,
++    .instance_finalize = esp32s3_rtc_cntl_finalize,
+     .class_init = esp32s3_rtc_cntl_class_init
+ };
+ 
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 25b36d3..ea69a8f 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -485,6 +485,8 @@ static void esp32s3_soc_realize(DeviceState *dev, Error **errp)
+ 
+     qdev_realize(DEVICE(&s->rtc_cntl), &s->rtc_bus, &error_fatal);
+     esp32s3_soc_add_periph_device(sys_mem, &s->rtc_cntl, DR_REG_RTCCNTL_BASE);
++    sysbus_connect_irq(SYS_BUS_DEVICE(&s->rtc_cntl), 0,
++                       qdev_get_gpio_in(intmatrix_dev, ETS_RTC_CORE_INTR_SOURCE));
+ 
+     qdev_connect_gpio_out_named(DEVICE(&s->rtc_cntl), ESP32S3_RTC_DIG_RESET_GPIO, 0,
+                                 qdev_get_gpio_in_named(dev, ESP32S3_RTC_DIG_RESET_GPIO, 0));
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+index fd86510..e3f7e68 100644
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -139,6 +139,11 @@ typedef void (*Esp32GpioPadObserverFn)(void *opaque,
+  * NULL on absent/mismatching controller; never aliases another SoC layout.
+  */
+ Esp32GpioState *esp32_gpio_get_controller(bool s3);
++/* Return whether S3 GPIO has a configured level wake source and whether
++ * any of those pads currently asserts that level. */
++bool esp32s3_gpio_sleep_wakeup(bool *active);
++void esp32s3_gpio_set_sleep_input_callback(void (*callback)(void *opaque),
++                                          void *opaque);
+ /* Pure read. Invalid pin/controller returns false, not a fabricated low. */
+ bool esp32_gpio_pad_snapshot(Esp32GpioState *s, unsigned pin,
+                              Esp32GpioPadSnapshot *snapshot);
+diff --git a/include/hw/gpio/esp32s3_gpio_pad_aux.h b/include/hw/gpio/esp32s3_gpio_pad_aux.h
+index ce0cf22..9f05286 100644
+--- a/include/hw/gpio/esp32s3_gpio_pad_aux.h
++++ b/include/hw/gpio/esp32s3_gpio_pad_aux.h
+@@ -26,6 +26,8 @@ uint32_t esp32s3_gpio_pad_aux_blockers(Esp32GpioState *gpio, unsigned pin);
+  */
+ bool esp32s3_gpio_pad_aux_cntl_read(hwaddr addr, uint32_t *value);
+ bool esp32s3_gpio_pad_aux_cntl_write(hwaddr addr, uint32_t value);
++/* Mirror STATE0 after the digital GPIO sleep controller commits a transition. */
++void esp32s3_gpio_pad_aux_gpio_sleep_state(uint32_t value);
+ /* Bus adapters retain the rest of a word on subword writes. Cross-word or
+  * invalid-width accesses to an owned word are consumed without mutation.
+  */
+diff --git a/include/hw/misc/esp32s3_rtc_cntl.h b/include/hw/misc/esp32s3_rtc_cntl.h
+index 45bd7e2..4f8b654 100644
+--- a/include/hw/misc/esp32s3_rtc_cntl.h
++++ b/include/hw/misc/esp32s3_rtc_cntl.h
+@@ -14,6 +14,7 @@
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
+ #include "hw/misc/esp32s3_reg.h"
++#include "qemu/notify.h"
+ 
+ #define TYPE_ESP32S3_RTC_CNTL "misc.esp32s3.rtc_cntl"
+ #define ESP32S3_RTC_CNTL(obj) OBJECT_CHECK(Esp32s3RtcCntlState, (obj), TYPE_ESP32S3_RTC_CNTL)
+@@ -84,8 +85,21 @@ typedef struct Esp32s3RtcCntlState {
+     uint32_t scratch_reg[ESP32S3_RTC_CNTL_SCRATCH_REG_COUNT];
+     Esp32s3ResetCause reset_cause[ESP32S3_CPU_COUNT];
+     bool stat_vector_sel[ESP32S3_CPU_COUNT];
++    uint32_t sleep_state;
++    uint32_t wakeup_state;
++    uint32_t sleep_reject;
++    uint32_t digital_power;
++    uint32_t sleep_raw;
++    uint32_t sleep_enable;
++    uint32_t wakeup_cause;
++    uint32_t reject_cause;
++    bool gpio_sleep_pending;
++    bool gpio_sleep_clock_stopped;
++    QEMUBH *wake_bh;
++    Notifier suspend_notifier;
+ } Esp32s3RtcCntlState;
+ 
++
+ REG32(RTC_CNTL_OPTIONS0, 0x00)
+     FIELD(RTC_CNTL_OPTIONS0, SW_SYS_RESET, 31, 1)
+     FIELD(RTC_CNTL_OPTIONS0, SW_PROCPU_RESET, 5, 1)
