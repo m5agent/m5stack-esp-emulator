@@ -14,6 +14,28 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 AtomS3 原版实体键与时长
+
+同一原版 Spirit Level 1.0.0 在原生 AtomS3 上收到实际 GPIO41 边沿。
+固定 +0.75 g 输入由来宾通过 MPU6886 读回，无按压时保持 +36.9°。
+短按依次切换 BUBBLE、TUBE、ANGLE 并返回。旧 API 的配对请求目标为 600
+毫秒，实际边沿间隔 611.131 毫秒，看到 `ZERO SET` 和 −0.0°。
+首轮脚本曾把负号零误判为未归零，保留原始记录和独立的像素核验。
+
+Device Service 1.99.3 的按键请求各自发出一次，旧原生运行时可执行文件
+`04abc3ba…` 沿用。600 和 610 毫秒均有 GPIO41 按下和释放，倾角保持 +36.9°。
+700 毫秒归零，保持校准时的倾角读 −0.0°，回正读 −36.9°。2200 毫秒
+观察到 `ZERO SET`，另一次 2350 毫秒观察到 `ZERO RESET`。复位后回正的
+画面恢复到原始基线。保留各次时长、实际边沿、画面和同会话 ZIP。断电
+持久性、真机及浏览器未验。Burner 未提交。
+[实际按键与时长对照记录](https://github.com/m5agent/agent-work-logs/tree/7e9a2c948b12c26cba272cba10279199002196e4/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-gpio41-hold-timing)。
+
+隔离 Reviewer 0.29.1 用同一原版保存快照执行。启动和画面检查通过，
+实际按键请求为单击及 600、2200 毫秒长按，分别记录完整的 GPIO41 边沿。
+标准审核仍为 `SIM_PARTIAL / E_INTERACTION_CLAIM_PARTIAL`，按键回执和
+画面变化未提升为归零或复位断言。核对同一应用字节、同会话 ZIP、停止历史、
+Flash 释放和零活动租约。平台回归 2,494 项中跳过 10 项。
+
 ## 2026-11-19 AtomS3 原版面板探测
 
 独立 Device Service 1.99.2（`f12b15fb`）分别导入 Spirit Level、Motion Face 和
