@@ -36,6 +36,23 @@ Pocket 的启动界面分别在会话进入 `running` 后约 2.07、2.06、2.04 
 全量平台回归共 2,492 项，跳过 10 项。Burner 未提交。
 [原版、输入、面板变体及同会话清理记录](https://github.com/m5agent/agent-work-logs/blob/5f89d48f7bceccfcd54baaf57f29b8296e7df4a1/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/README.md)。
 
+### 原版复审与常驻交付
+
+隔离 Reviewer 0.29 用相同原版保存快照复审 Spirit Level。历史 `/wait` 的 HTTP
+408 变为 HTTP 200 且 `ready=true`，`boot_and_ui` 为 PASS。约 60 秒观察
+采到 13 帧，并保留实际 BUBBLE 画面及同会话 ZIP。综合结果仍为
+`SIM_PARTIAL / E_INTERACTION_CLAIM_PARTIAL`。作者要求按住屏幕 0.6 秒后归零，
+审核解析为触摸长按。这块板由 GPIO41 实体按键接收屏幕按压，实际长按归零未验。
+[原版保存快照审核和就绪证据](https://github.com/m5agent/agent-work-logs/tree/f61d29042c7bee5ff2ed16719fae510218237bfa/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard)。
+
+两套常驻 Device Service 已切换至 `c25fdfc9` 和同一签名候选运行时。工作台与
+审核后端分别保留 55 和 98 条历史会话，均返回精确的 OpenAPI 1.99.2。
+Reviewer 0.29 恢复就绪，130 条审核历史和抽查证据保持一致。常驻回读核对
+运行时签名和启动绑定，原版来宾测试来自独立同版本运行时。
+[#235 原生显示问题](https://github.com/m5agent/m5stack-esp-emulator/issues/235)已按原版出帧证据关闭。
+Burner 未提交。
+[常驻签名、两处 API 回读及历史保留回执](https://github.com/m5agent/agent-work-logs/tree/8f5e28e909dc4299c2f5569a8c84373d05b6c360/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-native-resident)。
+
 ## 2026-11-19 Cardputer ADV Flash 容量结构化归因
 
 原版 16 MiB 合并 BIN 在 Device Service 1.99.1（`c9ec0f27`）的组合和导入
