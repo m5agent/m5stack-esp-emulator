@@ -35,6 +35,17 @@ Device Service 1.99.3 的按键请求各自发出一次，旧原生运行时可�
 标准审核仍为 `SIM_PARTIAL / E_INTERACTION_CLAIM_PARTIAL`，按键回执和
 画面变化未提升为归零或复位断言。核对同一应用字节、同会话 ZIP、停止历史、
 Flash 释放和零活动租约。平台回归 2,494 项中跳过 10 项。
+[保存快照的按键投递与来宾证据](https://github.com/m5agent/agent-work-logs/tree/573c2f1cfdad463abc30c68866e8fd71c4e5a471/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-reviewer-0291-typed-delivery)。
+
+### 常驻服务和 API 回读
+
+工作台和审核后端已由 `2a7f979c` 提供 Device Service 1.99.3，
+两处均读回该版本的 OpenAPI，保留 55 和 98 条设备历史。Reviewer
+`3a45e3d` 用系统 Python 3.9.6 启动，API 0.29.1 就绪并连到本机
+Darwin 后端，130 条审核历史及抽样 ZIP 通过回读。上面的原版执行
+来自同代码和原生二进制的隔离会话。常驻验收核对启动、API 和原有证据。
+Burner 未提交。
+[两套常驻服务、审核进程及历史证据回读](https://github.com/m5agent/agent-work-logs/tree/e2fa44a27d67661454813ac5202f863d6f3fdc60/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-reviewer-0291-typed-delivery/followups/2026-11-19-atoms3-typed-input-resident)。
 
 ## 2026-11-19 AtomS3 原版面板探测
 
