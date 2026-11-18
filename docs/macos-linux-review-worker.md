@@ -48,6 +48,8 @@ Reviewer 0.31 支持 `POST /api/reviews/{job_id}/snapshots`。指定
 原任务保存的 BIN 和描述生成新 dry-run。使用返回的新任务 ID 查状态和证据，
 原任务的终态、事件和证据入口保持可读。遇到响应丢失时，以原请求和同一键重发。
 
+常驻 [Core2 2048 独立复审](validation-ledger.md#2026-11-19-常驻-linux-的-core2-独立复审)已由 `core2_2048` 放行并核对真实四向棋盘变化。调用方可先读 Reviewer 的 `/api/ready/linux-snapshot`，确认目标档案已准入再创建任务。
+
 来宾没有直接网络接口。需要联网的已验证快照使用原有受控转发策略。这个路径的证据覆盖所用固件和策略，虚拟结果的范围见[原版审核证据台账](validation-ledger.md#2026-11-19-reviewer-的-linux-保存快照分流)。
 
 ## 正常排空与故障处理

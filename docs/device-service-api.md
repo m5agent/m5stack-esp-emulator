@@ -835,6 +835,9 @@ description through `POST /api/reviews/{job_id}/snapshots`. The new job owns
 its session and evidence while the source review stays readable. The
 [independent snapshot validation](validation-ledger.md#2026-11-19-reviewer-独立保存快照复审)
 exercised the original Core2 firmware, duplicate requests and restart.
+[Resident Core2 validation](validation-ledger.md#2026-11-19-常驻-linux-的-core2-独立复审)
+also verified the dedicated Linux worker and all four directions through the
+normal `/snapshots` entry point while preserving the original review evidence.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does

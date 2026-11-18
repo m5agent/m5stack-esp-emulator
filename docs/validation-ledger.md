@@ -236,6 +236,25 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 常驻 Linux 的 Core2 独立复审
+
+在常驻 Reviewer 0.31.0（`1151dda0`）只开启 `core2_2048`。配置变化前后
+核对同一个专用第 1 代 Linux Worker；Reviewer 重启后主后端和 Linux 就绪端点
+都返回 HTTP 200。macOS 主后端与两个 Device Service 进程保持原身份，OpenAPI
+仍为 1.99.3。
+
+从历史原版 `41db3680` 通过标准 `/snapshots` 发出一次 HTTP POST，返回 202，
+子任务实际绑定常驻 Linux 会话并读回组合 Flash `cd13c9bc`。13 个样本覆盖
+60.058 秒，七次有效移动覆盖上下左右，终态为 `done / SIM_VERIFIED`。首个
+右移动前的两份基线帧都显示棋盘已无合法右移，按规则跳过，后续右移实测成功。
+严格的八次有效移动检查记录为 `PARTIAL`。
+
+131 条既有审核和 2,818 个证据文件在审核前后核对一致，源任务的 126 条事件
+与 377 个文件也逐项一致。子任务保留独立证据，释放可写 Flash，活动租约与
+待对账创建归零。常驻 Linux 入口继续就绪。此轮为 virtual-device validation，
+设备测试中心未识别出已确认型号的 Core2，真机同 BIN 对照未执行。Burner 未提交。
+[首次常驻 Core2 原版独立复审证据](https://github.com/m5agent/agent-work-logs/blob/0c5f6a50a9858051c2f5b9483d89b67ba447d093/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-installed-linux-worker-component/followups/2026-11-19-independent-saved-snapshot-clone/followups/2026-11-19-resident-core2-snapshot-canary/report.md)。
+
 ## 2026-11-19 Reviewer 独立保存快照复审
 
 以 Reviewer 0.31.0（`1151dda0`）和 Device Service 1.99.3（`2a7f979c`）经
