@@ -174,7 +174,12 @@ def send_semantic_input(session, command, pointer_events):
     repetitions = 2 if action == "double_click" else 1
     qmp = session._qmp_call
 
-    if kind != "touch" and len(qcodes) == 1 and qcodes[0] != "gpio9":
+    queue_single_key = kind != "touch" and len(qcodes) == 1 and qcodes[0] != "gpio9"
+    if queue_single_key and kind == "button" and session.spec.id == "sticks3":
+        # The virtual key queue cannot drain while the guest is suspended.
+        status = (qmp("query-status").get("return") or {}).get("status")
+        queue_single_key = status != "suspended"
+    if queue_single_key:
         hold_ms = math.ceil(seconds * 1000)
         for _ in range(repetitions):
             qmp("send-key", keys=[{"type": "qcode", "data": qcodes[0]}],

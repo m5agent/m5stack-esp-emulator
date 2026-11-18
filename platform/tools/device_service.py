@@ -3520,19 +3520,19 @@ class DeviceSession:
                 409,
             )
         qmp: QMP | None = None
-        qemu_running = False
+        qemu_live = False
         try:
             qmp = wait_qmp(self.qmp_path, timeout=5)
             qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
             status_result = qmp.cmd("query-status")
             status = (status_result.get("return") or {}).get("status")
-            if status != "running":
+            if status not in ("running", "suspended"):
                 raise ServiceError(
                     "reattach_not_running",
-                    f"QEMU status is {status!r}, not running",
+                    f"QEMU status is {status!r}, expected running or suspended",
                     409,
                 )
-            qemu_running = True
+            qemu_live = True
             if self.program_transport == "uart-repl":
                 from guest_console import GuestConsole
 
@@ -3554,7 +3554,7 @@ class DeviceSession:
             if qmp is not None:
                 qmp.close()
             self._close_http_fixture()
-            if qemu_running:
+            if qemu_live:
                 self._reattached_process = True
                 self._terminate_process()
             raise
@@ -3562,7 +3562,7 @@ class DeviceSession:
             if qmp is not None:
                 qmp.close()
             self._close_http_fixture()
-            if qemu_running:
+            if qemu_live:
                 self._reattached_process = True
                 self._terminate_process()
             raise ServiceError(
@@ -6425,9 +6425,14 @@ class DeviceSession:
                 pause=False,
             )
 
+    def _has_live_qmp_process(self) -> bool:
+        if self._proc is not None:
+            return self._proc.poll() is None
+        return self._reattached_process and self._process_identity_matches()
+
     def _qmp_call(self, name: str, **arguments):
         with self._lock:
-            if self._proc is None or self._proc.poll() is not None:
+            if not self._has_live_qmp_process():
                 raise ServiceError("session_not_running", "device process is not running", 409)
             if self._qmp is None:
                 self._qmp = wait_qmp(self.qmp_path, timeout=5)
@@ -6461,10 +6466,7 @@ class DeviceSession:
         """Execute a QMP command whose argument names collide with Python."""
 
         with self._lock:
-            if (
-                self._proc is None
-                or self._proc.poll() is not None
-            ):
+            if not self._has_live_qmp_process():
                 raise ServiceError(
                     "session_not_running",
                     "device process is not running",

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.86.0` and bounded
+Status: local MVP with unified-device runtime contract `1.87.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -689,8 +689,11 @@ service generation finds active leases in the previous `worker.json`, those
 leases are recorded under `abandoned_leases`. A QEMU session can be re-adopted
 only when its persisted PID start time still matches, its command line owns the
 session-specific QMP socket, QMP responds, and `query-status` reports
-`running`. The new service generation then reserves a fresh local lease and
-sets `reattached_process=true`. `recovery_scope=qemu-control-plane` means only
+`running` or guest `suspended`. Paused and shutdown states are rejected.
+The new service generation then reserves a fresh local lease and sets
+`reattached_process=true`. Re-adopting a suspended guest preserves its
+sleep state, and subsequent QMP control checks the process identity again.
+`recovery_scope=qemu-control-plane` means only
 QEMU/QMP was restored. For trusted-host unified sessions,
 `recovery_scope=qemu-control-plane+companions` additionally means the HTTP
 fixture was recreated on its profile port with durable request history and a
@@ -3825,8 +3828,13 @@ still has no native input mapping.
   and `double_click`. A click is 120 ms. A double click submits two 120 ms
   presses with a 120 ms release gap. `seconds` is for a hold only, defaults
   to 1. Semantic buttons accept 0.001–10, and keyboard and touch accept 0.001–5.
-  A standalone QMP key uses the existing virtual
-  queue. Touch and the NanoC6 GPIO button use synchronous host timing.
+  A standalone QMP key uses the existing virtual queue. A semantic
+  StickS3 button submitted with QMP status `suspended` uses direct press
+  and release edges with a host wait between them. The receipt reports
+  `timing.clock:"host"` and `timing.completion:"events_sent"`. This allows a
+  configured wake input to reach the model while the virtual key queue is
+  frozen. The receipt establishes dispatch only. Touch and the NanoC6
+  GPIO button also use synchronous host timing.
 - A chord presses two to four distinct model controls in one QMP input
   batch, holds them for 0.45 host seconds by default, and releases them in
   reverse order in one batch. `target` defaults to `keyboard` on either

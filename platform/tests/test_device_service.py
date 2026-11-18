@@ -6504,13 +6504,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_semantic_buttons_queue_virtual_hold_and_two_presses(self):
         session = self._stopped_session()
         session.state = "running"
-        with mock.patch.object(session, "_qmp_call") as qmp:
+        with mock.patch.object(session, "_qmp_call", return_value={"return": {"status": "running"}}) as qmp:
             held = session.inject({"kind": "button", "control": "b", "action": "hold",
                                    "seconds": 5, "settle_seconds": 0})
             double = session.inject({"kind": "button", "control": "a", "action": "double_click",
                                      "settle_seconds": 0})
         self.assertEqual(qmp.call_args_list, [
+            mock.call("query-status"),
             mock.call("send-key", keys=[{"type": "qcode", "data": "b"}], **{"hold-time": 5000}),
+            mock.call("query-status"),
             *[mock.call("send-key", keys=[{"type": "qcode", "data": "a"}], **{"hold-time": 120})] * 2,
         ])
         self.assertEqual((held["timing"]["clock"], held["timing"]["hold_time_ms"]), ("virtual", 5000))
@@ -6520,14 +6522,61 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_longer_semantic_button_is_bounded_and_queues_virtual_time(self):
         session = self._stopped_session()
         session.state = "running"
-        with mock.patch.object(session, "_qmp_call") as qmp:
+        with mock.patch.object(session, "_qmp_call", return_value={"return": {"status": "running"}}) as qmp:
             payload = {"kind": "button", "control": "b", "action": "hold",
                        "seconds": 6.2, "settle_seconds": 0}
             self.assertEqual(session.inject(payload)["timing"]["hold_time_ms"], 6200)
-            qmp.assert_called_once_with("send-key", keys=[{"type": "qcode", "data": "b"}],
-                                        **{"hold-time": 6200})
+            self.assertEqual(qmp.call_args_list, [
+                mock.call("query-status"),
+                mock.call("send-key", keys=[{"type": "qcode", "data": "b"}], **{"hold-time": 6200}),
+            ])
             with self.assertRaises(ServiceError):
                 session.inject({**payload, "seconds": 10.001})
+
+    def test_suspended_sticks3_button_uses_direct_host_edges_and_releases_on_cancel(self):
+        session = self._stopped_session()
+        session.state = "running"
+        suspended = {"return": {"status": "suspended"}}
+        command = {"kind": "button", "control": "a", "action": "hold",
+                   "seconds": 0.001, "settle_seconds": 0}
+        key = {"type": "qcode", "data": "a"}
+        press = mock.call("input-send-event", events=[
+            {"type": "key", "data": {"down": True, "key": key}},
+        ])
+        release = mock.call("input-send-event", events=[
+            {"type": "key", "data": {"down": False, "key": key}},
+        ])
+        with mock.patch.object(session, "_qmp_call", side_effect=[suspended, {}, {}]) as qmp:
+            receipt = session.inject(command)
+        self.assertEqual(qmp.call_args_list, [mock.call("query-status"), press, release])
+        self.assertEqual(receipt["timing"], {
+            "clock": "host", "hold_seconds": 0.001, "presses": 1, "completion": "events_sent",
+        })
+        self.assertEqual(session.events[-1]["timing"], receipt["timing"])
+
+        def stop_after_down(name, **arguments):
+            if name == "query-status":
+                return suspended
+            if arguments["events"][0]["data"]["down"]:
+                session._stop_event.set()
+            return {}
+
+        before = len(session.events)
+        with mock.patch.object(session, "_qmp_call", side_effect=stop_after_down) as qmp:
+            with self.assertRaises(device_service_module.SessionCancelled):
+                session.inject(command)
+        self.assertEqual(qmp.call_args_list, [mock.call("query-status"), press, release])
+        self.assertEqual(len(session.events), before)
+
+    def test_other_native_board_single_button_keeps_virtual_queue_without_status_poll(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session.spec = self.service.specs["core2"]
+        with mock.patch.object(session, "_qmp_call") as qmp:
+            receipt = session.inject({"kind": "button", "control": "a", "settle_seconds": 0})
+        qmp.assert_called_once_with("send-key", keys=[{"type": "qcode", "data": "a"}],
+                                    **{"hold-time": 120})
+        self.assertEqual(receipt["timing"]["completion"], "queued")
 
     def test_semantic_button_chord_groups_edges_and_releases_on_cancel(self):
         session = self._stopped_session()
@@ -6992,7 +7041,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         finally:
             restarted.close_all()
 
-    def test_running_orphan_is_rejected_and_verified_process_is_reattached(
+    def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):
         orphan = self._stopped_session(session_id="a" * 32)
@@ -7030,10 +7079,12 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.worker.reserve_lease(stale.id)
 
         self.service._stop.set()
+        self.service._janitor.join(timeout=5)
+        self.assertFalse(self.service._janitor.is_alive())
         self.service.worker.close()
         fake_qmp = mock.MagicMock()
         fake_qmp.cmd.side_effect = lambda command, **arguments: (
-            {"return": {"status": "running"}}
+            {"return": {"status": "suspended"}}
             if command == "query-status"
             else {"return": {}}
         )
@@ -7097,18 +7148,57 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     reattached.id
                 )["events"]
                 self.assertEqual(live_events[-1]["event"], "reattached")
+                self.assertEqual(live_events[-1]["qmp_status"], "suspended")
                 self.assertEqual(
                     live_events[-1]["recovery_scope"],
                     "qemu-control-plane",
                 )
+                live = restarted.get_session(reattached.id)
+                receipt = live.inject({"kind": "button", "control": "a", "action": "hold",
+                                       "seconds": 0.001, "settle_seconds": 0})
+                self.assertEqual((receipt["timing"]["clock"], receipt["timing"]["completion"]),
+                                 ("host", "events_sent"))
+                press, release = fake_qmp.cmd.call_args_list[-2:]
+                self.assertEqual([press.args[0], release.args[0]], ["input-send-event"] * 2)
+                self.assertEqual([edge.kwargs["events"][0]["data"]["down"] for edge in (press, release)],
+                                 [True, False])
+                with mock.patch.object(live, "process_start_token", "stale-start-token"):
+                    commands = fake_qmp.cmd.call_count
+                    with self.assertRaises(ServiceError) as stale_input:
+                        live.inject({"kind": "button", "control": "a", "settle_seconds": 0})
+                    self.assertEqual(stale_input.exception.code, "session_not_running")
+                    self.assertEqual(fake_qmp.cmd.call_count, commands)
             finally:
                 restarted.close_all()
+                if restarted._shutdown_thread is not None:
+                    restarted._shutdown_thread.join(timeout=5)
+                    self.assertFalse(restarted._shutdown_thread.is_alive())
             process.wait(timeout=5)
             self.assertIsNotNone(process.poll())
         finally:
             if process.poll() is None:
                 process.terminate()
                 process.wait(timeout=5)
+
+    def test_reattach_rejects_verified_process_in_paused_or_shutdown_state(self):
+        session = self._stopped_session()
+        session.state = "running"
+        for status in ("paused", "shutdown"):
+            with self.subTest(status=status):
+                qmp = mock.MagicMock()
+                qmp.cmd.return_value = {"return": {"status": status}}
+                with (
+                    mock.patch.object(session, "_process_identity_matches", return_value=True),
+                    mock.patch.object(device_service_module, "wait_qmp", return_value=qmp),
+                    mock.patch.object(self.service.worker, "reserve_lease") as reserve,
+                ):
+                    with self.assertRaises(ServiceError) as rejected:
+                        session._reattach_runtime()
+                self.assertEqual(rejected.exception.code, "reattach_not_running")
+                self.assertFalse(session._reattached_process)
+                qmp.cmd.assert_called_once_with("query-status")
+                qmp.close.assert_called_once_with()
+                reserve.assert_not_called()
 
     def test_unified_reattach_recovers_http_and_adopts_live_ble_peer(self):
         spec = self.service.specs["sticks3"]

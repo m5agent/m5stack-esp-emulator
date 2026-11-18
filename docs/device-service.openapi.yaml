@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.86.0
+  version: 1.87.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2899,8 +2899,11 @@ paths:
             cancel the queue; system_reset does not guarantee cancellation, while
             stopping the VM destroys it. Managed Preview default taps and NanoC6
             GPIO taps retain synchronous host timing and completion=events_sent.
-            For semantic native controls, an accepted receipt describes input
-            submission; confirm guest response or controller delivery separately.
+            A semantic native StickS3 button submitted in QMP suspended state
+            uses direct QMP press and release edges with a host-side wait and
+            returns timing.clock=host and completion=events_sent. For semantic
+            native controls, an accepted receipt describes input submission;
+            confirm guest response or controller delivery separately.
             Encoder requests return controller.completion=queued, the target,
             selected edge interval, and prior physical state.
             Native Tab5 gestures return coordinate_space=panel-native,
@@ -6242,6 +6245,8 @@ components:
           description: >
             True when the current service accepted a previously orphaned QEMU
             process only after PID start-time and QMP ownership checks.
+            QMP running or guest suspended state can be re-adopted.
+            Paused and shutdown states are rejected.
         recovery_scope:
           type: [string, "null"]
           enum:
