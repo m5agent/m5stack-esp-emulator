@@ -241,6 +241,8 @@ Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发�
 
 剩余验收覆盖 8 MiB Quad PSRAM 分配与内存读写、Wi-Fi 实际收发、浏览器硬件
 复位及默认 Device Service 固件准入。原生诊断仍使用独立入口。
+同一官方镜像在[本地浏览器的来宾堆查询](validation-ledger.md#2026-11-19-corematrix-原版浏览器外部堆)
+未报告外部区域。32 KiB 写读通过，1 MiB 分配返回 `MemoryError`。
 
 ### RUNTIME-09：AtomS3 Lite 工作台首次启动及硬复位后的 SYSTIMER PIF
 

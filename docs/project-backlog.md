@@ -27,6 +27,7 @@
 
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。[Meshtastic RFID 原版复验](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)确认当前模型上 IDLE 订阅未喂狗，UART 等待正常返回。[UART1 同原版对照](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-18-nesso-rfid-current-paired/followups/2026-11-18-nesso-rfid-uart1/evidence/nesso-rfid-uart1-summary.json)已验证有效与错误校验应答。继续定位原版 TWDT 与载荷长度处理，验证真实 PN532Killer 应答、标签读取和独立 Zigbee 数据面。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
+- [#235](https://github.com/m5agent/m5stack-esp-emulator/issues/235)：AtomS3 的三款原版应用仍有 IMU 读活动与黑屏，报告中的 SPI3 计数仅覆盖外设传输。需在同一原版会话测量 M5GFX 的 GPIO 三线 RDDID 探测，再验收实际面板初始化和非黑应用画面。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
 - [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的原版 Maker Fighter 在 esp-emu 1.1.0 已初始化 DWC 并注册客户端。根端口供电，仍需真实的外设连接、HID/MSC 枚举、数据传输及应用画面。[当前版本与能力接口对照](https://github.com/m5agent/agent-work-logs/blob/cb240b4d96bfa470ff7aa19926c8c9f74931a418/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/README.md)。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；[无 USB 原版对照](validation-ledger.md#2026-11-19-papercolor-原版启动互斥锁断言)确认断言时两核任务关系，继续定位完整锁操作与共享外设事务。
@@ -85,7 +86,7 @@
    路由验收实际控制器、持久卷独占和相关宿主资源的回收，以及其他原版应用的 HTTPS 与云端协议。[ADV 标准发音复审](validation-ledger.md#2026-11-19-cardputerdict-adv-原版标准发音复审)
    已在隔离 Linux 验证放行、拒绝与初代兼容。[macOS Reviewer 经 VSOCK 接入 Linux](validation-ledger.md#2026-11-19-macos-reviewer-接入隔离-linux-的-adv-原版复审)
    完成标准 ADV 放行与拒绝对照。[跨系统同卷冷启动](validation-ledger.md#2026-11-19-macos-reviewer-与-linux-同卷冷启动)
-   已用旧审核的真实活动租约验证无回执拒绝、有回执清理及同原版重试。常驻 Linux
+   已在 Reviewer 0.28 与 0.29 的真实活动租约上验证无回执拒绝、有回执清理及同原版重试。常驻 Linux
    路由仍需独立验收稳定控制器、持久卷和实际部署的故障恢复。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
@@ -106,7 +107,7 @@
    官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
    [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。继续验证其他固件的音频、麦克风与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入。[1.99 时区与离线选项](validation-ledger.md#2026-11-19-tab5-m5tabos-原版时区与页面往返)已取得加减、恢复及页面返回。
    [原版离线设置复位](validation-ledger.md#2026-11-19-tab5-m5tabos-原版设置跨重启)已验证 ST7123 完成向导与同会话保存。继续验证快速触摸、联网设置、其他板型和非正常关机后的恢复。
-   高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
+   [原版 DSI 重连](validation-ledger.md#2026-11-19-tab5-原版-dsi-重连)已实测显示 socket 两次断开并重新出帧。继续验证高压下连接保持时的静默丢帧与稀疏差分。
    [会话 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)已验证原生 FAT16 数据面。继续验证原版启动盘路径及 C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的独立关闭条件。
    [原版 CarPlay 板型探测](validation-ledger.md#2026-11-19-tab5-原版-carplay-板型探测复验)已在
@@ -142,7 +143,7 @@
 
 ## 新增主机剩余工作
 
-- CoreMatrix C158：验收 8 MiB Quad PSRAM、Wi-Fi 数据面和浏览器硬件复位。默认 Device Service 准入仍需独立验证固件上传契约和普通会话生命周期。
+- CoreMatrix C158：[原版浏览器外部堆](validation-ledger.md#2026-11-19-corematrix-原版浏览器外部堆)回读为空。继续验收 8 MiB Quad PSRAM、Wi-Fi 数据面和浏览器硬件复位。默认 Device Service 准入须独立验证上传和会话生命周期。
 - PaperS3、PaperDIY、初代 Cardputer：继续验收各型号的电源、音频、存储与其它外设。PaperS3 已验证[原生 GT911 配置扫描周期](../tests/firmware/paper_runtime/gt911_scan/summary.json)，Factory V0.5 仍间歇漏响应。把已证实的原生 GT911 迟采样与原版前台绘图入队或其他应用操作关联，再以稳定帧、浏览器和同板真机对照区分各运行时的延迟。[浏览器总线与同帧证据](evidence/2026-11-18-papers3-browser-gt911/README.md)
 
 ## 已完成，不再作为待办

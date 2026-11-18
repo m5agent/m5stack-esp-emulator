@@ -120,6 +120,17 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本轮为隔离演练。常驻路由、宿主断电和 Reviewer 0.29 的同卷路径待验，Burner 未提交。
 [冷启动拒绝、授权恢复及原版重试](https://github.com/m5agent/agent-work-logs/blob/e9d18d4c1a78323d1060ae47cf39b0d3d01cd52a/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/README.md)。
 
+### Reviewer 0.29 同卷复验
+
+以系统 Python 3.9.6 实际运行本机已发布的 Reviewer 0.29.0（`69386c6`），连接
+隔离 Linux Device Service 1.99.1（`c9ec0f27`）。两次启动复用同一独占状态卷和
+认证后端地址，Worker 代次依次为 1、2、3。标准复审依次返回 202、409、202。
+无回执轮保留旧租约、Flash、创建意图与 PCAP。只读停机回执获准后释放旧资源，
+旧 PCAP 和日志内容一致。同一原版重试返回 `SIM_VERIFIED`，取得 10,605 字节 MP3
+与 84,992 字节 PCM。两台虚拟机、各转发进程及 Reviewer 都已退出，租约归零。
+本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
+[Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
+
 ## 2026-11-19 Linux 控制器的持久卷独占
 
 在隔离 Linux VZ 的同一原版审核租约存活期间，第二个控制器以同路径或别名抢占持久卷
@@ -187,6 +198,20 @@ BSP 断言、非法指令或软件复位。保留同会话 ZIP，P4/C6、租约�
 USB/iPhone、其他板型和真机另验。Burner 未提交。
 [同会话原版主页、输入与退出证据](https://github.com/m5agent/agent-work-logs/blob/8380223b0970e80e3c91d6a23f7a4de589cb7c71/records/esp-emulator/2026-11-17-tab5-st7123-gt911-gestures/followups/2026-11-18-tab5-227-carplay-199/followups/2026-11-19-tab5-227-carplay-1991/README.md)。
 
+## 2026-11-19 Tab5 原版 DSI 重连
+
+原版 M5TabOS 0.9.1 在 esp-emu 1.1.0 与 ST7123 上运行。仅断开 Device Service
+1.99.1 的显示 socket 后，公开取帧持续返回 409。独立客户端按同一协议重新挂接
+VC0，取得同一个来宾的完整欢迎页。实际点击将画面切到时区页，原接口仍返回 409。
+
+1.99.2（`b221c876`）在同一原版会话分别于欢迎页和时区页切断显示连接。
+两次间隔均有实际 409，随后取回完整的 720×1280 新帧，测得约 0.66 秒和 0.67 秒。
+实际 ST7123 输入先打开时区页，再显示 UTC−2:30。P4、C6 和会话身份保持相同。
+串口只有一次启动，五份 ZIP 成员及清理已校验，租约与可写 Flash 释放。
+先前的一轮候选未在断线前取到完整帧，原因未归属。无数据且连接保持的情形、高压
+丢失稀疏差分和真机仍待验证。Burner 未提交。
+[基线、候选与两次断线回执](https://github.com/m5agent/agent-work-logs/blob/2edd6a65904a1ed1ec7be37d93794aae4440e574/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-resident-1991-tab5-retained-reset/followups/2026-11-19-tab5-dsi-reconnect-1992/README.md)。
+
 ## 2026-11-19 PaperColor 原版启动互斥锁断言
 
 同一 PaperColor 原厂 BIN 在独立普通冷启动未接收宿主 USB 请求，仍发生
@@ -207,6 +232,25 @@ USB/iPhone、其他板型和真机另验。Burner 未提交。
 两轮保留原 BIN、同会话 ZIP 与实际输入回执，租约已释放。同初始曲目和方向的
 六次独立 35 ms 对照也通过。空档的调度来源和真机仍待验证。
 [原版 8 ms GPIO 回读与 UART 对照](https://github.com/m5agent/agent-work-logs/blob/6f7f2576483ce64a52f15b30cfb51af26330762a/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-dial-encoder-track-review/followups/2026-11-18-dial-199-original-cadence/followups/2026-11-19-dial-8ms-original-phase-readback/README.md)。
+
+### 控制宿主轮询的原版对照
+
+同一 R1F30 固件在 Device Service 1.99.1（`c9ec0f27`）上，每次重建相同起始
+曲目并投递同一旋钮序列，只改变旋转期间频繁查询或静默等待。8 ms 每组 12/12，
+35 ms 每组 2/2。全部 28 次交付 64 个边沿并收到正确的 UART 选曲命令。
+本轮未复现旧漏读，无法确定宿主查询对偶发漏选的影响。ZIP 已校验，Flash 和租约
+已释放。Burner 未提交。
+[同固件轮询对照证据](https://github.com/m5agent/agent-work-logs/blob/9115a83906399f9fef288dae964ffb7d53702d7f/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-dial-encoder-track-review/followups/2026-11-18-dial-199-original-cadence/followups/2026-11-19-dial-8ms-original-phase-readback/followups/2026-11-19-dial-8ms-host-query-crossover/README.md)。
+
+## 2026-11-19 CoreMatrix 原版浏览器外部堆
+
+在本机导出的 C61 浏览器 WASM（`83ed57e0…`）上传官方 CoreMatrix UIFlow2
+v2.5.4 原版（`0bfbe5a4…`），实测启动点阵和同一会话的 USB Raw REPL。
+来宾返回 179,624 字节 `HEAP_DATA` 总容量，按 `MALLOC_CAP_SPIRAM` 查询返回空列表。
+32 KiB 缓冲区八个间隔位置和尾部写读通过。1 MiB 分配返回 `MemoryError`，
+点阵与会话继续工作。正常退出后五个实际 Worker 全部关闭，iframe 已移除。
+本轮未验收 8 MiB PSRAM、原生 Device Service 或真机。
+[同原版浏览器堆与退出证据](https://github.com/m5agent/agent-work-logs/blob/322a177a9b50670780725072e7405f51879acf88/records/esp-emulator/2026-11-09-four-controller-wasm/followups/2026-11-19-corematrix-c61-stock-browser-memory/README.md)。
 
 ## 2026-11-19 Linux 活动审核冷启动恢复
 
