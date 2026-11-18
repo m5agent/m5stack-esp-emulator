@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import http.client
+import hashlib
 import io
 import ipaddress
 import json
@@ -39,6 +40,82 @@ def dns_query(name: str, qtype: int = 1) -> bytes:
 
 
 class NetworkSandboxTests(unittest.TestCase):
+    def test_local_sta_streams_return_only_exact_binary_requests(self):
+        request, reply = b"\0request\xff", b"\0reply\xfe"
+        fixture = {"request_hex": request.hex(), "response_hex": reply.hex()}
+        modes = {"http_post_fixture": 0, "tcp_fixture": 0}
+        with tempfile.TemporaryDirectory() as directory, mock.patch.dict(network_sandbox.STA_STREAM_PORTS, modes):
+            for key in modes:
+                with self.subTest(key=key):
+                    log = Path(directory) / f"{key}.json"
+                    peer = network_sandbox.ControlledStaStream(key, fixture, log)
+                    peer.start()
+                    self.addCleanup(peer.close)
+                    target = peer.socket.getsockname()
+
+                    def exchange(message):
+                        received = bytearray()
+                        with socket.create_connection(target, timeout=3) as stream:
+                            stream.sendall(message)
+                            stream.shutdown(socket.SHUT_WR)
+                            while chunk := stream.recv(1024):
+                                received.extend(chunk)
+                        return bytes(received)
+
+                    if key == "http_post_fixture":
+                        head = (b"POST /native-sta-post HTTP/1.1\r\nHost: post.native-sta.test\r\n"
+                                + f"Content-Length: {len(request)}\r\n\r\n".encode())
+                        self.assertTrue(exchange(head + request).endswith(b"\r\n\r\n" + reply))
+                        self.assertTrue(exchange(head + request[:-1] + b"!").startswith(b"HTTP/1.0 422"))
+                        self.assertTrue(exchange(head.replace(b"post.native-sta.test", b"other.test") + request)
+                                        .startswith(b"HTTP/1.0 400"))
+                    else:
+                        self.assertEqual(exchange(struct.pack("!H", len(request)) + request),
+                                         struct.pack("!H", len(reply)) + reply)
+                        self.assertEqual(exchange(struct.pack("!H", len(request)) + request[:-1] + b"!"), b"")
+                        self.assertEqual(exchange(struct.pack("!H", len(request)) + request[:-1]), b"")
+                    peer.close()
+                    self.assertFalse(peer.thread.is_alive())
+                    result = json.loads(log.read_text())
+                    self.assertEqual((result["requests_seen"], result["matched_requests"], result["replies_sent"]), (3, 1, 1))
+                    first, wrong, malformed = result["observations"]
+                    self.assertEqual(first["outcome"], "replied")
+                    self.assertEqual(first["request_sha256"], hashlib.sha256(request).hexdigest())
+                    self.assertEqual(first["reply_sha256"], hashlib.sha256(reply).hexdigest())
+                    self.assertEqual(wrong["outcome"], "request_mismatch")
+                    self.assertNotIn("reply_sha256", wrong)
+                    self.assertEqual(malformed["outcome"], "invalid_request")
+                    self.assertNotIn("request_sha256", malformed)
+                    self.assertNotIn(request.hex(), log.read_text())
+                    self.assertNotIn(reply.hex(), log.read_text())
+
+    def test_local_sta_stream_ports_require_no_external_gateway(self):
+        config = {
+            "http": {"port": 18192}, "http_post_fixture": {}, "tcp_fixture": {},
+            "udp": {"port": 19192, "request_hex": "00", "response_hex": "01"},
+            "dns": {"port": 53},
+        }
+        self.assertEqual(network_sandbox._loopback_ports(config), ({18192, 18193, 19193}, {53, 19192}))
+        with self.assertRaisesRegex(network_sandbox.SandboxError, "cannot allocate an external gateway"):
+            network_sandbox.run_with_gateway(config, [], config_path=Path("unused"))
+
+    def test_local_sta_tcp_wrong_configured_reply_remains_observable(self):
+        with tempfile.TemporaryDirectory() as directory, mock.patch.dict(network_sandbox.STA_STREAM_PORTS, tcp_fixture=0):
+            log = Path(directory) / "tcp.json"
+            peer = network_sandbox.ControlledStaStream("tcp_fixture", {"request_hex": "01", "response_hex": "03"}, log)
+            peer.start()
+            try:
+                with socket.create_connection(peer.socket.getsockname(), timeout=3) as stream:
+                    stream.sendall(b"\0\1\1")
+                    with stream.makefile("rb") as reader:
+                        reply = reader.read()
+                self.assertNotEqual(reply, b"\0\1\2")
+                self.assertEqual(reply, b"\0\1\3")
+            finally:
+                peer.close()
+            result = json.loads(log.read_text())
+            self.assertEqual(result["observations"][0]["reply_sha256"], hashlib.sha256(b"\3").hexdigest())
+
     def test_isolation_evidence_cleanup_is_recorded(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "isolation.json"

@@ -100,8 +100,10 @@ from device_service_native_hid import (  # noqa: E402
     require_native_hid_backend,
 )
 from device_service_network import (  # noqa: E402
+    STA_STREAM_PORTS,
     parse_dns_cname_records,
     parse_network_policy,
+    parse_sta_stream_fixtures,
     parse_udp_fixture,
 )
 from device_service_network_execution import parse_network_execution  # noqa: E402, F401
@@ -733,6 +735,13 @@ def redacted_network_config(config: dict | None) -> dict:
     for key in ("password", "wifi_password", "firmware_ap_password"):
         if key in safe and safe[key] is not None:
             safe[key] = "<redacted>"
+    for key in STA_STREAM_PORTS:
+        fixture = safe.get(key)
+        if isinstance(fixture, dict) and "request_hex" in fixture:
+            request = bytes.fromhex(fixture["request_hex"])
+            response = bytes.fromhex(fixture["response_hex"])
+            safe[key] = {"request_bytes": len(request), "request_sha256": hashlib.sha256(request).hexdigest(),
+                         "response_bytes": len(response), "response_sha256": hashlib.sha256(response).hexdigest()}
     return safe
 
 
@@ -1102,6 +1111,9 @@ def parse_qemu_wifi_execution(
     if not isinstance(value, dict):
         raise ServiceError("invalid_network", "network must be an object", 400)
     profile = value.get("profile", default_profile)
+    streams = parse_sta_stream_fixtures(value)
+    if streams and (profile != GENERIC_WIFI_PROFILE or spec.id not in {"cardputer", "cardputer-adv"}):
+        raise ServiceError("invalid_network", "local STA stream fixtures require Cardputer/ADV generic-observe", 400)
     if profile == STA_TIME_PROFILE:
         if spec.id != STA_TIME_DEVICE:
             raise ServiceError("unsupported_network_profile", "local time fixture requires Cardputer ADV", 400)
@@ -1175,6 +1187,7 @@ def parse_qemu_wifi_execution(
     endpoints = implicit_allowlist_endpoints(profile) if http_fixture else ()
     if udp_fixture:
         endpoints += (EgressEndpoint(protocol="udp", address="10.0.2.2", port=int(udp_fixture["port"])),)
+    endpoints += tuple(EgressEndpoint(protocol="tcp", address="10.0.2.2", port=STA_STREAM_PORTS[key]) for key in streams)
     policy = parse_network_policy(value.get("policy"), implicit_endpoints=endpoints)
     generic_http_fixture = profile == GENERIC_WIFI_PROFILE and http_fixture
     core2_http_fixture = profile == CORE2_WIFI_PROFILE and http_fixture
@@ -1196,6 +1209,13 @@ def parse_qemu_wifi_execution(
             "Core2 HTTP fixture requires Open Wi-Fi and only local fixture endpoints",
             400,
         )
+    if streams and (
+        policy.isolation != "namespace" or policy.egress != "allowlist"
+        or policy.allowed_domains or any(endpoint not in endpoints for endpoint in policy.allowed_endpoints)
+        or value.get("cname_records") or value.get("hostfwd")
+        or value.get("capture_pcap", True) is not True
+    ):
+        raise ServiceError("invalid_network", "local STA stream fixtures require a captured namespace with only local fixture endpoints", 400)
     cname_records = parse_dns_cname_records(
         value.get("cname_records"),
         policy,
@@ -1225,6 +1245,7 @@ def parse_qemu_wifi_execution(
         **({"generic_http_fixture": True} if generic_http_fixture else {}),
         **({"core2_http_fixture": True} if core2_http_fixture else {}),
         **({"udp_fixture": udp_fixture} if udp_fixture is not None else {}),
+        **streams,
         "policy": policy.evidence(),
         "cname_records": cname_records,
     }
@@ -2874,6 +2895,7 @@ class DeviceSession:
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.dns_fixture_log = self.dir / "dns-fixture.json"
         self.udp_fixture_log = self.dir / "udp-fixture.json"
+        self.sta_stream_logs = {key: self.dir / (key.replace("_", "-") + ".json") for key in STA_STREAM_PORTS}
         self.softap_fixture_receipt = self.dir / "softap-fixture.json"
         self.sta_time_fixture_receipt = self.dir / "sta-time-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
@@ -4698,6 +4720,11 @@ class DeviceSession:
                 udp_receipt = None
             if isinstance(udp_receipt, dict):
                 evidence["udp_fixture"] = udp_receipt
+        for key in STA_STREAM_PORTS:
+            if self.network_config.get(key):
+                receipt = self._read_wifi_peer_receipt(self.sta_stream_logs[key])
+                evidence[key] = (receipt if receipt.get("status") == "ready"
+                                 else {"schema_version": 1, "status": "unavailable", "port": STA_STREAM_PORTS[key]})
         evidence["packet_capture"] = self._network_capture_evidence()
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
@@ -4769,6 +4796,7 @@ class DeviceSession:
             or previous.get("checks") != evidence.get("checks")
             or previous.get("native_data_plane") != evidence.get("native_data_plane")
             or previous.get("udp_fixture") != evidence.get("udp_fixture")
+            or any(previous.get(key) != evidence.get(key) for key in STA_STREAM_PORTS)
             or previous.get("softap_fixture") != evidence.get("softap_fixture")
             or previous.get("sta_time_fixture") != evidence.get("sta_time_fixture")
         ):
@@ -6223,6 +6251,11 @@ class DeviceSession:
                 self.udp_fixture_log.unlink(missing_ok=True)
                 sandbox_config["udp"] = udp_fixture
                 sandbox_config["udp_log"] = str(self.udp_fixture_log)
+            for key in STA_STREAM_PORTS:
+                if key in self.network_config:
+                    log = self.sta_stream_logs[key]
+                    log.unlink(missing_ok=True)
+                    sandbox_config[key] = {"fixture": self.network_config[key], "log": str(log)}
             http_profile = profile in UNIFIED_HTTP_PORTS
             if (
                 http_profile and self.network_config.get("http_fixture", True)
@@ -8926,6 +8959,11 @@ class DeviceSession:
                 ).encode()
             if self.network_config.get("udp_fixture") and self.udp_fixture_log.is_file():
                 files["network/udp-fixture.json"] = self.udp_fixture_log.read_bytes()
+            for key in STA_STREAM_PORTS:
+                if key in network_payload:
+                    files[f"network/{key.replace('_', '-')}.json"] = (
+                        json.dumps(network_payload[key], indent=2) + "\n"
+                    ).encode()
             if self.network_isolation_path.is_file():
                 files["network/isolation.json"] = (
                     self.network_isolation_path.read_bytes()
@@ -11772,6 +11810,9 @@ class DeviceService:
             and requested_network.get("udp_fixture") is not None
         ):
             raise ServiceError("invalid_network", "UDP fixture requires runtime=qemu-wifi", 400)
+        if (runtime != QEMU_WIFI_RUNTIME and isinstance(requested_network, dict)
+                and any(key in requested_network for key in STA_STREAM_PORTS)):
+            raise ServiceError("invalid_network", "local STA stream fixtures require runtime=qemu-wifi", 400)
         if runtime == "network":
             network_config = parse_network_execution(
                 spec,

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.85.0` and bounded
+Status: local MVP with unified-device runtime contract `1.86.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -2824,6 +2824,24 @@ The network response and evidence ZIP record the UDP peer's sent and ignored
 datagram counts and hashes of the two configured payloads. Check the same
 guest's serial or application data plane to prove it consumed the response.
 PCAP headers and reverse-direction counts are passive transport observations.
+
+Cardputer and Cardputer ADV `generic-observe` sessions can also opt into
+`network.http_post_fixture` and `network.tcp_fixture`. Each takes exactly
+`request_hex` and `response_hex`, with 1–512 bytes in each. The HTTP peer at
+`10.0.2.2:18193` accepts `POST /native-sta-post` with `Host: post.native-sta.test`
+and one bounded `Content-Length` body. The socket peer at `10.0.2.2:19193`
+exchanges one frame each way, using a two-byte unsigned big-endian length and
+the indicated bytes. Both send the configured response only for an exact
+request. Existing GET, DNS and UDP peers can run in the same session.
+
+These two peers require `runtime=qemu-wifi`, pcap capture and a Linux namespace
+with `egress=allowlist` and only the local fixture endpoints. Admission rejects
+host forwarding, domain suffix/DNS CNAME rules and extra egress endpoints.
+The `/network` response and evidence ZIP include listener availability, peer
+connection observations, match/reply counts and observed payload digests.
+Fixture payloads are omitted from session metadata and these receipts. Guest
+readback is an independent application assertion. The namespace receipt records
+requested listener closure on teardown.
 
 #### Firmware-created SoftAP and provisioning portal
 

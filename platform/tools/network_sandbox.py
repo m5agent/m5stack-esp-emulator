@@ -45,6 +45,11 @@ IFREQ_SIZE = 40
 MS_BIND = 4096
 MS_REC = 16384
 MS_PRIVATE = 1 << 18
+STA_STREAM_PORTS = {"http_post_fixture": 18193, "tcp_fixture": 19193}
+STA_POST_AUTHORITY = "post.native-sta.test"
+STA_POST_PATH = "/native-sta-post"
+STA_STREAM_MAX_BYTES = 512
+STA_STREAM_MAX_OBSERVATIONS = 16
 
 
 class SandboxError(RuntimeError):
@@ -1020,6 +1025,164 @@ def validate_udp_fixture(value: object) -> dict[str, int | str]:
     return result
 
 
+def validate_sta_stream_fixture(key: str, value: object) -> dict[str, str]:
+    if not isinstance(value, dict) or set(value) != {"request_hex", "response_hex"}:
+        raise SandboxError(f"{key} requires request_hex and response_hex")
+    result = {}
+    for field in ("request_hex", "response_hex"):
+        encoded = value[field]
+        if not isinstance(encoded, str) or not re.fullmatch(r"(?:[a-fA-F0-9]{2}){1,512}", encoded):
+            raise SandboxError(f"{key}.{field} must contain 1–512 bytes encoded as hex")
+        result[field] = encoded.lower()
+    return result
+
+
+def _stream_read(connection: socket.socket, count: int, deadline: float) -> bytes:
+    buffer = bytearray()
+    while len(buffer) < count:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("fixture receive deadline exceeded")
+        connection.settimeout(remaining)
+        chunk = connection.recv(count - len(buffer))
+        if not chunk:
+            raise EOFError("fixture request ended before its declared length")
+        buffer.extend(chunk)
+    return bytes(buffer)
+
+
+def _stream_http_body(connection: socket.socket, deadline: float) -> bytes:
+    head = bytearray()
+    header_end = b"\r\n\r\n"
+    while not head.endswith(header_end):
+        if len(head) >= 4096:
+            raise ValueError("fixture headers exceed their byte limit")
+        head.extend(_stream_read(connection, 1, deadline))
+    request, *fields = bytes(head[:-4]).split(b"\r\n")
+    if request not in {f"POST {STA_POST_PATH} {version}".encode() for version in ("HTTP/1.0", "HTTP/1.1")}:
+        raise ValueError("unexpected fixture request line")
+    headers: dict[bytes, bytes] = {}
+    for line in fields:
+        name, colon, value = line.partition(b":")
+        name = name.lower()
+        if not colon or not re.fullmatch(rb"[a-z0-9-]+", name) or name in headers:
+            raise ValueError("ambiguous fixture header")
+        headers[name] = value.strip()
+    size = headers.get(b"content-length", b"")
+    if b"transfer-encoding" in headers or not re.fullmatch(rb"[0-9]{1,3}", size):
+        raise ValueError("unexpected fixture request headers")
+    length = int(size)
+    if not 1 <= length <= STA_STREAM_MAX_BYTES:
+        raise ValueError("fixture payload exceeds its byte limit")
+    body = _stream_read(connection, length, deadline)
+    if headers.get(b"host", b"").lower() != STA_POST_AUTHORITY.encode():
+        raise ValueError("unexpected fixture HTTP authority")
+    return body
+
+
+class ControlledStaStream:
+    """One bounded request and reply per isolated local connection."""
+
+    def __init__(self, key: str, config: dict[str, str], log_path: Path):
+        fixture = validate_sta_stream_fixture(key, config)
+        self.expected = bytes.fromhex(fixture["request_hex"])
+        self.reply = bytes.fromhex(fixture["response_hex"])
+        self.http = key == "http_post_fixture"
+        self.port = STA_STREAM_PORTS[key]
+        self.log_path = log_path
+        self.stop_event = threading.Event()
+        self.requests_seen = self.matched_requests = self.replies_sent = 0
+        self.observations: list[dict[str, Any]] = []
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.socket.bind(("127.0.0.1", self.port))
+            self.socket.listen(4)
+            self.socket.settimeout(0.2)
+        except OSError:
+            self.socket.close()
+            raise
+        self.thread = threading.Thread(target=self.serve, daemon=True)
+
+    def persist(self) -> None:
+        record = {
+            "schema_version": 1, "status": "ready", "port": self.port,
+            "requests_seen": self.requests_seen, "matched_requests": self.matched_requests,
+            "replies_sent": self.replies_sent, "observations": self.observations,
+        }
+        if self.http:
+            record.update(method="POST", authority=STA_POST_AUTHORITY, path=STA_POST_PATH)
+        temporary = self.log_path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(record, indent=2) + "\n")
+        temporary.replace(self.log_path)
+
+    def start(self) -> None:
+        self.persist()
+        self.thread.start()
+
+    def _reply(self, connection: socket.socket, status: int, body: bytes = b"") -> None:
+        connection.settimeout(0.5)
+        if self.http:
+            reason = {200: "OK", 400: "Bad Request", 422: "Unprocessable Content"}[status]
+            headers = (f"HTTP/1.0 {status} {reason}\r\nContent-Type: application/octet-stream\r\n"
+                       f"Content-Length: {len(body)}\r\nConnection: close\r\n\r\n").encode()
+            connection.sendall(headers + body)
+        elif status == 200:
+            connection.sendall(struct.pack("!H", len(body)) + body)
+
+    def _exchange(self, connection: socket.socket, peer: tuple[str, int]) -> None:
+        self.requests_seen += 1
+        observation = {"flow_id": self.requests_seen, "peer_address": peer[0], "peer_port": peer[1]}
+        deadline = time.monotonic() + 2.0
+        try:
+            if self.http:
+                request = _stream_http_body(connection, deadline)
+            else:
+                length = struct.unpack("!H", _stream_read(connection, 2, deadline))[0]
+                if not 1 <= length <= STA_STREAM_MAX_BYTES:
+                    raise ValueError("fixture frame exceeds its byte limit")
+                request = _stream_read(connection, length, deadline)
+        except (EOFError, OSError, ValueError):
+            outcome, status = "invalid_request", 400
+        else:
+            observation.update(request_bytes=len(request), request_sha256=hashlib.sha256(request).hexdigest())
+            if request == self.expected:
+                self.matched_requests += 1
+                outcome, status = "replied", 200
+            else:
+                outcome, status = "request_mismatch", 422
+        try:
+            self._reply(connection, status, self.reply if status == 200 else b"")
+        except OSError:
+            outcome = "reply_error" if status == 200 else outcome
+        else:
+            if self.http:
+                observation["status_code"] = status
+            if status == 200:
+                self.replies_sent += 1
+                observation.update(reply_bytes=len(self.reply), reply_sha256=hashlib.sha256(self.reply).hexdigest())
+        observation["outcome"] = outcome
+        if len(self.observations) < STA_STREAM_MAX_OBSERVATIONS:
+            self.observations.append(observation)
+        self.persist()
+
+    def serve(self) -> None:
+        while not self.stop_event.is_set():
+            try:
+                connection, peer = self.socket.accept()
+            except TimeoutError:
+                continue
+            except OSError:
+                return
+            with connection:
+                self._exchange(connection, peer)
+
+    def close(self) -> None:
+        self.stop_event.set()
+        self.socket.close()
+        if self.thread.ident is not None:
+            self.thread.join(timeout=3)
+
+
 class ControlledUdp:
     """Binary request/response fixture bound to the isolated worker loopback."""
 
@@ -1343,6 +1506,7 @@ def _loopback_ports(config: dict[str, Any]) -> tuple[set[int], set[int]]:
     udp = config.get("udp")
     if udp is not None:
         udp_ports.add(int(validate_udp_fixture(udp)["port"]))
+    tcp_ports.update(port for key, port in STA_STREAM_PORTS.items() if key in config)
     return tcp_ports, udp_ports
 
 
@@ -1435,6 +1599,17 @@ def run(
         udp_log = config.get("udp_log")
         if not isinstance(udp_log, str) or not udp_log:
             raise SandboxError("sandbox UDP fixture requires a session log path")
+    stream_config = {}
+    for key in STA_STREAM_PORTS:
+        if key not in config:
+            continue
+        value = config[key]
+        if not isinstance(value, dict) or set(value) != {"fixture", "log"} or not isinstance(value["log"], str) or not value["log"]:
+            raise SandboxError("local STA stream fixture requires config and a session log path")
+        stream_config[key] = (validate_sta_stream_fixture(key, value["fixture"]), Path(value["log"]))
+    if stream_config and (not isinstance(policy, dict) or policy.get("isolation") != "namespace"
+                          or policy_egress != "allowlist" or gateway is not None):
+        raise SandboxError("local STA stream fixtures require an allowlist namespace without an external gateway")
     allowed_domains = (
         normalize_domain_suffixes(policy.get("allowed_domains"))
         if isinstance(policy, dict)
@@ -1445,6 +1620,11 @@ def run(
     loopback_udp_ports: set[int] = set()
     if policy_egress == "allowlist":
         endpoints = _egress_endpoints(config)
+        if stream_config:
+            needed = {EgressEndpoint(protocol="tcp", address="10.0.2.2", port=STA_STREAM_PORTS[key])
+                      for key in stream_config}
+            if not needed.issubset(endpoints) or requires_external_gateway(endpoints):
+                raise SandboxError("local STA stream fixtures require exact local endpoint bindings")
         loopback_tcp_ports, loopback_udp_ports = _loopback_ports(config)
         try:
             install_egress_rules(
@@ -1466,6 +1646,7 @@ def run(
     http_config = config.get("http")
     http: ControlledHttp | None = None
     udp: ControlledUdp | None = None
+    streams: dict[str, ControlledStaStream] = {}
     dns: ControlledDns | None = None
     ble_process: subprocess.Popen[str] | None = None
     qemu_process: subprocess.Popen | None = None
@@ -1606,6 +1787,9 @@ def run(
         if udp_config is not None:
             udp = ControlledUdp(udp_config, Path(udp_log))
             udp.start()
+        for key, (fixture, log) in stream_config.items():
+            streams[key] = ControlledStaStream(key, fixture, log)
+            streams[key].start()
 
         ble_config = config.get("ble_probe")
         if ble_config is not None:
@@ -1659,6 +1843,8 @@ def run(
             dns.close()
         if udp is not None:
             udp.close()
+        for stream in streams.values():
+            stream.close()
         if resolv_path is not None:
             resolv_path.unlink(missing_ok=True)
         for signum, handler in previous.items():
@@ -1670,6 +1856,10 @@ def run(
             dns_closed = dns is None or not dns.thread.is_alive()
             http_closed = http is None or not http.thread.is_alive()
             udp_closed = udp is None or not udp.thread.is_alive()
+            stream_cleanup = {
+                f"{key.removesuffix('_fixture')}_closed": key not in streams or not streams[key].thread.is_alive()
+                for key in stream_config
+            }
             update_isolation_evidence(
                 Path(str(evidence_path)),
                 {
@@ -1678,11 +1868,13 @@ def run(
                         and dns_closed
                         and http_closed
                         and udp_closed
+                        and all(stream_cleanup.values())
                     ),
                     "qemu_process_reaped": qemu_process_reaped,
                     "dns_closed": dns_closed,
                     "http_closed": http_closed,
                     "udp_closed": udp_closed,
+                    **stream_cleanup,
                 },
             )
 
@@ -1693,6 +1885,8 @@ def run_with_gateway(
     *,
     config_path: Path,
 ) -> int:
+    if any(key in config for key in STA_STREAM_PORTS):
+        raise SandboxError("local STA stream fixtures cannot allocate an external gateway")
     endpoints = _egress_endpoints(config)
     ipv6_required = requires_external_ipv6(endpoints)
     capability = egress_capability(

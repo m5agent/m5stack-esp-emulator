@@ -53,6 +53,8 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
             "runtime": "qemu-wifi",
             "profile": "generic-observe",
             "operation_assertions": False,
+            "http_post_fixture": True,
+            "tcp_fixture": True,
         }}
         softap_profile = CARDPUTER_SOFTAP_PROFILE
     else:

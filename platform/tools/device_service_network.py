@@ -6,7 +6,10 @@ from typing import Any
 from device_service_errors import ServiceError
 from network_egress import EgressEndpoint
 from network_policy import NetworkPolicy, NetworkPolicyError
-from network_sandbox import SandboxError, validate_cname_record_bindings, validate_udp_fixture
+from network_sandbox import (
+    STA_STREAM_PORTS, SandboxError, validate_cname_record_bindings,
+    validate_sta_stream_fixture, validate_udp_fixture,
+)
 
 
 def parse_network_policy(
@@ -73,5 +76,13 @@ def parse_udp_fixture(value: Any) -> dict[str, int | str] | None:
         return None
     try:
         return validate_udp_fixture(value)
+    except SandboxError as error:
+        raise ServiceError("invalid_network", str(error), 400) from error
+
+
+def parse_sta_stream_fixtures(network: dict) -> dict[str, dict[str, str]]:
+    try:
+        return {key: validate_sta_stream_fixture(key, network[key])
+                for key in STA_STREAM_PORTS if key in network}
     except SandboxError as error:
         raise ServiceError("invalid_network", str(error), 400) from error

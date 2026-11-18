@@ -3051,6 +3051,40 @@ class DeviceServiceUnitTests(unittest.TestCase):
             {"protocol": "udp", "address": "10.0.2.2", "port": 19192},
         ])
 
+    @mock.patch.object(device_service_module, "require_network_capabilities")
+    def test_cardputer_native_sta_stream_fixture_scope(self, admission):
+        spec = self.service.specs["cardputer-adv"]
+        parse = device_service_module.parse_qemu_wifi_execution
+        fixture = {"request_hex": "00ABFF", "response_hex": "0102"}
+        policy = {"isolation": "namespace", "egress": "allowlist", "dns": "controlled",
+                  "allowed_hosts": ["lab.test", "native-sta.test", "post.native-sta.test"]}
+        options = parse(spec, {"http_fixture": True, "http_post_fixture": fixture,
+                               "tcp_fixture": fixture, "policy": policy})
+        self.assertEqual(options["http_post_fixture"], {**fixture, "request_hex": "00abff"})
+        self.assertEqual(options["tcp_fixture"], options["http_post_fixture"])
+        self.assertCountEqual(options["policy"]["allowed_endpoints"], [
+            {"protocol": "tcp", "address": "10.0.2.2", "port": port} for port in (18192, 18193, 19193)
+        ])
+        redacted = device_service_module.redacted_network_config(options)
+        self.assertNotIn("request_hex", redacted["http_post_fixture"])
+        self.assertNotIn("response_hex", redacted["tcp_fixture"])
+        self.assertEqual(redacted["tcp_fixture"]["request_bytes"], 3)
+        for unsupported in (
+            {"tcp_fixture": {**fixture, "port": 19193}},
+            {"tcp_fixture": {**fixture, "response_hex": "00" * 513}},
+            {"tcp_fixture": {**fixture, "response_hex": "a"}},
+            {"tcp_fixture": None},
+            {"hostfwd": [{"host_port": 12345, "guest_port": 80}]},
+            {"capture_pcap": False},
+            {"policy": {}},
+            {"policy": {**policy, "allowed_endpoints": [{"protocol": "tcp", "address": "10.0.2.2", "port": 8000}]}},
+        ):
+            with self.subTest(unsupported=unsupported), self.assertRaises(ServiceError):
+                parse(spec, {"tcp_fixture": fixture, "policy": policy} | unsupported)
+        with self.assertRaises(ServiceError):
+            parse(self.service.specs["atoms3r"], {"http_post_fixture": fixture, "policy": policy})
+        admission.assert_called_once()
+
     @mock.patch.object(device_service_module, "core2_radio_qemu_path")
     @mock.patch.object(device_service_module, "require_network_capabilities")
     def test_core2_http_is_explicit_and_contained(self, capabilities, radio):

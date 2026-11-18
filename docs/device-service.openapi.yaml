@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.85.0
+  version: 1.86.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4061,6 +4061,12 @@ components:
             http_fixture:
               const: true
               description: Core2 backend can admit the optional fixed HTTP peer in an isolated Open STA session.
+            http_post_fixture:
+              const: true
+              description: Cardputer or ADV can request the fixed local HTTP POST peer. Worker namespace admission is checked separately.
+            tcp_fixture:
+              const: true
+              description: Cardputer or ADV can request the fixed local TCP socket peer. Worker namespace admission is checked separately.
         sta_time_fixture:
           type: object
           additionalProperties: false
@@ -4194,6 +4200,10 @@ components:
         native_data_plane:
           $ref: "#/components/schemas/NativeStaDataPlane"
           description: Optional passive transport receipt for qemu-wifi sessions.
+        http_post_fixture:
+          $ref: "#/components/schemas/NativeStaStreamFixtureReceipt"
+        tcp_fixture:
+          $ref: "#/components/schemas/NativeStaStreamFixtureReceipt"
         sta_time_fixture:
           type: object
           required: [status]
@@ -5516,6 +5526,49 @@ components:
         image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+    NativeStaStreamFixture:
+      type: object
+      additionalProperties: false
+      required: [request_hex, response_hex]
+      properties:
+        request_hex:
+          type: string
+          pattern: '^(?:[0-9A-Fa-f]{2}){1,512}$'
+          writeOnly: true
+        response_hex:
+          type: string
+          pattern: '^(?:[0-9A-Fa-f]{2}){1,512}$'
+          writeOnly: true
+    NativeStaStreamFixtureReceipt:
+      type: object
+      required: [schema_version, status, port]
+      description: Listener availability and payload digests from the session-owned network namespace.
+      properties:
+        schema_version: {const: 1}
+        status: {enum: [ready, unavailable]}
+        port: {enum: [18193, 19193]}
+        method: {const: POST}
+        authority: {const: post.native-sta.test}
+        path: {const: /native-sta-post}
+        requests_seen: {type: integer, minimum: 0}
+        matched_requests: {type: integer, minimum: 0}
+        replies_sent: {type: integer, minimum: 0}
+        observations:
+          type: array
+          maxItems: 16
+          items:
+            type: object
+            required: [flow_id, peer_address, peer_port, outcome]
+            properties:
+              flow_id: {type: integer, minimum: 1}
+              peer_address: {type: string, format: ipv4}
+              peer_port: {type: integer, minimum: 1, maximum: 65535}
+              outcome: {enum: [replied, request_mismatch, invalid_request, reply_error]}
+              status_code: {enum: [200, 400, 422]}
+              request_bytes: {type: integer, minimum: 1, maximum: 512}
+              request_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+              reply_bytes: {type: integer, minimum: 1, maximum: 512}
+              reply_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
     NetworkExecution:
       type: object
       required: [profile]
@@ -5704,6 +5757,17 @@ components:
             namespace when true. Their fixed peer uses guest address 10.0.2.2
             and TCP port 18192. Core2 additionally requires Open Wi-Fi and
             only local fixture endpoints, with no forwarding or CNAME.
+        http_post_fixture:
+          $ref: "#/components/schemas/NativeStaStreamFixture"
+          description: >
+            Fixed local HTTP POST peer at 10.0.2.2:18193 for native Cardputer
+            and ADV generic-observe with pcap and an allowlist namespace.
+            Accepts the fixed host post.native-sta.test and /native-sta-post.
+        tcp_fixture:
+          $ref: "#/components/schemas/NativeStaStreamFixture"
+          description: >
+            Fixed local TCP peer at 10.0.2.2:19193 for the same contained
+            profile. One request and reply, both length-prefixed with uint16 BE.
         udp_fixture:
           type: object
           additionalProperties: false

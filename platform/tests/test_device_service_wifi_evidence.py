@@ -194,6 +194,7 @@ class NativeStaCapabilityTests(unittest.TestCase):
         specs = load_device_specs()
         expected = {"sta": {
             "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
+            "http_post_fixture": True, "tcp_fixture": True,
         }}
         for name in ("cardputer", "cardputer-adv"):
             with self.subTest(name=name):
