@@ -389,7 +389,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 设备 | SoC / 后端 | 当前可执行范围 | 主要边界 |
 | --- | --- | --- | --- |
 | StopWatch | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、振动和外设数据面 | 高保真外观、RF 和真机 `NOT RUN` |
-| StickS3 | ESP32-S3 / QEMU | 显示、按键、电源、IMU、音频、IR、WiFi/BLE；Hat2-Bus 8Servos 控制器路径 | RF、舵机机械/电流和真机 `NOT RUN` |
+| StickS3 | ESP32-S3 / QEMU | 显示、按键、电源、IMU、音频、IR、WiFi/BLE；Hat2-Bus 8Servos；[原生 RTC 定时深睡与保留](../tests/firmware/sticks3_rtc_deep_sleep/README.md) | 其他深睡唤醒源、RF、舵机机械/电流和真机 `NOT RUN` |
 | CoreS3 | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、摄像头、USB Host；Port B 8Servos、双 Joystick2 和 NFC Unit 控制器路径 | 启动菜单透明/调色板图像仍有模拟条纹；新增 Unit 只覆盖寄存器与虚拟 fixture |
 | AtomS3R | ESP32-S3 / QEMU | 显示、按键、IMU、磁力计、RGB、IR | 高保真外观和真机 |
 | Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SPI SD、IR；裸板默认，显式 Cap CC1101 提供 NFC 和 CC1101。[原版 MP3 v1.0.0](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)经 FAT32、按键和扬声器 PCM 验证，审核区分播放通过、断言失败和取证不足；初代与 ADV 的 [WAV/PCM API](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)支持同会话替换麦克风源和扬声器 DMA 读回；保留精确 app-bound synthetic ADC calibration 与 `0x69` BMI270 官方 API 注入回读。[验证](evidence/2026-11-09-cardputer-adv-model-fix/summary.json) 初代与 ADV 的 GPIO SPI 读回以及 ADV 的 TCA8418 GPIO I2C 经四份原版固件验证。[组合验证](evidence/2026-11-16-cardputer-native-integration/README.md)也记录初代 Cardputer 的 M5Apps 缓存 SRAM、首帧、休眠唤醒和启动菜单 | 高保真外观、物理 IMU/ADC 精度、电气特性和真机 |

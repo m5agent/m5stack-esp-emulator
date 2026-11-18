@@ -25,7 +25,7 @@
 
 身份协商与 C6 普通 GPIO 修复已完成 main 和指定工作台后验。这里保留未解决的固件和模型范围；[最终交付证据](evidence/2026-11-14-native-identity-delivery/README.md)与[历史时钟/USB 交付](evidence/2026-11-13-native-clock-usb-followup/README.md)分开。
 
-- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。[Meshtastic RFID 原版复验](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)确认当前模型上 IDLE 订阅未喂狗，UART 等待正常返回。后续验收含固件修订、PN532 UART 读卡和独立 Zigbee 数据面。
+- [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。[Meshtastic RFID 原版复验](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)确认当前模型上 IDLE 订阅未喂狗，UART 等待正常返回。[UART1 同原版对照](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-18-nesso-rfid-current-paired/followups/2026-11-18-nesso-rfid-uart1/evidence/nesso-rfid-uart1-summary.json)已验证有效与错误校验应答。继续定位原版 TWDT 与载荷长度处理，验证真实 PN532Killer 应答、标签读取和独立 Zigbee 数据面。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
 - [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227)：原 CarPlay 在 0.50.0 的板型探测断言仍复现。1.0.0 的可扩展 I2C 器件接口可用于后续实现，但原 BIN 先遇到旧 P4 CSR 阻断。[对照](evidence/2026-11-16-tab5-original-startup/README.md)保留两套后端的实际边界。闭环须验证触摸寄存器、复位、IRQ、接触报告和原 BSP 输入。
@@ -70,8 +70,9 @@
    [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。
    [CardputerDict 原版发音](evidence/2026-11-18-cardputerdict-https/README.md)已在初代 Cardputer 的隔离 Device Service 核对校时、TLS、缓存、默认 PCM 和端口拒绝。
    [审核保存快照](evidence/2026-11-18-cardputerdict-https/reviewer-saved-snapshot-summary.json)
-   已验证 Linux 隔离环境的发音通过、策略拒绝和环境准入。继续验证常驻 Linux 审核 worker、
-   ADV 和其他原版应用的 HTTPS 与云端协议。
+   已验证 Linux 隔离环境的发音通过、策略拒绝和环境准入。[隔离 worker 冷启动恢复](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-linux-worker-idle-restart/evidence/linux-worker-idle-restart-summary.json)保存完成历史、ZIP 和 PCAP，并在隔离失败时拒绝新租约。
+   [ADV 0.5.0 原版发音](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/evidence/adv050-https-audio-summary.json)已通过 Device Service 直测。
+   继续验证常驻 Linux 审核 worker、活动会话恢复、ADV 审核路径和其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
@@ -97,10 +98,11 @@
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
-   已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。继续补深睡、
-   其他 RTC 唤醒源、非默认慢钟与 RTC 跨复位保留，并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
+   已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。
+   [定时深睡探针](../tests/firmware/sticks3_rtc_deep_sleep/README.md)已验证数字域复位与 RTC 保留。
+   继续验证其他深睡唤醒源、非默认慢钟与更多 RTC 保留模式，并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
-   98TAB5 的失败与“已保存”冲突，下一步需要独立证据定位复位来源。
+   98TAB5 的失败与“已保存”冲突。[CPU1 异常复验](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/README.md)已确认有效 ROM 交接后出现指令访问异常，随后才发生转储写入失败。继续定位交接后的调用或返回路径，并补完整显示证据。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
    已验证[原版索引 WAV 与 PCM](evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)。
    [保存快照审核](evidence/2026-11-17-dial-audioplayer/review-playback-summary.json)

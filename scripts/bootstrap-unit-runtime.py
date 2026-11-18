@@ -204,6 +204,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0227-cardputer-spi-sd-read-stats.patch",
     "patches/qemu-m5stack-peripherals/0228-s3-gpio-light-sleep.patch",
     "patches/qemu-m5stack-peripherals/0229-s3-rtc-light-sleep-timer.patch",
+    "patches/qemu-m5stack-peripherals/0230-s3-rtc-deep-sleep-timer.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

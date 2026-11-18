@@ -14,6 +14,32 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 StickS3 原生 RTC 定时深睡
+
+同一 ESP-IDF 探针在旧运行时写入深睡请求并到达 RTC 比较门限，CPU 随后停在
+panic 路径。新运行时经同一 Device Service 完成两轮定时深睡、数字域复位及
+RTC 数据和时间保留。显式 API 复位恢复上电原因和初始 RTC 时间，来宾再完成
+两轮。原版 All day watch 0.3.8 另验证了浅睡及 B 键唤醒。
+[同会话结果和验证范围](../tests/firmware/sticks3_rtc_deep_sleep/summary.json)
+
+## 2026-11-18 原版网络与复位定位
+
+- 隔离 Linux ARM64 三代冷容器保留了已完成审核、ZIP 与 PCAP。两轮原生
+  STA 夹具的 DHCP、DNS 和应用数据面通过。第三代缺隔离权限时返回
+  `503 network_isolation_unavailable` 且没有新租约。活动来宾迁移及常驻
+  Linux worker 未执行。[冷启动和拒绝收据](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-linux-worker-idle-restart/evidence/linux-worker-idle-restart-summary.json)
+- CardputerDict ADV 0.5.0 原版通过 `Fn+W` 保存 Wi-Fi，随后 `Fn+P`
+  完成 HTTPS 朗读。留存 10,605 字节缓存 MP3 和 66,048 字节非零
+  PCM。此轮为 Device Service 直测，ADV 的 Reviewer 未运行。
+  [原版、串口取证和网络回执](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/evidence/adv050-https-audio-summary.json)
+- Nesso 原版四组 UART1 对照中，有效应答消除超时，错误校验对照触发
+  四次校验错误，四轮均有一次软件复位。真实 PN532Killer 标签读取未执行。
+  [原版和对端数据](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-18-nesso-rfid-current-paired/followups/2026-11-18-nesso-rfid-uart1/evidence/nesso-rfid-uart1-summary.json)
+- 98TAB5 在固定原版的两种 GT911 路由均复位 18 次且无完整帧。三轮只读
+  调试将转储失败前的异常定位到 CPU1。ROM 交接读到非零入口，随后记录
+  指令访问异常（保存的 PC 为 0）。下一步定位入口后的具体路径。
+  [两组板级对照和三轮调试](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/README.md)
+
 ## 2026-11-18 Core2 原版 2048 四向审核复验
 
 原版 2048 Game 1.0 的保存快照在 Reviewer 0.21.0 和 Device Service

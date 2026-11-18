@@ -1,0 +1,106 @@
+diff --git a/hw/misc/esp32s3_rtc_cntl.c b/hw/misc/esp32s3_rtc_cntl.c
+--- a/hw/misc/esp32s3_rtc_cntl.c
++++ b/hw/misc/esp32s3_rtc_cntl.c
+@@ -50,6 +50,7 @@
+ #define RTC_SLEEP_REJECT          (1u << 30)
+ #define RTC_SLEEP_WAKEUP          (1u << 29)
+ #define RTC_SLEEP_REJECT_CLEAR    (1u << 1)
++#define RTC_DEEP_SLEEP_REJECT_EN  (1u << 31)
+ #define RTC_LIGHT_SLEEP_REJECT_EN (1u << 30)
+ #define RTC_DIG_WRAP_PD_EN        (1u << 31)
+ #define RTC_SLEEP_REJECT_IRQ      (1u << 1)
+@@ -152,6 +153,9 @@
+ 
+ static void esp32s3_rtc_complete_wake(Esp32s3RtcCntlState *s, uint32_t cause)
+ {
++    bool deep_sleep = s->deep_sleep;
++
++    s->deep_sleep = false;
+     s->sleep_sources = 0;
+     s->pending_wake_cause = 0;
+     timer_del(s->sleep_alarm);
+@@ -162,6 +166,14 @@
+     esp32s3_rtc_sleep_irq(s);
+     esp32s3_rtc_resume_clock(s);
+     qemu_system_wakeup_request(QEMU_WAKEUP_REASON_OTHER, &error_abort);
++    if (deep_sleep) {
++        /* A timer wake from deep sleep restarts the digital domain. The RTC
++         * counter, wake cause and retention RAM belong to the RTC domain. */
++        for (int cpu = 0; cpu < ESP32S3_CPU_COUNT; cpu++) {
++            s->reset_cause[cpu] = ESP32_DEEPSLEEP_RESET;
++        }
++        qemu_irq_pulse(s->dig_reset_req);
++    }
+ }
+ 
+ static uint32_t esp32s3_rtc_asserted_wake_sources(Esp32s3RtcCntlState *s)
+@@ -247,14 +259,17 @@
+     }
+ }
+ 
+-static bool esp32s3_rtc_start_light_sleep(Esp32s3RtcCntlState *s, uint32_t value)
++static bool esp32s3_rtc_start_sleep(Esp32s3RtcCntlState *s, uint32_t value)
+ {
+     uint32_t sources = s->wakeup_state >> RTC_WAKEUP_ENABLE_SHIFT;
++    bool deep_sleep = s->digital_power & RTC_DIG_WRAP_PD_EN;
++    uint32_t supported = deep_sleep ? RTC_TIMER_TRIGGER : RTC_LIGHT_SLEEP_SOURCES;
++    uint32_t reject_enable = deep_sleep ? RTC_DEEP_SLEEP_REJECT_EN :
++                                         RTC_LIGHT_SLEEP_REJECT_EN;
+     uint32_t asserted = 0;
+     bool gpio_active = false;
+ 
+-    if (s->sleep_sources || (s->digital_power & RTC_DIG_WRAP_PD_EN) ||
+-        !sources || (sources & ~RTC_LIGHT_SLEEP_SOURCES) ||
++    if (s->sleep_sources || !sources || (sources & ~supported) ||
+         ((sources & RTC_GPIO_TRIGGER) && !esp32s3_gpio_sleep_wakeup(&gpio_active))) {
+         return false;
+     }
+@@ -272,7 +287,7 @@
+     value &= ~(RTC_SLEEP_REJECT | RTC_SLEEP_WAKEUP | RTC_SLEEP_REJECT_CLEAR);
+     s->wakeup_cause = 0;
+     s->reject_cause = 0;
+-    if (s->sleep_reject & RTC_LIGHT_SLEEP_REJECT_EN) {
++    if (s->sleep_reject & reject_enable) {
+         s->reject_cause = asserted & (s->sleep_reject >> RTC_REJECT_ENABLE_SHIFT);
+     }
+     if (s->reject_cause) {
+@@ -282,6 +297,7 @@
+         return true;
+     }
+     esp32s3_rtc_set_sleep_state(s, value);
++    s->deep_sleep = deep_sleep;
+     s->sleep_sources = sources;
+     qemu_system_suspend_request();
+     return true;
+@@ -387,7 +403,7 @@
+         if (value & RTC_SLEEP_REJECT_CLEAR) {
+             s->reject_cause = 0;
+         }
+-        if ((value & RTC_SLEEP_EN) && esp32s3_rtc_start_light_sleep(s, value)) {
++        if ((value & RTC_SLEEP_EN) && esp32s3_rtc_start_sleep(s, value)) {
+             return;
+         }
+     }
+@@ -548,6 +564,11 @@
+     s->sleep_sources = 0;
+     s->pending_wake_cause = 0;
+     s->clock_wait = RTC_CLOCK_WAIT_RESET;
++    s->deep_sleep = false;
++    memset(s->scratch_reg, 0, sizeof(s->scratch_reg));
++    for (int cpu = 0; cpu < ESP32S3_CPU_COUNT; cpu++) {
++        s->reset_cause[cpu] = ESP32_POWERON_RESET;
++    }
+     s->alarm_armed = false;
+     timer_del(s->awake_alarm);
+     timer_del(s->sleep_alarm);
+diff --git a/include/hw/misc/esp32s3_rtc_cntl.h b/include/hw/misc/esp32s3_rtc_cntl.h
+--- a/include/hw/misc/esp32s3_rtc_cntl.h
++++ b/include/hw/misc/esp32s3_rtc_cntl.h
+@@ -97,6 +97,7 @@
+     uint64_t alarm_value;
+     uint64_t alarm_target;
+     bool alarm_armed;
++    bool deep_sleep;
+     uint32_t sleep_sources;
+     uint32_t clock_wait;
+     uint32_t pending_wake_cause;

@@ -1,0 +1,161 @@
+{
+  "validation": "virtual-device validation",
+  "date": "2026-11-18",
+  "device_id": "sticks3",
+  "profile": "m5sticks3; native offline QEMU; no network backend",
+  "service_source_at_execution": "13df3b8a7ab197df14f57d2ca8bc58919a7eb666",
+  "device_api_version": "1.89.0",
+  "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "qemu_upstream_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "qemu_existing_release_snapshot": "66f91582a0dc15ccfb2502c5cad69d73b441a4bf",
+  "qemu_patch_sha256": "6cbbc3fa9788e7692558a7aa43cf64b78e50f1a9801d52b0e6b52cf4f6ade974",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "sdk_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "merged_fixture_sha256": "db7bfcc809651b3fad6a051bd5ebc3575007a3d2becdcdf028e883a6911c1f39",
+  "merged_fixture_bytes": 8388608,
+  "before": {
+    "native_sha256": "90cb5df45fceef9bd63e9979986e4608c4e5264c8a95e453c167e8b0f0a2a68a",
+    "status": "FAIL",
+    "serial_markers": [
+      "RTC_DEEP_BOOT reset=1 cause=0 rtc_us=41475",
+      "RTC_DEEP_ENTER step=1 requested_us=650000"
+    ],
+    "rtc_state": {
+      "state0": 2147483648,
+      "wakeup_state": 262144,
+      "reject": 3221225472,
+      "digital_power": 3221356560,
+      "sleep_timer0": 111196,
+      "sleep_timer1": 0,
+      "int_raw": 1024,
+      "reset_state": 12353
+    },
+    "qmp_states": [
+      "running"
+    ],
+    "qmp_events": [],
+    "pc_symbol": "esp-idf Xtensa panic handler",
+    "zip_sha256": "7dc27358334a3913b2e550a4f8109d4a4f092f66559e24256fc47647f4e604c5",
+    "serial_sha256": "7c185ae5ba2e9a9fb8abd1ca20eda2e841c49b19f69ea3836a2669fc42867999",
+    "lease_released": true
+  },
+  "intermediate_controls": [
+    {
+      "native_sha256": "c995d1712d9ce127a556b88fde1f8bb84b14da8630a7233e5fe290ea13104837",
+      "guest_status": "PASS",
+      "evidence_api_status": "HTTP 500",
+      "stop_api_status": "HTTP 500",
+      "note": "Harness reaped its own surviving guest after the API error. Two isolated repetitions, including the same register sampling, exported and stopped successfully. The initial cause was not established."
+    },
+    {
+      "native_sha256": "39683f783451c3df1be1d5e8b3cc9869e5ee4eaec7788413e224887fedf498ac",
+      "timer_wake_status": "PASS",
+      "full_rtc_reset_status": "FAIL",
+      "cold_boot_serial": "RTC_DEEP_BOOT reset=1 cause=0 rtc_us=6510410658201239403",
+      "note": "Clearing the time counter while keeping the SDK slow-clock calibration left a nonzero retained tick baseline."
+    }
+  ],
+  "passing": {
+    "status": "PASS",
+    "native_sha256": "d18e5fa7aaebda01bd4cb6eac5d4da6c11a012025882f37d567554fc807a5f06",
+    "same_guest_process": true,
+    "initial_markers": [
+      "RTC_DEEP_BOOT reset=1 cause=0 rtc_us=40210",
+      "RTC_DEEP_ENTER step=1 requested_us=650000",
+      "RTC_DEEP_BOOT reset=8 cause=4 rtc_us=847977",
+      "RTC_DEEP_WAKE step=1 requested_us=650000 elapsed_us=807282 rtc_cookie=0x7c83e419",
+      "RTC_DEEP_ENTER step=2 requested_us=1500000",
+      "RTC_DEEP_BOOT reset=8 cause=4 rtc_us=2504470",
+      "RTC_DEEP_WAKE step=2 requested_us=1500000 elapsed_us=1655839 rtc_cookie=0x7c83e419",
+      "RTC_DEEP_PASS cycles=2"
+    ],
+    "post_explicit_api_reset_markers": [
+      "RTC_DEEP_BOOT reset=1 cause=0 rtc_us=26050",
+      "RTC_DEEP_ENTER step=1 requested_us=650000",
+      "RTC_DEEP_BOOT reset=8 cause=4 rtc_us=824668",
+      "RTC_DEEP_WAKE step=1 requested_us=650000 elapsed_us=798442 rtc_cookie=0x7c83e419",
+      "RTC_DEEP_ENTER step=2 requested_us=1500000",
+      "RTC_DEEP_BOOT reset=8 cause=4 rtc_us=2473479",
+      "RTC_DEEP_WAKE step=2 requested_us=1500000 elapsed_us=1648429 rtc_cookie=0x7c83e419",
+      "RTC_DEEP_PASS cycles=2"
+    ],
+    "qmp_states": [
+      "suspended",
+      "running",
+      "suspended",
+      "running",
+      "suspended",
+      "running",
+      "suspended",
+      "running"
+    ],
+    "qmp_events": [
+      "SUSPEND",
+      "RESET",
+      "WAKEUP",
+      "SUSPEND",
+      "RESET",
+      "WAKEUP",
+      "RESET",
+      "SUSPEND",
+      "RESET",
+      "WAKEUP",
+      "SUSPEND",
+      "RESET",
+      "WAKEUP"
+    ],
+    "zip_sha256": "747484d9a831d372e24a40ae77c51f62d0d95503b927053426f4523ced99772f",
+    "serial_sha256": "66be7241d8592262da43513556a3bfed65bab0b2e14b43f71e41ad9e8dd29438",
+    "retained_session": true,
+    "lease_count_after_stop": 0,
+    "mutable_flash_retained": false,
+    "owned_service_stopped": true
+  },
+  "original_watch_light_sleep_regression": {
+    "status": "PASS",
+    "original_sha256": "f6e88da91e68e5183785b370ca76338ec34afea90a9440862af8b221724db4b8",
+    "composed_sha256": "1d6ae6df2473bebf662955bbb050ce2304081e79485d9044d0bff3d150a4e363",
+    "original_bytes": 1840512,
+    "input": [
+      {
+        "sequence": "key_a",
+        "actions": [
+          "tap"
+        ]
+      },
+      {
+        "sequence": "key_b",
+        "actions": [
+          "tap"
+        ]
+      },
+      {
+        "sequence": "hold_b",
+        "actions": [
+          "down",
+          "up"
+        ]
+      }
+    ],
+    "wake_input": "semantic B click after guest suspend",
+    "qmp_states": [
+      "suspended",
+      "running"
+    ],
+    "wake_frame_sha256": "b1a12878a24ddad3c3f3e05da1216e8f5e748bb8e0fdaf881fbdba03a3c59ad4",
+    "observation_seconds": 65.095,
+    "power_on_reports": 1,
+    "software_reset_reports": 0,
+    "evidence_zip_sha256": "4499548780dc1a7f5872c673f488623e84172da1b17865e5ed3f2fe7359dbb5a",
+    "post_stop": {
+      "lease_state": "stopped",
+      "active_lease_count": 0,
+      "mutable_flash_retained": false
+    }
+  },
+  "not_run": [
+    "physical hardware and power",
+    "browser WASM",
+    "other deep-sleep wake sources and RTC clock selections"
+  ]
+}

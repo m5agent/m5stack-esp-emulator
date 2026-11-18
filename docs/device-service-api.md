@@ -712,7 +712,15 @@ For a guest-suspended QEMU session, `POST /sessions/{session_id}/reset`
 confirms the host reset and resumes the new boot from QEMU `prelaunch`.
 If the reset cannot be confirmed within the QMP timeout, the service reports
 `504 qmp_timeout`.
-[Native StickS3 validation](../tests/firmware/sticks3_rtc_sleep/README.md)
+[Native StickS3 light-sleep validation](../tests/firmware/sticks3_rtc_sleep/README.md)
+
+Native RTC layer `0230` supports StickS3 timer-only deep sleep. The same service
+session and flash continue across a guest timer wake; the firmware starts again
+with the deep-sleep reset reason and RTC timer wake cause. Guest RTC state
+survives that digital reset. An explicit API reset after wake clears the RTC
+alarm and its calibration scratch registers and reports a new power-on boot.
+The evidence ZIP includes serial markers for the guest resets and wake causes.
+[Native StickS3 deep-sleep validation](../tests/firmware/sticks3_rtc_deep_sleep/README.md)
 
 `POST /sessions` accepts an optional non-secret `owner` label of at most 128
 printable characters. The label is stored with the worker lease and does not

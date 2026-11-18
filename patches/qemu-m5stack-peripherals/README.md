@@ -1877,3 +1877,13 @@ pause freezes both. The default RC slow rate matches Timer Group calibration.
 The comparator sets the main IRQ independently from a sleep wake or reject.
 GPIO and the timer share one wake path, and a reset cancels both timer callbacks.
 [Native StickS3 validation](../../tests/firmware/sticks3_rtc_sleep/README.md)
+
+## ESP32-S3 RTC timer deep-sleep wake (0230)
+
+The RTC admits timer-only deep sleep when the guest requests digital-wrapper
+power-down. The timer follows the existing slow-clock path and records the
+wake cause before the digital reset. The deep-sleep reset preserves the RTC
+counter, scratch registers and retention RAM. A full RTC reset clears the
+alarm and scratch registers, and restores the power-on reset reason. See the
+[StickS3 ESP-IDF timer probe](../../tests/firmware/sticks3_rtc_deep_sleep/README.md)
+for the exact native scope.
