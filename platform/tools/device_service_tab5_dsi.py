@@ -20,6 +20,8 @@ from device_service_errors import ServiceError
 TAB5_DSI_RUNTIME_SHA256 = "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828"
 TAB5_GT911_PART_SHA256 = "a0852d08d6cc04a11dcdd57c417b497f857be3e6265f8b690968ae3338cd3ce9"
 TAB5_GT911_BMI270_PART_SHA256 = "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286"
+TAB5_USERDEMO_CODEC_PART_SHA256 = "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270"
+TAB5_USERDEMO_FLASH_SHA256 = "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9"
 TAB5_ST7123_I2C_PART_SHA256 = "6eaa3664fd81ce7e8f56bc0f84ad124ca2afcce21c947e74bbb41f1d9802d106"
 TAB5_ST7123_TOUCH_PART_SHA256 = "fcd3ae013162555e7198e7aed0b58e2fbb8860477132d96fa60155cd11f62454"
 TAB5_ST7123_HOLD_PART_SHA256 = "0999697f5aad5b87d8802f628c0313425866a9d3ad232c1b5e0db15b2fe12e87"
@@ -92,15 +94,20 @@ def parse_tab5_board_overrides(value: str, allowed: frozenset[str]) -> dict[str,
     return overrides
 
 
-def stage_tab5_gt911_part(value: str, board: str, session_dir: Path) -> tuple[Path, str]:
+def stage_tab5_gt911_part(
+    value: str, board: str, session_dir: Path, *, codec_control: bool = False,
+) -> tuple[Path, str]:
     """Bind the source board and exact ESP Part bytes to this guest."""
     if board != "gt911-ili9881c":
         raise ServiceError(
             "tab5_gt911_part_unavailable", "Tab5 GT911 requires the gt911-ili9881c board revision", 409
         )
+    expected = (TAB5_GT911_PART_SHA256, TAB5_GT911_BMI270_PART_SHA256)
+    if codec_control:
+        expected = (TAB5_USERDEMO_CODEC_PART_SHA256,)
     return _stage_tab5_part(
-        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm",
-        (TAB5_GT911_PART_SHA256, TAB5_GT911_BMI270_PART_SHA256), "tab5_gt911_part_unavailable",
+        value, session_dir, "tab5-gt911", "m5_tab5_gt911.wasm", expected,
+        "tab5_gt911_part_unavailable",
     )
 
 

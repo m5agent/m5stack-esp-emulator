@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.91.0
+  version: 1.92.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2430,13 +2430,17 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/audio.pcm:
     get:
-      summary: Read native Cardputer or Dial AudioPlayer PCM and metrics
+      summary: Read native speaker or Dial AudioPlayer PCM and metrics
       description: >
         Requires audio.read under a runtime ACL. Captured bytes are retained
         with the session. Cardputer and Cardputer ADV speaker capture supports
         plain native qemu and native qemu-wifi with generic-observe.
         Speaker metrics use the caller's declared s16le mono sample rate.
         Dial Unit capture uses a fixed 16 kHz s16le mono stream.
+        Admitted Tab5 UserDemo sessions created with speaker_capture expose I2S1 TX after stopping, when
+        the runtime has finalized its WAV. While running, the route returns
+        409 audio_capture_pending for these Tab5 sessions. The returned PCM
+        uses stereo s16le and the native sample rate.
       parameters:
         - $ref: "#/components/parameters/SessionId"
         - name: source
@@ -2454,9 +2458,11 @@ paths:
         - name: sample_rate_hz
           in: query
           description: >
-            Required for speaker metrics and optional for Unit metrics (16000).
-            Metrics and all Unit PCM reads require two-byte aligned offsets and
-            lengths. Omit this parameter for raw PCM.
+            Cardputer speaker metrics require the rate. Dial Unit and Tab5
+            metrics use the source rate, with a matching rate optionally
+            supplied. Tab5 offsets and lengths align to four-byte stereo
+            frames. Other metrics and all Unit PCM reads align to two-byte
+            samples. Omit this parameter for raw PCM.
           schema: {type: integer, minimum: 8000, maximum: 192000}
       responses:
         "200":
@@ -5299,10 +5305,19 @@ components:
             a supplied pin on a non-uiflow firmware returns 409
             uiflow_source_binding_mismatch before launch. This binds caller
             source when identical image bytes have different source declarations.
+        speaker_capture:
+          type: boolean
+          default: false
+          description: >-
+            Enable I2S1 TX recording for the exact admitted native Tab5 UserDemo.
+            With recording enabled the lease is fixed and at most 180 seconds.
         ttl_seconds:
           type: integer
           minimum: 30
           default: 1800
+          description: >-
+            Normal session TTL. A Tab5 recording lease defaults to at most
+            180 seconds and is rejected if an explicit TTL exceeds 180 seconds.
         owner:
           type: string
           maxLength: 128
@@ -7037,22 +7052,35 @@ components:
       properties:
         session_id: {type: string}
         firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
-        source: {type: string, enum: [native_i2s_dma, native_n9301_unit]}
+        source: {type: string, enum: [native_i2s_dma, native_n9301_unit, esp_emu_i2s1_tx]}
         unit_id: {type: string}
-        channels: {const: 1}
+        channels: {type: integer, enum: [1, 2]}
         offset: {type: integer, minimum: 0}
         bytes: {type: integer, minimum: 2, maximum: 524288}
         next_offset: {type: integer, minimum: 0}
         observed_bytes: {type: integer, minimum: 0}
         sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
         sample_format: {const: s16le}
-        layout_source: {type: string, enum: [caller_declared_mono, native_unit_fixed_mono]}
+        layout_source: {type: string, enum: [caller_declared_mono, native_unit_fixed_mono, esp_emu_wav]}
         sample_rate_hz: {type: integer, minimum: 8000, maximum: 192000}
         frames: {type: integer, minimum: 1, maximum: 262144}
         rms: {type: number, minimum: 0, maximum: 32768}
         peak: {type: integer, minimum: 0, maximum: 32768}
         dominant_frequency_hz: {type: [number, "null"], minimum: 0}
         spectrum_frames: {type: integer, minimum: 0, maximum: 8192}
+        channel_metrics:
+          description: Left and right channel metrics for native Tab5 stereo capture.
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: object
+            additionalProperties: false
+            required: [rms, peak, dominant_frequency_hz]
+            properties:
+              rms: {type: number, minimum: 0, maximum: 32768}
+              peak: {type: integer, minimum: 0, maximum: 32768}
+              dominant_frequency_hz: {type: [number, "null"], minimum: 0}
     AudioInjectionReceipt:
       type: object
       additionalProperties: false

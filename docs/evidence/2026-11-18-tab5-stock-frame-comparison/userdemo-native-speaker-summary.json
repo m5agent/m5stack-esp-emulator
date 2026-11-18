@@ -1,0 +1,350 @@
+{
+  "status": "PASS_STOCK_USERDEMO_DASHBOARD_AND_FINALIZED_I2S1_API",
+  "validation": "virtual-device validation / isolated Device Service 1.92.0 and native esp-emu 1.1.0",
+  "source_base": "c7e25be5410d3a9968107bc7a0cab5acb9d708bc",
+  "qualified_part_source": "752de3562b8d4015cddeceffb505b14b74b6267c",
+  "part_build_receipt_sha256": "db6fb12379b7ab4720f92abf2c9d7febd87f211e6a23424c3cf7f09f480869a4",
+  "default_gt911_part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+  "carplay_legacy_regression_summary_sha256": "e19d4a866cc729f3627f1074e214907adebf2ca0d578c2a63acf6dde329cf7c3",
+  "route": "Live GET audio.pcm reports audio_capture_pending. After Stop, matching API windows and ZIP PCM prove the same recording.",
+  "limit": "Same exact UserDemo flash hash only. Native digital output; microphone data, analog sound, physical hardware, browser and ordinary Reviewer saved snapshot were not executed.",
+  "burner": "NOT SUBMITTED",
+  "preliminary_runs_before_explicit_capture_lease": {
+    "play": {
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "openapi_sha256": "803e0eaf380c8a34ce34e208d7272c0c0fc7a88cb19db46b3e07c6bf74041bac",
+      "source_sha256": {
+        "platform/tools/serve.py": "71fec02eaa4597de86d993339fb34f46f57c4aaeca299d7c5c4f67787c4a64d1",
+        "platform/tools/device_service.py": "0ef13255231f9f626cc73c9f0b296ab752fe2298a8f669baa19a56c912d8fd32",
+        "platform/tools/device_service_tab5_dsi.py": "1fda23cb5550e0a92e6d19ce0787b0453dba9cadf3c5e7c9bc8ed921e9f6cce2",
+        "platform/tools/device_service_specs.py": "2b3557fad081d27dbe4d6ae1e8a644dfd6c8646ade70fde3e0b67e040eaa6e87",
+        "platform/tools/device_service_audio.py": "b9b53e29a6ee5405debc17a0c5df9dc0f7523b159962d24178998709d5da7abc",
+        "tests/uiflow2/device_matrix.json": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+        "docs/device-service.openapi.yaml": "803e0eaf380c8a34ce34e208d7272c0c0fc7a88cb19db46b3e07c6bf74041bac"
+      },
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "part_sha256": "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270",
+      "board": "gt911-ili9881c",
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 2
+        },
+        "states": {},
+        "nonblack_frames": 15,
+        "complete_frames": 15,
+        "zero_read_warnings": 1
+      },
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "music_test": {
+        "before_frame_sha256": "6fd4f7c615ea3ce4a5ba0bb346653e531b75f311a768170c379c93780fe3fd61",
+        "coordinates": [
+          640,
+          417
+        ],
+        "action": "Music Test",
+        "input_accepted": true,
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "capture_bytes_before_input": 1288748,
+        "play_button": {
+          "before_frame_sha256": "643a4ff82fc9e835436f28a28ccc1c690ad68ea5d99db7126684bf1b5bf90299",
+          "coordinates": [
+            474,
+            270
+          ],
+          "raw_pcm_offset": 1560384,
+          "pressed": true,
+          "controller_reports": {
+            "reports": 6,
+            "acknowledged": 6
+          }
+        }
+      },
+      "audio": {
+        "start": 1560384,
+        "observed_bytes": 3815424,
+        "window_bytes": 2255040,
+        "window_nonzero_s16le_samples": 1100356,
+        "window_sha256": "f1db73d8bbd28cc2bfcac32b6f7c3e8bae4dac0f8dcd094ab80a669cac8df638",
+        "finished_evidence_sha256": "1bdf7c20b3f8a4fc68674bce2b1b2e15bb8c9ba5206b875c71445cea7bc5a6e9",
+        "rate_hz": 48000,
+        "channels": 2
+      },
+      "evidence_zip_sha256": "da405cc29e79272d7c1cc4a8f3ec70869d1209bd501dfe86d774454aa82805a1"
+    },
+    "idle": {
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "openapi_sha256": "803e0eaf380c8a34ce34e208d7272c0c0fc7a88cb19db46b3e07c6bf74041bac",
+      "source_sha256": {
+        "platform/tools/serve.py": "71fec02eaa4597de86d993339fb34f46f57c4aaeca299d7c5c4f67787c4a64d1",
+        "platform/tools/device_service.py": "0ef13255231f9f626cc73c9f0b296ab752fe2298a8f669baa19a56c912d8fd32",
+        "platform/tools/device_service_tab5_dsi.py": "1fda23cb5550e0a92e6d19ce0787b0453dba9cadf3c5e7c9bc8ed921e9f6cce2",
+        "platform/tools/device_service_specs.py": "2b3557fad081d27dbe4d6ae1e8a644dfd6c8646ade70fde3e0b67e040eaa6e87",
+        "platform/tools/device_service_audio.py": "b9b53e29a6ee5405debc17a0c5df9dc0f7523b159962d24178998709d5da7abc",
+        "tests/uiflow2/device_matrix.json": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+        "docs/device-service.openapi.yaml": "803e0eaf380c8a34ce34e208d7272c0c0fc7a88cb19db46b3e07c6bf74041bac"
+      },
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "part_sha256": "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270",
+      "board": "gt911-ili9881c",
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 2
+        },
+        "states": {},
+        "nonblack_frames": 15,
+        "complete_frames": 15,
+        "zero_read_warnings": 1
+      },
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "music_test": {
+        "before_frame_sha256": "e728675655b06348954837268c77f76d50097d31e3745e717e8b49dd8ddc9508",
+        "coordinates": [
+          640,
+          417
+        ],
+        "action": "Music Test",
+        "input_accepted": true,
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "capture_bytes_before_input": 1013228,
+        "play_button": {
+          "before_frame_sha256": "ea164f3539c954db2b15a2fc49a991a5611fa41ca48f218a1edbb509605cacf3",
+          "coordinates": [
+            474,
+            270
+          ],
+          "raw_pcm_offset": 1282944,
+          "pressed": false
+        }
+      },
+      "audio": {
+        "start": 1282944,
+        "observed_bytes": 3969984,
+        "window_bytes": 2687040,
+        "window_nonzero_s16le_samples": 0,
+        "window_sha256": "06ac701e31e8d5ecc68f513c3e8284fd6eba1d1a51bdd6da4562857961a5260d",
+        "finished_evidence_sha256": "7c92bbb21cd2122537e07bc779a8d025c8438d5aafd4fc820b121c9bb9ed7da8",
+        "rate_hz": 48000,
+        "channels": 2
+      },
+      "evidence_zip_sha256": "384c3a5534c97f3ab3bc7d2f207be7d3c83ff68fcd4fa3b048a6b5dc34e3381c"
+    }
+  },
+  "paired_45_second_runs": {
+    "play": {
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "openapi_sha256": "87f44a1b3180ccc9cc6e8d77e39e260f4734890a848b4fc9840908fe20181ccd",
+      "source_sha256": {
+        "platform/tools/serve.py": "71fec02eaa4597de86d993339fb34f46f57c4aaeca299d7c5c4f67787c4a64d1",
+        "platform/tools/device_service.py": "7702fa77f45457ef0b4325f09f0dae6752d7ced47eed4e4262ec4cd29d807f01",
+        "platform/tools/device_service_tab5_dsi.py": "1fda23cb5550e0a92e6d19ce0787b0453dba9cadf3c5e7c9bc8ed921e9f6cce2",
+        "platform/tools/device_service_specs.py": "2b3557fad081d27dbe4d6ae1e8a644dfd6c8646ade70fde3e0b67e040eaa6e87",
+        "platform/tools/device_service_audio.py": "4df250481d514383aa6ec51178f81bc78bbc706d13c2d8ac2d583c2c5b1b474c",
+        "tests/uiflow2/device_matrix.json": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+        "docs/device-service.openapi.yaml": "87f44a1b3180ccc9cc6e8d77e39e260f4734890a848b4fc9840908fe20181ccd"
+      },
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "part_sha256": "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270",
+      "board": "gt911-ili9881c",
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 1
+        },
+        "states": {},
+        "nonblack_frames": 17,
+        "complete_frames": 17,
+        "zero_read_warnings": 1
+      },
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "music_test": {
+        "before_frame_sha256": "e728675655b06348954837268c77f76d50097d31e3745e717e8b49dd8ddc9508",
+        "coordinates": [
+          640,
+          417
+        ],
+        "action": "Music Test",
+        "input_accepted": true,
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "capture_bytes_before_input": 955628,
+        "play_button": {
+          "before_frame_sha256": "ea164f3539c954db2b15a2fc49a991a5611fa41ca48f218a1edbb509605cacf3",
+          "coordinates": [
+            474,
+            270
+          ],
+          "raw_pcm_offset": 1403904,
+          "pressed": true,
+          "controller_reports": {
+            "reports": 7,
+            "acknowledged": 7
+          }
+        }
+      },
+      "audio": {
+        "start": 1403904,
+        "observed_bytes": 4164864,
+        "window_bytes": 2760960,
+        "window_nonzero_s16le_samples": 1352334,
+        "window_sha256": "2ebd67a1ecb07c3255ef043fb45622526722627288c059b42d992472d83fffd4",
+        "finished_evidence_sha256": "aac54cf32e98c4b65dde1d8bd3ffac9492a0d86189f80934a054e4e0565cdaba",
+        "rate_hz": 48000,
+        "channels": 2
+      },
+      "evidence_zip_sha256": "99bf4b387ebdc5de2cd1ca783518a643d780f3b9033b759e1c5af8c4ca4c496b"
+    },
+    "idle": {
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "openapi_sha256": "87f44a1b3180ccc9cc6e8d77e39e260f4734890a848b4fc9840908fe20181ccd",
+      "source_sha256": {
+        "platform/tools/serve.py": "71fec02eaa4597de86d993339fb34f46f57c4aaeca299d7c5c4f67787c4a64d1",
+        "platform/tools/device_service.py": "7702fa77f45457ef0b4325f09f0dae6752d7ced47eed4e4262ec4cd29d807f01",
+        "platform/tools/device_service_tab5_dsi.py": "1fda23cb5550e0a92e6d19ce0787b0453dba9cadf3c5e7c9bc8ed921e9f6cce2",
+        "platform/tools/device_service_specs.py": "2b3557fad081d27dbe4d6ae1e8a644dfd6c8646ade70fde3e0b67e040eaa6e87",
+        "platform/tools/device_service_audio.py": "4df250481d514383aa6ec51178f81bc78bbc706d13c2d8ac2d583c2c5b1b474c",
+        "tests/uiflow2/device_matrix.json": "a0c291c837a0751d2969617867fb3da43ccecbb863e9f0261258daa102f10321",
+        "docs/device-service.openapi.yaml": "87f44a1b3180ccc9cc6e8d77e39e260f4734890a848b4fc9840908fe20181ccd"
+      },
+      "runtime_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+      "part_sha256": "2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270",
+      "board": "gt911-ili9881c",
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 1
+        },
+        "states": {},
+        "nonblack_frames": 17,
+        "complete_frames": 17,
+        "zero_read_warnings": 1
+      },
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "music_test": {
+        "before_frame_sha256": "e728675655b06348954837268c77f76d50097d31e3745e717e8b49dd8ddc9508",
+        "coordinates": [
+          640,
+          417
+        ],
+        "action": "Music Test",
+        "input_accepted": true,
+        "controller_reports": {
+          "reports": 7,
+          "acknowledged": 7
+        },
+        "capture_bytes_before_input": 942188,
+        "play_button": {
+          "before_frame_sha256": "bb84b04a6c9b63cde6a0c940d41479040332e22600422c39431b2ed33c648257",
+          "coordinates": [
+            474,
+            270
+          ],
+          "raw_pcm_offset": 1179264,
+          "pressed": false
+        }
+      },
+      "audio": {
+        "start": 1179264,
+        "observed_bytes": 4383744,
+        "window_bytes": 3204480,
+        "window_nonzero_s16le_samples": 0,
+        "window_sha256": "a61bc3427c62f19859fca260883fd079a7db1606e70272ff565f5d02b43ea655",
+        "finished_evidence_sha256": "c629f44f57947d1d91097fd869655a208bf594f668e4ed0c6ffee2c11d5933c8",
+        "rate_hz": 48000,
+        "channels": 2
+      },
+      "evidence_zip_sha256": "66511747735dd09853dafe3aedde58651badfd168fa22525e510b351e426792a"
+    }
+  },
+  "explicit_capture_request": {
+    "speaker_capture": true,
+    "ttl_seconds": 120,
+    "renewable": false
+  },
+  "legacy_gt911_pair_receipt_sha256": "a4e7865ce80ef18174e891c6948e145f4b45404c2093a56a6437d95fe1c468ef"
+}

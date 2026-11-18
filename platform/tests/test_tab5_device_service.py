@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest import mock
+import wave
 
 import device_service as service_module
 import test_tab5_image_contract as image_fixture
@@ -32,7 +33,7 @@ class Tab5ServiceTests(unittest.TestCase):
         self.service.specs["tab5"] = self.spec
         self.sequence = 0
 
-    def session(self, *, source="uploaded", storage_config=None):
+    def session(self, *, source="uploaded", storage_config=None, speaker_capture=False):
         self.sequence += 1
         return service_module.Tab5DeviceSession(
             self.service, session_id=f"test-{self.sequence}",
@@ -41,6 +42,7 @@ class Tab5ServiceTests(unittest.TestCase):
             firmware_source=source, source_artifacts=[], ttl_seconds=120,
             ready_marker=None, ready_timeout=1, ready_conditions={}, runtime="qemu",
             storage_config=storage_config,
+            speaker_capture=speaker_capture,
         )
 
     def provision(self, session):
@@ -229,7 +231,9 @@ class Tab5ServiceTests(unittest.TestCase):
                 mock.patch.object(service_module, "Tab5Gt911Touch") as controller:
             self.provision(session)
             sidecar, p4 = self.launch_commands(session)
-            stage.assert_called_once_with(self.service.tab5_gt911_part, self.service.tab5_dsi_board, session.dir)
+            stage.assert_called_once_with(
+                self.service.tab5_gt911_part, self.service.tab5_dsi_board, session.dir, codec_control=False,
+            )
             self.assertNotIn("--cosim-board", sidecar)
             self.assertEqual(p4[p4.index("--cosim-board") + 1], str(board))
             self.assertIn("--control-tcp", p4)
@@ -263,6 +267,68 @@ class Tab5ServiceTests(unittest.TestCase):
             session._proc = session._c6_proc = None
             session._terminate_tab5()
             self.assertIsNone(session._tab5_native_touch)
+
+    def test_userdemo_selects_codec_part_and_native_i2s1_only_for_bound_image(self):
+        self.elf.write_bytes(b"wrong build")
+        candidate = Path("/qualified/esp-emu")
+        self.service.tab5_dsi_emulator = str(candidate)
+        self.service.tab5_dsi_board = "gt911-ili9881c"
+        self.service.tab5_gt911_part = "/qualified/gt911.wasm"
+        self.service.tab5_userdemo_codec_part = "/qualified/userdemo-codec.wasm"
+        self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
+        session = self.session(speaker_capture=True)
+        board = session.dir / "tab5-cosim-board.json"
+        digest = "c" * 64
+        with (
+            mock.patch.object(service_module, "TAB5_USERDEMO_FLASH_SHA256", self.image_sha),
+            mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate),
+            mock.patch.object(service_module, "stage_tab5_gt911_part", return_value=(board, digest)) as stage,
+            mock.patch.object(service_module, "Tab5DsiReceiver"),
+            mock.patch.object(service_module, "Tab5Gt911Touch"),
+        ):
+            self.provision(session)
+            sidecar, p4 = self.launch_commands(session)
+        stage.assert_called_once_with(
+            self.service.tab5_userdemo_codec_part, "gt911-ili9881c", session.dir, codec_control=True,
+        )
+        self.assertNotIn("--i2s-wav", sidecar)
+        self.assertEqual(p4[p4.index("--i2s-wav") + 1], str(session.dir / "tab5-speaker.wav"))
+        self.assertEqual(p4[p4.index("--i2s-instance") + 1], "1")
+        self.assertEqual(session.flash_info["tab5"]["speaker_capture"], "esp_emu_i2s1_tx")
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.audio_capture("pcm", 0, 4, None)
+        self.assertEqual(raised.exception.code, "audio_capture_pending")
+        original_deadline = session.expires_at
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.renew(60)
+        self.assertEqual(raised.exception.code, "audio_capture_lease_fixed")
+        self.assertEqual(session.expires_at, original_deadline)
+        session._proc = session._c6_proc = None
+        session._terminate_tab5()
+
+    def test_stopped_tab5_speaker_uses_native_stereo_layout_and_aligned_ranges(self):
+        session = self.session()
+        session.flash_info = {"tab5": {"speaker_capture": "esp_emu_i2s1_tx"}}
+        session.state = "stopped"
+        path = session.dir / "tab5-speaker.wav"
+        payload = b"\x10\x00\x00\x00" * 512
+        with wave.open(str(path), "wb") as wav:
+            wav.setparams((2, 2, 48000, 0, "NONE", "not compressed"))
+            wav.writeframes(payload)
+        actual, receipt = session.audio_capture("pcm", 4, 8, None)
+        self.assertEqual(actual, payload[4:12])
+        self.assertEqual(receipt["observed_bytes"], len(payload))
+        _, metrics = session.audio_capture("metrics", 0, len(payload), None)
+        self.assertEqual((metrics["sample_rate_hz"], metrics["channels"], metrics["frames"]), (48000, 2, 512))
+        self.assertEqual([channel["peak"] for channel in metrics["channel_metrics"]], [16, 0])
+        for offset, limit, error in ((2, 4, "invalid_audio_layout"), (4096, 4, "audio_range_unavailable")):
+            with self.subTest(offset=offset), self.assertRaises(service_module.ServiceError) as raised:
+                session.audio_capture("pcm", offset, limit, None)
+            self.assertEqual(raised.exception.code, error)
+        path.write_bytes(path.read_bytes()[:-4])
+        with self.assertRaises(service_module.ServiceError) as raised:
+            session.audio_capture("pcm", 0, 4, None)
+        self.assertEqual(raised.exception.code, "audio_capture_unavailable")
 
     def test_st7123_launch_keeps_hardware_i2c_and_does_not_offer_gt911_input(self):
         self.elf.write_bytes(b"wrong build")

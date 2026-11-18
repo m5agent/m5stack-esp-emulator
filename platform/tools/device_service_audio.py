@@ -7,6 +7,7 @@ import cmath
 from hashlib import sha256
 import io
 import math
+import os
 from pathlib import Path
 import sys
 import wave
@@ -20,6 +21,9 @@ WAV_MAX_BYTES = MICROPHONE_MAX_FRAMES * 2 + 64 * 1024
 UNIT_AUDIO_MAX_TRACKS = 16
 UNIT_AUDIO_MAX_CAPTURE_BYTES = 16 * 1024 * 1024
 UNIT_AUDIO_SOURCE = "native_n9301_unit"
+TAB5_AUDIO_SOURCE = "esp_emu_i2s1_tx"
+TAB5_AUDIO_EVIDENCE_BYTES = 8 * 1024 * 1024
+TAB5_AUDIO_MAX_LEASE_SECONDS = 180
 PCM_MAX_READ_BYTES = 512 * 1024
 SPECTRUM_MAX_FRAMES = 8192
 
@@ -61,6 +65,56 @@ def read_wave_artifact(path: Path, artifact_id: str) -> bytes:
     if sha256(source).hexdigest() != artifact_id:
         raise ServiceError("audio_fixture_unavailable", "WAV artifact digest changed", 409)
     return pcm
+
+
+def read_tab5_speaker_pcm(path: Path, offset: int, limit: int) -> tuple[bytes, dict]:
+    """Read interleaved frames from the finalized native esp-emu recording."""
+    try:
+        with path.open("rb") as stream, wave.open(stream, "rb") as wav:
+            channels, width = wav.getnchannels(), wav.getsampwidth()
+            sample_rate = wav.getframerate()
+            if channels != 2 or width != 2 or not 8000 <= sample_rate <= 192000:
+                raise wave.Error("unexpected native speaker layout")
+            frame_bytes = channels * width
+            observed = wav.getnframes() * frame_bytes
+            if observed == 0 or observed + 44 != os.fstat(stream.fileno()).st_size:
+                raise wave.Error("incomplete native speaker capture")
+            if offset % frame_bytes or limit % frame_bytes:
+                raise ServiceError("invalid_audio_layout", "Tab5 PCM byte ranges must align to stereo frames", 400)
+            if offset > observed:
+                raise ServiceError("audio_range_unavailable", "offset exceeds the observed capture length", 416)
+            wav.setpos(offset // frame_bytes)
+            count = min(limit, observed - offset)
+            data = wav.readframes(count // frame_bytes)
+            if len(data) != count:
+                raise wave.Error("native speaker capture changed during read")
+    except (OSError, wave.Error, EOFError) as error:
+        raise ServiceError("audio_capture_unavailable", "no finalized Tab5 I2S1 recording", 409) from error
+    if sys.byteorder != "little":
+        samples = array("h", data)
+        samples.byteswap()
+        data = samples.tobytes()
+    return data, {
+        "source": TAB5_AUDIO_SOURCE, "sample_format": "s16le",
+        "sample_rate_hz": sample_rate, "channels": channels, "observed_bytes": observed,
+    }
+
+
+def tab5_stereo_pcm_metrics(data: bytes, sample_rate_hz: int) -> dict:
+    samples = array("h", data)
+    channels = [pcm_metrics(samples[channel::2].tobytes(), sample_rate_hz) for channel in range(2)]
+    return {
+        "layout_source": "esp_emu_wav",
+        "frames": len(samples) // 2,
+        "spectrum_frames": channels[0]["spectrum_frames"],
+        "peak": max(channel["peak"] for channel in channels),
+        "rms": round(math.hypot(*(channel["rms"] for channel in channels)) / math.sqrt(2), 3),
+        "dominant_frequency_hz": None,
+        "channel_metrics": [
+            {key: channel[key] for key in ("rms", "peak", "dominant_frequency_hz")}
+            for channel in channels
+        ],
+    }
 
 
 def pcm_metrics(data: bytes, sample_rate_hz: int) -> dict:

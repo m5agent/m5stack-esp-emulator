@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.91.0` and bounded
+Status: local MVP with unified-device runtime contract `1.92.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3448,6 +3448,32 @@ samples. Request the evidence ZIP before stopping for the PCM and the current
 microphone source digest. Stopped sessions can still read retained output.
 If an operator configures a runtime ACL, use `audio.inject` for WAV staging
 and `audio.read` for reading the capture or ZIP audio.
+
+### Tab5 UserDemo I2S1 speaker output
+
+Set `M5_TAB5_USERDEMO_CODEC_PART` to the qualified GT911 module built with
+`--codec-control`. Add the exact UserDemo V0.4 normalized Flash SHA-256
+`62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9`
+to the native DSI allowlist and select `gt911-ili9881c` for that hash.
+[Original UserDemo playback evidence](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)
+The operator setting affects this one firmware. The normal GT911 module
+continues to serve other firmware. The codec Part handles ES8388 and ES7210
+control transactions on native HP I²C0.
+
+Set `speaker_capture: true` in the session request to record I²S1; the session
+then reports `flash.tab5.speaker_capture=esp_emu_i2s1_tx`. A recording lease
+has a maximum TTL of 180 seconds and cannot renew. An ordinary session can
+use the codec Part without creating a recording.
+
+Collect the live input, serial and frame evidence first. Stop with `purge=0`
+to let esp-emu finalize its session-owned WAV. Then request `audio.pcm`
+or an evidence ZIP with `include=manifest,audio`. The live PCM endpoint
+returns `409 audio_capture_pending`. Stereo s16le offsets and lengths align
+to four-byte frames. Tab5 metrics derive the sample rate from the WAV and
+report left and right channel measurements. The ZIP retains the first 8 MiB
+of complete PCM and reports the observed length and truncation. The API
+serves additional retained ranges through the same endpoint. An API reset
+begins a new recording. This verifies digital I²S1 output.
 
 ### Dial AudioPlayer WAV media
 

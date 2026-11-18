@@ -26,3 +26,10 @@ The part also models the standard BMI270 configuration upload at address
 `0x68` on HP I²C1. The guest supplies the configuration bytes and requests
 initialization. The model validates a complete upload before reporting
 success through `INTERNAL_STATUS`.
+
+The optional `--codec-control` build composes the same GT911 touch Part
+with the Tab5 HP I²C0 control ports for ES8388 and ES7210. Its WASM digest is
+`2505106410b2f6b18b2ad243bc4c3730961762710ea565733fe7a8b117387270`.
+Use the separate UserDemo binding described in the Device Service API. The
+default build retains the legacy module digest. Audio samples come from the
+native I²S1 output, while this Part responds to codec register transactions.

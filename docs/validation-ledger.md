@@ -63,6 +63,13 @@ M5TabOS 0.9.1 原版仍无完整帧。只读观测确认采样处为 FreeRTOS
 双核空闲任务，两个 SYSTIMER ISR 计数和调度 tick 均持续增长。
 [同原版采样和会话证据](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)
 
+## 2026-11-18 Tab5 UserDemo 原版显示和 I²S1 会话证据
+
+原版在具备 codec 控制的 GT911 配置中正常启动。两次触摸获来宾确认，播放后
+`audio.pcm` 读取的双声道帧与同一停止会话 ZIP 一致。音乐页空闲对照在动作
+窗口内为静音。CarPlay 使用原 GT911 Part，原版前后画面哈希保持一致。
+[原版、Part 与播放对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)
+
 ## 2026-11-18 M5TabOS 原版 ST7123 取帧与触摸
 
 同一 M5TabOS 0.9.1 原版在 GT911 配置完成系统初始化后仍未激活视频。

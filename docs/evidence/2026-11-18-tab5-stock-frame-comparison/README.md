@@ -126,6 +126,15 @@ M5TabOS 的独立启动问题沿用此前记录。
 音频地址，未取得完整帧或有效的 I²S 音频捕获。
 [源码、启动对照与边界](userdemo-wfi-source-ab-summary.json)
 
+## UserDemo 原版通过会话读取 I²S1
+
+Device Service 1.92.0 按原版归一化 Flash SHA 为 UserDemo V0.4 选择具备
+ES8388、ES7210 控制寄存器的 GT911 Part。常规会话用两次实际点击打开
+Music Test 并播放，15 次 720×1280 非黑帧，停止后的原生 WAV 经
+`audio.pcm` 返回 48 kHz、16 位、双声道 PCM。播放后的数据有非零采样，
+同样打开音乐页而未播放的对照保持静音。API 数据与同会话证据 ZIP 逐字节一致。
+[原版、Part、接口与播放对照](userdemo-native-speaker-summary.json)
+
 ## M5TabOS 0.9.1 周期中断
 
 同一原版的只读采样从来宾任务结构确认两个运行任务为 FreeRTOS

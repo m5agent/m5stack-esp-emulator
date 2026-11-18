@@ -66,6 +66,7 @@ from device_service_tab5_dsi import (  # noqa: E402
     TAB5_ST7123_HOLD_PART_SHA256,
     TAB5_ST7123_I2C_PART_SHA256,
     TAB5_ST7123_POWER_PART_SHA256S,
+    TAB5_USERDEMO_FLASH_SHA256,
     Tab5DsiReceiver,
     Tab5Gt911Touch,
     Tab5St7123Touch,
@@ -235,8 +236,9 @@ from firmware_filesystems import inventory_sd_filesystems  # noqa: E402
 from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from device_service_audio import (  # noqa: E402
     CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES,
+    TAB5_AUDIO_EVIDENCE_BYTES, TAB5_AUDIO_MAX_LEASE_SECONDS, TAB5_AUDIO_SOURCE,
     UNIT_AUDIO_MAX_CAPTURE_BYTES, UNIT_AUDIO_MAX_TRACKS, UNIT_AUDIO_SOURCE,
-    pcm_metrics, read_wave_artifact,
+    pcm_metrics, read_tab5_speaker_pcm, read_wave_artifact, tab5_stereo_pcm_metrics,
 )
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
@@ -8218,6 +8220,8 @@ class DeviceSession:
         DeviceSession._require_runtime_permission(self, "audio.read")
         if source not in {"speaker", "unit"}:
             raise ServiceError("invalid_audio_source", "audio source must be speaker or unit", 400)
+        if source == "speaker" and self._tab5_speaker_enabled():
+            return self._tab5_speaker_capture(output_format, offset, limit, sample_rate_hz)
         unit = self._unit_audio_attachment() if source == "unit" else None
         if source == "unit":
             if unit is None or self.spec.id != "dial" or self.runtime != "qemu":
@@ -8274,6 +8278,37 @@ class DeviceSession:
             if unit is not None:
                 metrics["layout_source"] = "native_unit_fixed_mono"
             return None, receipt | metrics
+        return data, receipt
+
+    def _tab5_speaker_enabled(self) -> bool:
+        return self.spec.id == "tab5" and (
+            (self.flash_info or {}).get("tab5", {}).get("speaker_capture") == TAB5_AUDIO_SOURCE
+        )
+
+    def _tab5_speaker_bytes(self, offset: int, limit: int) -> tuple[bytes, dict]:
+        if self.state not in {"stopped", "failed"}:
+            raise ServiceError("audio_capture_pending", "Tab5 speaker PCM becomes readable after the session stops", 409)
+        return read_tab5_speaker_pcm(self.dir / "tab5-speaker.wav", offset, limit)
+
+    def _tab5_speaker_capture(
+        self, output_format: str, offset: int, limit: int, sample_rate_hz: int | None,
+    ) -> tuple[bytes | None, dict]:
+        if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
+            raise ServiceError("invalid_audio_range", "expected pcm or metrics and a bounded byte range", 400)
+        data, layout = self._tab5_speaker_bytes(offset, limit)
+        if sample_rate_hz is not None and (
+            output_format != "metrics" or sample_rate_hz != layout["sample_rate_hz"]
+        ):
+            raise ServiceError("invalid_audio_layout", "Tab5 metrics use the rate in the native recording", 400)
+        receipt = {
+            "session_id": self.id, "firmware_sha256": self.firmware_sha, **layout,
+            "offset": offset, "next_offset": offset + len(data), "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+        if output_format == "metrics":
+            if not data:
+                raise ServiceError("audio_capture_unavailable", "no complete frame at the requested offset", 409)
+            return None, receipt | tab5_stereo_pcm_metrics(data, layout["sample_rate_hz"])
         return data, receipt
 
     def audio_inject(self, payload: dict) -> dict:
@@ -8829,6 +8864,17 @@ class DeviceSession:
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
+        if audio_read_allowed and "audio" in include and self._tab5_speaker_enabled():
+            try:
+                pcm, layout = self._tab5_speaker_bytes(0, TAB5_AUDIO_EVIDENCE_BYTES)
+            except ServiceError as error:
+                manifest["audio"] = {"status": "NOT_AVAILABLE", "reason": error.code}
+            else:
+                files["audio/speaker.pcm"] = pcm
+                manifest["audio"] = {
+                    **layout, "bytes": len(pcm), "sha256": hashlib.sha256(pcm).hexdigest(),
+                    "truncated": len(pcm) < layout["observed_bytes"],
+                }
         if audio_read_allowed and "audio" in include and self._unit_audio_attachment() is not None:
             if self.unit_audio_fixture.is_file():
                 files["audio/unit-fixture.json"] = self.unit_audio_fixture.read_bytes()
@@ -9867,9 +9913,10 @@ def _probe_tab5_symbols(spec: DeviceSpec, firmware_source: str, original: bytes,
 class Tab5DeviceSession(DeviceSession):
     """Tab5 esp-emu session with native DSI or matching-ELF framebuffer capture."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, speaker_capture: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
         self._c6_proc: subprocess.Popen | None = None
+        self._capture_tab5_speaker = speaker_capture
         self._gdb_port: int | None = None
         self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
         self._tab5_elf: Path | None = None
@@ -9910,9 +9957,13 @@ class Tab5DeviceSession(DeviceSession):
         identity["symbols_status"] = "matched" if self._tab5_elf else "unavailable"
         candidate = getattr(self.service, "tab5_dsi_emulator", "")
         part = getattr(self.service, "tab5_gt911_part", "")
+        codec_part = (
+            getattr(self.service, "tab5_userdemo_codec_part", "")
+            if self.firmware_sha == TAB5_USERDEMO_FLASH_SHA256 else ""
+        )
         allowed_firmware = getattr(self.service, "tab5_dsi_firmware_sha256s", frozenset())
         excluded = bool(allowed_firmware and self.firmware_sha not in allowed_firmware)
-        if self._tab5_elf:
+        if self._tab5_elf and not codec_part:
             identity["frame_capture_admission"] = "matching_elf"
         elif not candidate:
             identity["frame_capture_admission"] = "native_dsi_not_configured"
@@ -9926,7 +9977,7 @@ class Tab5DeviceSession(DeviceSession):
             raise ServiceError(
                 "tab5_gt911_part_unavailable", "Tab5 GT911 requires the native DSI runtime", 409
             )
-        if candidate and self._tab5_elf is None:
+        if candidate and (self._tab5_elf is None or codec_part):
             self._tab5_dsi_emulator = tab5_dsi_runtime(candidate)
             identity.update(frame_capture="esp-emu-dsi", runtime_sha256=TAB5_DSI_RUNTIME_SHA256)
             board = getattr(self.service, "tab5_dsi_board_overrides", {}).get(
@@ -9963,13 +10014,17 @@ class Tab5DeviceSession(DeviceSession):
                     board_probe="esp-emu-gpio-i2c",
                     board_probe_part_sha256=digest,
                 )
-            elif part:
-                self._tab5_gt911_board, digest = stage_tab5_gt911_part(part, board, self.dir)
+            elif part or codec_part:
+                self._tab5_gt911_board, digest = stage_tab5_gt911_part(
+                    codec_part or part, board, self.dir, codec_control=bool(codec_part),
+                )
                 identity.update(
                     touch_model="esp-emu-gt911",
                     touch_part_sha256=digest,
                     touch_coordinate_space="panel-native",
                 )
+                if codec_part and self._capture_tab5_speaker:
+                    identity["speaker_capture"] = TAB5_AUDIO_SOURCE
         assert self.spec.efuse is not None
         seed = self.spec.efuse.read_bytes()
         self._tab5_efuse.write_bytes(seed)
@@ -10060,6 +10115,8 @@ class Tab5DeviceSession(DeviceSession):
 
     def _launch_tab5(self) -> None:
         self._check_cancelled()
+        if self._tab5_speaker_enabled():
+            (self.dir / "tab5-speaker.wav").unlink(missing_ok=True)
         assert self.virtual_flash is not None
         assert self.spec.emulator is not None
         assert self.spec.rom is not None
@@ -10131,6 +10188,8 @@ class Tab5DeviceSession(DeviceSession):
             "--timeout", f"{int(self.ttl_seconds + 120)}s",
         ]
         command.extend(sd_args)
+        if self._tab5_speaker_enabled():
+            command.extend(["--i2s-wav", str(self.dir / "tab5-speaker.wav"), "--i2s-instance", "1"])
         if elf:
             command.extend(["--elf", str(elf)])
         touch_board = self._tab5_gt911_board
@@ -10516,6 +10575,11 @@ class Tab5DeviceSession(DeviceSession):
     def _terminate_runtime(self) -> None:
         self._terminate_tab5()
 
+    def renew(self, ttl_seconds: int) -> dict:
+        if self._capture_tab5_speaker:
+            raise ServiceError("audio_capture_lease_fixed", "Tab5 speaker capture leases cannot be renewed", 409)
+        return super().renew(ttl_seconds)
+
 
 class DeviceService:
     def __init__(
@@ -10543,6 +10607,7 @@ class DeviceService:
         self.tab5_dsi_emulator = os.environ.get("M5_TAB5_DSI_EMULATOR", "").strip()
         self.tab5_dsi_board = os.environ.get("M5_TAB5_DSI_BOARD", "").strip()
         self.tab5_gt911_part = os.environ.get("M5_TAB5_GT911_PART", "").strip()
+        self.tab5_userdemo_codec_part = os.environ.get("M5_TAB5_USERDEMO_CODEC_PART", "").strip()
         self.tab5_st7123_i2c_part = os.environ.get("M5_TAB5_ST7123_I2C_PART", "").strip()
         self.tab5_st7123_touch_part = os.environ.get("M5_TAB5_ST7123_TOUCH_PART", "").strip()
         hashes = os.environ.get("M5_TAB5_DSI_FIRMWARE_SHA256S", "").strip()
@@ -10553,6 +10618,11 @@ class DeviceService:
             os.environ.get("M5_TAB5_DSI_BOARD_OVERRIDES", "").strip(),
             self.tab5_dsi_firmware_sha256s,
         )
+        if self.tab5_userdemo_codec_part and (
+            not self.tab5_dsi_emulator or TAB5_USERDEMO_FLASH_SHA256 not in self.tab5_dsi_firmware_sha256s
+            or self.tab5_dsi_board_overrides.get(TAB5_USERDEMO_FLASH_SHA256, self.tab5_dsi_board) != "gt911-ili9881c"
+        ):
+            raise ValueError("M5_TAB5_USERDEMO_CODEC_PART requires native DSI and the admitted UserDemo GT911 firmware")
         self.specs = load_device_specs()
         self.runtime_acl = runtime_acl or RuntimeACL.unconfigured()
         self.runtime_acl.validate_device_ids(set(self.specs))
@@ -11725,6 +11795,9 @@ class DeviceService:
             _management_binding = _normalize_management_binding(_management_binding)
         if self._stop.is_set():
             raise ServiceError("service_stopping", "device service is shutting down", 503)
+        speaker_capture = payload.get("speaker_capture", False)
+        if type(speaker_capture) is not bool:
+            raise ServiceError("invalid_speaker_capture", "speaker_capture must be boolean", 400)
         uiflow_startup = parse_uiflow_startup(payload)
         program_transport = payload.get("program_transport")
         if program_transport not in (None, "uart-repl"):
@@ -12242,9 +12315,17 @@ class DeviceService:
                     f"maximum active sessions for {device_id} is {self.max_per_device}",
                     429,
                 )
-            ttl = int(payload.get("ttl_seconds", self.default_ttl))
+            if speaker_capture and (
+                runtime != "qemu" or spec.service_kind != "tab5" or firmware_sha != TAB5_USERDEMO_FLASH_SHA256
+                or not self.tab5_userdemo_codec_part
+            ):
+                raise ServiceError("audio_unsupported", "speaker_capture requires the admitted native Tab5 UserDemo", 409)
+            default_ttl = min(self.default_ttl, TAB5_AUDIO_MAX_LEASE_SECONDS) if speaker_capture else self.default_ttl
+            ttl = int(payload.get("ttl_seconds", default_ttl))
             if ttl < 30:
                 raise ServiceError("invalid_ttl", "ttl_seconds must be >= 30", 400)
+            if speaker_capture and ttl > TAB5_AUDIO_MAX_LEASE_SECONDS:
+                raise ServiceError("invalid_ttl", "Tab5 speaker capture requires ttl_seconds <= 180", 400)
             ready_marker = payload.get("ready_marker")
             if ready_marker is not None and not isinstance(ready_marker, str):
                 raise ServiceError("invalid_request", "ready_marker must be a string", 400)
@@ -12565,6 +12646,7 @@ class DeviceService:
                     worker_id=self.worker.worker_id,
                     worker_generation=self.worker.generation,
                     worker_lease_active=True,
+                    **({"speaker_capture": speaker_capture} if session_class is Tab5DeviceSession else {}),
                 )
             except Exception:
                 self.worker.release_lease(

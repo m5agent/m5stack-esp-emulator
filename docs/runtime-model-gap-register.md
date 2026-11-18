@@ -211,8 +211,9 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
   在 ST7123 正常取得画面，并通过实际触摸进入时区页；其它页面仍待验。
 - **官方 UserDemo V0.4** 在请求暂停 CPU1 后状态位为零。发布源码的匹配 ELF
   [同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)把 ES8388 初始化断言与之后的 panic 等待关联。
-  上游移除等待后仍触发该断言，普通会话转为反复软件复位。闭环须捕获
-  实际 I²C 交易，复验同一发布 BIN 的冷启动、画面和音频。
+  上游移除等待后仍触发该断言，原会话转为反复软件复位。后续定位 HP I²C0
+  的 codec 路由，通过仅匹配原版哈希的控制模型恢复启动与数字音频。
+  [原版与静音对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已确认出帧和 I²S1，麦克风采集仍待验证。
   [两份原版现场](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
 
 ### CoreMatrix C158：C61 官方固件运行边界
