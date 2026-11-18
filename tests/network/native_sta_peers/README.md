@@ -70,6 +70,11 @@ DNS and UDP checks. Merge the 8 MiB image as above and use the same image on
 Cardputer and Cardputer ADV. The listener addresses below belong to the
 session-local loopback in the Linux namespace.
 
+On the same `generic-observe` request, set `network.http_post_fixture` and
+`network.tcp_fixture` to objects containing `request_hex` and `response_hex`
+from the table. Keep `capture_pcap` enabled and use the namespace allowlist
+configuration above.
+
 | Operation | Endpoint | Request hex | Expected reply hex |
 | --- | --- | --- | --- |
 | HTTP POST | `10.0.2.2:18193`, `post.native-sta.test`, `/native-sta-post` | `4d35504f5354007fff11` | `41434b2d504f5354007fff11` |
@@ -84,6 +89,17 @@ firmware bytes for both controls. Each operation emits one terminal line,
 control emits `matched=0` for only the changed operation. Require separate
 peer receipts and finalized capture before attributing a failure to reply
 contents. Continue checking the original GET, DNS and UDP markers.
+
+The [saved-snapshot dry-runs](local-streams-saved-review-summary.json) used
+the same probe BIN on both boards. POST and TCP passed on both positive runs.
+Changing one reply byte failed only the corresponding application assertion.
+The peer and finalized PCAP body digests matched, and the original GET,
+DNS and UDP checks still passed. The legacy guest kept its original results
+with both the previous and updated Reviewer. The worker without namespace
+capability returned `503 network_isolation_unavailable` before lease
+allocation. All six started guest sessions were released. These headless
+probe reviews retained `E_NO_FRAME` at the full-review level. Arbitrary
+HTTPS, cloud endpoints, browser and physical hardware were `NOT RUN`.
 
 For a bounded macOS diagnostic build, omit `M5_NAMESPACE_DNS`. The same
 stock driver sends direct DNS queries to the controlled test peer on port

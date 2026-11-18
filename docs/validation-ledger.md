@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer 和 ADV 原生 STA 固定 POST 与 TCP
+
+同一个 ESP-IDF 探针在隔离 Linux namespace 的两款板型均通过固定 POST 和二进制 TCP。
+两个单字节错误回复对照各自只触发对应应用断言失败。两款板型的传输均已观测，对端与终态 pcap 的正文摘要相符。
+旧探针在前后两版 Reviewer 均保持 GET、DNS、UDP 结果。缺少 namespace 能力的 worker 返回 503，租约分配为零。
+六个已启动会话全部释放。无界面探针的整项审核保留 `E_NO_FRAME`，任意 HTTPS 和云端协议为 `NOT RUN`。
+[固定源码、镜像与同会话证据](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)
+
 ## 2026-11-18 Cardputer 和 ADV 原生 SPI SD 读取统计
 
 使用同一 ESP-IDF 夹具和 FAT32 镜像，初代 Cardputer 和 ADV 各接受 16 条 CMD17 并完整返回 16 个块。

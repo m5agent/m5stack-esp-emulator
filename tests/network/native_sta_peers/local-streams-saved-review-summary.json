@@ -1,0 +1,211 @@
+{
+  "validation": "virtual-device validation",
+  "scope": "Fixed HTTP POST and TCP operation proof in an isolated Linux STA guest. No cloud traffic.",
+  "linux_worker_base_image_sha256": "03f2d89a3895c479daf87c9439d1f2ecab7be3fe488c5af5e96c43ee6bfbb955",
+  "linux_qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+  "device_service_source": "178d7a41c84ecf9f3b99fe6e742476b4c3f22286",
+  "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+  "cases": [
+    {
+      "board": "cardputer-adv",
+      "case": "positive",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "PASS",
+      "operation_phase": "complete",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {
+        "http_post": "PASS",
+        "tcp": "PASS"
+      },
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "12e39aa1ded88707bbbe7ebfa410d4bd7ba6975c65e96ff6c15081bf53706016",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "be7d6ad7fbfc00f7aef078e4a5253f2974cc3c972c589d89eabb894e59f2e755",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 3,
+      "transport": "OBSERVED",
+      "end_to_end_streams": {
+        "http_post": {
+          "terminal_marker": "STA_FIXTURE_HTTP_POST matched=1",
+          "request_body_sha256": "89f0b43f502fa31533366b8e14ca6bdc67856155c8295179d3d616ba4f47dd48",
+          "reply_body_sha256": "a74ed2dcec72dc97c18899e901d66bb790d5507bc41ebc15c548784a2c8e0c19"
+        },
+        "tcp": {
+          "terminal_marker": "STA_FIXTURE_TCP matched=1",
+          "request_body_sha256": "62b3604b1e6572a8fff8c3ff6afebb8ba252b60cd8863d7b2272688ea84d1e55",
+          "reply_body_sha256": "422fbefe3c53a1bc6b7fcd2cc0beaee310a369f5d95dfaa6772507ee7a8efdaf"
+        }
+      }
+    },
+    {
+      "board": "cardputer",
+      "case": "positive",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "PASS",
+      "operation_phase": "complete",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {
+        "http_post": "PASS",
+        "tcp": "PASS"
+      },
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "5b4760bd3a0528b9e69103f17f2522558c55b41e7c11df938fdb36346c795e44",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "6b47f0fe81cef7702aca06f8fd62dde404ef81e20b43d630794b6abbe37aca6f",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 3,
+      "transport": "OBSERVED",
+      "end_to_end_streams": {
+        "http_post": {
+          "terminal_marker": "STA_FIXTURE_HTTP_POST matched=1",
+          "request_body_sha256": "89f0b43f502fa31533366b8e14ca6bdc67856155c8295179d3d616ba4f47dd48",
+          "reply_body_sha256": "a74ed2dcec72dc97c18899e901d66bb790d5507bc41ebc15c548784a2c8e0c19"
+        },
+        "tcp": {
+          "terminal_marker": "STA_FIXTURE_TCP matched=1",
+          "request_body_sha256": "62b3604b1e6572a8fff8c3ff6afebb8ba252b60cd8863d7b2272688ea84d1e55",
+          "reply_body_sha256": "422fbefe3c53a1bc6b7fcd2cc0beaee310a369f5d95dfaa6772507ee7a8efdaf"
+        }
+      }
+    },
+    {
+      "board": "cardputer-adv",
+      "case": "wrong-http_post",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "FAIL",
+      "operation_phase": "application",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {
+        "http_post": "FAIL",
+        "tcp": "PASS"
+      },
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "d0b2bea3909b8f3b03b69de3d28808a71fbde2b0e21fadd6a22ad12b02ce38ac",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "834a419fb762953f73932f50e3a86859dd2d32757b093c07a4af82a1691b2ecf",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 3,
+      "transport": "OBSERVED",
+      "end_to_end_streams": {
+        "http_post": {
+          "terminal_marker": "STA_FIXTURE_HTTP_POST matched=0",
+          "request_body_sha256": "89f0b43f502fa31533366b8e14ca6bdc67856155c8295179d3d616ba4f47dd48",
+          "reply_body_sha256": "8fbccd3d6399e75e178d930ad70dcd9a7194785d96c70cf58cb33b785cbf9d2c"
+        },
+        "tcp": {
+          "terminal_marker": "STA_FIXTURE_TCP matched=1",
+          "request_body_sha256": "62b3604b1e6572a8fff8c3ff6afebb8ba252b60cd8863d7b2272688ea84d1e55",
+          "reply_body_sha256": "422fbefe3c53a1bc6b7fcd2cc0beaee310a369f5d95dfaa6772507ee7a8efdaf"
+        }
+      }
+    },
+    {
+      "board": "cardputer",
+      "case": "wrong-tcp",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "FAIL",
+      "operation_phase": "application",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {
+        "http_post": "PASS",
+        "tcp": "FAIL"
+      },
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "1bc5feafd7f0471d0f24a03926a6ace284eb4718b138d8aabd88b6197b084e53",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "b68df4464a012122320012a4a8975456e7bb671b41abb751bda7ea2a3b54aac5",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 3,
+      "transport": "OBSERVED",
+      "end_to_end_streams": {
+        "http_post": {
+          "terminal_marker": "STA_FIXTURE_HTTP_POST matched=1",
+          "request_body_sha256": "89f0b43f502fa31533366b8e14ca6bdc67856155c8295179d3d616ba4f47dd48",
+          "reply_body_sha256": "a74ed2dcec72dc97c18899e901d66bb790d5507bc41ebc15c548784a2c8e0c19"
+        },
+        "tcp": {
+          "terminal_marker": "STA_FIXTURE_TCP matched=0",
+          "request_body_sha256": "62b3604b1e6572a8fff8c3ff6afebb8ba252b60cd8863d7b2272688ea84d1e55",
+          "reply_body_sha256": "13fe17bd5ef4ec11f702453607bcfbc20e5e6704f48e7da47f71b3ad73c9bb2d"
+        }
+      }
+    },
+    {
+      "board": "cardputer-adv",
+      "case": "denied",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "PARTIAL",
+      "operation_phase": "admission",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {
+        "http_post": "PARTIAL",
+        "tcp": "PARTIAL"
+      },
+      "isolated_guest_sessions_released": true,
+      "admission_control": {
+        "status": 503,
+        "service_code": "network_isolation_unavailable",
+        "leases_allocated": 0
+      }
+    },
+    {
+      "board": "cardputer-adv",
+      "case": "legacy",
+      "reviewer_source": "936be8b65ccf0598e80bf783c5a76cc06b2ddcb3",
+      "firmware_sha256": "f67e0a7a8e2805b01b3c2f9d1607ef6505467a60f4dd678d20a4576e56765db6",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "PASS",
+      "operation_phase": "complete",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {},
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "0af851c017eabe11a635884baf4d95817cffffcddb0ff8e6e7a676706628cf4b",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "d0aa67a35b3d280b8ea9f77e6bcfb3fa4b2bee7f76582fd3ec531384fa94ac3a",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 1,
+      "transport": "OBSERVED"
+    },
+    {
+      "board": "cardputer-adv",
+      "case": "legacy",
+      "reviewer_source": "8a6640f7ce7698116c71174c8dad35d71bb8dc86",
+      "firmware_sha256": "f67e0a7a8e2805b01b3c2f9d1607ef6505467a60f4dd678d20a4576e56765db6",
+      "dry_run": true,
+      "burner_submitted": false,
+      "operation_status": "PASS",
+      "operation_phase": "complete",
+      "overall_review_error": "E_NO_FRAME",
+      "operation_statuses": {},
+      "isolated_guest_sessions_released": true,
+      "legacy_protocols": "PASS",
+      "capture_sha256": "333c90adc37abe747a91c0edccf85a2d2bd4245cf7bba3a39ed4e155ea2036c2",
+      "raw_capture_crc_verified_in_both_zips": true,
+      "reviewer_zip_sha256": "f766aa197ae24308e98ef61de1e3591113b06a68ab038ef7b2b543cf93ea9bfb",
+      "endpoint_namespace_external_route": false,
+      "bidirectional_tcp_payload_flows": 1,
+      "transport": "OBSERVED"
+    }
+  ]
+}
