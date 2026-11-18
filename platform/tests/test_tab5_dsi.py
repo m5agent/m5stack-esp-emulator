@@ -336,3 +336,55 @@ class Tab5DsiTests(unittest.TestCase):
                 receiver.close()
                 self.assertFalse(receiver._thread.is_alive())
                 self.assertEqual(receiver.snapshot(), (None, "disconnected"))
+
+    def test_receiver_reclaims_channel_and_waits_for_an_entire_new_frame(self):
+        def packet(message):
+            return struct.pack("<IH", 2 + len(message), 0) + message
+
+        def event(fields):
+            payload = fields[36]
+            return packet(b"\xa2\x02" + bytes([len(payload)]) + payload)
+
+        def wait_for(predicate):
+            deadline = time.monotonic() + 2
+            while time.monotonic() < deadline:
+                if predicate():
+                    return
+                time.sleep(0.01)
+            self.fail("DSI receiver did not reach expected state")
+
+        def pixels():
+            frame, _ = receiver.snapshot()
+            return frame.pixels if frame is not None else None
+
+        def has_partial_frame():
+            with receiver._lock:
+                return receiver._buffer.pending_number == 1
+
+        first_server, first_client = socket.socketpair()
+        next_server, next_client = socket.socketpair()
+        receiver = Tab5DsiReceiver(0)
+        self.addCleanup(receiver.close)
+        with first_server, first_client, next_server, next_client, mock.patch.object(
+            receiver, "_connect", side_effect=[first_client, next_client]
+        ) as connect:
+            first_server.settimeout(2)
+            next_server.settimeout(2)
+            expected_claim = struct.pack("<I", len(REGISTER_VC0)) + REGISTER_VC0
+            ack = packet(_wire(5, bytes((40, 1))))
+            receiver.start()
+            self.assertEqual(first_server.recv(len(expected_claim), socket.MSG_WAITALL), expected_claim)
+            first_server.sendall(ack + event(_format()) + event(_rows(1, 0, 3, b"abcdef")))
+            wait_for(lambda: pixels() == b"abcdef")
+            first_server.shutdown(socket.SHUT_RDWR)
+
+            self.assertEqual(next_server.recv(len(expected_claim), socket.MSG_WAITALL), expected_claim)
+            self.assertEqual(receiver.snapshot(), (None, "disconnected"))
+            next_server.sendall(ack + event(_format()) + event(_rows(1, 0, 2, b"ghij")))
+            wait_for(has_partial_frame)
+            self.assertEqual(receiver.snapshot(), (None, "connected"))
+            next_server.sendall(event(_rows(1, 2, 1, b"kl")))
+            wait_for(lambda: pixels() == b"ghijkl")
+            receiver.close()
+            self.assertFalse(receiver._thread.is_alive())
+            self.assertEqual(connect.call_count, 2)

@@ -35,6 +35,8 @@ MAX_PART_BYTES = 144 * 1024
 MAX_MESSAGE_BYTES = 128 * 1024
 DSI_READ_BUFFER_BYTES = 256 * 1024
 DSI_SOCKET_BUFFER_BYTES = 4 * 1024 * 1024
+DSI_CONNECTION_SECONDS = 8
+DSI_RETRY_SECONDS = 0.1
 MAX_PIXELS = 2 * 1024 * 1024
 MAX_DIMENSION = 2048
 RGB565_LE = 1
@@ -504,7 +506,7 @@ class DsiFramebuffer:
 
 
 class Tab5DsiReceiver:
-    """Own one bounded co-sim stream for one P4 process."""
+    """Own one co-sim claim at a time for one P4 process."""
 
     def __init__(self, port: int):
         self._port = port
@@ -512,6 +514,7 @@ class Tab5DsiReceiver:
         self._lock = threading.Lock()
         self._sock: socket.socket | None = None
         self._buffer = DsiFramebuffer()
+        self._received_complete_frame = False
         self._state = "connecting"
         self._thread = threading.Thread(target=self._run, name="tab5-dsi-receiver", daemon=True)
 
@@ -533,8 +536,7 @@ class Tab5DsiReceiver:
         with self._lock:
             return self._buffer.snapshot, self._state
 
-    def _connect(self) -> socket.socket:
-        until = time.monotonic() + 8
+    def _connect(self, until: float) -> socket.socket:
         while not self._stop.is_set() and time.monotonic() < until:
             try:
                 # Size before connect so TCP negotiates a receive window
@@ -545,7 +547,7 @@ class Tab5DsiReceiver:
                         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, DSI_SOCKET_BUFFER_BYTES)
                     except OSError:
                         pass  # Keep working on hosts that limit socket memory.
-                    sock.settimeout(0.25)
+                    sock.settimeout(min(0.25, max(0.001, until - time.monotonic())))
                     sock.connect(("127.0.0.1", self._port))
                     return sock
                 except OSError:
@@ -555,32 +557,61 @@ class Tab5DsiReceiver:
                 self._stop.wait(0.05)
         raise OSError("co-sim endpoint unavailable")
 
-    def _run(self) -> None:
-        try:
-            with self._connect() as sock:
-                with self._lock:
-                    self._sock = sock
-                    if self._stop.is_set():
-                        return
-                sock.sendall(struct.pack("<I", len(REGISTER_VC0)) + REGISTER_VC0)
+    def _receive_stream(self, recovery_deadline: float | None) -> None:
+        self._received_complete_frame = False
+        connect_deadline = (time.monotonic() + DSI_CONNECTION_SECONDS
+                            if recovery_deadline is None else recovery_deadline)
+        with self._connect(connect_deadline) as sock:
+            with self._lock:
+                self._sock = sock
+                if self._stop.is_set():
+                    return
+            if recovery_deadline is None:
                 sock.settimeout(2)
-                with sock.makefile("rb", buffering=DSI_READ_BUFFER_BYTES) as reader:
-                    message = _read_message(reader)
-                    ack = _fields(_bytes(message or {}, 5))
-                    if _integer(ack, 5) != 1:
-                        raise DsiProtocolError("DSI registration refused")
-                    sock.settimeout(None)
-                    with self._lock:
-                        self._state = "connected"
-                    while not self._stop.is_set():
-                        message = _read_message(reader, need_clock=self._buffer.pending_number is not None)
-                        if message is not None:
-                            with self._lock:
-                                self._buffer.receive(message)
-        except (OSError, EOFError, DsiProtocolError) as error:
-            with self._lock:
-                self._state = "protocol_error" if isinstance(error, DsiProtocolError) else "disconnected"
-                self._buffer.reset()
-        finally:
-            with self._lock:
-                self._sock = None
+            else:
+                sock.settimeout(min(2, max(0.001, recovery_deadline - time.monotonic())))
+            sock.sendall(struct.pack("<I", len(REGISTER_VC0)) + REGISTER_VC0)
+            with sock.makefile("rb", buffering=DSI_READ_BUFFER_BYTES) as reader:
+                message = _read_message(reader)
+                ack = _fields(_bytes(message or {}, 5))
+                if _integer(ack, 5) != 1:
+                    raise DsiProtocolError("DSI registration refused")
+                sock.settimeout(None)
+                with self._lock:
+                    self._state = "connected"
+                while not self._stop.is_set():
+                    if recovery_deadline is not None:
+                        remaining = recovery_deadline - time.monotonic()
+                        if remaining <= 0:
+                            raise TimeoutError("DSI recovery did not deliver a complete frame")
+                        sock.settimeout(remaining)
+                    message = _read_message(reader, need_clock=self._buffer.pending_number is not None)
+                    if message is not None:
+                        with self._lock:
+                            self._buffer.receive(message)
+                            complete = self._buffer.snapshot is not None
+                        if complete and not self._received_complete_frame:
+                            self._received_complete_frame = True
+                            if recovery_deadline is not None:
+                                recovery_deadline = None
+                                sock.settimeout(None)
+
+    def _run(self) -> None:
+        recovery_deadline = None
+        while not self._stop.is_set():
+            try:
+                self._receive_stream(recovery_deadline)
+                return
+            except (OSError, EOFError, DsiProtocolError) as error:
+                with self._lock:
+                    if self._received_complete_frame:
+                        recovery_deadline = time.monotonic() + DSI_CONNECTION_SECONDS
+                    self._state = "protocol_error" if isinstance(error, DsiProtocolError) else "disconnected"
+                    # A different stream needs its own complete baseline.
+                    self._buffer.reset()
+            finally:
+                with self._lock:
+                    self._sock = None
+            if recovery_deadline is None or time.monotonic() >= recovery_deadline:
+                break
+            self._stop.wait(DSI_RETRY_SECONDS)

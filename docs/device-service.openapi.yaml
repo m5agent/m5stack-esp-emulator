@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.1
+  version: 1.99.2
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2888,6 +2888,10 @@ paths:
         latest complete received DPI frame, with no matching ELF needed.
         Before a complete frame is received this backend replies with
         409 tab5_dsi_frame_unavailable and a capture_status detail.
+        After an established DSI stream drops, the receiver discards its frame
+        baseline and makes a bounded attempt to reclaim the same virtual
+        channel while the guest continues running. A complete frame from the
+        new stream is required before frame responses resume.
         A legacy Tab5 path without a matching ELF returns
         screenshot_requires_matching_elf with capture_admission describing
         the native DSI selection decision when recorded.

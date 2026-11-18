@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.99.1` and bounded
+Status: local MVP with unified-device runtime contract `1.99.2` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3444,6 +3444,10 @@ the endpoint returns `409 tab5_dsi_frame_unavailable` with
 `disconnected` or `protocol_error`. The evidence records the selected
 runtime SHA and `flash.tab5.frame_capture=esp-emu-dsi`. Retained frames are
 served through the same route. Reset discards the previous process's frame.
+If an established stream drops, the receiver discards its frame baseline
+and attempts to reclaim virtual channel 0 within a bounded window. The live
+endpoint returns 409 until a complete frame arrives on the new connection.
+The P4, C6 and session continue operating during capture recovery.
 The receiver captures raw DPI pixels, including RGB565 and BGR888. Application
 readiness, panel brightness, orientation and touch require separate evidence.
 
