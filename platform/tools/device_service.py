@@ -10473,6 +10473,23 @@ class Tab5DeviceSession(DeviceSession):
                 "tab5_efuse_not_isolated",
                 "Tab5 requires a session-owned eFuse seed before launch", 409,
             )
+        save_args = []
+        if self._tab5_dsi_emulator is not None:
+            try:
+                flash = self.virtual_flash.lstat()
+                isolated = (
+                    self.virtual_flash.resolve() == self.dir.resolve() / "virtual-flash.bin"
+                    and stat.S_ISREG(flash.st_mode) and flash.st_nlink == 1
+                    and flash.st_size == self.spec.flash_size
+                )
+            except (OSError, RuntimeError):
+                isolated = False
+            if not isolated:
+                raise ServiceError(
+                    "tab5_flash_not_isolated", "Tab5 Flash writeback requires a session-owned image", 409,
+                )
+            # The qualified runtime flushes P4 Flash on orderly exit. The C6 seed is shared.
+            save_args = ["--save-state"]
         sd_args = self._tab5_sd_launch_args()
         try:
             self._hosted_socket.unlink()
@@ -10515,6 +10532,7 @@ class Tab5DeviceSession(DeviceSession):
             "--gdb", str(self._gdb_port),
             "--timeout", f"{int(self.ttl_seconds + 120)}s",
         ]
+        command.extend(save_args)
         command.extend(sd_args)
         if self._tab5_speaker_enabled():
             command.extend(["--i2s-wav", str(self.dir / "tab5-speaker.wav"), "--i2s-instance", "1"])
@@ -10571,9 +10589,10 @@ class Tab5DeviceSession(DeviceSession):
         if receiver is not None:
             receiver.close()
 
-    def _terminate_tab5(self) -> None:
+    def _terminate_tab5(self) -> int | None:
         self._tab5_native_touch = None
         self._close_dsi_receiver()
+        p4_exit_code = None
         for proc in (self._proc, self._c6_proc):
             if proc is not None and proc.poll() is None:
                 try:
@@ -10584,16 +10603,19 @@ class Tab5DeviceSession(DeviceSession):
             if proc is None:
                 continue
             try:
-                proc.wait(timeout=15)
+                exit_code = proc.wait(timeout=15)
             except subprocess.TimeoutExpired:
                 proc.kill()
-                proc.wait(timeout=5)
+                exit_code = proc.wait(timeout=5)
+            if proc is self._proc:
+                p4_exit_code = exit_code
         self._proc = None
         self._c6_proc = None
         try:
             self._hosted_socket.unlink()
         except FileNotFoundError:
             pass
+        return p4_exit_code
 
     def frame_metrics(
         self, *, analyze: bool = True, force_persist: bool = False
@@ -10891,7 +10913,11 @@ class Tab5DeviceSession(DeviceSession):
                         self.device_state_path.unlink(missing_ok=True)
                         self._last_frame_persisted_at = 0
                 self.serial0.write_bytes(b"")
-                self._terminate_tab5()
+                p4_exit_code = self._terminate_tab5()
+                if self._tab5_dsi_emulator is not None and p4_exit_code != 0:
+                    raise ServiceError(
+                        "tab5_flash_save_failed", "Tab5 P4 did not exit cleanly to save session Flash", 409,
+                    )
                 self._launch_tab5()
                 self._set_state("running")
                 self._record_event("reset")

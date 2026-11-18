@@ -6,6 +6,7 @@ from http.server import ThreadingHTTPServer
 from io import BytesIO
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -155,7 +156,10 @@ class Tab5ServiceTests(unittest.TestCase):
         commands = []
         def spawn(command, **kwargs):
             commands.append(command)
-            return mock.Mock(pid=1234 + len(commands), poll=mock.Mock(return_value=None))
+            return mock.Mock(
+                pid=1234 + len(commands), poll=mock.Mock(return_value=None),
+                wait=mock.Mock(return_value=0),
+            )
         with mock.patch.object(service_module.subprocess, "Popen", side_effect=spawn), \
                 mock.patch.object(service_module, "wait_for_fs_path"), \
                 mock.patch.object(service_module, "wait_for_tcp_port"), \
@@ -170,6 +174,7 @@ class Tab5ServiceTests(unittest.TestCase):
         self.elf.write_bytes(b"operator replaces global reference ELF later")
         commands = self.launch_commands(session)
         command = commands[1]
+        self.assertNotIn("--save-state", command)
         self.assertEqual(Path(command[command.index("--efuse") + 1]), session.dir / "runtime.efuse")
         self.assertEqual(Path(command[command.index("--elf") + 1]), session.dir / "runtime.elf")
         session._tab5_efuse.write_bytes(b"changed by guest")
@@ -183,6 +188,42 @@ class Tab5ServiceTests(unittest.TestCase):
         session = self.session()
         self.provision(session)
         self.assertNotIn("--elf", self.launch_commands(session)[1])
+
+    def test_native_p4_persists_only_its_owned_flash(self):
+        candidate = Path("/qualified/esp-emu")
+        session = self.session()
+        self.provision(session)
+        session._tab5_dsi_emulator = candidate
+        with mock.patch.object(service_module, "tab5_dsi_runtime", return_value=candidate), \
+                mock.patch.object(service_module, "Tab5DsiReceiver"):
+            sidecar, p4 = self.launch_commands(session)
+            self.assertNotIn("--save-state", sidecar)
+            self.assertIn("--save-state", p4)
+            self.assertEqual(p4[p4.index("--firmware") + 1], str(session.virtual_flash))
+            flash_link = self.root / "shared-flash.bin"
+            os.link(session.virtual_flash, flash_link)
+            with mock.patch.object(service_module.subprocess, "Popen") as spawn:
+                with self.assertRaises(service_module.ServiceError) as raised:
+                    session._launch_tab5()
+            self.assertEqual(raised.exception.code, "tab5_flash_not_isolated")
+            spawn.assert_not_called()
+
+    def test_native_reset_with_failed_save_stops_both_chips_without_relaunch(self):
+        session = self.session()
+        self.provision(session)
+        session._tab5_dsi_emulator = Path("/qualified/esp-emu")
+        p4 = session._proc = mock.Mock(poll=mock.Mock(return_value=None), wait=mock.Mock(return_value=-9))
+        c6 = session._c6_proc = mock.Mock(poll=mock.Mock(return_value=None), wait=mock.Mock(return_value=0))
+        with mock.patch.object(session, "_launch_tab5") as launch:
+            with self.assertRaises(service_module.ServiceError) as raised:
+                session.reset()
+        launch.assert_not_called()
+        self.assertEqual(raised.exception.code, "tab5_flash_save_failed")
+        self.assertEqual(session.state, "failed")
+        self.assertIsNone(session._proc)
+        self.assertIsNone(session._c6_proc)
+        p4.wait.assert_called_once()
+        c6.wait.assert_called_once()
 
     def test_dsi_candidate_runtime_is_explicit_and_does_not_replace_reference(self):
         self.service.tab5_dsi_emulator = "/missing/esp-emu"

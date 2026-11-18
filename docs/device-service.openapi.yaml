@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.0
+  version: 1.99.1
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -3112,6 +3112,8 @@ paths:
         Resets the current guest. If native QEMU had suspended for guest
         sleep, the service observes the host reset and resumes the new boot
         when QEMU enters its prelaunch state.
+        The qualified Tab5 native DSI runtime writes committed settings to
+        session-owned P4 Flash on orderly exit before restarting both chips.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
@@ -3124,6 +3126,14 @@ paths:
                 additionalProperties: true
         "403":
           $ref: "#/components/responses/Error"
+        "409":
+          description: >
+            Session cannot reset, or Tab5 Flash writeback could not proceed
+            (tab5_flash_save_failed or tab5_flash_not_isolated).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "504":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/renew:

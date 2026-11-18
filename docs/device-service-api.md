@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.99.0` and bounded
+Status: local MVP with unified-device runtime contract `1.99.1` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3296,7 +3296,15 @@ file.
 Tab5 verifies the complete cached and session Flash bytes against the admitted
 image, including application and upper Flash regions. Its mutable eFuse seed
 and any matching ELF are copied into the session before either companion starts.
-Reset keeps the session's eFuse state. `flash.tab5` records the application
+Reset keeps the session's eFuse state. On the qualified native DSI runtime,
+the service waits for the P4 guest to exit cleanly and write back to its
+session-owned virtual Flash before restarting both chips. Committed guest
+settings in Flash are available after reset within that session. A nonzero
+P4 exit returns `409 tab5_flash_save_failed` and the service does not start a
+replacement guest. A shared or invalid writeback target fails provisioning
+with `409 tab5_flash_not_isolated`. New sessions still start from the verified
+firmware image. The C6 seed and the uploaded firmware are immutable inputs.
+`flash.tab5` records the application
 identity, firmware/eFuse input hashes, byte preservation, and `symbols_status`
 (`matched` or `unavailable`). A single OTA0 upload with a verified app digest
 and erased OTA data has `application.selection=ota0_erased_otadata`, a
