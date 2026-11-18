@@ -212,6 +212,14 @@ VC0，取得同一个来宾的完整欢迎页。实际点击将画面切到时�
 丢失稀疏差分和真机仍待验证。Burner 未提交。
 [基线、候选与两次断线回执](https://github.com/m5agent/agent-work-logs/blob/2edd6a65904a1ed1ec7be37d93794aae4440e574/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-resident-1991-tab5-retained-reset/followups/2026-11-19-tab5-dsi-reconnect-1992/README.md)。
 
+### 本机 1.99.2 回读
+
+工作台和审核后端更新为 Device Service `f12b15fb`，两处均返回 HTTP 200 和
+精确的 OpenAPI 1.99.2。分别核对原有 55 和 98 条会话。Reviewer 0.29 重连后
+返回就绪，130 条审核历史和抽查证据保持一致。全量平台回归共 2,492 项，跳过 10 项。
+DSI 功能测试使用独立原版会话。Burner 未提交。
+[双服务上线及历史保留回执](https://github.com/m5agent/agent-work-logs/blob/73beb4b6fe9acd966f9d835deb99dc92526ac836/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-offline-flash-retention/followups/2026-11-19-resident-1991-tab5-retained-reset/followups/2026-11-19-tab5-dsi-reconnect-1992/followups/2026-11-19-resident-1992-tab5-dsi-reconnect/README.md)。
+
 ## 2026-11-19 PaperColor 原版启动互斥锁断言
 
 同一 PaperColor 原厂 BIN 在独立普通冷启动未接收宿主 USB 请求，仍发生
