@@ -9016,6 +9016,23 @@ class DeviceSession:
         self._record_event("evidence_bundle", included=sorted(include))
         return output.getvalue()
 
+    def _resume_suspended_reset(self, qmp: QMP, previous_reset_events: int) -> None:
+        # system_reset queues work. Do not continue based on a status sampled
+        # before its RESET event, or if the timer already woke the guest.
+        deadline = time.monotonic() + QMP_COMMAND_TIMEOUT
+        while time.monotonic() < deadline:
+            self._check_cancelled()
+            status = (self._qmp_call("query-status").get("return") or {}).get("status")
+            if qmp.host_reset_events > previous_reset_events:
+                if status == "prelaunch":
+                    self._check_cancelled()
+                    self._qmp_call("cont")
+                    return
+                if status in ("running", "paused"):
+                    return
+            self._stop_event.wait(0.03)
+        raise ServiceError("qmp_timeout", "QMP did not confirm suspended guest reset", 504)
+
     def reset(self) -> dict:
         self._check_cancelled()
         acl_policy_id = DeviceSession._require_runtime_permission(
@@ -9031,6 +9048,12 @@ class DeviceSession:
             peer = getattr(self, "_unix_wifi_peer", None)
             lifecycle = self._lifecycle_operation() if peer is not None else nullcontext()
             with lifecycle, self._lock:
+                suspended_qmp = None
+                if self.runtime in QEMU_QMP_RUNTIMES:
+                    status = (self._qmp_call("query-status").get("return") or {}).get("status")
+                    if status == "suspended":
+                        suspended_qmp = self._qmp
+                        previous_reset_events = suspended_qmp.host_reset_events
                 if peer is not None:
                     operation = UNIX_WIFI_PEER_OPERATIONS[self.network_config["profile"]]
                     self._require_runtime_permission(operation)
@@ -9047,17 +9070,19 @@ class DeviceSession:
                 self._frame_epoch += 1
                 self._preview_frames.invalidate()
                 self._qmp_call("system_reset")
+                if self.program_transport:
+                    self._invalidate_program_loader("reset-requires-new-loader-proof")
+                if self.program_transport and self._program:
+                    self._program.update(state="interrupted", interrupted_at=iso_now())
+                    self._persist_program()
+                if suspended_qmp is not None:
+                    self._resume_suspended_reset(suspended_qmp, previous_reset_events)
                 if peer is not None:
                     self._check_cancelled()
                     if isinstance(peer, PortalStationPeer):
                         peer.start(capture_start_offset=capture_start_offset)
                     else:
                         peer.start()
-                if self.program_transport:
-                    self._invalidate_program_loader("reset-requires-new-loader-proof")
-                if self.program_transport and self._program:
-                    self._program.update(state="interrupted", interrupted_at=iso_now())
-                    self._persist_program()
                 self._record_event(
                     "reset",
                     runtime_acl_policy_id=acl_policy_id,

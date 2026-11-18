@@ -6578,6 +6578,73 @@ class DeviceServiceUnitTests(unittest.TestCase):
                                     **{"hold-time": 120})
         self.assertEqual(receipt["timing"]["completion"], "queued")
 
+    def test_suspended_reset_waits_for_host_reset_before_deciding_to_continue(self):
+        session = self._stopped_session()
+        session.state = "running"
+        for after in ("prelaunch", "running", "paused"):
+            with self.subTest(post_reset_state=after):
+                connection = session._qmp = mock.Mock(host_reset_events=10)
+                statuses = iter((("suspended", 10), ("running", 10), (after, 11)))
+
+                def qmp(command):
+                    if command == "query-status":
+                        status, connection.host_reset_events = next(statuses)
+                        return {"return": {"status": status}}
+                    return {"return": {}}
+
+                with mock.patch.object(session, "_qmp_call", side_effect=qmp) as call:
+                    self.assertTrue(session.reset()["reset"])
+                expected = [
+                    mock.call("query-status"), mock.call("system_reset"),
+                    mock.call("query-status"), mock.call("query-status"),
+                ]
+                if after == "prelaunch":
+                    expected.append(mock.call("cont"))
+                self.assertEqual(call.call_args_list, expected)
+                self.assertEqual(session.events[-1]["event"], "reset")
+
+    def test_awake_and_operator_paused_qemu_reset_preserve_the_existing_path(self):
+        session = self._stopped_session()
+        session.state = "running"
+        for status in ("running", "paused"):
+            with self.subTest(status=status):
+                replies = [{"return": {"status": status}}, {"return": {}}]
+                with mock.patch.object(session, "_qmp_call", side_effect=replies) as call:
+                    self.assertTrue(session.reset()["reset"])
+                self.assertEqual(call.call_args_list, [
+                    mock.call("query-status"), mock.call("system_reset"),
+                ])
+
+    def test_suspended_reset_neither_continues_nor_reports_success_without_ack(self):
+        session = self._stopped_session()
+        session.state = "running"
+        session._qmp = mock.Mock(host_reset_events=10)
+        before = len(session.events)
+        replies = [{"return": {"status": "suspended"}}, {"return": {}}]
+        with (
+            mock.patch.object(session, "_qmp_call", side_effect=replies) as call,
+            mock.patch.object(device_service_module, "QMP_COMMAND_TIMEOUT", 0),
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                session.reset()
+        self.assertEqual((caught.exception.code, caught.exception.status), ("qmp_timeout", 504))
+        self.assertEqual(call.call_args_list, [
+            mock.call("query-status"), mock.call("system_reset"),
+        ])
+        self.assertEqual(len(session.events), before)
+
+    def test_qmp_parser_counts_only_host_system_reset_events(self):
+        connection = object.__new__(device_service_module.QMP)
+        connection.sock = mock.Mock()
+        connection.host_reset_events = 2
+        connection.readline = mock.Mock(side_effect=[
+            b'{"event":"RESET","data":{"guest":true,"reason":"guest-reset"}}',
+            b'{"event":"RESET","data":{"guest":false,"reason":"host-qmp-system-reset"}}',
+            b'{"return":{"status":"prelaunch"}}',
+        ])
+        self.assertEqual(connection.cmd("query-status"), {"return": {"status": "prelaunch"}})
+        self.assertEqual(connection.host_reset_events, 3)
+
     def test_semantic_button_chord_groups_edges_and_releases_on_cancel(self):
         session = self._stopped_session()
         session.state = "running"

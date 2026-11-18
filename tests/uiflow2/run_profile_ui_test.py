@@ -161,6 +161,7 @@ class QMP:
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.buffer = bytearray()
         self.last_shutdown_event = None
+        self.host_reset_events = 0
         try:
             self.sock.settimeout(timeout)
             self.sock.connect(str(path))
@@ -191,6 +192,9 @@ class QMP:
             reply = json.loads(line)
             if reply.get("event") == "SHUTDOWN":
                 self.last_shutdown_event = reply.get("data", {})
+            elif (reply.get("event") == "RESET"
+                  and reply.get("data", {}).get("reason") == "host-qmp-system-reset"):
+                self.host_reset_events += 1
             if "event" not in reply:
                 if "error" in reply:
                     raise QMPCommandError(
