@@ -26,6 +26,7 @@ TAB5_AUDIO_EVIDENCE_BYTES = 8 * 1024 * 1024
 TAB5_AUDIO_MAX_LEASE_SECONDS = 180
 TAB5_AUDIO_WINDOW_EVIDENCE_BYTES = 1024 * 1024
 TAB5_WAV_HEADER_BYTES = 44
+TAB5_WAV_PLACEHOLDER = bytes(TAB5_WAV_HEADER_BYTES)
 TAB5_PCM_FRAME_BYTES = 4
 PCM_MAX_READ_BYTES = 512 * 1024
 SPECTRUM_MAX_FRAMES = 8192
@@ -82,8 +83,10 @@ def read_tab5_speaker_cursor(path: Path, recording_seed: str) -> dict:
             info = os.fstat(stream.fileno())
     except OSError as error:
         raise ServiceError("audio_capture_unavailable", "Tab5 I2S1 recording has not started", 409) from error
-    if (len(header) != TAB5_WAV_HEADER_BYTES or info.st_size < TAB5_WAV_HEADER_BYTES or header[:4] != b"RIFF"
-            or header[8:16] != b"WAVEfmt " or header[36:40] != b"data"):
+    # The admitted runtime reserves the header as zeros until finalization.
+    native_header = header[:4] == b"RIFF" and header[8:16] == b"WAVEfmt " and header[36:40] == b"data"
+    if (len(header) != TAB5_WAV_HEADER_BYTES or info.st_size < TAB5_WAV_HEADER_BYTES
+            or (header != TAB5_WAV_PLACEHOLDER and not native_header)):
         raise ServiceError("audio_capture_unavailable", "Tab5 I2S1 recording has not started", 409)
     return {
         "recording_id": _tab5_recording_id(recording_seed, info),

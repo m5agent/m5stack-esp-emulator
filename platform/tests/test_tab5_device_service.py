@@ -391,9 +391,14 @@ class Tab5ServiceTests(unittest.TestCase):
         finalized = path.read_bytes()
         # Native writers may append partial bytes while filling the WAV. A
         # cursor exposes only complete four-byte groups and no sample data.
-        path.write_bytes(finalized + b"\xaa\xbb")
+        path.write_bytes(b"invalid" + finalized[7:])
+        expect_error("/audio.pcm?format=cursor", 409, "audio_capture_unavailable")
+        path.write_bytes(bytes(44) + finalized[44:] + b"\xaa\xbb")
         with get("/audio.pcm?format=cursor") as response:
             cursor = json.load(response)
+        path.write_bytes(finalized + b"\xaa\xbb")
+        with get("/audio.pcm?format=cursor") as response:
+            self.assertEqual(json.load(response), cursor)
         identity = cursor["recording_id"]
         self.assertEqual(cursor, {
             "session_id": session.id, "firmware_sha256": session.firmware_sha,

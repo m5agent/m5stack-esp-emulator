@@ -3482,8 +3482,9 @@ finalized audio:
 
 1. While recording, call `GET /api/v1/sessions/{id}/audio.pcm?format=cursor`.
    Save `recording_id` and the four-byte-aligned `available_bytes` count. The
-   count excludes the native WAV header. The cursor returns no audio samples
-   or sample format. Collect cursors around the selected input.
+   count excludes the native WAV header, which the runtime can reserve as
+   zeros until stopping. The cursor returns no audio samples or sample
+   format. Collect cursors around the selected input.
 2. Stop with `purge=0`. Request finalized `audio.pcm` or
    `audio.pcm?format=metrics` with `offset`, `limit`, and
    `expected_recording_id`. A group of aligned offsets can delimit a quiet
