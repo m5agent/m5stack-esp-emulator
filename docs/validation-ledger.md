@@ -36,6 +36,41 @@ macOS 工作台和审核后端均更新为 Device Service `981fdcdf`。两个实
 Linux 网关的放行和拒绝证据来自独立虚拟机，常驻 Linux 路由未运行。Burner 未提交。
 [本机切换与独立回读](https://github.com/m5agent/agent-work-logs/blob/0364fb870dfbe0a844a7e500627069d2f8846dae/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-19-linux-gateway-closed-stdin/followups/2026-11-19-resident-199-gateway-low-fd/README.md)。
 
+## 2026-11-19 Linux 活动审核冷启动恢复
+
+在隔离的无网卡 Linux VZ 中，保存快照方式审核同一原版 CardputerDict。旧来宾
+持有真实 QEMU、已提交交接的命名网关、可写 Flash 和一条活跃租约。宿主确认旧虚拟机
+强制停止后，以同一持久卷、审核后端地址和认证配置启动新虚拟机，并核对不同的 Linux
+启动身份和前进的 Worker 代次。原审核返回 `service_error / SIM_PARTIAL / E_SERVICE_RESTART`。
+
+新来宾看不到旧内核网关对象。Device Service 拒绝跨内核作用域回收，旧会话保持
+`stopping`，一条租约和可写 Flash 继续保留。历史证据 ZIP 可下载并通过完整性检查，
+其中保留中断前的 PCAP。同原版保存快照重试返回 HTTP 409，恢复事件报告
+`device_service_recovery_unconfirmed`。冷启动回收目标为 FAIL，原版发音本轮未重跑。
+隔离虚拟机和本轮创建的网络资源已清理，Burner 未提交。
+[同后端冷启动复现及证据读回](https://github.com/m5agent/agent-work-logs/blob/a08c13b053a9c02be882056d9dae93ddb4a93397/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-linux-active-cold-gateway-recovery/README.md)。
+
+## 2026-11-19 PaperColor 原厂固件 USB MSC 块读取
+
+在 Device Service `981fdcdf` 管理的离线 PaperColor 会话中，实际 DWC2 Buffer DMA 端点
+完成 EP0 枚举、INQUIRY 和 READ CAPACITY。READ CAPACITY 返回最大 LBA 1519，
+每块 4,096 字节。两个独立来宾分别从 LBA0、LBA1 完成 READ(10)，返回与原版
+`storage` 分区对应区块逐字节一致的数据以及 tag 匹配、status 和 residue 均为零的 CSW。
+首次较慢查询也读到完整 LBA0 数据，但固件重启前没有取得 CSW，保留为失败对照。
+没有发送 READ 的独立对照也复现 `xTaskPriorityDisinherit` 断言和重启。
+读取通过限于两个已完成命令，长时间稳定性和写入仍待验证。所有会话均停止，Burner 未提交。
+[原厂 LBA0/LBA1 读回与失败对照](https://github.com/m5agent/agent-work-logs/blob/3a5b474142081081807a2f2d2a6c956954155d67/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-19-papercolor-original-msc-bulk-read/README.md)。
+
+## 2026-11-19 StickS3 原版手表两次浅睡唤醒
+
+同一原版 All day watch 0.3.8 在 Device Service `981fdcdf` 的同一会话通过两次 B 键唤醒。
+两次均在约 0.43 秒读到 QMP `running`，并恢复 135 × 240 非黑画面。
+每轮前 14 次新截屏均在运行时取得且有非黑像素。最后一帧分别在第 20.817 和
+20.795 秒取得，前后均读到 QMP `suspended`，画面全黑。第二次唤醒后观察
+至少 75.919 秒，只有一次上电，未见 IWDT 或软件复位。证据 ZIP 和清单通过，
+租约与可写 Flash 已释放。其他唤醒源、实体背光和 Burner 未运行。
+[同原版双唤醒取证](https://github.com/m5agent/agent-work-logs/blob/a831d510985ced7517e38343e731e7cd274d141e/records/esp-emulator/2026-11-17-s3-iwdt-observability/followups/2026-11-18-sticks3-rtc-gpio-light-sleep/followups/2026-11-18-all-day-watch-199-regression/followups/2026-11-19-all-day-watch-two-gpio-wakes/README.md)。
+
 ## 2026-11-19 NC1020 原版存档跨 Worker 读回
 
 Device Service 1.99 运行同一原版 NC1020、含 ROM/NOR 的 Flash 和既有 FAT32 存档。
@@ -47,6 +82,16 @@ Device Service 1.99 运行同一原版 NC1020、含 ROM/NOR 的 Flash 和既有 
 两轮均未取得完整测试图案。各自出现稳定但不完整的非黑帧，串口心跳仍继续。
 本轮确认显示缺口仍可复现，未定位这两轮的 SPI 锁状态或验证真机。Burner 未提交。
 [原版跨 Worker 存档证据](https://github.com/m5agent/agent-work-logs/blob/5cd144aa2ad647b4efaf4aef6a0ef117754255ca/records/esp-emulator/2026-11-18-native-integrated-guest-validation/followups/2026-11-18-nc1020-restored-187/followups/2026-11-19-nc1020-199-cold-restore/README.md)。
+
+### 当前运行时的原版停刷与重建对照
+
+另在同一 Device Service 1.99、原生运行时及原始 FAT32 上开始三次新会话。前两次使用
+原版，三张挂起观察前的画面均不符合预期测试图案，应用心跳继续。LCD 任务两次均在等
+SPI 锁信号量，锁处于无持有者的状态。一次没有完成队列项，另一次保留了入队的完成项。
+采用上游 SPI 锁修订的既有独立重建对照三张图案均匹配，LCD 任务正常回到等待显示
+帧队列。三次均读回同一 99,384 字节存档并释放租约。终态快照未记录两次原版的具体
+指令交错，实体对照和修复后发布的原版仍待验收。
+[同卡双原版与既有重建对照](https://github.com/m5agent/agent-work-logs/blob/b898518d8cdf779433d1d9ff1cd6503b54cdc8e7/records/esp-emulator/2026-11-18-native-integrated-guest-validation/followups/2026-11-18-nc1020-restored-187/followups/2026-11-19-nc1020-199-cold-restore/followups/2026-11-19-nc1020-199-spi-wait/README.md)。
 
 ## 2026-11-19 StickS3 原版配网标准审核
 

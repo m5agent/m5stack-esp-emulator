@@ -3990,8 +3990,12 @@ still has no native input mapping.
   and release edges with a host wait between them. The receipt reports
   `timing.clock:"host"` and `timing.completion:"events_sent"`. This allows a
   configured wake input to reach the model while the virtual key queue is
-  frozen. The receipt establishes dispatch only. Touch and the NanoC6
-  GPIO button also use synchronous host timing.
+  frozen. The receipt establishes dispatch only. Pair a fresh frame with
+  guest run state when diagnosing wake or startup. In the
+  [native StickS3 All day watch comparison](validation-ledger.md#2026-11-19-sticks3-原版手表两次浅睡唤醒),
+  a B click restored a lit frame on both wakes. Each later black frame
+  coincided with a new guest suspension while the session still held its
+  lease. Touch and the NanoC6 GPIO button also use synchronous host timing.
 - A chord presses two to four distinct model controls in one QMP input
   batch, holds them for 0.45 host seconds by default, and releases them in
   reverse order in one batch. `target` defaults to `keyboard` on either
@@ -4343,7 +4347,12 @@ restart.
   before inner evidence exists, the service
   can release fully identified resources after the original lock is
   available and the namespace contains no tasks. Legacy or incomplete
-  kernel ownership and conflicting evidence leave cleanup pending;
+  kernel ownership and conflicting evidence leave cleanup pending. The
+  [active cold-boot comparison](validation-ledger.md#2026-11-19-linux-活动审核冷启动恢复)
+  observed `stopping` and `stop_pending` after the kernel scope changed.
+  The old evidence remained readable while its lease and writable Flash
+  were retained. Reviewer returned HTTP 409 on the same saved-snapshot
+  retry while session recovery remained pending;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

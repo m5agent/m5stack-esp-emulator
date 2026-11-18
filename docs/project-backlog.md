@@ -65,7 +65,7 @@
    已确认原版 G0 文件可在新服务恢复。[1.99 双 Worker 复验](validation-ledger.md#2026-11-19-nc1020-原版存档跨-worker-读回)
    再次核对原版写入、停机导出和冷启读回，完整出帧仍待解决。[停刷任务现场](../tests/firmware/cardputer_k132_stock/nc1020-guest-spi-wait-summary.json)
    [原版双核指令](../tests/firmware/cardputer_k132_stock/nc1020-dual-core-spi-cas-summary.json)确认一次 ISR 退出遗漏等待任务的唤醒。
-   [上游 SPI 锁修订的重建对照](../tests/firmware/cardputer_k132_stock/nc1020-esp-idf-lock-backport-summary.json)已验证相同存档和运行时的完整出帧。继续追踪另一轮原版停刷、对照真机并验证发布者更新后的固件。StickS3/Dial 外接 SD 需要独立接线模型。
+   [上游 SPI 锁修订的重建对照](../tests/firmware/cardputer_k132_stock/nc1020-esp-idf-lock-backport-summary.json)已验证相同存档和运行时的完整出帧。[1.99 原版与重建对照](validation-ledger.md#当前运行时的原版停刷与重建对照)取得两种原版停刷终态和正常重建对照。继续定位空完成队列路径的发生过程，对照真机并验证发布者更新后的固件。StickS3/Dial 外接 SD 需要独立接线模型。
 3. **P0 同 guest 网络**。[Cardputer/ADV 原生 STA](../tests/network/native_sta_peers/linux-session-summary.json)
    已通过 Linux namespace 内的 DHCP、DNS、HTTP、二进制 UDP 和审核会话准入。
    [保存快照复验](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)覆盖固定本地 POST、TCP 和错误回复。
@@ -78,8 +78,10 @@
    已覆盖独立虚拟机的正常重启，原版 Core2 标准干跑另通过受控 Virtio VSOCK
    完成会话创建、取证和清理。无网卡 Linux 上，初代 CardputerDict 原版通过可信 HTTPS
    发音及拒绝对照，[关闭 stdin 的网关复验](validation-ledger.md#2026-11-19-linux-网关闭合-stdin-复验)覆盖了启动和清理。
-   继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
-   保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
+   [活动审核冷启动](validation-ledger.md#2026-11-19-linux-活动审核冷启动恢复)复现了跨内核作用域保留旧租约、
+   Flash 和审核恢复记录。补充可信的旧虚拟机终止与持久卷独占证明，再验证释放容量、
+   原版重试和证据保留。继续验收常驻 Linux 路由、ADV 原版发音的保存快照复审，
+   以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
@@ -107,7 +109,7 @@
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
-   已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。
+   已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。[原版同会话两次唤醒](validation-ledger.md#2026-11-19-sticks3-原版手表两次浅睡唤醒)核对了重新浅睡和随后的黑帧。
    [定时深睡探针](../tests/firmware/sticks3_rtc_deep_sleep/README.md)已验证数字域复位与 RTC 保留。
    [分频内部慢钟](../tests/firmware/sticks3_rtc_slowclk/README.md)已通过清醒计数和定时浅睡复验。
    [分频内部慢钟定时深睡](https://github.com/m5agent/agent-work-logs/blob/122ba36b10b565de62db2fc089beb00943b45dc5/records/esp-emulator/2026-11-18-sticks3-rtc-deep-sleep/followups/2026-11-18-sticks3-d256-deep-sleep/README.md)已有 650/1,500 ms、挂起中的慢钟选择读回及复位后恢复。
@@ -121,7 +123,9 @@
    CoreS3 Port A 的 U024 在审核端已用同一 BIN 验证两组 X/Y/按键读值。
    继续补 NFC、其他 Joystick 接线和外接收发控制器的 I2C/SPI 数据面。[Cardputer、ADV 的 WAV/PCM API](../tests/uiflow2/api_sweep/cardputer-audio-api-summary.json)
    已通过同会话替换 WAV、来宾录音和 I2S1 PCM 捕获。审核端已用[原版 MP3](../tests/uiflow2/api_sweep/cardputer-mp3-review-summary.json)验证播放、断言失败及取证不足三种结果。继续验证其他音频固件与板型的 PCM、IMU/Camera/IR、
-   ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。PaperS3/PaperDIY
+   ADC/PMIC/RTC、常规 USB 设备模式 HID 枚举/报告和 MSC 读写。
+   [PaperColor 原版 MSC](validation-ledger.md#2026-11-19-papercolor-原厂固件-usb-msc-块读取)
+   已经实际端点读回 LBA0/LBA1，固件断言、长期读取和写入仍待验证。PaperS3/PaperDIY
    的 EPD 与前光、CoreS3 的 Camera/NFC/音频、Atom 系列的 IR 和无显示路径单独取证。
 7. **P2 能力与故障**。基于只读设备能力查询，继续按运行模式细化控制器与 fixture 准入。
    故障记录区分目标不支持、未建模、环境失败和有 guest 证据的应用失败。
