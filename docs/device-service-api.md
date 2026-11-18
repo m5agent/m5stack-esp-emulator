@@ -828,6 +828,9 @@ was released. The on-disk lease and writable Flash remained. Host power loss
 and resource release from this state require separate validation with trusted
 cold recovery evidence.
 
+The [macOS-hosted Linux review worker](macos-linux-review-worker.md) runbook
+covers sealed installation, authenticated readiness, normal drain and restart.
+
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production

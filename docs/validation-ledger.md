@@ -236,6 +236,25 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 可重复安装的 macOS Linux 审核 Worker
+
+从仓库中的 Swift 源码构建并签名 ARM64 VZ 运行器（`30ec2214`）。安装命令封存
+已具备资格的 Linux 来宾输入、宿主控制器和运行器。两个新安装的不可变清单逐字节
+一致（`b55a26ae`），分别生成新私有令牌和空结果卷。第二份只验证安装和预检。
+
+首份安装通过认证启动，Reviewer 0.30.0（`b9426a2d`）经 Device Service 1.99.3
+（`2a7f979c`）运行原版 Core2 2048 保存快照，应用与组合 Flash 摘要分别为
+`41db3680` 和 `cd13c9bc`。13 个样本覆盖约 60 秒，八次有效滑动通过四个方向，
+终态为 `done / SIM_VERIFIED`。原版 ZIP、审查创建绑定及原生终态证据均已核对，
+macOS 主入口没有新会话，可写 Flash 已释放，租约归零。
+
+首次正常停止后的紧接重启被本机端口预检误拒。已无监听，TCP 连接仍在
+`TIME_WAIT`，旧预检未沿用桥接进程的 `SO_REUSEADDR`。修正后用原安装和原卷
+启动第 2 代，同一 Worker 和历史会话可读，七个证据成员逐字节一致。两个代次
+均有正常停机回执，试点 LaunchAgent 已卸载。本轮为 virtual-device validation，
+常驻 Linux 分流尚待部署，Burner 未提交。
+[安装、原版审核及重启证据](https://github.com/m5agent/agent-work-logs/blob/cfce482ec3234e7f30dd0fc1e4600856fed6e857/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-installed-linux-worker-component/report.md)。
+
 ## 2026-11-19 Linux 运行器意外退出与审核保护
 
 在独立空卷上，Reviewer 0.30.0（`b9426a2d`）经认证的受监督 Linux Worker

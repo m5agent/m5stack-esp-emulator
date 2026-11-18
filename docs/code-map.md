@@ -46,6 +46,7 @@ FlashLight的EN边沿/虚拟定时器在`0045-unit-flashlight-aw3641.patch`；`0
 | 目录 | 职责 | 是否产品入口 |
 | --- | --- | --- |
 | `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
+| `platform/tools/macos_linux_worker/` | Apple Silicon 宿主的 VZ 运行器构建、固定资产安装、Linux 审核入口和排空 | [部署说明](macos-linux-review-worker.md) |
 | `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_*_contract.py` 分域防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
 | `platform/units/` | 外接 Unit 官方芯片/协议、主机物理口接线和独立 runtime 状态 | 是 |

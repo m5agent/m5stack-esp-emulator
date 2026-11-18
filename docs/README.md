@@ -73,6 +73,9 @@
 本地共享 3D 展示入口及短任务观察规则见[虚拟设备实验室](local-observatory.md)；
 该页面由 Device Service 提供，不进入静态托管导出。
 
+[macOS 托管 Linux 审核 Worker](macos-linux-review-worker.md)说明如何使用已验证的来宾
+输入安装独立 Worker，及启停、审核准入和故障隔离流程。最近核对 `2026-11-19`。
+
 只想知道“现在做到哪、还差什么”时，不需要从头读所有专题：
 
 1. [工程交接总览](engineering-handoff.md)：当前工作、代码边界和下一步；
@@ -397,6 +400,7 @@ Unit batch12a 7 款 driver-gap Unit（byteswitch/bytebutton/step16/timerpwr/mq/8
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [macOS 托管 Linux 审核 Worker](macos-linux-review-worker.md) | 部署说明 | `2026-11-19` | 固定来宾输入、ARM64 构建、认证准入、排空与同卷重启 |
 | [会话私有文件系统夹具](evidence/2026-11-17-internal-filesystem-fixtures/README.md) | 证据/差异 | `2026-11-17` | 原生 LittleFS/SPIFFS 挂载和复位读回 |
 | [原生语义输入](evidence/2026-11-17-semantic-native-input/README.md) | 证据/差异 | `2026-11-17` | 实际组合键、触摸、键盘与编码器，保留旧运行时对照 |
 | [Dial AudioPlayer UART](evidence/2026-11-17-dial-audioplayer/README.md) | 证据/差异 | `2026-11-17` | 两个 Grove 端口官方驱动、无介质负控和原版旋钮到 UART 选曲 |
