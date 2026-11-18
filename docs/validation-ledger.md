@@ -37,6 +37,39 @@ Device Service 1.99.3 的按键请求各自发出一次，旧原生运行时可�
 Flash 释放和零活动租约。平台回归 2,494 项中跳过 10 项。
 [保存快照的按键投递与来宾证据](https://github.com/m5agent/agent-work-logs/tree/573c2f1cfdad463abc30c68866e8fd71c4e5a471/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-reviewer-0291-typed-delivery)。
 
+### 原版校准与清除状态的冷启动复验
+
+同一原版在 Device Service 1.99.3（`2a7f979c`）的三个独立 AtomS3
+来宾执行归零、清除和读回。来宾一以 MPU6886 的 +0.75 g 倾角得到
++36.9°，无按压对照读数不变。700 毫秒按键归零后，先保存同会话 ZIP，
+再普通停止、读取保留的完整 Flash 并释放。运行时和停机读回逐字节一致。
+
+来宾二通过普通固件导入使用这份完整 Flash，启动后未按键。平放和相同
+倾角分别显示 −36.9° 和 −0.0°。发出 2350 毫秒按键复位后，平放恢复 +0.0°，
+相同倾角恢复 +36.9°。再次按相同顺序保存和停止。来宾三独立导入清除
+后的镜像，未按键即读到同样的清除状态。
+
+独立检查验证 NVS 页、条目和应用偏移 blob 的 CRC。校准和清除的停机
+镜像仅 NVS 内 82 字节不同，首个偏移分别是 36.8699° 和 0°，完整 OTA0
+与原版逐字节一致。三个来宾退出，全部可写 Flash 与租约释放。这是
+virtual-device validation，物理断电、浏览器和新的 Reviewer 判定未运行。
+Burner 未提交。
+[三次冷启动、停机导出及 NVS 读回](https://github.com/m5agent/agent-work-logs/tree/f964a5632933ceef050f93cf534f1f3e41508aaf/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-reviewer-0291-typed-delivery/followups/2026-11-19-atoms3-typed-input-resident/followups/2026-11-19-atoms3-spirit-cold-nvs)。
+
+### 原版来宾的长按采样
+
+同一原版和原生运行时以被动观察器记录 GPIO41 输入寄存器、来宾毫秒值
+及应用释放分支实际比较的无符号时长。约 276 万次来宾毫秒写入与 GPIO
+读取配对。五次原版请求的比较值分别为 588、597、690、2188、2340 毫秒，
+对应请求 600、610、700、2200、2350 毫秒及保持读数、保持读数、归零、
+归零、复位。五次试验的去抖计入约 10 毫秒，并按最后一次按住采样结算。
+
+同组无观察器对照的五张结果帧与观察轮逐字节一致。另一次无观察器在 610
+毫秒归零，临界结果随来宾采样时序变化。保存原版身份、按键、原生与
+来宾计时、实际画面和 ZIP，全部会话已结束。新的标准 Reviewer 流程和
+物理按键未执行。Burner 未提交。
+[来宾采样、释放比较值及无观察器对照](https://github.com/m5agent/agent-work-logs/tree/00860c1d0c4ab0c1a61429434357a9fc020041f8/records/esp-emulator/2026-11-18-atoms3-m5unified-display-init/followups/2026-11-19-atoms3-235-f12-paired-baseline/followups/2026-11-19-atoms3-235-native-gpio-candidate/followups/2026-11-19-atoms3-235-reviewer-029-standard/followups/2026-11-19-atoms3-spirit-gpio41-hold-timing/followups/2026-11-19-atoms3-spirit-level-guest-clock)。
+
 ### 常驻服务和 API 回读
 
 工作台和审核后端已由 `2a7f979c` 提供 Device Service 1.99.3，
