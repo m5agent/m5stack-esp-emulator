@@ -12,6 +12,10 @@
 #include "lwip/sockets.h"
 #include "nvs_flash.h"
 
+#ifdef M5_FIXTURE_LOCAL_STREAMS
+#include "local_streams.h"
+#endif
+
 #define CONNECTED BIT0
 #define GOT_IPV4 BIT1
 #define DISCONNECTED BIT2
@@ -202,6 +206,14 @@ void app_main(void)
     printf("STA_FIXTURE_RESULT %s\n", (dns_allow && dns_deny && udp) ? "PASS" : "NO_FIXTURE");
 #else
     printf("STA_FIXTURE_PEERS http=%u dns_a=%u dns_nxdomain=%u udp=%u\n", http, dns_allow, dns_deny, udp);
-    printf("STA_FIXTURE_RESULT %s\n", (http && dns_allow && dns_deny && udp) ? "PASS" : "NO_FIXTURE");
+    bool complete = http && dns_allow && dns_deny && udp;
+#ifdef M5_FIXTURE_LOCAL_STREAMS
+    bool post = native_sta_post_matches();
+    bool tcp = native_sta_tcp_matches();
+    printf("STA_FIXTURE_HTTP_POST matched=%u\n", post);
+    printf("STA_FIXTURE_TCP matched=%u\n", tcp);
+    complete = complete && post && tcp;
+#endif
+    printf("STA_FIXTURE_RESULT %s\n", complete ? "PASS" : "NO_FIXTURE");
 #endif
 }

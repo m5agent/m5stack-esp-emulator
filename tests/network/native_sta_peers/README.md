@@ -62,6 +62,29 @@ The same namespace request on a worker without the capabilities should return
 `503 network_isolation_unavailable` before any lease is allocated.
 [Linux virtual-device evidence](linux-session-summary.json).
 
+### Local POST and raw TCP checks
+
+Add `-D M5_FIXTURE_LOCAL_STREAMS=ON` to the ESP32-S3 namespace build to
+exercise HTTP POST and a separate binary TCP peer after the existing GET,
+DNS and UDP checks. Merge the 8 MiB image as above and use the same image on
+Cardputer and Cardputer ADV. The listener addresses below belong to the
+session-local loopback in the Linux namespace.
+
+| Operation | Endpoint | Request hex | Expected reply hex |
+| --- | --- | --- | --- |
+| HTTP POST | `10.0.2.2:18193`, `post.native-sta.test`, `/native-sta-post` | `4d35504f5354007fff11` | `41434b2d504f5354007fff11` |
+| Raw TCP | `10.0.2.2:19193` | `4d355443500080fe22` | `41434b2d5443500080fe22` |
+
+POST uses a binary body and checks HTTP 200, `Content-Length` and the response
+bytes. TCP carries a two-byte big-endian payload length in each direction.
+For a control, change only the final POST reply byte to `12` or the final TCP
+reply byte to `23` in the respective peer configuration. Keep the exact same
+firmware bytes for both controls. Each operation emits one terminal line,
+`STA_FIXTURE_HTTP_POST matched=1` or `STA_FIXTURE_TCP matched=1`. The expected
+control emits `matched=0` for only the changed operation. Require separate
+peer receipts and finalized capture before attributing a failure to reply
+contents. Continue checking the original GET, DNS and UDP markers.
+
 For a bounded macOS diagnostic build, omit `M5_NAMESPACE_DNS`. The same
 stock driver sends direct DNS queries to the controlled test peer on port
 15353. Run a separate Device Service and restrict the emulator process to
