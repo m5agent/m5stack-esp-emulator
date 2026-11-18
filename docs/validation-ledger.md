@@ -236,6 +236,39 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 本机常驻仍连接 macOS Worker。生产 Linux 路由及宿主断电待验。Burner 未提交。
 [Reviewer 0.29 同卷冷恢复证据](https://github.com/m5agent/agent-work-logs/blob/58d8a7e4af85547619812ce8905ae9d3351e68aa/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/followups/2026-11-19-cardputerdict-adv050-standard-pronunciation/followups/2026-11-19-reviewer-028-adv-resident-python39/followups/2026-11-19-cardputerdict-adv050-macos-reviewer-linux-worker/followups/2026-11-19-cardputerdict-adv050-cross-host-cold-recovery/followups/2026-11-19-reviewer-029-cross-host-cold-recovery/README.md)。
 
+## 2026-11-19 托管 Linux 创建回复丢失恢复
+
+第 4 代受监督 Linux Worker 通过 Device Service 1.99.3（`2a7f979c`）为
+Reviewer 0.30.0（`b9426a2d`）创建原版 Core2 2048 会话。私有故障代理完整接收
+HTTP 202，向 Reviewer 交付零字节。SQLite 留下绑定到该入口及 Worker 的创建
+意图，会话 ID 尚未写入。来宾已运行，取回 2048 棋盘、串口和精确原版 Flash。
+
+仅终止并重启隔离 Reviewer，保留同一 SQLite 和 Linux Worker，关闭新分流准入。
+启动恢复通过认证 `reconcile-create` 找到同一会话，核对后停止并释放 Flash。
+停止前后 ZIP 的棋盘帧和串口一致，五条此前的会话历史均保留。原审核保持
+`service_error / SIM_PARTIAL / E_SERVICE_RESTART`，未创建重复会话，主后端调用
+数和活动租约均为零。本轮未发起第二次复审，Linux 内核和宿主机持续运行。
+
+两个第 4 代审核完成后，试点正常关机并卸载临时 LaunchAgent。持久卷保留六条
+已停止会话。常驻 Reviewer 0.30.0 的主后端就绪，Linux 入口仍返回
+`503 not_configured`。工作台和 Reviewer 的 Device Service OpenAPI 均与
+1.99.3 一致。两轮均为 virtual-device validation，Burner 未提交。
+
+## 2026-11-19 Reviewer 0.30 的 Linux ADV 原版分流
+
+Reviewer 0.30.0（`b9426a2d`）经第 4 代受监督 Linux Worker 的认证入口，
+以 Device Service 1.99.3（`2a7f979c`）执行 CardputerDict ADV 0.5.0 原版
+（`21b7a88e`）保存快照 dry-run。标准重试接口返回 HTTP 202，实际创建记录
+绑定到该 Linux Worker，macOS 主入口没有新会话。原版应用与 OTA 字节核对一致。
+
+18 个实际输入步骤和 13 个样本覆盖约 60 秒，审核为 `done / SIM_VERIFIED`。
+宿主与 Linux 转发日志的 SNTP 和 TLS 流量字节数与摘要一致，来宾 PCAP
+独立确认了协议活动。SD 缓存读回 10,605 字节，三条证据下载路径返回相同的
+84,992 字节 PCM。会话停止后，可写 Flash 已释放，待处理创建和活动租约归零。
+清空 `admit` 后以同一 SQLite 重启，保存的一条审核、21 条事件和证据读回一致。
+此轮为 virtual-device validation，Burner 未提交。
+[原版 ADV 分流及 Core2 创建恢复取证](https://github.com/m5agent/agent-work-logs/blob/a791b691ff7c05811aef9b469a96eaa01daaecdc/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-routed-adv-and-create-recovery/report.md)。
+
 ## 2026-11-19 Reviewer 的 Linux 保存快照分流
 
 Reviewer 0.30.0（`b9426a2d`）以系统 Python 3.9.6 启动一个独立审核进程，
@@ -248,7 +281,8 @@ Linux 会话停止后保留历史、释放可写 Flash 并归零租约。
 使用同一 SQLite 重启 Reviewer，原任务和 17 条事件逐项一致。关闭准入和测试
 Linux 入口不可达时，主后端 `/api/ready` 均保持就绪，独立 Linux 就绪接口返回
 503。恢复原批准入口后返回 200。本轮未在活动租约中切断第二入口。可配置的 ADV
-分流另需在此 Reviewer 版本中完成实际原版审核，Burner 未提交。
+分流在[第 4 代托管试点](#2026-11-19-reviewer-030-的-linux-adv-原版分流)随后独立复验。
+Burner 未提交。
 
 常驻 Reviewer 已更新到 0.30.0。主后端继续使用 macOS，`/api/ready` 返回 200，
 Linux 独立接口返回 `503 not_configured`。更新前后 131 条审核及 SQLite 摘要

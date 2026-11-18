@@ -811,6 +811,14 @@ The route requires configured Bearer control authentication. It is intended for
 trusted Reviewer recovery on the same worker state; `owner` labels and this
 protocol do not add tenant authorization to session lifecycle operations.
 
+Keep the same backend origin and worker identity in each pending attempt.
+Keep that connection available for recovery when disabling admission for new
+Linux snapshot reviews. In the [lost create reply validation](validation-ledger.md#2026-11-19-托管-linux-创建回复丢失恢复),
+Reviewer 0.30.0 restarted with admission disabled and the Linux worker still
+running. It reconciled the original Core2 session, called the ordinary stop
+endpoint and released writable Flash. The review remained interrupted and no
+new session was created. A worker or host crash requires separate validation.
+
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production

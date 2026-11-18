@@ -93,8 +93,12 @@
    Core2 原版审核运行时关闭新建准入、保留取证，以及同卷重启读回。
    [修订托管环境的 ADV 原版](validation-ledger.md#2026-11-19-launchagent-下的-adv-原版发音复验)
    已核对 HTTPS、SD 缓存和 PCM。[Reviewer 0.30 分流](validation-ledger.md#2026-11-19-reviewer-的-linux-保存快照分流)
-   已验证按尝试绑定后端和 Worker，及 Core2 原版普通重试接入 Linux。继续复验 0.30 的 ADV 原版、
-   实际常驻准入、退出或断电时的在途审核恢复和系统重启。
+   已验证按尝试绑定后端和 Worker，及 Core2 原版普通重试接入 Linux。
+   [0.30 的 ADV 原版](validation-ledger.md#2026-11-19-reviewer-030-的-linux-adv-原版分流)
+   已通过同一路由的校时、HTTPS、SD 缓存和 PCM 验收。
+   [创建回复丢失](validation-ledger.md#2026-11-19-托管-linux-创建回复丢失恢复)
+   已通过 Reviewer 重启后的同会话对账、证据保留和资源回收。继续验证实际常驻
+   准入、Linux Worker 或宿主突然退出时的在途审核恢复，以及系统重启。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)
