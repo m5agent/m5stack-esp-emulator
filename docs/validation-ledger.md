@@ -14,6 +14,28 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 审核就绪 API 与 Linux 持久卷冷启动
+
+- Reviewer OpenAPI 0.27（`a2d468b989139450ab95929597622bfa2074b7c3`）通过
+  配置的 Device Service 1.99（`a729e24b1e4724b783ab2d59eec689cfdfeb24b3`）
+  查询真实 Worker。接收租约和恢复接收时返回 HTTP 200，暂停接收或后端不可达时返回 503。
+  旧健康检查继续报告进程状态。原版 Core2 2048 的保存快照复审通过四向棋盘变化断言，
+  同会话证据 ZIP 的校验和与 Flash、租约释放均已核对。
+  常驻 macOS Reviewer 更新后再次核对 API 版本、Worker 就绪、125 条审核记录及抽查证据，
+  两个 Device Service 角色与切换前一致。
+  [就绪接口回执](https://github.com/m5agent/agent-work-logs/blob/fa5a484e49eecb7b5f2d03afd8f44f271bcd9bef/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-reviewer-027-worker-readiness/README.md) ·
+  [同原版干跑与常驻回读](https://github.com/m5agent/agent-work-logs/blob/2711763a7de9c4459bf9f0b9c285bda3627b74fc/records/esp-emulator/2026-11-18-native-review-data-plane/followups/2026-11-18-reviewer-027-worker-readiness/followups/2026-11-18-reviewer-027-core2-resident/README.md)。
+- 独立 Linux ARM64 试点固定同版 Device Service 和 Reviewer 0.26.0
+  （`a295e0173a0e3157c120de8ba6fcec128aa665c1`）。两次独立启动使用同一持久卷。
+  第二次启动在重试前核对旧审核与停止的会话、原始证据 ZIP 和重新导出的 PCAP，
+  Worker 保持身份且代次前进。随后对同一原版 CardputerDict 0.6.4 走标准保存快照复审，
+  产生独立会话并完成 QEMU、临时网络、可写 Flash 和租约清理。两轮均观察到 SNTP
+  和 TLS ClientHello。隔离对端未提供可信证书，HTTPS 发音和 PCM 保持 PARTIAL。
+  [冷启动对照回执](https://github.com/m5agent/agent-work-logs/blob/a09965c00edd23aa563ce60413f94e32e7b44a7c/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-durable-reviewer-cold-pair/README.md) ·
+  [磁盘保护中断对照](https://github.com/m5agent/agent-work-logs/blob/fa5a484e49eecb7b5f2d03afd8f44f271bcd9bef/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/README.md)。
+
+隔离试点覆盖正常关闭后冷启动。常驻 Linux 路由和活动中断恢复仍待验证。两条路径均未提交 Burner。
+
 ## 2026-11-18 Reviewer 创建中断恢复
 
 同一轮虚拟设备验证固定 Device Service 1.95.0（`5b4b664272cab0a419257327baf42b26b12d79f6`）和 Reviewer 0.25.0（`0f732ea5c62596c0137e8ca0cd3a32e7aa3c3988`）。
@@ -220,6 +242,10 @@ Reviewer 0.21.0 的保存快照 dry-run 取得同会话的 10,605 字节 MP3 和
 Device Service 1.87 在隔离服务中断后接回原挂起会话和 QEMU 进程，经语义 B 键唤醒，同一来宾仍为一次启动。
 同 SDK 的定时唤醒基线仍阻塞在 RTC 完成轮询。慢时钟跨睡眠耗时、深睡和真机继续开放。
 [复现条件与精确证据](../tests/firmware/sticks3_rtc_sleep/README.md)
+
+Device Service 1.99 在同一原版重放此前的四次快按和长按，确认 QMP 挂起后可用 B 键在 0.439 秒恢复并取得新的非黑画面。
+唤醒后 65.117 秒内未观测到看门狗或软件复位。后续归档帧有黑画面，显示持续性和其他唤醒模式仍待验证。
+[1.99 同原版复验](https://github.com/m5agent/agent-work-logs/blob/a55516d2b59fea0c42044e56ad57f1fa62eb4f8f/records/esp-emulator/2026-11-17-s3-iwdt-observability/followups/2026-11-18-sticks3-rtc-gpio-light-sleep/followups/2026-11-18-all-day-watch-199-regression/README.md)
 
 ## 2026-11-18 Cardputer 和 ADV 原生 STA 固定 POST 与 TCP
 
