@@ -46,7 +46,8 @@
    的快速整周应用计数仍开放。[无诊断追踪的原版复验](evidence/2026-11-18-dial-fast-rotary/uninstrumented-original-summary.json)
    确认了 5 ms 漏选，原版 GPIO40/41 注册进入轮询分支。[来宾寄存器读回](evidence/2026-11-18-dial-fast-rotary/README.md#原版实际读取-gpio-的复验)
    将三次漏选绑定到实际漏读相位。公开 R1F27 的[两份中断构建对照](evidence/2026-11-18-dial-fast-rotary/rebuilt-r1f27-summary.json)
-   均通过。继续为原版 R1F30 核对轮询间隔、应用计数和同一 BIN 的实体旋钮并保留 35 ms 对照。旋转、触摸和按钮的独立结果见
+   均通过。[当前原版 5 ms 回归](validation-ledger.md#2026-11-18-dial-原版旋钮交付和选曲对照)
+   将一次选曲差异绑定到来宾轮询漏读。继续为早先的 8 ms 漏选取得同轮读回、保持 35 ms 对照并验证同一 BIN 的实体旋钮。旋转、触摸和按钮的独立结果见
    [原版 Dial 复验](evidence/2026-11-17-dial-gc9a01-gpio-probe/README.md)。 [Core2 原版 2048](../tests/firmware/evidence-2026-11-18-core2-2048-current-review.json)已在当前原生审核运行验证四方向，继续做同一 BIN 的实体触控对照。
 2. **P0 存储**。继续扩展 ESP-IDF LittleFS 的 SDK 与设备覆盖，并扩展 CardputerDict 的版本与设备范围。
    [内部文件系统跨会话](../tests/firmware/littlefs_partition/session-persistence-summary.json)已通过 StickS3、Dial 的 LittleFS 与 ADV 的 SPIFFS 分区导出和复用。
@@ -74,9 +75,9 @@
    [ADV 0.5.0 原版发音](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-17-cardputerdict-tab5-coordinates/followups/2026-11-18-cardputerdict-adv050-lookup/followups/2026-11-18-cardputerdict-adv050-https-audio/evidence/adv050-https-audio-summary.json)已通过 Device Service 直测。
    [隔离 Reviewer 创建恢复](validation-ledger.md#2026-11-18-reviewer-创建中断恢复)已验证 Linux ARM64 的 Cardputer ADV STA。仅重启 Reviewer 后回收原会话和隔离命名空间、保留原 PCAP，并在新会话完成同固件标准重试。macOS Core2 另通过迟到创建拦截和其他活动会话保留对照。
    [Linux 持久卷冷启动](validation-ledger.md#2026-11-18-审核就绪-api-与-linux-持久卷冷启动)
-   已覆盖独立虚拟机的正常重启和受凭证保护的只读 Virtio VSOCK 链路。
-   继续验证常规复审通过 Linux 受控链路完成会话创建、证据读取与清理，随后验收常驻路由及异常中断恢复，
-   ADV 原版发音的保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
+   已覆盖独立虚拟机的正常重启，原版 Core2 标准干跑另通过受控 Virtio VSOCK
+   完成会话创建、取证和清理。继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
+   保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
    [StickS3 原版首次配网](evidence/2026-11-17-sticks3-portal-page/README.md)

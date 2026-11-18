@@ -21,6 +21,11 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   正确凭证返回 200，Worker 可接收租约。桥接拒绝其他路由和写请求，试验前后租约均为零，
   服务、监听和虚拟机均已退出。此轮尚未通过桥接执行固件或切换常驻审核流量。
   [无网卡就绪链路证据](https://github.com/m5agent/agent-work-logs/blob/aaaf7bcbe4d1ac40c57646524be3b9f93f77fb5f/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-vz-worker-vsock/README.md)。
+- 随后在隔离宿主运行 Reviewer `f0101b6`，经受控 Virtio VSOCK 请求真实 Linux
+  Device Service 1.99。原版 Core2 2048 的标准保存快照重试创建一个无网络 QEMU 会话，
+  四向棋盘变化通过，证据 ZIP 校验通过。停止后会话可读、可写 Flash 已释放、租约为零，
+  Reviewer 恢复记录清空，宿主监听和虚拟机均已退出。常驻路由和外部网络仍待验收。
+  [原版 Core2 标准干跑证据](https://github.com/m5agent/agent-work-logs/blob/43c1329b6ee97b84944760090f0371960dd3fe9b/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-vz-reviewer-core2/README.md)。
 - Reviewer OpenAPI 0.27（`a2d468b989139450ab95929597622bfa2074b7c3`）通过
   配置的 Device Service 1.99（`a729e24b1e4724b783ab2d59eec689cfdfeb24b3`）
   查询真实 Worker。接收租约和恢复接收时返回 HTTP 200，暂停接收或后端不可达时返回 503。
@@ -300,6 +305,13 @@ ADV 的多块夹具增加一条 CMD18 和两个块，来宾核对 MBR 和空扇�
 5 ms 和 35 ms 整圈 6/6，以及短转不换曲 2/2。修订构建链接 GPIO40/41 ISR，原版 R1F30
 不在这组构建验收范围。
 
+Device Service 1.99 下，原版 R1F30 用默认 35 ms 完成对照。未插桩运行的 5 ms
+测试中，一次漏选仍收到了全部 64 个边沿，轨号保持不变。另一份固定原生二进制只读
+追踪同一原版，从全部 64 个边沿中定位两个约 5.07 ms 的相位，来宾读取均完全跳过。
+按实际 GPIO 采样值重算的轨号与该轮 N9301 UART 命令一致。本轮两种运行时的 8 ms
+测试均通过，早先的 8 ms 漏选仍未在同一组追踪中复现。实体旋钮未验证。
+[两份运行时的原版证据](https://github.com/m5agent/agent-work-logs/blob/cd0ec7beedff6d9541dd3fdf26bd5e1937d4add5/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-dial-encoder-track-review/followups/2026-11-18-dial-199-original-cadence/README.md)。
+
 ## 2026-11-18 Tab5 取帧准入和完整观察窗口
 
 [原版对照及审查摘要](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)绑定 CarPlay 1.0.0 与官方 UserDemo V0.4 的原 BIN、
@@ -515,6 +527,11 @@ PaperS3 Factory V0.5 原 BIN `d6733a0c…`，两轮 15 次触摸中 4 次切换�
 [原版与官方正对照](evidence/2026-11-18-cardputer-adv-flash-capacity/README.md)证明同一 16 MiB
 原版先前在实际 8 MiB 来宾的 Flash probe 失败，随后在候选的组合和导入返回 409。
 审核保留静态容量原因，无来宾分配。官方 8 MiB 对照正常出帧，所有租约已释放。
+
+Device Service 1.99 与 Reviewer `f0101b6` 再跑同一原版。两个准入接口都返回
+`firmware_flash_contract_mismatch`，保存快照复审返回 `E_STATIC` 和两种容量。
+官方 8 MiB 对照同轮完成原生出帧、证据 ZIP 校验与停机清理。实机未执行，未提交 Burner。
+[当前版本复验](https://github.com/m5agent/agent-work-logs/blob/17f82564772f2f3a7d71ba17a31151931be62656/records/m5stack-esp-emulator/2026-11-17-cardputer-adv-16mb-flash-intake/followups/2026-11-18-cardputer-adv-flash-capacity-current/README.md)。
 
 ## 2026-11-18 Nesso N1 ESP32-C6 保存任务栈展开
 
