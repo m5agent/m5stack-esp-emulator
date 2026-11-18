@@ -6,6 +6,7 @@ import hashlib
 import io
 import ipaddress
 import json
+import os
 import shutil
 import socket
 import ssl
@@ -151,6 +152,39 @@ class NetworkSandboxTests(unittest.TestCase):
             finished.update(qemu_process_reaped=True)
             path.write_text(json.dumps(finished))
             self.assertTrue(network_sandbox.gateway_worker_cleaned(config, "current"))
+
+    def test_gateway_handoff_eof_denies_launch_and_permit_requires_bound_commit(self):
+        for send_byte, committed in ((False, False), (True, False), (True, True)):
+            with self.subTest(send_byte=send_byte, committed=committed), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                config = root / "network-sandbox.json"
+                guard, identity = network_sandbox.open_gateway_handoff_guard(root / network_sandbox.GATEWAY_HANDOFF_LOCK)
+                permit, writer = os.pipe()
+                if send_byte:
+                    os.write(writer, b"\x01")
+                os.close(writer)
+                token = "linux:test:123"
+                (root / "gateway-recovery.json").write_text(json.dumps({
+                    "schema_version": 3, "launch_id": "attempt", "handoff_guard": identity,
+                    "handoff_committed": committed, "handoff_inner_pid": os.getpid(),
+                    "handoff_inner_start_token": token,
+                }))
+                with (
+                    mock.patch.dict(os.environ, {
+                        "M5_GATEWAY_HANDOFF_GUARD": str(guard), "M5_GATEWAY_HANDOFF_PERMIT": str(permit),
+                    }),
+                    mock.patch.object(network_sandbox, "namespace_supervisor_identity", return_value=token),
+                ):
+                    if send_byte and not committed:
+                        with self.assertRaisesRegex(network_sandbox.SandboxError, "matching committed"):
+                            with network_sandbox.gateway_handoff_permitted(config, "attempt"):
+                                self.fail("uncommitted pipe byte authorized a guest")
+                    else:
+                        with network_sandbox.gateway_handoff_permitted(config, "attempt") as allowed:
+                            self.assertEqual(allowed, committed)
+                for descriptor in (guard, permit):
+                    with self.assertRaises(OSError):
+                        os.fstat(descriptor)
 
     def test_controlled_dns_rejects_invalid_or_non_unicast_records(self):
         for records in (

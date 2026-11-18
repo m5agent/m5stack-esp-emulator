@@ -2,15 +2,20 @@ import os
 from pathlib import Path
 import select
 import signal
+import stat
 import tempfile
 import unittest
 from unittest.mock import Mock, call, patch
 
 from device_service_errors import ServiceError
 from device_service_namespace_recovery import (
+    GATEWAY_HANDOFF_LOCK,
+    claim_drained_gateway_handoff,
     namespace_runtime_scope,
     namespace_supervisor_identity,
+    open_gateway_handoff_guard,
     stop_namespace_supervisor,
+    verify_inherited_gateway_handoff_guard,
 )
 
 
@@ -142,6 +147,87 @@ class NamespaceSupervisorRecoveryTests(unittest.TestCase):
         (namespaces / "pid").unlink()
         with self.assertRaisesRegex(ServiceError, "original gateway worker context"):
             namespace_runtime_scope(proc_root=self.root)
+
+
+class GatewayHandoffGuardTests(unittest.TestCase):
+    def setUp(self):
+        root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.guard = root / GATEWAY_HANDOFF_LOCK
+
+    def assert_blocked(self, identity, *, path=None):
+        with self.assertRaises(ServiceError) as raised:
+            with claim_drained_gateway_handoff(path or self.guard, identity):
+                self.fail("an unverified handoff guard was accepted")
+        self.assertEqual(raised.exception.code, "session_cleanup_pending")
+        self.assertEqual(raised.exception.status, 503)
+
+    def test_guard_is_private_exclusive_and_preserves_shared_lock_until_last_close(self):
+        launcher, identity = open_gateway_handoff_guard(self.guard)
+        try:
+            self.assertFalse(os.get_inheritable(launcher))
+            self.assertEqual(stat.S_IMODE(self.guard.stat().st_mode), 0o600)
+            with self.assertRaises(ServiceError):
+                open_gateway_handoff_guard(self.guard)
+            inherited = os.dup(launcher)
+            self.addCleanup(os.close, inherited)
+        finally:
+            os.close(launcher)
+        verify_inherited_gateway_handoff_guard(inherited, self.guard, identity)
+        self.assert_blocked(identity)
+
+    def test_claim_holds_an_independent_lock_until_the_caller_exits(self):
+        launcher, identity = open_gateway_handoff_guard(self.guard)
+        duplicate = os.dup(launcher)
+        os.close(launcher)
+        try:
+            self.assert_blocked(identity)
+        finally:
+            os.close(duplicate)
+        with claim_drained_gateway_handoff(self.guard, identity):
+            self.assert_blocked(identity)
+        with self.assertRaisesRegex(OSError, "caller failure"):
+            with claim_drained_gateway_handoff(self.guard, identity):
+                raise OSError("caller failure")
+        with claim_drained_gateway_handoff(self.guard, identity):
+            pass
+
+    def test_replaced_path_and_symlink_are_never_adopted(self):
+        launcher, identity = open_gateway_handoff_guard(self.guard)
+        self.addCleanup(os.close, launcher)
+        original = self.guard.with_suffix(".original")
+        self.guard.rename(original)
+        self.assert_blocked(identity)
+        self.guard.symlink_to(original)
+        self.assert_blocked(identity)
+        with self.assertRaises(ServiceError):
+            open_gateway_handoff_guard(self.guard)
+        self.guard.unlink()
+        self.guard.write_bytes(original.read_bytes())
+        self.guard.chmod(0o600)
+        self.assert_blocked(identity)
+        with self.assertRaisesRegex(ServiceError, "owned file"):
+            verify_inherited_gateway_handoff_guard(launcher, self.guard, identity)
+        verify_inherited_gateway_handoff_guard(launcher, original, identity)
+
+    def test_rejects_truncated_untrusted_and_nonregular_guard_files(self):
+        launcher, identity = open_gateway_handoff_guard(self.guard)
+        os.close(launcher)
+        for invalid in (None, (identity[0], identity[1]), [True, identity[1]], [identity[0], 0]):
+            with self.subTest(invalid=invalid):
+                self.assert_blocked(invalid)
+        self.guard.chmod(0o644)
+        self.assert_blocked(identity)
+        self.guard.chmod(0o600)
+        alias = self.guard.with_suffix(".alias")
+        alias.hardlink_to(self.guard)
+        self.assert_blocked(identity)
+        alias.unlink()
+        self.guard.write_bytes(b"")
+        self.assert_blocked(identity)
+        self.guard.unlink()
+        os.mkfifo(self.guard, 0o600)
+        pipe = self.guard.lstat()
+        self.assert_blocked([pipe.st_dev, pipe.st_ino])
 
 
 if __name__ == "__main__":

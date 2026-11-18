@@ -3,21 +3,86 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import contextmanager
+import fcntl
 import os
 from pathlib import Path
 import re
 import select
 import signal
+import stat
 
 from device_service_errors import ServiceError
 
 
 _BOOT_ID = re.compile(rb"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}")
 _PYTHON = re.compile(r"python(?:[0-9]+(?:\.[0-9]+)?)?d?")
+GATEWAY_HANDOFF_LOCK = "gateway-handoff.lock"
+_GATEWAY_GUARD_MARKER = b"m5-gateway-handoff-v1\n"
+_GATEWAY_GUARD_FLAGS = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
 
 
 def _pending(message: str) -> ServiceError:
     return ServiceError("session_cleanup_pending", message, 503)
+
+
+def verify_inherited_gateway_handoff_guard(fd: int, path: Path, expected_identity: object) -> None:
+    """Validate an owned guard descriptor without operating on its shared lock."""
+    if (type(fd) is not int or fd < 0 or not isinstance(expected_identity, list)
+            or len(expected_identity) != 2 or any(type(value) is not int or value <= 0 for value in expected_identity)):
+        raise _pending("gateway handoff guard identity is invalid")
+    try:
+        opened = os.fstat(fd)
+        bound = path.lstat()
+        if ([opened.st_dev, opened.st_ino] != expected_identity
+                or [bound.st_dev, bound.st_ino] != expected_identity
+                or not stat.S_ISREG(opened.st_mode) or stat.S_IMODE(opened.st_mode) != 0o600
+                or opened.st_uid != os.geteuid() or opened.st_nlink != 1):
+            raise _pending("gateway handoff guard no longer matches its owned file")
+        marker = os.pread(fd, len(_GATEWAY_GUARD_MARKER) + 1, 0)
+        if marker != _GATEWAY_GUARD_MARKER:
+            raise _pending("gateway handoff guard is truncated or malformed")
+    except OSError as error:
+        raise _pending("cannot verify gateway handoff guard") from error
+
+
+def open_gateway_handoff_guard(path: Path) -> tuple[int, list[int]]:
+    """Create and lock this launch's private guard before any child is started."""
+    try:
+        fd = os.open(path, _GATEWAY_GUARD_FLAGS | os.O_CREAT | os.O_EXCL, 0o600)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            os.fchmod(fd, 0o600)
+            if os.write(fd, _GATEWAY_GUARD_MARKER) != len(_GATEWAY_GUARD_MARKER):
+                raise _pending("could not initialize gateway handoff guard")
+            os.fsync(fd)
+            identity = os.fstat(fd)
+            owned = [identity.st_dev, identity.st_ino]
+            verify_inherited_gateway_handoff_guard(fd, path, owned)
+            return fd, owned
+        except BaseException:
+            os.close(fd)
+            raise
+    except OSError as error:
+        raise _pending("cannot create private gateway handoff guard") from error
+
+
+@contextmanager
+def claim_drained_gateway_handoff(path: Path, expected_identity: object):
+    """Hold an independent exclusive lock after all launch descriptors close."""
+    fd = None
+    try:
+        try:
+            fd = os.open(path, _GATEWAY_GUARD_FLAGS)
+            verify_inherited_gateway_handoff_guard(fd, path, expected_identity)
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            verify_inherited_gateway_handoff_guard(fd, path, expected_identity)
+        except OSError as error:
+            raise _pending("gateway handoff has not drained") from error
+        yield
+    finally:
+        if fd is not None:
+            os.close(fd)
 
 
 def namespace_supervisor_identity(pid: int, *, proc_root: Path = Path("/proc")) -> str | None:

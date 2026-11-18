@@ -7393,6 +7393,39 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(final["cleanup_owner"], "device-service")
             self.assertTrue(session._gateway_receipt_complete(final))
 
+    def test_orphaned_gateway_missing_inner_evidence_requires_guard_drain(self):
+        from device_service_namespace_recovery import open_gateway_handoff_guard
+
+        session = self._stopped_session()
+        guard, identity = open_gateway_handoff_guard(session.network_gateway_handoff_path)
+        scope = {"boot_id": "boot", "net": [1, 2], "mnt": [1, 3], "pid": [1, 4]}
+        receipt = {"schema_version": 3, "launch_id": "a" * 32, "supervisor_pid": 43,
+                   "worker_scope": scope, "ownership": {"token": "test"},
+                   "handoff_guard": identity, "handoff_committed": False}
+        with (
+            mock.patch("device_service.namespace_runtime_scope", return_value=scope),
+            mock.patch("device_service.EgressGateway.from_ownership") as reconstruct,
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+        ):
+            gateway = reconstruct.return_value
+            gateway.ownership.return_value = {"namespace": {}, "host_link": {}, "nat_table": {}}
+            gateway.verified_namespace_empty.return_value = True
+            gateway.cleanup.return_value = dict.fromkeys(
+                ("namespace_removed", "host_link_removed", "nat_table_removed"), True,
+            )
+            try:
+                with self.assertRaisesRegex(ServiceError, "handoff has not drained"):
+                    session._cleanup_orphaned_gateway(receipt)
+                gateway.cleanup.assert_not_called()
+            finally:
+                os.close(guard)
+            session._cleanup_orphaned_gateway(receipt)
+            gateway.cleanup.assert_called_once()
+            stop_supervisor.assert_not_called()
+            final = json.loads(session.network_gateway_recovery_path.read_text())
+            self.assertTrue(final["handoff_drained_before_inner_evidence"])
+            self.assertTrue(session._gateway_receipt_complete(final))
+
     def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):

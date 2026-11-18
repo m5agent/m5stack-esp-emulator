@@ -13,6 +13,7 @@ import re
 import signal
 import socket
 import ssl
+import stat
 import struct
 import subprocess
 import sys
@@ -24,7 +25,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from device_service_namespace_recovery import namespace_runtime_scope, namespace_supervisor_identity
+from device_service_errors import ServiceError
+from device_service_namespace_recovery import (
+    GATEWAY_HANDOFF_LOCK,
+    namespace_runtime_scope,
+    namespace_supervisor_identity,
+    open_gateway_handoff_guard,
+    verify_inherited_gateway_handoff_guard,
+)
 from network_egress import (
     EgressEndpoint,
     EgressError,
@@ -1926,6 +1934,7 @@ def run_with_gateway(
     launch_id = config.get("launch_id")
     receipt_path = config_path.with_name("gateway-recovery.json")
     receipt = {}
+    guard_fd = permit_read = permit_write = None
 
     def stop(_signum: int, _frame: object) -> None:
         nonlocal terminating
@@ -1945,9 +1954,11 @@ def run_with_gateway(
             previous[signum] = signal.getsignal(signum)
             signal.signal(signum, stop)
         if launch_id is not None:
-            receipt.update(schema_version=2, launch_id=launch_id, supervisor_pid=os.getpid(),
+            guard_fd, guard_identity = open_gateway_handoff_guard(config_path.with_name(GATEWAY_HANDOFF_LOCK))
+            receipt.update(schema_version=3, launch_id=launch_id, supervisor_pid=os.getpid(),
                            supervisor_start_token=namespace_supervisor_identity(os.getpid()),
-                           worker_scope=namespace_runtime_scope(),
+                           worker_scope=namespace_runtime_scope(), handoff_guard=guard_identity,
+                           handoff_committed=False,
                            inner_exited=False, inner_cleanup_completed=False, gateway_cleanup_completed=False)
             record_ownership(gateway.ownership())
         gateway.start(on_ownership_change=record_ownership)
@@ -1957,6 +1968,11 @@ def run_with_gateway(
         inner_environment["M5_EGRESS_GATEWAY"] = json.dumps(
             gateway.metadata()
         )
+        pass_fds = ()
+        if guard_fd is not None:
+            permit_read, permit_write = os.pipe()
+            pass_fds = (guard_fd, permit_read)
+            inner_environment.update(M5_GATEWAY_HANDOFF_GUARD=str(guard_fd), M5_GATEWAY_HANDOFF_PERMIT=str(permit_read))
         inner_command = [
             "ip",
             "netns",
@@ -1976,7 +1992,25 @@ def run_with_gateway(
             env=inner_environment,
             stdin=subprocess.DEVNULL,
             start_new_session=True,
+            pass_fds=pass_fds,
         )
+        if permit_read is not None:
+            os.close(permit_read)
+            permit_read = None
+        if terminating:
+            raise SystemExit(143)
+        if permit_write is not None:
+            inner_token = namespace_supervisor_identity(process.pid)
+            if inner_token is None:
+                raise SandboxError("gateway inner supervisor exited before handoff")
+            receipt.update(handoff_committed=True, handoff_inner_pid=process.pid, handoff_inner_start_token=inner_token)
+            record_ownership(gateway.ownership())
+            if terminating:
+                raise SystemExit(143)
+            if os.write(permit_write, b"\x01") != 1:
+                raise SandboxError("gateway inner handoff could not be authorized")
+            os.close(permit_write)
+            permit_write = None
         preparing = False
         if terminating:
             raise SystemExit(143)
@@ -1984,6 +2018,11 @@ def run_with_gateway(
     finally:
         terminating = True
         try:
+            # A pre-commit inner will see EOF and cannot launch a guest.
+            if permit_write is not None:
+                os.close(permit_write)
+            if permit_read is not None:
+                os.close(permit_read)
             inner_exited = stop_gateway_worker(process)
             inner_cleaned = inner_exited and (
                 process is None or gateway_worker_cleaned(config, launch_id)
@@ -1995,6 +2034,9 @@ def run_with_gateway(
                                and all(value is True for value in cleanup.values()))
                 record_ownership(gateway.ownership())
         finally:
+            if guard_fd is not None:
+                # The inner may still share this open description. Do not unlock it.
+                os.close(guard_fd)
             for signum, handler in previous.items():
                 signal.signal(signum, handler)
 
@@ -2028,6 +2070,47 @@ def gateway_worker_cleaned(config: dict[str, Any], launch_id: str | None) -> boo
             and evidence.get("cleanup_completed") is True and evidence.get("qemu_process_reaped") is True)
 
 
+@contextmanager
+def gateway_handoff_permitted(config_path: Path, launch_id: str | None):
+    if launch_id is None:
+        yield True
+        return
+    try:
+        guard = int(os.environ.pop("M5_GATEWAY_HANDOFF_GUARD", ""))
+        permit = int(os.environ.pop("M5_GATEWAY_HANDOFF_PERMIT", ""))
+    except ValueError as error:
+        raise SandboxError("gateway inner launch requires inherited handoff descriptors") from error
+    if guard < 3 or permit < 3 or guard == permit:
+        raise SandboxError("gateway handoff descriptor identities are invalid")
+    try:
+        os.set_inheritable(guard, False)
+        os.set_inheritable(permit, False)
+        receipt = load_config(config_path.with_name("gateway-recovery.json"))
+        if receipt.get("schema_version") != 3 or receipt.get("launch_id") != launch_id:
+            raise SandboxError("gateway handoff receipt does not match the launch")
+        verify_inherited_gateway_handoff_guard(
+            guard, config_path.with_name(GATEWAY_HANDOFF_LOCK), receipt.get("handoff_guard"),
+        )
+        if not stat.S_ISFIFO(os.fstat(permit).st_mode):
+            raise SandboxError("gateway handoff permit is not a pipe")
+        authorized = os.read(permit, 1) == b"\x01"
+        os.close(permit)
+        permit = None
+        if authorized:
+            committed = load_config(config_path.with_name("gateway-recovery.json"))
+            if (committed.get("schema_version") != 3 or committed.get("launch_id") != launch_id
+                    or committed.get("handoff_guard") != receipt["handoff_guard"]
+                    or committed.get("handoff_committed") is not True
+                    or committed.get("handoff_inner_pid") != os.getpid()
+                    or committed.get("handoff_inner_start_token") != namespace_supervisor_identity(os.getpid())):
+                raise SandboxError("gateway launch permit lacks a matching committed process identity")
+        yield authorized
+    finally:
+        if permit is not None:
+            os.close(permit)
+        os.close(guard)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run a QEMU command inside a no-egress network namespace"
@@ -2046,12 +2129,10 @@ def main() -> int:
             gateway = json.loads(raw_gateway) if raw_gateway else None
             if gateway is not None and not isinstance(gateway, dict):
                 raise SandboxError("gateway metadata must be an object")
-            return run(
-                config,
-                command,
-                create_namespace=False,
-                gateway=gateway,
-            )
+            with gateway_handoff_permitted(args.config, config.get("launch_id")) as permitted:
+                if not permitted:
+                    return 143
+                return run(config, command, create_namespace=False, gateway=gateway)
         policy = config.get("policy")
         if isinstance(policy, dict) and policy.get("egress") == "allowlist":
             endpoints = _egress_endpoints(config)
@@ -2062,7 +2143,7 @@ def main() -> int:
                     config_path=args.config,
                 )
         return run(config, command)
-    except (json.JSONDecodeError, OSError, EgressError, SandboxError) as error:
+    except (json.JSONDecodeError, OSError, EgressError, SandboxError, ServiceError) as error:
         print(f"network sandbox failed: {error}", file=sys.stderr)
         return 126
 

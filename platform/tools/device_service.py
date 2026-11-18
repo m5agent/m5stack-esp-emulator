@@ -283,6 +283,8 @@ from network_policy import (  # noqa: E402
     qemu_user_netdev,
 )
 from device_service_namespace_recovery import (  # noqa: E402
+    GATEWAY_HANDOFF_LOCK,
+    claim_drained_gateway_handoff,
     namespace_runtime_scope,
     namespace_supervisor_identity,
     stop_namespace_supervisor,
@@ -2928,6 +2930,7 @@ class DeviceSession:
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_sandbox_config_path = self.dir / "network-sandbox.json"
         self.network_gateway_recovery_path = self.dir / "gateway-recovery.json"
+        self.network_gateway_handoff_path = self.dir / GATEWAY_HANDOFF_LOCK
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self._cloud_observation = None
@@ -5027,7 +5030,7 @@ class DeviceSession:
             raise ServiceError("session_cleanup_pending", "named gateway receipt is unavailable", 503) from error
         if (not isinstance(launch_id, str) or re.fullmatch(r"[0-9a-f]{32}", launch_id) is None
                 or not isinstance(receipt, dict) or type(receipt.get("schema_version")) is not int
-                or receipt["schema_version"] not in (1, 2)
+                or receipt["schema_version"] not in (1, 2, 3)
                 or receipt.get("launch_id") != launch_id
                 or type(receipt.get("supervisor_pid")) is not int or receipt["supervisor_pid"] < 1
                 or not isinstance(receipt.get("supervisor_start_token"), str)
@@ -5062,7 +5065,8 @@ class DeviceSession:
         def pending(message: str) -> ServiceError:
             return ServiceError("session_cleanup_pending", message, 503)
 
-        if receipt["schema_version"] != 2:
+        version = receipt["schema_version"]
+        if version not in (2, 3):
             raise pending("older gateway receipt cannot confirm ownership after supervisor loss")
         if receipt.get("worker_scope") != namespace_runtime_scope():
             raise pending("named gateway belongs to a different kernel or worker namespace")
@@ -5075,9 +5079,13 @@ class DeviceSession:
             raise pending("named gateway did not confirm full kernel ownership")
         gateway_names = gateway.metadata()
 
-        def inner_receipt() -> dict:
+        def inner_receipt() -> dict | None:
             try:
                 result = json.loads(self.network_isolation_path.read_text())
+            except FileNotFoundError as error:
+                if version == 3:
+                    return None
+                raise pending("inner gateway launch evidence is unavailable") from error
             except (OSError, ValueError) as error:
                 raise pending("inner gateway launch evidence is unavailable") from error
             if (not isinstance(result, dict) or result.get("launch_id") != receipt["launch_id"]
@@ -5088,31 +5096,50 @@ class DeviceSession:
                 raise pending("inner gateway does not match the recorded launch")
             return result
 
+        def valid_inner(pid, token) -> bool:
+            return (type(pid) is int and pid > 0 and pid != receipt["supervisor_pid"]
+                    and isinstance(token, str) and token.startswith(f"linux:{receipt['worker_scope']['boot_id']}:"))
+
+        committed = receipt.get("handoff_committed")
+        handoff_inner = (receipt.get("handoff_inner_pid"), receipt.get("handoff_inner_start_token"))
+        if version == 3 and (type(committed) is not bool or (committed and not valid_inner(*handoff_inner))):
+            raise pending("gateway handoff commit does not match the recorded launch")
         inner = inner_receipt()
+        if inner is None:
+            # The outer is gone. Holding the original lock proves a forked
+            # inner, including one stalled before exec, has drained.
+            with claim_drained_gateway_handoff(self.network_gateway_handoff_path, receipt.get("handoff_guard")):
+                inner = inner_receipt()
+                if inner is None:
+                    self._finish_orphaned_gateway(gateway, receipt, before_inner_evidence=True)
+                    return
         pid, token = inner.get("supervisor_pid"), inner.get("supervisor_start_token")
-        if (type(pid) is not int or pid < 1 or pid == receipt["supervisor_pid"]
-                or not isinstance(token, str) or not token.startswith(f"linux:{receipt['worker_scope']['boot_id']}:")):
+        if not valid_inner(pid, token) or (version == 3 and (not committed or handoff_inner != (pid, token))):
             raise pending("inner gateway supervisor identity is unavailable")
         stop_namespace_supervisor(
             pid, start_token=token, config_path=self.network_sandbox_config_path,
             sandbox_path=SANDBOX_RUNNER, inner_namespace=gateway.namespace_identity,
         )
         terminal = inner_receipt()
-        if ((terminal.get("supervisor_pid"), terminal.get("supervisor_start_token")) != (pid, token)
+        if (terminal is None or (terminal.get("supervisor_pid"), terminal.get("supervisor_start_token")) != (pid, token)
                 or terminal.get("cleanup_completed") is not True or terminal.get("qemu_process_reaped") is not True
-                or terminal.get("ble_process_reaped") is not True or not gateway.verified_namespace_empty()):
-            raise pending("inner gateway or namespace process cleanup has not been confirmed")
+                or terminal.get("ble_process_reaped") is not True):
+            raise pending("inner gateway process cleanup has not been confirmed")
+        self._finish_orphaned_gateway(gateway, receipt)
 
+    def _finish_orphaned_gateway(self, gateway: EgressGateway, receipt: dict, *, before_inner_evidence=False) -> None:
+        if not gateway.verified_namespace_empty():
+            raise ServiceError("session_cleanup_pending", "gateway namespace process cleanup has not been confirmed", 503)
         cleanup = gateway.cleanup()
         result = {**receipt, "inner_exited": True, "inner_cleanup_completed": True,
                   "gateway_cleanup_completed": all(cleanup.values()), "gateway_cleanup": cleanup,
-                  "cleanup_owner": "device-service"}
+                  "cleanup_owner": "device-service", "handoff_drained_before_inner_evidence": before_inner_evidence}
         try:
             atomic_write_json(self.network_gateway_recovery_path, result)
         except OSError as error:
-            raise pending("could not preserve the verified gateway cleanup result") from error
+            raise ServiceError("session_cleanup_pending", "could not preserve the verified gateway cleanup result", 503) from error
         if not self._gateway_receipt_complete(result):
-            raise pending("named gateway kernel resource cleanup has not been confirmed")
+            raise ServiceError("session_cleanup_pending", "named gateway kernel resource cleanup has not been confirmed", 503)
         self._record_event("orphaned_gateway_cleaned")
 
     def _stop_recovered_namespace(self) -> None:
@@ -6528,6 +6555,7 @@ class DeviceSession:
             sandbox_config["launch_id"] = uuid.uuid4().hex
             self.network_isolation_path.unlink(missing_ok=True)
             self.network_gateway_recovery_path.unlink(missing_ok=True)
+            self.network_gateway_handoff_path.unlink(missing_ok=True)
             atomic_write_json(self.network_sandbox_config_path, sandbox_config)
             try:
                 launch_command = build_sandbox_command(

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.98.0` and bounded
+Status: local MVP with unified-device runtime contract `1.99.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -4326,8 +4326,12 @@ restart.
   version-2 journals allow cleanup using the launch-bound inner supervisor and
   kernel resource identities. Automatic recovery requires the same Linux boot
   and worker PID, mount and network namespaces, verified guest termination
-  and an empty old network namespace. A legacy journal, an unrecorded launch
-  handoff or missing inner cleanup evidence leaves the session pending;
+  and an empty old network namespace. Version-3 journals also record a
+  per-launch inherited lock and a committed inner process before the guest
+  can start. If the outer exits before inner evidence exists, the service
+  can release fully identified resources after the original lock is
+  available and the namespace contains no tasks. Legacy or incomplete
+  kernel ownership and conflicting evidence leave cleanup pending;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;
