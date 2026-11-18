@@ -7426,6 +7426,19 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertTrue(final["handoff_drained_before_inner_evidence"])
             self.assertTrue(session._gateway_receipt_complete(final))
 
+    def test_qmp_startup_probe_can_abort_before_waiting_for_socket(self):
+        from run_profile_ui_test import wait_qmp
+
+        session = self._stopped_session()
+        stopped = ServiceError("gateway_supervisor_exited", "named gateway supervisor exited", 503)
+        check_owner = mock.Mock(side_effect=stopped)
+        with mock.patch("run_profile_ui_test.time.sleep") as wait:
+            with self.assertRaises(ServiceError) as error:
+                wait_qmp(session.qmp_path, timeout=60, before_attempt=check_owner)
+        self.assertIs(error.exception, stopped)
+        check_owner.assert_called_once()
+        wait.assert_not_called()
+
     def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):

@@ -4328,7 +4328,9 @@ restart.
   and worker PID, mount and network namespaces, verified guest termination
   and an empty old network namespace. Version-3 journals also record a
   per-launch inherited lock and a committed inner process before the guest
-  can start. If the outer exits before inner evidence exists, the service
+  can start. An exited outer also ends the initial QMP wait without keeping
+  the startup transaction open for its normal timeout. If the outer exits
+  before inner evidence exists, the service
   can release fully identified resources after the original lock is
   available and the namespace contains no tasks. Legacy or incomplete
   kernel ownership and conflicting evidence leave cleanup pending;

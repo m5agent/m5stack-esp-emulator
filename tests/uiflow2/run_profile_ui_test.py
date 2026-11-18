@@ -206,9 +206,11 @@ class QMP:
         self.sock.close()
 
 
-def wait_qmp(path: Path, timeout=15) -> QMP:
+def wait_qmp(path: Path, timeout=15, *, before_attempt=None) -> QMP:
     deadline = time.time() + timeout
     while time.time() < deadline:
+        if before_attempt is not None:
+            before_attempt()
         if path.exists():
             try:
                 return QMP(path)

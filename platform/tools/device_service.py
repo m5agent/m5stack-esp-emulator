@@ -6605,11 +6605,23 @@ class DeviceSession:
         self._persist_session()
         if native_vhci:
             self._launch_native_vhci_gdb()
+        named_gateway = (policy.isolation == "namespace" and policy.egress == "allowlist"
+                         and requires_external_gateway(policy.allowed_endpoints))
+
+        def check_gateway_startup() -> None:
+            self._check_cancelled()
+            if self._proc.poll() is not None:
+                self.interrupted = True
+                raise ServiceError("gateway_supervisor_exited", "named gateway supervisor exited before QMP was ready", 503)
+
         with self._lock:
             try:
                 # Booting frame/state requests may already own the connection.
                 if self._qmp is None:
-                    self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
+                    if named_gateway:
+                        self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT, before_attempt=check_gateway_startup)
+                    else:
+                        self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
                 self._check_cancelled()
             except RuntimeError as error:
                 raise ServiceError(
