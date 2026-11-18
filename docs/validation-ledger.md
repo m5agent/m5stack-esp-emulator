@@ -473,6 +473,11 @@ esp-emu 1.1.0 和匹配 GT911 Part 上，用同一 CarPlay 原版在约 1.54 秒
 两轮没有完整画面，HID/MSC 枚举和传输未执行。
 [原版与能力接口对照](https://github.com/m5agent/agent-work-logs/blob/cb240b4d96bfa470ff7aa19926c8c9f74931a418/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/README.md)。
 
+2026-11-19，本地工作台和审核后端切换到 Device Service `597e032`。两端回读
+Tab5 USB Host `partial`，均未公布端点夹具。OpenAPI 仍为 1.99.0，149 条设备会话
+和 129 条 Reviewer 历史及抽查证据保持一致。Reviewer `f0101b6` 就绪，应用文件字节一致。
+[常驻切换与两端回读](https://github.com/m5agent/agent-work-logs/blob/e547eefe07c645d55bbe12ecc22d67422499a19b/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/followups/2026-11-19-tab5-usb-host-resident-readback/README.md)。
+
 ## 2026-11-18 经典 Core2 隔离 HTTP
 
 [隔离会话摘要](../tests/network/native_sta_peers/core2-http-linux-summary.json)绑定同一
