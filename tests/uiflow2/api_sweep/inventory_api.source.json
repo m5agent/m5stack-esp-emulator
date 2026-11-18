@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.92.0",
-  "contract_sha256": "87f44a1b3180ccc9cc6e8d77e39e260f4734890a848b4fc9840908fe20181ccd",
+  "contract_version": "1.93.0",
+  "contract_sha256": "4046970596e4b21913eb1ddc2339bd366cdf13d6cf7fa55579df8af90a9dd79d",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -964,6 +964,7 @@
       "required_fixtures": [
         "owned-visible-test-session"
       ],
+      "scoped_audio_validation": "Use an admitted finalized Tab5 UserDemo recording with audio.read and a same-recording cursor. Compare the exact PCM member and manifest to the requested byte range.",
       "case_ids": [
         "GET /sessions/{session_id}/evidence missing-resource"
       ],
@@ -1303,6 +1304,7 @@
       "case_ids": [
         "GET /sessions/{session_id}/audio.pcm missing-resource"
       ],
+      "tab5_validation": "Use an admitted UserDemo speaker capture. Check the running cursor and post-stop PCM window with the same recording identity. Reject an earlier identity after reset.",
       "positive_status": "NOT RUN"
     },
     {
