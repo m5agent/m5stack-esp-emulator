@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-14`.
 
-Status: local MVP with unified-device runtime contract `1.87.0` and bounded
+Status: local MVP with unified-device runtime contract `1.88.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -701,6 +701,14 @@ surviving BLE peer was adopted only after PID, exact start-time and complete
 command-SHA256 checks. Companion ownership failure rejects the re-attach.
 Unverified, expired or incompatible sessions become interrupted `failed`
 history. Stopped/failed sessions and their last-known evidence remain readable.
+
+The native StickS3 QEMU runtime with RTC layer `0229` keeps the service
+session active during guest light sleep. A guest-armed RTC timer, a configured
+digital GPIO level, or both can complete that sleep. The default RC slow clock
+uses the same nominal rate as the S3 Timer Group calibration. Management pause
+freezes the sleep deadline, and reset discards a pending alarm. The firmware can
+read the RTC wake cause and elapsed slow-clock ticks through its usual APIs.
+[Native StickS3 validation](../tests/firmware/sticks3_rtc_sleep/README.md)
 
 `POST /sessions` accepts an optional non-secret `owner` label of at most 128
 printable characters. The label is stored with the worker lease and does not

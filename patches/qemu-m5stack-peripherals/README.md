@@ -1866,3 +1866,14 @@ GPIO-only light sleep stops the digital tick clock while QEMU is suspended.
 The RTC slow-clock elapsed time across sleep, timer wake, mixed wake sources,
 deep sleep and browser builds have separate coverage boundaries. See the
 [Stock and ESP-IDF regression](../../tests/firmware/sticks3_rtc_sleep/README.md).
+
+## ESP32-S3 RTC main timer and mixed light-sleep wake (0229)
+
+The RTC accepts the firmware-programmed 48-bit absolute deadline and the
+write-only arm bit. Normal RTC time follows the guest virtual clock. While
+the guest is suspended in modeled light sleep, the slow counter follows a
+monotonic host clock and the digital timer clock stays stopped. An operator
+pause freezes both. The default RC slow rate matches Timer Group calibration.
+The comparator sets the main IRQ independently from a sleep wake or reject.
+GPIO and the timer share one wake path, and a reset cancels both timer callbacks.
+[Native StickS3 validation](../../tests/firmware/sticks3_rtc_sleep/README.md)

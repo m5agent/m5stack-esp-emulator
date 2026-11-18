@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.87.0
+  version: 1.88.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -26,7 +26,7 @@ info:
     The worker agent retries transient control-plane failures, re-registers
     idempotently after a control-plane restart and reports the original lease
     while the worker-local runtime remains active.
-    A local running QEMU process can be re-attached after PID start-time,
+    A local running or guest-suspended QEMU process can be re-attached after PID start-time,
     session QMP ownership and query-status checks; this restores QEMU/QMP
     control. For trusted-host unified sessions, the service also recreates the
     in-process HTTP fixture and adopts a surviving BLE peer only after exact
@@ -43,6 +43,10 @@ info:
     inferred from guest metadata. SIGHUP validates and reloads the file during
     the existing drained security reload; invalid content preserves the active
     policy.
+    The qualified native StickS3 QEMU backend supports RTC timer and digital
+    GPIO light sleep together. Its RTC slow timer advances during guest sleep.
+    A management pause also freezes the sleep deadline. Timer and GPIO wakes
+    appear in the guest's RTC wake source and leave the service session active.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
