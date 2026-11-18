@@ -14,6 +14,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Cardputer 和 ADV 原生 SPI SD 读取统计
+
+使用同一 ESP-IDF 夹具和 FAT32 镜像，初代 Cardputer 和 ADV 各接受 16 条 CMD17 并完整返回 16 个块。
+ADV 的多块夹具增加一条 CMD18 和两个块，来宾核对 MBR 和空扇区。无卡 ADV 报挂载超时并返回零计数。
+初代在同进程复位后统计代次由 1 增至 2。旧原生运行时仍可挂载，统计接口返回 `409 sd_read_stats_unsupported`。
+五次设备会话均关闭，租约归零，全程未启用 SPI SD 跟踪。
+[固定来源与同会话证据](../tests/firmware/spi_sd_media/read-stats-summary.json)
+
 ## 2026-11-18 CardputerDict ADV 0.5.0 原版词库读取
 
 独立的原生 Device Service 会话运行同一个原版 `21b7a88e…`。完整 FAT32 词库的

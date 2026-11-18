@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "api_contract_version": "1.85.0",
+  "service_source_commit": "23904862ae25a86d36e609b1f37e164027401d02",
+  "runtime": {
+    "kind": "native Xtensa QEMU",
+    "upstream_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "ordered_patch_count": 173,
+    "observation_patch_sha256": "bf41af429d91e0570e326f1dee11db4b998b9001e115aa9d9d8eaf818ce975e0",
+    "binary_sha256": "26f753119896c70d6287f516cc54e941ad9fa328b0464b7af7385c3b9387d12d",
+    "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+  },
+  "guest_sdk": {
+    "name": "ESP-IDF 5.5.4",
+    "source_commit": "735507283d5b2f9fb363a1901172dbd9e847945d"
+  },
+  "observed_cases": [
+    {
+      "device_id": "cardputer",
+      "case": "cardputer",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "read_stats": {
+        "accepted_cmd17": 16,
+        "schema_version": 1,
+        "accepted_cmd18": 0,
+        "reset_generation": 1,
+        "completed_blocks": 16,
+        "media_present": true
+      },
+      "after_reset": {
+        "accepted_cmd17": 19,
+        "schema_version": 1,
+        "accepted_cmd18": 0,
+        "reset_generation": 2,
+        "completed_blocks": 19,
+        "media_present": true
+      },
+      "generic_qom_gated": true,
+      "zip_sha256": "f126226dc5b12cf56cc97ae2bfd28c723350db2da4e4a8710bb64acbabcc67bd",
+      "trace_disabled": true,
+      "session_stopped": true,
+      "guest_serial_markers": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1",
+        "STORAGE_PROBE_MOUNT seed=1 prior=1"
+      ]
+    },
+    {
+      "device_id": "cardputer-adv",
+      "case": "adv",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "read_stats": {
+        "accepted_cmd17": 16,
+        "schema_version": 1,
+        "accepted_cmd18": 0,
+        "reset_generation": 1,
+        "completed_blocks": 16,
+        "media_present": true
+      },
+      "generic_qom_gated": true,
+      "zip_sha256": "9711c20fc9461da2453d5266077a338d23109f10d9ba4f4af256985164b725a2",
+      "trace_disabled": true,
+      "session_stopped": true,
+      "guest_serial_markers": [
+        "STORAGE_PROBE_MOUNT seed=1 prior=0",
+        "STORAGE_PROBE_REMOUNT write=1 restored=1"
+      ]
+    },
+    {
+      "device_id": "cardputer-adv",
+      "case": "adv-empty",
+      "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+      "sd_sha256": null,
+      "read_stats": {
+        "accepted_cmd17": 0,
+        "schema_version": 1,
+        "accepted_cmd18": 0,
+        "reset_generation": 1,
+        "completed_blocks": 0,
+        "media_present": false
+      },
+      "generic_qom_gated": true,
+      "zip_sha256": "ced3e0db1115136f13dda860106c2d800b58b81e2841c05ee98358aad59ed931",
+      "trace_disabled": true,
+      "session_stopped": true,
+      "guest_serial_markers": [
+        "STORAGE_PROBE_MOUNT_ERROR ESP_ERR_TIMEOUT"
+      ]
+    },
+    {
+      "device_id": "cardputer-adv",
+      "case": "adv-multiblock",
+      "firmware_sha256": "031e097ca2e691348b3962a560f1c4cc3b30543131e1c28b8d53947f33d9b1fc",
+      "sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+      "read_stats": {
+        "accepted_cmd17": 16,
+        "schema_version": 1,
+        "accepted_cmd18": 1,
+        "reset_generation": 1,
+        "completed_blocks": 18,
+        "media_present": true
+      },
+      "generic_qom_gated": true,
+      "zip_sha256": "94a3c7a5201721996398f189ec7ba94f0a41421453fe93ccc1e1fb39556a2d3f",
+      "trace_disabled": true,
+      "session_stopped": true,
+      "guest_serial_markers": [
+        "STORAGE_PROBE_MULTIBLOCK rc=ESP_OK mbr=1 blank=1",
+        "STORAGE_PROBE_MOUNT seed=1 prior=0"
+      ]
+    }
+  ],
+  "old_runtime_control": {
+    "binary_sha256": "7e63fc223c6946ef8b2f44b1510d904aea6cc7c36c21324bb631490a3f325b24",
+    "firmware_sha256": "600b7a49b52718caaaccaf5d5f7b9827dbe756bc3092f540dc127fa5b8a92e75",
+    "sd_sha256": "f4589390aa3525946fa1c8873f390f571a4729394c887daba2d1cc4a12803ea2",
+    "zip_sha256": "566b44d8e4ddad3e1783e2f70b8f5085b13a3b5bbe42f389c0afa6242fe8f30c",
+    "device_id": "cardputer",
+    "guest_serial_markers": [
+      "STORAGE_PROBE_MOUNT seed=1 prior=0",
+      "STORAGE_PROBE_REMOUNT write=1 restored=1"
+    ],
+    "http_status": 409,
+    "error_code": "sd_read_stats_unsupported",
+    "trace_disabled": true,
+    "session_stopped": true
+  },
+  "cleanup": {
+    "sessions_stopped": 5,
+    "active_leases": 0,
+    "isolated_services_exited": 2
+  },
+  "scope": "Blocks are complete SPI card responses including CRC. This does not prove that guest software consumed the bytes. CMD18 continuation across reset, CRC/address rejection and chip-select interruption were checked by the host card-protocol regression test.",
+  "not_run": [
+    "physical hardware",
+    "browser WASM",
+    "other native SD board models",
+    "firmware-review dry-run"
+  ]
+}

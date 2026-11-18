@@ -199,3 +199,5 @@ the first two sectors in a DMA-capable buffer. Require
 additional completed blocks for the read. A standard reset in the same
 session advances `reset_generation`. Compare samples for deltas only within
 the same reset, attachment and runtime generations.
+
+[Observed native Device Service results](read-stats-summary.json).
