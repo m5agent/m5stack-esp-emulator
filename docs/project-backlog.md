@@ -28,8 +28,7 @@
 - [#216](https://github.com/m5agent/m5stack-esp-emulator/issues/216)：C6 QIO、显示/DMA 与 PCR/MWDT 已有原驱动对照；OFF watchdog 阶段边界和最终组合交付已验证。Launcher 独立触摸修复已交付 [M5GFX #416](https://github.com/m5stack/M5GFX/pull/416)，原 BIN 不继承重建版通过。[Meshtastic RFID 原版复验](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)确认当前模型上 IDLE 订阅未喂狗，UART 等待正常返回。[UART1 同原版对照](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-13-community-firmware-issues/followups/2026-11-18-nesso-rfid-current-paired/followups/2026-11-18-nesso-rfid-uart1/evidence/nesso-rfid-uart1-summary.json)已验证有效与错误校验应答。继续定位原版 TWDT 与载荷长度处理，验证真实 PN532Killer 应答、标签读取和独立 Zigbee 数据面。
 - [#223](https://github.com/m5agent/m5stack-esp-emulator/issues/223)：原 UserDemo/GPT BIN 仍 FAIL；同公开应用源码仅加入官方 ESP-IDF I2C 修复的重建版已有动画、触摸与 UART 舵机协议对照。当前公开包重新下载后的 SHA 仍与已测失败原版相同，需发布含修复的新包并按新身份验收；不通过模拟器延时或修改原 BIN 隐藏 SDK 竞态。
 - StickC Plus2 BLE HID 数据面仍待独立验证。原版 JIGGLER 的 DPORT 与正常看门狗下默认/有界自适应验收已记录。 [原版与控制组证据](../tests/firmware/stickc_plus2_bt_lp_clock/README.md)
-- [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227)：原 CarPlay 在 0.50.0 的板型探测断言仍复现。1.0.0 的可扩展 I2C 器件接口可用于后续实现，但原 BIN 先遇到旧 P4 CSR 阻断。[对照](evidence/2026-11-16-tab5-original-startup/README.md)保留两套后端的实际边界。闭环须验证触摸寄存器、复位、IRQ、接触报告和原 BSP 输入。
-- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)：原 Maker Fighter 在 esp-emu 1.1.0 已成功初始化 DWC USB Host 并注册客户端，随后进入事件等待。根端口上电，但未连接外设。继续验证对端连入、HID/MSC 枚举、传输和应用画面。[同原版证据](https://github.com/m5agent/agent-work-logs/blob/923679586152244e76f3992e5305962bf9043ec6/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/README.md)。
+- [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的原版 Maker Fighter 在 esp-emu 1.1.0 已初始化 DWC 并注册客户端。根端口供电，仍需真实的外设连接、HID/MSC 枚举、数据传输及应用画面。[当前版本与能力接口对照](https://github.com/m5agent/agent-work-logs/blob/cb240b4d96bfa470ff7aa19926c8c9f74931a418/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/README.md)。
 - PaperColor 原厂应用的后续 `xTaskPriorityDisinherit` 断言：#217 宿主竞争与 #220 USB 初始化子路径修复不覆盖此 guest 错误；保持原版固件进行 owner/current-task 和共享外设事务分析。
 - C6 身份剩余范围：NanoC6 真实 controller/drive 与 guest API 的隔离和复位稳定性已验证；802.15.4 extended-address 寄存器数据面仍需实现，再验收 Zigbee 身份及协议。不将 NanoC6 子路径转授其它板型或用报告字段伪造读值。
 - Nesso N1 中断剩余范围：[普通 CPU GPIO source 30](evidence/2026-11-14-c6-gpio-irq/README.md)已通过实际 IDF ISR 和原版 UIFlow `Pin.irq`，共享 GPIO3 pad/扩展器锁存回归通过。仍需实现 BMI270 数据/运动事件与 IRQ 输出使能、FT6336 模式/脉冲/扫描时序，以及独立 NMI/source 31、睡眠唤醒/滤波；各自须经过原驱动、真实控制器输入和复位对照，不由普通 GPIO 结果关闭。
@@ -76,7 +75,8 @@
    [隔离 Reviewer 创建恢复](validation-ledger.md#2026-11-18-reviewer-创建中断恢复)已验证 Linux ARM64 的 Cardputer ADV STA。仅重启 Reviewer 后回收原会话和隔离命名空间、保留原 PCAP，并在新会话完成同固件标准重试。macOS Core2 另通过迟到创建拦截和其他活动会话保留对照。
    [Linux 持久卷冷启动](validation-ledger.md#2026-11-18-审核就绪-api-与-linux-持久卷冷启动)
    已覆盖独立虚拟机的正常重启，原版 Core2 标准干跑另通过受控 Virtio VSOCK
-   完成会话创建、取证和清理。继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
+   完成会话创建、取证和清理。无网卡 Linux 上，初代 CardputerDict 原版通过可信 HTTPS
+   发音及拒绝对照。继续验收常驻 Linux 路由及异常中断恢复、ADV 原版发音的
    保存快照复审，以及其他原版应用的 HTTPS 与云端协议。
    [经典 Core2](../tests/network/native_sta_peers/core2-linux-summary.json) 同路径已验证 Open STA、受控 DNS 和二进制 UDP；[隔离 HTTP](../tests/network/native_sta_peers/core2-http-linux-summary.json)已验证固定正文和 Host 拒绝。更多原版应用仍开放。
    继续补更多原版应用的 SoftAP 门户与应用协议断言。[StickS3 已配网 Flash 新会话](evidence/2026-11-18-sticks3-preconfigured-flash/README.md)已验证同一导出 Flash 复用后，从实际 STA DHCP 到 ARP 的路径。
@@ -97,8 +97,9 @@
    [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。继续验证其他固件的音频、麦克风与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入，后续验证其他页面和设备能力。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    [会话 SDMMC 槽位 0](../tests/firmware/tab5_sdmmc/README.md)已验证原生 FAT16 数据面。继续验证原版启动盘路径及 C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
-   [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
-   [#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 的独立关闭条件。
+   [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 的独立关闭条件。
+   [#227 原版 CarPlay](validation-ledger.md#2026-11-18-tab5-原版正常启动与无-elf-取帧)已在当前
+   GT911 板型验证普通启动和 BSP 触摸。USB/iPhone 交互仍待单独验收。
 5. **P0 崩溃与任务观测**。[Core2 会话](../tests/firmware/crash_diagnostics/session-task-context-summary.json)已自动核验 ELF CRC32 UART dump 并提取保存任务上下文。[原生 C6 会话](../tests/firmware/crash_diagnostics/riscv_c6/session-core-dump-summary.json)已核验 ELF32 UART 的 CRC32 与 SHA-256 两种转储，保留各自的任务 PC/SP。[Core2 任务详情](../tests/firmware/crash_diagnostics/session-task-metadata-summary.json)已验证匹配 ELF 下的名称、优先级和保存栈用量。[Cardputer ADV 原生会话](../tests/firmware/crash_diagnostics/s3-uart-task-summary.json)验证了 ELF32 CRC32 与 SHA-256、保存任务详情及独立双核实时 PC。[Nesso N1 RV32 任务详情](../tests/firmware/crash_diagnostics/riscv_c6/session-task-metadata-summary.json)已补齐两种校验格式的匹配 ELF 路径。[原生 Cardputer ADV Flash 转储](../tests/firmware/crash_diagnostics/s3-flash-task-summary.json)已验证两种校验格式、同会话 ZIP 与权限限制。[Nesso N1 原生 UART](../tests/firmware/crash_diagnostics/riscv_c6/session-saved-backtrace-summary.json)的保存栈展开已逐帧对照 GDB。继续补其他运行时的任务详情、Flash 路径及栈展开。
    Core2 和原生 C6 也已验证实时 PC。继续分别验证其他 RISC-V 运行时的采样能力。
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)

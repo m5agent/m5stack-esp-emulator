@@ -16,6 +16,14 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 ## 2026-11-18 审核就绪 API 与 Linux 持久卷冷启动
 
+- 无网卡 Linux ARM64 使用两条固定地址和协议的 Virtio VSOCK 转发，原版
+  CardputerDict 0.6.4 用内置 CA 完成可信 HTTPS。FAT32 新缓存为 10,605 字节，
+  PCM 为 84,992 字节，证据 ZIP 和音频 API 逐字节一致。拒绝对照仍有匹配 SNTP，
+  来宾发出 443 请求后无响应，没有发音缓存或 PCM。两轮均释放 Flash、隔离资源和租约。
+  一次启动准备失败保留为基础设施对照。独立复现确认关闭标准输入可使保护描述符
+  取得 FD 0 并触发同一校验，首轮未采样实际描述符。后续运行用 `/dev/null` 保留
+  标准输入。常驻接入和这一启动条件的代码修复仍待验收。
+  [可信 HTTPS 放行与拒绝证据](https://github.com/m5agent/agent-work-logs/blob/8d28b4852997636a99166d91ac10273a74c14dce/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-18-linux-vz-cardputerdict-trusted-https/README.md)。
 - 在无网卡的 Linux ARM64 客体中，用 Virtio VSOCK 读取真实 Device Service 1.99
   的 `GET /api/v1/worker`。宿主监听仅绑定环回。缺失或错误的 Bearer 返回 401，
   正确凭证返回 200，Worker 可接收租约。桥接拒绝其他路由和写请求，试验前后租约均为零，
@@ -205,6 +213,11 @@ esp-emu 1.1.0 `633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828`
 ZIP 完整，Flash 和租约释放。云配对、浏览器、实体设备及非零面板响应正对照
 未执行，Burner 未提交。归档机器回执 SHA-256 `736f862cfac93ecc2b369917d424a04f6f2e280abdc48452df2905e25a06b16a`。
 [原版对照](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/README.md) · [机器摘要](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/evidence/uiflow254-tab5-board-id.summary.json)
+
+1.99 再次复现 GT911 无完整帧。独立只读追踪在原版发出 DCS `0x00` 后证明
+接收 FIFO 标为有数据，来宾读出零，驱动返回成功和字节 `0x00`。相同原版在 ST7123
+配置上正常显示，控制器点按进入 I²C Scan。GT911 面板仍需后端提供同步 DSI 读回。
+[当前 DSI FIFO 与板型对照](https://github.com/m5agent/agent-work-logs/blob/e1169639ca094b24e4addc6499802291f9cca1ee/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-199-dsi-rx-fifo/README.md)。
 
 ## 2026-11-18 Tab5 原版 BMI270 正式 Part 与离线交互
 
@@ -447,6 +460,18 @@ Device Service `c53750bf`，98TAB5 原版 SHA `ea4fb088…` 在 `0.50.0/a4c3468a
 跨度在摘要中；三个会话及服务均已清理。未连接调试器或发送输入。新旧配置
 同时改变运行时与板级/取帧路径，重复复位根因未定；98TAB5 的 OTA 应用身份
 解析和正常显示仍开放。
+
+[#227](https://github.com/m5agent/m5stack-esp-emulator/issues/227) 在 Device Service 1.99、
+esp-emu 1.1.0 和匹配 GT911 Part 上，用同一 CarPlay 原版在约 1.54 秒取得主页，
+两次触摸的报告分别获原版驱动确认，点击打开配对清除确认框。未确认清除。没有旧 BSP
+断言或软件复位。界面结果只覆盖该板型和输入，USB/iPhone、独立复位引脚及真机未验证。
+[当前原版复验](https://github.com/m5agent/agent-work-logs/blob/8c4997eb70ee10b8af175f631c2d9fa561159fd4/records/esp-emulator/2026-11-17-tab5-st7123-gt911-gestures/followups/2026-11-18-tab5-227-carplay-199/README.md)。
+
+[#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226) 同一原版 Maker Fighter
+在 Device Service 1.99 上注册 USB Host 客户端并进入事件等待。只读调试确认 DWC
+身份、DMA 启用和根端口供电，端口仍断开。候选能力接口报告 `partial`，未公布端点夹具。
+两轮没有完整画面，HID/MSC 枚举和传输未执行。
+[原版与能力接口对照](https://github.com/m5agent/agent-work-logs/blob/cb240b4d96bfa470ff7aa19926c8c9f74931a418/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-maker-fighter-dwc-self-check/followups/2026-11-18-maker-fighter-host-setup/followups/2026-11-18-tab5-226-usb-host-capability/README.md)。
 
 ## 2026-11-18 经典 Core2 隔离 HTTP
 

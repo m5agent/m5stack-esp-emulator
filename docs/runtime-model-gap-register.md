@@ -199,6 +199,13 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 [四个原版对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json)
 [配置拒绝及原版接收对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)
 
+Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发送寄存器，
+状态报告接收 FIFO 非空，原版从该 FIFO 实际读到 `00`。同一原版的 ST7123
+页面和触摸通过。官方 1.1.0 Part/TCP 接口可观察发出的读命令，后端仍自行返回零，
+需要上游提供可回填 DSI RX FIFO 的同步面板读应答。
+[当前原版对照](https://github.com/m5agent/agent-work-logs/blob/e1169639ca094b24e4addc6499802291f9cca1ee/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-199-dsi-rx-fifo/README.md) ·
+[官方 DSI 接口](https://github.com/espressif/esp-emulator/blob/v1.1.0/proto/esp_cosim.proto#L1018-L1045)。
+
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
 首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller
 触摸缺口。两种原版失败及旧参考正控见[有界证据](evidence/2026-11-13-tab5-service-boundaries/README.md)。
