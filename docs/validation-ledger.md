@@ -14,6 +14,19 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 Tab5 三份原版启动分流
+
+98TAB5 原版在约 64 秒的正常运行中记录 33 次软件复位和零完整帧。
+只读定位确认进入应用和 ROM 交接时 Flash 内容正确。故障当次随后读到
+全零并跳到 `0x0`。两轮诊断记录到 CPU0 的 ROM 缓存维护及 Cache error。
+分段停止后继续的一轮获得持续的无启动盘画面，正常冷启动仍待修复。
+[同原版负控、诊断和完整帧摘要](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)
+
+M5TabOS 在 1.1.0 越过早期旧 CSR，75 秒内无复位、无完整帧，只读快照
+观察到两核都停在 `wfi` 后。官方 UserDemo V0.4 的 CPU0 请求暂停
+CPU1，状态位未确认。保留此前同原版 60 秒审核中的一次 LP 看门狗复位。
+[原版与寄存器证据](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
+
 ## 2026-11-18 StickS3 原生 RTC 定时深睡
 
 同一 ESP-IDF 探针在旧运行时写入深睡请求并到达 RTC 比较门限，CPU 随后停在

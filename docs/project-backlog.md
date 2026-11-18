@@ -86,10 +86,10 @@
    继续按板型补 Wi-Fi 事件和更多原版应用的协议断言，保持现有网络授权及隔离约束。
 4. **P0 Tab5 取帧与输入**。[Arduventure 原版取帧与 GT911 单指拖动](evidence/2026-11-17-tab5-st7123-gt911-gestures/README.md)已走匹配板型和实际输入。[ST7123 单点](evidence/2026-11-17-tab5-st7123-touch/README.md)已验证 Arduventure A/B 与四方向。继续对照 M5TabOS/98TAB5 启动路径，[ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md)已验证连续触点和原版关机请求；[拖动探针](evidence/2026-11-17-tab5-st7123-drag/README.md)已验证 ST7123 单点轨迹与释放；[关机锁存](evidence/2026-11-17-tab5-power-latch/README.md)已验证原版 Arduventure 关机和显式重启；继续补原版 ST7123 拖动语义、多点、其他板型电源路径、
    [并发取帧复验](evidence/2026-11-17-tab5-power-latch/README.md)已验证缓冲读取和同一帧 PNG 复用。
-   [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)保留旧版无 ELF 取帧限制、新版 DSI 重复复位和 CarPlay 出帧对照。已核对单 OTA0 的 Flash 身份与实际加载偏移。继续定位 98TAB5 软件复位，验证正常显示及多应用 OTA 数据。
+   [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)保留旧版无 ELF 取帧限制、新版 DSI 重复复位和 CarPlay 出帧对照。已核对单 OTA0 的 Flash 身份与实际加载偏移。[Flash 可见性复验](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)把工作收窄到 CPU0 缓存维护与 CPU1 启动读交叠的窗口。继续用正常冷启动验收 98TAB5 有盘和无盘画面，再补多应用 OTA 数据。
    [取帧准入与 60 秒审核复验](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)已验证 CarPlay 在首帧等待后持续出帧，
    官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
-   继续定位 UserDemo 原版长期观察中的 `CHIP_LP_WDT_RESET` 与缺帧。
+   [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。继续验证暂停状态位、解除与任务心跳，以及 M5TabOS 的首个应到中断和恢复。保留 UserDemo 的 `CHIP_LP_WDT_RESET` 历史。
    高压下原生 co-sim 仍会丢传输消息，需要继续验证恢复能力。
    C6/SDIO、USB Host、CSI、音频的控制器证据，保留 [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188)、
    [#226](https://github.com/m5agent/m5stack-esp-emulator/issues/226)、
@@ -100,9 +100,9 @@
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
    已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。
    [定时深睡探针](../tests/firmware/sticks3_rtc_deep_sleep/README.md)已验证数字域复位与 RTC 保留。
-   继续验证其他深睡唤醒源、非默认慢钟与更多 RTC 保留模式，并分别定位 M5TabOS 重复复位和 98TAB5 无画面。
+   继续验证其他深睡唤醒源、非默认慢钟与更多 RTC 保留模式。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
-   98TAB5 的失败与“已保存”冲突。[CPU1 异常复验](https://github.com/m5agent/agent-work-logs/blob/74a37ab4c356d6656b60bf13d146a9bd1feca31b/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/README.md)已确认有效 ROM 交接后出现指令访问异常，随后才发生转储写入失败。继续定位交接后的调用或返回路径，并补完整显示证据。
+   98TAB5 的失败与“已保存”冲突。继续验证异常转储写入失败时的收据一致性。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
    已验证[原版索引 WAV 与 PCM](evidence/2026-11-17-dial-audioplayer/wav-playback-summary.json)。
    [保存快照审核](evidence/2026-11-17-dial-audioplayer/review-playback-summary.json)

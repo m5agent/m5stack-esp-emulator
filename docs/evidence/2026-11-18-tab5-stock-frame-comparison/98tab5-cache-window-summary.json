@@ -1,0 +1,581 @@
+{
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "scope": "98TAB5 stock startup Flash visibility and no-media application screen",
+  "source_commit": "80a3b5eda5f50c4a8cced04e31021fc8363593ab",
+  "device_service_openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+  "backend_version": "1.1.0",
+  "backend_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "working_assets_sha256": {
+    "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+    "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+  },
+  "firmware_sha256": "ea4fb0889e4a2c68d472947137908c52c25a663152d3ff78262ce2605440dc6d",
+  "normalized_flash_sha256": "35c636324ea1fcebd12f4752e458936c2ac151a9d171a67f1d624d944b96b0ff",
+  "panel_board": "Tab5 gt911-ili9881c; built-in idle I2C identification",
+  "observation_method": "Exact stock full boot on independent Device Service sessions. All instrumented controls used read-only register and memory queries and GDB hardware breakpoints. No guest memory, eFuse or firmware modifications; no disk/media, network, touch or external services.",
+  "early_mapping": "Original and normalized Flash both contain the expected table. CPU0 app entry and CPU1 ROM handoff both read the table correctly. Native visibility is lost later during the failing startup.",
+  "interpretation": "Core0 ROM flash cache maintenance overlaps the lost-visibility window. Moving debugger stop points changes the branch including guest load value and resulting fault; one detached run reaches a stable no-disk screen. Cache maintenance is not yet proven as the faulty implementation or the only cause.",
+  "reference_sdk": [
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/esp_system/port/cpu_start.c",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/esp_system/port/arch/riscv/panic_arch.c",
+    "https://github.com/espressif/esp-idf/blob/v5.5.4/components/soc/esp32p4/include/soc/soc.h"
+  ],
+  "runs": {
+    "startup-timeline-a7": {
+      "seconds": 24.005,
+      "serial_boot_count": 14,
+      "software_reset_count": 13,
+      "serial_sha256": "eadf621242e1dbfb843dbff66d54658a289c468676a08e30e43443d299e985d7",
+      "complete_frame_samples": 0,
+      "nonblack_frame_samples": 0,
+      "zip_sha256": "1eeacf24703c4090b293defdea4ecdf5eada70659662d56f6b93b9791b5ca4d1",
+      "debugger_checkpoints": [
+        "0x4ff00402",
+        "0x4fc02750",
+        "0x4ff003fc",
+        "0x4ff00400",
+        "0x400091fe"
+      ],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "debugger_transcript_sha256": "de64a756de0852ad748e22ff07840568ac38d256be74980e61fe77f24f68baef",
+      "debugger_detached": true,
+      "monitor_deadline_expired": false,
+      "read_only_checkpoint_words": [
+        {
+          "phase": "CPU0_APP_ENTRY",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_ROM_HANDOFF",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_DISPATCH_LOAD",
+          "memory_words": {
+            "dispatch_table": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "drom_start": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        }
+      ],
+      "actual_jump_target": "0x0",
+      "saved_fault": {
+        "hart": 1,
+        "mcause": "0x1",
+        "mepc": "0",
+        "ra": "0x4fc02752"
+      }
+    },
+    "startup-calls-a8": {
+      "seconds": 24.601,
+      "serial_boot_count": 5,
+      "software_reset_count": 4,
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "complete_frame_samples": 1,
+      "nonblack_frame_samples": 1,
+      "zip_sha256": "c2ee4105d1bdf00e8f393c746aafe53c6a0a30076012a04a06d77311ec1f2fe4",
+      "debugger_checkpoints": [
+        "0x4ff00402",
+        "0x4fc02750",
+        "0x4ff00364",
+        "0x4ff0036e",
+        "0x4ff00376",
+        "0x4ff0037e",
+        "0x4ff00388",
+        "0x4ff003b0",
+        "0x4ff003b8",
+        "0x4ff003c0",
+        "0x4ff003e8",
+        "0x4ff003fc",
+        "0x4ff00400",
+        "0x400091fe"
+      ],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "debugger_transcript_sha256": "14eec604f0c3c8b25b8020f2e0cc09ad6bfb6e64c0600a00c567eaf4b9545e17",
+      "debugger_detached": false,
+      "monitor_deadline_expired": true,
+      "read_only_checkpoint_words": [
+        {
+          "phase": "CPU0_APP_ENTRY",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_ROM_HANDOFF",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "AFTER_CPU0_ACK",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_DISPATCH_LOAD",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        }
+      ],
+      "actual_jump_target": "0x4ff00cca"
+    },
+    "startup-ack-a9": {
+      "seconds": 24.001,
+      "serial_boot_count": 14,
+      "software_reset_count": 13,
+      "serial_sha256": "56e58f7f9ca79fab4ed89459fa7843716c5131cd5f54b0bbb20d5bf48b18ffd2",
+      "complete_frame_samples": 0,
+      "nonblack_frame_samples": 0,
+      "zip_sha256": "ad79536f9225ae1fea170dd6f9ce4607636bc5c627dd13d6bff0baa18b1c7414",
+      "debugger_checkpoints": [
+        "0x4ff00402",
+        "0x4fc02750",
+        "0x4ff003e8",
+        "0x4ff003fc",
+        "0x4ff00400",
+        "0x400091fe"
+      ],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "debugger_transcript_sha256": "f0e7ffbbd5988c24da6b9e123bb4928dc2843ac64cc8b35e52d11405fd0b6d04",
+      "debugger_detached": true,
+      "monitor_deadline_expired": false,
+      "read_only_checkpoint_words": [
+        {
+          "phase": "CPU0_APP_ENTRY",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_ROM_HANDOFF",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "AFTER_CPU0_ACK",
+          "memory_words": {
+            "dispatch_table": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "drom_start": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_DISPATCH_LOAD",
+          "memory_words": {
+            "dispatch_table": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "drom_start": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        }
+      ],
+      "actual_jump_target": "0x4ff00cca",
+      "saved_fault": {
+        "hart": 0,
+        "mcause": "0x19",
+        "mepc": "0x4fc187d4",
+        "ra": "0x4fc108ec"
+      },
+      "core0_cache_overlap": {
+        "observed_cache_sync_return": "0x4fc108d8",
+        "observed_cache_invalidation_return": "0x4fc108ec",
+        "observed_cache_operation_continuation": "0x4fc10742",
+        "saved_panic_reason_from_exact_image": "Cache error"
+      }
+    },
+    "startup-long-a10": {
+      "seconds": 64.002,
+      "serial_boot_count": 5,
+      "software_reset_count": 4,
+      "serial_sha256": "c5d061b60940abe31fcaa939b584628eacbd13f1f78a10ecebb192d5685c056f",
+      "complete_frame_samples": 21,
+      "nonblack_frame_samples": 20,
+      "zip_sha256": "808c3bfbbd0622a13850043884e02b00500c9bd61cb92002cd32565147878078",
+      "debugger_checkpoints": [
+        "0x4ff00402",
+        "0x4fc02750",
+        "0x4ff00364",
+        "0x4ff0036e",
+        "0x4ff00376",
+        "0x4ff0037e",
+        "0x4ff00388",
+        "0x4ff003b0",
+        "0x4ff003b8",
+        "0x4ff003c0",
+        "0x4ff003e8",
+        "0x4ff003fc",
+        "0x4ff00400",
+        "0x400091fe"
+      ],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "debugger_transcript_sha256": "385f25197cee14f7c2b8abbbdabafb28ac27373a888b8c6c4c6ae71373f8cf85",
+      "debugger_detached": true,
+      "monitor_deadline_expired": false,
+      "read_only_checkpoint_words": [
+        {
+          "phase": "CPU0_APP_ENTRY",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_ROM_HANDOFF",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "AFTER_CPU0_ACK",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_DISPATCH_LOAD",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        }
+      ],
+      "actual_jump_target": "0x4ff00cca",
+      "stable_nonblack_message": {
+        "visually_read": "No boot disk. Insert one and reset.",
+        "png_sha256": "75bdb285e5c43b2252701fcbb37f43208ab12860a43d77ab386dea0af2a44250",
+        "sample_count": 20,
+        "first_sample_seconds": 24.655,
+        "last_sample_seconds": 63.723,
+        "pixels": [
+          720,
+          1280
+        ],
+        "nonblack_pixels": 6458
+      }
+    },
+    "natural-a11": {
+      "seconds": 64.005,
+      "serial_boot_count": 34,
+      "software_reset_count": 33,
+      "serial_sha256": "de3433263dfcce05899dcfd4048e5d1a921f6f7f7540012239831fbf64b3b129",
+      "complete_frame_samples": 0,
+      "nonblack_frame_samples": 0,
+      "zip_sha256": "06d0986ca4d0c9766f56b17dbbe91604321be544f23c6fe68e70631b5467ef64",
+      "debugger_checkpoints": [],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      }
+    },
+    "cache-state-a12": {
+      "seconds": 24.004,
+      "serial_boot_count": 14,
+      "software_reset_count": 13,
+      "serial_sha256": "16ddb6fd6f85ce84f2e2dcd2bb532050a60251aba6f527eec532ce05d76eff74",
+      "complete_frame_samples": 0,
+      "nonblack_frame_samples": 0,
+      "zip_sha256": "168aef6bb453422819dfc1d6a06639d17247d570b3329f86141ffee9bec0ae4a",
+      "debugger_checkpoints": [
+        "0x4ff00402",
+        "0x4fc02750",
+        "0x4ff003e8",
+        "0x4ff003fc",
+        "0x4ff00400",
+        "0x400091fe"
+      ],
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "debugger_transcript_sha256": "534ad7da3c5b3bd4c6cd33ff3084f4ea1b9edcf3b82126d3496f033c74ef0a51",
+      "debugger_detached": true,
+      "monitor_deadline_expired": false,
+      "read_only_checkpoint_words": [
+        {
+          "phase": "CPU0_APP_ENTRY",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_ROM_HANDOFF",
+          "memory_words": {
+            "dispatch_table": [
+              "0x40001698",
+              "0x4ff00cca"
+            ],
+            "drom_start": [
+              "0xabcd5432",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x4ff44737",
+              "0x7b070893"
+            ]
+          }
+        },
+        {
+          "phase": "AFTER_CPU0_ACK",
+          "memory_words": {
+            "dispatch_table": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "drom_start": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        },
+        {
+          "phase": "CPU1_DISPATCH_LOAD",
+          "memory_words": {
+            "dispatch_table": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "drom_start": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "irom_start": [
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        }
+      ],
+      "actual_jump_target": "0x4ff00cca",
+      "saved_fault": {
+        "hart": 0,
+        "mcause": "0x19",
+        "mepc": "0x4fc187d4",
+        "ra": "0x4fc108ec"
+      },
+      "core0_cache_overlap": {
+        "observed_cache_sync_return": "0x4fc108d8",
+        "observed_cache_invalidation_return": "0x4fc108ec",
+        "observed_cache_operation_continuation": "0x4fc10742",
+        "saved_panic_reason_from_exact_image": "Cache error"
+      },
+      "observed_current_flash_mmu_entry": {
+        "index": 138,
+        "content": "0x00001000",
+        "access": "read current selector and contents only",
+        "window_start": "0x408a0000"
+      }
+    }
+  },
+  "not_run": [
+    "normal successful boot with supported disk media",
+    "input",
+    "hardware validation",
+    "Burner submission"
+  ]
+}

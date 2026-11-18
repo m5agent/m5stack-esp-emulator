@@ -78,6 +78,25 @@ ESP-IDF 在擦除态 OTA 数据下的默认选择见[ESP32-P4 OTA 指南](https:
 多应用 OTA 身份、98TAB5 的重复复位原因、正常应用画面与用户输入仍开放。
 M5TabOS 的独立启动问题沿用此前记录。
 
+## 后续原版启动观测
+
+独立 Device Service 以 `80a3b5eda5f50c4a8cced04e31021fc8363593ab` 和同一个
+1.1.0 后端运行原版 98TAB5、M5TabOS 和 UserDemo。98TAB5 使用 GT911 板型的
+内置静态识别寄存器，未加载不同的触摸 Part。三份原版各自保留 Flash 身份和
+真实来宾的取证结果。
+
+98TAB5 的新无调试控制在 64 秒内产生 33 次软件复位和零完整帧。同原版从
+`0x4ff00402` 和 `0x4fc02750` 两个执行点均能读到原始 Flash 表字。
+一次到达 `0x4ff003fc` 时，DROM/IROM 都已读零，随后 CPU1 跳到零并发生
+指令访问异常。两次调试把 CPU0 的缓存维护与 CPU1 读零时间重叠绑定到 ROM
+`Cache_Sync_Addr` 或 `Cache_Invalidate_Addr`。同轮 CPU1 真正执行加载时，
+其读取已恢复，仍观察到 CPU0 Cache error。故障的缓存实现或调用顺序仍待区分。
+
+只读分段停靠的诊断复测在跳转至 `0x4ff00cca` 后脱离调试器，取得
+20 次同哈希的无启动盘帧。普通冷启动仍会复位。证据范围以 [98TAB5 摘要](98tab5-cache-window-summary.json)
+为准。M5TabOS 的双核等待和 UserDemo 的暂停确认缺失记录在
+[原版启动分流](tab5-startup-paths-summary.json)。实际启动盘、触控及真机未验证。
+
 ## 复现入口与清理
 
 1. 准备上述原 BIN、已固定 SHA 的后端与 GT911 Part，以及项目 Tab5 profile

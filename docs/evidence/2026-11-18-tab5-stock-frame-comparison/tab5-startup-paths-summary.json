@@ -1,0 +1,707 @@
+{
+  "scope": "virtual-device validation / isolated Device Service / original guest",
+  "source_commit": "80a3b5eda5f50c4a8cced04e31021fc8363593ab",
+  "esp_emu_version": "1.1.0",
+  "esp_emu_sha256": "633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828",
+  "observed_paths": {
+    "98tab5": {
+      "declared_flash_dispatch_value": "0x4ff00cca",
+      "observed_cpu1_drom_dispatch": {
+        "load_pc": "0x4ff003fc",
+        "address": "0x4015cc58",
+        "jump_pc": "0x4ff00400",
+        "jump_target": "0x0",
+        "hart": 1,
+        "fault_mepc": "0x0",
+        "fault_mcause": "0x1",
+        "fault_mtval": "0x0"
+      },
+      "prior_receipt_sha256": "68c9840a410916d8c77c22e9e8097a259f3cb2fd963eb6d64dd496816dc75e82"
+    },
+    "tabos": {
+      "long_normal_observation_seconds": 75.01,
+      "old_clic": "1.1.0 naturally steps 0x4ff0255a csrr a4,0x346 to PC+4; 1.0.0 entered exception vector",
+      "current_wait": "Both harts after wfi, PMU stall field 0xffff0000, HP status 0"
+    },
+    "userdemo": {
+      "current_poll": "Core0 asks to stall core1 and spins at 0x4ff16000–0x4ff16004",
+      "stall_control": "0x50115200=0x00860000",
+      "stall_ack": "0x500e5064=0; core1 status bit1 stays clear",
+      "historical_watchdog": {
+        "code": "0x10",
+        "reason": "CHIP_LP_WDT_RESET",
+        "rom_banners": 2,
+        "source": {
+          "offset": 0,
+          "bytes": 8606,
+          "sha256": "13dffe4299b489a81592b1b75d34ddc9b358d8f03c361261ff36d45d72620651"
+        }
+      },
+      "historical_review_zip_sha256": "07dbb7365b2c4524729fa3fd967db1447be8ecb4f98d15da6c1bf8ea026fb7f6"
+    }
+  },
+  "runs": {
+    "run-csr-a1": {
+      "scenario": "csr",
+      "elapsed_seconds": 25.005,
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "original_size": 7439248,
+      "normalized_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "board": "gt911-ili9881c",
+      "part_sha256": null,
+      "serial": {
+        "sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+        "bytes": 4190,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 11
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "5865825c4576ca0c751e6a056d430e83b4574049cb0ccc04339f3ea331749b65",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 8388608,
+        "segments_end": 7439200,
+        "partition_sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+        "segments_sha256": "64b030f67e163cdb024bcadd6c64bfa9459ca4f563e0b7eb1fe02c12cf0eb528",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "version": "0.9.1"
+      },
+      "app_partition_bytes_match_original": true,
+      "csr_single_step": {
+        "version": "GNU gdb (GDB) 18.1",
+        "deadline_seconds": 12,
+        "timed_out": false,
+        "hard_break_address": "0x4ff0255a",
+        "exit_code": 0,
+        "elapsed_seconds": 1.027,
+        "transcript_sha256": "868a718421ea025f7d882ff7f95549d50c10eed54c02e0f8296ed420269404e7",
+        "transcript_bytes": 718,
+        "attach_pc": "0x4ff08c9a",
+        "break_pc": "0x4ff0255a",
+        "stepped_pc": "0x4ff0255e",
+        "hit_target": true,
+        "detach_reported": true
+      }
+    },
+    "run-normal-a1": {
+      "scenario": "normal",
+      "elapsed_seconds": 35.002,
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "original_size": 7439248,
+      "normalized_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "board": "gt911-ili9881c",
+      "part_sha256": null,
+      "serial": {
+        "sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+        "bytes": 4190,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 17
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "9233efda621e8db9faffa828745f23aa69683fe593a6041e2111af927affb794",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 8388608,
+        "segments_end": 7439200,
+        "partition_sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+        "segments_sha256": "64b030f67e163cdb024bcadd6c64bfa9459ca4f563e0b7eb1fe02c12cf0eb528",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "version": "0.9.1"
+      },
+      "app_partition_bytes_match_original": true
+    },
+    "run-normal-a2": {
+      "scenario": "normal",
+      "elapsed_seconds": 75.01,
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "original_size": 7439248,
+      "normalized_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "board": "gt911-ili9881c",
+      "part_sha256": null,
+      "serial": {
+        "sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+        "bytes": 4190,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 36
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "e49ba0e7eceb1f332acd6794566bed17a9a52237fa7611168f3729363d834287",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 8388608,
+        "segments_end": 7439200,
+        "partition_sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+        "segments_sha256": "64b030f67e163cdb024bcadd6c64bfa9459ca4f563e0b7eb1fe02c12cf0eb528",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "version": "0.9.1"
+      },
+      "app_partition_bytes_match_original": true
+    },
+    "run-tabos-pc-a1": {
+      "scenario": "tabos-pc",
+      "elapsed_seconds": 25.005,
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "original_size": 7439248,
+      "normalized_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "board": "gt911-ili9881c",
+      "part_sha256": null,
+      "serial": {
+        "sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+        "bytes": 4190,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 11
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "a7ce5b1ec0a27f404d9bb7bdf008649905333cf10882affca92ec1eb83a04487",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 8388608,
+        "segments_end": 7439200,
+        "partition_sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+        "segments_sha256": "64b030f67e163cdb024bcadd6c64bfa9459ca4f563e0b7eb1fe02c12cf0eb528",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "version": "0.9.1"
+      },
+      "app_partition_bytes_match_original": true,
+      "pc_samples": [
+        {
+          "elapsed_seconds": 4.087,
+          "sha256": "a3050373279a98a8199de7827813ee3395b64965cc2dec4b3ef8ca2f5ec5af78",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          }
+        },
+        {
+          "elapsed_seconds": 10.363,
+          "sha256": "70c16c1941007fec348aaf59377eb9af09bd666cf1facacf6f75ada8b0d97fbc",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          }
+        },
+        {
+          "elapsed_seconds": 16.672,
+          "sha256": "70c16c1941007fec348aaf59377eb9af09bd666cf1facacf6f75ada8b0d97fbc",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          }
+        }
+      ]
+    },
+    "run-tabos-reg-a2": {
+      "scenario": "tabos-pc",
+      "elapsed_seconds": 25.008,
+      "original_sha256": "08aa10d0caeaf7835cd2f93ee66a8d2042ce15bd6e52350df6b96c70ec8bbe3e",
+      "original_size": 7439248,
+      "normalized_sha256": "8def8f22155f9b7459c75de9aea02f6401ccc5f65341fcf52a5e6992b9c875ec",
+      "board": "gt911-ili9881c",
+      "part_sha256": null,
+      "serial": {
+        "sha256": "e5f44a9a1af37a8945dabbd3d70fd860662deea3a7cd725300e1440a06565e88",
+        "bytes": 4190,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 12
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "11e6be407c7d862440ff23c002f22dc2419e8d8b9f075805180af2629887d5e6",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 8388608,
+        "segments_end": 7439200,
+        "partition_sha256": "a1b83071aac4d136ef992bda2ec209f6e03a57071234d68a93d2c592597f7a50",
+        "segments_sha256": "64b030f67e163cdb024bcadd6c64bfa9459ca4f563e0b7eb1fe02c12cf0eb528",
+        "elf_sha256": "b795bfec03fa67f3e691be833d43becfa1211c2e14ff89c16e75f741f864bcd1",
+        "version": "0.9.1"
+      },
+      "app_partition_bytes_match_original": true,
+      "pc_samples": [
+        {
+          "elapsed_seconds": 4.081,
+          "sha256": "e9f55fc6b240e3a414af276c23cf599be80640348ffc10b249329d50801d905a",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000"
+          ]
+        },
+        {
+          "elapsed_seconds": 10.363,
+          "sha256": "c4ddae3d24039e29508946b2a58bc2b6fb8fbbee82cbf94fae59ef184976f6fa",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000"
+          ]
+        },
+        {
+          "elapsed_seconds": 16.649,
+          "sha256": "c4ddae3d24039e29508946b2a58bc2b6fb8fbbee82cbf94fae59ef184976f6fa",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30800"
+            ],
+            "2": [
+              "0x4ff08c9a",
+              "0x4ff08c86",
+              "0x4ff30fc0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0xffff0000"
+          ]
+        }
+      ]
+    },
+    "run-userdemo-pc-a1": {
+      "scenario": "userdemo-pc",
+      "elapsed_seconds": 25.006,
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_size": 5813840,
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "board": "gt911-ili9881c",
+      "part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 11
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "d9fec18737913ac994b07cd5cbdfa47025d06315b54a3e76080f80c9243cc5d0",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 10485760,
+        "segments_end": 5813800,
+        "partition_sha256": "a0ba607ec4bafaaeda01eb90858a0550c289b578e774f3055b5815ffa37ae28d",
+        "segments_sha256": "a8e6963b93ccdfa3bd7914af81a96773a9d1731969e28548b379081889f5a160",
+        "elf_sha256": "741b626b3374d0bb7cc5b9afbc8c0530e2837bd34baed4aca5cb674ef90fec46",
+        "version": "V0.3-1-g4b57c62"
+      },
+      "app_partition_bytes_match_original": true,
+      "pc_samples": [
+        {
+          "elapsed_seconds": 4.073,
+          "sha256": "252ef8df81f003026dcaa8daf4df314b70f8da69d875bf14981e7ff6a98962cb",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16000",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          }
+        },
+        {
+          "elapsed_seconds": 10.439,
+          "sha256": "252ef8df81f003026dcaa8daf4df314b70f8da69d875bf14981e7ff6a98962cb",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16000",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          }
+        },
+        {
+          "elapsed_seconds": 16.709,
+          "sha256": "252ef8df81f003026dcaa8daf4df314b70f8da69d875bf14981e7ff6a98962cb",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16000",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          }
+        }
+      ]
+    },
+    "run-userdemo-reg-a2": {
+      "scenario": "userdemo-pc",
+      "elapsed_seconds": 25.004,
+      "original_sha256": "2d30fa8918bac1e8d09b59eb2fc72ea40500d097efa4812e241ac875ee86e781",
+      "original_size": 5813840,
+      "normalized_sha256": "62a86dd0ec80b98f443e1e43aea28e3517ef6877b5c339d111f897a8cc55e9c9",
+      "board": "gt911-ili9881c",
+      "part_sha256": "f80d7bbb35fdbd9a260832846b96b64e8bb04d88c9f548cdb2354218852e1286",
+      "serial": {
+        "sha256": "c27667a5853965c116594e42aaf44f54599aa01ca7630638d64d6ec88d868eb2",
+        "bytes": 4274,
+        "rom_boots": 1,
+        "software_resets": 0,
+        "lp_watchdog_resets": 0,
+        "core_dump_save_attempts": 0,
+        "core_dump_write_failures": 0,
+        "loaded_application_offsets": [
+          "0x10000"
+        ],
+        "panic_markers": 0
+      },
+      "dsi": {
+        "frame_codes": {
+          "session_not_running": 1,
+          "tab5_dsi_frame_unavailable": 11
+        },
+        "states": {},
+        "nonblack_frames": 0,
+        "complete_frames": 0,
+        "zero_read_warnings": 0
+      },
+      "cleanup": {
+        "terminal": "stopped",
+        "active_leases": 0,
+        "flash_released": true,
+        "owned_p4_c6_children_exited": true
+      },
+      "evidence_zip_sha256": "dd94a5fa02053c54b1e0878de98e5a27c4b8044aa0a24ac6021de3b0b6f75041",
+      "openapi_sha256": "2fbea7a0ec6d386dd6b6fa718d68291a3497eb7d3232feb85211ca93efa43cc1",
+      "working_assets_sha256": {
+        "rom": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+        "efuse": "0f8266520c4264b2ba898f3645e3f6f701e9304968c5a51307fe4baf6fc03f1e",
+        "c6_firmware": "38669a215f8b290ec53bbbaeda154a77c8ab276c5deeb6beb85248e95986d554"
+      },
+      "app_partition": {
+        "offset": 65536,
+        "size": 10485760,
+        "segments_end": 5813800,
+        "partition_sha256": "a0ba607ec4bafaaeda01eb90858a0550c289b578e774f3055b5815ffa37ae28d",
+        "segments_sha256": "a8e6963b93ccdfa3bd7914af81a96773a9d1731969e28548b379081889f5a160",
+        "elf_sha256": "741b626b3374d0bb7cc5b9afbc8c0530e2837bd34baed4aca5cb674ef90fec46",
+        "version": "V0.3-1-g4b57c62"
+      },
+      "app_partition_bytes_match_original": true,
+      "pc_samples": [
+        {
+          "elapsed_seconds": 4.076,
+          "sha256": "8a7c49d76a677821789e5f1099154add7d014f96b647e9b285a0491ff0c3c3a8",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16002",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000"
+          ]
+        },
+        {
+          "elapsed_seconds": 10.427,
+          "sha256": "8a7c49d76a677821789e5f1099154add7d014f96b647e9b285a0491ff0c3c3a8",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16002",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000"
+          ]
+        },
+        {
+          "elapsed_seconds": 16.72,
+          "sha256": "8a7c49d76a677821789e5f1099154add7d014f96b647e9b285a0491ff0c3c3a8",
+          "detached": true,
+          "pc_ra_sp": {
+            "1": [
+              "0x4ff16002",
+              "0x48001f8e",
+              "0x4ff38330"
+            ],
+            "2": [
+              "0x4ff160d0",
+              "0x4ff2003a",
+              "0x4ff396a0"
+            ]
+          },
+          "register_telemetry": [
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000",
+            "STALL_STATUS=0",
+            "PMU_STALL=0x860000"
+          ]
+        }
+      ]
+    }
+  },
+  "limits": {
+    "matched_elf": "unavailable",
+    "mstatus_mie_mip": "unavailable through GDB stub",
+    "physical": "NOT RUN",
+    "browser": "NOT RUN",
+    "burner": "NOT SUBMITTED",
+    "resident_services_changed": false
+  },
+  "source_references": [
+    "https://github.com/espressif/esp-emulator/releases/tag/v1.1.0",
+    "https://github.com/espressif/esp-idf/blob/v5.4.2/components/hal/esp32p4/include/hal/cpu_utility_ll.h#L30-L49",
+    "https://github.com/espressif/esp-idf/blob/v5.4.2/components/soc/esp32p4/register/soc/hp_system_reg.h#L359-L376",
+    "https://github.com/m5stack/M5Tab5-UserDemo/releases/tag/V0.4"
+  ]
+}

@@ -196,6 +196,21 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller
 触摸缺口。两种原版失败及旧参考正控见[有界证据](evidence/2026-11-13-tab5-service-boundaries/README.md)。
 
+### Tab5：原版 Flash 可见性、跨核暂停与等待
+
+- **98TAB5** 在 CPU0 应用入口和 CPU1 ROM 交接可读到正确的 DROM/IROM。
+  故障样本到 CPU1 启动函数加载前，三个有效 Flash 地址均变为零。
+  两轮分段观测同时定位到 CPU0 的 ROM 缓存维护，后续出现独立的 Cache error。
+  一轮诊断改变了执行时序，成功显示无启动盘画面。闭环须在正常冷启动
+  证明缓存操作前后映射和可见性正确，并用同一原版验证有盘和无盘分支。
+  [同原版 Flash 可见性](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)
+- **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取，当前两核停在
+  `wfi` 后，没有完整帧。闭环须捕获首次等待和应触发的中断，再验证应用画面。
+- **官方 UserDemo V0.4** 请求暂停 CPU1 时，控制寄存器读到 `0x00860000`，
+  两个调试线程读到的暂停状态位均为零，CPU0 没有越过等待。闭环须在正常
+  看门狗下验证暂停、确认、解除和任务心跳，并复跑同一原版。
+  [两份原版现场](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
+
 ### CoreMatrix C158：C61 官方固件运行边界
 
 官方 UIFlow2 v2.5.4 原镜像在原生隔离 Device Service 和独立 C61 浏览器 WASM
