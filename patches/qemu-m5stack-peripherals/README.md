@@ -1887,3 +1887,12 @@ counter, scratch registers and retention RAM. A full RTC reset clears the
 alarm and scratch registers, and restores the power-on reset reason. See the
 [StickS3 ESP-IDF timer probe](../../tests/firmware/sticks3_rtc_deep_sleep/README.md)
 for the exact native scope.
+
+## ESP32-S3 divided RC slow clock (0231)
+
+The RTC counter and its sleep compare use the Timer Group calibration rate
+for the internal `RC_FAST_D256` source. The default divide-by-256 model uses
+17.5 MHz divided by 256. StickS3 ESP-IDF probes cover raw RTC ticks against
+SYSTIMER while awake and timer-only light sleep from QMP suspend to wake.
+External 32.768 kHz oscillators and trim are outside this qualification.
+[Probe and negative control](../../tests/firmware/sticks3_rtc_slowclk/README.md)

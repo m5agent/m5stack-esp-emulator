@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.93.0` and bounded
+Status: local MVP with unified-device runtime contract `1.94.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -721,6 +721,13 @@ survives that digital reset. An explicit API reset after wake clears the RTC
 alarm and its calibration scratch registers and reports a new power-on boot.
 The evidence ZIP includes serial markers for the guest resets and wake causes.
 [Native StickS3 deep-sleep validation](../tests/firmware/sticks3_rtc_deep_sleep/README.md)
+
+Native layer `0231` shares the calibrated Timer Group `RC_FAST_D256` rate with
+RTC counting and timer compares. StickS3 timer light sleep is qualified with
+the default `RC_SLOW` and the divided internal RC clock using the same ESP-IDF
+probe source. The wake interval is checked independently with QMP event time.
+External `XTAL32K` calibration and physical oscillator trim are outside this
+qualification. [Native StickS3 slow-clock validation](../tests/firmware/sticks3_rtc_slowclk/README.md)
 
 `POST /sessions` accepts an optional non-secret `owner` label of at most 128
 printable characters. The label is stored with the worker lease and does not

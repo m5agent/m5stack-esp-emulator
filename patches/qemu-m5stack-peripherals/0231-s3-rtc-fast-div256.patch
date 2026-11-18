@@ -1,0 +1,14 @@
+diff --git a/hw/misc/esp32s3_rtc_cntl.c b/hw/misc/esp32s3_rtc_cntl.c
+--- a/hw/misc/esp32s3_rtc_cntl.c
++++ b/hw/misc/esp32s3_rtc_cntl.c
+@@ -543,8 +543,8 @@
+ 
+ static void esp32s3_rtc_update_clk(Esp32s3RtcCntlState* s)
+ {
+-    /* The S3 Timer Group and RTC counter share the RC_SLOW oscillator. */
+-    const uint32_t slowclk_freq[] = {ESP_RC_SLOW_FREQ, 32768, 8000000 / 256};
++    /* Use the same internal slow-clock rates as Timer Group calibration. */
++    const uint32_t slowclk_freq[] = {ESP_RC_SLOW_FREQ, 32768, ESP_RC_FAST_DIV_FREQ};
+     const uint32_t fastclk_freq[] = {s->xtal_apb_freq / 4, 8000000};
+     s->rtc_slowclk_freq = slowclk_freq[s->rtc_slowclk];
+     s->rtc_fastclk_freq = fastclk_freq[s->rtc_fastclk];

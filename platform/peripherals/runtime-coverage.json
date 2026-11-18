@@ -51,6 +51,11 @@
       "test": "tests/firmware/sticks3_rtc_sleep/main/mixed_wake.c",
       "evidence": "tests/firmware/sticks3_rtc_sleep/sdk-timer-and-combined.summary.json"
     },
+    "sticks3-rtc-slow-clock": {
+      "device": "sticks3",
+      "test": "tests/firmware/sticks3_rtc_slowclk/main/main.c",
+      "evidence": "tests/firmware/sticks3_rtc_slowclk/summary.json"
+    },
     "cores3-unified": {
       "device": "cores3",
       "test": "tests/uiflow2/unified_cores3/run_test.py",
@@ -192,6 +197,7 @@
     "sticks3-rtc-timer-gpio-light-sleep": [
       "gpio-button"
     ],
+    "sticks3-rtc-slow-clock": [],
     "sticks3-unified": [
       "m5pm1",
       "bmi270",
@@ -653,7 +659,8 @@
       "external": [
         "sticks3-unified",
         "sticks3-rtc-gpio-light-sleep",
-        "sticks3-rtc-timer-gpio-light-sleep"
+        "sticks3-rtc-timer-gpio-light-sleep",
+        "sticks3-rtc-slow-clock"
       ],
       "models": [
         "m5pm1",

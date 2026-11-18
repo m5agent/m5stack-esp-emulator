@@ -14,6 +14,15 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-18 StickS3 分频内部 RTC 慢钟
+
+同版 ESP-IDF 两个配置分别选择默认 RC_SLOW 和 RC_FAST_D256。旧原生后端的
+D256 计数约 31.2 kHz，但 Timer Group 校准约 68.4 kHz，500 ms 定时浅睡实际
+约 1.08 秒。原生层 `0231` 对齐两处速率。同一 D256 镜像在新后端同时通过
+原始 RTC 计数与独立 QMP 唤醒区间校验。默认慢钟旧、新结果保持通过。
+另复验了原版 All day watch 的 GPIO 浅睡与唤醒，以及旧探针的定时深睡。
+外部慢钟、物理振荡器和分频慢钟深睡仍未验证。[同固件对照](../tests/firmware/sticks3_rtc_slowclk/summary.json)
+
 ## 2026-11-18 Tab5 原版音乐保存快照复审
 
 官方 UserDemo V0.4 在相同板型和原生 I²S1 路径做两轮保存快照复审。两轮均核对实际触摸和画面。点击播放后，提示音区间之后的一秒双声道 PCM 超过阈值。仅打开 Music Test 的对照只在短提示音阶段有信号，测量区间低于阈值。保留了隔离环境缺文件、运行中 WAV 占位判断失败和短提示音误判三次早期对照。两轮释放租约及可写 Flash，未提交 Burner。远端联网和实机声输出未验证。[完整路径与有界摘要](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)

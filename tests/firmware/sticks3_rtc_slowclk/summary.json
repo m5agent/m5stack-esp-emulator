@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "validation": "virtual-device validation",
+  "device": "sticks3",
+  "runtime": "qemu",
+  "device_service_api_version": "1.93.0",
+  "device_service_source_at_execution": "8ba3677708fbf11d47576f2dda1baa8431492452",
+  "device_service_openapi_sha256": "4046970596e4b21913eb1ddc2339bd366cdf13d6cf7fa55579df8af90a9dd79d",
+  "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "scope": "Default RC and RC_FAST/256 awake RTC time base, calibration and timer light sleep",
+  "requested_timer_us": 500000,
+  "fixture_sources": {
+    "CMakeLists.txt": "b49b7e0da0fe10cd017b077df95ec5686138c0bcf996df10b34930804e20edbb",
+    "main/CMakeLists.txt": "508181f6eb7b061a0c60d1c080b42eb0ea9b0b3877b0b06f87f066c19a826921",
+    "main/main.c": "d3d0cdd880c64967e8a8075b3b2391e13e0c62b2c80cc5927899f6899f0edcc9",
+    "sdkconfig.defaults": "d8129fd4fbc6338eb437597319bed8f5ef976bb6ede5e872164948da991e4c03",
+    "sdkconfig.rc_fast_div256": "4191a3c3fabeb4e342ebd3795d492cead67e83420ae97f71fbc38a11267603e4",
+    "sdkconfig.rc_slow": "4a999f8c9bed80f7ab2cd08f399ee9ac9a2d29ad04541fc87510858bbb0e658f"
+  },
+  "sdk_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "sdk_config_delta": {
+    "CONFIG_ESP32S3_RTC_CLK_SRC_INT_8MD256": [
+      null,
+      "y"
+    ],
+    "CONFIG_ESP32S3_RTC_CLK_SRC_INT_RC": [
+      "y",
+      null
+    ],
+    "CONFIG_RTC_CLK_SRC_INT_8MD256": [
+      null,
+      "y"
+    ],
+    "CONFIG_RTC_CLK_SRC_INT_RC": [
+      "y",
+      null
+    ]
+  },
+  "firmware": {
+    "rc_slow": {
+      "flash": {
+        "sha256": "e453a9e7e7ce0820b4d2ecfc65f5e612f366cdee133d8cf1b4cda7daf3cbfd52",
+        "bytes": 8388608
+      },
+      "application": {
+        "sha256": "47ca5ad59800f299f95b373d3900805bab1ee0b562c02d23e5885f6999c1539c",
+        "bytes": 174000
+      },
+      "elf": {
+        "sha256": "296479a98ebee5a32def2939ccf78bde96eff0a66b3ef63ef5ca8d87e3d69eb2",
+        "bytes": 3328628
+      },
+      "partition_table": {
+        "sha256": "7f00b6c042a89b15b0cac534f82ed988caf29278ff5700b0c511eb1b5bb7c820",
+        "bytes": 3072
+      },
+      "bootloader": {
+        "sha256": "75355025420fa100c3141ee1ae8107551add89865119a4eb06e9cdc41809431d",
+        "bytes": 20832
+      },
+      "sdkconfig": {
+        "sha256": "969c4a3350322c098de55f68e02589968400093e6343e25ba307fd9a8bc330d9",
+        "bytes": 45418
+      },
+      "esptool_application_checksum_and_sha_valid": true
+    },
+    "rc_fast_div256": {
+      "flash": {
+        "sha256": "e0af85d104512d153fe60127c184b56459816ecaa9b3761da163988986d03022",
+        "bytes": 8388608
+      },
+      "application": {
+        "sha256": "2853bba16e4d05840af61d4bc7c2b2b818fd30e7de52520a3658fca135e67a9a",
+        "bytes": 174016
+      },
+      "elf": {
+        "sha256": "b6f17e4627579283cf15b688352eae44545b804d3c69d04ae3d83a981dc7b991",
+        "bytes": 3328652
+      },
+      "partition_table": {
+        "sha256": "7f00b6c042a89b15b0cac534f82ed988caf29278ff5700b0c511eb1b5bb7c820",
+        "bytes": 3072
+      },
+      "bootloader": {
+        "sha256": "138a21c1a025c6dcae3507b56f6f0501c8d0f873ef6c0499006be6251206395d",
+        "bytes": 20832
+      },
+      "sdkconfig": {
+        "sha256": "ef1c6c2815373ed4f79cd932a50a6bfe8760a1e5dcae2999e2b53193a79628ef",
+        "bytes": 45418
+      },
+      "esptool_application_checksum_and_sha_valid": true
+    }
+  },
+  "runs": [
+    {
+      "arm": "incumbent-193",
+      "variant": "rc_slow",
+      "result": "PASS",
+      "qemu_sha256": "d18e5fa7aaebda01bd4cb6eac5d4da6c11a012025882f37d567554fc807a5f06",
+      "firmware_sha256": "e453a9e7e7ce0820b4d2ecfc65f5e612f366cdee133d8cf1b4cda7daf3cbfd52",
+      "application_readback_sha256": "47ca5ad59800f299f95b373d3900805bab1ee0b562c02d23e5885f6999c1539c",
+      "selector": 0,
+      "calibration_period_q19": 3855053,
+      "rtc_observed_hz": 135971,
+      "timg_calibration_hz": 136000,
+      "awake_systimer_us": 198836,
+      "awake_rtc_tick_delta": 27036,
+      "awake_result": "PASS",
+      "wakeup_reason": "timer",
+      "wakeup_cause": 4,
+      "wakeup_status": 0,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP"
+      ],
+      "qmp_suspend_to_wake_us": 489011,
+      "host_receive_suspend_to_wake_us": 489046,
+      "sdk_systimer_after_rebase_us": 498900,
+      "evidence_zip_sha256": "53a4ba47338ed4d6ab7c4257d412f189742f306d6d9ae6767f6e7fcb8a55a0fb",
+      "serial_sha256": "9300e6442ccfe897b170282c881730753339761419514557f7cbf0761e469417",
+      "full_run_summary_sha256": "263ebba83f9b6026c2f7faeb9f74d69634ea34185eb11409c01f09469a8971c6",
+      "boot_count": 1,
+      "same_session_evidence_verified": true,
+      "source_application_readback_verified": true,
+      "cleanup": {
+        "active_leases": 0,
+        "flash_released": true,
+        "guest_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "arm": "incumbent-193",
+      "variant": "rc_fast_div256",
+      "result": "FAIL",
+      "qemu_sha256": "d18e5fa7aaebda01bd4cb6eac5d4da6c11a012025882f37d567554fc807a5f06",
+      "firmware_sha256": "e0af85d104512d153fe60127c184b56459816ecaa9b3761da163988986d03022",
+      "application_readback_sha256": "2853bba16e4d05840af61d4bc7c2b2b818fd30e7de52520a3658fca135e67a9a",
+      "selector": 2,
+      "calibration_period_q19": 7669619,
+      "rtc_observed_hz": 31242,
+      "timg_calibration_hz": 68359,
+      "awake_systimer_us": 199405,
+      "awake_rtc_tick_delta": 6230,
+      "awake_result": "FAIL",
+      "wakeup_reason": "timer",
+      "wakeup_cause": 4,
+      "wakeup_status": 0,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP"
+      ],
+      "qmp_suspend_to_wake_us": 1076584,
+      "host_receive_suspend_to_wake_us": 1076590,
+      "sdk_systimer_after_rebase_us": 496697,
+      "evidence_zip_sha256": "77ff34f7f647c024da6e85a731489ca6ce2cc367a76465713311ab2c15ac677c",
+      "serial_sha256": "4b80be025fb72db2b18891a8db3189f2a6b32def4aa1e17241f7d4cf24782202",
+      "full_run_summary_sha256": "254a6b15c5262e7c3076bef46d859a7a62cc5ea85bc610ae6986cff602602eeb",
+      "boot_count": 1,
+      "same_session_evidence_verified": true,
+      "source_application_readback_verified": true,
+      "cleanup": {
+        "active_leases": 0,
+        "flash_released": true,
+        "guest_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "arm": "candidate-d256",
+      "variant": "rc_slow",
+      "result": "PASS",
+      "qemu_sha256": "38549673557129d5e9e0100ce9de6539b261b834e9960523b2400dfa110c61b5",
+      "firmware_sha256": "e453a9e7e7ce0820b4d2ecfc65f5e612f366cdee133d8cf1b4cda7daf3cbfd52",
+      "application_readback_sha256": "47ca5ad59800f299f95b373d3900805bab1ee0b562c02d23e5885f6999c1539c",
+      "selector": 0,
+      "calibration_period_q19": 3855053,
+      "rtc_observed_hz": 135968,
+      "timg_calibration_hz": 136000,
+      "awake_systimer_us": 199032,
+      "awake_rtc_tick_delta": 27062,
+      "awake_result": "PASS",
+      "wakeup_reason": "timer",
+      "wakeup_cause": 4,
+      "wakeup_status": 0,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP"
+      ],
+      "qmp_suspend_to_wake_us": 491271,
+      "host_receive_suspend_to_wake_us": 491319,
+      "sdk_systimer_after_rebase_us": 501756,
+      "evidence_zip_sha256": "7857840cb36fdf731e8dcef916c63fc7c1eb77ea790bfc87266d85719489074e",
+      "serial_sha256": "d5b176ef211b578df5f02067f3702652401b7027ccfaed1721a8ef4a636a6a76",
+      "full_run_summary_sha256": "7d9ba10947a2b5f60549219f3369e015d0eecf5c54fff3428f1b0b705f8d3c4f",
+      "boot_count": 1,
+      "same_session_evidence_verified": true,
+      "source_application_readback_verified": true,
+      "cleanup": {
+        "active_leases": 0,
+        "flash_released": true,
+        "guest_exited": true
+      },
+      "owned_service_exited": true
+    },
+    {
+      "arm": "candidate-d256",
+      "variant": "rc_fast_div256",
+      "result": "PASS",
+      "qemu_sha256": "38549673557129d5e9e0100ce9de6539b261b834e9960523b2400dfa110c61b5",
+      "firmware_sha256": "e0af85d104512d153fe60127c184b56459816ecaa9b3761da163988986d03022",
+      "application_readback_sha256": "2853bba16e4d05840af61d4bc7c2b2b818fd30e7de52520a3658fca135e67a9a",
+      "selector": 2,
+      "calibration_period_q19": 7669619,
+      "rtc_observed_hz": 68345,
+      "timg_calibration_hz": 68359,
+      "awake_systimer_us": 199999,
+      "awake_rtc_tick_delta": 13669,
+      "awake_result": "PASS",
+      "wakeup_reason": "timer",
+      "wakeup_cause": 4,
+      "wakeup_status": 0,
+      "qmp_events": [
+        "SUSPEND",
+        "WAKEUP"
+      ],
+      "qmp_suspend_to_wake_us": 485551,
+      "host_receive_suspend_to_wake_us": 485591,
+      "sdk_systimer_after_rebase_us": 507701,
+      "evidence_zip_sha256": "121dde8262a339a6aa043e710b97c902fd3accb371cd6ecbab55203235aa4ec0",
+      "serial_sha256": "aa56c067785c83bc1e2a56fc1d3145533aa557d56a06b446e76ef8ea94b3cb73",
+      "full_run_summary_sha256": "298ef6800f75770556eec4c81bb96fdab80c2de5f65d4e74d4f374b33f623969",
+      "boot_count": 1,
+      "same_session_evidence_verified": true,
+      "source_application_readback_verified": true,
+      "cleanup": {
+        "active_leases": 0,
+        "flash_released": true,
+        "guest_exited": true
+      },
+      "owned_service_exited": true
+    }
+  ],
+  "not_run": [
+    "external crystal or oscillator",
+    "deep sleep",
+    "original Watch application",
+    "physical hardware",
+    "browser-WASM",
+    "Burner"
+  ]
+}

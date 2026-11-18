@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.93.0
+  version: 1.94.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -45,6 +45,8 @@ info:
     policy.
     The qualified native StickS3 QEMU backend supports RTC timer and digital
     GPIO light sleep together. Its RTC slow timer advances during guest sleep.
+    The native RTC counter uses the Timer Group rate for both internal slow-clock sources.
+    Timer-only light sleep is qualified on StickS3 with RC_SLOW and RC_FAST_D256.
     A management pause also freezes the sleep deadline. Timer and GPIO wakes
     appear in the guest's RTC wake source and leave the service session active.
     CardputerZero is outside this API version. Tab5 is available through

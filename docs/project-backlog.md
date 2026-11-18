@@ -100,7 +100,8 @@
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
    已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。
    [定时深睡探针](../tests/firmware/sticks3_rtc_deep_sleep/README.md)已验证数字域复位与 RTC 保留。
-   继续验证其他深睡唤醒源、非默认慢钟与更多 RTC 保留模式。
+   [分频内部慢钟](../tests/firmware/sticks3_rtc_slowclk/README.md)已通过清醒计数和定时浅睡复验。
+   继续验证外部 32.768 kHz 慢钟、其他深睡唤醒源、分频内部慢钟的深睡以及更多 RTC 保留模式。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
    98TAB5 的失败与“已保存”冲突。继续验证异常转储写入失败时的收据一致性。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)
