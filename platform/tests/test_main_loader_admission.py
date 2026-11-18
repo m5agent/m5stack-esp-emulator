@@ -167,9 +167,11 @@ class MainLoaderAdmissionTests(_PackageFixture):
     def test_reset_revokes_old_loader_proof_without_reprobing_during_the_mutation(self):
         session = self.target()
         self.admit(session)
-        with mock.patch.object(session, "_qmp_call") as qmp:
+        with mock.patch.object(
+            session, "_qmp_call", side_effect=[{"return": {"status": "running"}}, {"return": {}}]
+        ) as qmp:
             session.reset()
-        qmp.assert_called_once_with("system_reset")
+        self.assertEqual(qmp.call_args_list, [mock.call("query-status"), mock.call("system_reset")])
         self.assertFalse(session.program_capabilities()["mpy_entrypoint"])
         self.deploy.assert_not_called()
         self.execute.assert_not_called()
