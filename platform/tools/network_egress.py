@@ -6,6 +6,7 @@ from collections.abc import Callable
 import ipaddress
 import json
 import os
+import re
 import secrets
 import shutil
 import stat
@@ -419,7 +420,10 @@ class EgressGateway:
 
     @classmethod
     def allocate(cls, *, ipv6_required: bool = False) -> EgressGateway:
-        token = secrets.token_hex(16)
+        return cls._for_token(secrets.token_hex(16), ipv6_required=ipv6_required)
+
+    @classmethod
+    def _for_token(cls, token: str, *, ipv6_required: bool = False) -> EgressGateway:
         index = int(token[:8], 16) % 16384
         third = (index >> 6) & 0xFF
         fourth = (index & 0x3F) * 4
@@ -443,6 +447,38 @@ class EgressGateway:
             ipv6_prefix_length=126,
             _token=token,
         )
+
+    @classmethod
+    def from_ownership(cls, ownership: object) -> EgressGateway:
+        """Restore cleanup identities from a trusted, launch-bound ownership receipt."""
+        if not isinstance(ownership, dict) or set(ownership) != {"token", "namespace", "host_link", "nat_table"}:
+            raise EgressError("invalid gateway ownership record")
+        token = ownership["token"]
+        if not isinstance(token, str) or re.fullmatch(r"[0-9a-f]{32}", token) is None:
+            raise EgressError("invalid gateway ownership token")
+
+        def identifiers(section: str, *keys: str) -> tuple[int, ...] | None:
+            record = ownership[section]
+            if record is None:
+                return None
+            fields = set(keys)
+            if section == "nat_table":
+                fields.add("family")
+            if (not isinstance(record, dict) or set(record) != fields
+                    or section == "nat_table" and record["family"] != "inet"
+                    or any(type(record[key]) is not int or record[key] <= 0 for key in keys)):
+                raise EgressError(f"invalid gateway {section} ownership")
+            return tuple(record[key] for key in keys)
+
+        namespace = identifiers("namespace", "device", "inode")
+        host_link = identifiers("host_link", "ifindex")
+        nat_table = identifiers("nat_table", "handle")
+        gateway = cls._for_token(token)
+        if namespace is not None:
+            gateway._namespace_id = (namespace[0], namespace[1])
+        gateway._host_ifindex = host_link[0] if host_link is not None else None
+        gateway._nat_handle = nat_table[0] if nat_table is not None else None
+        return gateway
 
     def metadata(self) -> dict:
         return {
@@ -475,6 +511,11 @@ class EgressGateway:
             "nat_table": {"family": "inet", "handle": self._nat_handle} if self._nat_handle is not None else None,
         }
 
+    @property
+    def namespace_identity(self) -> tuple[int, int] | None:
+        """Return the observed namespace device and inode."""
+        return self._namespace_id
+
     def _inspect_namespace(self) -> tuple[int, int] | None:
         binding = NETNS_DIRECTORY / self.namespace
         try:
@@ -486,6 +527,32 @@ class EgressGateway:
         if not stat.S_ISREG(info.st_mode):
             raise EgressError("gateway namespace binding is not a regular namespace handle")
         return info.st_dev, info.st_ino
+
+    def verified_namespace_empty(self, *, proc_root: Path = Path("/proc")) -> bool:
+        """Observe no tasks in this namespace, including after its name was removed."""
+        expected = self.namespace_identity
+        if expected is None:
+            return False
+        try:
+            if self._inspect_namespace() not in (None, expected):
+                return False
+            for process in proc_root.iterdir():
+                if not process.name.isdecimal():
+                    continue
+                try:
+                    threads = list((process / "task").iterdir())
+                except FileNotFoundError:
+                    continue
+                for thread in threads:
+                    try:
+                        member = (thread / "ns/net").stat()
+                    except FileNotFoundError:
+                        continue
+                    if (member.st_dev, member.st_ino) == expected:
+                        return False
+            return self._inspect_namespace() in (None, expected)
+        except (OSError, EgressError):
+            return False
 
     def _inspect_host_link(self) -> int | None:
         links = _objects([IP, "-j", "link", "show"])

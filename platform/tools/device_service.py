@@ -265,6 +265,8 @@ from legacy_device_config import (  # noqa: E402
 )
 from network_egress import (  # noqa: E402
     EgressEndpoint,
+    EgressError,
+    EgressGateway,
     endpoint_contains_address,
     requires_external_gateway,
     requires_external_ipv6,
@@ -281,6 +283,7 @@ from network_policy import (  # noqa: E402
     qemu_user_netdev,
 )
 from device_service_namespace_recovery import (  # noqa: E402
+    namespace_runtime_scope,
     namespace_supervisor_identity,
     stop_namespace_supervisor,
 )
@@ -3856,6 +3859,14 @@ class DeviceSession:
         with self._lock:
             if self._lifecycle_depth or self._stop_event.is_set():
                 return
+            if self.network_gateway_recovery_path.is_file():
+                # The regular stop transaction retains Flash and the lease if
+                # the dead outer supervisor left an unconfirmed inner runner.
+                self.interrupted = True
+                self.state = "stopping"
+                self._request_failure(RuntimeError(reason or f"named gateway supervisor exited with code {returncode}"))
+                self._persist_session()
+                return
             self._terminate_runtime()
             self.state = "failed"
             self.error = (
@@ -5015,7 +5026,8 @@ class DeviceSession:
         except (OSError, ValueError) as error:
             raise ServiceError("session_cleanup_pending", "named gateway receipt is unavailable", 503) from error
         if (not isinstance(launch_id, str) or re.fullmatch(r"[0-9a-f]{32}", launch_id) is None
-                or not isinstance(receipt, dict) or receipt.get("schema_version") != 1
+                or not isinstance(receipt, dict) or type(receipt.get("schema_version")) is not int
+                or receipt["schema_version"] not in (1, 2)
                 or receipt.get("launch_id") != launch_id
                 or type(receipt.get("supervisor_pid")) is not int or receipt["supervisor_pid"] < 1
                 or not isinstance(receipt.get("supervisor_start_token"), str)
@@ -5041,8 +5053,67 @@ class DeviceSession:
             pid, start_token=start_token, config_path=self.network_sandbox_config_path,
             sandbox_path=SANDBOX_RUNNER,
         )
-        if not self._gateway_receipt_complete(self._gateway_receipt(launch_id, pid, start_token)):
-            raise ServiceError("session_cleanup_pending", "named gateway cleanup has not been confirmed", 503)
+        after = self._gateway_receipt(launch_id, pid, start_token)
+        if not self._gateway_receipt_complete(after):
+            self._cleanup_orphaned_gateway(after)
+
+    def _cleanup_orphaned_gateway(self, receipt: dict) -> None:
+        """Finish release after the outer supervisor is positively gone."""
+        def pending(message: str) -> ServiceError:
+            return ServiceError("session_cleanup_pending", message, 503)
+
+        if receipt["schema_version"] != 2:
+            raise pending("older gateway receipt cannot confirm ownership after supervisor loss")
+        if receipt.get("worker_scope") != namespace_runtime_scope():
+            raise pending("named gateway belongs to a different kernel or worker namespace")
+        try:
+            gateway = EgressGateway.from_ownership(receipt.get("ownership"))
+        except EgressError as error:
+            raise pending("named gateway kernel ownership is unavailable") from error
+        ownership = gateway.ownership()
+        if any(ownership[field] is None for field in ("namespace", "host_link", "nat_table")):
+            raise pending("named gateway did not confirm full kernel ownership")
+        gateway_names = gateway.metadata()
+
+        def inner_receipt() -> dict:
+            try:
+                result = json.loads(self.network_isolation_path.read_text())
+            except (OSError, ValueError) as error:
+                raise pending("inner gateway launch evidence is unavailable") from error
+            if (not isinstance(result, dict) or result.get("launch_id") != receipt["launch_id"]
+                    or result.get("private_network_namespace") is not True or result.get("external_route") is not True
+                    or not isinstance(result.get("gateway"), dict)
+                    or any(result["gateway"].get(field) != gateway_names[field]
+                           for field in ("namespace", "host_interface", "guest_interface", "nat_table"))):
+                raise pending("inner gateway does not match the recorded launch")
+            return result
+
+        inner = inner_receipt()
+        pid, token = inner.get("supervisor_pid"), inner.get("supervisor_start_token")
+        if (type(pid) is not int or pid < 1 or pid == receipt["supervisor_pid"]
+                or not isinstance(token, str) or not token.startswith(f"linux:{receipt['worker_scope']['boot_id']}:")):
+            raise pending("inner gateway supervisor identity is unavailable")
+        stop_namespace_supervisor(
+            pid, start_token=token, config_path=self.network_sandbox_config_path,
+            sandbox_path=SANDBOX_RUNNER, inner_namespace=gateway.namespace_identity,
+        )
+        terminal = inner_receipt()
+        if ((terminal.get("supervisor_pid"), terminal.get("supervisor_start_token")) != (pid, token)
+                or terminal.get("cleanup_completed") is not True or terminal.get("qemu_process_reaped") is not True
+                or terminal.get("ble_process_reaped") is not True or not gateway.verified_namespace_empty()):
+            raise pending("inner gateway or namespace process cleanup has not been confirmed")
+
+        cleanup = gateway.cleanup()
+        result = {**receipt, "inner_exited": True, "inner_cleanup_completed": True,
+                  "gateway_cleanup_completed": all(cleanup.values()), "gateway_cleanup": cleanup,
+                  "cleanup_owner": "device-service"}
+        try:
+            atomic_write_json(self.network_gateway_recovery_path, result)
+        except OSError as error:
+            raise pending("could not preserve the verified gateway cleanup result") from error
+        if not self._gateway_receipt_complete(result):
+            raise pending("named gateway kernel resource cleanup has not been confirmed")
+        self._record_event("orphaned_gateway_cleaned")
 
     def _stop_recovered_namespace(self) -> None:
         def pending(message: str) -> ServiceError:
@@ -9460,9 +9531,11 @@ class DeviceSession:
                 config = json.loads(self.network_sandbox_config_path.read_text())
             except (OSError, ValueError) as error:
                 raise ServiceError("session_cleanup_pending", "named gateway launch config is unavailable", 503) from error
-            if (not isinstance(config, dict) or not self._gateway_receipt_complete(
-                    self._gateway_receipt(config.get("launch_id"), self.pid, self.process_start_token))):
-                raise ServiceError("session_cleanup_pending", "named gateway cleanup has not been confirmed", 503)
+            if not isinstance(config, dict):
+                raise ServiceError("session_cleanup_pending", "named gateway launch config is invalid", 503)
+            receipt = self._gateway_receipt(config.get("launch_id"), self.pid, self.process_start_token)
+            if not self._gateway_receipt_complete(receipt):
+                self._cleanup_orphaned_gateway(receipt)
         if external_pid is not None:
             def owns_external_process() -> bool:
                 identity = inspect_process(external_pid)

@@ -46,6 +46,21 @@ def namespace_supervisor_identity(pid: int, *, proc_root: Path = Path("/proc")) 
     return f"linux:{boot_id.decode()}:{int(values[19])}"
 
 
+def namespace_runtime_scope(*, proc_root: Path = Path("/proc")) -> dict:
+    """Identify the kernel and the worker context that originally owned a gateway."""
+    try:
+        boot_id = (proc_root / "sys/kernel/random/boot_id").read_bytes().strip()
+        if not _BOOT_ID.fullmatch(boot_id):
+            raise _pending("gateway boot identity is malformed")
+        scope = {"boot_id": boot_id.decode()}
+        for name in ("net", "mnt", "pid"):
+            identity = (proc_root / "self" / "ns" / name).stat()
+            scope[name] = [identity.st_dev, identity.st_ino]
+        return scope
+    except OSError as error:
+        raise _pending("cannot verify the original gateway worker context") from error
+
+
 def stop_namespace_supervisor(
     pid: int,
     *,
@@ -53,6 +68,7 @@ def stop_namespace_supervisor(
     config_path: Path,
     sandbox_path: Path,
     legacy_start_token: Callable[[int], str | None] | None = None,
+    inner_namespace: tuple[int, int] | None = None,
     timeout: float = 20.0,
     proc_root: Path = Path("/proc"),
 ) -> None:
@@ -95,10 +111,24 @@ def stop_namespace_supervisor(
                 return
             raise
         executable = Path(os.fsdecode(arguments[0]))
+        command_prefix = [os.fsencode(sandbox_path)]
+        if inner_namespace is not None:
+            command_prefix.append(b"--inner")
+        command_prefix.extend([b"--config", os.fsencode(config_path), b"--"])
+        command_end = len(command_prefix) + 1
         if (not executable.is_absolute() or not _PYTHON.fullmatch(executable.name)
-                or arguments[1:5] != [os.fsencode(sandbox_path), b"--config", os.fsencode(config_path), b"--"]
-                or len(arguments) < 6 or not arguments[5]):
+                or arguments[1:command_end] != command_prefix
+                or len(arguments) <= command_end or not arguments[command_end]):
             raise _pending("namespace supervisor command does not match the saved launch")
+        if inner_namespace is not None:
+            try:
+                identity_stat = (proc_root / str(pid) / "ns" / "net").stat()
+            except FileNotFoundError:
+                if exited(0):
+                    return
+                raise
+            if (identity_stat.st_dev, identity_stat.st_ino) != inner_namespace:
+                raise _pending("inner supervisor left the original network namespace")
         if exited(0):
             return
         if namespace_supervisor_identity(pid, proc_root=proc_root) != identity:

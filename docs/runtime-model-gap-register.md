@@ -189,7 +189,14 @@ rev0 ROM 和匹配 revision eFuse。闭源核心未提供可修改实现，需�
 没有完整画面或 MicroPython，早期 CSR 异常也没有出现。后续隔离候选直接核对寄存器 `0x5e` 写入的 8,192 字节与原版配置相同。
 在候选缓冲区和有限配置初始化模型下，ST7123 取得原版离线主页，GT911
 读回初始化状态后仍未检测到面板。当前官方 DSI 读取返回零，未发现可由 DSI
-接收端注入真实读回的通道。正式的共享 BMI270 模型通过同一路径，原版 ST7123 的点击从离线主页进入 I²C Scan。GT911 原版普通冷启动和只读断点两轮均无完整帧。固件实际发送 `0x00` 命令并收到 1 字节 `00`，随后进入未检测到面板分支。关闭条件为上游提供同步 RX FIFO 回包、相同原版显示和触摸。继续分别验证网络和配对。[同原版命令及回包证据](https://github.com/m5agent/agent-work-logs/blob/2299e79d00a8ef37bd83b2cd69f1631fd3d99ce9/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-v110-part-gap/followups/2026-11-18-tab5-bmi270-transport/followups/2026-11-18-tab5-bmi270-native-part/followups/2026-11-18-tab5-gt911-dsi-panel-read/README.md)。[四个原版对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json)
+接收端注入真实读回的通道。正式的共享 BMI270 模型通过同一路径。
+[1.92.0 同原版读回](https://github.com/m5agent/agent-work-logs/blob/2299e79d00a8ef37bd83b2cd69f1631fd3d99ce9/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-v110-part-gap/followups/2026-11-18-tab5-bmi270-transport/followups/2026-11-18-tab5-bmi270-native-part/followups/2026-11-18-tab5-gt911-dsi-panel-read/README.md)记录 GT911 无完整帧与命令 `0x00` 读回 `00`。
+1.96.0 复验仍无完整帧，原版应用实际读取 `0x00`、`0x01`、`0x02` 得到
+`00 00 00`，首字节需为 `0x98`，其后才比较第二字节 `0x81`。
+同一原版的 ST7123 离线主页和 I²C Scan 点击通过。关闭条件是实现板型专用
+同步读响应及 DSI RX FIFO 回包，在相同原版普通冷启动核对有效帧和 GT911
+触摸回执。联网和配对仍需独立验收。[同原版板型对照及回执](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/README.md)。
+[四个原版对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json)
 [配置拒绝及原版接收对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)
 
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考

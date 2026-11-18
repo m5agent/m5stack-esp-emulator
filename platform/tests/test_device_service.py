@@ -7347,6 +7347,52 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertFalse(restored["flash_retained"])
             self.assertNotIn(session.id, self.service.worker_status()["active_lease_ids"])
 
+    def test_orphaned_gateway_checks_worker_context_and_inner_namespace_before_deleting(self):
+        session = self._stopped_session()
+        launch_id = "a" * 32
+        scope = {"boot_id": "boot", "net": [1, 2], "mnt": [1, 3], "pid": [1, 4]}
+        receipt = {"schema_version": 2, "launch_id": launch_id, "supervisor_pid": 43,
+                   "worker_scope": scope, "ownership": {"token": "test"}}
+        names = {"namespace": "netns", "host_interface": "veth0",
+                 "guest_interface": "veth1", "nat_table": "nat"}
+        inner = {
+            "launch_id": launch_id, "private_network_namespace": True, "external_route": True,
+            "gateway": names, "supervisor_pid": 44, "supervisor_start_token": "linux:boot:22",
+            "cleanup_completed": True, "qemu_process_reaped": True, "ble_process_reaped": True,
+        }
+        session.network_isolation_path.write_text(json.dumps(inner))
+        with (
+            mock.patch("device_service.namespace_runtime_scope", return_value=scope) as context,
+            mock.patch("device_service.EgressGateway.from_ownership") as reconstruct,
+            mock.patch("device_service.stop_namespace_supervisor") as stop_supervisor,
+        ):
+            gateway = reconstruct.return_value
+            gateway.ownership.return_value = {"namespace": {}, "host_link": {}, "nat_table": {}}
+            gateway.namespace_identity = (1, 8)
+            gateway.metadata.return_value = names
+            gateway.verified_namespace_empty.return_value = False
+            gateway.cleanup.return_value = dict.fromkeys(
+                ("namespace_removed", "host_link_removed", "nat_table_removed"), True,
+            )
+            with self.assertRaisesRegex(ServiceError, "process cleanup has not been confirmed"):
+                session._cleanup_orphaned_gateway(receipt)
+            gateway.cleanup.assert_not_called()
+            stop_supervisor.assert_called_once()
+            self.assertEqual(stop_supervisor.call_args.kwargs["inner_namespace"], (1, 8))
+
+            gateway.verified_namespace_empty.return_value = True
+            context.return_value = {**scope, "mnt": [1, 9]}
+            with self.assertRaisesRegex(ServiceError, "different kernel or worker namespace"):
+                session._cleanup_orphaned_gateway(receipt)
+            gateway.cleanup.assert_not_called()
+
+            context.return_value = scope
+            session._cleanup_orphaned_gateway(receipt)
+            gateway.cleanup.assert_called_once()
+            final = json.loads(session.network_gateway_recovery_path.read_text())
+            self.assertEqual(final["cleanup_owner"], "device-service")
+            self.assertTrue(session._gateway_receipt_complete(final))
+
     def test_running_orphan_is_rejected_and_verified_suspended_process_reattaches(
         self,
     ):

@@ -7,7 +7,11 @@ import unittest
 from unittest.mock import Mock, call, patch
 
 from device_service_errors import ServiceError
-from device_service_namespace_recovery import namespace_supervisor_identity, stop_namespace_supervisor
+from device_service_namespace_recovery import (
+    namespace_runtime_scope,
+    namespace_supervisor_identity,
+    stop_namespace_supervisor,
+)
 
 
 BOOT_ID = "12345678-1234-1234-1234-123456789abc"
@@ -39,8 +43,9 @@ class NamespaceSupervisorRecoveryTests(unittest.TestCase):
         fields = [state] + ["0"] * 18 + [str(start)]
         (self.proc / "stat").write_text(f"{PID} (python )\n worker) " + " ".join(fields))
 
-    def write_argv(self, config):
-        arguments = ["/usr/bin/python3.12", self.script, "--config", config, "--", "qemu-system-xtensa"]
+    def write_argv(self, config, *, inner=False):
+        arguments = ["/usr/bin/python3.12", self.script, *(["--inner"] if inner else []),
+                     "--config", config, "--", "qemu-system-xtensa"]
         (self.proc / "cmdline").write_bytes(b"\0".join(map(os.fsencode, arguments)) + b"\0")
 
     def stop(self, *, token=TOKEN, **kwargs):
@@ -110,6 +115,33 @@ class NamespaceSupervisorRecoveryTests(unittest.TestCase):
         self.send_signal.assert_called_once_with(PIDFD, signal.SIGTERM)
         self.assertEqual(self.poller.poll.call_args_list[-1], call(20000))
         self.close_handle.assert_called_once_with(PIDFD)
+
+    def test_inner_supervisor_requires_exact_namespace_and_argument_role(self):
+        net = self.proc / "ns/net"
+        net.parent.mkdir()
+        net.touch()
+        identity = net.stat()
+        self.write_argv(self.config, inner=True)
+        self.assert_pending("saved launch")
+        self.assert_pending("left the original", inner_namespace=(identity.st_dev, identity.st_ino + 1))
+        self.send_signal.assert_not_called()
+        self.poller.poll.side_effect = [[], [], [(PIDFD, select.POLLIN)]]
+        self.stop(inner_namespace=(identity.st_dev, identity.st_ino))
+        self.send_signal.assert_called_once_with(PIDFD, signal.SIGTERM)
+
+    def test_worker_scope_binds_boot_and_all_three_namespaces(self):
+        expected = {"boot_id": BOOT_ID}
+        namespaces = self.root / "self/ns"
+        namespaces.mkdir(parents=True)
+        for name in ("net", "mnt", "pid"):
+            path = namespaces / name
+            path.touch()
+            identity = path.stat()
+            expected[name] = [identity.st_dev, identity.st_ino]
+        self.assertEqual(namespace_runtime_scope(proc_root=self.root), expected)
+        (namespaces / "pid").unlink()
+        with self.assertRaisesRegex(ServiceError, "original gateway worker context"):
+            namespace_runtime_scope(proc_root=self.root)
 
 
 if __name__ == "__main__":

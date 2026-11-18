@@ -24,7 +24,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from device_service_namespace_recovery import namespace_supervisor_identity
+from device_service_namespace_recovery import namespace_runtime_scope, namespace_supervisor_identity
 from network_egress import (
     EgressEndpoint,
     EgressError,
@@ -1945,8 +1945,9 @@ def run_with_gateway(
             previous[signum] = signal.getsignal(signum)
             signal.signal(signum, stop)
         if launch_id is not None:
-            receipt.update(schema_version=1, launch_id=launch_id, supervisor_pid=os.getpid(),
+            receipt.update(schema_version=2, launch_id=launch_id, supervisor_pid=os.getpid(),
                            supervisor_start_token=namespace_supervisor_identity(os.getpid()),
+                           worker_scope=namespace_runtime_scope(),
                            inner_exited=False, inner_cleanup_completed=False, gateway_cleanup_completed=False)
             record_ownership(gateway.ownership())
         gateway.start(on_ownership_change=record_ownership)

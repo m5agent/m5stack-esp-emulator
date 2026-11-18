@@ -376,6 +376,58 @@ class GatewayOwnershipTests(unittest.TestCase):
         self.assertEqual(gateway.cleanup(), {"host_link_removed": True, "nat_table_removed": False,
                                              "namespace_removed": True})
 
+    def test_restore_derives_names_from_token_and_reuses_verified_cleanup(self):
+        self.gateway.start()
+        saved = json.loads(json.dumps(self.gateway.ownership()))
+        restored = EgressGateway.from_ownership(saved)
+        self.assertEqual(restored.ownership(), saved)
+        self.assertEqual(restored.namespace_identity, self.gateway.namespace_identity)
+        for name in ("namespace", "host_interface", "guest_interface", "nat_table", "host_address", "guest_address",
+                     "host_ipv6_address", "guest_ipv6_address"):
+            self.assertEqual(restored.metadata()[name], self.gateway.metadata()[name])
+        self.nat_table["comment"] = "foreign"
+        self.commands.clear()
+        self.assertEqual(restored.cleanup(), {"host_link_removed": True, "nat_table_removed": False,
+                                              "namespace_removed": True})
+        self.assertFalse(any(argv[:2] == ["nft", "delete"] for argv, _ in self.commands))
+        self.nat_table["comment"] = "m5-gateway:" + saved["token"]
+        self.assertTrue(all(restored.cleanup().values()))
+
+    def test_restore_rejects_foreign_names_and_malformed_kernel_identities(self):
+        valid = self.gateway.ownership()
+        self.assertIsNone(EgressGateway.from_ownership(valid).namespace_identity)
+        for row in (None, {}, {**valid, "names": {}}, {**valid, "token": "A" * 32},
+                    {**valid, "namespace": {"device": 1}}, {**valid, "namespace": {"device": 1, "inode": 0}},
+                    {**valid, "host_link": {"ifindex": True}},
+                    {**valid, "host_link": {"ifindex": 5, "name": "eth0"}},
+                    {**valid, "nat_table": {"family": "ip", "handle": 1}},
+                    {**valid, "nat_table": {"family": "inet", "handle": "1"}}):
+            with self.subTest(row=row), self.assertRaises(EgressError):
+                EgressGateway.from_ownership(row)
+
+    def test_namespace_empty_observation_includes_unnamed_namespace_members(self):
+        self.gateway.start()
+        restored = EgressGateway.from_ownership(self.gateway.ownership())
+        proc = self.netns_dir / "proc"
+        proc.mkdir()
+        self.assertTrue(restored.verified_namespace_empty(proc_root=proc))
+        member = proc / "42/task/43/ns/net"
+        member.parent.mkdir(parents=True)
+        member.hardlink_to(self.binding)
+        self.assertFalse(restored.verified_namespace_empty(proc_root=proc))
+        self.binding.unlink()
+        self.assertFalse(restored.verified_namespace_empty(proc_root=proc))
+        self.binding.touch()
+        member.unlink()
+        self.assertFalse(restored.verified_namespace_empty(proc_root=proc))
+        unrelated = self.binding.with_suffix(".unrelated")
+        self.binding.rename(unrelated)
+        member.hardlink_to(unrelated)
+        with patch.object(Path, "stat", side_effect=PermissionError):
+            self.assertFalse(restored.verified_namespace_empty(proc_root=proc))
+        self.assertTrue(restored.verified_namespace_empty(proc_root=proc))
+        self.assertFalse(restored.verified_namespace_empty(proc_root=proc / "missing"))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

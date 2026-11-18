@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-18`.
 
-Status: local MVP with unified-device runtime contract `1.97.0` and bounded
+Status: local MVP with unified-device runtime contract `1.98.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -4322,8 +4322,12 @@ restart.
   or cleanup is uncertain, the session stays `stopping` and keeps its resources
   for another check. A named egress gateway also needs a matching outer
   supervisor journal and verification that the old namespace binding, host
-  virtual link and NAT table are gone. Legacy gateways and loss of both gateway
-  supervisors can leave cleanup pending when their ownership cannot be proven;
+  virtual link and NAT table are gone. After the outer supervisor disappears,
+  version-2 journals allow cleanup using the launch-bound inner supervisor and
+  kernel resource identities. Automatic recovery requires the same Linux boot
+  and worker PID, mount and network namespaces, verified guest termination
+  and an empty old network namespace. A legacy journal, an unrecorded launch
+  handoff or missing inner cleanup evidence leaves the session pending;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

@@ -145,6 +145,22 @@ RTC 数据和时间保留。显式 API 复位恢复上电原因和初始 RTC 时
 与历史横屏 PNG 字节相同。实际 PN532 读卡和实体测试未执行。
 [精确原版与首故障证据](../tests/firmware/esp32c6_mwdt_clock/current-main-rfid-summary.json)
 
+## 2026-11-18 Tab5 UIFlow2 v2.5.4 原版面板识别与触摸对照
+
+Device Service 1.96.0 源码 `a7dbd9808a09bc507b657995dba079b8075badcf`，
+esp-emu 1.1.0 `633a35f993300a765634ed78a2dbcfd5ffcd5c3f2f354a2dddabeb6108240828`。
+原版 `94b6b43c02a95cfac1e7c70a6166ad669f308d0d16389c272de5ca7c2d45ef37`
+规范化为 `507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7`，
+执行后应用分区仍逐字节相同。GT911／ILI9881C 普通冷启动 20 秒无完整帧，
+406 字节串口与 1.92.0 的同固件普通冷启动相同。只读断点观察原版读取
+`0x00`、`0x01`、`0x02` 得到 `00 00 00`，第一字节要求 `0x98`，
+第一条件满足时才比较第二字节 `0x81`。ST7123 有 11 个完整帧样本，
+10 个非黑，点按面板坐标 `(83,308)` 得到两个控制器报告及两个确认，
+实际页面进入 I²C Scan。所有记录均为 virtual-device validation，证据
+ZIP 完整，Flash 和租约释放。云配对、浏览器、实体设备及非零面板响应正对照
+未执行，Burner 未提交。归档机器回执 SHA-256 `736f862cfac93ecc2b369917d424a04f6f2e280abdc48452df2905e25a06b16a`。
+[原版对照](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/README.md) · [机器摘要](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/evidence/uiflow254-tab5-board-id.summary.json)
+
 ## 2026-11-18 Tab5 原版 BMI270 正式 Part 与离线交互
 
 新的 GT911 和 ST7123 模块在同一官方 1.1.0 后端完成原版标准配置写入

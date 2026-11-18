@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.97.0
+  version: 1.98.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -35,8 +35,11 @@ info:
     cleanup receipt. Until release is confirmed the session remains stopping
     and retains its lease and writable Flash. A named gateway with a matching
     launch journal must also confirm its namespace binding, host virtual
-    link and NAT table were removed. Tab5 and cross-host companions have
-    separate recovery boundaries.
+    link and NAT table were removed. If its outer supervisor exited, a
+    version-2 journal binds the inner supervisor and kernel resources to the
+    original worker context. The service checks inner cleanup and that the old
+    namespace has no tasks before it releases the named resources. Tab5 and
+    cross-host companions have separate recovery boundaries.
     The service can be exposed over HTTPS with verified server certificates
     and optional required client certificates (mTLS); worker HMAC remains a
     separate application authentication layer.

@@ -169,7 +169,7 @@ eFuse 或生产 key。
 已满足的前置基线：实际 VFS/stock 保留、真实 UART/controller 观测与按固件绑定的
 原生修复已有独立执行证据，见[日期化问题证据](evidence/2026-11-05-latest-firmware-issues/README.md)。
 
-- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 最新官方应用保持 open：[原版 v2.5.4 的 1.1.0 对照](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-v110-summary.json)已到 I²C 初始化，两个 Part 配置均因请求长度超限退出。[原版寄存器与画面](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-bmi270-diagnostic-summary.json)已验证这笔请求是 8,192 字节的 BMI270 配置。[正式 Part](evidence/2026-11-18-tab5-stock-frame-comparison/uiflow254-native-bmi270-qualification.json)通过同一原版的 ST7123 离线主页和 I²C Scan 页面切换。继续验证 GT911 面板识别、UIFlow2 在线行为和配对。
+- [#188](https://github.com/m5agent/m5stack-esp-emulator/issues/188) Tab5 官方原版 v2.5.4 保持开放。在 esp-emu 1.1.0 的两个板型上保持同一原版，ST7123 离线主页和 I²C Scan 点击通过，GT911／ILI9881C 因 DSI 读回为零无法识别面板。关闭条件是板型专用的读响应通过 ESP32-P4 DSI RX FIFO 返回，同一原版普通冷启动取得有效画面并实测 GT911 触摸。UIFlow2 联网和配对另行验证。[同原版板型对照及回执](https://github.com/m5agent/agent-work-logs/blob/6a4fd8c724d6f9b215e900e21fd9787aeaf15900/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-196-board-compare/README.md)
 - [#178](https://github.com/m5agent/m5stack-esp-emulator/issues/178) classic ESP32 的 ROM stub 上传允许一次有界低速重试。Atom Lite 的真实恢复路径已验证；全 classic 多轮高负载冷烧录的稳定性仍待确认。
 - Unit Buzzer 默认路径的既有自然 timer-zero 失败继续定位；不要由其它 IO 通过关闭。
 
