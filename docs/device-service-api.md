@@ -3123,6 +3123,10 @@ Component `model_status` and `device_status` come from the peripheral registry.
 `evidence.status=case_registered` refers only to the listed controller cases
 for that board. `not_tested` means no exact case is registered for that board
 and controller. Firmware behavior requires a session and the matching evidence.
+Tab5's USB host component reports `partial`. The qualified esp-emu 1.1.0
+backend exercises DWC setup with a powered root port. Endpoint attachment,
+HID/MSC enumeration, and transfers remain unverified. The component does not
+advertise a USB endpoint fixture.
 
 ## Endpoints
 

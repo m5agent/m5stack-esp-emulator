@@ -50,7 +50,7 @@
 | PaperDIY (`paperdiy`) | ESP32-S3-WROOM-1-N16R8 | `qemu-esp32s3` | `partial` | `2026-11-09` / `native-et047tc1-buttons-pass` | ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.; Factory display reaches PM1 power-enable and reads 4000 mV; independent charging, IRQ and wake-source injection were not exercised.; The factory PM1 shutdown command exits the guest; independent power-key, standby and restart behavior were not validated.; SPI SD supports an image supplied at session creation on a native runtime with CARD_DET; live insertion and removal are not modeled. |
 | PaperS3 (`papers3`) | ESP32-S3R8 | `qemu-esp32s3` | `partial` | `2026-11-09` / `native-et047tc1-touch-pass` | ET047TC1 models black and white endpoints of the digital scan sequence; grayscale, waveforms and optical behavior remain unmodeled.; BMI270 is attached on the internal I2C bus; board-local accel/gyro injection and readback were not exercised.; The factory clock reads the attached RTC; time injection and an independent device-local write/read/tick oracle were not exercised.; The GPIO3 battery-divider ADC data path and voltage injection are not modeled.; C139 PMS150G power-button, latch and wake behavior are not modeled.; The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled. |
 | StickC Plus2 (`stickc-plus2`) | ESP32-PICO-V3-02 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-display-buttons-imu-rtc-pass` | Device-local display, A/B/PWR, MPU6886 vectors and RTC real-I2C write/read/tick passed. Audio, IR/LED, battery ADC, power hold/wake and broader peripheral behavior remain open. |
-| Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
+| Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host initializes on esp-emu 1.1.0. Endpoint attachment and transfers remain unverified.; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
 
 ## 浏览器执行配置
 
@@ -150,20 +150,20 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`96` 个 Python 模块，`57773` 行；规模最大的模块如下。
+- `platform/tools`：`96` 个 Python 模块，`57772` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
 | `device_service.py` | 14549 |
 | `firmware_manifest.py` | 3640 |
-| `user_firmware_matrix.py` | 2348 |
+| `user_firmware_matrix.py` | 2347 |
 | `network_sandbox.py` | 2152 |
 | `serve.py` | 1962 |
 | `firmware_filesystems.py` | 1532 |
 
 - `tests/`：`181` 个可执行 Python 测试文件，分布在 `82` 个目录；`253` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`371` 个 patch 文件。
-- 文档：`746` 个 Markdown 页面；除本生成页外共 `81112` 行。
+- 文档：`746` 个 Markdown 页面；除本生成页外共 `81116` 行。
 
 ## 文档与测试
 

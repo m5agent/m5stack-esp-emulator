@@ -8,7 +8,7 @@
         "review_by": "2026-12-31"
       },
       "tab5": {
-        "reason": "The native ESP32-P4 backend still lacks dynamic I2C, I2S/PCM, MIPI-CSI, USB Host and broader ESP-Hosted SDIO behavior.",
+        "reason": "Dynamic I2C, I2S/PCM, MIPI-CSI, USB host endpoint attachment and broader ESP-Hosted SDIO behavior remain incomplete in the native ESP32-P4 backend.",
         "review_by": "2026-12-31"
       },
       "atoms3": {
@@ -1303,12 +1303,12 @@
       "capabilities": [
         "usb-host"
       ],
-      "status": "planned",
+      "status": "partial",
       "injection": [
-        "usb-endpoint"
+        "guest-mmio"
       ],
-      "data_plane": "Target: ESP32-P4 DWC USB 2.0 host controller, root port, HID/CDC endpoint models and host-side packet bridge",
-      "blocker": "The native esp-emu P4 backend exposes no USB host controller or endpoint attachment API"
+      "data_plane": "With esp-emu 1.1.0, the original Maker Fighter guest reads the DWC core identity, enables DMA, powers the root port, registers a USB host client and waits for events.",
+      "blocker": "No documented USB endpoint attachment is available on the native P4 backend. External-device connect, HID/MSC enumeration and transfers are unverified."
     },
     "usb-hub-gl852g": {
       "kind": "usb-hub",
@@ -2447,7 +2447,7 @@
         },
         {
           "model": "usb-host-p4-dwc",
-          "reason": "No ESP32-P4 USB host controller or endpoint attachment model"
+          "reason": "The DWC controller starts with a powered, disconnected root port. External-device attachment, enumeration and transfers remain unverified."
         },
         {
           "model": "ip2326",
@@ -2545,7 +2545,7 @@
         {
           "id": "usb-host",
           "model": "usb-host-p4-dwc",
-          "status": "planned"
+          "status": "partial"
         },
         {
           "id": "rs485",

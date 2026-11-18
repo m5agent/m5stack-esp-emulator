@@ -750,7 +750,7 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(reason, "runtime_model_gap")
         self.assertIn("zigbee_runtime_not_modeled", unmet[0])
 
-    def test_tab5_dwc_identity_assert_requires_missing_controller_contract(self):
+    def test_tab5_dwc_identity_assert_requires_incomplete_controller_contract(self):
         serial = (
             "assert failed: usb_dwc_hal_init components/hal/usb_dwc_hal.c:152 "
             "(core_id == CORE_REG_GSNPSID_4_00a || core_id == CORE_REG_GSNPSID_4_30a)\n"
@@ -776,10 +776,12 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             root = Path(temporary)
             path = root / "platform/peripherals/catalog.json"
             path.parent.mkdir(parents=True)
-            for state in ("partial", "simulated"):
+            for state in ("planned", "partial", "simulated", "not-applicable"):
                 path.write_text(json.dumps({"models": {"usb-host-p4-dwc": {"status": state}}}))
-                with mock.patch("user_firmware_matrix.ROOT", root):
-                    self.assertEqual(detect_runtime_model_gaps(serial, device_id="tab5", runtime="qemu"), [])
+                with self.subTest(state=state), mock.patch("user_firmware_matrix.ROOT", root):
+                    observed = detect_runtime_model_gaps(serial, device_id="tab5", runtime="qemu")
+                    expected = ["tab5_usb_dwc_not_modeled"] if state in {"planned", "partial"} else []
+                    self.assertEqual([gap["code"] for gap in observed], expected)
 
     def test_detect_runtime_model_gap_requires_c6_software_reset_context(self):
         generic = detect_runtime_model_gaps(

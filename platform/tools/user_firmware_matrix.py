@@ -1143,19 +1143,18 @@ def detect_runtime_model_gaps(
         r"[^\r\n]*\bCORE_REG_GSNPSID_4_(?:00|30)a\b",
         serial,
     ):
-        # Retire this diagnosis when the actual controller contract changes;
-        # the same assertion alone is not proof of a missing model elsewhere.
+        # Preserve the exact assertion diagnosis for older binaries and
+        # incomplete backends. A working host init on 1.1.0 has no such assertion.
         catalog = json.loads((ROOT / "platform/peripherals/catalog.json").read_text())
         controller = catalog["models"].get("usb-host-p4-dwc", {})
-        if controller.get("status") == "planned":
+        if controller.get("status") in {"planned", "partial"}:
             gaps.append({
                 "code": "tab5_usb_dwc_not_modeled",
                 "scope": "tab5-esp-emu",
                 "detail": (
-                    "the guest failed the USB DWC core identity check while "
-                    "the Tab5 backend has no modeled USB host controller or "
-                    "endpoint attachment; USB initialization and application "
-                    "readiness remain unverified"
+                    "the guest failed the USB DWC core identity check on an "
+                    "incomplete Tab5 USB host path; this session did not reach "
+                    "USB host initialization or demonstrate application readiness"
                 ),
             })
     if "Zigbee_main" in serial and re.search(
