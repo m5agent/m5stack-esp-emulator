@@ -50,6 +50,13 @@ Reviewer 0.31 支持 `POST /api/reviews/{job_id}/snapshots`。指定
 
 常驻 [Core2 2048 独立复审](validation-ledger.md#2026-11-19-常驻-linux-的-core2-独立复审)已由 `core2_2048` 放行并核对真实四向棋盘变化。调用方可先读 Reviewer 的 `/api/ready/linux-snapshot`，确认目标档案已准入再创建任务。
 
+原版 CardputerDict ADV 发音复审使用 Worker 档案 `cardputer_adv_pronunciation`。
+请求中的 `validation.cardputerdict_pronunciation` 为 `{"expect":"playback"}`，
+`validation.storage.sd_image_artifact_id` 指向同一 Worker 的已验证 SD 种子。
+`cardputerdict_pronunciation_ipv4` 使用同一封存包批准的两处固定服务地址。配置切换
+前，使用目标版本的 Reviewer 配置解析器核对完整候选。发起复审前，从运行器和
+Device Service 实际使用的共享卷核对可用空间，为固件、可写 Flash 和证据留出余量。
+
 来宾没有直接网络接口。需要联网的已验证快照使用原有受控转发策略。这个路径的证据覆盖所用固件和策略，虚拟结果的范围见[原版审核证据台账](validation-ledger.md#2026-11-19-reviewer-的-linux-保存快照分流)。
 
 ## 正常排空与故障处理
