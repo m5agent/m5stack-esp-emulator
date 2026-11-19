@@ -107,8 +107,8 @@ class UnitBatch12bEvidenceTests(unittest.TestCase):
         self.assertGreaterEqual(mappings.count("guest raw machine.I2C probe PASS"), 7)
         ledger = (ROOT / "docs/validation-ledger.md").read_text(encoding="utf-8")
         self.assertIn("batch12b", ledger.lower())
-        readme = (ROOT / "docs/README.md").read_text(encoding="utf-8")
-        self.assertIn("2026-11-03-unit-batch12b-evidence", readme)
+        register = (ROOT / "docs/document-register.md").read_text(encoding="utf-8")
+        self.assertIn("2026-11-03-unit-batch12b-evidence", register)
 
     def test_inventory_counts(self):
         self.assertEqual(len(self.catalog["units"]), 160)
