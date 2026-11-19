@@ -25,8 +25,10 @@ Service 1.99.5、esp-emu 1.1.0 `633a35f9…` 和 GT911 codec Part
 静音对照显示平直波形，动作区间 PCM 全零。
 
 双槽 WAV 返回 400，缺少 `audio.inject` 权限返回 403，两项均未创建会话。
-读取同会话 ZIP 核对输入布局、WAV 及 PCM 哈希和播放范围。实体声学、其他
-固件和浏览器未执行。Burner 未提交。
+同一会话复位后核对 WAV、PCM 摘要和新的录音代，再次录制和播放。读取
+同会话 ZIP 核对布局、哈希及播放区间。强化 RIFF 与位宽校验后复跑通过。
+实体声学、其他固件和浏览器未执行。Burner 未提交。
+[原版对照与最终解析器复验](https://github.com/m5agent/agent-work-logs/blob/d2c64d7d2ad03e684aef3c7b6a7140d391f764f0/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tab5-userdemo-es8388/followups/2026-11-18-tab5-userdemo-i2c-routing/followups/2026-11-18-tab5-userdemo-i2s1-playback/followups/2026-11-18-tab5-userdemo-device-service-192/followups/2026-11-19-tab5-userdemo-1995-microphone/report.md)。
 
 ## 2026-11-19 StickS3 原版手表唤醒后操作
 
@@ -38,6 +40,7 @@ Device Service 1.99.4 `2e4ecb10` 和 Xtensa `04abc3ba…` 的同一离线会话�
 两核，界面另以实际帧核对。125 秒观察只有一次上电，未观察到 IWDT 或软件
 复位。停止前校验 ZIP，活动租约归零，可写 Flash 与自有进程已释放。真机和
 Burner 未运行。
+[唤醒、菜单和双核 PC 同会话证据](https://github.com/m5agent/agent-work-logs/blob/d2c64d7d2ad03e684aef3c7b6a7140d391f764f0/records/esp-emulator/2026-11-17-s3-iwdt-observability/followups/2026-11-18-sticks3-rtc-gpio-light-sleep/followups/2026-11-18-all-day-watch-199-regression/followups/2026-11-19-all-day-watch-two-gpio-wakes/followups/2026-11-19-all-day-watch-games-navigation/report.md)。
 
 ## 2026-11-19 Tab5 M5TabOS 原版连续触摸复验
 
