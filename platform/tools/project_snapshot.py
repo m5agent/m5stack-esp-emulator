@@ -23,6 +23,7 @@ BROWSER_PROFILES = ROOT / "platform/web/qemu-browser-profiles.json"
 BACKLOG = ROOT / "docs/project-backlog.md"
 RUNTIME_GAPS = ROOT / "docs/runtime-model-gap-register.md"
 DOC_INDEX = ROOT / "docs/README.md"
+DOC_REGISTER = ROOT / "docs/document-register.md"
 PROJECT_STATUS = ROOT / "docs/project-status.md"
 VALIDATION_LEDGER = ROOT / "docs/validation-ledger.md"
 ENGINEERING_HANDOFF = ROOT / "docs/engineering-handoff.md"
@@ -202,7 +203,7 @@ def parse_backlog_tasks() -> list[dict[str, str]]:
 
 
 def parse_document_rows() -> list[dict[str, str]]:
-    text = DOC_INDEX.read_text()
+    text = DOC_REGISTER.read_text()
     section = text.split("## 新鲜度台账", 1)[1].split("\n## ", 1)[0]
     rows = []
     link_re = re.compile(r"\]\(([^)#]+\.md)")

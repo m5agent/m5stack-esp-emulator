@@ -24,6 +24,7 @@ class DocsIndexContractTests(DocsContractBase):
             "patches/AGENTS.md",
             "docs/AGENTS.md",
             "docs/README.md",
+            "docs/document-register.md",
             "docs/engineering-handoff.md",
             "docs/workstreams.md",
             "docs/project-status.md",
@@ -434,12 +435,9 @@ class DocsIndexContractTests(DocsContractBase):
 
     def test_documentation_index_covers_every_document(self) -> None:
         index = (DOCS / "README.md").read_text()
-        linked = set(
-            re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", index)
-        )
-        freshness = index.split("## 新鲜度台账", 1)[1].split(
-            "## 入口索引", 1
-        )[0]
+        self.assertRegex(index, r"\]\(document-register\.md(?:#[^)]*)?\)")
+        register = (DOCS / "document-register.md").read_text()
+        freshness = register.split("## 新鲜度台账", 1)[1].split("\n## ", 1)[0]
         freshness_linked = set(
             re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", freshness)
         )
@@ -462,31 +460,17 @@ class DocsIndexContractTests(DocsContractBase):
             relative = path.relative_to(DOCS).as_posix()
             if relative == "README.md":
                 continue
-            self.assertIn(relative, linked, relative)
             self.assertIn(relative, freshness_linked, relative)
 
     def test_documentation_index_has_no_duplicate_links_per_section(self) -> None:
-        text = (DOCS / "README.md").read_text()
-        headings = list(re.finditer(r"(?m)^(##+ .+)$", text))
-        for index, heading in enumerate(headings):
-            end = (
-                headings[index + 1].start()
-                if index + 1 < len(headings)
-                else len(text)
-            )
-            body = text[heading.end() : end]
-            links = re.findall(
-                r"\]\(([^)#]+\.md)(?:#[^)]*)?\)",
-                body,
-            )
-            duplicates = sorted(
-                link for link, count in Counter(links).items() if count > 1
-            )
-            self.assertEqual(
-                duplicates,
-                [],
-                f"{heading.group(1)} has duplicate document links",
-            )
+        for name in ("README.md", "document-register.md"):
+            text = (DOCS / name).read_text()
+            headings = list(re.finditer(r"(?m)^(##+ .+)$", text))
+            for index, heading in enumerate(headings):
+                end = headings[index + 1].start() if index + 1 < len(headings) else len(text)
+                links = re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", text[heading.end() : end])
+                duplicates = sorted(link for link, count in Counter(links).items() if count > 1)
+                self.assertEqual(duplicates, [], f"{name}: {heading.group(1)} has duplicate document links")
 
     def test_authority_documents_do_not_repeat_long_lines(self) -> None:
         for relative in (

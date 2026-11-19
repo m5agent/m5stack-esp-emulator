@@ -4,48 +4,36 @@
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
-在浏览器或本地服务中运行 M5Stack 固件，观察屏幕、操作按键和触摸，联调已覆盖的外设，并保存可复查的运行证据。
-平台基于 C/QEMU 和独立设备后端；UIFlow2 的验证覆盖最完整，也支持经过兼容性检查的 Arduino、ESP-IDF 和 MicroPython 镜像。
+在浏览器或本地服务中运行 M5Stack 固件，查看屏幕和串口，操作按键、触摸与已建模外设。平台使用 C/QEMU 和独立设备后端。UIFlow2 验证覆盖最完整，兼容的 Arduino、ESP-IDF 和 MicroPython 镜像也可运行。
 
-**[在线体验](https://m5agent.github.io/m5stack-esp-emulator/)** · [功能与边界](docs/project-status.md) · [文档](docs/README.md) · [问题反馈](https://github.com/m5agent/m5stack-esp-emulator/issues)
+**[在线体验](https://m5agent.github.io/m5stack-esp-emulator/)** · [文档](docs/README.md) · [Device Service API](docs/device-service-api.md) · [反馈问题](https://github.com/m5agent/m5stack-esp-emulator/issues)
 
-![浏览器工作台中运行的 CoreS3 固件与交互界面](docs/images/browser-workbench.png)
+![浏览器工作台中的 CoreS3 固件运行画面](docs/images/browser-workbench.png)
 
-*历史实测的浏览器运行截图；[图片来源、版本与复现](docs/images/README.md)。线上部署与 main 可能不同，版本及部署方式见 [Pages 指南](docs/pages-deployment.md)。*
+*已验证的运行截图。截图身份和复现步骤见[图片说明](docs/images/README.md)。*
 
-## 选择运行方式
+## 当前状态
 
-| 方式 | 用途 | 前提与范围 |
-| --- | --- | --- |
-| 浏览器 WASM | 打开网页，运行参考示例或兼容的完整 Flash 镜像 | 仅开放已准入的设备与配置；无需 Device Service |
-| 本地 Device Service | 虚拟烧录、串口/画面/输入、外设与网络测试、自动化取证 | 需要匹配的运行时、ROM 和固件；通过 `/api/v1` 管理会话 |
-| 3D 模型预览 | 查看设备与 Unit 外壳、接口和交互 | 模型可见不代表已有固件执行后端 |
+- **在线工作台**通过 GitHub Pages 提供浏览器 WASM。可用设备与正式发布版本见 [Pages 指南](docs/pages-deployment.md)。3D 目录中的每个设备另有固件执行标记。
+- **本地 Device Service**通过 `/api/v1` 管理固件、会话、画面、控制器输入和取证。1.99.5 已验证 Tab5 UserDemo 原版双麦录放。其他板型、镜像和运行模式各有独立准入。[项目状态](docs/project-status.md) · [验证台账](docs/validation-ledger.md)
+- **固件审核**区分镜像准入、应用行为和模型缺口。保存快照可复审原版 Core2 和 Cardputer ADV，并保留来源与结果。[审核工作流](docs/firmware-review-and-simulation-workflow.md)
 
-浏览器使用客体固件和模拟控制器产生画面与状态；3D 外壳用于呈现和输入。
-各设备的后端、外设状态和未完成项见[自动项目快照](docs/project-snapshot.md)；
-精确测试条件见[验证证据台账](docs/validation-ledger.md)。
+## 当前剩余工作
 
-![Atom 与 Stick 系列的当前模型预览，不代表固件运行](docs/images/device-models.png)
+- **P0**继续核对 Dial 快速输入、Core2 2048 同 BIN 真机对照、原版存储与受控联网，以及 Tab5 启动和 RTC/崩溃观测。
+- **P1 / P2**扩充 Unit、PCM、传感器和 USB 数据面，并细化板型、运行模式与审核归因。
 
-*模型目录示意；各型号的固件执行能力需单独验证。*
+具体优先级、开放问题与验收条件以[项目待办](docs/project-backlog.md)为准。模型限制见[运行时缺口](docs/runtime-model-gap-register.md)。
 
-## 在线体验
+## 在线运行
 
-以下按 `2026-11-04` 的源码版核对；线上部署可能不同，是否已有编辑区以实际页面为准。
+在桌面 Chromium 中打开[在线工作台](https://m5agent.github.io/m5stack-esp-emulator/)，选择支持浏览器运行的设备，然后启动 UIFlow2 编程环境或固定示例。编程环境就绪后可在编辑区运行 MicroPython。用画面和串口检查结果，结束时停止会话。
 
-1. 用桌面 Chromium 浏览器打开[在线站点](https://m5agent.github.io/m5stack-esp-emulator/)。
-2. 选择标有“浏览器运行”的设备。源码版的“UIFlow / 示例”默认使用“UIFlow2 编程环境”：官方 UIFlow2 基底加编程启动脚本，初始化设备后等待代码，不是原厂菜单。也可在“启动环境”选择“屏幕与按键示例”运行原固定示例。
-3. 使用编程环境时，启动并等待就绪，在 MicroPython 编辑区粘贴源码或“导入 .py”，点击“运行代码”，查看当前 guest 的输出；持续运行的程序可点击“中断”。
-4. 操作设备上的按键、触摸或已覆盖输入，查看串口与画面；结束时点击停止。
+浏览器执行需要 HTTPS、Service Worker 和共享内存。首次启动会下载并校验 WASM、ROM 和固件。导入本地 BIN 前请核对[镜像和板型要求](docs/pages-deployment.md#访问者流程与浏览器要求)。
 
-首次使用需要下载 WASM、ROM 和固件，部分设备冷启动较慢。HTTPS、Service Worker
-和共享内存是浏览器执行的前提。ROM/固件在访问者浏览器下载并校验，不随站点打包。
-本地 `.bin` 或 URL 导入仍需满足选定设备的芯片、板级配置和分区要求。
-详见[浏览器要求与固件范围](docs/pages-deployment.md)和[工作台组合工具与验收入口](tests/browser-qemu/uiflow_workbench/README.md)。
+## 本地运行
 
-## 本地启动
-
-建议使用 Python 3.12+：
+使用 Python 3.12+，在终端启动工作台。
 
 ```bash
 git clone https://github.com/m5agent/m5stack-esp-emulator.git
@@ -53,73 +41,21 @@ cd m5stack-esp-emulator
 ./start.sh
 ```
 
-打开 <http://127.0.0.1:8787/>（原 `/platform/web/` 入口仍可用）。同一工作台可添加 Unit、
-加载固件、运行 UIFlow 代码和打开已有会话；本机同源连接无需填写 Token；服务已配置 Token 时，在连接区填写。
-运行期间 Unit 接线锁定，停止后可调整。浏览器未接入的 Unit 需要兼容设备服务。
-旧[会话管理](http://127.0.0.1:8787/platform/web/sessions.html)、
-[固件管理](http://127.0.0.1:8787/platform/web/firmware.html)和 [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml)保留兼容。
-需要换端口时使用 `PORT=8890 ./start.sh`。
+打开 <http://127.0.0.1:8787/>。需要改端口时使用 `PORT=8890 ./start.sh`。新检出的目录可以提供工作台和 API。创建原生虚拟设备前，按[部署指南](docs/deployment.md)准备匹配的运行时、ROM 和固件。用 `ready` 条件、串口和实际帧核对应用就绪。[OpenAPI](docs/device-service.openapi.yaml)
 
-全新 clone 可启动设备目录和 API 页面；它不包含创建原生虚拟设备所需的本地运行时资产。
-按[部署与运行时准备](docs/deployment.md)构建或配置匹配当前源码与主机架构的后端，
-再通过工作台或 [Device Service API](docs/device-service-api.md)创建会话。
-`running` 仅表示控制通道启动，应用就绪需结合 `ready_marker`、串口和实际帧判断。
+## Agent 与开发
 
-## Agent Skills
-
-将 [skills/](skills/README.md) 中的完整目录安装到 Agent，即可按任务选择浏览器或
-Device Service。Agent 机器无需安装 QEMU。
-
-| Skill | 用途 |
+| 需要做什么 | 入口 |
 | --- | --- |
-| [m5stack-esp-emulator](skills/m5stack-esp-emulator/SKILL.md) | 通用固件上传/合成/Manifest、设备与 Unit、虚拟运行、串口/画面/交互、网络/Flash 取证与会话清理 |
-| [uiflow2-simulator](skills/uiflow2-simulator/SKILL.md) | AIFlow 专用 UIFlow2 完整代码/资源包、同 guest Preview/Run、报错与 UI 迭代 |
-| [m5stack-browser-simulator](skills/m5stack-browser-simulator/SKILL.md) | 通过 GitHub Pages 导入兼容的完整 Flash 镜像并查看运行画面 |
+| 用 Agent 上传、运行与取证 | [固件模拟 Skill](skills/m5stack-esp-emulator/SKILL.md) |
+| 在同一虚拟设备运行 UIFlow2 代码 | [UIFlow2 Skill](skills/uiflow2-simulator/SKILL.md) |
+| 在网页导入固件并检查画面 | [浏览器 Skill](skills/m5stack-browser-simulator/SKILL.md) |
+| 接手维护与运行检查 | [AGENTS.md](AGENTS.md) · [工程交接](docs/engineering-handoff.md) · [代码地图](docs/code-map.md) · [工作流总台账](docs/workstreams.md) · [测试入口](tests/README.md) |
 
-网页版无需 Device Service 或 Token。两套服务 Skill 各自携带 helper 和参考文件，
-由部署者配置服务地址与控制 Token。安装、环境变量、验证及独立 ZIP 打包见 [Skill 指南](skills/README.md)。
+能力与证据绑定到设备、固件和运行时。Tab5、CardputerZero 与 Xtensa WASM 的支持范围各自独立。物理 RF、功耗、声学与电气行为需要真机证据。部署者负责可信主机和网络隔离边界。[固件准入](docs/firmware-manifest.md) · [Skill 安装](skills/README.md)
 
-## 能力边界
-
-- 兼容性绑定具体设备、profile、控制器覆盖、Flash/PSRAM、分区和安全配置；
-  可导入不等于能运行，单个示例通过也不等于任意固件兼容。见[固件准入](docs/firmware-manifest.md)。
-- 浏览器、原生服务和物理硬件是独立验证范围。Tab5 与 CardputerZero 各有独立后端和可用子集，
-  不能继承 ESP32 浏览器结果；C6、P4 和 Linux ARM64 也不是 Xtensa WASM 的自动扩展。
-- 虚拟设备验证不证明物理 RF、功耗、声学、光学、机械或电气等价性。
-- 当前服务面向可信主机使用，网络策略与静态审查不能代替不可信固件的生产级隔离。
-- 固件差异、启动时间、输入延迟及 Worker 回收仍有已知限制。当前范围见
-  [项目状态](docs/project-status.md)，具体缺口见[运行时缺口登记](docs/runtime-model-gap-register.md)。
-
-## 开发与贡献
-
-欢迎提交 Issue 和 PR。请附设备型号、runtime/profile、固件 SHA256、复现步骤和必要的串口/画面证据，
-并去除凭据、设备标识和私有地址。提交固件二进制前先确认其授权；本仓库不收录固件或 ROM。
-
-修改前阅读 [AGENTS.md](AGENTS.md) 及所在目录的局部指引。按影响范围运行[验证入口](tests/README.md)；
-常用离线检查为：
-
-```bash
-PYTHONPATH=platform/tools python3 -m unittest discover -s platform/tests -p 'test_*.py'
-python3 platform/tools/runtime_coverage.py --check
-python3 platform/tools/peripheral_catalog.py --check
-python3 platform/tools/qemu_profiles.py --check
-python3 platform/tools/project_snapshot.py --check
-```
-
-| 需要了解 | 入口 |
-| --- | --- |
-| 架构与接手顺序 | [工程交接总览](docs/engineering-handoff.md) · [代码地图](docs/code-map.md) |
-| 任务与工作流 | [Backlog](docs/project-backlog.md) · [工作流总台账](docs/workstreams.md) |
-| 设备与外设接入 | [设备目录](devices/README.md) · [外设契约](docs/peripheral-simulation-architecture.md) |
-| Agent 接入与同 guest Run | [源码到 Unit 会话](docs/unit-agent-api.md) |
-| 历史验证与已知差异 | [验证台账](docs/validation-ledger.md) · [固件矩阵](docs/user-firmware-simulation-matrix.md) |
+反馈问题时请附板型、runtime/profile、固件 SHA-256、复现步骤及脱敏证据。
 
 ## 许可与致谢
 
-原创代码与文档采用 [MIT License](LICENSE)。QEMU、WASM、第三方代码和模型资产遵循各自许可；
-重新分发前请阅读 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-感谢 [M5StopWatch-QEMU](https://github.com/zqqf16/M5StopWatch-QEMU)、
-[Espressif QEMU](https://github.com/espressif/qemu)、[esp-emulator](https://github.com/espressif/esp-emulator)、
-[UIFlow MicroPython](https://github.com/m5stack/uiflow-micropython)、
-[M5GFX](https://github.com/m5stack/M5GFX)、[M5Unified](https://github.com/m5stack/M5Unified)
-及[设备模型项目](https://github.com/yuyun2000/m5stack-models)提供的基础与参考。
+原创代码和文档采用 [MIT License](LICENSE)。QEMU、第三方代码及模型资产遵循[各自许可](THIRD_PARTY_NOTICES.md)。

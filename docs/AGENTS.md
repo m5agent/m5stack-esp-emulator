@@ -27,9 +27,9 @@ must not become a browser guest, native guest, all-device or hardware PASS.
   boundary. Link detailed API/build/validation material rather than copying it
   into both homepages. Avoid machine-specific service facts and temporary
   worktree/cache paths in public setup instructions.
-- Link new pages from `docs/README.md` with the appropriate role and review
-  date. An area README describes its local workflow; do not maintain a second
-  mutable device or test count there.
+- Add new pages to [the document register](document-register.md) with their
+  role and review date. Link the main entry points from `docs/README.md`.
+  Use area READMEs for their local workflows and link generated counts.
 - Small curated screenshots, model galleries and diagrams may be committed
   under `docs/images/` as documentation illustrations. Record source/run or
   model identity, intended use and visual review, and preserve applicable

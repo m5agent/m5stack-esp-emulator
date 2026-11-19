@@ -4,55 +4,36 @@
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
-Run M5Stack firmware in a browser or a local service. Inspect the display, use buttons and touch input,
-exercise supported peripherals, and retain reproducible execution evidence.
-The platform uses C/QEMU and independent device backends. UIFlow2 has the broadest validated coverage;
-Arduino, ESP-IDF and MicroPython images are also supported when their compatibility requirements are met.
+Run M5Stack firmware in a browser or a local service. Inspect the display and serial output, operate buttons and touch, and exercise modeled peripherals. The platform uses C/QEMU and independent device backends. UIFlow2 has the broadest validated coverage. Compatible Arduino, ESP-IDF, and MicroPython images can also run.
 
-**[Try online](https://m5agent.github.io/m5stack-esp-emulator/)** · [Capabilities and limits](docs/project-status.md) · [Documentation](docs/README.md) · [Report an issue](https://github.com/m5agent/m5stack-esp-emulator/issues)
+**[Try online](https://m5agent.github.io/m5stack-esp-emulator/)** · [Documentation](docs/README.md) · [Device Service API](docs/device-service-api.md) · [Report an issue](https://github.com/m5agent/m5stack-esp-emulator/issues)
 
-![CoreS3 firmware and interaction in the browser workbench](docs/images/browser-workbench.png)
+![CoreS3 firmware running in the browser workbench](docs/images/browser-workbench.png)
 
-*An earlier recorded browser run; see [image provenance, version and reproduction](docs/images/README.md). The deployed site can differ from main. See the [Pages guide](docs/pages-deployment.md) for deployment and version details.*
+*Recorded browser run. See [image provenance and reproduction](docs/images/README.md).*
 
-## Choose a runtime
+## Current status
 
-| Mode | Use it for | Requirements and scope |
-| --- | --- | --- |
-| Browser WASM | Open a page and run a reference example or a compatible full-flash image | Only admitted devices and configurations; no Device Service required |
-| Local Device Service | Virtual flashing, serial/display/input access, peripheral and network tests, automated evidence | Matching runtime assets, ROMs and firmware; sessions are managed through `/api/v1` |
-| 3D model preview | Explore device and Unit enclosures, ports and interactions | A visible model does not imply a firmware execution backend |
+- **Online workbench.** GitHub Pages serves the browser WASM build. See the [Pages guide](docs/pages-deployment.md) for the deployed version and available devices. The 3D catalog marks devices that can execute firmware.
+- **Local Device Service.** Use `/api/v1` to manage images, sessions, displays, controller input, and evidence. Version 1.99.5 was validated with the original Tab5 UserDemo dual-microphone recording and playback. Admission depends on the board, firmware, and runtime. [Project status](docs/project-status.md) · [Validation ledger](docs/validation-ledger.md)
+- **Firmware review.** Reviews distinguish image admission, application behavior, and model gaps. Saved snapshots support original Core2 and Cardputer ADV re-review with source and results retained. [Review workflow](docs/firmware-review-and-simulation-workflow.md)
 
-Browser displays and state come from guest firmware and simulated controllers. The 3D shell presents
-those results and supplies input. Consult the [generated project snapshot](docs/project-snapshot.md)
-for backends, peripheral status and open work, and the [validation ledger](docs/validation-ledger.md)
-for exact test conditions.
+## Remaining work
 
-![Current Atom and Stick model previews, without firmware execution](docs/images/device-models.png)
+- **P0.** Continue fast Dial input, same-BIN Core2 2048 hardware comparison, stock firmware storage and controlled networking, and Tab5 startup, RTC, and crash observations.
+- **P1 / P2.** Extend Unit, PCM, sensor, and USB data paths and refine board- and runtime-specific review outcomes.
 
-*Visual catalog examples. Firmware execution must be validated separately for each device.*
+See the [project backlog](docs/project-backlog.md) for open issues, priorities, and acceptance criteria. Model limitations are in the [runtime gap register](docs/runtime-model-gap-register.md).
 
-## Try it online
+## Run online
 
-These steps describe the source reviewed on `2026-11-04`. The deployed version may differ and may not yet include the editor.
+Open the [workbench](https://m5agent.github.io/m5stack-esp-emulator/) in desktop Chromium. Select a device with browser execution and start the UIFlow2 programming environment or a fixed example. Once the programming environment is ready, run MicroPython in the editor. Verify behavior in the display and serial log, then stop the guest.
 
-1. Open the [website](https://m5agent.github.io/m5stack-esp-emulator/) in desktop Chromium.
-2. Select a device marked “浏览器运行” (runs in browser). In the source version, “UIFlow / 示例” defaults to “UIFlow2 编程环境”: an official UIFlow2 base with a programming startup script that initializes the device and waits for code, rather than a factory menu. Select “屏幕与按键示例” under “启动环境” to run the original fixed example instead.
-3. In the programming environment, start the device and wait until ready. Paste source into the MicroPython editor or use “导入 .py”, select “运行代码”, and read output from the current guest. Use “中断” to interrupt a program that keeps running.
-4. Use the device's buttons, touch surface or supported inputs, inspect serial output and the display, then stop the instance.
-
-The first run downloads WASM, ROMs and firmware. Some devices have a slow cold start. HTTPS,
-Service Workers and shared memory are required. ROMs and firmware are downloaded and verified
-in the visitor's browser; they are not bundled with the site. Local `.bin` files and firmware URLs
-must still match the selected device's chip, board configuration and partition layout.
-See [browser requirements and firmware scope](docs/pages-deployment.md) and the [workbench composition tools and acceptance entry points](tests/browser-qemu/uiflow_workbench/README.md).
-
-Agents with desktop Chromium can use the browser Skill to load a compatible full-flash image and
-inspect the guest display on GitHub Pages. See [m5stack-browser-simulator](skills/m5stack-browser-simulator/SKILL.md).
+Browser execution requires HTTPS, a Service Worker, and shared memory. The first startup downloads and verifies WASM, the ROM, and firmware. Review the [image and board requirements](docs/pages-deployment.md#访问者流程与浏览器要求) before importing a BIN.
 
 ## Run locally
 
-Python 3.12+ is recommended:
+Use Python 3.12+ to start the workbench.
 
 ```bash
 git clone https://github.com/m5agent/m5stack-esp-emulator.git
@@ -60,71 +41,21 @@ cd m5stack-esp-emulator
 ./start.sh
 ```
 
-Open <http://127.0.0.1:8787/>; the original `/platform/web/` entry still works. The same workbench
-connects Units, loads firmware, runs UIFlow code and opens existing sessions. Same-origin loopback programming needs no Token when the service has none configured.
-Enter credentials in the connection panel when the service has configured a Token. Unit wiring is frozen during execution; stop before
-editing it. Units without a browser controller require a compatible Device Service.
-Legacy [session management](http://127.0.0.1:8787/platform/web/sessions.html),
-[firmware management](http://127.0.0.1:8787/platform/web/firmware.html) and [OpenAPI](http://127.0.0.1:8787/api/v1/openapi.yaml) remain available.
-Use `PORT=8890 ./start.sh` to choose another port.
+Open <http://127.0.0.1:8787/>. Use `PORT=8890 ./start.sh` for another port. A fresh checkout serves the workbench and API. Follow the [deployment guide](docs/deployment.md) to prepare the matching runtime, ROM, and firmware before creating a native guest. Check `ready` conditions, serial output, and guest frames for application readiness. [OpenAPI](docs/device-service.openapi.yaml)
 
-A fresh clone can serve the catalog and API pages. It does not contain the local runtime assets
-needed to create native virtual devices. Follow [deployment and runtime setup](docs/deployment.md)
-to build or configure backends matching the current source and host architecture, then create a
-session through the workbench or [Device Service API](docs/device-service-api.md).
-`running` only means the control channel has started. Confirm application readiness using
-`ready_marker`, serial output and actual frames.
+## Agents and development
 
-## Scope and limitations
-
-- Compatibility depends on the device, profile, controller coverage, Flash/PSRAM, partition layout
-  and security configuration. Successful import is not successful execution; a passing example
-  does not imply support for arbitrary firmware. See [firmware admission](docs/firmware-manifest.md).
-- Browser, native-service and physical-hardware validation are separate. Tab5 and CardputerZero
-  have independent backends and usable subsets; they do not inherit ESP32 browser results.
-  C6, P4 and Linux ARM64 are also separate targets from Xtensa WASM.
-- Virtual-device results do not establish physical RF, power, acoustic, optical, mechanical
-  or electrical equivalence.
-- The service currently assumes a trusted host. Network policies and static checks do not
-  replace production isolation for untrusted firmware.
-- Firmware differences, startup time, input latency and Worker cleanup have known limitations.
-  See [current status](docs/project-status.md) and the [runtime gap register](docs/runtime-model-gap-register.md).
-
-## Development and contributions
-
-Issues and pull requests are welcome. Include the device, runtime/profile, firmware SHA256,
-reproduction steps and relevant serial/display evidence. Remove credentials, device identifiers
-and private addresses. Check redistribution rights before sharing firmware binaries;
-this source repository does not accept firmware or ROM images.
-
-Read [AGENTS.md](AGENTS.md) and the local instructions for the directory you change.
-Choose checks using the [test guide](tests/README.md). Common offline checks are:
-
-```bash
-PYTHONPATH=platform/tools python3 -m unittest discover -s platform/tests -p 'test_*.py'
-python3 platform/tools/runtime_coverage.py --check
-python3 platform/tools/peripheral_catalog.py --check
-python3 platform/tools/qemu_profiles.py --check
-python3 platform/tools/project_snapshot.py --check
-```
-
-| Looking for | Start here |
+| Task | Entry point |
 | --- | --- |
-| Architecture and onboarding | [Engineering handoff](docs/engineering-handoff.md) · [Code map](docs/code-map.md) |
-| Tasks and workstreams | [Backlog](docs/project-backlog.md) · [Workstream index](docs/workstreams.md) |
-| Device and peripheral integration | [Device catalog](devices/README.md) · [Peripheral contracts](docs/peripheral-simulation-architecture.md) |
-| Agent integration and same-guest Run | [Source-to-Unit session guide](docs/unit-agent-api.md) |
-| Validation history and firmware differences | [Validation ledger](docs/validation-ledger.md) · [Firmware matrix](docs/user-firmware-simulation-matrix.md) |
+| Upload, run, and collect firmware evidence | [Firmware simulation Skill](skills/m5stack-esp-emulator/SKILL.md) |
+| Run UIFlow2 code in the same virtual device | [UIFlow2 Skill](skills/uiflow2-simulator/SKILL.md) |
+| Import firmware and inspect a display in the browser | [Browser Skill](skills/m5stack-browser-simulator/SKILL.md) |
+| Maintain the platform and run verification | [AGENTS.md](AGENTS.md) · [Engineering handoff](docs/engineering-handoff.md) · [Code map](docs/code-map.md) · [Workstreams](docs/workstreams.md) · [Tests](tests/README.md) |
 
-Most detailed engineering documents are currently in Chinese. This README provides the English entry point.
+Capabilities and evidence apply to a specific device, image, and runtime. Tab5, CardputerZero, and Xtensa WASM have independent support boundaries. Physical RF, power, acoustics, and electrical behavior require hardware evidence. Deploy on a trusted host with an appropriate network isolation policy. [Firmware admission](docs/firmware-manifest.md) · [Skill installation](skills/README.md)
+
+Issue reports should include the board, runtime/profile, firmware SHA-256, reproduction steps, and redacted evidence.
 
 ## License and acknowledgements
 
-Original code and documentation are licensed under the [MIT License](LICENSE). QEMU, WASM,
-third-party code and model assets retain their own licenses. Review [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
-before redistribution.
-Thanks to [M5StopWatch-QEMU](https://github.com/zqqf16/M5StopWatch-QEMU),
-[Espressif QEMU](https://github.com/espressif/qemu), [esp-emulator](https://github.com/espressif/esp-emulator),
-[UIFlow MicroPython](https://github.com/m5stack/uiflow-micropython),
-[M5GFX](https://github.com/m5stack/M5GFX), [M5Unified](https://github.com/m5stack/M5Unified)
-and the [device model project](https://github.com/yuyun2000/m5stack-models) for their foundations and references.
+Original code and documentation use the [MIT License](LICENSE). QEMU, third-party code, and device models follow the [applicable notices](THIRD_PARTY_NOTICES.md).

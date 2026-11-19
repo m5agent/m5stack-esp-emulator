@@ -1,19 +1,17 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对 `2026-11-14`。本页说明部署流程，当前能力以
-[项目状态](project-status.md)和[逐设备配置](../platform/web/qemu-browser-profiles.json)为准。
+最近核对 `2026-11-19`。[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)
+当前使用发布包 [pages-20261114-70ef503f](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261114-70ef503f)，
+对应源码 `70ef503fc2fb8b2c787fa9065e2952f525c40099`。已回读 HTTPS 工作台和
+公开资产清单 `54fc8d8f…`。[发布工作流](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43511659965)
 
-2026-11-14，执行源码 `70ef503f…` 的固定导出通过本地完整串行门禁后，已由 prepared 工作流 `43511659965` 发布，deployment `7776988548` 为 success。正式 HTTPS 全部资产字节匹配，两个 CoreS3 示例的实际触摸、串口、帧与正常清理独立通过。[本轮交付证据](evidence/2026-11-14-pages-local-qualification/README.md)分开记录本地 72 例完整资格与 HTTPS 两例限定验收；hosted 全量未重跑。以下旧部署保留其当时身份。
+Pages 提供独立的静态 WASM 交付。本机 Device Service 1.99.5 的 Tab5 原版双麦
+及 UIFlow2 云端诊断属于原生服务路径。[当前项目状态](project-status.md) ·
+[逐设备浏览器配置](../platform/web/qemu-browser-profiles.json)
 
-2026-11-10 11:25:02 UTC，主线 `7edc2d11` 通过 prepared 工作流发布，部署 ID `7680759420`。该版本公开准入 23 款浏览器设备，导出不打包固件。发布前同一产物已通过本地完整串行门禁。此前正式托管 Cardputer ADV 的失败独立保留。 [正式站点](https://m5agent.github.io/m5stack-esp-emulator/) · [发布包](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261110-7edc2d11) · [部署任务](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/42807204507)
-
-正式 HTTPS 站点的 manifest `9b9985c3…` 和其中声明的全部资产共 2,177 份，长度及 SHA-256 均与导出匹配。首次扫描有一个资产返回 HTTP 503，在同一 manifest 下复取后匹配。线上客体的输入、串口和画面独立记录。 [当次验证](validation-ledger.md#2026-11-10)
-
-同一正式 HTTPS 站点完成五个限定的浏览器 WASM 客体验收。#211 的原版 CoreS3 显示 Develop / Web IDE，同会话串口、源文件与补齐后 Flash 双 SHA 和错误 SHA 负控均通过，原版固件的 REPL 未响应。PaperS3、PaperDIY 和 CoreMatrix 通过网页本地 BIN 路径的画面与输入验证。初代 Cardputer 的首次冷启动出现 PIF 且未出帧，同一 BIN 独立复测后验证了画面与按键。正式托管全量门禁、PIF 根因和长期稳定性仍待验证。 [#211](https://github.com/m5agent/m5stack-esp-emulator/issues/211) · [线上实测与原始报告摘要](https://github.com/m5agent/agent-work-logs/blob/61bc27b30969321afcc11bedd0b1852b0489de94/records/esp-emulator/2026-11-09-pages-23-board-rollout/evidence/pages-7ed-prepared-deployment-https-summary.json)
-
-上一版 prepared-preview 于 2026-11-04 10:45:44Z 更新正式站点，见 PR #165。
-[上一版部署证据](evidence/2026-11-04-pages-workbench-release/README.md)记录工作流success与全部2,130个HTTPS资产匹配；独立HTTPS首6例已SUBSET_PASS、full_scope=false；Matrix/Plus/Core各编辑器与按键共222检查通过，其余34例NOT RUN/HOLD，不授完整线上门禁。
-[部署前资格失败](evidence/2026-11-04-pages-rollout-qualification/README.md)保持原检查点：标准hosted和新本地完整计划均FAIL；部署不将其改写为生产门禁PASS或C修复。
+正式产物的全量校验与两例 HTTPS 来宾操作见[11 月 14 日交付证据](evidence/2026-11-14-pages-local-qualification/README.md)。
+早期发布及失败样本见[部署记录](#部署记录与适用范围)、[11 月 10 日台账](validation-ledger.md#2026-11-10)
+和 [11 月 4 日发布证据](evidence/2026-11-04-pages-workbench-release/README.md)。
 
 入口为仓库根 `index.html`，由 `platform/tools/build_public_site.py` 导出。
 本机 Device Service 的根路径也提供同一工作台：Unit 接线、代码编辑器和已有
