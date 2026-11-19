@@ -14,6 +14,25 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 UIFlow2 WebREPL 断开方向回放
+
+用 CoreS3 原版 `5847a2bc…`、尾部补齐 `480ca4a2…`、原生 Xtensa
+`5ce7d9f5…` 产生的三份留存抓包，分别通过隔离 Device Service 1.99.3
+`2a7f979c` 和 1.99.4 `a1066b0d` 的会话查询，并在 Chromium 历史页读取。
+抓包 SHA 分别为 `3db861ec…`、`daf94a11…` 和 `af166eb9…`。
+
+未绑定记录的最近一次断开为对端先发 TCP FIN。已登记记录完成 5 次文本
+心跳，设备发起的控制帧 Ping/Pong 往返为零，设备先发 TCP FIN 时
+仍有 4 个设备 Ping 未匹配到 Pong。重连记录中，当前连接计数与上一条
+连接的关闭方向和未回应 Ping 分开显示。旧字段与 HTTP 读取行为保持兼容，
+新字段在 API 和 Chromium 一致。此轮为原始虚拟设备证据回放，隔离服务
+和浏览器均已退出，无活动租约。
+[三份抓包、API 回读与 Chromium 验证](https://github.com/m5agent/agent-work-logs/blob/6b9273681772d6c9ca2a826d632bb72a603d4b99/records/esp-emulator/2026-11-14-uiflow-cloud-websocket/followups/2026-11-19-webrepl-close-observation/report.md)。
+
+同日主机匿名探测得到有效 HTTP 101，随后收到一条应用错误消息和 TCP EOF。
+该探测只覆盖匿名入口。当前云端已登记通道的复验需可安全使用的独立测试身份
+或 staging，服务端 Pong 修复仍待验收。Burner 未提交。
+
 ## 2026-11-19 AtomS3 原版实体键与时长
 
 同一原版 Spirit Level 1.0.0 在原生 AtomS3 上收到实际 GPIO41 边沿。

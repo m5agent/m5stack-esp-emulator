@@ -21,7 +21,7 @@
 
 ## 社区固件测试新增问题
 
-- UIFlow2 云端 WebREPL 心跳：授权设备身份被接受后，服务器未回复标准 WebSocket control Ping，原固件随后因 PONG 超时主动重连；独立宿主标准协议对照同样未收到 control Pong。需修云端协议处理并以原 BIN 跨多个超时周期复验；持久虚拟身份、配对码或文本心跳通过均不关闭此项。见[身份与心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)。
+- UIFlow2 云端 WebREPL 心跳：授权设备身份被接受后，服务器未回复标准 WebSocket control Ping，原固件随后因 PONG 超时主动重连；独立宿主标准协议对照同样未收到 control Pong。[API 和页面已分别显示匹配的控制 Pong 与最近断开的方向](validation-ledger.md#2026-11-19-uiflow2-webrepl-断开方向回放)。需修云端协议处理并以原 BIN 跨多个超时周期复验；持久虚拟身份、配对码或文本心跳通过均不关闭此项。见[身份与心跳分层诊断](evidence/2026-11-14-uiflow-cloud-identity/README.md)。
 
 身份协商与 C6 普通 GPIO 修复已完成 main 和指定工作台后验。这里保留未解决的固件和模型范围；[最终交付证据](evidence/2026-11-14-native-identity-delivery/README.md)与[历史时钟/USB 交付](evidence/2026-11-13-native-clock-usb-followup/README.md)分开。
 
