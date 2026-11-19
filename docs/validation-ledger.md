@@ -30,6 +30,14 @@ Service 1.99.5、esp-emu 1.1.0 `633a35f9…` 和 GT911 codec Part
 实体声学、其他固件和浏览器未执行。Burner 未提交。
 [原版对照与最终解析器复验](https://github.com/m5agent/agent-work-logs/blob/d2c64d7d2ad03e684aef3c7b6a7140d391f764f0/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tab5-userdemo-es8388/followups/2026-11-18-tab5-userdemo-i2c-routing/followups/2026-11-18-tab5-userdemo-i2s1-playback/followups/2026-11-18-tab5-userdemo-device-service-192/followups/2026-11-19-tab5-userdemo-1995-microphone/report.md)。
 
+### 常驻更新回读
+
+macOS 工作台及审核 Device Service 部署 `6d486cef`。两处均读回 1.99.5
+OpenAPI `415496b8…`、API 文档和 Tab5 I²S1 麦克风能力，55 条工作台会话和
+98 条审核模拟器会话均通过历史对比。Reviewer 0.31.1 就绪，134 条审核及
+4,428 份历史证据逐项核对。两个托管 Linux 审核档案在其封存的 1.99.3 后端
+继续就绪。本轮的录制与回放依据以上独立原版会话。
+
 ## 2026-11-19 StickS3 原版手表唤醒后操作
 
 原版 All day watch 0.3.8 `f6e88da9…`、标准化 Flash `1d6ae6df…` 在
