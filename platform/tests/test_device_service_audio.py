@@ -13,7 +13,7 @@ import unittest
 import wave
 
 from device_service import DeviceSession
-from device_service_audio import WAV_MAX_BYTES, decode_cardputer_wave, pcm_metrics
+from device_service_audio import WAV_MAX_BYTES, decode_cardputer_wave, pcm_metrics, read_tab5_microphone_artifact
 from device_service_errors import ServiceError
 from runtime_acl import RuntimeACL
 
@@ -39,6 +39,28 @@ class MediaValidationTests(unittest.TestCase):
         with self.assertRaises(ServiceError) as large:
             decode_cardputer_wave(b"x" * (WAV_MAX_BYTES + 1))
         self.assertEqual(large.exception.status, 413)
+
+    def test_tab5_wav_requires_complete_four_slot_pcm_with_matching_digest(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        path = Path(directory.name) / "mic.wav"
+        raw = struct.pack("<hhhh", 3000, 0, -2000, 0) * 12
+        source = make_wave(raw, rate=48000, channels=4)
+        path.write_bytes(source)
+        digest = hashlib.sha256(source).hexdigest()
+        validated, layout = read_tab5_microphone_artifact(path, digest)
+        self.assertEqual(validated, source)
+        self.assertEqual(layout["pcm_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(layout["frames"], 12)
+        with self.assertRaises(ServiceError) as mismatch:
+            read_tab5_microphone_artifact(path, "0" * 64)
+        self.assertEqual(mismatch.exception.code, "audio_fixture_unavailable")
+        twelve_bit_header = source[:34] + struct.pack("<H", 12) + source[36:]
+        for invalid in (source[:-2], make_wave(raw, rate=48000, channels=2), twelve_bit_header):
+            path.write_bytes(invalid)
+            with self.assertRaises(ServiceError) as malformed:
+                read_tab5_microphone_artifact(path, hashlib.sha256(invalid).hexdigest())
+            self.assertEqual(malformed.exception.code, "invalid_audio_fixture")
 
     def test_pcm_tracks_tone_and_constant_signal(self):
         tone = b"".join(

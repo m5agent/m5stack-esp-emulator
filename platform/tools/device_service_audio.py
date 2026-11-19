@@ -9,6 +9,7 @@ import io
 import math
 import os
 from pathlib import Path
+import struct
 import sys
 import wave
 
@@ -22,6 +23,11 @@ UNIT_AUDIO_MAX_TRACKS = 16
 UNIT_AUDIO_MAX_CAPTURE_BYTES = 16 * 1024 * 1024
 UNIT_AUDIO_SOURCE = "native_n9301_unit"
 TAB5_AUDIO_SOURCE = "esp_emu_i2s1_tx"
+TAB5_MICROPHONE_SOURCE = "esp_emu_i2s1_rx"
+TAB5_MICROPHONE_RATE = 48_000
+TAB5_MICROPHONE_CHANNELS = 4
+TAB5_MICROPHONE_SECONDS = 10
+TAB5_MICROPHONE_MAX_BYTES = TAB5_MICROPHONE_RATE * TAB5_MICROPHONE_CHANNELS * 2 * TAB5_MICROPHONE_SECONDS + 64 * 1024
 TAB5_AUDIO_EVIDENCE_BYTES = 8 * 1024 * 1024
 TAB5_AUDIO_MAX_LEASE_SECONDS = 180
 TAB5_AUDIO_WINDOW_EVIDENCE_BYTES = 1024 * 1024
@@ -69,6 +75,72 @@ def read_wave_artifact(path: Path, artifact_id: str) -> bytes:
     if sha256(source).hexdigest() != artifact_id:
         raise ServiceError("audio_fixture_unavailable", "WAV artifact digest changed", 409)
     return pcm
+
+
+def read_tab5_microphone_artifact(path: Path, artifact_id: str) -> tuple[bytes, dict]:
+    """Validate bytes for the stock Tab5 codec's four-slot I2S1 receive stream."""
+    try:
+        with path.open("rb") as stream:
+            source = stream.read(TAB5_MICROPHONE_MAX_BYTES + 1)
+    except OSError as error:
+        raise ServiceError("audio_fixture_unavailable", "Tab5 WAV artifact could not be read", 409) from error
+    if len(source) > TAB5_MICROPHONE_MAX_BYTES:
+        raise ServiceError("audio_fixture_too_large", "Tab5 WAV fixture is too large", 413)
+    if sha256(source).hexdigest() != artifact_id:
+        raise ServiceError("audio_fixture_unavailable", "Tab5 WAV artifact digest changed", 409)
+    try:
+        _require_tab5_pcm16_header(source)
+        with wave.open(io.BytesIO(source), "rb") as wav:
+            frames = wav.getnframes()
+            if (
+                (wav.getnchannels(), wav.getsampwidth(), wav.getframerate())
+                != (TAB5_MICROPHONE_CHANNELS, 2, TAB5_MICROPHONE_RATE)
+                or wav.getcomptype() != "NONE"
+                or not 1 <= frames <= TAB5_MICROPHONE_RATE * TAB5_MICROPHONE_SECONDS
+            ):
+                raise wave.Error("unsupported Tab5 PCM fixture format")
+            pcm = wav.readframes(frames)
+            if len(pcm) != frames * TAB5_MICROPHONE_CHANNELS * 2 or wav.readframes(1):
+                raise wave.Error("incomplete Tab5 PCM data")
+    except (wave.Error, EOFError, RuntimeError) as error:
+        raise ServiceError(
+            "invalid_audio_fixture", "expected a complete 48 kHz four-channel signed 16-bit PCM WAV, up to 10 seconds", 400,
+        ) from error
+    return source, {
+        "source": TAB5_MICROPHONE_SOURCE, "artifact_id": artifact_id, "pcm_sha256": sha256(pcm).hexdigest(),
+        "sample_format": "s16le", "sample_rate_hz": TAB5_MICROPHONE_RATE,
+        "channels": TAB5_MICROPHONE_CHANNELS, "frames": frames,
+    }
+
+
+def _require_tab5_pcm16_header(source: bytes) -> None:
+    """Check the actual packed PCM bit depth, which wave rounds to bytes."""
+    if len(source) < TAB5_WAV_HEADER_BYTES or source[:4] != b"RIFF" or source[8:12] != b"WAVE":
+        raise wave.Error("invalid RIFF/WAVE container")
+    container_end = 8 + struct.unpack_from("<I", source, 4)[0]
+    if container_end > len(source):
+        raise wave.Error("truncated RIFF container")
+    offset = 12
+    format_seen = False
+    while offset + 8 <= container_end:
+        chunk, size = struct.unpack_from("<4sI", source, offset)
+        data_start = offset + 8
+        data_end = data_start + size
+        if data_end > container_end:
+            raise wave.Error("WAV chunk exceeds its container")
+        if chunk == b"data" and format_seen:
+            return
+        if chunk == b"fmt ":
+            if format_seen or size < 16:
+                raise wave.Error("invalid PCM format chunk")
+            codec, _, _, _, _, bits = struct.unpack_from("<HHIIHH", source, data_start)
+            if bits != 16:
+                raise wave.Error("Tab5 audio requires 16-bit PCM")
+            if codec == 0xFFFE and (size < 40 or struct.unpack_from("<H", source, data_start + 18)[0] != 16):
+                raise wave.Error("Tab5 PCM fixture must declare 16 valid bits")
+            format_seen = True
+        offset = data_end + (size & 1)
+    raise wave.Error("missing data or format chunk")
 
 
 def _tab5_recording_id(seed: str, info: os.stat_result) -> str:

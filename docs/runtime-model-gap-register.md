@@ -231,7 +231,7 @@ Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发�
   [同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)把 ES8388 初始化断言与之后的 panic 等待关联。
   上游移除等待后仍触发该断言，原会话转为反复软件复位。后续定位 HP I²C0
   的 codec 路由，通过仅匹配原版哈希的控制模型恢复启动与数字音频。
-  [原版与静音对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已确认出帧和 I²S1，麦克风采集仍待验证。
+  [原版与静音对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已确认出帧和 I²S1 扬声器。[原版双麦录制与回放](validation-ledger.md#2026-11-19-tab5-userdemo-原版双麦录制与回放)覆盖同固件的数字麦克风输入，其他固件及物理接口继续验证。
   [两份原版现场](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)
 
 ### CoreMatrix C158：C61 官方固件运行边界

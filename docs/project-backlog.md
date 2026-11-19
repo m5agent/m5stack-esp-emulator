@@ -122,7 +122,7 @@
    [98TAB5 正常启动对照](evidence/2026-11-18-tab5-stock-frame-comparison/README.md)保留旧版无 ELF 取帧限制、新版 DSI 重复复位和 CarPlay 出帧对照。已核对单 OTA0 的 Flash 身份与实际加载偏移。[Flash 可见性复验](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)把工作收窄到 CPU0 缓存维护与 CPU1 启动读交叠的窗口。只读诊断已确认[原版挂载 FAT16 并打开合成 IDE 磁盘](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-synthetic-hdd-recognition-summary.json)。[无调试指令批量对照](validation-ledger.md#2026-11-19-tab5-98tab5-原版指令批量对照)未恢复画面。继续修复正常冷启动的有盘和无盘画面，再补 PC-98 启动验证及多应用 OTA 数据。
    [取帧准入与 60 秒审核复验](evidence/2026-11-18-tab5-stock-frame-comparison/frame-admission-summary.json)已验证 CarPlay 在首帧等待后持续出帧，
    官方 UserDemo V0.4 的无完整帧与既有后端需匹配 ELF 由不同证据报告。
-   [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。继续验证其他固件的音频、麦克风与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入。[1.99 时区与离线选项](validation-ledger.md#2026-11-19-tab5-m5tabos-原版时区与页面往返)已取得加减、恢复及页面返回。
+   [原版启动分流](evidence/2026-11-18-tab5-stock-frame-comparison/tab5-startup-paths-summary.json)已分别观察到 UserDemo 的跨核暂停确认缺失和 M5TabOS 的双核 `wfi` 等待。[UserDemo 同源码对照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-wfi-source-ab-summary.json)已追到 ES8388 初始化断言及 panic 中的跨核暂停等待。[原版专用 Part 与 PCM](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-native-speaker-summary.json)已验证正常出帧和播放，保留 `CHIP_LP_WDT_RESET` 历史。[原版音乐保存快照](evidence/2026-11-18-tab5-stock-frame-comparison/userdemo-reviewer-speaker-summary.json)已有实际触摸、提示音后 PCM 和静音对照。[原版双麦录制与回放](validation-ledger.md#2026-11-19-tab5-userdemo-原版双麦录制与回放)已覆盖同一固件的双麦 I²S1 和录制回放。继续验证其他固件、音频格式与多动作审核。[M5TabOS 原版](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-idle-systimer-summary.json)的两核周期中断与调度 tick 已观测。[ST7123 原版复验](evidence/2026-11-18-tab5-stock-frame-comparison/m5tabos-stock-board-touch-summary.json)完成离线启动及一次欢迎页输入。[1.99 时区与离线选项](validation-ledger.md#2026-11-19-tab5-m5tabos-原版时区与页面往返)已取得加减、恢复及页面返回。
    [原版离线设置复位](validation-ledger.md#2026-11-19-tab5-m5tabos-原版设置跨重启)已验证 ST7123 完成向导与同会话保存。
    [连续触摸复验](validation-ledger.md#2026-11-19-tab5-m5tabos-原版连续触摸复验)已覆盖两种实测输入间隔和单独点按。
    继续验证更短间隔、联网设置、其他板型和非正常关机后的恢复。
@@ -136,10 +136,11 @@
    [All day watch 原版留存证据](../tests/firmware/crash_diagnostics/watch-retained-rtc-timing-summary.json)
    将 CPU1 WDT 定位到 RTC 睡眠完成轮询。[StickS3 RTC 验收](../tests/firmware/sticks3_rtc_sleep/README.md)
    已验证原版 GPIO 浅睡、B 键唤醒、RTC 定时及 GPIO 与定时器混合唤醒。[原版同会话两次唤醒](validation-ledger.md#2026-11-19-sticks3-原版手表两次浅睡唤醒)核对了重新浅睡和随后的黑帧。
+   [原版唤醒后操作](validation-ledger.md#2026-11-19-sticks3-原版手表唤醒后操作)已验证菜单、返回表盘和再次浅睡。
    [定时深睡探针](../tests/firmware/sticks3_rtc_deep_sleep/README.md)已验证数字域复位与 RTC 保留。
    [分频内部慢钟](../tests/firmware/sticks3_rtc_slowclk/README.md)已通过清醒计数和定时浅睡复验。
    [分频内部慢钟定时深睡](https://github.com/m5agent/agent-work-logs/blob/122ba36b10b565de62db2fc089beb00943b45dc5/records/esp-emulator/2026-11-18-sticks3-rtc-deep-sleep/followups/2026-11-18-sticks3-d256-deep-sleep/README.md)已有 650/1,500 ms、挂起中的慢钟选择读回及复位后恢复。
-   继续验证外部 32.768 kHz 慢钟、其他深睡唤醒源以及更多 RTC 保留模式。
+   继续在具备显式外部输入的 ESP32-S3 夹具验证 32.768 kHz 慢钟，并验证其他深睡唤醒源及 RTC 保留模式。
    [原版串口回放](../tests/firmware/crash_diagnostics/stock-write-report-summary.json)保留了
    98TAB5 的失败与“已保存”冲突。继续验证异常转储写入失败时的收据一致性。
 6. **P1 外设**。优先审查侧 Unit 挂载。Dial 的 [AudioPlayer](evidence/2026-11-17-dial-audioplayer/README.md)

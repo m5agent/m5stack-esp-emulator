@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-19`.
 
-Status: local MVP with unified-device runtime contract `1.99.4` and bounded
+Status: local MVP with unified-device runtime contract `1.99.5` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3607,7 +3607,7 @@ microphone source digest. Stopped sessions can still read retained output.
 If an operator configures a runtime ACL, use `audio.inject` for WAV staging
 and `audio.read` for reading the capture or ZIP audio.
 
-### Tab5 UserDemo I2S1 speaker output
+### Tab5 UserDemo I2S1 audio
 
 Set `M5_TAB5_USERDEMO_CODEC_PART` to the qualified GT911 module built with
 `--codec-control`. Add the exact UserDemo V0.4 normalized Flash SHA-256
@@ -3617,6 +3617,18 @@ to the native DSI allowlist and select `gt911-ili9881c` for that hash.
 The operator setting affects this one firmware. The normal GT911 module
 continues to serve other firmware. The codec Part handles ES8388 and ES7210
 control transactions on native HP I²C0.
+
+To feed the UserDemo's microphone, upload a 48 kHz, four-channel, signed
+16-bit PCM WAV of up to 10 seconds through `POST /api/v1/artifacts`. Set
+`microphone_wav_artifact_id` in the session request to the WAV artifact's
+SHA-256. This starts the native I2S1 receiver with that source for the
+admitted Tab5 image. The UserDemo uses slots 0 and 2 for the left and right
+microphones. Validate consumption at the app, for example with the Dual
+Mic Test or its record/playback controls. The session readback reports the
+source layout, WAV identity and PCM digest under `flash.tab5.microphone`.
+The receiver receives silence after the WAV ends. A guest reset opens the
+same WAV from the beginning. The runtime ACL's `audio.inject` permission
+covers admission.
 
 Set `speaker_capture: true` in the session request to record I²S1; the session
 then reports `flash.tab5.speaker_capture=esp_emu_i2s1_tx`. A recording lease

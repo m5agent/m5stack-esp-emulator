@@ -240,7 +240,8 @@ from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from device_service_audio import (  # noqa: E402
     CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES,
     TAB5_AUDIO_EVIDENCE_BYTES, TAB5_AUDIO_MAX_LEASE_SECONDS, TAB5_AUDIO_SOURCE,
-    TAB5_AUDIO_WINDOW_EVIDENCE_BYTES,
+    TAB5_AUDIO_WINDOW_EVIDENCE_BYTES, TAB5_MICROPHONE_CHANNELS, TAB5_MICROPHONE_RATE,
+    TAB5_MICROPHONE_SECONDS, TAB5_MICROPHONE_SOURCE, read_tab5_microphone_artifact,
     UNIT_AUDIO_MAX_CAPTURE_BYTES, UNIT_AUDIO_MAX_TRACKS, UNIT_AUDIO_SOURCE,
     pcm_metrics, read_tab5_speaker_cursor, read_tab5_speaker_pcm, read_wave_artifact, tab5_stereo_pcm_metrics,
 )
@@ -9164,6 +9165,10 @@ class DeviceSession:
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
+        if audio_read_allowed and "audio" in include and self.spec.id == "tab5":
+            microphone = (self.flash_info or {}).get("tab5", {}).get("microphone")
+            if microphone:
+                manifest["audio_fixture"] = microphone
         if audio_read_allowed and "audio" in include and self._tab5_speaker_enabled():
             offset, limit, expected = audio_window if audio_window else (0, TAB5_AUDIO_EVIDENCE_BYTES, None)
             try:
@@ -10232,8 +10237,10 @@ class Tab5DeviceSession(DeviceSession):
 
     def __init__(
         self, *args, speaker_capture: bool = False,
-        speaker_recording_generation: str | None = None, **kwargs,
+        speaker_recording_generation: str | None = None,
+        microphone_wav_artifact_id: str | None = None, **kwargs,
     ):
+        self._tab5_microphone_artifact_id = microphone_wav_artifact_id
         self._speaker_recording_generation = speaker_recording_generation
         super().__init__(*args, **kwargs)
         self._c6_proc: subprocess.Popen | None = None
@@ -10352,6 +10359,18 @@ class Tab5DeviceSession(DeviceSession):
                 )
                 if codec_part and self._capture_tab5_speaker:
                     identity["speaker_capture"] = TAB5_AUDIO_SOURCE
+                if codec_part and self._tab5_microphone_artifact_id:
+                    artifact_id = self._tab5_microphone_artifact_id
+                    wav, identity["microphone"] = read_tab5_microphone_artifact(
+                        self.service.artifacts.path(artifact_id), artifact_id,
+                    )
+                    path = self.dir / "tab5-microphone.wav"
+                    path.write_bytes(wav)
+                    path.chmod(0o600)
+        if self._tab5_microphone_artifact_id and "microphone" not in identity:
+            raise ServiceError(
+                "audio_unsupported", "Tab5 microphone requires the admitted native UserDemo codec", 409,
+            )
         assert self.spec.efuse is not None
         seed = self.spec.efuse.read_bytes()
         self._tab5_efuse.write_bytes(seed)
@@ -10491,6 +10510,16 @@ class Tab5DeviceSession(DeviceSession):
             # The qualified runtime flushes P4 Flash on orderly exit. The C6 seed is shared.
             save_args = ["--save-state"]
         sd_args = self._tab5_sd_launch_args()
+        audio_args = []
+        if self._tab5_speaker_enabled():
+            audio_args.extend(["--i2s-wav", str(self.dir / "tab5-speaker.wav")])
+        microphone = (self.flash_info or {}).get("tab5", {}).get("microphone")
+        if microphone:
+            path = self.dir / "tab5-microphone.wav"
+            read_tab5_microphone_artifact(path, microphone["artifact_id"])
+            audio_args.extend(["--i2s-wav-in", str(path)])
+        if audio_args:
+            audio_args.extend(["--i2s-instance", "1"])
         try:
             self._hosted_socket.unlink()
         except FileNotFoundError:
@@ -10534,8 +10563,7 @@ class Tab5DeviceSession(DeviceSession):
         ]
         command.extend(save_args)
         command.extend(sd_args)
-        if self._tab5_speaker_enabled():
-            command.extend(["--i2s-wav", str(self.dir / "tab5-speaker.wav"), "--i2s-instance", "1"])
+        command.extend(audio_args)
         if elf:
             command.extend(["--elf", str(elf)])
         touch_board = self._tab5_gt911_board
@@ -11796,6 +11824,11 @@ class DeviceService:
                     "runtime": "qemu", "capture": TAB5_AUDIO_SOURCE,
                     "firmware_sha256": TAB5_USERDEMO_FLASH_SHA256,
                     "cursor": True, "scoped_evidence": True,
+                    "microphone": {
+                        "source": TAB5_MICROPHONE_SOURCE, "sample_format": "s16le",
+                        "sample_rate_hz": TAB5_MICROPHONE_RATE, "channels": TAB5_MICROPHONE_CHANNELS,
+                        "max_seconds": TAB5_MICROPHONE_SECONDS, "applies_on": "session_start",
+                    },
                 }} if ready and spec.id == "tab5" and self.tab5_userdemo_codec_part else {}),
             },
             "components": components,
@@ -12225,6 +12258,11 @@ class DeviceService:
         speaker_capture = payload.get("speaker_capture", False)
         if type(speaker_capture) is not bool:
             raise ServiceError("invalid_speaker_capture", "speaker_capture must be boolean", 400)
+        microphone_artifact_id = payload.get("microphone_wav_artifact_id")
+        if "microphone_wav_artifact_id" in payload and (
+            not isinstance(microphone_artifact_id, str) or not _is_sha256(microphone_artifact_id)
+        ):
+            raise ServiceError("invalid_audio_fixture", "provide the SHA-256 microphone_wav_artifact_id", 400)
         uiflow_startup = parse_uiflow_startup(payload)
         program_transport = payload.get("program_transport")
         if program_transport not in (None, "uart-repl"):
@@ -12709,7 +12747,29 @@ class DeviceService:
 
         if identity_request is not None:
             validate_identity_runtime(spec, runtime, monitor=bool(monitor_config))
-        self._ensure_storage_capacity(spec.flash_size)
+        microphone_bytes = 0
+        if microphone_artifact_id:
+            if (
+                runtime != "qemu" or spec.service_kind != "tab5" or firmware_sha != TAB5_USERDEMO_FLASH_SHA256
+                or not self.tab5_userdemo_codec_part
+            ):
+                raise ServiceError(
+                    "audio_unsupported", "microphone_wav_artifact_id requires the admitted native Tab5 UserDemo", 409,
+                )
+            try:
+                self.runtime_acl.check(spec.id, "audio.inject")
+            except RuntimeACLError as error:
+                raise ServiceError(
+                    error.code, str(error), error.status,
+                    operation=error.operation, reason=error.reason, policy_id=error.policy_id,
+                ) from error
+            wav, _ = read_tab5_microphone_artifact(
+                self.artifacts.path(microphone_artifact_id), microphone_artifact_id,
+            )
+            microphone_bytes = len(wav)
+            if microphone_artifact_id not in source_artifacts:
+                source_artifacts.append(microphone_artifact_id)
+        self._ensure_storage_capacity(spec.flash_size + microphone_bytes)
         with self._lock:
             if self._stop.is_set():
                 raise ServiceError("service_stopping", "device service is shutting down", 503)
@@ -13076,7 +13136,10 @@ class DeviceService:
                     worker_id=self.worker.worker_id,
                     worker_generation=self.worker.generation,
                     worker_lease_active=True,
-                    **({"speaker_capture": speaker_capture} if session_class is Tab5DeviceSession else {}),
+                    **({
+                        "speaker_capture": speaker_capture,
+                        "microphone_wav_artifact_id": microphone_artifact_id,
+                    } if session_class is Tab5DeviceSession else {}),
                 )
             except Exception:
                 self.worker.release_lease(

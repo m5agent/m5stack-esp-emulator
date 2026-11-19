@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.4
+  version: 1.99.5
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4167,6 +4167,17 @@ components:
                     firmware_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
                     cursor: {const: true}
                     scoped_evidence: {const: true}
+                    microphone:
+                      type: object
+                      additionalProperties: false
+                      required: [source, sample_format, sample_rate_hz, channels, max_seconds, applies_on]
+                      properties:
+                        source: {const: esp_emu_i2s1_rx}
+                        sample_format: {const: s16le}
+                        sample_rate_hz: {const: 48000}
+                        channels: {const: 4}
+                        max_seconds: {const: 10}
+                        applies_on: {const: session_start}
             sd:
               type: object
               additionalProperties: false
@@ -5460,6 +5471,14 @@ components:
           description: >-
             Enable I2S1 TX recording for the exact admitted native Tab5 UserDemo.
             With recording enabled the lease is fixed and at most 180 seconds.
+        microphone_wav_artifact_id:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+          description: >-
+            Bind a 48 kHz, four-channel, signed 16-bit PCM WAV (up to 10 seconds)
+            to I2S1 RX for the exact admitted native Tab5 UserDemo session.
+            Requires audio.inject when a runtime ACL is configured. The source
+            is fixed for this session and retained across guest resets.
         ttl_seconds:
           type: integer
           minimum: 30

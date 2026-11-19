@@ -42,7 +42,7 @@ class Tab5ServiceTests(unittest.TestCase):
         self.service.specs["tab5"] = self.spec
         self.sequence = 0
 
-    def session(self, *, source="uploaded", storage_config=None, speaker_capture=False):
+    def session(self, *, source="uploaded", storage_config=None, speaker_capture=False, microphone_wav_artifact_id=None):
         self.sequence += 1
         return service_module.Tab5DeviceSession(
             self.service, session_id=f"test-{self.sequence}",
@@ -52,6 +52,7 @@ class Tab5ServiceTests(unittest.TestCase):
             ready_marker=None, ready_timeout=1, ready_conditions={}, runtime="qemu",
             storage_config=storage_config,
             speaker_capture=speaker_capture,
+            microphone_wav_artifact_id=microphone_wav_artifact_id,
         )
 
     def provision(self, session):
@@ -325,7 +326,14 @@ class Tab5ServiceTests(unittest.TestCase):
         self.service.tab5_gt911_part = "/qualified/gt911.wasm"
         self.service.tab5_userdemo_codec_part = "/qualified/userdemo-codec.wasm"
         self.service.tab5_dsi_firmware_sha256s = {self.image_sha}
-        session = self.session(speaker_capture=True)
+        stream = BytesIO()
+        raw = b"\x01\x00\x00\x00\x02\x00\x00\x00" * 128
+        with wave.open(stream, "wb") as wav:
+            wav.setparams((4, 2, 48000, 0, "NONE", "not compressed"))
+            wav.writeframes(raw)
+        source = stream.getvalue()
+        artifact_id = self.service.upload_artifact(source, name="mic.wav")["artifact_id"]
+        session = self.session(speaker_capture=True, microphone_wav_artifact_id=artifact_id)
         board = session.dir / "tab5-cosim-board.json"
         digest = "c" * 64
         with (
@@ -341,9 +349,18 @@ class Tab5ServiceTests(unittest.TestCase):
             self.service.tab5_userdemo_codec_part, "gt911-ili9881c", session.dir, codec_control=True,
         )
         self.assertNotIn("--i2s-wav", sidecar)
+        self.assertNotIn("--i2s-wav-in", sidecar)
+        microphone_path = session.dir / "tab5-microphone.wav"
+        self.assertEqual(p4[p4.index("--i2s-wav-in") + 1], str(microphone_path))
+        self.assertEqual(microphone_path.read_bytes(), source)
+        self.assertEqual(p4.count("--i2s-instance"), 1)
         self.assertEqual(p4[p4.index("--i2s-wav") + 1], str(session.dir / "tab5-speaker.wav"))
         self.assertEqual(p4[p4.index("--i2s-instance") + 1], "1")
         self.assertEqual(session.flash_info["tab5"]["speaker_capture"], "esp_emu_i2s1_tx")
+        self.assertEqual(session.flash_info["tab5"]["microphone"], {
+            "source": "esp_emu_i2s1_rx", "artifact_id": artifact_id, "sample_format": "s16le",
+            "sample_rate_hz": 48000, "channels": 4, "frames": 128, "pcm_sha256": hashlib.sha256(raw).hexdigest(),
+        })
         with self.assertRaises(service_module.ServiceError) as raised:
             session.audio_capture("pcm", 0, 4, None)
         self.assertEqual(raised.exception.code, "audio_capture_pending")
@@ -361,7 +378,8 @@ class Tab5ServiceTests(unittest.TestCase):
             mock.patch.object(service_module, "Tab5DsiReceiver"),
             mock.patch.object(service_module, "Tab5Gt911Touch"),
         ):
-            self.launch_commands(session, launch=session.reset)
+            _, reset_p4 = self.launch_commands(session, launch=session.reset)
+        self.assertEqual(reset_p4[reset_p4.index("--i2s-wav-in") + 1], str(microphone_path))
         self.assertNotEqual(session._speaker_recording_generation, generation)
         self.assertFalse(old_recording.exists())
         self.assertEqual(session.expires_at, original_deadline)

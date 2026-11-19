@@ -14,6 +14,31 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 Tab5 UserDemo 原版双麦录制与回放
+
+原版 UserDemo V0.4 `2d30fa89…`、标准化 Flash `62a86dd0…`，使用 Device
+Service 1.99.5、esp-emu 1.1.0 `633a35f9…` 和 GT911 codec Part
+`25051064…`。通过标准 API 上传 10 秒、48 kHz 四槽 s16le WAV，以
+`microphone_wav_artifact_id` 绑定 I²S1 接收。原版 Dual Mic Test 的两路
+波形随输入变化。触摸触发 REC → PLAY → IDLE，播放区间的 48 kHz 双声道
+数字输出分别检出左声道 440 Hz、右声道 880 Hz。相同固件、触摸与格式的
+静音对照显示平直波形，动作区间 PCM 全零。
+
+双槽 WAV 返回 400，缺少 `audio.inject` 权限返回 403，两项均未创建会话。
+读取同会话 ZIP 核对输入布局、WAV 及 PCM 哈希和播放范围。实体声学、其他
+固件和浏览器未执行。Burner 未提交。
+
+## 2026-11-19 StickS3 原版手表唤醒后操作
+
+原版 All day watch 0.3.8 `f6e88da9…`、标准化 Flash `1d6ae6df…` 在
+Device Service 1.99.4 `2e4ecb10` 和 Xtensa `04abc3ba…` 的同一离线会话内，
+从自然浅睡的黑帧用 B 键唤醒。120 毫秒 A 短按打开原版 UGLY GAMES 菜单，
+2 秒 B 长按返回字节一致的表盘，随后再次自然入睡。第二次 B 唤醒后约
+0.442 秒观测到运行状态，20.651 秒处确认再次浅睡。三次实时 PC 请求各读出
+两核，界面另以实际帧核对。125 秒观察只有一次上电，未观察到 IWDT 或软件
+复位。停止前校验 ZIP，活动租约归零，可写 Flash 与自有进程已释放。真机和
+Burner 未运行。
+
 ## 2026-11-19 Tab5 M5TabOS 原版连续触摸复验
 
 M5TabOS 0.9.1 原版 `08aa10d0…`、标准化 Flash `8def8f22…`，使用 Device
