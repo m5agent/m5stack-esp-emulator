@@ -83,8 +83,7 @@ class _Connection:
     syn: int | None = None
     client: _Stream = field(default_factory=_Stream)
     server: _Stream = field(default_factory=_Stream)
-    closed: bool = False
-    close_order: int | None = None
+    tcp_close: tuple[int, bool, str] | None = None
 
 
 def _blank(size: int = 0) -> dict:
@@ -93,8 +92,10 @@ def _blank(size: int = 0) -> dict:
         "pairing": {"state": "not_observed"},
         "webrepl": {"state": "not_observed", "reason": None,
                     "handshakes": 0, "disconnects": 0, "device_registered": False,
-                    "heartbeat_roundtrips": 0, "protocol_ping_sent": 0,
-                    "protocol_pong_received": 0, "protocol_ping_without_pong_count": 0},
+                    "heartbeat_roundtrips": 0, "text_heartbeat_roundtrips": 0,
+                    "protocol_ping_roundtrips": 0, "protocol_ping_sent": 0,
+                    "protocol_pong_received": 0, "protocol_ping_without_pong_count": 0,
+                    "last_disconnect": None},
         "observation": {"status": "complete", "reason": None,
                         "capture_bytes": size, "packets": 0, "tcp_streams": 0,
                         "partial_tail": False, "partial_stream": False,
@@ -205,10 +206,8 @@ def _connections(data: bytes, observation: dict) -> list[_Connection]:
             stream.expected_end = (seq + bool(flags & 2) + len(payload)) & 0xFFFFFFFF
         if payload:
             stream.append((seq + bool(flags & 2)) & 0xFFFFFFFF, payload, order)
-        if flags & 5:
-            connection.closed = True
-            if connection.close_order is None:
-                connection.close_order = order
+        if flags & 5 and connection.tcp_close is None:
+            connection.tcp_close = (order, client, "tcp_reset" if flags & 4 else "tcp_fin")
     return connections
 
 
@@ -343,7 +342,7 @@ def _websocket(connection: _Connection, observation: dict):
         raise _Unavailable("unsupported_websocket")
     outgoing = _ws_messages(client[request_end:], client_orders[request_end:], True, observation)
     incoming = _ws_messages(server[response_end:], server_orders[response_end:], False, observation)
-    reason, heartbeat, closed, registered = None, False, connection.closed, False
+    reason, registered = None, False
     mac = query.get("mac", [])
     query_mac = mac[0].lower() if len(mac) == 1 and re.fullmatch("[0-9a-fA-F]{12}", mac[0]) else None
     for opcode, payload, _ in incoming:
@@ -366,16 +365,17 @@ def _websocket(connection: _Connection, observation: dict):
             value = message.get("payload")
             reason = _ERRORS.get(value, "server_error") if isinstance(value, str) else "server_error"
     pending: dict[tuple[bool, int, bytes], list[int]] = {}
-    roundtrips = 0
+    roundtrips = text_roundtrips = device_control_roundtrips = 0
     events = [(order, True, opcode, payload) for opcode, payload, order in outgoing]
     events += [(order, False, opcode, payload) for opcode, payload, order in incoming]
-    close_orders = [order for order, _, opcode, _ in events if opcode == 8]
-    if connection.close_order is not None:
-        close_orders.append(connection.close_order)
-    close_order = min(close_orders) if close_orders else None
+    close_events = [(order, direction, "websocket_close") for order, direction, opcode, _ in events if opcode == 8]
+    if connection.tcp_close is not None:
+        # A WebSocket Close in a TCP segment precedes that segment's FIN.
+        close_events.append(connection.tcp_close)
+    first_close = min(close_events, key=lambda event: event[0], default=None)
     ping_sent = pong_received = 0
     for order, direction, opcode, payload in sorted(events, key=lambda event: event[0]):
-        if close_order is not None and order >= close_order:
+        if first_close is not None and order >= first_close[0]:
             continue
         ping_sent += int(direction and opcode == 9)
         pong_received += int(not direction and opcode == 10)
@@ -389,13 +389,14 @@ def _websocket(connection: _Connection, observation: dict):
             if waiting:
                 waiting.pop(0)
                 roundtrips += 1
-    heartbeat = roundtrips > 0
-    closed |= any(opcode == 8 for opcode, _, _ in outgoing + incoming)
+                text_roundtrips += int(opcode == 1)
+                device_control_roundtrips += int(opcode == 10 and not direction)
     state = ("identity_rejected" if reason in ("mac_not_bound", "mac_not_found") else
-             "server_error" if reason else "disconnected" if closed else
-             "heartbeat_observed" if heartbeat else "handshake_observed")
-    return {"state": state, "reason": reason, "closed": closed, "device_registered": registered,
-            "heartbeat_roundtrips": roundtrips, "protocol_ping_sent": ping_sent,
+             "server_error" if reason else "disconnected" if first_close else
+             "heartbeat_observed" if roundtrips else "handshake_observed")
+    return {"state": state, "reason": reason, "first_close": first_close, "device_registered": registered,
+            "heartbeat_roundtrips": roundtrips, "text_heartbeat_roundtrips": text_roundtrips,
+            "protocol_ping_roundtrips": device_control_roundtrips, "protocol_ping_sent": ping_sent,
             "protocol_pong_received": pong_received,
             "protocol_ping_without_pong_count": sum(len(waiting) for (direction, opcode, _), waiting in pending.items()
                                                    if direction and opcode == 9)}
@@ -505,6 +506,7 @@ def observe_uiflow_cloud_pcap(data: bytes) -> dict:
         if len(data) > MAX_CAPTURE_BYTES:
             raise _Unavailable("capture_bytes_limit")
         connections = _connections(data, observation)
+        last_disconnect_order = 0
         for connection in connections:
             if connection.port == 1883:
                 if _pairing(connection, observation):
@@ -515,11 +517,21 @@ def observe_uiflow_cloud_pcap(data: bytes) -> dict:
                     result["webrepl"].update(state=websocket["state"], reason=websocket["reason"],
                                               device_registered=websocket["device_registered"],
                                               heartbeat_roundtrips=websocket["heartbeat_roundtrips"],
+                                              text_heartbeat_roundtrips=websocket["text_heartbeat_roundtrips"],
+                                              protocol_ping_roundtrips=websocket["protocol_ping_roundtrips"],
                                               protocol_ping_sent=websocket["protocol_ping_sent"],
                                               protocol_pong_received=websocket["protocol_pong_received"],
                                               protocol_ping_without_pong_count=websocket["protocol_ping_without_pong_count"])
                     result["webrepl"]["handshakes"] += 1
-                    result["webrepl"]["disconnects"] += int(websocket["closed"])
+                    if websocket["first_close"] is not None:
+                        result["webrepl"]["disconnects"] += 1
+                        order, device, signal = websocket["first_close"]
+                        if order > last_disconnect_order:
+                            last_disconnect_order = order
+                            result["webrepl"]["last_disconnect"] = {
+                                "initiator": "device" if device else "server", "signal": signal,
+                                "protocol_ping_without_pong_count": websocket["protocol_ping_without_pong_count"],
+                            }
         if result["pairing"]["state"] == "code_received" or result["webrepl"]["handshakes"]:
             result["state"] = "observed"
     except (_Unavailable, ValueError, IndexError, struct.error, RecursionError) as error:

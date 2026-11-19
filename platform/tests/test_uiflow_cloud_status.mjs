@@ -28,6 +28,36 @@ const disconnected = text(uiflowCloudStatusView(session({state: 'disconnected', 
 assert.match(disconnected, /曾观测到云端设备登记回执/);
 assert.match(disconnected, /曾观测到心跳往返 5 次/);
 assert.match(disconnected, /尚未验证远程代码执行/);
+assert.doesNotMatch(disconnected, /最近一次断开|控制帧 Ping\/Pong|文字心跳/);
+const reconnected = session({
+  state: 'heartbeat_observed', reason: null, heartbeat_roundtrips: 5,
+  text_heartbeat_roundtrips: 5, protocol_ping_roundtrips: 0,
+  last_disconnect: {initiator: 'device', signal: 'tcp_fin', protocol_ping_without_pong_count: 4},
+});
+const reconnectView = uiflowCloudStatusView(reconnected);
+assert.equal(reconnectView.tone, 'neutral');
+assert.match(text(reconnectView), /文字心跳往返 5 次 · 设备发起的控制帧 Ping\/Pong 往返 0 次/);
+assert.match(text(reconnectView), /最近一次断开时，观测到设备先发出 TCP FIN，此前未观测到回应的控制帧 Ping 共 4 个/);
+assert.doesNotMatch(text(reconnectView), /曾观测到心跳往返 5 次|因为|超时|已完成绑定。/);
+for (const [signal, label] of [['websocket_close', 'WebSocket Close 帧'], ['tcp_reset', 'TCP RST']]) {
+  const peer = text(uiflowCloudStatusView(session({
+    state: 'disconnected', reason: null, text_heartbeat_roundtrips: 0, protocol_ping_roundtrips: 2,
+    last_disconnect: {initiator: 'server', signal, protocol_ping_without_pong_count: 0},
+  })));
+  assert.ok(peer.includes(`观测到对端先发出 ${label}`));
+  assert.match(peer, /控制帧 Ping 共 0 个/);
+}
+const invalidDetail = text(uiflowCloudStatusView(session({
+  heartbeat_roundtrips: 1, text_heartbeat_roundtrips: '4', protocol_ping_roundtrips: false,
+  last_disconnect: {initiator: {toString: null}, signal: '__proto__', protocol_ping_without_pong_count: -1},
+})));
+assert.match(invalidDetail, /曾观测到心跳往返 1 次/);
+assert.doesNotMatch(invalidDetail, /最近一次断开|\[object Object\]|文字心跳|控制帧 Ping/);
+const invalidUnanswered = text(uiflowCloudStatusView(session({
+  last_disconnect: {initiator: 'server', signal: 'tcp_fin', protocol_ping_without_pong_count: 1.5},
+})));
+assert.match(invalidUnanswered, /对端先发出 TCP FIN/);
+assert.doesNotMatch(invalidUnanswered, /控制帧 Ping 共/);
 assert.match(text(uiflowCloudStatusView(session({reason: 'mac_not_found'}))), /云端未找到该设备/);
 const serverError = uiflowCloudStatusView(session({state:'server_error',reason:'server_error'}));
 assert.match(text(serverError), /云端返回业务错误/);
@@ -67,8 +97,9 @@ class SerialFixture {update() {}}
 const update = new Function('deviceFor', 'statusClass', 'SerialChannelState', 'renderSerialChannelSelect', 'state', 'formatTime', 'ACTIVE_STATES', 'updateDeviceStateUi', 'renderUIFlowCloudStatus', updater + '\nreturn updateSessionCard;')(
   () => ({}), value => value, SerialFixture, () => {}, {serial: new Map(), visuals: new Map(), deviceStates: new Map()}, value => value,
   new Set(['running']), () => {}, renderUIFlowCloudStatus);
-update(card, {...session(), session_id: 'cloud-fixture', state: 'failed'});
+update(card, {...reconnected, session_id: 'cloud-fixture', state: 'failed'});
 assert.match(field('[data-field="uiflow-cloud"]').textContent, /末次观测/);
+assert.match(field('[data-field="uiflow-cloud"]').textContent, /设备先发出 TCP FIN/);
 update(card, {session_id: 'plain-fixture', state: 'running'});
 assert.equal(field('[data-field="uiflow-cloud"]').hidden, true);
 console.log('UIFlow independent pairing/WebREPL, unknown states, history and safe rendering contracts passed');

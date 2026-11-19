@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-19`.
 
-Status: local MVP with unified-device runtime contract `1.99.3` and bounded
+Status: local MVP with unified-device runtime contract `1.99.4` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -102,8 +102,15 @@ upgrade is `handshake_observed`, a matching Ping/Pong exchange is
 binding or remote program execution. `device_registered` records a matching
 cloud `deviceConnected` reply. Handshake/disconnect counters aggregate the capture;
 registration and heartbeat/control counts describe the latest connection.
-Protocol Ping/Pong counts are distinct from text heartbeat round trips; missing
-protocol Pongs alone are an observation, not a synthesized timeout verdict.
+API 1.99.4 reports `text_heartbeat_roundtrips` and `protocol_ping_roundtrips`
+separately. The latter counts device control Pings with matching server control
+Pongs, so an unsolicited or mismatched Pong does not satisfy a device Ping.
+`last_disconnect` records the first observed close signal (`websocket_close`,
+`tcp_fin` or `tcp_reset`), its direction (`device` or `server`) and the number
+of unanswered device control Pings in that connection. It stays visible when a
+later connection handshakes within the same capture. Capture direction describes
+the first observed close signal. It does not establish its cause or a firmware
+timeout; use same-session serial or application evidence to establish those.
 
 Observations are bounded to 8 MiB of capture, 64 directional TCP streams and
 64 KiB per stream. Disabled/missing captures, unsafe reconstruction or exceeded

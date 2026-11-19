@@ -12,8 +12,14 @@ const REASONS = {
   mac_not_found: '云端未找到该设备，请检查 UIFlow 中的设备绑定。',
   server_error: '具体原因尚未确认，请稍后重试。',
 };
+const DISCONNECT_SIDES = {device: '设备', server: '对端'};
+const DISCONNECT_SIGNALS = {
+  websocket_close: 'WebSocket Close 帧',
+  tcp_fin: 'TCP FIN',
+  tcp_reset: 'TCP RST',
+};
 const count = value => Number.isSafeInteger(value) && value >= 0 ? value : null;
-const known = (values, key) => Object.hasOwn(values, key) ? values[key] : null;
+const known = (values, key) => typeof key === 'string' && Object.hasOwn(values, key) ? values[key] : null;
 
 export function uiflowCloudStatusView(session, {cloudExpected = false} = {}) {
   const cloud = session?.uiflow_cloud_status;
@@ -35,8 +41,26 @@ export function uiflowCloudStatusView(session, {cloudExpected = false} = {}) {
   if (webrepl.device_registered === true) lines.push('曾观测到云端设备登记回执。');
   const handshakes = count(webrepl.handshakes), disconnects = count(webrepl.disconnects);
   if (handshakes !== null && disconnects !== null) lines.push(`累计观测：握手 ${handshakes} 次 · 断开 ${disconnects} 次`);
-  const heartbeats = count(webrepl.heartbeat_roundtrips);
-  if (heartbeats !== null && heartbeats > 0) lines.push(`曾观测到心跳往返 ${heartbeats} 次；尚未验证远程代码执行。`);
+  const textHeartbeats = count(webrepl.text_heartbeat_roundtrips);
+  const controlHeartbeats = count(webrepl.protocol_ping_roundtrips);
+  const heartbeats = [];
+  if (textHeartbeats !== null) heartbeats.push(`文字心跳往返 ${textHeartbeats} 次`);
+  if (controlHeartbeats !== null) heartbeats.push(`设备发起的控制帧 Ping/Pong 往返 ${controlHeartbeats} 次`);
+  if (heartbeats.length) {
+    lines.push(heartbeats.join(' · '));
+  } else {
+    const legacyHeartbeats = count(webrepl.heartbeat_roundtrips);
+    if (legacyHeartbeats !== null && legacyHeartbeats > 0) lines.push(`曾观测到心跳往返 ${legacyHeartbeats} 次；尚未验证远程代码执行。`);
+  }
+  const disconnect = webrepl.last_disconnect;
+  const side = known(DISCONNECT_SIDES, disconnect?.initiator);
+  const signal = known(DISCONNECT_SIGNALS, disconnect?.signal);
+  if (side && signal) {
+    const unanswered = count(disconnect.protocol_ping_without_pong_count);
+    let line = `最近一次断开时，观测到${side}先发出 ${signal}`;
+    if (unanswered !== null) line += `，此前未观测到回应的控制帧 Ping 共 ${unanswered} 个`;
+    lines.push(line);
+  }
   if (cloud.observation?.status === 'partial') lines.push('观测尚不完整，仅显示已确认的事件。');
   return {heading, lines, tone: ['identity_rejected', 'server_error', 'disconnected'].includes(webrepl.state) ? 'warning' : 'neutral'};
 }

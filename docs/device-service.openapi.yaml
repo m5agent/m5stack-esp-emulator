@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.3
+  version: 1.99.4
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -6279,9 +6279,26 @@ components:
             disconnects: {type: integer, minimum: 0}
             device_registered: {type: boolean}
             heartbeat_roundtrips: {type: integer, minimum: 0}
+            text_heartbeat_roundtrips:
+              type: integer
+              minimum: 0
+              description: Matched text PING/PONG round trips in the latest observed connection, in either direction.
+            protocol_ping_roundtrips:
+              type: integer
+              minimum: 0
+              description: Device control Pings with a matching server control Pong in the latest observed connection.
             protocol_ping_sent: {type: integer, minimum: 0}
             protocol_pong_received: {type: integer, minimum: 0}
             protocol_ping_without_pong_count: {type: integer, minimum: 0}
+            last_disconnect:
+              type: [object, 'null']
+              additionalProperties: false
+              description: First captured close signal of the most recently ended connection, retained across reconnects within the bounded trace. The observed signal does not explain why it was sent.
+              required: [initiator, signal, protocol_ping_without_pong_count]
+              properties:
+                initiator: {type: string, enum: [device, server]}
+                signal: {type: string, enum: [websocket_close, tcp_fin, tcp_reset]}
+                protocol_ping_without_pong_count: {type: integer, minimum: 0}
         observation:
           type: object
           description: Bounded reconstruction metadata; unavailable or partial results never imply readiness.

@@ -163,6 +163,53 @@ class CloudStatusTests(unittest.TestCase):
         self.assertEqual(result["webrepl"]["state"], "disconnected")
         self.assertEqual(result["webrepl"]["heartbeat_roundtrips"], 1)
 
+    def test_last_disconnect_retains_unanswered_device_ping_across_reconnect(self):
+        first, frames = self.handshake(outgoing=ws(b"pending", opcode=9, masked=True))
+        frames.append(first.send(flags=0x11))
+        frames.append(first.send(server=True, flags=0x11))
+        second = Flow(client_port=50001)
+        frames += [second.send(request()), second.send(response(), server=True),
+                   second.send(ws("PING", masked=True)), second.send(ws("PONG"), server=True)]
+        result = self.observe(*frames)["webrepl"]
+        self.assertEqual(result["state"], "heartbeat_observed")
+        self.assertEqual(result["text_heartbeat_roundtrips"], 1)
+        self.assertEqual(result["protocol_ping_roundtrips"], 0)
+        self.assertEqual(result["protocol_ping_without_pong_count"], 0)
+        self.assertEqual(result["last_disconnect"], {
+            "initiator": "device", "signal": "tcp_fin", "protocol_ping_without_pong_count": 1,
+        })
+
+    def test_last_disconnect_uses_wire_order_and_websocket_close_precedes_fin(self):
+        first, frames = self.handshake()
+        second = Flow(client_port=50001)
+        frames += [second.send(request()), second.send(response(), server=True),
+                   second.send(server=True, flags=0x14)]
+        reset = self.observe(*frames)["webrepl"]
+        self.assertEqual(reset["last_disconnect"], {
+            "initiator": "server", "signal": "tcp_reset", "protocol_ping_without_pong_count": 0,
+        })
+        frames.append(first.send(ws(b"", opcode=8, masked=True), flags=0x11))
+        result = self.observe(*frames)["webrepl"]
+        self.assertEqual(result["disconnects"], 2)
+        self.assertEqual(result["last_disconnect"], {
+            "initiator": "device", "signal": "websocket_close", "protocol_ping_without_pong_count": 0,
+        })
+
+    def test_split_roundtrips_require_matching_pong_to_a_device_ping(self):
+        flow, frames = self.handshake()
+        frames += [flow.send(ws("PING"), server=True), flow.send(ws("PONG", masked=True)),
+                   flow.send(ws(b"peer", opcode=9), server=True),
+                   flow.send(ws(b"peer", opcode=10, masked=True)),
+                   flow.send(ws(b"device", opcode=9, masked=True)),
+                   flow.send(ws(b"wrong", opcode=10), server=True),
+                   flow.send(ws(b"device", opcode=10), server=True)]
+        result = self.observe(*frames)["webrepl"]
+        self.assertEqual(result["heartbeat_roundtrips"], 3)
+        self.assertEqual(result["text_heartbeat_roundtrips"], 1)
+        self.assertEqual(result["protocol_ping_roundtrips"], 1)
+        self.assertEqual(result["protocol_pong_received"], 2)
+        self.assertIsNone(result["last_disconnect"])
+
     def test_fragmented_json_with_interleaved_control_frame(self):
         message = b'{"type":"error","payload":"mac does not exist"}'
         incoming = ws(message[:17], final=False) + ws(b"probe", opcode=9) + ws(message[17:], opcode=0)
