@@ -255,6 +255,28 @@ MP3 缓存、84,992 字节 PCM，并匹配两次校时和一次 TLS 事务。独
 设备测试中心未识别出已确认型号的 Core2，真机同 BIN 对照未执行。Burner 未提交。
 [首次常驻 Core2 原版独立复审证据](https://github.com/m5agent/agent-work-logs/blob/0c5f6a50a9858051c2f5b9483d89b67ba447d093/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-installed-linux-worker-component/followups/2026-11-19-independent-saved-snapshot-clone/followups/2026-11-19-resident-core2-snapshot-canary/report.md)。
 
+## 2026-11-19 常驻 Linux 的 CardputerDict ADV 独立复审
+
+常驻 Reviewer 0.31.0（`1151dda0`）在同一个第 1 代 Linux Worker 上保留
+`core2_2048`，并启用 `cardputer_adv_pronunciation`。主后端继续使用 macOS。
+从 CardputerDict ADV 0.5.0 原任务通过标准 `/snapshots` 发出一次 POST，返回
+HTTP 202。子任务以 `qemu-wifi` 运行于常驻 Linux，终态为 `done / SIM_VERIFIED`。
+保存的原版 BIN `21b7a88e…`、组合 Flash `f517333f…` 与证据中的应用区一致。
+Device Service 1.99.3（`2a7f979c`）使用原生 Xtensa 运行时 `1733f511…`。
+
+同一会话在约 60.13 秒采集 13 个画面样本，并向来宾投递 18 步按键。数据面核对
+DHCP、受控 DNS、SNTP 回复及 HTTPS/TLS 请求和回包。64 MiB FAT32 种子原先无
+`hello.mp3`，停机后读得 10,605 字节缓存 `af59cee7…`。84,992 字节的
+来宾扬声器 PCM `9be659af…` 在 API、审核专用 ZIP 与 Device Service ZIP
+逐字节一致，独立读取到有符号 16 位峰值 7,051。
+
+133 条历史审核和 2,858 个历史证据文件核对一致。源任务和 Core2 已有证据
+继续可读，子任务的可写 Flash 已释放，活动租约和待对账创建归零。两个常驻
+Linux 档案及 macOS 主后端就绪，三处 Device Service 返回同一版本的 OpenAPI。
+这是 virtual-device validation。物理声学、真机及常驻拒绝对照留待分别验收。
+Burner 未提交。
+[原版发音、会话取证和常驻读回](https://github.com/m5agent/agent-work-logs/blob/b30b8535e1fdd462b83ee46e96ecb197476843d6/records/esp-emulator/2026-11-18-linux-durable-reviewer-pilot/followups/2026-11-19-reviewer-linux-snapshot-routing/followups/2026-11-19-installed-linux-worker-component/followups/2026-11-19-independent-saved-snapshot-clone/followups/2026-11-19-resident-adv-snapshot-canary/report.md)。
+
 ## 2026-11-19 Reviewer 独立保存快照复审
 
 以 Reviewer 0.31.0（`1151dda0`）和 Device Service 1.99.3（`2a7f979c`）经

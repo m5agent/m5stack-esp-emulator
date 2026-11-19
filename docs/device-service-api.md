@@ -838,6 +838,12 @@ exercised the original Core2 firmware, duplicate requests and restart.
 [Resident Core2 validation](validation-ledger.md#2026-11-19-常驻-linux-的-core2-独立复审)
 also verified the dedicated Linux worker and all four directions through the
 normal `/snapshots` entry point while preserving the original review evidence.
+[Resident CardputerDict ADV validation](validation-ledger.md#2026-11-19-常驻-linux-的-cardputerdict-adv-独立复审)
+exercised the same entry point with the `cardputer_adv_pronunciation` profile.
+After stop, `GET /api/v1/sessions/{id}/storage/sd` returned the approved SD
+seed association and the new FAT32 cache entry. `GET /api/v1/sessions/{id}/audio.pcm`
+returned the same PCM bytes as the session evidence ZIP. Check the Reviewer's
+`/api/ready/linux-snapshot` for the configured profile before creating the dry-run.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
