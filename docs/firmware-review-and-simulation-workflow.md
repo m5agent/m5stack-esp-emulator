@@ -376,6 +376,11 @@ link down/up，或用 `target=radio` 停止/恢复 WiFi 模型信标和管理帧
 - 涉及物理测量或环境行为的断言单独执行真机验证；
 - 结论不把 `SIM PASS` 当作 `HW PASS`。
 
+Reviewer 0.31.1 会把设备服务在上传、组合或会话准入阶段返回的
+`507 storage_exhausted` 记录为 `E_SIM_STORAGE_EXHAUSTED`，详情包含失败阶段与
+可用、所需、保留空间。任务状态为 `service_error / SIM_PARTIAL`，固件功能仍未评估。
+空间恢复后，可用同一保存快照任务走 `/api/reviews/{job_id}/retry`，之前的失败证据会保留。
+
 ## 8. 证据包建议
 
 ```text

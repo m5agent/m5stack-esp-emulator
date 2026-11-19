@@ -156,7 +156,8 @@
    [XIAOZHI_CARD_KIT 的受理阶段归因](validation-ledger.md#2026-11-18-xiaozhi-目标受理)
    已通过真实审核入口对照。
    [Cardputer ADV Flash 容量归因](validation-ledger.md#2026-11-19-cardputer-adv-flash-容量结构化归因)
-   已通过原版 16 MiB 拒绝及官方 8 MiB 正对照。继续扩展其他板型和固件布局。
+   已通过原版 16 MiB 拒绝及官方 8 MiB 正对照。[宿主磁盘不足归因](validation-ledger.md#2026-11-19-reviewer-磁盘容量归因与同任务恢复)
+   覆盖原版 MP3 保存快照的上传拒绝及同任务恢复。继续扩展其他板型、固件布局和后端故障。
 
 ## 新增主机剩余工作
 

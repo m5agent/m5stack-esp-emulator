@@ -845,6 +845,13 @@ seed association and the new FAT32 cache entry. `GET /api/v1/sessions/{id}/audio
 returned the same PCM bytes as the session evidence ZIP. Check the Reviewer's
 `/api/ready/linux-snapshot` for the configured profile before creating the dry-run.
 
+Reviewer 0.31.1 records a Device Service `507 storage_exhausted` during firmware
+upload, composition, or session admission as `service_error / SIM_PARTIAL`
+with `E_SIM_STORAGE_EXHAUSTED`. The review API and `emulator-failure.json`
+include the failing phase and available, required, and reserved bytes when the
+worker supplies valid counts. The firmware remains unevaluated. Once capacity
+recovers, retry the same saved review so the previous attempt remains available.
+
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production
@@ -4267,7 +4274,8 @@ restart.
 - abandoned resumable-upload staging and expired upload-control records are
   removed by the same janitor;
 - writes and new leases fail with HTTP `507 storage_exhausted` before consuming
-  the configured free-space reserve;
+  the configured free-space reserve. The error includes `available_bytes`,
+  `required_bytes`, and `reserve_bytes`;
 - a session that was still active when the service stopped is re-attached only
   after PID start-time, QMP-socket ownership and `query-status=running` checks;
   unverified sessions become `failed` with `interrupted=true` and an explicit

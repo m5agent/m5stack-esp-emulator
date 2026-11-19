@@ -142,6 +142,37 @@ Reviewer 0.29（`69386c6`）经系统 Python 3.9.6 对同一原版走标准保�
 已按原问题的准入条件验收并关闭。
 [常驻回读、历史镜像复验及关闭状态](https://github.com/m5agent/agent-work-logs/blob/6821f1ddb645cf0f9a065f118290b6a7f75599b6/records/m5stack-esp-emulator/2026-11-17-cardputer-adv-16mb-flash-intake/followups/2026-11-18-cardputer-adv-flash-capacity-current/followups/2026-11-19-cardputer-adv-structured-flash-admission/followups/2026-11-19-reviewer-029-structured-flash-admission-resident/README.md)。
 
+## 2026-11-19 Reviewer 磁盘容量归因与同任务恢复
+
+同一份 Cardputer ADV MP3 Player v1.0.0 原版 BIN `c5918ff9…` 通过标准
+`/snapshots` 在独立 Device Service 1.99.3（`2a7f979c`）复审。仅在隔离实例
+提高实际磁盘预留，源 BIN 上传在存储分配前返回 `507 storage_exhausted`。
+Reviewer 0.31.0 返回 `service_error / SIM_PARTIAL / E_INTERNAL`。0.31.1
+返回 `E_SIM_STORAGE_EXHAUSTED`，详情和 `emulator-failure.json` 保留
+`artifact_upload`、可用和所需字节以及保留空间，固件功能标记为未评估。
+两次拒绝均未写入原版制品，也未分配来宾。
+
+使用同一原版另对组合和会话请求设置针对性的隔离预留。两个请求都经过真实的
+Device Service 磁盘守卫，返回 `507 storage_exhausted`。Reviewer 分别记录
+`firmware_composition` 和 `session_admission`。后者经原 Worker 对账为
+`not_created`，两个对照均无来宾、活动租约或待对账记录。
+
+恢复普通预留并挂载同一份 FAT32 夹具，通过 `/retry` 重跑同一子任务。原父任务、
+BIN 及之前的失败证据通过读回。来宾的按键使 SPI SD 新增 54 个完整读取块。
+原生运行时 `04abc3ba…` 的同会话 ZIP 含 1,651,712 字节 PCM，两个播放断言
+窗口实测 522.792 Hz 和 522.582 Hz。终态为 `done / SIM_VERIFIED`，可写 Flash、
+活动租约和待对账创建均已释放。此轮为 virtual-device validation，真机未执行。
+Burner 未提交。
+[原版三阶段拒绝与同任务恢复记录](https://github.com/m5agent/agent-work-logs/blob/e028a347a3779cd4d756499ba818fef2168ae2ce/records/firmware-review-service/2026-11-09-cardputer-adv-mp3-startup/followups/2026-11-19-storage-admission-507/report.md)。
+
+### 常驻更新与读回
+
+审核主分支和常驻 Reviewer 同步为 `883ccf08`，OpenAPI 为 0.31.1。两个
+Darwin Device Service 及专用第 1 代 Linux Worker 都读回同一份 1.99.3 OpenAPI。
+Core2 和 ADV 两个现有档案继续就绪，两个停止会话的证据逐项核对一致。134 条
+历史审核、2 条独立快照和 4,428 个证据及历史尝试文件完好。常驻验收核对
+就绪、进程与留存历史，三阶段拒绝和同任务恢复来自隔离实例。
+
 ## 2026-11-19 Linux 网关闭合 stdin 复验
 
 同一无网卡 Linux VZ、原版 CardputerDict 0.6.4、同一份 FAT32 字典及同一 Reviewer
