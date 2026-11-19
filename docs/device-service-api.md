@@ -3465,6 +3465,12 @@ at address `0x55` with GPIO23 interrupt. The session records
 Use `{"kind":"touch","x":530,"y":770}` for a native tap. A successful
 response includes `controller="st7123"` and the guest-consumed press and
 release counts. An unread report returns `409 tab5_st7123_ack_timeout`.
+Use `controller_reports.acknowledged` for guest ST7123 register readback and an
+application-specific check on `GET /sessions/{id}/frame.png?max_age_ms=0` for
+the UI result. On a running Tab5 this samples the most recent complete DSI
+frame. To measure redraw after a tap, sample again before sending the next
+action. The [M5TabOS time-zone replay](validation-ledger.md#2026-11-19-tab5-m5tabos-原版连续触摸复验)
+records both the controller readback and the actual page and offset on screen.
 A hold-capable module also accepts
 `{"kind":"touch","action":"hold","x":240,"y":780,"seconds":1.2}` with a
 duration of 0.25–5 seconds, defaulting to one second. It retains one coordinate

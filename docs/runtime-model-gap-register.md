@@ -217,6 +217,9 @@ Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发�
   两轮分段观测同时定位到 CPU0 的 ROM 缓存维护，后续出现独立的 Cache error。
   只读诊断改变启动时序，进入无系统盘画面，也验证了有卡时 FAT16 挂载与
   [合成 NHD 打开](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-synthetic-hdd-recognition-summary.json)。
+  [无调试指令批量对照](validation-ledger.md#2026-11-19-tab5-98tab5-原版指令批量对照)
+  在三次原版无卡冷启均复现同一串口复位序列和零完整帧。降低 P4 批量只增加
+  观察窗口内的复位次数，不能据此确定缓存根因。
   闭环须在正常冷启动证明缓存映射可见性，并复验同一原版两条路径。
   [同原版 Flash 可见性](evidence/2026-11-18-tab5-stock-frame-comparison/98tab5-cache-window-summary.json)
 - **M5TabOS** 在 1.1.0 可执行原先失败的 `0x346` CSR 读取。原版只读采样

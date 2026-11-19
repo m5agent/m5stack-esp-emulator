@@ -14,6 +14,35 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-19 Tab5 M5TabOS 原版连续触摸复验
+
+M5TabOS 0.9.1 原版 `08aa10d0…`、标准化 Flash `8def8f22…`，使用 Device
+Service 1.99.4 `2e4ecb10`、esp-emu 1.1.0 `633a35f9…` 和 ST7123 Part
+`6ecac188…`。无 ELF、离线。五个独立冷启会话合计 22 次点按全部收到
+ST7123 按下和释放读回，画面核对时区标题及数值区域。两轮较短间隔为
+717–761 毫秒，两轮较长间隔为 2,206–2,254 毫秒，从前一输入 API 回复到
+后一输入请求计量。四轮均按 UTC−3:00 → −2:30 → −3:00 → −3:30 → −3:00
+变化。第五轮只执行一次加 30 分钟，首次采样即为 UTC−2:30，继续取帧到约
+2 秒保持该数值。每轮单次 ROM 启动、无 panic 或软件复位。五份 ZIP 完成
+成员校验，结束后可写 Flash 与进程、租约已释放。
+
+历史 1.99.0 快速对照中首次加 30 分钟的采样仍为 UTC−3:00，随后撤销的
+目标值也是 UTC−3:00，因此无法独立判断撤销是否改变应用状态。旧记录没有
+该输入的持续取帧。本次只验证上述间隔和固件路径，低于已测间隔、其他板型、
+联网设置及真机仍待验证。Burner 未提交。
+[输入、取帧和历史对照](https://github.com/m5agent/agent-work-logs/blob/ffa88250dcdf6c8292b3e7b14418ac4b7768bcf6/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/followups/2026-11-19-tabos-1994-cadence/report.md)。
+
+## 2026-11-19 Tab5 98TAB5 原版指令批量对照
+
+原版 98TAB5 1.3.0 `ea4fb088…`、标准化 Flash `35c63632…`，固定 Device
+Service 1.99.4 `2e4ecb10`、esp-emu 1.1.0 `633a35f9…` 及 GT911/ILI9881C。
+三次各 50 秒的无卡冷启都从 `0x10000` 加载原版应用，DSI 连接后均无
+完整帧。默认和显式 50,000 指令批量各软件复位 26 次，完整 UART 全部
+122,376 字节相同。仅 P4 显式降到 5,000 后软件复位 56 次，前两轮的全部
+UART 字节是该轮前缀。C6 使用默认值，每轮均无调试连接和 ELF，ZIP 与
+清理通过。此次对照的无卡冷启为 FAIL，有盘、输入及真机未运行。Burner 未提交。
+[三次原版串口和清理对照](https://github.com/m5agent/agent-work-logs/blob/ffa88250dcdf6c8292b3e7b14418ac4b7768bcf6/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-19-98tab5-1994-instruction-batch/report.md)。
+
 ## 2026-11-19 UIFlow2 WebREPL 断开方向回放
 
 用 CoreS3 原版 `5847a2bc…`、尾部补齐 `480ca4a2…`、原生 Xtensa
@@ -571,8 +600,10 @@ CardputerDict 原版至 `SIM_VERIFIED`。保留旧 PCAP，取得实测 MP3 及 P
 八次输入均收到按下和释放确认，实际画面显示时区分别变更到 UTC−2:30、
 UTC−3:30，再复原到 UTC−3:00。应用前进到地区网络设置页，选择不使用互联网，
 随后返回原时区画面。保存同会话串口、已核验的 ZIP 及精确区域摘要。
-较短间隔的首次对照仍有两次已确认但画面未更新的操作。快速操作、完成向导后的
-跨重启保存、另一板型及真机另待验收。两轮均完成清理，Burner 未提交。
+较短间隔的首次对照中，第一个加号在控制器确认后仍未看到数值更新，
+随后撤销的状态转换无法独立判定。两轮均完成清理，Burner 未提交。
+后续结果分别见[连续触摸复验](#2026-11-19-tab5-m5tabos-原版连续触摸复验)
+和[原版设置跨重启](#2026-11-19-tab5-m5tabos-原版设置跨重启)。
 [原版按键、页面和漏响应对照](https://github.com/m5agent/agent-work-logs/blob/a85da77011371917a11ddcfd2a2ed16e875a5d8e/records/esp-emulator/2026-11-18-native-littlefs-http-diagnostics/followups/2026-11-18-98tab5-cpu1-panic/followups/2026-11-18-tab5-startup-paths/followups/2026-11-18-tabos-idle-systimer/followups/2026-11-18-tabos-st7123-stock/followups/2026-11-19-tabos-199-timezone-controls/README.md)。
 
 ## 2026-11-19 Core2 原版 2048 四向标准复审
