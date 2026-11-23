@@ -27,6 +27,7 @@ MAX_RECORDED_DNS_NAMES = 256
 MAX_RECORDED_FLOWS = 512
 MAX_RECORDED_PAYLOAD_HASHES = 16
 MAX_RECORDED_DHCP_TRANSACTIONS = 64
+MAX_RECORDED_DHCP_STATES = 32
 MAX_CAPTURE_BYTES = 512 * 1024 * 1024
 DHCP_MESSAGE_TYPES = {
     1: "DISCOVER",
@@ -609,12 +610,19 @@ def summarize_pcap(
                     elif transaction is None:
                         result["dhcp"]["transactions_truncated"] = True
                     if transaction is not None:
-                        if message_type and len(
-                            transaction["message_sequence"]
-                        ) < 32:
-                            transaction["message_sequence"].append(
-                                message_type
-                            )
+                        sequence = transaction["message_sequence"]
+                        # Retain ordered state changes, not repeated copies of
+                        # one state. Packet/message-type counters above still
+                        # count every retransmission. Otherwise a slow peer's
+                        # DISCOVER retries can hide its later OFFER/REQUEST/ACK.
+                        if message_type and (not sequence or sequence[-1] != message_type):
+                            if len(sequence) < MAX_RECORDED_DHCP_STATES:
+                                sequence.append(message_type)
+                            else:
+                                transaction["message_sequence_truncated"] = True
+                                # Consumers already treat incomplete transaction
+                                # evidence as unknown, rather than finalized zero.
+                                result["dhcp"]["transactions_truncated"] = True
                         if request_kind == "renewal":
                             transaction["renewal"] = True
                         for key in (

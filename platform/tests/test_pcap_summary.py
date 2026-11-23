@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from pcap_summary import PcapError, _scope, summarize_pcap  # noqa: E402
+from device_service_wifi_evidence import native_sta_data_plane  # noqa: E402
 
 
 def _checksum(data: bytes) -> int:
@@ -173,6 +174,81 @@ def dhcp_packet(
 
 
 class PcapSummaryTests(unittest.TestCase):
+    @staticmethod
+    def dhcp_exchange_frame(kind, *, xid=0x11223344, renewal=False):
+        reply = kind in (2, 5, 6)
+        return ethernet(ipv4_udp(
+            dhcp_packet(
+                operation=2 if reply else 1, xid=xid, message_type=kind,
+                client_address="10.0.2.15" if renewal else "0.0.0.0",
+                assigned_address="10.0.2.15" if reply else "0.0.0.0",
+                requested_ip="10.0.2.15" if kind == 3 and not renewal else None,
+                server_id="10.0.2.2" if kind != 1 else None,
+                lease_seconds=120 if reply else None,
+            ),
+            source="10.0.2.2" if reply else "10.0.2.15" if renewal else "0.0.0.0",
+            destination="255.255.255.255",
+            source_port=67 if reply else 68, destination_port=68 if reply else 67,
+        ))
+
+    def test_repeated_discover_does_not_hide_dora_and_transport(self):
+        frames = [self.dhcp_exchange_frame(kind) for kind in [1] * 67 + [2, 3, 3, 5]]
+        for port in (53001, 53002):
+            frames.extend([
+                ethernet(ipv4_tcp(b"request", source_port=port, destination="10.0.2.2")),
+                ethernet(ipv4_tcp(b"reply", source="10.0.2.2", destination="10.0.2.15",
+                                  source_port=80, destination_port=port)),
+            ])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "retries.pcap"
+            path.write_bytes(pcap(frames))
+            summary = summarize_pcap(path)
+        self.assertEqual(summary["dhcp"]["packets"], 71)
+        self.assertEqual(summary["dhcp"]["message_types"], {
+            "discover": 67, "offer": 1, "request": 2, "ack": 1,
+        })
+        self.assertEqual(summary["dhcp"]["transactions"][0]["message_sequence"],
+                         ["DISCOVER", "OFFER", "REQUEST", "ACK"])
+        self.assertFalse(summary["dhcp"]["transactions_truncated"])
+        receipt = native_sta_data_plane(summary)
+        self.assertEqual(receipt["dhcpv4"]["completed_dora_transactions"], 1)
+        self.assertEqual(receipt["tcp"]["bidirectional_payload_flows"], 2)
+
+    def test_repeated_renewal_keeps_packet_counts_without_becoming_dora(self):
+        frames = [self.dhcp_exchange_frame(kind, renewal=True) for kind in [3] * 67 + [5, 5]]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "renewal.pcap"
+            path.write_bytes(pcap(frames))
+            summary = summarize_pcap(path)
+        self.assertEqual(summary["dhcp"]["renewal_requests"], 67)
+        self.assertEqual(summary["dhcp"]["renewal_acks"], 2)
+        self.assertEqual(summary["dhcp"]["transactions"][0]["message_sequence"], ["REQUEST", "ACK"])
+        self.assertEqual(native_sta_data_plane(summary)["dhcpv4"]["completed_dora_transactions"], 0)
+
+    def test_dhcp_retries_do_not_reorder_or_skip_negative_states(self):
+        for sequence in ([5], [1, 3, 2, 5], [1, 2, 3, 6, 5], [1, 2, 3, 4, 5]):
+            with self.subTest(sequence=sequence), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "incomplete.pcap"
+                path.write_bytes(pcap([self.dhcp_exchange_frame(kind) for kind in sequence]))
+                receipt = native_sta_data_plane(summarize_pcap(path))
+                self.assertEqual(receipt["capture_state"], "finalized")
+                self.assertEqual(receipt["dhcpv4"]["completed_dora_transactions"], 0)
+                self.assertEqual(receipt["tcp"]["bidirectional_payload_flows"], 0)
+
+    def test_dhcp_state_limit_keeps_incomplete_evidence_unknown(self):
+        sequence = [1, 3] * 17 + [2, 3, 5]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "too-many-states.pcap"
+            path.write_bytes(pcap([self.dhcp_exchange_frame(kind) for kind in sequence]))
+            summary = summarize_pcap(path)
+        transaction, = summary["dhcp"]["transactions"]
+        self.assertEqual(len(transaction["message_sequence"]), 32)
+        self.assertTrue(transaction["message_sequence_truncated"])
+        self.assertTrue(summary["dhcp"]["transactions_truncated"])
+        self.assertEqual(summary["dhcp"]["packets"], len(sequence))
+        self.assertEqual(summary["dhcp"]["message_types"]["ack"], 1)
+        self.assertEqual(native_sta_data_plane(summary)["capture_state"], "unavailable")
+
     def test_reset_cutoff_requires_a_new_exchange_even_when_xid_repeats(self):
         xid = 0x11223344
         frames = []
