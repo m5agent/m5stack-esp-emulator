@@ -23,11 +23,14 @@ PROFILE = "cardputer-open-softap-fixture"
 STICKS3_PROFILE = "sticks3-open-softap-fixture"
 STICKS3_PORTAL_PROFILE = "sticks3-open-softap-portal"
 STICKS3_PROVISION_PROFILE = "sticks3-open-softap-provisioning"
+STOPWATCH_PROVISION_PROFILE = "stopwatch-open-softap-provisioning"
+STOPWATCH_QOM_PROPERTY = "open-softap-stopwatch-provisioning"
 PROFILE_BOARDS = {
     PROFILE: frozenset({"cardputer", "cardputer-adv"}),
     STICKS3_PROFILE: frozenset({"sticks3"}),
     STICKS3_PORTAL_PROFILE: frozenset({"sticks3"}),
     STICKS3_PROVISION_PROFILE: frozenset({"sticks3"}),
+    STOPWATCH_PROVISION_PROFILE: frozenset({"stopwatch"}),
 }
 ACL_OPERATION = "network.softap.probe"
 PROVISION_ACL_OPERATION = "network.softap.provision"
@@ -60,13 +63,15 @@ _BROADCAST_IP = b"\xff" * 4
 _MAX_ETHERNET = 1514
 
 
-def require_softap_backend(qemu: Path, *, portal: bool = False, station: bool = False) -> None:
+def require_softap_backend(qemu: Path, *, portal: bool = False, station: bool = False, stopwatch: bool = False) -> None:
     try:
         result = subprocess.run(
             [str(qemu), "-device", f"{NIC},help"],
             check=True, capture_output=True, text=True, timeout=3,
         )
         required = [QOM_PROPERTY]
+        if stopwatch:
+            required.append(STOPWATCH_QOM_PROPERTY)
         if portal or station:
             required.append(PORTAL_QOM_PROPERTY)
         if station:
@@ -293,8 +298,10 @@ class SoftAPPeer:
             ):
                 return lease, source
 
+    _lease_timeout_seconds = 25
+
     def _lease(self, xid: bytes, *, on_frame: Callable[[bytes], None] | None = None) -> tuple[bytes, bytes]:
-        deadline = time.monotonic() + 25
+        deadline = time.monotonic() + self._lease_timeout_seconds
         while True:
             self._dhcp_request(xid, b"\x35\x01\x01")
             try:
@@ -333,6 +340,8 @@ class SoftAPPeer:
     def _http(
         self, lease: bytes, server: bytes, mac: bytes, request: bytes,
         *, markers: tuple[bytes, ...] = _ROOT_MARKERS,
+        body_parser: Callable[[bytes], bytes | None] | None = None,
+        response_timeout: float = 5,
     ) -> bytes:
         port = 49152 + secrets.randbelow(16384)
         initial = secrets.randbits(31)
@@ -379,13 +388,15 @@ class SoftAPPeer:
         send(0x18, initial + 1, next_remote, request)
         end_local = initial + 1 + len(request)
         response = bytearray()
-        deadline = time.monotonic() + 5
+        deadline = time.monotonic() + response_timeout
         while True:
             seq, ack, flags, payload = read(deadline)
             if seq != next_remote or ack != end_local or not payload:
                 continue
             response.extend(payload)
-            if self._portal:
+            if body_parser is not None:
+                body = body_parser(bytes(response))
+            elif self._portal:
                 body = _portal_http_body(bytes(response), markers)
             else:
                 if not HTTP_RESPONSE.startswith(response):

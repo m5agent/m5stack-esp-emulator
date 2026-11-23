@@ -1904,3 +1904,22 @@ bidirectional SDIO21. The existing shared panel engine returns RDDID when
 the guest releases SDIO, then releases the line at transaction end.
 Both AtomS3 panel variants retain their own ID and GP-SPI path for drawing.
 AtomS3 Lite uses its separate displayless board initialization.
+
+## StopWatch original synchronous JSON provisioning (0233)
+
+Native-only opt-in `open-softap-stopwatch-provisioning` requires
+`open-softap-peer` and excludes the StickS3 portal/handoff and raw-fixture flags.
+It joins only the original open `M5StopWatch-` SSID derived from the emitted
+SoftAP address. AP client and infrastructure STA associations retain independent
+state and BSSID so the original AP HTTP connection survives the STA association
+test. AP and STA traffic still traverses Ethernet framing and the S3 802.11
+TX/RX DMA, with interface-specific RX descriptor matching. Queue flush occurs
+only after the temporary AP management state is restored. Reset clears both
+associations. Old profiles keep their existing flags and behavior.
+
+The exact original application tests association during JSON `/submit`, saves
+and disconnects, then starts its station manager after `/done.html` and POST
+`/exit`. The isolated Unix peer exercises that sequence without seeding NVS or
+opening host IP sockets. Cold original provisioning, guest-written NVS CRC and
+same-session reset/rejoin are [separately bound to execution evidence](../../docs/evidence/2026-11-23-stopwatch-factory-provisioning/summary.json).
+This does not grant WPA2, arbitrary portals, browser-WASM or RF validation.

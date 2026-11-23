@@ -122,10 +122,13 @@ from device_service_softap_peer import (  # noqa: E402
     STATION_QOM_PROPERTY as SOFTAP_STATION_QOM_PROPERTY,
     STICKS3_PORTAL_PROFILE,
     STICKS3_PROVISION_PROFILE,
+    STOPWATCH_PROVISION_PROFILE,
+    STOPWATCH_QOM_PROPERTY,
     PortalStationPeer,
     SoftAPPeer,
     require_softap_backend,
 )
+from device_service_stopwatch_peer import StopWatchProvisionPeer  # noqa: E402
 from device_service_sta_time_peer import (  # noqa: E402
     ACL_OPERATION as STA_TIME_ACL_OPERATION,
     DEVICE as STA_TIME_DEVICE,
@@ -484,6 +487,7 @@ GENERIC_WIFI_PROFILE = "generic-observe"
 UNIX_WIFI_PEER_OPERATIONS = {
     **dict.fromkeys(SOFTAP_PROFILE_BOARDS, SOFTAP_ACL_OPERATION),
     STICKS3_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
+    STOPWATCH_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
     STA_TIME_PROFILE: STA_TIME_ACL_OPERATION,
 }
 UNIX_WIFI_PEER_PROFILES = frozenset(UNIX_WIFI_PEER_OPERATIONS)
@@ -1150,6 +1154,12 @@ def parse_qemu_wifi_execution(
             "capture_pcap": True, "http_fixture": False, "wifi_ssid": STA_TIME_SSID,
             "wifi_auth": "open", "withhold_ntp": value.get("withhold_ntp", False),
         }
+    if profile == STOPWATCH_PROVISION_PROFILE and (
+        spec.id != "stopwatch" or spec.backend != "qemu-esp32s3"
+        or getattr(spec, "machine", None) != "m5stopwatch"
+        or getattr(spec, "service_kind", None) != "qemu"
+    ):
+        raise ServiceError("unsupported_network_profile", "StopWatch provisioning requires its exact native board", 400)
     if isinstance(profile, str) and spec.id in SOFTAP_PROFILE_BOARDS.get(profile, ()):
         if set(value) - {"profile", "capture_pcap"} or value.get("capture_pcap", True) is not True:
             raise ServiceError(
@@ -1161,7 +1171,7 @@ def parse_qemu_wifi_execution(
             "profile": profile, "net_mode": "unix-socketpair",
             "nic": SOFTAP_NIC, "capture_pcap": True, "http_fixture": False,
         }
-        if profile == STICKS3_PROVISION_PROFILE:
+        if profile in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}:
             config.update(wifi_ssid=PROVISION_SSID, wifi_auth="open")
         return config
     if profile != supported_profile:
@@ -4710,7 +4720,7 @@ class DeviceSession:
             "status": "PASS",
             **summary,
         }
-        if self.network_config.get("profile") == STICKS3_PROVISION_PROFILE:
+        if self.network_config.get("profile") in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}:
             peer = self._softap_receipt()
             start_offset = peer.get("capture_start_offset")
             if peer.get("station_reconnect") is True and type(start_offset) is int:
@@ -4788,10 +4798,12 @@ class DeviceSession:
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
         if self.network_config.get("profile") in SOFTAP_PROFILE_BOARDS:
-            provisioning = self.network_config["profile"] == STICKS3_PROVISION_PROFILE
+            stopwatch = self.network_config["profile"] == STOPWATCH_PROVISION_PROFILE
+            provisioning = self.network_config["profile"] in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}
             peer = self._softap_receipt()
             evidence["softap_fixture"] = peer
             evidence["kind"] = (
+                "m5stack-qemu-stopwatch-provisioning" if stopwatch else
                 "m5stack-qemu-sticks3-provisioning" if provisioning else "m5stack-qemu-open-softap-proof"
             )
             evidence["isolation"] = {
@@ -4826,10 +4838,14 @@ class DeviceSession:
                 else:
                     evidence["checks"].update(
                         **station_checks,
-                        peer_save_form=peer.get("save_http") is True,
+                        peer_save_form=peer.get("submit_http" if stopwatch else "save_http") is True,
                         both_dhcp_flows=data_plane["dhcpv4"]["completed_dora_transactions"] >= 2,
                         both_portal_requests=data_plane["tcp"]["bidirectional_payload_flows"] >= 2,
                     )
+                if stopwatch and not reconnect:
+                    evidence["checks"]["portal_done"] = peer.get("done_http") is True
+                    evidence["checks"]["portal_exit"] = peer.get("exit_http") is True
+                    evidence["checks"]["station_after_exit_response"] = peer.get("station_dhcp_after_exit_response") is True
             evidence["status"] = (
                 "PASS" if peer.get("status") == "PASS" and all(evidence["checks"].values()) else "PARTIAL"
             )
@@ -6373,7 +6389,9 @@ class DeviceSession:
                 peer_mac = qemu_station_mac(f"softap-peer:{self.id}")
                 def persist(receipt):
                     atomic_write_json(self.softap_fixture_receipt, receipt)
-                if profile == STICKS3_PROVISION_PROFILE:
+                if profile == STOPWATCH_PROVISION_PROFILE:
+                    self._unix_wifi_peer = StopWatchProvisionPeer(peer_mac, wifi_mac, persist)
+                elif profile == STICKS3_PROVISION_PROFILE:
                     self._unix_wifi_peer = PortalStationPeer(peer_mac, wifi_mac, persist)
                 else:
                     self._unix_wifi_peer = SoftAPPeer(peer_mac, persist, portal=profile == STICKS3_PORTAL_PROFILE)
@@ -6385,6 +6403,10 @@ class DeviceSession:
                 if profile in {STICKS3_PORTAL_PROFILE, STICKS3_PROVISION_PROFILE}:
                     command.extend([
                         "-global", f"driver={SOFTAP_NIC},property={SOFTAP_PORTAL_QOM_PROPERTY},value=on",
+                    ])
+                if profile == STOPWATCH_PROVISION_PROFILE:
+                    command.extend([
+                        "-global", f"driver={SOFTAP_NIC},property={STOPWATCH_QOM_PROPERTY},value=on",
                     ])
                 if profile == STICKS3_PROVISION_PROFILE:
                     command.extend([
@@ -12533,12 +12555,13 @@ class DeviceService:
                 if identity_request is not None:
                     if profile == STA_TIME_PROFILE:
                         raise ServiceError("invalid_network", "the local time fixture uses generated device identity", 400)
-                    if profile == STICKS3_PROVISION_PROFILE:
+                    if profile in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}:
                         raise ServiceError("invalid_network", "the provisioning fixture uses generated device identity", 400)
                 if profile != STA_TIME_PROFILE:
                     require_softap_backend(
                         spec.qemu, portal=profile == STICKS3_PORTAL_PROFILE,
                         station=profile == STICKS3_PROVISION_PROFILE,
+                        stopwatch=profile == STOPWATCH_PROVISION_PROFILE,
                     )
         elif runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}:
             network_config = parse_qemu_ble_execution(

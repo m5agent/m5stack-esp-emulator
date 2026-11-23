@@ -35,9 +35,10 @@
 PaperDIY 的原版 CrossPoint 仍需按原 BIN、实际配置输入和同会话应用输出验证网络。
 已具备的原生 STA 板级准入仅关闭关联/DHCP 资格前置，不能替代其 TCP/UDP、
 HTTP 或其它应用语义；[精确前置证据](evidence/2026-11-23-paperdiy-native-sta/summary.json)保留范围。
-StopWatch Demo Plus 的原始 Setup AP 仍需完成表单提交、实际 STA 连接和保存重启的
-端到端配网验证；已预置凭据的原版 STA 资格不能替代门户路径。保留首次 ROI 漂移
-负控及空 NVS 的 AP 观察，见[原版对照](evidence/2026-11-23-stopwatch-native-sta/summary.json)。
+StopWatch Demo Plus 原始空 NVS 的固定开放实验网络已完成 AP 门户提交、退出、
+STA DHCP 与保存重启回连；[冷启动证据](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json)
+只关闭这条精确原版/板型/原生路径。WPA2、浏览器及外网语义需独立验收；先前
+已配网前置、ROI 漂移和空 NVS AP 观察仍保留在[原版对照](evidence/2026-11-23-stopwatch-native-sta/summary.json)。
 
 ## 可执行任务板
 
