@@ -41,6 +41,11 @@ reset 前和 stop 前分别保存 ZIP，stop `purge=0`，保留 Flash 作为 NVS
 额外旧 StickS3 v0.2.4 兼容性对照分别在新 `5b8b3f24…` 和未改动178层 `4f5aae26…`
 运行，AP DHCP/ARP 通过，但短超时 HTTP 流分别止于读取和提交，均为 PARTIAL；
 各自原始捕获和清理保留。此结果不构成旧门户完整回归 PASS，也未证明0233导致回归。
+已提交 `e32e84ff…` 代码的独立冷启动复跑再次完成门户与 reset 回连，最终 PCAP
+`8cce394e0913…` 同样为 3 次 DORA / 2 个地址 / 4 个双向 TCP 流。固定滚动坐标
+在其前一轮落入 Button 的导航负控保留；最终复跑从真实帧匹配原版 Wi-Fi 标签
+（score 1.0）后发送普通点击，不改写来宾帧或状态。精确代码文件 SHA、两代 capture
+与 ZIP、原应用写入的 NVS CRC 和进程退出读回均在同一结构化证据内。
 
 ## 2026-11-23 StopWatch 原版已配网 STA 与空 NVS 对照
 

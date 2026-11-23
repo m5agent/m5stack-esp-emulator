@@ -224,5 +224,156 @@
       "bidirectional_tcp_payload_flows": 2
     },
     "interpretation": "Neither short-timeout legacy attempt completed. Baseline failure is retained; regression attribution and complete legacy portal acceptance remain open. Both saved ZIP before stop and ended with zero leases."
+  },
+  "exact_committed_replay": {
+    "status": "PASS",
+    "source_commit": "e32e84ff933ab068be635c7aacd3ef1bae731c62",
+    "source_files_sha256": {
+      "platform/tools/serve.py": "bc300f72401d24bedb2acff5f8ef6e61bec2d94e0fa5515b888add68a5bb2683",
+      "platform/tools/device_service.py": "20da916a062d1c131b04907a53555627b94d37eaf2a6f1ca893e30b21bd8e29c",
+      "platform/tools/device_service_softap_peer.py": "f4ff8a958f96e6dcccb1c1e4ded5a4c13c2b8972e19c47e42ff8ffc3a5ccd1fb",
+      "platform/tools/device_service_stopwatch_peer.py": "bc4a68d0b507c6ba0682f670d71e022d355571c15bf9c74aff215ae8207be344",
+      "platform/tools/device_service_wifi_evidence.py": "e7438f7da5a943fb3f7c0a953fa9ce969d5568e20e40478df1d9e3e49dbaae16",
+      "patches/qemu-m5stack-peripherals/0233-s3-stopwatch-synchronous-provisioning.patch": "1d47036a089458102a223f14abf85092c800b959832ca95b7a55da29601e8708",
+      "scripts/bootstrap-unit-runtime.py": "a36858134d80fb07434e5c83b94e690f4435fd932f8497f6296ad0443a23a5e0"
+    },
+    "native_binary_sha256": "5b8b3f24b9d2c757a21b1d17d635218348167d258b3e3677b69c3196cdf5d4db",
+    "original_nvs_erased": true,
+    "nvs_fixture_applied": false,
+    "input": [
+      {
+        "kind": "chord",
+        "target": "button",
+        "keys": [
+          "a",
+          "b"
+        ],
+        "seconds": 1.5,
+        "settle_seconds": 1
+      },
+      {
+        "kind": "touch",
+        "x": 32,
+        "y": 233,
+        "action": "click",
+        "settle_seconds": 0.6
+      },
+      {
+        "kind": "touch",
+        "x": 234,
+        "y": 230,
+        "action": "click",
+        "settle_seconds": 0.6
+      },
+      {
+        "kind": "drag",
+        "x1": 236,
+        "y1": 398,
+        "x2": 236,
+        "y2": 130,
+        "settle_seconds": 0.8
+      },
+      {
+        "kind": "touch",
+        "x": 234,
+        "y": 262,
+        "action": "click",
+        "settle_seconds": 0.9
+      },
+      {
+        "kind": "touch",
+        "x": 340,
+        "y": 160,
+        "action": "click",
+        "settle_seconds": 1
+      }
+    ],
+    "wifi_row_input_gate": {
+      "score": 1.0,
+      "touch_x": 234,
+      "touch_y": 262,
+      "source_frame_sha256": "4f67798ffd7a0f0adf225629ddea9ec883691decc4415d4da2ddcd2c95987d29",
+      "template_sha256": "a3e9a5c69573b816d2effc4886a0a5c33166a9b62e38d476a1afd4c27a4bda89"
+    },
+    "cold_peer": {
+      "status": "PASS",
+      "dhcp": true,
+      "arp": true,
+      "http": true,
+      "submit_http": true,
+      "done_http": true,
+      "exit_http": true,
+      "station_dhcp_after_exit_response": true,
+      "station_dhcp": true,
+      "station_arp": true
+    },
+    "provision_capture_sha256": "44fce5ee819c7fb0153d0a651328f647b63911d383d8db20b9b23d10d6d35371",
+    "provision_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "44fce5ee819c7fb0153d0a651328f647b63911d383d8db20b9b23d10d6d35371",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 4
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "guest_written_nvs_sha256": "b2255ce615cf13f14121e66a83fcf4d6894187f23a7f6b5f50f4a31f70bbe83e",
+    "guest_written_nvs_entry_and_string_crc_valid": true,
+    "flash_snapshot_sha256": "4ec4f982383337ed01d88312ed45676b604b6d94b6fcaf3fd2bcd9c4e42eecfc",
+    "reset": {
+      "peer_generation": 2,
+      "status": "PASS",
+      "station_reconnect": true,
+      "fresh_station_dora": true,
+      "station_arp": true,
+      "portal_not_resubmitted": true,
+      "capture_start_offset": 95655
+    },
+    "final_capture_sha256": "8cce394e09139d8aac7760c19b4a67dd35a0212034d36c92a96e2022984393f7",
+    "final_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "8cce394e09139d8aac7760c19b4a67dd35a0212034d36c92a96e2022984393f7",
+      "dhcpv4": {
+        "completed_dora_transactions": 3,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 4
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "zip_before_reset_sha256": "762cee6c1b5812adb0d6dd81e2e144558b34ad2606ca7f338955d565585e894f",
+    "zip_before_stop_sha256": "2274447d1c2c5c95224e8f04a94bf0efec0c098e2b5390d925055db714a74ef2",
+    "connected_frame_sha256": "37c1299f5024a330f663e9fe24d4a5faddb6e02d56c8d07045bef3423adfe2c5",
+    "serial_after_reset_sha256": "e0f7fc5587438a265edfcac0a4cb1c613cc958854bd46512d6a55b2b921e4903",
+    "cleanup": {
+      "active_leases": 0,
+      "peer_released": true,
+      "guest_process_exited": true,
+      "owned_service_exited": true,
+      "purge": false,
+      "flash_retained_for_evidence": true
+    },
+    "preceding_fixed_row_attempt": {
+      "status": "PARTIAL",
+      "reason": "Same original scroll ended with Wi-Fi row below the fixed coordinate; fixed tap opened Button and later Volume. Network was never enabled. Final replay selected the visible original Wi-Fi label before tapping.",
+      "capture_sha256": "0626bc3562d317ddffe2076bc9850ebceb7ec1f44bdba881de802133efeec750",
+      "zip_before_stop_sha256": "1f2c071c3356ffcdda123a99a729dd0ea06a19ebf2a42f7dfac910c2c800a7aa",
+      "stop_purge": false,
+      "active_leases": 0
+    }
   }
 }
