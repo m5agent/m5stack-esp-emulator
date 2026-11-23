@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-19`
+日期：`2026-11-23`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,22 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-23 PaperDIY 原生 STA 板级资格
+
+在精确 `paperdiy` / `m5paperdiy` / `qemu-esp32s3` 上，受控 ESP-IDF
+STA fixture `a225471a…`（标准化 Flash `1ae12373…`）使用 Linux Xtensa
+`1733f511…`、S3 ROM `b5c7090c…` 和 `qemu-wifi/generic-observe`。
+独立 namespace 仅有 loopback、无外部路由，策略为 lab-only / DNS deny。
+同一 guest 输出 `STA_FIXTURE_ASSOC`、`STA_FIXTURE_DHCP`；final Ethernet
+PCAP `1a8b08d5…` 记录完整 DORA 一次、地址一个，双向 TCP/UDP payload 均为零。
+未配置应用 peer，HTTP 尝试的 `body_match=0` 与网络总体 `PARTIAL` 保留。
+
+这只提供最小 STA 板级资格，`operation_assertions=false`，不继承 Cardputer
+的 HTTP POST/TCP/SoftAP/time fixture。原版 CrossPoint、StopWatch、其它板型、
+浏览器和物理 RF 均不由此获得应用 PASS。ZIP 在停止前保存；随后 stopped、
+Flash 释放、namespace/QEMU 清理完成、worker lease 为零。
+[完整哈希与限定摘要](evidence/2026-11-23-paperdiy-native-sta/summary.json)。
 
 ## 2026-11-19 Tab5 UserDemo 原版双麦录制与回放
 

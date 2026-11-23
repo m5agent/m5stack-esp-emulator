@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-11-19`
+日期：`2026-11-23`
 
 本文是未完成工作、依赖和验收条件的唯一队列。当前能力见
 [项目当前状态](project-status.md)，运行历史和精确身份见
@@ -31,6 +31,10 @@
 `NET-04`、`SVC-01/02` 的跨主机验收需要可独立失联和 drain 的节点；
 `RUNTIME-02`、`TAB5-01` 需要相应后端或权威固件资料；`FW-02` 的 live eFuse/生产 key 需要明确授权。
 浏览器继续采用定制 C/QEMU 单一架构，Rust 演示与独立 JIT 仅研究；Pages 不自动跟随 main。
+
+PaperDIY 的原版 CrossPoint 仍需按原 BIN、实际配置输入和同会话应用输出验证网络。
+已具备的原生 STA 板级准入仅关闭关联/DHCP 资格前置，不能替代其 TCP/UDP、
+HTTP 或其它应用语义；[精确前置证据](evidence/2026-11-23-paperdiy-native-sta/summary.json)保留范围。
 
 ## 可执行任务板
 

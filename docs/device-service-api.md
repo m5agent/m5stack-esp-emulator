@@ -1289,6 +1289,12 @@ Important fields:
   `native_network.sta` with `runtime=qemu-wifi`, `profile=generic-observe`
   and `operation_assertions=false`. This advertises the board's station path.
   Check worker and network-isolation admission when creating the lease.
+- The exact native `paperdiy` / `m5paperdiy` / `qemu-esp32s3` combination
+  advertises the same minimal STA fields after controlled association/DHCP
+  qualification. It grants no HTTP POST, TCP, SoftAP or time-fixture capability.
+  Application-level network assertions, including original CrossPoint firmware,
+  still require their own same-session evidence; see the
+  [board qualification](evidence/2026-11-23-paperdiy-native-sta/summary.json).
 - Ready native Cardputer, Cardputer ADV and StickS3 backends with the
   `open-softap-peer` QOM property advertise `native_network.open_softap_fixture`.
   It identifies the exact board profile, `runtime=qemu-wifi`,

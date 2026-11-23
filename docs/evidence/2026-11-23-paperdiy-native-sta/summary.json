@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-23",
+  "validation": "virtual-device validation",
+  "status": "BOARD_STA_QUALIFIED",
+  "scope": "Exact native PaperDIY association/DHCP eligibility; not original CrossPoint application acceptance",
+  "device": {
+    "id": "paperdiy",
+    "machine": "m5paperdiy",
+    "backend": "qemu-esp32s3"
+  },
+  "execution": {
+    "service_source_commit": "cc25a8a8ac083e00608d591281289f1452cc75ac",
+    "runtime": "qemu-wifi",
+    "profile": "generic-observe",
+    "nic": "misc.esp32s3.wifi",
+    "qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+    "s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "security": "Open",
+    "private_namespace": true,
+    "external_route": false,
+    "egress": "lab-only",
+    "dns": "deny"
+  },
+  "fixture": {
+    "source": "tests/network/native_sta_peers/main/probe.c",
+    "source_artifact_sha256": "a225471a938cd2ffef45b555f6518e485be9c09566fdb4235048962b7bfea2fd",
+    "source_bytes": 8388608,
+    "normalized_flash_sha256": "1ae12373620e5a7c22e796987791d16ef7a475d2bb29b6e15c0c4ca310f5ca67",
+    "normalized_flash_bytes": 16777216,
+    "input": "Guest ESP-IDF driver performs station initialization and connection to the isolated lab AP."
+  },
+  "observations": {
+    "serial_markers": [
+      "STA_FIXTURE_START",
+      "STA_FIXTURE_ASSOC channel=1 auth=0",
+      "STA_FIXTURE_DHCP octet=15"
+    ],
+    "capture_state": "finalized",
+    "capture_sha256": "1a8b08d5034c463407a843bf58c88b34407736b7fd7df4abecfd1b388df35688",
+    "capture_bytes": 2880,
+    "complete_dora_transactions": 1,
+    "leased_address_count": 1,
+    "bidirectional_TCP_payload_flows": 0,
+    "bidirectional_UDP_payload_flows": 0,
+    "network_overall_status": "PARTIAL",
+    "HTTP_attempt": "STA_FIXTURE_HTTP response_bytes=0 body_match=0; application peers were not configured in this board-only run."
+  },
+  "capability": {
+    "sta": {
+      "runtime": "qemu-wifi",
+      "profile": "generic-observe",
+      "operation_assertions": false
+    },
+    "other_peer_capabilities_granted": false
+  },
+  "cleanup": {
+    "evidence_before_stop": true,
+    "evidence_zip_sha256": "f38286f09c1c0b8ba62b3e945995a5aad1b26eb2220c86113277b97283649812",
+    "session_stopped": true,
+    "flash_released": true,
+    "worker_active_leases": 0,
+    "namespace_cleanup_completed": true,
+    "qemu_process_reaped": true
+  },
+  "not_run": [
+    "Original CrossPoint application or its provisioning/user workflow",
+    "Application-level HTTP/DNS/UDP success",
+    "StopWatch and other board-machine qualification",
+    "Browser-WASM",
+    "Physical hardware or RF behavior"
+  ],
+  "redaction": "No tokens, endpoints, unique device identifiers, session IDs, raw frames or binary assets are included."
+}

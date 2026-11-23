@@ -42,6 +42,10 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
         }}
     if spec.backend != "qemu-esp32s3":
         return {}
+    if spec.id == "paperdiy" and spec.machine == "m5paperdiy":
+        return {"sta": {
+            "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
+        }}
     if spec.id == "sticks3" and spec.machine == "m5sticks3":
         capability = {"portal_provisioning_fixture": {
             "runtime": "qemu-wifi", "profile": STICKS3_PROVISION_PROFILE,
