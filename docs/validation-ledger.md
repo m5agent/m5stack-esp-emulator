@@ -14,6 +14,42 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-23 原版 S3-watch 同来宾 WPA2 与只读 HTTP
+
+原版 **S3-watch 0.1 (worked)** `eb7f9425c07c…`，native macOS arm64
+QEMU `67e78237fe35…` / S3 ROM `b5c7090cc22e…`，独立 Device Service、
+Unix socketpair、零 IP backend。保留最初不同 SSID 的 open 广播；成熟初态后
+第一次 B 2 秒使 WEB OFF，第二次 B 2 秒出现目标 SSID 的 WPA2 广播。
+这证明了实际输入序列，不直接判定原版第一次启动具体走了哪个 WLAN 分支。
+
+独立 supplicant 完成实际认证、关联与 M1–M4 各 1 次。MAC 使用原固件写入的
+真实硬件键表：guest TX 加密后由 peer 独立验解，peer RX 由 guest 安装键验解
+再经 RX DMA。最终强门槛正控有受保护 TX/RX 11/7、DORA 与双向 HTTP；
+原版 `GET /api/state` 返回 HTTP 200/152-byte JSON、`web="1"`。
+`t="--:--:--"` 是原版未设时钟值，未设置 RTC 或访问外网。较早候选已收到
+HTTP 200，但 oracle 过严拒绝未设时钟值；该失败和之前无协议数据的观察均保留。
+
+同一原版、同一 runtime 的错误口令负控仅 M1/M2 27/27，M3/M4=0、未 ready，
+DHCP/ARP/HTTP 和受保护数据均为 0，服务状态仍 PARTIAL，负控断言通过。
+正负均 ZIP-before-stop、purge=0、释放 Flash 和租约。pre-stop ZIP 当时仍可含
+CAPTURING 摘要；最终派生数绑定 stop 后同会话 API、相同 PCAP 字节和 stopped ZIP。
+完整 SHA、清理、早期失败及回归见[结构化证据](evidence/2026-11-23-s3-watch-native-wpa2/summary.json)。
+
+actual-C ASan/UBSan 通过 RFC 3394 unwrap、RFC 3610 CCM 已知答案与错误 key/MIC、
+RSN 边界、实际键表缺失/重复/错键、pairwise/group 转发、replay 和长度负控。
+本结果限定非 QoS、AP 自发 IPv4/ARP、CCMP-128/PSK、非零 GTK index。
+PMF、其它 cipher、通用桥接/rekey、Linux、浏览器和物理 RF/安全均不继承 PASS；
+未提交 Burner。复现入口见[同原版 runner](../tests/network/native_s3_watch_wpa2/README.md)。
+
+平台完整 2529 项通过（11 skipped），22 项文档检查与四项生成器检查通过。
+组合运行时仍禁止提升：同原版 StopWatch、同当前 Device Service/config/input 下，
+`67e78237…` 两次仅完成门户，退出后 STA 配网分别等待中/超时；
+旧 `5b8b3f24…` 对照完成四个 HTTP 阶段和后续 STA DORA/ARP。
+该差异尚未定位，不能用 S3-watch 的 PASS 覆盖旧模式回归。
+开启现有 WiFi trace 后两个未修改 runtime 均通过；仅作为诊断保留，
+不覆盖未开 trace 的失败，不据此判定具体断开/重连根因。两个自有服务已停止。
+
+
 ## 2026-11-23 StopWatch 原版空 NVS 首次配网与保存重启
 
 原版 Demo Plus V0.6-OPT `606aac7831cb…`，标准化 Flash `f735f999d2fe…`，

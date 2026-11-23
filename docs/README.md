@@ -23,6 +23,7 @@
 | 审核原版或应用分段 BIN | [固件审查工作流](firmware-review-and-simulation-workflow.md) · [FirmwareManifest](firmware-manifest.md) |
 | 确认模型、内存和控制器能力 | [设备适配矩阵](qemu-device-adaptation-matrix.md) · [运行时模型缺口](runtime-model-gap-register.md) · [统一设备运行时](unified-device-runtime.md) |
 | 查 PSRAM、Wi-Fi、BLE 与 Worker 边界 | [Core2 native HCI](core2-native-hci-backend.md) · [网络模拟方案](network-simulation-plan.md) · [网络诊断](network-lane.md) |
+| 验证 S3-watch 原版的 WPA2 热点和 HTTP | [执行用例](../tests/network/native_s3_watch_wpa2/README.md) · [原生对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) |
 | 主机、Unit 与物理引脚 | [设备目录](../devices/README.md) · [外设仿真架构](peripheral-simulation-architecture.md) · [设备与 Unit 研究](unit-research/host-runtime-compatibility.md) |
 | 接入 Agent | [Skill 安装](../skills/README.md) · [Agent Skill 分发](plans/2026-10-29-agent-skills.md) |
 | 构建、补丁与回归 | [测试入口](../tests/README.md) · [补丁索引](../patches/README.md) |

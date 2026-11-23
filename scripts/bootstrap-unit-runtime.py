@@ -208,6 +208,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0231-s3-rtc-fast-div256.patch",
     "patches/qemu-m5stack-peripherals/0232-atoms3-lcd-gpio-probe.patch",
     "patches/qemu-m5stack-peripherals/0233-s3-stopwatch-synchronous-provisioning.patch",
+    "patches/qemu-m5stack-peripherals/0234-s3-wpa2-softap-supplicant-peer.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

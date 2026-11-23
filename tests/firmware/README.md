@@ -458,3 +458,5 @@ evidence covers the host TLB invalidation race in issue #217; original
 PaperColor guest mutex assertions and StackChan issue #223 remain separate.
 
 - [S3 I2C receive-buffer lifetime diagnostic](s3_i2c_lifetime/README.md): issue 223 virtual-device negative/positive controls; original firmware remains unresolved.
+
+- [Original S3-watch native WPA2/read-only HTTP](../network/native_s3_watch_wpa2/README.md): same-original positive and wrong-password controls, real controller key-table and protected data path.

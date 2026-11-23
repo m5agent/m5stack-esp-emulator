@@ -1923,3 +1923,36 @@ and disconnects, then starts its station manager after `/done.html` and POST
 opening host IP sockets. Cold original provisioning, guest-written NVS CRC and
 same-session reset/rejoin are [separately bound to execution evidence](../../docs/evidence/2026-11-23-stopwatch-factory-provisioning/summary.json).
 This does not grant WPA2, arbitrary portals, browser-WASM or RF validation.
+
+## StickS3 original S3-watch WPA2 supplicant (0234)
+
+`0234-s3-wpa2-softap-supplicant-peer.patch` follows 0233 in the native Unit
+runtime prefix. Its opt-in `wpa2-softap-peer` mode selects the exact configured
+SSID and a CCMP/PSK RSN beacon, authenticates and associates through normal RX
+DMA, and responds to the actual guest authenticator's four-way handshake.
+M3 MIC, replay counter, ANonce and RFC 3394 key unwrap are checked before GTK
+installation. A repeated valid M3 sends M4 without reinstalling keys or
+resetting packet numbers.
+
+The MAC reads the keys actually installed by the guest at the S3 hardware key
+entry window, using the valid bitmap, peer/group address and cipher selection.
+Guest TX descriptors are encrypted with those hardware keys; the independent
+supplicant verifies CCMP using its handshake-derived keys before emitting
+Ethernet. Peer-to-guest packets are encrypted and checked against the guest's
+installed key before normal RX descriptor delivery. Missing, ambiguous or
+wrong key entries are rejected. This is controller-path virtual-device
+validation, not RF or physical security validation.
+
+The separate `sticks3-s3-watch-wpa2` Device Service profile admits only the
+pinned original image and StickS3 model. It uses a Unix socketpair without an IP
+backend and issues only `GET /api/state`. PASS additionally requires an atomic
+same-process QOM handshake observation, both protected directions, PCAP DORA
+and HTTP, and the original JSON response. Stop preserves the observation bound
+to that session, worker and peer generation. The passphrase is supplied in the
+private request/environment and is redacted from exported records.
+
+Coverage is deliberately bounded: non-QoS data subtype 0, AP-originated IPv4
+and ARP, CCMP-128/PSK, zero PMKID count, optional non-required PMF advertisement
+and nonzero GTK index. It does not qualify a general SoftAP bridge, PMF,
+nonzero PMKIDs, other ciphers, generic rekeying or RF/security properties.
+[Fixture, reproduction and negative controls](../../tests/network/native_s3_watch_wpa2/README.md).

@@ -40,6 +40,14 @@ STA DHCP 与保存重启回连；[冷启动证据](evidence/2026-11-23-stopwatch
 只关闭这条精确原版/板型/原生路径。WPA2、浏览器及外网语义需独立验收；先前
 已配网前置、ROI 漂移和空 NVS AP 观察仍保留在[原版对照](evidence/2026-11-23-stopwatch-native-sta/summary.json)。
 
+S3-watch 0.1 (worked) 原版在 native macOS arm64 已完成成熟初态→B 关闭→B
+重开的同来宾 WPA2、DHCP/ARP 与只读 HTTP，错误口令被实际 guest 握手拒绝；
+[精确正负控](evidence/2026-11-23-s3-watch-native-wpa2/summary.json)只关闭这份原版的
+固定原生路径。初始不同 SSID/open 广播的具体启动分支、Reviewer 自动编排、
+Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外推。
+组合 runtime `67e78237…` 的 StopWatch 旧模式对照出现两次 PARTIAL，
+而 `5b8b3f24…` 同配置 PASS；必须定位并修复后才可提升共享运行时。
+
 ## 可执行任务板
 
 为保持索引兼容，保留已完成编号及原状态；已完成行不是活动队列。详细开放项和验收在下文。

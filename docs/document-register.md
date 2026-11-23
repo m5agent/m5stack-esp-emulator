@@ -6,6 +6,7 @@
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [S3-watch 原版 WPA2 对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) | 实现设计 | `2026-11-23` | StickS3 原生 Wi-Fi 控制器、隔离对端、正负控与只读 HTTP |
 | [文档登记与复核](document-register.md) | 导航 | `2026-11-19` | 全量文档入口、职责及复核日期 |
 | [本轮新增模拟器问题](evidence/2026-11-13-issue-triage/README.md) | 日期化原生证据 | `2026-11-13` | 原版固件、控制器修复与保留失败边界 |
 | [开放问题修复证据](evidence/2026-11-09-issue-fixes/README.md) | 日期化证据 | `2026-11-09` | 目录资料、Classic 烧录重试、基线帧与 Unit 执行身份，保留高负载门禁 |

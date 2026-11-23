@@ -1,0 +1,752 @@
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+index a2cd0c2..e6ad058 100644
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -36,6 +36,7 @@
+ #include "crypto/cipher.h"
+ #include "crypto/hmac.h"
+ #include "crypto/pbkdf.h"
++#include "exec/address-spaces.h"
+ #include "net/eth.h"
+ #include "net/net.h"
+ #include "qemu/timer.h"
+@@ -158,6 +159,9 @@ static void wpa_trace(const char *format, ...)
+     fputc('\n', stderr);
+ }
+ 
++static void wpa_peer_reset(Esp32WifiState *s);
++static bool wpa_peer_guest_key(Esp32WifiState *s, bool group, unsigned keyid, uint8_t key[16]);
++
+ static bool wpa_hmac_sha1(const uint8_t *key, size_t key_len,
+                           const struct iovec *input, size_t input_count,
+                           uint8_t output[20])
+@@ -605,6 +609,7 @@ bool Esp32_WLAN_prepare_rx(Esp32WifiState *s,
+     uint8_t nonce[13];
+     uint8_t plain[2316];
+     uint8_t ccmp_header[8];
++    uint8_t guest_key[16];
+     size_t encrypted_len;
+     size_t plain_len;
+     bool group;
+@@ -636,6 +641,15 @@ bool Esp32_WLAN_prepare_rx(Esp32WifiState *s,
+     }
+     group = !!(ccmp[3] & 0x40);
+     tk = group ? s->gtk : s->ptk + 32;
++    if (s->s3_wpa2_softap_peer) {
++        if (group || !frame->frame_control.to_ds || frame->frame_control.from_ds ||
++            memcmp(frame->transmitter_address, s->macaddr, ETH_ALEN) ||
++            !wpa_peer_guest_key(s, false, 0, guest_key)) {
++            s->wpa_peer_rejected++;
++            return false;
++        }
++        tk = guest_key;
++    }
+     ccmp_header_aad_nonce(header, ccmp, aad, nonce);
+     if (!aes_ccm_decrypt(
+             tk, nonce, ccmp + 8, plain_len, aad, sizeof(aad),
+@@ -648,6 +662,10 @@ bool Esp32_WLAN_prepare_rx(Esp32WifiState *s,
+         wpa_trace("drop protected RX: decrypted frame too large");
+         return false;
+     }
++    if (s->s3_wpa2_softap_peer) {
++        s->wpa_peer_protected_rx++;
++        memset(guest_key, 0, sizeof(guest_key));
++    }
+     memcpy(ccmp_header, ccmp, sizeof(ccmp_header));
+     memcpy(frame->data_and_fcs, ccmp_header, sizeof(ccmp_header));
+     memcpy(frame->data_and_fcs + sizeof(ccmp_header), plain, plain_len);
+@@ -673,7 +691,7 @@ static void Esp32_WLAN_beacon_timer(void *opaque)
+     struct mac80211_frame *frame;
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
+-    if (!s->radio_enabled || s->wlan_closed ||
++    if (!s->radio_enabled || s->wlan_closed || s->s3_wpa2_softap_peer ||
+         s->s3_raw_fixture || (s->s3_softap_peer && !s->s3_portal_station &&
+                                !s->s3_stopwatch_provisioning)) {
+         return;
+@@ -788,6 +806,9 @@ static _Bool Esp32_WLAN_can_receive(NetClientState *ncs)
+ {
+     Esp32WifiState *s = qemu_get_nic_opaque(ncs);
+ 
++    if (s->s3_wpa2_softap_peer && s->wpa_state != ESP32_WIFI_WPA_READY) {
++        return 0;
++    }
+     if (s->ap_state != Esp32_WLAN__STATE_ASSOCIATED &&
+         s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED &&
+         s->ap_state != Esp32_WLAN__STATE_STA_DHCP &&
+@@ -840,6 +861,12 @@ static ssize_t Esp32_WLAN_receive(NetClientState *ncs,
+         memcpy(frame->transmitter_address, s->macaddr, ETH_ALEN);
+         memcpy(frame->address_3, buf, ETH_ALEN);
+         frame->signal_strength = -10;
++        if (s->s3_wpa2_softap_peer &&
++            (s->wpa_state != ESP32_WIFI_WPA_READY || !ccmp_encrypt_data(s, frame, false))) {
++            s->wpa_peer_rejected++;
++            g_free(frame);
++            return size;
++        }
+         Esp32_WLAN_init_ap_frame(s, frame);
+         Esp32_WLAN_insert_frame(s, frame);
+         return size;
+@@ -921,7 +948,10 @@ static void wlan_drop_inject_queue(Esp32WifiState *s)
+ 
+ void Esp32_WLAN_reset_softap_peer(Esp32WifiState *s)
+ {
+-    if (s->s3_softap_peer) {
++    if (s->s3_wpa2_softap_peer) {
++        wpa_peer_reset(s);
++    }
++    if (s->s3_softap_peer || s->s3_wpa2_softap_peer) {
+         s->s3_portal_station_active = false;
+         s->s3_stopwatch_station_active = false;
+         s->s3_stopwatch_softap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
+@@ -1074,6 +1104,8 @@ static void send_single_frame(Esp32WifiState *s, struct mac80211_frame *frame, s
+     Esp32_WLAN_insert_frame(s, reply);
+ }
+ 
++#include "esp32_wifi_wpa2_peer.inc"
++
+ static bool softap_fixture_beacon(const mac80211_frame *frame, const char *ssid)
+ {
+     const uint8_t *data = frame->data_and_fcs;
+@@ -1451,6 +1483,9 @@ void Esp32_WLAN_handle_frame(Esp32WifiState *s, struct mac80211_frame *frame)
+ {
+     if (!s->radio_enabled || s->wlan_closed ||
+         (s->nic && qemu_get_queue(s->nic)->link_down)) { return; }
++    if (wpa_peer_handle(s, frame)) {
++        return;
++    }
+     struct mac80211_frame *reply = NULL;
+     static access_point_info dummy_ap={0};
+     bool start_wpa = false;
+diff --git a/hw/misc/esp32_wifi_wpa2_peer.inc b/hw/misc/esp32_wifi_wpa2_peer.inc
+new file mode 100644
+index 0000000..0a679fb
+--- /dev/null
++++ b/hw/misc/esp32_wifi_wpa2_peer.inc
+@@ -0,0 +1,501 @@
++/* Bounded WPA2-PSK/CCMP supplicant for an opt-in guest SoftAP.
++ * Included after the existing WPA2 cryptographic helpers. No IP sockets or
++ * synthetic guest responses: all messages use the normal Wi-Fi RX DMA path.
++ */
++
++static bool wpa_peer_equal(const uint8_t *a, const uint8_t *b, size_t length)
++{
++    uint8_t different = 0;
++    for (size_t i = 0; i < length; ++i) {
++        different |= a[i] ^ b[i];
++    }
++    return different == 0;
++}
++
++/* RFC 3394 2.2.2. The integrity value is checked before key data is used. */
++static bool wpa_peer_key_unwrap(const uint8_t kek[16], const uint8_t *wrapped,
++                                size_t length, uint8_t *plain)
++{
++    g_autoptr(QCryptoCipher) cipher = NULL;
++    Error *error = NULL;
++    uint8_t a[8], block[16], output[16];
++    static const uint8_t integrity[8] = { 0xa6, 0xa6, 0xa6, 0xa6, 0xa6, 0xa6, 0xa6, 0xa6 };
++    size_t n;
++
++    if (length < 24 || length > 264 || length % 8) {
++        return false;
++    }
++    n = length / 8 - 1;
++    cipher = qcrypto_cipher_new(QCRYPTO_CIPHER_ALGO_AES_128,
++                               QCRYPTO_CIPHER_MODE_ECB, kek, 16, &error);
++    if (!cipher) {
++        error_report_err(error);
++        return false;
++    }
++    memcpy(a, wrapped, 8);
++    memcpy(plain, wrapped + 8, length - 8);
++    for (int j = 5; j >= 0; --j) {
++        for (size_t i = n; i; --i) {
++            uint64_t t = n * j + i;
++            memcpy(block, a, 8);
++            for (int k = 7; k >= 0; --k) {
++                block[k] ^= t;
++                t >>= 8;
++            }
++            memcpy(block + 8, plain + (i - 1) * 8, 8);
++            if (qcrypto_cipher_decrypt(cipher, block, output, 16, &error) < 0) {
++                error_report_err(error);
++                memset(plain, 0, length - 8);
++                return false;
++            }
++            memcpy(a, output, 8);
++            memcpy(plain + (i - 1) * 8, output + 8, 8);
++        }
++    }
++    if (!wpa_peer_equal(a, integrity, 8)) {
++        memset(plain, 0, length - 8);
++        return false;
++    }
++    return true;
++}
++
++/* One CCMP pairwise cipher and PSK AKM, no mandatory protected management. */
++static bool wpa_peer_rsn(const uint8_t *ie, size_t length)
++{
++    if ((length != 22 && length != 24 && length != 28) || ie[1] != length - 2 ||
++        memcmp(ie, wpa_rsn_ie, 1) || memcmp(ie + 2, wpa_rsn_ie + 2, 18) ||
++        (ie[20] & 0x40) || (ie[21] & 0x20)) {
++        return false;
++    }
++    /* Optional zero PMKID count and BIP-CMAC-128 are advertised by IDF when
++     * management-frame protection is capable but not required. This peer
++     * does not negotiate PMF, PMKIDs, alternate ciphers or mandatory PMF. */
++    return (length == 22 || (!ie[22] && !ie[23])) &&
++           (length != 28 || !memcmp(ie + 24, (const uint8_t[]) {0, 15, 172, 6}, 4));
++}
++
++static bool wpa_peer_beacon(Esp32WifiState *s, const mac80211_frame *frame)
++{
++    const uint8_t *data = frame->data_and_fcs;
++    bool ssid = false, rsn = false;
++    size_t end;
++
++    if (frame->frame_length < IEEE80211_HEADER_SIZE + 12 + ETH_FCS_LEN ||
++        frame->frame_length > IEEE80211_HEADER_SIZE + sizeof(frame->data_and_fcs) ||
++        (data[10] & 0x11) != 0x11 || (frame->transmitter_address[0] & 1) ||
++        memcmp(frame->transmitter_address, frame->address_3, ETH_ALEN)) {
++        return false;
++    }
++    end = frame->frame_length - IEEE80211_HEADER_SIZE - ETH_FCS_LEN;
++    for (size_t offset = 12; offset < end;) {
++        size_t length;
++        uint8_t tag;
++        if (end - offset < 2) {
++            return false;
++        }
++        tag = data[offset];
++        length = data[offset + 1];
++        if (length > end - offset - 2) {
++            return false;
++        }
++        if (tag == IEEE80211_BEACON_PARAM_SSID) {
++            if (ssid || length != strlen(s->wifi_ssid) ||
++                memcmp(data + offset + 2, s->wifi_ssid, length)) {
++                return false;
++            }
++            ssid = true;
++        } else if (tag == 48) {
++            if (rsn || !wpa_peer_rsn(data + offset, length + 2)) {
++                return false;
++            }
++            if (s->ap_state == Esp32_WLAN__STATE_NOT_AUTHENTICATED) {
++                memcpy(s->wpa_peer_rsn, data + offset, length + 2);
++                s->wpa_peer_rsn_length = length + 2;
++            }
++            rsn = true;
++        }
++        offset += length + 2;
++    }
++    return ssid && rsn;
++}
++
++static void wpa_peer_reset(Esp32WifiState *s)
++{
++    s->wpa_state = ESP32_WIFI_WPA_IDLE;
++    s->wpa_replay_counter = 0;
++    s->ap_pn = 0;
++    s->wpa_peer_rx_pn = 0;
++    s->wpa_peer_group_rx_pn = 0;
++    s->wpa_peer_gtk_id = 0;
++    memset(s->anonce, 0, sizeof(s->anonce));
++    memset(s->snonce, 0, sizeof(s->snonce));
++    memset(s->ptk, 0, sizeof(s->ptk));
++    memset(s->gtk, 0, sizeof(s->gtk));
++    memset(s->wpa_peer_m3_mic, 0, sizeof(s->wpa_peer_m3_mic));
++}
++
++static bool wpa_peer_send_key(Esp32WifiState *s, uint8_t version,
++                               uint16_t info, uint64_t replay,
++                               const uint8_t *nonce, bool include_rsn)
++{
++    mac80211_frame *frame = g_malloc0(sizeof(*frame));
++    uint8_t *eapol = frame->data_and_fcs + 8;
++    eapol_header *header = (eapol_header *)eapol;
++    eapol_key *key = (eapol_key *)(eapol + sizeof(*header));
++    size_t extra = include_rsn ? sizeof(wpa_rsn_ie) : 0;
++    size_t length = sizeof(*header) + sizeof(*key) + extra;
++    uint8_t mic[16];
++
++    frame->frame_control.type = IEEE80211_TYPE_DATA;
++    frame->frame_control.to_ds = 1;
++    memcpy(frame->receiver_address, s->associated_ap_macaddr, ETH_ALEN);
++    memcpy(frame->transmitter_address, s->macaddr, ETH_ALEN);
++    memcpy(frame->address_3, s->associated_ap_macaddr, ETH_ALEN);
++    memcpy(frame->data_and_fcs, (const uint8_t[]) { 0xaa, 0xaa, 3, 0, 0, 0, 0x88, 0x8e }, 8);
++    header->version = version;
++    header->type = EAPOL_TYPE_KEY;
++    put_be16((uint8_t *)&header->length, length - sizeof(*header));
++    key->descriptor_type = 2;
++    put_be16(key->key_info, info);
++    /* RSN supplicant M2/M4 use zero key length (hostap/ESP-IDF). */
++    put_be16(key->key_length, 0);
++    put_be64(key->replay_counter, replay);
++    if (nonce) {
++        memcpy(key->nonce, nonce, 32);
++    }
++    put_be16(key->key_data_length, extra);
++    if (extra) {
++        memcpy(eapol + sizeof(*header) + sizeof(*key), wpa_rsn_ie, extra);
++    }
++    if (!wpa_eapol_mic(s->ptk, key, eapol, length, mic)) {
++        g_free(frame);
++        return false;
++    }
++    frame->frame_length = IEEE80211_HEADER_SIZE + 8 + length;
++    frame->signal_strength = -10;
++    Esp32_WLAN_init_ap_frame(s, frame);
++    Esp32_WLAN_insert_frame(s, frame);
++    return true;
++}
++
++static bool wpa_peer_key_data(Esp32WifiState *s, const uint8_t *data, size_t length)
++{
++    bool rsn = false, gtk = false;
++    uint8_t candidate[16] = { 0 }, index = 0;
++    for (size_t offset = 0; offset < length;) {
++        uint8_t tag = data[offset];
++        size_t size;
++        if (tag == 0xdd && (offset + 1 == length || data[offset + 1] == 0)) {
++            for (size_t i = offset + 1; i < length; ++i) {
++                if (data[i]) {
++                    return false;
++                }
++            }
++            break;
++        }
++        if (length - offset < 2 || (size = data[offset + 1]) > length - offset - 2) {
++            return false;
++        }
++        if (tag == 48) {
++            if (rsn || size + 2 != s->wpa_peer_rsn_length ||
++                memcmp(data + offset, s->wpa_peer_rsn, size + 2)) {
++                return false;
++            }
++            rsn = true;
++        } else if (tag == 0xdd && size == 22 &&
++                   !memcmp(data + offset + 2, (const uint8_t[]) { 0, 15, 172, 1 }, 4)) {
++            if (gtk || (data[offset + 6] & 0xf8) || data[offset + 7]) {
++                return false;
++            }
++            index = data[offset + 6] & 3;
++            if (!index) {
++                return false;
++            }
++            memcpy(candidate, data + offset + 8, 16);
++            gtk = true;
++        } else {
++            return false;
++        }
++        offset += size + 2;
++    }
++    if (!rsn || !gtk) {
++        return false;
++    }
++    memcpy(s->gtk, candidate, sizeof(candidate));
++    s->wpa_peer_gtk_id = index;
++    return true;
++}
++
++static bool wpa_peer_eapol(Esp32WifiState *s, mac80211_frame *frame)
++{
++    size_t qos = frame->frame_control.sub_type == 8 ? 2 : 0;
++    uint8_t *data = frame->data_and_fcs + qos;
++    uint8_t *eapol = data + 8;
++    eapol_header *header;
++    eapol_key *key;
++    uint16_t info, extra;
++    size_t length;
++    uint64_t replay;
++    const uint16_t m1 = WPA_KEY_INFO_HMAC_SHA1_AES | WPA_KEY_INFO_KEY_TYPE | WPA_KEY_INFO_ACK;
++    const uint16_t m3 = m1 | WPA_KEY_INFO_INSTALL | WPA_KEY_INFO_MIC | WPA_KEY_INFO_SECURE | WPA_KEY_INFO_ENCR_KEY_DATA;
++    uint8_t received_mic[16], expected_mic[16], plain[256];
++
++    if (frame->frame_length < IEEE80211_HEADER_SIZE + qos + 8 + sizeof(*header) ||
++        memcmp(data, (const uint8_t[]) { 0xaa, 0xaa, 3, 0, 0, 0, 0x88, 0x8e }, 8)) {
++        return false;
++    }
++    if (!frame->frame_control.from_ds || frame->frame_control.to_ds ||
++        (frame->frame_control._flags & BIT(4)) ||
++        memcmp(frame->receiver_address, s->macaddr, ETH_ALEN) ||
++        memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->address_3, s->associated_ap_macaddr, ETH_ALEN) ||
++        s->ap_state != Esp32_WLAN__STATE_SOFTAP_ASSOCIATED) {
++        return true;
++    }
++    header = (eapol_header *)eapol;
++    length = sizeof(*header) + get_be16((uint8_t *)&header->length);
++    if ((header->version != 1 && header->version != 2) || header->type != EAPOL_TYPE_KEY ||
++        length < sizeof(*header) + sizeof(*key) ||
++        length > frame->frame_length - IEEE80211_HEADER_SIZE - qos - 8) {
++        s->wpa_peer_rejected++;
++        return true;
++    }
++    key = (eapol_key *)(eapol + sizeof(*header));
++    info = get_be16(key->key_info);
++    extra = get_be16(key->key_data_length);
++    replay = get_be64(key->replay_counter);
++    if (key->descriptor_type != 2 || get_be16(key->key_length) != 16 ||
++        sizeof(*header) + sizeof(*key) + extra != length) {
++        s->wpa_peer_rejected++;
++        return true;
++    }
++    if (info == m1) {
++        bool repeated = s->wpa_state == ESP32_WIFI_WPA_PEER_WAIT_M3 &&
++                        !memcmp(s->anonce, key->nonce, 32);
++        if ((s->wpa_state != ESP32_WIFI_WPA_IDLE && replay < s->wpa_replay_counter) ||
++            (s->wpa_state == ESP32_WIFI_WPA_READY && replay == s->wpa_replay_counter) ||
++            (s->wpa_state == ESP32_WIFI_WPA_PEER_WAIT_M3 &&
++             replay == s->wpa_replay_counter && !repeated)) {
++            s->wpa_peer_rejected++;
++            return true;
++        }
++        if (!repeated) {
++            wpa_peer_reset(s);
++            memcpy(s->anonce, key->nonce, 32);
++            qemu_guest_getrandom_nofail(s->snonce, sizeof(s->snonce));
++            memcpy(s->ap_macaddr, s->associated_ap_macaddr, ETH_ALEN);
++            memcpy(s->wpa_station_addr, s->macaddr, ETH_ALEN);
++            if (!wpa_derive_ptk(s)) {
++                s->wpa_peer_rejected++;
++                return true;
++            }
++        }
++        s->wpa_peer_m1++;
++        s->wpa_replay_counter = replay;
++        s->wpa_state = ESP32_WIFI_WPA_PEER_WAIT_M3;
++        if (wpa_peer_send_key(s, header->version, WPA_KEY_INFO_HMAC_SHA1_AES |
++                             WPA_KEY_INFO_KEY_TYPE | WPA_KEY_INFO_MIC,
++                             replay, s->snonce, true)) {
++            s->wpa_peer_m2++;
++        }
++        return true;
++    }
++    if (info != m3 || extra < 24 || extra > 264 || extra % 8 ||
++        (s->wpa_state != ESP32_WIFI_WPA_PEER_WAIT_M3 && s->wpa_state != ESP32_WIFI_WPA_READY) ||
++        memcmp(key->nonce, s->anonce, 32) || replay < s->wpa_replay_counter) {
++        s->wpa_peer_rejected++;
++        return true;
++    }
++    memcpy(received_mic, key->mic, 16);
++    if (!wpa_eapol_mic(s->ptk, key, eapol, length, expected_mic) ||
++        !wpa_peer_equal(received_mic, expected_mic, 16)) {
++        s->wpa_peer_rejected++;
++        return true;
++    }
++    if (s->wpa_state == ESP32_WIFI_WPA_READY) {
++        /* Retransmitted M3 must not reinstall keys or reset packet numbers. */
++        if (replay != s->wpa_replay_counter || !wpa_peer_equal(received_mic, s->wpa_peer_m3_mic, 16)) {
++            s->wpa_peer_rejected++;
++            return true;
++        }
++    } else {
++        if (replay <= s->wpa_replay_counter ||
++            !wpa_peer_key_unwrap(s->ptk + 16, eapol + sizeof(*header) + sizeof(*key), extra, plain) ||
++            !wpa_peer_key_data(s, plain, extra - 8)) {
++            s->wpa_peer_rejected++;
++            return true;
++        }
++        s->wpa_peer_m3++;
++        s->wpa_replay_counter = replay;
++        memcpy(s->wpa_peer_m3_mic, received_mic, 16);
++    }
++    if (wpa_peer_send_key(s, header->version, WPA_KEY_INFO_HMAC_SHA1_AES |
++                         WPA_KEY_INFO_KEY_TYPE | WPA_KEY_INFO_MIC | WPA_KEY_INFO_SECURE,
++                         replay, NULL, false)) {
++        s->wpa_peer_m4++;
++        s->wpa_state = ESP32_WIFI_WPA_READY;
++        qemu_flush_queued_packets(qemu_get_queue(s->nic));
++    }
++    memset(plain, 0, sizeof(plain));
++    return true;
++}
++
++static void wpa_peer_manage(Esp32WifiState *s, mac80211_frame *frame)
++{
++    const uint8_t *data = frame->data_and_fcs;
++    unsigned subtype = frame->frame_control.sub_type;
++    if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_BEACON) {
++        if (wpa_peer_beacon(s, frame)) {
++            s->wpa_peer_beacons++;
++            if (s->ap_state == Esp32_WLAN__STATE_NOT_AUTHENTICATED) {
++                wpa_peer_reset(s);
++                memcpy(s->associated_ap_macaddr, frame->transmitter_address, ETH_ALEN);
++                s->ap_state = Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED;
++                send_single_frame(s, frame, Esp32_WLAN_create_authentication_request());
++            }
++        }
++        return;
++    }
++    if (memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->address_3, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->receiver_address, s->macaddr, ETH_ALEN)) {
++        return;
++    }
++    if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
++        s->ap_state == Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED &&
++        frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++        !memcmp(data, (const uint8_t[]) { 0, 0, 2, 0, 0, 0 }, 6)) {
++        access_point_info fixture = { .ssid = s->wifi_ssid };
++        mac80211_frame *request = Esp32_WLAN_create_association_request(&fixture);
++        request->data_and_fcs[0] |= 0x10;
++        memcpy(request->data_and_fcs + request->pos, wpa_rsn_ie, sizeof(wpa_rsn_ie));
++        request->pos += sizeof(wpa_rsn_ie);
++        request->frame_length = IEEE80211_HEADER_SIZE + request->pos;
++        s->wpa_peer_auth++;
++        s->ap_state = Esp32_WLAN__STATE_STA_AUTHENTICATED;
++        send_single_frame(s, frame, request);
++    } else if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_ASSOCIATION_RESP &&
++               s->ap_state == Esp32_WLAN__STATE_STA_AUTHENTICATED &&
++               frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++               !data[2] && !data[3]) {
++        s->wpa_peer_assoc++;
++        s->ap_state = Esp32_WLAN__STATE_SOFTAP_ASSOCIATED;
++        /* Wait for the actual guest authenticator's M1, not a timer. */
++    } else if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_DEAUTHENTICATION ||
++               subtype == IEEE80211_TYPE_MGT_SUBTYPE_DISASSOCIATION) {
++        s->wpa_peer_deauth++;
++        Esp32_WLAN_reset_softap_peer(s);
++    }
++}
++
++/* The S3 driver writes CCMP keys through hal_crypto_set_key_entry:
++ * valid bitmap at NRX+0x814, 40-byte entries at 0x60034400, key bytes at +8.
++ * Match the programmed peer/group address and CCMP cipher. Never substitute
++ * the supplicant's derived key for a missing guest hardware key. */
++static bool wpa_peer_guest_key(Esp32WifiState *s, bool group, unsigned keyid,
++                               uint8_t key[16])
++{
++    uint32_t valid = s->mem[0x814 / 4];
++    const uint8_t *address = group ? BROADCAST : s->macaddr;
++    unsigned found = 0;
++    for (unsigned slot = 0; slot < 32; slot++) {
++        uint8_t entry[40];
++        uint32_t control;
++        if (!(valid & (1u << slot)) ||
++            address_space_read(&address_space_memory, 0x60034400 + slot * 40,
++                               MEMTXATTRS_UNSPECIFIED, entry, sizeof(entry)) != MEMTX_OK) {
++            continue;
++        }
++        control = ldl_le_p(entry + 4);
++        if (((control >> 18) & 7) != 3 || memcmp(entry, address, ETH_ALEN) ||
++            (group && ((control >> 24) & 3) != keyid)) {
++            continue;
++        }
++        memcpy(key, entry + 8, 16);
++        memset(entry, 0, sizeof(entry));
++        found++;
++    }
++    if (found != 1) {
++        memset(key, 0, 16);
++        return false;
++    }
++    return true;
++}
++
++static bool wpa_peer_data(Esp32WifiState *s, mac80211_frame *frame)
++{
++    uint8_t *ccmp = frame->data_and_fcs;
++    uint8_t guest_key[16], aad[22], nonce[13], wire[2316], mic[8], plain[2316];
++    uint8_t ethernet[ETH_HLEN + ETH_MTU];
++    bool group = !memcmp(frame->receiver_address, BROADCAST, ETH_ALEN);
++    unsigned keyid = ccmp[3] >> 6;
++    size_t length;
++    uint64_t pn, *last_pn;
++    const uint8_t *peer_key;
++    if (s->wpa_state != ESP32_WIFI_WPA_READY ||
++        frame->frame_control.sub_type != 0 || !frame->frame_control.from_ds ||
++        frame->frame_control.to_ds || !(frame->frame_control._flags & BIT(4)) ||
++        frame->frame_length < IEEE80211_HEADER_SIZE + 8 + 8 + 8 + ETH_FCS_LEN ||
++        frame->frame_length > IEEE80211_HEADER_SIZE + sizeof(frame->data_and_fcs) ||
++        memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) ||
++        memcmp(frame->address_3, s->associated_ap_macaddr, ETH_ALEN) ||
++        (!group && memcmp(frame->receiver_address, s->macaddr, ETH_ALEN)) ||
++        ccmp[2] || (ccmp[3] & 0x3f) != 0x20 ||
++        (group ? keyid != s->wpa_peer_gtk_id : keyid != 0)) {
++        return false;
++    }
++    length = frame->frame_length - IEEE80211_HEADER_SIZE - 8 - 8 - ETH_FCS_LEN;
++    if (length > ETH_MTU + 8 ||
++        memcmp(ccmp + 8, (uint8_t[]) {0xaa,0xaa,3,0,0,0}, 6)) {
++        return false;
++    }
++    pn = (uint64_t)ccmp[0] | (uint64_t)ccmp[1] << 8 | (uint64_t)ccmp[4] << 16 |
++         (uint64_t)ccmp[5] << 24 | (uint64_t)ccmp[6] << 32 | (uint64_t)ccmp[7] << 40;
++    last_pn = group ? &s->wpa_peer_group_rx_pn : &s->wpa_peer_rx_pn;
++    if (!pn || pn <= *last_pn || !wpa_peer_guest_key(s, group, keyid, guest_key)) {
++        return false;
++    }
++    /* The TX descriptor carries the pre-encryption MAC envelope. Perform
++     * MAC encryption using the key actually installed by the guest, then
++     * the independent peer verifies CCMP with the handshake-derived key. */
++    ccmp_header_aad_nonce((uint8_t *)frame, ccmp, aad, nonce);
++    if (!aes_ccm_encrypt(guest_key, nonce, ccmp + 8, length, aad, sizeof(aad), wire, mic)) {
++        memset(guest_key, 0, sizeof(guest_key));
++        return false;
++    }
++    memset(guest_key, 0, sizeof(guest_key));
++    peer_key = group ? s->gtk : s->ptk + 32;
++    if (!aes_ccm_decrypt(peer_key, nonce, wire, length, aad, sizeof(aad), mic, plain)) {
++        return false;
++    }
++    *last_pn = pn;
++    if (memcmp(plain, (uint8_t[]) {0xaa,0xaa,3,0,0,0}, 6) ||
++        (get_be16(plain + 6) != 0x0800 && get_be16(plain + 6) != 0x0806)) {
++        return false;
++    }
++    memcpy(ethernet, frame->receiver_address, ETH_ALEN);
++    memcpy(ethernet + ETH_ALEN, frame->address_3, ETH_ALEN);
++    memcpy(ethernet + 12, plain + 6, length - 6);
++    s->wpa_peer_protected_tx++;
++    qemu_send_packet(qemu_get_queue(s->nic), ethernet, length + 6);
++    return true;
++}
++
++static bool wpa_peer_handle(Esp32WifiState *s, mac80211_frame *frame)
++{
++    if (!s->s3_wpa2_softap_peer) {
++        return false;
++    }
++    if (frame->frame_control.type == IEEE80211_TYPE_MGT) {
++        wpa_peer_manage(s, frame);
++    } else if (frame->frame_control.type == IEEE80211_TYPE_DATA &&
++               (frame->frame_control.sub_type == 0 || frame->frame_control.sub_type == 8)) {
++        if (!wpa_peer_eapol(s, frame)) {
++            s->wpa_peer_data_seen++;
++            if (!wpa_peer_data(s, frame)) {
++                s->wpa_peer_rejected++;
++            }
++        }
++    }
++    return true;
++}
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+index 57e2f67..c149ad3 100644
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -175,7 +175,7 @@ static bool s3_wifi_receive_frame(Esp32WifiState *s,
+         if (!memcmp(s->station_macaddr, (uint8_t *)s->mem + 0x48, 6)) {
+             rx_word0 |= BIT(29) | BIT(31);
+         }
+-    } else if (s->s3_softap_peer &&
++    } else if ((s->s3_softap_peer || s->s3_wpa2_softap_peer) &&
+         (!s->s3_portal_station_active || s->s3_stopwatch_provisioning) &&
+         frame->frame_control.to_ds && !frame->frame_control.from_ds) {
+         const uint8_t *rx_address = frame->receiver_address;
+@@ -210,7 +210,7 @@ static bool s3_wifi_receive_frame(Esp32WifiState *s,
+          * Retain the synthetic access-point fallback for station mode.
+          */
+         if (((!s->s3_softap_peer || s->s3_portal_station_active) &&
+-             s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED) ||
++             !s->s3_wpa2_softap_peer && s->ap_state != Esp32_WLAN__STATE_STA_NOT_AUTHENTICATED) ||
+             frame->frame_control.type != IEEE80211_TYPE_MGT) {
+             rx_word0 |= 0xf0000000u;
+         }
+@@ -495,10 +495,29 @@ static void esp32s3_wifi_reset_enter(Object *obj, ResetType type)
+     s->dma_inlink_address = 0;
+     s->dma_inlink_ptr = 0;
+     s->s3_raw_tx_sequence = 0;
++    s->wpa_peer_beacons = s->wpa_peer_auth = s->wpa_peer_assoc = 0;
++    s->wpa_peer_m1 = s->wpa_peer_m2 = s->wpa_peer_m3 = s->wpa_peer_m4 = 0;
++    s->wpa_peer_rejected = s->wpa_peer_deauth = s->wpa_peer_data_seen = 0;
++    s->wpa_peer_protected_tx = s->wpa_peer_protected_rx = 0;
+     memset(s->mem, 0, sizeof(s->mem));
+     Esp32_WLAN_reset_softap_peer(s);
+ }
+ 
++static char *s3_wifi_wpa2_peer_state(Object *obj, Error **errp)
++{
++    Esp32WifiState *s = ESP32S3_WIFI(obj);
++    return g_strdup_printf("{\"ready\":%s,\"beacons\":%" PRIu64 ",\"auth\":%" PRIu64
++                           ",\"assoc\":%" PRIu64 ",\"m1\":%" PRIu64 ",\"m2\":%" PRIu64
++                           ",\"m3\":%" PRIu64 ",\"m4\":%" PRIu64 ",\"rejected\":%" PRIu64
++                           ",\"deauth\":%" PRIu64 ",\"data_seen\":%" PRIu64
++                           ",\"protected_tx\":%" PRIu64 ",\"protected_rx\":%" PRIu64 "}",
++                           s->wpa_state == ESP32_WIFI_WPA_READY ? "true" : "false",
++                           s->wpa_peer_beacons, s->wpa_peer_auth, s->wpa_peer_assoc,
++                           s->wpa_peer_m1, s->wpa_peer_m2, s->wpa_peer_m3, s->wpa_peer_m4,
++                           s->wpa_peer_rejected, s->wpa_peer_deauth, s->wpa_peer_data_seen,
++                           s->wpa_peer_protected_tx, s->wpa_peer_protected_rx);
++}
++
+ static void esp32s3_wifi_realize(DeviceState *dev, Error **errp)
+ {
+     Esp32WifiState *s = ESP32S3_WIFI(dev);
+@@ -518,6 +537,12 @@ static void esp32s3_wifi_realize(DeviceState *dev, Error **errp)
+         error_setg(errp, "StopWatch provisioning requires an exclusive open SoftAP peer");
+         return;
+     }
++    if (s->s3_wpa2_softap_peer &&
++        (s->s3_softap_peer || s->s3_raw_fixture || s->s3_softap_sticks3_portal ||
++         s->s3_portal_station || s->s3_stopwatch_provisioning)) {
++        error_setg(errp, "WPA2 SoftAP peer requires an exclusive peer mode");
++        return;
++    }
+     s->rx_frame_us = 5000;
+     s->access_points = true;
+     s->is_s3 = true;
+@@ -526,6 +551,13 @@ static void esp32s3_wifi_realize(DeviceState *dev, Error **errp)
+     sysbus_init_mmio(sbd, &s->iomem);
+     sysbus_init_irq(sbd, &s->irq);
+     Esp32_WLAN_setup_ap(dev, s);
++    if (s->s3_wpa2_softap_peer) {
++        if (!s->wifi_secured) {
++            error_setg(errp, "WPA2 SoftAP peer requires a configured WPA2-PSK credential");
++            return;
++        }
++        object_property_add_str(OBJECT(dev), "wpa2-softap-state", s3_wifi_wpa2_peer_state, NULL);
++    }
+     if (s->s3_raw_fixture) {
+         object_property_add_str(OBJECT(dev), "raw-rx-mpdu", NULL, s3_wifi_raw_rx);
+         object_property_add_str(OBJECT(dev), "raw-tx-latest", s3_wifi_raw_tx, NULL);
+@@ -543,6 +575,7 @@ static Property esp32s3_wifi_properties[] = {
+     DEFINE_NIC_PROPERTIES(Esp32WifiState, conf),
+     DEFINE_PROP_BOOL("raw-fixture", Esp32WifiState, s3_raw_fixture, false),
+     DEFINE_PROP_BOOL("open-softap-peer", Esp32WifiState, s3_softap_peer, false),
++    DEFINE_PROP_BOOL("wpa2-softap-peer", Esp32WifiState, s3_wpa2_softap_peer, false),
+     DEFINE_PROP_BOOL("open-softap-sticks3-portal", Esp32WifiState,
+                      s3_softap_sticks3_portal, false),
+     DEFINE_PROP_BOOL("open-softap-sticks3-station", Esp32WifiState,
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+index f2b3362..d7dc55a 100644
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -24,6 +24,7 @@ enum esp32_wifi_wpa_state {
+     ESP32_WIFI_WPA_WAIT_M2,
+     ESP32_WIFI_WPA_WAIT_M4,
+     ESP32_WIFI_WPA_READY,
++    ESP32_WIFI_WPA_PEER_WAIT_M3,
+ };
+ 
+ #define ESP32S3_RAW_MPDU_MAX 2316
+@@ -53,6 +54,25 @@ typedef struct Esp32WifiState {
+     bool wlan_closed;
+     bool s3_raw_fixture;
+     bool s3_softap_peer;
++    bool s3_wpa2_softap_peer;
++    uint8_t wpa_peer_m3_mic[16];
++    uint8_t wpa_peer_rsn[28];
++    uint8_t wpa_peer_rsn_length;
++    uint8_t wpa_peer_gtk_id;
++    uint64_t wpa_peer_rx_pn;
++    uint64_t wpa_peer_group_rx_pn;
++    uint64_t wpa_peer_protected_tx;
++    uint64_t wpa_peer_protected_rx;
++    uint64_t wpa_peer_beacons;
++    uint64_t wpa_peer_auth;
++    uint64_t wpa_peer_assoc;
++    uint64_t wpa_peer_m1;
++    uint64_t wpa_peer_m2;
++    uint64_t wpa_peer_m3;
++    uint64_t wpa_peer_m4;
++    uint64_t wpa_peer_rejected;
++    uint64_t wpa_peer_deauth;
++    uint64_t wpa_peer_data_seen;
+     bool s3_softap_sticks3_portal;
+     bool s3_portal_station;
+     bool s3_portal_station_active;

@@ -20,6 +20,7 @@ capability and open tasks remain in
 | [`idf_dns_udp`](idf_dns_udp/README.md) | ESP-IDF DNS/UDP data plane through the controlled resolver | UI or complete-device behavior |
 | [`idf_dhcp_renewal`](idf_dhcp_renewal/README.md) | Guest-issued DHCP renewal with address and HTTP continuity | long-term lease churn |
 | [`native_open_softap`](native_open_softap/README.md) | Cardputer and ADV guest AP, service-owned isolated peer, DHCP/ARP/HTTP, reset and teardown | encrypted APs, arbitrary portals, browser-WASM or RF |
+| [`native_s3_watch_wpa2`](native_s3_watch_wpa2/README.md) | Original S3-watch WPA2 association and protected data, DHCP/ARP, read-only HTTP and a wrong-password control | other firmware, browser-WASM or physical RF |
 | [`wrong_password`](wrong_password/README.md) | WPA2-PSK wrong-password rejection and no-DHCP/no-HTTP negative gate | WPA3 or RF behavior |
 | [`reconnect_probe`](reconnect_probe/README.md) | Radio/link loss, rescan, DHCP and HTTP recovery | AP roaming or physical signal behavior |
 | [`lab_fabric`](lab_fabric/README.md) | Two StickS3 guests over a private QEMU socket L2 switch | production multi-host worker fabric |
