@@ -1,0 +1,260 @@
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -56,6 +56,10 @@
+     bool s3_softap_sticks3_portal;
+     bool s3_portal_station;
+     bool s3_portal_station_active;
++    bool s3_stopwatch_provisioning;
++    bool s3_stopwatch_station_active;
++    uint32_t s3_stopwatch_softap_state;
++    uint8_t s3_stopwatch_softap_bssid[6];
+     uint64_t s3_raw_tx_sequence;
+     Esp32S3RawTxFrame s3_raw_tx_window[ESP32S3_RAW_TX_WINDOW_SIZE];
+     unsigned int inject_sequence_number;
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -164,7 +164,8 @@
+     };
+     memcpy(&rx_word0, packet, sizeof(rx_word0));
+     rx_word0 |= (frame->frame_length & 0xfff) << 16;
+-    if (s->s3_portal_station_active && frame->frame_control.type == IEEE80211_TYPE_DATA &&
++    if ((s->s3_portal_station_active || s->s3_stopwatch_station_active) &&
++        frame->frame_control.type == IEEE80211_TYPE_DATA &&
+         frame->frame_control.from_ds && !frame->frame_control.to_ds) {
+         /* During AP+STA setup, infrastructure traffic belongs to the STA
+          * interface only, including broadcast DHCP replies. */
+@@ -174,7 +175,8 @@
+         if (!memcmp(s->station_macaddr, (uint8_t *)s->mem + 0x48, 6)) {
+             rx_word0 |= BIT(29) | BIT(31);
+         }
+-    } else if (s->s3_softap_peer && !s->s3_portal_station_active &&
++    } else if (s->s3_softap_peer &&
++        (!s->s3_portal_station_active || s->s3_stopwatch_provisioning) &&
+         frame->frame_control.to_ds && !frame->frame_control.from_ds) {
+         const uint8_t *rx_address = frame->receiver_address;
+ 
+@@ -510,6 +512,12 @@
+         error_setg(errp, "StickS3 station handoff requires the open portal");
+         return;
+     }
++    if (s->s3_stopwatch_provisioning &&
++        (!s->s3_softap_peer || s->s3_softap_sticks3_portal ||
++         s->s3_portal_station || s->s3_raw_fixture)) {
++        error_setg(errp, "StopWatch provisioning requires an exclusive open SoftAP peer");
++        return;
++    }
+     s->rx_frame_us = 5000;
+     s->access_points = true;
+     s->is_s3 = true;
+@@ -539,6 +547,8 @@
+                      s3_softap_sticks3_portal, false),
+     DEFINE_PROP_BOOL("open-softap-sticks3-station", Esp32WifiState,
+                      s3_portal_station, false),
++    DEFINE_PROP_BOOL("open-softap-stopwatch-provisioning", Esp32WifiState,
++                     s3_stopwatch_provisioning, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -674,10 +674,11 @@
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
+     if (!s->radio_enabled || s->wlan_closed ||
+-        s->s3_raw_fixture || (s->s3_softap_peer && !s->s3_portal_station)) {
++        s->s3_raw_fixture || (s->s3_softap_peer && !s->s3_portal_station &&
++                               !s->s3_stopwatch_provisioning)) {
+         return;
+     }
+-    if (s->s3_portal_station) {
++    if (s->s3_portal_station || s->s3_stopwatch_provisioning) {
+         s->beacon_ap = 1; /* The single isolated infrastructure AP. */
+     }
+     // only send a beacon if we are an access point
+@@ -790,7 +791,9 @@
+     if (s->ap_state != Esp32_WLAN__STATE_ASSOCIATED &&
+         s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED &&
+         s->ap_state != Esp32_WLAN__STATE_STA_DHCP &&
+-        s->ap_state != Esp32_WLAN__STATE_SOFTAP_ASSOCIATED) {
++        s->ap_state != Esp32_WLAN__STATE_SOFTAP_ASSOCIATED &&
++        !(s->s3_stopwatch_provisioning &&
++          s->s3_stopwatch_softap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED)) {
+         // we are currently not connected
+         // to the access point
+         return 0;
+@@ -822,19 +825,33 @@
+     if (!s) {
+         return -1;
+     }
+-    if (s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED) {
++    bool stopwatch_ap = s->s3_stopwatch_provisioning &&
++        s->s3_stopwatch_softap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED &&
++        size >= ETH_HLEN && !memcmp(buf + ETH_ALEN, s->macaddr, ETH_ALEN);
++    if (s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED || stopwatch_ap) {
+         if (size < ETH_HLEN || size > ETH_HLEN + ETH_MTU ||
+             memcmp(buf + ETH_ALEN, s->macaddr, ETH_ALEN)) {
+             return size;
+         }
+         frame = Esp32_WLAN_create_data_packet(s, buf, size);
+         frame->frame_control.to_ds = 1;
+-        memcpy(frame->receiver_address, s->associated_ap_macaddr, ETH_ALEN);
++        memcpy(frame->receiver_address, stopwatch_ap ?
++               s->s3_stopwatch_softap_bssid : s->associated_ap_macaddr, ETH_ALEN);
+         memcpy(frame->transmitter_address, s->macaddr, ETH_ALEN);
+         memcpy(frame->address_3, buf, ETH_ALEN);
+         frame->signal_strength = -10;
+         Esp32_WLAN_init_ap_frame(s, frame);
+         Esp32_WLAN_insert_frame(s, frame);
++        return size;
++    }
++    if (s->s3_stopwatch_provisioning &&
++        (!s->s3_stopwatch_station_active ||
++         (s->ap_state != Esp32_WLAN__STATE_ASSOCIATED &&
++          s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED &&
++          s->ap_state != Esp32_WLAN__STATE_STA_DHCP) ||
++         size < ETH_HLEN ||
++         (memcmp(buf, s->station_macaddr, ETH_ALEN) &&
++          memcmp(buf, BROADCAST, ETH_ALEN)))) {
+         return size;
+     }
+     esp32_classic_wifi_trace(
+@@ -906,6 +923,9 @@
+ {
+     if (s->s3_softap_peer) {
+         s->s3_portal_station_active = false;
++        s->s3_stopwatch_station_active = false;
++        s->s3_stopwatch_softap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++        memset(s->s3_stopwatch_softap_bssid, 0, ETH_ALEN);
+         s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
+         memset(s->associated_ap_macaddr, 0, ETH_ALEN);
+         wlan_drop_inject_queue(s);
+@@ -1090,6 +1110,13 @@
+     const uint8_t *data = frame->data_and_fcs;
+     const char *ssid = s->s3_softap_sticks3_portal ?
+         "StickS3-Setup" : "fixture-ap-test";
++    char stopwatch_ssid[24];
++    if (s->s3_stopwatch_provisioning) {
++        /* The original 78 portal derives its SSID suffix from its SoftAP MAC. */
++        snprintf(stopwatch_ssid, sizeof(stopwatch_ssid), "M5StopWatch-%02X%02X",
++                 frame->transmitter_address[4], frame->transmitter_address[5]);
++        ssid = stopwatch_ssid;
++    }
+     access_point_info fixture = { .ssid = ssid };
+ 
+     if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_BEACON) {
+@@ -1120,11 +1147,36 @@
+                frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
+                !data[2] && !data[3]) {
+         s->ap_state = Esp32_WLAN__STATE_SOFTAP_ASSOCIATED;
+-        qemu_flush_queued_packets(qemu_get_queue(s->nic));
++        if (!s->s3_stopwatch_provisioning) {
++            qemu_flush_queued_packets(qemu_get_queue(s->nic));
++        }
+     } else if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_DISASSOCIATION ||
+                subtype == IEEE80211_TYPE_MGT_SUBTYPE_DEAUTHENTICATION) {
+-        Esp32_WLAN_reset_softap_peer(s);
+-    }
++        if (s->s3_stopwatch_provisioning) {
++            s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++            memset(s->associated_ap_macaddr, 0, ETH_ALEN);
++        } else {
++            Esp32_WLAN_reset_softap_peer(s);
++        }
++    }
++}
++
++/* The original synchronous /submit keeps its AP HTTP connection alive while
++ * the guest STA authenticates and acquires a lease. Preserve the two actual
++ * 802.11 associations independently; both still traverse TX/RX DMA. */
++static void stopwatch_softap_manage(Esp32WifiState *s, mac80211_frame *frame)
++{
++    uint32_t station_state = s->ap_state;
++    uint8_t station_bssid[ETH_ALEN];
++    memcpy(station_bssid, s->associated_ap_macaddr, ETH_ALEN);
++    s->ap_state = s->s3_stopwatch_softap_state;
++    memcpy(s->associated_ap_macaddr, s->s3_stopwatch_softap_bssid, ETH_ALEN);
++    softap_fixture_manage(s, frame);
++    s->s3_stopwatch_softap_state = s->ap_state;
++    memcpy(s->s3_stopwatch_softap_bssid, s->associated_ap_macaddr, ETH_ALEN);
++    s->ap_state = station_state;
++    memcpy(s->associated_ap_macaddr, station_bssid, ETH_ALEN);
++    qemu_flush_queued_packets(qemu_get_queue(s->nic));
+ }
+ 
+ static void wpa_add_ccmp_envelope(Esp32WifiState *s,
+@@ -1423,12 +1475,36 @@
+     }
+ 
+ 
+-    if (s->s3_portal_station) {
++    if (s->s3_portal_station || s->s3_stopwatch_provisioning) {
+         ap_info = esp32_wifi_channel == access_points[1].channel ?
+             &access_points[1] : NULL;
+     }
+     if (frame->frame_control.type == IEEE80211_TYPE_MGT) {
+-        if (s->s3_softap_peer && !s->s3_portal_station_active) {
++        if (s->s3_stopwatch_provisioning) {
++            const unsigned subtype = frame->frame_control.sub_type;
++            if (subtype == IEEE80211_TYPE_MGT_SUBTYPE_BEACON ||
++                !memcmp(frame->receiver_address, s->macaddr, ETH_ALEN)) {
++                stopwatch_softap_manage(s, frame);
++                return;
++            }
++            if (ap_info && subtype == IEEE80211_TYPE_MGT_SUBTYPE_AUTHENTICATION &&
++                frame->frame_length >= IEEE80211_HEADER_SIZE + 6 + ETH_FCS_LEN &&
++                !memcmp(frame->receiver_address, ap_info->mac_address, ETH_ALEN) &&
++                !memcmp(frame->address_3, ap_info->mac_address, ETH_ALEN) &&
++                !memcmp(frame->data_and_fcs, (const uint8_t[]) { 0, 0, 1, 0, 0, 0 }, 6)) {
++                memcpy(s->station_macaddr, frame->transmitter_address, ETH_ALEN);
++                s->s3_stopwatch_station_active = true;
++                s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++            } else if (subtype != IEEE80211_TYPE_MGT_SUBTYPE_PROBE_REQ &&
++                       (!s->s3_stopwatch_station_active || !ap_info ||
++                        memcmp(frame->transmitter_address, s->station_macaddr, ETH_ALEN) ||
++                        memcmp(frame->receiver_address, ap_info->mac_address, ETH_ALEN) ||
++                        memcmp(frame->address_3, ap_info->mac_address, ETH_ALEN))) {
++                return;
++            }
++        }
++        if (s->s3_softap_peer && !s->s3_portal_station_active &&
++            !s->s3_stopwatch_provisioning) {
+             const unsigned subtype = frame->frame_control.sub_type;
+             bool infrastructure = s->s3_portal_station && ap_info;
+             const uint8_t *ap = infrastructure ? ap_info->mac_address : NULL;
+@@ -1571,7 +1647,10 @@
+             }
+         }
+     }
+-    if (s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED &&
++    bool stopwatch_ap = s->s3_stopwatch_provisioning &&
++        s->s3_stopwatch_softap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED &&
++        !memcmp(frame->transmitter_address, s->s3_stopwatch_softap_bssid, ETH_ALEN);
++    if ((s->ap_state == Esp32_WLAN__STATE_SOFTAP_ASSOCIATED || stopwatch_ap) &&
+         frame->frame_control.type == IEEE80211_TYPE_DATA) {
+         static const uint8_t snap[] = { 0xaa, 0xaa, 3, 0, 0, 0 };
+         size_t offset = frame->frame_control.sub_type == 8 ? 2 : 0;
+@@ -1580,7 +1659,8 @@
+         if ((frame->frame_control.sub_type == 0 || frame->frame_control.sub_type == 8) &&
+             frame->frame_control.from_ds && !frame->frame_control.to_ds &&
+             !(frame->frame_control._flags & BIT(4)) &&
+-            !memcmp(frame->transmitter_address, s->associated_ap_macaddr, ETH_ALEN) &&
++            !memcmp(frame->transmitter_address, stopwatch_ap ?
++                    s->s3_stopwatch_softap_bssid : s->associated_ap_macaddr, ETH_ALEN) &&
+             frame->frame_length >= absolute_offset + 2 + ETH_FCS_LEN &&
+             frame->frame_length - absolute_offset - ETH_FCS_LEN <= ETH_MTU + 2 &&
+             !memcmp(frame->data_and_fcs + offset, snap, sizeof(snap))) {
+@@ -1595,10 +1675,12 @@
+         }
+         return;
+     }
+-    if (s->s3_softap_peer && !s->s3_portal_station_active) {
++    if (s->s3_softap_peer && !s->s3_portal_station_active &&
++        !s->s3_stopwatch_station_active) {
+         return;
+     }
+-    if (s->s3_portal_station_active && frame->frame_control.type == IEEE80211_TYPE_DATA &&
++    if ((s->s3_portal_station_active || s->s3_stopwatch_station_active) &&
++        frame->frame_control.type == IEEE80211_TYPE_DATA &&
+         (!frame->frame_control.to_ds || frame->frame_control.from_ds ||
+          memcmp(frame->transmitter_address, s->station_macaddr, ETH_ALEN) ||
+          memcmp(frame->receiver_address, s->associated_ap_macaddr, ETH_ALEN))) {

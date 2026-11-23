@@ -14,6 +14,8 @@ from device_service_softap_peer import (
     QOM_PROPERTY as SOFTAP_PEER_PROPERTY,
     STICKS3_PROFILE as STICKS3_SOFTAP_PROFILE,
     STICKS3_PROVISION_PROFILE,
+    STOPWATCH_PROVISION_PROFILE,
+    STOPWATCH_QOM_PROPERTY,
 )
 from device_service_sta_time_peer import DEVICE as STA_TIME_DEVICE, PROFILE as STA_TIME_PROFILE
 from device_service_specs import CORE2_WIFI_PROFILE, qemu_has_qom_property
@@ -47,9 +49,16 @@ def native_sta_capability(spec: DeviceSpec, *, backend_ready: bool) -> dict:
             "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
         }}
     if spec.id == "stopwatch" and spec.machine == "m5stopwatch":
-        return {"sta": {
+        capability = {"sta": {
             "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
         }}
+        if (qemu_has_qom_property(spec.qemu, SOFTAP_NIC, SOFTAP_PEER_PROPERTY, "bool")
+                and qemu_has_qom_property(spec.qemu, SOFTAP_NIC, STOPWATCH_QOM_PROPERTY, "bool")):
+            capability["portal_provisioning_fixture"] = {
+                "runtime": "qemu-wifi", "profile": STOPWATCH_PROVISION_PROFILE,
+                "host_ip_backends": 0, "scope": "json-submit-exit-to-station",
+            }
+        return capability
     if spec.id == "sticks3" and spec.machine == "m5sticks3":
         capability = {"portal_provisioning_fixture": {
             "runtime": "qemu-wifi", "profile": STICKS3_PROVISION_PROFILE,

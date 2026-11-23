@@ -107,6 +107,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_qemu_wifi.py` | QEMU WiFi open/WPA2 解析与 runtime-env projection | `device_service.py` 兼容 re-export、QEMU WiFi tests |
 | `platform/tools/device_service_wifi_evidence.py` | Cardputer/ADV 原生 STA 能力声明与同会话 Ethernet pcap 的被动 DHCPv4、TCP、UDP 传输计数 | Device Service 设备目录和 network evidence、`test_device_service_wifi_evidence.py` |
 | `platform/tools/device_service_softap_peer.py` | Cardputer/ADV 开放 SoftAP 的每会话 UNIX socketpair、固定 DHCP/ARP/HTTP 客户端和世代回执 | Device Service 原生 SoftAP profile、`test_device_service_softap_peer.py` |
+| `platform/tools/device_service_stopwatch_peer.py` | StopWatch 原版 JSON `/submit`、done/exit、并行实验 STA DHCP/ARP 与保存重启回执 | 独立 `stopwatch-open-softap-provisioning` profile、`test_device_service_stopwatch_peer.py` |
 | `platform/tools/device_service_sta_time_peer.py` | Cardputer ADV STA 的会话私有 Unix DHCP、DNS 和 SNTP 对端 | 本地时间 profile、`test_device_service_sta_time_peer.py` |
 | `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告，按完整 ELF 哈希和应用描述符核对 Xtensa 与原生 C6 的函数地址，采样原生 Xtensa 和 C6 当前 CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
 | `platform/tools/device_service_audio.py` | 校验有界 WAV 夹具并解析调用方声明的 s16le 单声道窗口，计算数字 RMS、峰值和主频 | 原生 Cardputer `/audio.inject` 与 `/audio.pcm`、`test_device_service_audio.py` |

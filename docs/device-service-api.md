@@ -1298,10 +1298,12 @@ Important fields:
 - The exact native `stopwatch` / `m5stopwatch` / `qemu-esp32s3` combination
   advertises those minimal STA fields after the original Demo Plus application
   connected with an explicit session-isolated NVS credential fixture. Its
-  unchanged factory-NVS run opens a configuration AP; that portal's complete
-  provisioning flow remains unverified. No SoftAP, HTTP POST, TCP or time peer
-  is granted by this STA advert. See the
-  [preconfigured and cold-NVS controls](evidence/2026-11-23-stopwatch-native-sta/summary.json).
+  factory-NVS path is separately qualified by the exact StopWatch JSON portal
+  fixture below. Its capability appears only when the backend also exposes
+  `open-softap-peer` and `open-softap-stopwatch-provisioning`. Generic HTTP POST,
+  TCP and time peers are not granted by this STA advert. See the
+  [preconfigured controls](evidence/2026-11-23-stopwatch-native-sta/summary.json) and
+  [original cold provisioning evidence](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json).
 - Ready native Cardputer, Cardputer ADV and StickS3 backends with the
   `open-softap-peer` QOM property advertise `native_network.open_softap_fixture`.
   It identifies the exact board profile, `runtime=qemu-wifi`,
@@ -2125,6 +2127,23 @@ SoftAP DHCP probe, the peer responds to that frame and records
 `station_on_start=true`. This path requires the isolated STA DORA and ARP
 response in the same new session, without a portal submission. The receipt
 reports station connectivity only.
+
+The exact native StopWatch board has an independent profile:
+`runtime=qemu-wifi`, `network={"profile":"stopwatch-open-softap-provisioning"}`.
+It requires `m5stopwatch` / `qemu-esp32s3`, the exclusive native
+`open-softap-stopwatch-provisioning` property and `network.softap.provision` ACL
+permission. Only `profile` and optional `capture_pcap:true` are accepted; identity
+is generated. This profile joins the original open `M5StopWatch-` setup SSID
+whose suffix is derived from the guest AP address, reads the portal, submits one
+fixed open lab credential through JSON `/submit`, reads `/done.html`, and sends
+POST `/exit`. The original portal's association-test success is distinct from
+DHCP: the original application disconnects after testing, saves the credential,
+and starts its station manager after exit. PASS requires AP and STA DORA,
+the four portal exchanges, an exit response preceding the final STA DHCP, and
+station ARP. A proven same-session reset observes a fresh STA DORA/ARP without
+resubmitting the portal. No NVS fixture is applied, and neither endpoint opens a
+host IP socket. The original firmware, frames, capture, NVS CRC and reset evidence
+are bound in the [cold provisioning result](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json).
 
 Cardputer ADV can use `runtime=qemu-wifi` with
 `network={"profile":"cardputer-adv-local-time-fixture"}`. The guest joins

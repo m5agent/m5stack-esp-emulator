@@ -4274,9 +4274,9 @@ components:
           required: [runtime, profile, host_ip_backends, scope]
           properties:
             runtime: {const: qemu-wifi}
-            profile: {const: sticks3-open-softap-provisioning}
+            profile: {enum: [sticks3-open-softap-provisioning, stopwatch-open-softap-provisioning]}
             host_ip_backends: {const: 0}
-            scope: {const: portal-to-station}
+            scope: {enum: [portal-to-station, json-submit-exit-to-station]}
     NativeStaDataPlane:
       type: object
       additionalProperties: false
@@ -5801,6 +5801,12 @@ components:
         After a proven provisioning exchange, native patch 0219 supports a
         fresh station DHCP exchange after a guest reset using the saved settings.
         It accepts only profile and optional capture_pcap=true.
+        stopwatch-open-softap-provisioning requires the exact native m5stopwatch
+        and exclusive open-softap-stopwatch-provisioning property. It keeps AP
+        and STA associations independently, performs JSON submit, done page,
+        and exit before observing station DHCP and ARP. It accepts only profile
+        and optional capture_pcap=true and requires network.softap.provision.
+        No NVS fixture is applied. A proven reset observes fresh STA DHCP/ARP.
         cardputer-adv-local-time-fixture requires runtime=qemu-wifi and a configured
         ACL grant of network.sta.time.probe when ACL is enabled. It serves fixed DNS
         and SNTP on one private Unix socketpair. It accepts only profile,
@@ -5808,7 +5814,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, sticks3-open-softap-portal, sticks3-open-softap-provisioning, cardputer-adv-local-time-fixture]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, sticks3-native-hid, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe, cardputer-open-softap-fixture, sticks3-open-softap-fixture, sticks3-open-softap-portal, sticks3-open-softap-provisioning, stopwatch-open-softap-provisioning, cardputer-adv-local-time-fixture]
         withhold_ntp:
           type: boolean
           default: false

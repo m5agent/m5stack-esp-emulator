@@ -14,6 +14,34 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-23 StopWatch 原版空 NVS 首次配网与保存重启
+
+原版 Demo Plus V0.6-OPT `606aac7831cb…`，标准化 Flash `f735f999d2fe…`，
+16 KiB NVS 全擦除，未叠加 NVS fixture。独立 Darwin arm64 Device Service、
+原生 `m5stopwatch` / QEMU `5b8b3f24b9d2…` / S3 ROM `b5c7090cc22e…`，
+固定开放实验 AP、一个私有 Unix socketpair、零主机 IP backend。
+六个输入请求以 A+B 1.5 秒退出教程，再点左箭头、Settings、上滑、Wi-Fi、开关。
+实际屏幕显示 Connected；AP 客户端 DORA 与来宾 STA DORA 按地址角色区分。
+
+`0233` 仅显式启用 StopWatch 配网模式，分别保存 AP 与 STA 的关联状态/BSSID，
+使 AP TCP 在 STA 关联测试期间继续经过原 802.11 TX/RX DMA。
+原门户实际顺序为 GET `/`、JSON POST `/submit`、GET `/done.html`、POST `/exit`；
+原固件 `/submit` 在 STA 关联后断开并保存，不能单以 success JSON 宣称已获 IP。
+退出配网后原 WifiManager 停止 AP、启动 station，取得地址并应答 ARP。
+首次捕获切片 `1481e8c0df27…` 的完整 SHA 以[结构化证据](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json)
+为准，含 2 次 DORA、4 个双向 TCP payload 流。只读 Flash snapshot 的 NVS 中原应用
+写入了实验 SSID/空密码 string，entry 与 payload CRC 正确。
+
+同一会话原生 reset 后原应用自动读取保存项，不再提交门户，第二代重新完成 STA
+DORA/ARP。最终 PCAP `040b4ab4d10e…` 含 3 次 DORA、2 个地址、4 个双向 TCP 流；
+reset 前和 stop 前分别保存 ZIP，stop `purge=0`，保留 Flash 作为 NVS 证据，peer 释放、lease 归零。
+首轮仅 `/submit` 后等待 DHCP 的错误期待保持 PARTIAL，且其长等待重复 DISCOVER
+暴露旧摘要 32 项上限问题；未拿后续 PASS 覆盖旧观察。全部为 virtual-device validation，
+不授予 WPA2、浏览器、外网、其它固件门户或物理 RF 结论。
+额外旧 StickS3 v0.2.4 兼容性对照分别在新 `5b8b3f24…` 和未改动178层 `4f5aae26…`
+运行，AP DHCP/ARP 通过，但短超时 HTTP 流分别止于读取和提交，均为 PARTIAL；
+各自原始捕获和清理保留。此结果不构成旧门户完整回归 PASS，也未证明0233导致回归。
+
 ## 2026-11-23 StopWatch 原版已配网 STA 与空 NVS 对照
 
 原版 Demo Plus V0.6-OPT `606aac78…`（标准化 Flash `f735f999…`）在独立

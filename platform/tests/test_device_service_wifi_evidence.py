@@ -174,11 +174,19 @@ class NativeStaIntegrationTests(unittest.TestCase):
 
 class NativeStaCapabilityTests(unittest.TestCase):
     @patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=True)
-    def test_stopwatch_station_offer_does_not_grant_factory_portal_or_other_peers(self, property_probe):
+    def test_stopwatch_offer_binds_factory_portal_to_exact_native_properties(self, property_probe):
         spec = load_device_specs()["stopwatch"]
-        self.assertEqual(native_sta_capability(spec, backend_ready=True), {"sta": {
+        expected = {"sta": {
             "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
-        }})
+        }}
+        self.assertEqual(native_sta_capability(spec, backend_ready=True), {**expected,
+            "portal_provisioning_fixture": {
+                "runtime": "qemu-wifi", "profile": "stopwatch-open-softap-provisioning",
+                "host_ip_backends": 0, "scope": "json-submit-exit-to-station",
+            },
+        })
+        property_probe.return_value = False
+        self.assertEqual(native_sta_capability(spec, backend_ready=True), expected)
         self.assertEqual(native_sta_capability(spec, backend_ready=False), {})
         for unsupported in (
             replace(spec, supported=False),
@@ -190,7 +198,7 @@ class NativeStaCapabilityTests(unittest.TestCase):
         ):
             with self.subTest(unsupported=unsupported.id, machine=unsupported.machine):
                 self.assertEqual(native_sta_capability(unsupported, backend_ready=True), {})
-        property_probe.assert_not_called()
+        self.assertEqual(property_probe.call_count, 3)
 
     @patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=True)
     def test_paperdiy_station_offer_requires_exact_board_and_grants_no_peer_operations(self, property_probe):

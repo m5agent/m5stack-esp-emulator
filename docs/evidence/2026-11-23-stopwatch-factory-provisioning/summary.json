@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "scope": "exact StopWatch original factory-NVS portal provisioning and same-session reset reconnect",
+  "device": {
+    "id": "stopwatch",
+    "machine": "m5stopwatch",
+    "soc": "esp32s3"
+  },
+  "firmware": {
+    "name": "StopWatch Demo Plus",
+    "version": "V0.6-OPT",
+    "original_bytes": 4200368,
+    "original_sha256": "606aac7831cb4ca2bd45fdac40f0755fc918d1c7772caeaafa7965ef72c64bac",
+    "normalized_flash_bytes": 16777216,
+    "normalized_flash_sha256": "f735f999d2fe6217f129fcc974edd08b0c5f9c8dca960dbadaa7b8669cf4474b",
+    "source_unchanged": true,
+    "nvs_seeded": false,
+    "original_nvs_offset": 36864,
+    "original_nvs_bytes": 16384,
+    "original_nvs_all_erased": true
+  },
+  "runtime": {
+    "upstream_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "base_service_commit": "a4343d86d21a797ecf12384c9d200a9bc7ef2e32",
+    "native_patch_count": 179,
+    "native_patch": "0233-s3-stopwatch-synchronous-provisioning.patch",
+    "native_patch_sha256": "1d47036a089458102a223f14abf85092c800b959832ca95b7a55da29601e8708",
+    "native_binary_sha256": "5b8b3f24b9d2c757a21b1d17d635218348167d258b3e3677b69c3196cdf5d4db",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "host": "Darwin arm64",
+    "lane": "dedicated Device Service qemu-wifi",
+    "profile": "stopwatch-open-softap-provisioning",
+    "host_ip_backends": 0,
+    "transport": "private AF_UNIX socketpair",
+    "radio": "open fixed lab AP, synthetic channel 1, no physical RF claim"
+  },
+  "input": [
+    {
+      "kind": "chord",
+      "target": "button",
+      "keys": [
+        "a",
+        "b"
+      ],
+      "seconds": 1.5,
+      "settle_seconds": 1
+    },
+    {
+      "kind": "touch",
+      "x": 32,
+      "y": 233,
+      "action": "click",
+      "settle_seconds": 0.6
+    },
+    {
+      "kind": "touch",
+      "x": 234,
+      "y": 230,
+      "action": "click",
+      "settle_seconds": 0.6
+    },
+    {
+      "kind": "drag",
+      "x1": 236,
+      "y1": 398,
+      "x2": 236,
+      "y2": 130,
+      "settle_seconds": 0.8
+    },
+    {
+      "kind": "touch",
+      "x": 234,
+      "y": 132,
+      "action": "click",
+      "settle_seconds": 0.9
+    },
+    {
+      "kind": "touch",
+      "x": 340,
+      "y": 160,
+      "action": "click",
+      "settle_seconds": 1
+    }
+  ],
+  "portal": {
+    "get_root": true,
+    "root_body_sha256": "f693d644fa692994526daab366a47bc1aaf4ae8810101f7be36c5bc9462ab9cd",
+    "submit_json_success": true,
+    "submit_body_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+    "get_done_page": true,
+    "done_body_sha256": "0fc35ae3a8c538dd4275c92544777bdfbdc6e5fc2238da93b21e40d44f3fd9e9",
+    "post_exit_json_success": true,
+    "exit_body_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+    "guest_station_dhcp_after_exit_response": true,
+    "station_arp": true,
+    "role_order": [
+      "AP client DORA",
+      "GET /",
+      "POST /submit JSON",
+      "guest STA association test then disconnect",
+      "guest saves Wi-Fi NVS",
+      "GET /done.html",
+      "POST /exit JSON",
+      "guest stops config AP",
+      "guest starts station manager",
+      "STA DORA",
+      "STA ARP"
+    ]
+  },
+  "saved_nvs": {
+    "status": "PASS",
+    "read_only_flash_snapshot_sha256": "2b5068aae4762c1c51b5d9ebcbe100dbb78d40258b8a1aa887d2bcce0453d0e2",
+    "nvs_sha256": "d85070347677cae640074b8d9acda9f668650af7d1ae63e3b994f2350d385a9f",
+    "namespace": "wifi",
+    "ssid_string_matches_owned_lab": true,
+    "password_string_empty": true,
+    "entry_and_payload_crc_verified": true,
+    "written_by_original_guest": true
+  },
+  "provision_capture": {
+    "sha256": "1481e8c0df27328190641a7f448208a5c81cd64d6f16f8a3ec0635d8ec604d88",
+    "bytes": 95829,
+    "native_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "1481e8c0df27328190641a7f448208a5c81cd64d6f16f8a3ec0635d8ec604d88",
+      "dhcpv4": {
+        "completed_dora_transactions": 2,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 4
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "api_peer_status": "PASS"
+  },
+  "reset": {
+    "same_session": true,
+    "native_guest_reset": true,
+    "peer_generation": 2,
+    "peer_status": "PASS",
+    "station_reconnect": true,
+    "fresh_station_dora_in_generation_capture": true,
+    "fresh_station_arp": true,
+    "portal_not_resubmitted": true,
+    "capture_phase_start_offset": 95829
+  },
+  "final_capture": {
+    "sha256": "040b4ab4d10ee65957b4826ec827a277cd698a3991e55fd8e064a2822611e490",
+    "bytes": 98701,
+    "native_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "040b4ab4d10ee65957b4826ec827a277cd698a3991e55fd8e064a2822611e490",
+      "dhcpv4": {
+        "completed_dora_transactions": 3,
+        "leased_address_count": 2
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 4
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    }
+  },
+  "evidence": {
+    "zip_before_reset_sha256": "68b705499c2b5348f3c7441615641769b9837fb9942ece0becbada05aae64aa6",
+    "zip_before_stop_sha256": "4420bb330efca1254f3c4c66638f7ddad47ededda023c5a901edb8c8dcea67b3",
+    "serial_before_reset_sha256": "e99b417a823e35d56cdc63e05005851a802c7b764c5dde4fcf7ec7fb01f32a2b",
+    "serial_after_reset_sha256": "3909e0da88d1f98d194cbd1f75fa460c74fb1ba6d1624572de6ae8a39a2502bd",
+    "connected_frame_sha256": "37c1299f5024a330f663e9fe24d4a5faddb6e02d56c8d07045bef3423adfe2c5",
+    "reset_frame_sha256": "2c3d1089ff149cbd20a1f1f2e099e32785506ffa8c52d8a58a8f2433b0bcf7b4"
+  },
+  "cleanup": {
+    "zip_before_reset": true,
+    "zip_before_stop": true,
+    "stop_purge": false,
+    "flash_retained_for_nvs_evidence": true,
+    "peer_released": true,
+    "active_leases": 0
+  },
+  "prior_attempt": {
+    "status": "PARTIAL",
+    "reason": "submit association-test success does not imply STA DHCP; original portal requires done/exit",
+    "capture_sha256": "7a1a39ea1519128ec59df9f8c993870fe8d301391722e66ae160bd684acf6d72",
+    "dhcp_summary_limitation": "more than 32 repeated discovers hid final DORA in historical summary; raw capture retained",
+    "wrong_drag_fields_observed": true
+  },
+  "not_claimed": [
+    "physical hardware or RF behavior",
+    "WPA2 credentials or arbitrary portals",
+    "browser-WASM",
+    "external Internet or cloud connectivity",
+    "generic HTTP/TCP application semantics"
+  ],
+  "legacy_sticks3_controls": {
+    "scope": "separate old open portal, not part of StopWatch PASS",
+    "application_sha256": "5c7c0b74a49cef246d11d907c87f97029c238c5f5441ab29585432120e260cd6",
+    "composed_flash_sha256": "9627c7bc4a313841b5e30477030af7c68d0b76c1172b7a46072938322ba3ec70",
+    "candidate": {
+      "status": "PARTIAL",
+      "stage": "http",
+      "native_binary_sha256": "5b8b3f24b9d2c757a21b1d17d635218348167d258b3e3677b69c3196cdf5d4db",
+      "capture_sha256": "3c9453ddb330f661ca2a719eea58328c2fac73707f00e3eb8e07635111eaf8db",
+      "completed_dora": 1,
+      "bidirectional_tcp_payload_flows": 1
+    },
+    "baseline_178": {
+      "status": "PARTIAL",
+      "stage": "submit",
+      "native_binary_sha256": "4f5aae2665ee61578c0e5ff8cb8111f028cbd63db04a080b6be62c0923666713",
+      "capture_sha256": "066d9d49738d5c6678a98781f48115bb9ad735ea4aaf102ed8c5a5520d66a0c0",
+      "completed_dora": 1,
+      "bidirectional_tcp_payload_flows": 2
+    },
+    "interpretation": "Neither short-timeout legacy attempt completed. Baseline failure is retained; regression attribution and complete legacy portal acceptance remain open. Both saved ZIP before stop and ended with zero leases."
+  }
+}
