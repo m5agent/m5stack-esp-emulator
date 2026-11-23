@@ -1,0 +1,119 @@
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+#include <glib.h>
+#include <gcrypt.h>
+typedef char Error;
+typedef struct { gcry_cipher_hd_t h; } QCryptoCipher;
+static void free_cipher(QCryptoCipher *c) { if(c){gcry_cipher_close(c->h);g_free(c);} }
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(QCryptoCipher, free_cipher)
+#define QCRYPTO_CIPHER_ALGO_AES_128 0
+#define QCRYPTO_CIPHER_MODE_ECB 0
+static QCryptoCipher *qcrypto_cipher_new(int a,int b,const uint8_t*k,size_t n,Error**e) {
+ QCryptoCipher*c=g_new0(QCryptoCipher,1);assert(n==16);assert(!gcry_cipher_open(&c->h,GCRY_CIPHER_AES128,GCRY_CIPHER_MODE_ECB,0));assert(!gcry_cipher_setkey(c->h,k,n));return c;
+}
+static int qcrypto_cipher_decrypt(QCryptoCipher*c,const void*i,void*o,size_t n,Error**e){return gcry_cipher_decrypt(c->h,o,n,i,n)?-1:0;}
+static void error_report_err(Error*e){abort();}
+
+#define QEMU_PACKED __attribute__((packed))
+#define BIT(n) (1u << (n))
+#define ETH_ALEN 6
+#define ETH_HLEN 14
+#define ETH_MTU 1500
+#define ETH_FCS_LEN 4
+#define IEEE80211_HEADER_SIZE 24
+#define MEMTXATTRS_UNSPECIFIED 0
+#define MEMTX_OK 0
+#define ESP32_WIFI_WPA_READY 3
+static int address_space_memory;
+static uint8_t keyram[32][40], forwarded[1514];
+static size_t forwards, forwarded_length;
+static int address_space_read(void*a,uint64_t address,int attrs,void*out,size_t n){
+ if(address<0x60034400||address+n>0x60034400+sizeof(keyram))return 1;
+ memcpy(out,(uint8_t*)keyram+address-0x60034400,n);return 0;
+}
+static uint16_t get_be16(const uint8_t*p){return p[0]*256+p[1];}
+static uint32_t ldl_le_p(const uint8_t*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
+static void put_be16(uint8_t*p,uint16_t v){p[0]=v>>8;p[1]=v;}
+static void stl_le_p(uint8_t*p,uint32_t v){for(int i=0;i<4;i++)p[i]=v>>(8*i);}
+static int qcrypto_cipher_encrypt(QCryptoCipher*c,const void*i,void*o,size_t n,Error**e){return gcry_cipher_encrypt(c->h,o,n,i,n)?-1:0;}
+static void*qemu_get_queue(void*p){return p;}
+static void qemu_send_packet(void*q,const uint8_t*packet,size_t n){assert(n<=sizeof(forwarded));memcpy(forwarded,packet,n);forwarded_length=n;forwards++;}
+typedef struct {uint32_t mem[1024];uint8_t macaddr[6],associated_ap_macaddr[6],ptk[64],gtk[16];unsigned wpa_state,wpa_peer_gtk_id;uint64_t wpa_peer_rx_pn,wpa_peer_group_rx_pn,wpa_peer_protected_tx;void*nic;} Esp32WifiState;
+
+@ACTUAL_FUNCTIONS@
+
+static void unwrap_tests(void){
+ const uint8_t key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+ const uint8_t wrapped[24]={0x1f,0xa6,0x8b,0x0a,0x81,0x12,0xb4,0x47,0xae,0xf3,0x4b,0xd8,0xfb,0x5a,0x7b,0x82,0x9d,0x3e,0x86,0x23,0x71,0xd2,0xcf,0xe5};
+ const uint8_t expected[16]={0,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};
+ uint8_t out[320],wrong[16],bad[264]={0};size_t cases=0;
+ memset(out,0xa5,sizeof(out));assert(wpa_peer_key_unwrap(key,wrapped,24,out));assert(!memcmp(out,expected,16));assert(out[16]==0xa5);cases++;
+ memcpy(wrong,key,16);wrong[1]^=1;memset(out,0xa5,sizeof(out));assert(!wpa_peer_key_unwrap(wrong,wrapped,24,out));for(int j=0;j<16;j++)assert(out[j]==0);assert(out[16]==0xa5);cases++;
+ for(int j=0;j<24;j++){memcpy(bad,wrapped,24);bad[j]^=1;memset(out,0xa5,sizeof(out));assert(!wpa_peer_key_unwrap(key,bad,24,out));for(int i=0;i<16;i++)assert(out[i]==0);assert(out[16]==0xa5);cases++;}
+ for(size_t n=0;n<=23;n++){memset(out,0xa5,sizeof(out));assert(!wpa_peer_key_unwrap(key,bad,n,out));assert(out[0]==0xa5);cases++;}
+ for(size_t n=25;n<264;n++){memset(out,0xa5,sizeof(out));assert(!wpa_peer_key_unwrap(key,bad,n,out));assert(out[n]==0xa5);cases++;}
+ assert(!wpa_peer_key_unwrap(key,bad,265,out));assert(!wpa_peer_key_unwrap(key,bad,264,out));cases+=2;
+ printf("actual_candidate_unwrap_cases=%zu PASS\n",cases);return;
+}
+static void ccm_tests(void){
+ uint8_t key[16],nonce[13]={0,0,0,3,2,1,0,0xa0,0xa1,0xa2,0xa3,0xa4,0xa5},aad[8],plain[23],crypt[23],mic[8],out[23];
+ const uint8_t expected[31]={0x58,0x8c,0x97,0x9a,0x61,0xc6,0x63,0xd2,0xf0,0x66,0xd0,0xc2,0xc0,0xf9,0x89,0x80,0x6d,0x5f,0x6b,0x61,0xda,0xc3,0x84,0x17,0xe8,0xd1,0x2c,0xfd,0xf9,0x26,0xe0};
+ for(int i=0;i<16;i++)key[i]=0xc0+i;for(int i=0;i<8;i++)aad[i]=i;for(int i=0;i<23;i++)plain[i]=i+8;
+ assert(aes_ccm_encrypt(key,nonce,plain,23,aad,8,crypt,mic));assert(!memcmp(crypt,expected,23));assert(!memcmp(mic,expected+23,8));
+ assert(aes_ccm_decrypt(key,nonce,crypt,23,aad,8,mic,out));assert(!memcmp(out,plain,23));
+ for(int i=0;i<23;i++){crypt[i]^=1;assert(!aes_ccm_decrypt(key,nonce,crypt,23,aad,8,mic,out));crypt[i]^=1;}
+ for(int i=0;i<8;i++){mic[i]^=1;assert(!aes_ccm_decrypt(key,nonce,crypt,23,aad,8,mic,out));mic[i]^=1;}
+ key[0]^=1;assert(!aes_ccm_decrypt(key,nonce,crypt,23,aad,8,mic,out));
+ puts("RFC3610 CCM vector plus 32 key/ciphertext/MIC negatives PASS");
+}
+static void rsn_tests(void){
+ uint8_t rsn[28]={0x30,0x1a,1,0,0,15,172,4,1,0,0,15,172,4,1,0,0,15,172,2,0x80,0,0,0,0,15,172,6};
+ assert(wpa_peer_rsn(rsn,28));for(size_t n=0;n<28;n++)assert(!wpa_peer_rsn(rsn,n));
+ rsn[20]|=0x40;assert(!wpa_peer_rsn(rsn,28));rsn[20]&=~0x40;
+ rsn[22]=1;assert(!wpa_peer_rsn(rsn,28));rsn[22]=0;
+ rsn[13]=2;assert(!wpa_peer_rsn(rsn,28));rsn[13]=4;
+ rsn[27]=2;assert(!wpa_peer_rsn(rsn,28));rsn[27]=6;
+ rsn[1]=20;assert(wpa_peer_rsn(rsn,22));puts("bounded RSN suite/capability/length negatives PASS");
+}
+static void init_data(Esp32WifiState*s,mac80211_frame*f,bool group,size_t n){
+ memset(s,0,sizeof(*s));memset(f,0,sizeof(*f));memset(keyram,0,sizeof(keyram));forwards=0;
+ memcpy(s->macaddr,(uint8_t[]){2,0,0,0,0,1},6);memcpy(s->associated_ap_macaddr,(uint8_t[]){2,0,0,0,0,2},6);
+ s->wpa_state=ESP32_WIFI_WPA_READY;s->wpa_peer_gtk_id=1;
+ for(int i=0;i<16;i++){s->ptk[32+i]=i;s->gtk[i]=i+16;}
+ unsigned slot=group?2:8;s->mem[0x814/4]=1u<<slot;memcpy(keyram[slot],group?BROADCAST:s->macaddr,6);
+ stl_le_p(keyram[slot]+4,(3u<<18)|(group?1u<<24:0)|((uint32_t)keyram[slot][4]|(uint32_t)keyram[slot][5]<<8));
+ memcpy(keyram[slot]+8,group?s->gtk:s->ptk+32,16);
+ f->frame_control.type=2;f->frame_control.from_ds=1;f->frame_control._flags=BIT(4);
+ memcpy(f->receiver_address,group?BROADCAST:s->macaddr,6);memcpy(f->transmitter_address,s->associated_ap_macaddr,6);memcpy(f->address_3,s->associated_ap_macaddr,6);
+ f->data_and_fcs[0]=1;f->data_and_fcs[3]=0x20|(group?0x40:0);
+ memcpy(f->data_and_fcs+8,(uint8_t[]){0xaa,0xaa,3,0,0,0,8,0},8);
+ for(size_t i=8;i<n;i++)f->data_and_fcs[8+i]=i;
+ f->frame_length=24+8+n+8+4;
+}
+static void data_tests(void){
+ Esp32WifiState s;mac80211_frame f;uint8_t key[16];
+ for(int group=0;group<2;group++){
+  init_data(&s,&f,group,28);assert(wpa_peer_data(&s,&f));assert(forwards==1&&forwarded_length==34);
+  assert(!memcmp(forwarded,f.receiver_address,6)&&!memcmp(forwarded+6,f.address_3,6));assert(!memcmp(forwarded+12,f.data_and_fcs+14,22));
+  assert(!wpa_peer_data(&s,&f)&&forwards==1);
+  init_data(&s,&f,group,1508);assert(wpa_peer_data(&s,&f));assert(forwarded_length==1514);
+  init_data(&s,&f,group,1509);assert(!wpa_peer_data(&s,&f)&&!forwards);
+  unsigned slot=group?2:8;
+  init_data(&s,&f,group,28);keyram[slot][8]^=1;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);s.mem[0x814/4]=0;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);s.mem[0x814/4]|=1u<<9;memcpy(keyram[9],keyram[slot],40);assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);keyram[slot][6]^=4;assert(!wpa_peer_guest_key(&s,group,group?1:0,key));
+  init_data(&s,&f,group,28);keyram[slot][0]^=1;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);f.data_and_fcs[0]=0;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);f.frame_control._flags=0;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);f.frame_control.sub_type=8;assert(!wpa_peer_data(&s,&f)&&!forwards);
+  init_data(&s,&f,group,28);f.frame_length=0xffffffff;assert(!wpa_peer_data(&s,&f)&&!forwards);
+ }
+ puts("actual guest key-table + pairwise/group CCMP forwarding negatives PASS");
+}
+int main(void){unwrap_tests();ccm_tests();rsn_tests();data_tests();return 0;}

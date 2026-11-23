@@ -129,6 +129,16 @@ from device_service_softap_peer import (  # noqa: E402
     require_softap_backend,
 )
 from device_service_stopwatch_peer import StopWatchProvisionPeer  # noqa: E402
+from device_service_s3_watch_peer import (
+    PROFILE as S3_WATCH_PROFILE,
+    QOM_PROPERTY as S3_WATCH_QOM_PROPERTY,
+    FIRMWARE_SHA256 as S3_WATCH_FIRMWARE_SHA256,
+    S3WatchPeer,
+    controller_state as s3_watch_controller_state,
+    controller_checks as s3_watch_controller_checks,
+    parse_config as parse_s3_watch_config,
+    require_backend as require_s3_watch_backend,
+)
 from device_service_sta_time_peer import (  # noqa: E402
     ACL_OPERATION as STA_TIME_ACL_OPERATION,
     DEVICE as STA_TIME_DEVICE,
@@ -484,6 +494,7 @@ DEFAULT_NETWORK_EMULATOR = (
     / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
 )
 GENERIC_WIFI_PROFILE = "generic-observe"
+SOFTAP_PROFILE_BOARDS = {**SOFTAP_PROFILE_BOARDS, S3_WATCH_PROFILE: frozenset({"sticks3"})}
 UNIX_WIFI_PEER_OPERATIONS = {
     **dict.fromkeys(SOFTAP_PROFILE_BOARDS, SOFTAP_ACL_OPERATION),
     STICKS3_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
@@ -1160,6 +1171,11 @@ def parse_qemu_wifi_execution(
         or getattr(spec, "service_kind", None) != "qemu"
     ):
         raise ServiceError("unsupported_network_profile", "StopWatch provisioning requires its exact native board", 400)
+    if profile == S3_WATCH_PROFILE:
+        if (spec.id != "sticks3" or spec.machine != "m5sticks3"
+                or spec.backend != "qemu-esp32s3" or spec.service_kind != "qemu"):
+            raise ServiceError("unsupported_network_profile", "S3-watch WPA2 peer requires the exact StickS3 model", 400)
+        return parse_s3_watch_config(value)
     if isinstance(profile, str) and spec.id in SOFTAP_PROFILE_BOARDS.get(profile, ()):
         if set(value) - {"profile", "capture_pcap"} or value.get("capture_pcap", True) is not True:
             raise ServiceError(
@@ -4771,6 +4787,41 @@ class DeviceSession:
             return {"status": "NOT_RUN"}
         return peer if isinstance(peer, dict) else {"status": "NOT_RUN"}
 
+    def _s3_watch_controller_receipt(self, peer: dict) -> dict:
+        path = self.dir / "s3-watch-controller.json"
+        binding = {"session_id": self.id, "firmware_sha256": self.firmware_sha,
+                   "worker_generation": self.worker_generation, "peer_generation": peer.get("generation")}
+        if self.state not in {"running", "booting"}:
+            cached = self._read_wifi_peer_receipt(path)
+            return cached if all(cached.get(k) == v for k, v in binding.items()) else {"status": "NOT_RUN"}
+        try:
+            with self._lock:
+                if not self._process_identity_matches():
+                    return {"status": "UNAVAILABLE"}
+                identity = (self.pid, self.process_start_token)
+                parents = ["/machine"]
+                paths = []
+                for parent in parents:
+                    fields = self._qmp_call("qom-list", path=parent).get("return", [])
+                    if parent == "/machine":
+                        parents.extend(parent + "/" + field["name"] for field in fields
+                                       if field.get("name") in {"unattached", "soc", "peripheral", "peripheral-anon"}
+                                       and str(field.get("type", "")).startswith("child<"))
+                    paths.extend(parent + "/" + field["name"] for field in fields
+                                 if field.get("type") == "child<misc.esp32s3.wifi>")
+                if len(paths) != 1:
+                    return {"status": "UNAVAILABLE"}
+                value = self._qmp_call("qom-get", path=paths[0], property="wpa2-softap-state").get("return")
+                state = s3_watch_controller_state(value)
+                if identity != (self.pid, self.process_start_token) or not self._process_identity_matches():
+                    return {"status": "UNAVAILABLE"}
+                receipt = {**binding, "status": "OBSERVED", "state": state,
+                           "process_generation": hashlib.sha256(repr(identity).encode()).hexdigest()}
+                atomic_write_json(path, receipt)
+                return receipt
+        except (ServiceError, OSError, RuntimeError, ValueError, TypeError, KeyError):
+            return {"status": "UNAVAILABLE"}
+
     def network_evidence(self) -> dict:
         evidence = self._build_network_evidence()
         if self.network_config.get("policy"):
@@ -4804,6 +4855,7 @@ class DeviceSession:
             evidence["softap_fixture"] = peer
             evidence["kind"] = (
                 "m5stack-qemu-stopwatch-provisioning" if stopwatch else
+                "m5stack-qemu-s3-watch-wpa2-proof" if self.network_config["profile"] == S3_WATCH_PROFILE else
                 "m5stack-qemu-sticks3-provisioning" if provisioning else "m5stack-qemu-open-softap-proof"
             )
             evidence["isolation"] = {
@@ -4819,6 +4871,10 @@ class DeviceSession:
                 "captured_dora": data_plane["dhcpv4"]["completed_dora_transactions"] > 0,
                 "captured_http": data_plane["tcp"]["bidirectional_payload_flows"] > 0,
             }
+            if self.network_config["profile"] == S3_WATCH_PROFILE:
+                controller = self._s3_watch_controller_receipt(peer)
+                evidence["wpa2_controller"] = controller
+                evidence["checks"].update(s3_watch_controller_checks(controller))
             if provisioning:
                 capture = evidence["packet_capture"]
                 reconnect = peer.get("station_reconnect") is True
@@ -6391,13 +6447,15 @@ class DeviceSession:
                     atomic_write_json(self.softap_fixture_receipt, receipt)
                 if profile == STOPWATCH_PROVISION_PROFILE:
                     self._unix_wifi_peer = StopWatchProvisionPeer(peer_mac, wifi_mac, persist)
+                elif profile == S3_WATCH_PROFILE:
+                    self._unix_wifi_peer = S3WatchPeer(peer_mac, persist)
                 elif profile == STICKS3_PROVISION_PROFILE:
                     self._unix_wifi_peer = PortalStationPeer(peer_mac, wifi_mac, persist)
                 else:
                     self._unix_wifi_peer = SoftAPPeer(peer_mac, persist, portal=profile == STICKS3_PORTAL_PROFILE)
                 peer_fd = self._unix_wifi_peer.child.fileno()
                 command.extend([
-                    "-global", f"driver={SOFTAP_NIC},property={SOFTAP_QOM_PROPERTY},value=on",
+                    "-global", f"driver={SOFTAP_NIC},property={S3_WATCH_QOM_PROPERTY if profile == S3_WATCH_PROFILE else SOFTAP_QOM_PROPERTY},value=on",
                     "-nic", f"socket,fd={peer_fd},model={nic},mac={peer_mac},id=wifi0",
                 ])
                 if profile in {STICKS3_PORTAL_PROFILE, STICKS3_PROVISION_PROFILE}:
@@ -12557,7 +12615,11 @@ class DeviceService:
                         raise ServiceError("invalid_network", "the local time fixture uses generated device identity", 400)
                     if profile in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}:
                         raise ServiceError("invalid_network", "the provisioning fixture uses generated device identity", 400)
-                if profile != STA_TIME_PROFILE:
+                if profile == S3_WATCH_PROFILE:
+                    if firmware_sha != S3_WATCH_FIRMWARE_SHA256:
+                        raise ServiceError("firmware_mismatch", "S3-watch peer requires the pinned original image", 409)
+                    require_s3_watch_backend(spec.qemu)
+                elif profile != STA_TIME_PROFILE:
                     require_softap_backend(
                         spec.qemu, portal=profile == STICKS3_PORTAL_PROFILE,
                         station=profile == STICKS3_PROVISION_PROFILE,

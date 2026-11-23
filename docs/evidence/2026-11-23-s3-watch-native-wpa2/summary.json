@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-23",
+  "scope": "virtual-device validation; native macOS arm64; exact original S3-watch 0.1 (worked)",
+  "firmware_sha256": "eb7f9425c07cffd972d0de479fc6c82d86af2aa51dc807d9829d5ee55add163b",
+  "firmware_bytes": 8388608,
+  "original_main_source_sha256": "eeeea530fa327e38ce4bd4b78c0a06bd194204c41ae385d10a66a1f17ce26f1c",
+  "device": "sticks3",
+  "machine": "m5sticks3",
+  "runtime": {
+    "runtime_sha256": "67e78237fe35a1b81b0e2e3070c72b7e415dc4bf22e3506162c78a2c51da609a",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "source_manifest_sha256": "457a3ab7401cec2501769962703a8716dcdb165bbfe3e0903e0d9b30081dc1d8",
+    "bootstrap_sha256": "b91cbea2dd3836bc5f63a800696f05f36ea39d020e2a560c28116e3253a54b75",
+    "host": "macOS arm64",
+    "target": "xtensa-softmmu",
+    "build_kind": "isolated incremental from fresh complete base prefix",
+    "prefix_patches": 180,
+    "source_files": 157,
+    "build_manifest_sha256": "3361cd99b29d46ca04409a4ef5af5782bc62fd0aed3bcbef4a4da89703ac353b",
+    "patch_0234_sha256": "97c2a9cb9f6b34704f0c59e57618df0111b73b78bdc5500198c758d99e80fe13",
+    "patch_0233_sha256": "1d47036a089458102a223f14abf85092c800b959832ca95b7a55da29601e8708"
+  },
+  "network": {
+    "profile": "sticks3-s3-watch-wpa2",
+    "transport": "unix-socketpair",
+    "host_ip_backends": 0,
+    "external_traffic": false,
+    "credential_source": "private Device Service request projected into QEMU environment, never argv",
+    "guest_http_request": "GET /api/state HTTP/1.0",
+    "guest_http_writes": false
+  },
+  "input_timeline": [
+    "Wait 30 seconds after session creation; sample at 2-second intervals.",
+    "Mature initial screen reports a WEB address; initial actual beacon is a different SSID with Privacy=0 and no RSN.",
+    "At sample 5, B hold 2 seconds and settle 1 second: WEB OFF.",
+    "At sample 15, B hold 2 seconds and settle 1 second: target SSID, Privacy=1, RSN CCMP/PSK and WEB address.",
+    "No A input, clock write, HTML execution or guest firmware modification."
+  ],
+  "initial_branch_limit": "The original skips AP config if WLAN.active() is already true; its stop path disables AP but retains the object. Observations prove the transition, not the exact first-start branch or a firmware/SDK root cause.",
+  "positive": {
+    "status": "PASS",
+    "http": "PASS",
+    "cleanup_confirmed": true,
+    "checks": {
+      "peer_dhcp": true,
+      "peer_arp": true,
+      "peer_http_body": true,
+      "captured_dora": true,
+      "captured_http": true,
+      "wpa2_current_association": true,
+      "wpa2_guest_handshake": true,
+      "wpa2_protected_guest_tx": true,
+      "wpa2_protected_guest_rx": true
+    },
+    "wpa2_controller_state": {
+      "ready": true,
+      "beacons": 129,
+      "auth": 1,
+      "assoc": 1,
+      "m1": 1,
+      "m2": 1,
+      "m3": 1,
+      "m4": 1,
+      "rejected": 3,
+      "deauth": 0,
+      "data_seen": 14,
+      "protected_tx": 11,
+      "protected_rx": 7
+    },
+    "wrong_password": false,
+    "zip_before_stop_sha256": "9795c348aba510632d3e1c22a410be60d2bbbecc048f8ed0a93c4b99e06dd735",
+    "zip_stopped_sha256": "eecdf8a3b2730c66e8eb3f1c8d3ec47258869e229a6c3d88d12fff7a5019f394",
+    "pcap": {
+      "sha256": "7ca0224ab8a34cb57bf6f3fe7c39d45ff10175757c1258583bf7cacbfdfd45c1",
+      "bytes": 7899
+    },
+    "finalized_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "7ca0224ab8a34cb57bf6f3fe7c39d45ff10175757c1258583bf7cacbfdfd45c1",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 1
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "http_status": 200,
+    "http_body_sha256": "0e319e2fe6ed2cf97f0b66c84c435e4c659668586072f0ef0cf2a1eba107df68",
+    "http_request_sha256": "b4f424393dd0c1f4c5ec3b86249fd0573b432fb9a017e90d4d4b19708515fcf7",
+    "peer_released": true,
+    "same_pcap_bytes_before_and_after_stop": true,
+    "frame_sha256": {
+      "00": "af8fc601904c5bed1959222f1b5271a261d603e5db7dd272194920395a2702b4",
+      "04": "ba7525077470323cc5ef5f10bf48343413ec9dc9e56ff19d1bda7fc7a6a23235",
+      "06": "cbcf008176b6248ec5b3564b5c09551377778df20894789ee87c8fb714f6e4d3",
+      "14": "d0324eb15fda00a405fbdc6465fe05ae06495ce9dd55713a14c3a05f55e6e7c3",
+      "16": "aff9007acccbd57479996d793780f2857c327fd7e1bf6956e4d64182aea3731f",
+      "30": "630ba7b2729e059b12d64035a41d37f51d4e0606aad9458382a2b3877520dfd3"
+    }
+  },
+  "wrong_password": {
+    "status": "PARTIAL",
+    "http": "REJECTED_AS_EXPECTED",
+    "cleanup_confirmed": true,
+    "checks": {
+      "peer_dhcp": false,
+      "peer_arp": false,
+      "peer_http_body": false,
+      "captured_dora": false,
+      "captured_http": false,
+      "wpa2_current_association": false,
+      "wpa2_guest_handshake": false,
+      "wpa2_protected_guest_tx": false,
+      "wpa2_protected_guest_rx": false
+    },
+    "wpa2_controller_state": {
+      "ready": false,
+      "beacons": 139,
+      "auth": 7,
+      "assoc": 7,
+      "m1": 27,
+      "m2": 27,
+      "m3": 0,
+      "m4": 0,
+      "rejected": 0,
+      "deauth": 6,
+      "data_seen": 0,
+      "protected_tx": 0,
+      "protected_rx": 0
+    },
+    "wrong_password": true,
+    "zip_before_stop_sha256": "8a07184a6096ffdc1d3fbd5b91a2f5f6d8355b9aadbe991dab6633e2647aca6e",
+    "zip_stopped_sha256": "695ab1cf49b7bb4ee2dc3ba020291803cd8534338a69e79c4d5c9645e076cd1d",
+    "pcap": {
+      "sha256": "6d9d21b4804e430557d435a05fe84767768021ae3107f089ae5a5b61c26b7ebc",
+      "bytes": 6826
+    },
+    "finalized_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "6d9d21b4804e430557d435a05fe84767768021ae3107f089ae5a5b61c26b7ebc",
+      "dhcpv4": {
+        "completed_dora_transactions": 0,
+        "leased_address_count": 0
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 0
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "http_status": null,
+    "http_body_sha256": null,
+    "http_request_sha256": null,
+    "peer_released": true,
+    "same_pcap_bytes_before_and_after_stop": true,
+    "frame_sha256": {
+      "00": "0067bc639f4861c8bcf99f4ef045638d31dffd2184c8e2747915da62270c91a9",
+      "04": "645c74fea5f426782cdd8e811992af453ebdb9c6818243b483eae790f5ae19d9",
+      "06": "c5893bfa5fa1830dbe6c35a915c93039376a13869d3b5407dbd22c499b81de76",
+      "14": "e74a364ca3e0a4bda3e175ca65c549647fa6ff0d2e70062c35ab934b36e6eecf",
+      "16": "95757eecddb87c4c58b98a986b585a58bb08c50fa714f79233da774fe67d474d",
+      "30": "1a74c4aa0a015f28267c0088cd2d4bbd5423df834e3fca82ef3e1ebd4507d088"
+    },
+    "negative_control": "PASS"
+  },
+  "maintained_runner_repeat": {
+    "status": "PASS",
+    "http": "PASS",
+    "cleanup_confirmed": true,
+    "checks": {
+      "peer_dhcp": true,
+      "peer_arp": true,
+      "peer_http_body": true,
+      "captured_dora": true,
+      "captured_http": true,
+      "wpa2_current_association": true,
+      "wpa2_guest_handshake": true,
+      "wpa2_protected_guest_tx": true,
+      "wpa2_protected_guest_rx": true
+    },
+    "wpa2_controller_state": {
+      "ready": true,
+      "beacons": 130,
+      "auth": 1,
+      "assoc": 1,
+      "m1": 1,
+      "m2": 1,
+      "m3": 1,
+      "m4": 1,
+      "rejected": 3,
+      "deauth": 0,
+      "data_seen": 14,
+      "protected_tx": 11,
+      "protected_rx": 7
+    },
+    "wrong_password": false,
+    "zip_before_stop_sha256": "9eef951af3c672ef2a9717ac6e3bbd339d06bb99cdc3a06cf2bf74fed55243a2",
+    "zip_stopped_sha256": "ff54915f68c1eb9510b21013fe9bbdcaa732ef9b9e463bab798214075fee9147",
+    "pcap": {
+      "sha256": "02c11760b656423d5429c7008b700bccc850bf9810b9b836d3e57ec624585bee",
+      "bytes": 7899
+    },
+    "finalized_data_plane": {
+      "schema_version": 1,
+      "scope": "same-session-native-ipv4-transport",
+      "source": "ethernet-pcap",
+      "capture_state": "finalized",
+      "capture_sha256": "02c11760b656423d5429c7008b700bccc850bf9810b9b836d3e57ec624585bee",
+      "dhcpv4": {
+        "completed_dora_transactions": 1,
+        "leased_address_count": 1
+      },
+      "tcp": {
+        "bidirectional_payload_flows": 1
+      },
+      "udp": {
+        "bidirectional_payload_flows": 0
+      }
+    },
+    "http_status": 200,
+    "http_body_sha256": "0e319e2fe6ed2cf97f0b66c84c435e4c659668586072f0ef0cf2a1eba107df68",
+    "http_request_sha256": "b4f424393dd0c1f4c5ec3b86249fd0573b432fb9a017e90d4d4b19708515fcf7",
+    "peer_released": true,
+    "same_pcap_bytes_before_and_after_stop": true,
+    "frame_sha256": {
+      "00": "c8ff17cb1f296fa694f5401af682c1fdbba1ae62c39c8cfd5ed74e57d1ffa022",
+      "04": "c70dac1c17fae341b8cca4a6c4e9c7d6a69dd162df3c32851781b6d43d1c1bd5",
+      "06": "cbcf008176b6248ec5b3564b5c09551377778df20894789ee87c8fb714f6e4d3",
+      "14": "cebeb80a3a2ebcd926c03619d69c561be5521169a37223acbfdc3479387399a4",
+      "16": "1894cfff705ad298e23aadab3ef56d3cc1aeeb48dc1f81b131a4ed0c607f8bed",
+      "30": "22a2fc37d6c5270585d2a5d76b29da9b8f7d2e149414b362aa333f3e0b16d0c7"
+    }
+  },
+  "capture_derivation": "The pre-stop ZIP can contain a CAPTURING summary with incomplete derived counts. Final DORA/TCP counts come from the stopped same-session API and stopped ZIP; the pre-stop PCAP bytes are independently hash-equal to that final parser input.",
+  "host_controls": {
+    "inc_sha256": "99461292b1ea0f69445c88f695d17ea537c97a9fff742fde47d117a845f05c4d",
+    "ap_sha256": "3f35e6856837ef0eb9bdc9db818c6253efb3f9717de660375b57716bbace5b2f",
+    "extracted_c_sha256": "55ce0e86c72307f4828effb1ac9cb4b0a8c6b4cdbf84fd3ba32515d205cf54a0",
+    "asan": true,
+    "ubsan": true,
+    "leak_check": "NOT RUN"
+  },
+  "host_control_results": [
+    "RFC3394 unwrap known answer, wrong key, tamper and length/buffer boundaries: 291 cases PASS",
+    "RFC3610 CCM vector 1 plus 32 wrong key/ciphertext/MIC negatives PASS",
+    "RSN length/cipher/PMF/PMKID boundaries PASS",
+    "Actual guest key-table missing/ambiguous/wrong-key controls and pairwise/group protected forwarding, replay/length boundaries PASS"
+  ],
+  "python_controls": {
+    "focused_tests": 7,
+    "status": "PASS",
+    "full_suite": {
+      "status": "PASS",
+      "tests": 2529,
+      "skipped": 11,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 221.812,
+      "log_sha256": "a1549400256232414af6573e0368a3f421ab12d5b9503d328c910b38dec6bb41"
+    },
+    "documentation_tests": {
+      "status": "PASS",
+      "tests": 22
+    },
+    "validators": {
+      "status": "PASS",
+      "count": 4
+    },
+    "prior_full_suite": {
+      "tests": 2529,
+      "skipped": 11,
+      "failures": 4,
+      "cause": "WIP documentation entries and snapshot; retained before completion"
+    }
+  },
+  "prior_observations": [
+    {
+      "label": "native-stage1-a1",
+      "zip_sha256": "97f53a2995431a0da165bd63f25b2e73ffd00445c16353d94277ff2ac1c01fe7",
+      "cleanup_confirmed": true,
+      "observation": "No B input; actual beacons observed but target WPA2 not admitted."
+    },
+    {
+      "label": "native-stage1-b1",
+      "zip_sha256": "c345cccc7c0a70540051b0c17855681a5a2e684e1e326829adeac04a36e418ef",
+      "cleanup_confirmed": true,
+      "observation": "Actual initial beacon Privacy=0; target peer correctly refused it."
+    },
+    {
+      "label": "native-stage1-c1",
+      "zip_sha256": "8cd2c75c6217291f8c0b96c1b43abbc284e1ba76a419640cf4ba0865b47bf3aa",
+      "cleanup_confirmed": true,
+      "observation": "Two B holds produced target WPA2 RSN; overly strict candidate rejected legitimate optional RSN fields."
+    },
+    {
+      "label": "native-stage1-d1",
+      "zip_sha256": "3682849fef7fb9cca7e87ba4da90463d7f5c26f441b663cf8f3fab36d9e1e45b",
+      "cleanup_confirmed": true,
+      "observation": "Four-way handshake passed; peer discovery socket backpressure ended DHCP before activation."
+    },
+    {
+      "label": "native-stage1-d2",
+      "zip_sha256": "4a44760aae5647c1d844bb7185a26178268c6f08c8802566931f155cfc0c0455",
+      "cleanup_confirmed": true,
+      "observation": "Four-way handshake and actual protected guest DMA observed; data intentionally not yet forwarded."
+    },
+    {
+      "label": "native-stage1-e1",
+      "zip_sha256": "d3efc6f8b0ef0bea253f084052195e865f792b13202d1b22fb3deb21e4ba0e6a",
+      "cleanup_confirmed": true,
+      "observation": "Same diagnostic plus actual guest hardware key table proof; no HTTP qualification."
+    },
+    {
+      "label": "native-stage2-a1",
+      "zip_sha256": "0b0068ccb463326bead00b933602d6d16964a356e6ba0fdee32077a2bfbfa61a",
+      "cleanup_confirmed": true,
+      "observation": "Actual HTTP 200/152-byte JSON arrived; oracle falsely rejected valid unset t=--:--:--. Preserved FAIL at application oracle."
+    },
+    {
+      "label": "native-stage2-b1",
+      "zip_sha256": "7e6821f1a349700280f76852ea01fcd780fc6ff2fb8e9ca673c4922b0ed3ab21",
+      "cleanup_confirmed": true,
+      "observation": "Earlier functional positive with all nine gates; retained before final diagnostic-log removal/runtime freeze."
+    }
+  ],
+  "old_stopwatch_flag_regression": {
+    "status": "BLOCKED",
+    "firmware_sha256": "606aac7831cb4ca2bd45fdac40f0755fc918d1c7772caeaafa7965ef72c64bac",
+    "normalized_firmware_sha256": "f735f999d2fe6217f129fcc974edd08b0c5f9c8dca960dbadaa7b8669cf4474b",
+    "same_service_config_and_input": true,
+    "candidate_runtime_sha256": "67e78237fe35a1b81b0e2e3070c72b7e415dc4bf22e3506162c78a2c51da609a",
+    "baseline_runtime_sha256": "5b8b3f24b9d2c757a21b1d17d635218348167d258b3e3677b69c3196cdf5d4db",
+    "candidate_first": {
+      "status": "PARTIAL",
+      "detail": "30-second observation: portal DHCP/ARP and four HTTP phases passed; station phase still running.",
+      "zip_before_stop_sha256": "1b05835ef9ad6bc833ca4e52dafb3a233288a7bcdccbe4e5b3da84bf9b5ff318",
+      "zip_stopped_sha256": "58ab1a18a58445cec5f0c1b67910baa84e5bbb4be3be0614904e0b3e8f084f4c",
+      "checks": {
+        "peer_dhcp": true,
+        "peer_arp": true,
+        "peer_http_body": true,
+        "captured_dora": true,
+        "captured_http": true,
+        "guest_station_lease": false,
+        "captured_station_dora": false,
+        "peer_save_form": true,
+        "both_dhcp_flows": false,
+        "both_portal_requests": true,
+        "portal_done": true,
+        "portal_exit": true,
+        "station_after_exit_response": false
+      },
+      "data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "b8445e8fd50ff74e2c943391204bf25559f9ed33d989cdcc68b798d2e88afff2",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 4
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "cleanup_confirmed": true,
+      "peer_released": true
+    },
+    "candidate_terminal": {
+      "status": "PARTIAL",
+      "detail": "60-second bounded script: terminal TimeoutError at station-dhcp-arp; portal four HTTP phases passed, only AP DORA observed.",
+      "zip_before_stop_sha256": "1a0807ce0195374d8290fbad35c3579caff093449e95852c1262d80b5d8d2949",
+      "zip_stopped_sha256": "f74a29aa9acb522235ffc857760c3c8810c5b22db56b328444ff248404f539dc",
+      "checks": {
+        "peer_dhcp": true,
+        "peer_arp": true,
+        "peer_http_body": true,
+        "captured_dora": true,
+        "captured_http": true,
+        "guest_station_lease": false,
+        "captured_station_dora": false,
+        "peer_save_form": true,
+        "both_dhcp_flows": false,
+        "both_portal_requests": true,
+        "portal_done": true,
+        "portal_exit": true,
+        "station_after_exit_response": false
+      },
+      "data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "0ad7091ac422e926c675380c820af9623581ffeab7cdf32cd5ebc24e40ecd0e0",
+        "dhcpv4": {
+          "completed_dora_transactions": 1,
+          "leased_address_count": 1
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 4
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "cleanup_confirmed": true,
+      "peer_released": true
+    },
+    "baseline_control": {
+      "status": "PASS",
+      "detail": "Same current Device Service, original image, ROM, configuration and 60-second script: four portal HTTP phases and subsequent STA DORA/ARP passed.",
+      "zip_before_stop_sha256": "72781e9726103d1fda62b3487114a9464fb0925ab4ad24448dd6696fecdcf931",
+      "zip_stopped_sha256": "df04d0432c4c77f2c40bcf3e983ac464b50d6b8d4ac2f02e80a518f4b6c2d6e0",
+      "checks": {
+        "peer_dhcp": true,
+        "peer_arp": true,
+        "peer_http_body": true,
+        "captured_dora": true,
+        "captured_http": true,
+        "guest_station_lease": true,
+        "captured_station_dora": true,
+        "peer_save_form": true,
+        "both_dhcp_flows": true,
+        "both_portal_requests": true,
+        "portal_done": true,
+        "portal_exit": true,
+        "station_after_exit_response": true
+      },
+      "data_plane": {
+        "schema_version": 1,
+        "scope": "same-session-native-ipv4-transport",
+        "source": "ethernet-pcap",
+        "capture_state": "finalized",
+        "capture_sha256": "e4d0802d1706d1ff77f78a7e9ea20d5e98443a6c4e12b8d97f623fa68ac3cdd2",
+        "dhcpv4": {
+          "completed_dora_transactions": 2,
+          "leased_address_count": 2
+        },
+        "tcp": {
+          "bidirectional_payload_flows": 4
+        },
+        "udp": {
+          "bidirectional_payload_flows": 0
+        }
+      },
+      "cleanup_confirmed": true,
+      "peer_released": true
+    },
+    "attribution": "Unresolved runtime comparison. Serial disconnect is not proof of a transmitted deauthentication frame; no reset-cause or firmware-fault attribution. Trace diagnostics are separate from the untraced acceptance runs.",
+    "trace_comparison": {
+      "status": "DIAGNOSTIC_ONLY",
+      "observations": [
+        {
+          "runtime": "candidate",
+          "status": "PASS",
+          "trace_sha256": "1fa23108ac91569948ffb6bae3d738b1438ae76139840ba124495ec181f66af0",
+          "trace_bytes": 317743,
+          "zip_before_stop_sha256": "ec2453c2c9a328faf59e7dcc5f84aa3fb02270c8dc9e59b6a048579c36155f10",
+          "zip_stopped_sha256": "654ed0b3a3244f091bbea05f75fdc1a6308ddcb2e2cb97d3b4624d720b152d33",
+          "controller_events": {
+            "beacon": 378,
+            "rx": 231,
+            "state": 3,
+            "host-tx": 7,
+            "host-rx": 8
+          },
+          "tx_management_subtypes": {
+            "4": 34,
+            "8": 29,
+            "11": 3,
+            "1": 1,
+            "0": 2,
+            "10": 2,
+            "12": 1
+          },
+          "data_plane": {
+            "schema_version": 1,
+            "scope": "same-session-native-ipv4-transport",
+            "source": "ethernet-pcap",
+            "capture_state": "finalized",
+            "capture_sha256": "a203e93f4a71b658ca139f707c7505b1088aab587bc9222bc1f3b8f14f8834e5",
+            "dhcpv4": {
+              "completed_dora_transactions": 2,
+              "leased_address_count": 2
+            },
+            "tcp": {
+              "bidirectional_payload_flows": 4
+            },
+            "udp": {
+              "bidirectional_payload_flows": 0
+            }
+          },
+          "checks": {
+            "peer_dhcp": true,
+            "peer_arp": true,
+            "peer_http_body": true,
+            "captured_dora": true,
+            "captured_http": true,
+            "guest_station_lease": true,
+            "captured_station_dora": true,
+            "peer_save_form": true,
+            "both_dhcp_flows": true,
+            "both_portal_requests": true,
+            "portal_done": true,
+            "portal_exit": true,
+            "station_after_exit_response": true
+          },
+          "cleanup_confirmed": true,
+          "peer_released": true
+        },
+        {
+          "runtime": "baseline",
+          "status": "PASS",
+          "trace_sha256": "6f8af43c0140e9a60652c8423041256177407efa3b8d678a5354ff673a01338a",
+          "trace_bytes": 315451,
+          "zip_before_stop_sha256": "aef1830755f0944a69569839e156b054e06be03aa9120f5e39438668355fb533",
+          "zip_stopped_sha256": "529a5c60ffe6180f4420e2c6d1d17301fbec5fcce1db9211f119bc312a49062e",
+          "controller_events": {
+            "beacon": 373,
+            "rx": 229,
+            "state": 3,
+            "host-tx": 7,
+            "host-rx": 9
+          },
+          "tx_management_subtypes": {
+            "4": 34,
+            "8": 27,
+            "11": 3,
+            "1": 1,
+            "0": 2,
+            "10": 2,
+            "12": 1
+          },
+          "data_plane": {
+            "schema_version": 1,
+            "scope": "same-session-native-ipv4-transport",
+            "source": "ethernet-pcap",
+            "capture_state": "finalized",
+            "capture_sha256": "7185f05d10d29f199c9dc10027d89f0efdb54ad0aa8fdc4a196aa54cf742ecaf",
+            "dhcpv4": {
+              "completed_dora_transactions": 2,
+              "leased_address_count": 2
+            },
+            "tcp": {
+              "bidirectional_payload_flows": 4
+            },
+            "udp": {
+              "bidirectional_payload_flows": 0
+            }
+          },
+          "checks": {
+            "peer_dhcp": true,
+            "peer_arp": true,
+            "peer_http_body": true,
+            "captured_dora": true,
+            "captured_http": true,
+            "guest_station_lease": true,
+            "captured_station_dora": true,
+            "peer_save_form": true,
+            "both_dhcp_flows": true,
+            "both_portal_requests": true,
+            "portal_done": true,
+            "portal_exit": true,
+            "station_after_exit_response": true
+          },
+          "cleanup_confirmed": true,
+          "peer_released": true
+        }
+      ],
+      "interpretation": "Both unchanged binaries passed with existing S3/classic WiFi trace enabled. Both emitted management subtype 10 twice and subtype 12 once. These passing traces do not establish the cause of the earlier untraced failures or eliminate the compatibility blocker. No runtime was rebuilt or modified."
+    }
+  },
+  "limits": [
+    "No physical RF, timing, power or hardware-security qualification.",
+    "No Linux or browser-WASM runtime qualification.",
+    "Only non-QoS data subtype 0, AP-originated IPv4/ARP, CCMP-128/PSK, zero PMKID count and nonzero GTK index.",
+    "PMF negotiation, alternate ciphers, generic bridging and broad rekey interoperability NOT RUN.",
+    "No clock fixture was applied: t=--:--:-- is the unchanged original unset-clock response.",
+    "Reviewer automatic input orchestration and resident rollout are separate work.",
+    "No Burner submission."
+  ],
+  "status": "PARTIAL",
+  "candidate_promotion": "BLOCKED: exact S3-watch WPA2/HTTP passed; prior StopWatch mode did not pass on the combined runtime. No shared-runtime rollout or main publication.",
+  "formatted_runner_wrong_password": {
+    "status": "PARTIAL",
+    "exit_code": 0,
+    "negative_control": "PASS",
+    "wpa2_controller_state": {
+      "ready": false,
+      "beacons": 132,
+      "auth": 7,
+      "assoc": 7,
+      "m1": 27,
+      "m2": 27,
+      "m3": 0,
+      "m4": 0,
+      "rejected": 0,
+      "deauth": 6,
+      "data_seen": 0,
+      "protected_tx": 0,
+      "protected_rx": 0
+    },
+    "cleanup_confirmed": true,
+    "zip_before_stop_sha256": "6e5a1371147e2b254970129a48e5533f3c20c7f59843fe4ef88147a1d45879d6",
+    "zip_stopped_sha256": "e9a78a36161d50c460353564cef74668780972e1456d07de2f20245809144f96"
+  },
+  "export_scan": {
+    "password_complete_patterns": 0,
+    "pmk_patterns": 0,
+    "positive_pcap_ssid_patterns": 1,
+    "limit": "SSID pattern is present in positive PCAP; raw archives remain private. PNG pixels were not OCR-scanned; authoritative PTK/GTK bytes were not supplied for scanning."
+  },
+  "owned_cleanup": {
+    "sessions_stopped": true,
+    "leases_zero": true,
+    "services_stopped": true,
+    "flash_released": true,
+    "trace_diagnostics_completed": true
+  }
+}

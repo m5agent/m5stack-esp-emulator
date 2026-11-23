@@ -199,3 +199,16 @@ global/slirp-redirect 目标。宿主 macOS 仍不直接执行该隔离路径。
 可用的 unified profile 和证据字段以 Device Service 的
 `GET /api/v1/devices`、[统一设备运行时契约](unified-device-runtime.md)
 和 [网络模拟方案](network-simulation-plan.md) 为准。
+
+### Exact original S3-watch WPA2 read-only peer
+
+`sticks3-s3-watch-wpa2` is an opt-in native StickS3 profile for the exact
+S3-watch 0.1 (worked) original image. A private SSID/passphrase request feeds a
+controller-backed WPA2 supplicant and a Unix Ethernet peer; it has no IP
+backend or egress. The application probe is only `GET /api/state`. Passing
+requires actual same-guest authentication, association, M1–M4, protected data
+in both directions, DHCP/ARP, PCAP and the original HTTP/JSON response. A
+visible WEB address alone is insufficient. The first B input closes the
+observed initial listener; the second reopens the application with its target
+WPA2 configuration. The initial different open AP is outside that WPA2 claim.
+See the [exact reproduction and limits](../tests/network/native_s3_watch_wpa2/README.md).
