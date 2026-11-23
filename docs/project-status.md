@@ -11,6 +11,7 @@
 | 原生工作台和审核 Device Service | 1.99.5 提供原版 Tab5 UserDemo I²S1 双麦输入、录制和数字回放，已验证静音、错误格式和复位。 [原版与常驻读回](validation-ledger.md#2026-11-19-tab5-userdemo-原版双麦录制与回放) |
 | 审核与 Linux Worker | Reviewer 0.31.1 核对了存储不足后的同任务恢复。托管 Linux 已通过原版 Core2 独立复审与 CardputerDict ADV 的 HTTPS、SD 和 PCM。 [审核证据](validation-ledger.md#2026-11-19-reviewer-磁盘容量归因与同任务恢复) |
 | PaperDIY 原生 STA 板级准入 | 精确 `m5paperdiy` 模型在隔离 Linux 会话通过受控关联与 DHCP，开放最小 `generic-observe` STA 声明。未获得双向 TCP/UDP payload，原版 CrossPoint 应用尚未复测。 [限定证据](evidence/2026-11-23-paperdiy-native-sta/summary.json) |
+| StopWatch 已配网原版 STA | Demo Plus V0.6-OPT 保留原应用，通过隔离 NVS 凭据和真实设置操作完成关联/DHCP。原始空 NVS 路径进入 Setup AP，完整门户配网仍待验；不授予应用协议或 SoftAP peer PASS。 [原版与空 NVS 对照](evidence/2026-11-23-stopwatch-native-sta/summary.json) |
 | 已知原版边界 | M5TabOS 在 ST7123 通过连续触摸，98TAB5 无卡冷启仍复位。Core2 2048 真机对照、UIFlow2 云端控制帧 Pong 和 NC1020 原版完整画面仍需验证。 [待办与关闭条件](runtime-model-gap-register.md) |
 | 线上浏览器 | GitHub Pages 使用独立发布的 WASM 产物。已验证的板型、正式站点版本与适用边界见 [Pages 指南](pages-deployment.md)。 |
 | 设备与 Unit | [设备目录](../devices/README.md)和[自动项目快照](project-snapshot.md)提供可用项。[视觉与 Unit 接入汇总](evidence/2026-11-03-visual-campaign-summary/README.md)保存历史里程碑。 |

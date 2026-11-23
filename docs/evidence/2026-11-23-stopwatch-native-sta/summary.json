@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-23",
+  "validation": "virtual-device validation",
+  "status": "PRECONFIGURED_NATIVE_STA_QUALIFIED",
+  "scope": "Original Demo Plus V0.6-OPT with explicit isolated NVS credentials; not factory provisioning portal acceptance",
+  "device": {
+    "id": "stopwatch",
+    "machine": "m5stopwatch",
+    "backend": "qemu-esp32s3"
+  },
+  "execution": {
+    "service_source_commit": "cc25a8a8ac083e00608d591281289f1452cc75ac",
+    "runtime": "qemu-wifi",
+    "profile": "generic-observe",
+    "qemu_sha256": "1733f511c4528cbd991e673069ecedf261b7043e8302553e050924089ce09bff",
+    "s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "private_namespace": true,
+    "external_route": false,
+    "egress": "lab-only",
+    "dns": "deny",
+    "security": "Open"
+  },
+  "firmware": {
+    "original_sha256": "606aac7831cb4ca2bd45fdac40f0755fc918d1c7772caeaafa7965ef72c64bac",
+    "original_bytes": 4200368,
+    "normalized_sha256": "f735f999d2fe6217f129fcc974edd08b0c5f9c8dca960dbadaa7b8669cf4474b",
+    "normalized_bytes": 16777216,
+    "original_application_modified": false
+  },
+  "nvs_fixture": {
+    "partition_label": "nvs",
+    "offset": 36864,
+    "bytes": 16384,
+    "sha256": "6e1f5296e41a7f2a3ed94e2898d030e10d259cb6d9e2f0fbef90d6f6c87974fd",
+    "effective_preboot_flash_sha256": "e12106f1ec4b30769ad1bf23ac07a45c7d290347668295d29feb5b581e72778f",
+    "original_NVS_all_erased": true,
+    "original_NVS_other_items": 0,
+    "namespace": "wifi",
+    "entry_types": {
+      "ssid": "string",
+      "password": "string"
+    },
+    "outside_NVS_unchanged": true,
+    "source_artifact_modified": false
+  },
+  "same_session_setup": {
+    "status": "PASS",
+    "scope": "setup-input-only",
+    "steps": [
+      {
+        "name": "dismiss_first_run",
+        "input": {
+          "kind": "chord",
+          "target": "button",
+          "keys": [
+            "a",
+            "b"
+          ],
+          "seconds": 1.5,
+          "settle_seconds": 1.0
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            109,
+            114,
+            245,
+            42
+          ],
+          "region_sha256": "5840abe12c9fcea3b30b00e49509f0fc029faee88256ed635ce9fc1fed5899f0"
+        },
+        "after": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            170,
+            373,
+            128,
+            32
+          ],
+          "region_sha256": "a2b6cb48fdd763e9d86df67d0c8bb017b91c6c8f05c540624e16853186ff91b5"
+        }
+      },
+      {
+        "name": "select_settings_card",
+        "input": {
+          "kind": "touch",
+          "x": 32,
+          "y": 233,
+          "action": "click",
+          "settle_seconds": 0.6
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            170,
+            373,
+            128,
+            32
+          ],
+          "region_sha256": "a2b6cb48fdd763e9d86df67d0c8bb017b91c6c8f05c540624e16853186ff91b5"
+        },
+        "after": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            174,
+            373,
+            118,
+            33
+          ],
+          "region_sha256": "5056109677e76cb6c88a026f120f84efc421fa2a20f432c461c6fc98c08491fa"
+        }
+      },
+      {
+        "name": "open_settings",
+        "input": {
+          "kind": "touch",
+          "x": 234,
+          "y": 230,
+          "action": "click",
+          "settle_seconds": 0.6
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            174,
+            373,
+            118,
+            33
+          ],
+          "region_sha256": "5056109677e76cb6c88a026f120f84efc421fa2a20f432c461c6fc98c08491fa"
+        },
+        "after": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            182,
+            34,
+            101,
+            29
+          ],
+          "region_sha256": "f5843ea53ff739006ff9573f8a02e6bedc8bae3c3f0712f56b4bb5384d2b249a"
+        }
+      },
+      {
+        "name": "scroll_to_wifi",
+        "input": {
+          "kind": "drag",
+          "x1": 236,
+          "y1": 398,
+          "x2": 236,
+          "y2": 130,
+          "settle_seconds": 0.8
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            182,
+            34,
+            101,
+            29
+          ],
+          "region_sha256": "f5843ea53ff739006ff9573f8a02e6bedc8bae3c3f0712f56b4bb5384d2b249a"
+        },
+        "after": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            184,
+            110,
+            95,
+            36
+          ],
+          "region_sha256": "f6301bae6886d26872481eeb6df4beb59fb860331cfc2d62a0601bf4be2d9ad5"
+        }
+      },
+      {
+        "name": "open_wifi",
+        "input": {
+          "kind": "touch",
+          "x": 234,
+          "y": 132,
+          "action": "click",
+          "settle_seconds": 0.9
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            184,
+            110,
+            95,
+            36
+          ],
+          "region_sha256": "f6301bae6886d26872481eeb6df4beb59fb860331cfc2d62a0601bf4be2d9ad5"
+        },
+        "after": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            202,
+            245,
+            63,
+            35
+          ],
+          "region_sha256": "d706d9a0a8fd37bba3dfb6daa4feec4dbcda563d2ff0b28a2a440c79d2a59fd1"
+        }
+      },
+      {
+        "name": "enable_wifi",
+        "input": {
+          "kind": "touch",
+          "x": 340,
+          "y": 160,
+          "action": "click",
+          "settle_seconds": 1.0
+        },
+        "before": {
+          "kind": "frame_region_sha256",
+          "status": "PASS",
+          "region": [
+            202,
+            245,
+            63,
+            35
+          ],
+          "region_sha256": "d706d9a0a8fd37bba3dfb6daa4feec4dbcda563d2ff0b28a2a440c79d2a59fd1"
+        },
+        "after": {
+          "kind": "serial_marker",
+          "status": "PASS",
+          "marker_sha256": "a6c69c57a9138904f0404465457194e1361d9646db80d20fb0a1ddc9ba02f8ab"
+        }
+      }
+    ]
+  },
+  "network": {
+    "serial_event_fragments": [
+      "WifiManager: Starting station",
+      "WifiStation: Found AP",
+      "esp_netif_handlers: sta ip:"
+    ],
+    "final_capture_sha256": "7439dd133a482eae8f04d4122db6a52b35f2b192f32ed59804cada7b146bee82",
+    "capture_bytes": 2200,
+    "complete_DORA_transactions": 1,
+    "leased_address_count": 1,
+    "bidirectional_TCP_payload_flows": 0,
+    "bidirectional_UDP_payload_flows": 0,
+    "overall_network_status": "PARTIAL"
+  },
+  "retained_controls": [
+    {
+      "case": "cold-ROI-observer-negative",
+      "service_source_commit": "cc25a8a8ac083e00608d591281289f1452cc75ac",
+      "setup_status": "PARTIAL",
+      "final_capture_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+      "complete_DORA_transactions": 0,
+      "evidence_zip_sha256": "c3d7c3e5731fd884eb8d1f8ece154fb1a1f1fc59158c81b5c8b9cc12d12a5778"
+    },
+    {
+      "case": "cold-NVS-setup-AP",
+      "service_source_commit": "cc25a8a8ac083e00608d591281289f1452cc75ac",
+      "setup_status": "PASS",
+      "final_capture_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+      "complete_DORA_transactions": 0,
+      "evidence_zip_sha256": "4a911b6b1ab6df8b6d648b6ccf5d3b0facf6061bd7682ef3a42ad800c8519dd3"
+    },
+    {
+      "case": "cold-NVS-manual-setup-AP",
+      "service_source_commit": "2a7f979c0c7e67420d8b790a3cfdb692702abf05",
+      "final_capture_sha256": "8430e4c694413052749a0732c7a289a4433721de96f682b0d3302ca1836d8452",
+      "complete_DORA_transactions": 0,
+      "evidence_zip_sha256": "244dc687f50751630ff8c4466922db2dbd846d26d07c1054e31f5201ffd4fc43"
+    }
+  ],
+  "cleanup": {
+    "evidence_before_stop": true,
+    "evidence_zip_sha256": "3db633ae60749346619ed620550714994553e61a0c006def256849e77b7c4989",
+    "session_stopped": true,
+    "flash_released": true,
+    "worker_active_leases": 0,
+    "namespace_cleanup_completed": true,
+    "qemu_process_reaped": true
+  },
+  "advert": {
+    "sta": {
+      "runtime": "qemu-wifi",
+      "profile": "generic-observe",
+      "operation_assertions": false
+    },
+    "other_peer_capabilities_granted": false
+  },
+  "not_run": [
+    "Original factory Setup AP form submission, saved credentials and restart end-to-end",
+    "Application-level HTTP/DNS/UDP response success",
+    "Browser-WASM",
+    "Physical hardware or RF behavior"
+  ],
+  "redaction": "Screenshot bytes, credential values, tokens, endpoints, session IDs and unique device identifiers remain private."
+}

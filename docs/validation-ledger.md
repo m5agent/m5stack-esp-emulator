@@ -14,6 +14,27 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-23 StopWatch 原版已配网 STA 与空 NVS 对照
+
+原版 Demo Plus V0.6-OPT `606aac78…`（标准化 Flash `f735f999…`）在独立
+Linux `m5stopwatch`、Xtensa `1733f511…` / S3 ROM `b5c7090c…` 中执行。
+原 BIN 的 16 KiB NVS 全为擦除态。独立已配网场景使用现有 NVS fixture API，
+只添加 `wifi` namespace 的 string `ssid` / `password`，fixture `6e1f5296…`；
+原 BIN、原应用及 NVS 区域之外的 Flash 不变，初始有效 Flash 为 `e12106f1…`。
+
+同一 guest 以 A+B 长按 1.5 host 秒退出教程，点左箭头、Settings、滚动、Wi-Fi
+和开关；六步均通过前置帧与后置帧/串口 gate。原应用记录 Starting station、发现
+虚拟 AP、实际 STA 地址事件；final PCAP `7439dd13…` 为一次完整 DORA / 一个
+地址，双向 TCP/UDP payload 均为零，network 总体 `PARTIAL` 保留。
+
+空 NVS 的同原版自动导航对照进入 Setup AP，final PCAP `704e5e5b…` 无 STA
+DORA；此前手动同路径 `8430e4c6…` 也无 STA DORA。首轮自动滚动因 ROI gate
+不匹配停止，后续修正观察区域并重跑，未降低网络断言。以上不等同原厂
+AP 门户成功配网。STA advert 仅绑定精确板型且 `operation_assertions=false`，
+不授予 HTTP/TCP/SoftAP/time peer；门户端到端、浏览器和物理 RF 尚未验证。
+各例均先保存 ZIP 再停止、释放 Flash 与 lease；截图和凭据留在私有证据中。
+[完整哈希、输入与独立范围](evidence/2026-11-23-stopwatch-native-sta/summary.json)。
+
 ## 2026-11-23 PaperDIY 原生 STA 板级资格
 
 在精确 `paperdiy` / `m5paperdiy` / `qemu-esp32s3` 上，受控 ESP-IDF

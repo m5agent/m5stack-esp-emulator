@@ -1295,6 +1295,13 @@ Important fields:
   Application-level network assertions, including original CrossPoint firmware,
   still require their own same-session evidence; see the
   [board qualification](evidence/2026-11-23-paperdiy-native-sta/summary.json).
+- The exact native `stopwatch` / `m5stopwatch` / `qemu-esp32s3` combination
+  advertises those minimal STA fields after the original Demo Plus application
+  connected with an explicit session-isolated NVS credential fixture. Its
+  unchanged factory-NVS run opens a configuration AP; that portal's complete
+  provisioning flow remains unverified. No SoftAP, HTTP POST, TCP or time peer
+  is granted by this STA advert. See the
+  [preconfigured and cold-NVS controls](evidence/2026-11-23-stopwatch-native-sta/summary.json).
 - Ready native Cardputer, Cardputer ADV and StickS3 backends with the
   `open-softap-peer` QOM property advertise `native_network.open_softap_fixture`.
   It identifies the exact board profile, `runtime=qemu-wifi`,

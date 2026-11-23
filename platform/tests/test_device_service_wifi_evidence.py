@@ -174,6 +174,25 @@ class NativeStaIntegrationTests(unittest.TestCase):
 
 class NativeStaCapabilityTests(unittest.TestCase):
     @patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=True)
+    def test_stopwatch_station_offer_does_not_grant_factory_portal_or_other_peers(self, property_probe):
+        spec = load_device_specs()["stopwatch"]
+        self.assertEqual(native_sta_capability(spec, backend_ready=True), {"sta": {
+            "runtime": "qemu-wifi", "profile": "generic-observe", "operation_assertions": False,
+        }})
+        self.assertEqual(native_sta_capability(spec, backend_ready=False), {})
+        for unsupported in (
+            replace(spec, supported=False),
+            replace(spec, machine="m5paperdiy"),
+            replace(spec, backend="qemu-esp32lx6"),
+            replace(spec, service_kind="tab5"),
+            replace(spec, id="papers3"),
+            replace(spec, id="paperdiy"),
+        ):
+            with self.subTest(unsupported=unsupported.id, machine=unsupported.machine):
+                self.assertEqual(native_sta_capability(unsupported, backend_ready=True), {})
+        property_probe.assert_not_called()
+
+    @patch("device_service_wifi_evidence.qemu_has_qom_property", return_value=True)
     def test_paperdiy_station_offer_requires_exact_board_and_grants_no_peer_operations(self, property_probe):
         spec = load_device_specs()["paperdiy"]
         self.assertEqual(native_sta_capability(spec, backend_ready=True), {"sta": {
