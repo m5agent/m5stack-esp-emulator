@@ -1354,5 +1354,175 @@
   "Re-run of the 11 review-service E_NETWORK_PARTIAL tasks: NOT RUN (requires the review service change)",
   "WPA3, enterprise auth, TLS to real services, RF, physical hardware",
   "Tab5 network: reported unsupported, no model"
- ]
+ ],
+ "rerun_after_verdict_fixes": {
+  "run": "matrix3",
+  "cases": 32,
+  "matched_expected": 32,
+  "pcap_isolation_pass": 32,
+  "changes": [
+   "pcap isolation counts only unicast station traffic outside the fixture; guest-owned SoftAP and multicast frames are reported as guest_local_sources",
+   "controller AP-model probe/auth/assoc requests become wifi_scan/wifi_assoc events; scan-only adds wifi_scan_only to PARTIAL, a join without lease is dhcp_timeout"
+  ]
+ },
+ "staging_review_rerun": {
+  "reviewer_commit": "3ce2fe1",
+  "note": "14 saved-snapshot dry-runs of the current E_NETWORK_PARTIAL jobs on an isolated reviewer (submit disabled, no AI content review) against this Device Service. None hit worker_namespace_unavailable or board_not_advertised. All reached review-sta. No firmware sent a single probe request in the 75 s window, so each is PARTIAL no_network_activity; Monster first showed FAIL host_egress_denied from its own SoftAP mDNS, re-scored PARTIAL after the isolation fix. StopWatch job-687de4ba2337 stays on its pinned Linux STA lane and was not rerun.",
+  "jobs": [
+   {
+    "source_job": "job-ea9c50fa3fdb",
+    "firmware": "CardRadio",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-de1d1429c30c",
+    "firmware": "SecTrustKey",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-ce6e88172191",
+    "firmware": "CardOS-zh -中文操作系统（重发）",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-92abbf2f7c63",
+    "firmware": "CardOS-zh —— Cardputer ADV 中文小系统",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-eac32bc5d55f",
+    "firmware": "FlipHack",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-fd6f6d22bd66",
+    "firmware": "NucleoOS: desktop + offline AI for Cardp",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-ba218202b8d6",
+    "firmware": "Bruce CN",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-37bb82f2046c",
+    "firmware": "SecTrustKey",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-11c7fdcdb770",
+    "firmware": "META TV IR: Pocket TV Decoder & Universa",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-6df3d35e88bd",
+    "firmware": "玄机OS",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-26c58bb067d3",
+    "firmware": "Monster for Cyberspace.online",
+    "status": "FAIL",
+    "failure_codes": [
+     "host_egress_denied"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-ca78414e3407",
+    "firmware": "CrossPoint for PaperDIY (community port)",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-7018908b1bb2",
+    "firmware": "META TV IR: Pocket TV Decoder & Universa",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   },
+   {
+    "source_job": "job-c8bca3676aca",
+    "firmware": "META TV IR: Pocket TV Decoder & Universa",
+    "status": "PARTIAL",
+    "failure_codes": [
+     "no_network_activity"
+    ],
+    "probe_requests": 0,
+    "assoc_requests": 0,
+    "firmware_wifi_stack": true
+   }
+  ]
+ }
 }

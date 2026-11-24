@@ -31,6 +31,20 @@ QEMU `04abc3ba…` 跑了 8 款板卡的控制固件，`32/32` 与预期一致�
 
 判定只来自对端事件、控制器 WPA 跟踪和 pcap，不读取固件串口文字。
 
+## 判定修正后复跑与真实任务复审
+
+- pcap 隔离只统计租约与网关以外的单播站点流量；固件自建热点（如 `192.168.4.1`）的
+  组播帧记为 `guest_local_sources`，不再判 `host_egress_denied`。
+- AP 模型收到的 probe/auth/assoc 请求记为 `wifi_scan`/`wifi_assoc` 事件；只扫描不入网
+  的 `PARTIAL` 附加 `wifi_scan_only`，入网后无租约判 `dhcp_timeout`。
+- 修正后 `matrix3` 同镜像复跑 `32/32` 一致，32 个最终 pcap 隔离全部 PASS。
+- 隔离的审查服务（提交关闭、无 AI 内容审查）用保存快照复跑当前 14 条
+  `E_NETWORK_PARTIAL` 任务：全部走 `review-sta`，不再出现
+  `worker_namespace_unavailable` / `board_not_advertised`。75 秒窗口内没有一个固件发出
+  probe request，全部判 `PARTIAL no_network_activity`。这些应用需要用户先在界面里配置
+  Wi-Fi，属于缺少配网输入，不是网络模型缺口。Monster 首次判 `FAIL host_egress_denied`
+  来自其自建热点的 mDNS，按上面的隔离修正重新计算为 `PARTIAL`。
+
 ## 早期失败（保留）
 
 - `matrix1`：同一批镜像，Core2 与 StickC Plus2 的 good/setup 判 `FAIL fixture_rejected`，

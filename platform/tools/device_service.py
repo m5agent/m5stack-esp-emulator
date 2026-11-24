@@ -4881,8 +4881,14 @@ class DeviceSession:
             stderr_text = self.stderr_path.read_text(errors="replace")[-262144:]
         except OSError:
             stderr_text = ""
+        try:
+            # The AP model logs each management request; beacons are filtered.
+            stdout_text = "\n".join(line for line in self.stdout_path.read_text(errors="replace").splitlines()
+                                    if "Received" in line)
+        except OSError:
+            stdout_text = ""
         return evaluate_review_sta(
-            self.network_config, peer, stderr_text=stderr_text,
+            self.network_config, peer, stderr_text=stderr_text, stdout_text=stdout_text,
             capture=self._network_capture_evidence(), window_closed=window_closed,
             firmware_wifi_stack=self._review_sta_firmware_stack(),
         )

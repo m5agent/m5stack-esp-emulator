@@ -320,5 +320,6 @@ def capability(spec, *, backend_ready: bool) -> dict:
         "gateway": str(GATEWAY), "lease": str(LEASE),
         "max_timeout_seconds": 300, "statuses": ["PASS", "FAIL", "PARTIAL", "NOT_USED"],
         "failure_codes": ["wifi_auth_failed", "dhcp_timeout", "dns_failed", "tcp_refused",
-                          "http_status", "no_network_activity", "fixture_rejected", "host_egress_denied"],
+                          "http_status", "no_network_activity", "wifi_scan_only", "fixture_rejected",
+                          "host_egress_denied"],
     }}

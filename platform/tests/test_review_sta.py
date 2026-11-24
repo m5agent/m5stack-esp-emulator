@@ -337,6 +337,30 @@ class ReviewStaVerdictTests(unittest.TestCase):
         self.assertEqual(verdict["pcap_isolation"]["status"], "FAIL")
         self.assertEqual(verdict["status"], "FAIL")
 
+    def test_guest_softap_multicast_is_local_not_egress(self):
+        capture = {"status": "PASS", "input": {"sha256": "0" * 64}, "flows": [
+            {"source": "192.168.4.1", "destination": "224.0.0.251"},
+            {"source": "192.168.4.1:5353", "destination": "224.0.0.251:5353"},
+            {"source": "0.0.0.0:68", "destination": "255.255.255.255:67"},
+        ]}
+        verdict = evaluate(_config(), {"events": []}, stderr_text="", capture=capture,
+                           window_closed=True, firmware_wifi_stack=True)
+        self.assertEqual(verdict["pcap_isolation"]["status"], "PASS")
+        self.assertEqual(verdict["pcap_isolation"]["guest_local_sources"], ["192.168.4.1"])
+        self.assertEqual(verdict["status"], "PARTIAL")
+
+    def test_scan_only_is_partial_and_join_without_lease_is_dhcp_timeout(self):
+        scan = "QEMU: Received probe request!\n" * 4
+        verdict = evaluate(_config(), {"events": []}, stderr_text="", capture={},
+                           window_closed=True, firmware_wifi_stack=True, stdout_text=scan)
+        self.assertEqual(verdict["status"], "PARTIAL")
+        self.assertEqual(verdict["failure_codes"], ["no_network_activity", "wifi_scan_only"])
+        joined = scan + "QEMU: Received authentication request!\nQEMU: Received association request!\n"
+        verdict = evaluate(_config(), {"events": []}, stderr_text="", capture={},
+                           window_closed=True, firmware_wifi_stack=True, stdout_text=joined)
+        self.assertEqual(verdict["status"], "FAIL")
+        self.assertIn("dhcp_timeout", verdict["failure_codes"])
+
     def test_auth_events_come_only_from_controller_trace(self):
         self.assertEqual(wifi_auth_events("WPA2-PSK ready", "wpa2-psk", True), [])
         self.assertTrue(firmware_has_wifi_stack(b"..net80211.."))
