@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-19`.
 
-Status: local MVP with unified-device runtime contract `1.99.5` and bounded
+Status: local MVP with unified-device runtime contract `1.100.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -1275,14 +1275,20 @@ Important fields:
 - `features.flash/serial/screenshot/input/qom`
 - `network_status` separates simulator capability from test evidence:
   `validated`, `unverified`, `board-init-blocked`, or `not-supported`.
-- `features.network` is `true` only for a `validated` device-level path.
+- `features.network` is `true` for a `validated` device-level path or when
+  the ready backend admits the portable `review-sta` profile (see
+  [Portable review-sta](#portable-review-sta-network-review)).
   `network_profiles` still lists scenarios that can be used for diagnostics on
   an `unverified` or `board-init-blocked` chip; a profile being listed is not a
-  PASS claim. The generic `features.network` flag remains false for Tab5 and
-  Core2 because their usable paths are backend- or environment-gated. For
-  Core2, the explicit `qemu-wifi`, `qemu-unified` and `core2-native-hci`
-  profiles are the current network paths; this flag is not a statement that
-  those profiles are absent.
+  PASS claim. `network_status` keeps its catalog meaning and is not raised by
+  review-sta admission. The generic `features.network` flag remains false for
+  Tab5, which reports `network_review.network=unsupported`. For Core2, the
+  explicit `qemu-wifi`, `qemu-unified` and `core2-native-hci` profiles remain
+  separate network paths.
+- `network_review.network` is `supported` or `unsupported` with an optional
+  `reason` (`backend_unavailable`, `no_review_sta_model`). When supported,
+  `native_network.review_sta` carries the same profile description as
+  `GET /devices/{device_id}/network-capabilities`.
 - `network_console` reports the generic-firmware console default declared by
   the device matrix, such as `usb-jtag` for C6 UIFlow2.
 - Ready native QEMU backends for `cardputer` and `cardputer-adv` advertise
@@ -3906,6 +3912,101 @@ curl -sS \
   'http://127.0.0.1:8787/api/v1/sessions/<session-id>/evidence?include=manifest,serial,frames,logs,qom' \
   -o /tmp/m5-evidence.zip
 ```
+
+### Portable review-sta network review
+
+`network.profile=review-sta` with `runtime=qemu-wifi` gives a firmware review
+one same-guest Wi-Fi station path that runs on macOS and Linux workers without
+a network namespace, root, nftables or iproute2. The station's NIC is wired to
+a per-session Unix socketpair. The far end is an in-process peer that answers
+only for the fixed gateway `10.0.2.2` and leases `10.0.2.15/24`. It never opens
+an IP socket, so the guest cannot reach the host, LAN or Internet. Frames to
+any other destination are dropped and counted.
+
+Admitted boards are listed by `GET /devices/{device_id}/network-capabilities`.
+The current set is Cardputer, Cardputer ADV, StickS3, StopWatch, PaperDIY,
+PaperS3 (S3 Wi-Fi) and Core2, StickC Plus2 (classic ESP32 Wi-Fi). Tab5 returns
+`network=unsupported`; treat that as a capability boundary, not a failure.
+
+```json
+{
+  "device_id": "sticks3",
+  "firmware_id": "[firmware-id]",
+  "runtime": "qemu-wifi",
+  "network": {
+    "profile": "review-sta",
+    "ssid": "M5-REVIEW",
+    "security": "wpa2-psk",
+    "password": "[8-63 byte passphrase]",
+    "fixtures": {
+      "dns": {"A": {"example.test": "10.0.2.2"}},
+      "http": {"routes": [{"method": "GET", "path": "/api/status", "status": 200, "body": "OK"}]},
+      "tcp": {"port": 19193, "request_hex": "...", "response_hex": "..."},
+      "udp": {"port": 19090, "request_hex": "...", "response_hex": "..."},
+      "mqtt": {"port": 1883, "topics": ["review/#"]}
+    },
+    "setup_inputs": [
+      {"kind": "wait", "seconds": 30, "serial_marker": "Hold B"},
+      {"kind": "button", "control": "b", "action": "hold", "seconds": 2}
+    ],
+    "assertions": [
+      {"type": "dhcp_lease"},
+      {"type": "dns_query", "name": "example.test"},
+      {"type": "http_request", "method": "GET", "path": "/api/status", "status": 200}
+    ],
+    "timeout_seconds": 90
+  }
+}
+```
+
+- `security` is `open` or `wpa2-psk`. WPA3 returns `409 unsupported_wifi_security`.
+- `fixtures.dhcp` is always on. DNS answers must be `10.0.2.2`; other answers
+  return `400 fixture_rejected`. HTTP, raw TCP and MQTT need distinct ports.
+  Unknown names get NXDOMAIN; unknown TCP ports get RST.
+- `setup_inputs` run in order after the session reaches `running`, on the same
+  guest and through the same input path and ACL as `POST /input`. A `wait` step
+  can block on a serial marker. A failed step is recorded and ends the setup.
+- `assertions` defaults to `wifi_auth` + `dhcp_lease`. Types are `wifi_auth`,
+  `dhcp_lease`, `dns_query`, `tcp_connect`, `http_request`, `udp_exchange`,
+  `mqtt_connect` and `mqtt_publish`.
+- `network_code` may be `present`, `absent` or `unknown` (default). It lets the
+  caller declare that a firmware has no network function.
+- `capture_pcap` is always true.
+
+`GET /sessions/{id}/network` returns `status`, `data_plane`, `failure_codes`,
+`events`, `assertions`, `isolation`, `pcap_isolation`, `pcap_sha256`,
+`fixture_log_sha256` and `window`. Events come from the peer (DHCP, DNS, TCP,
+HTTP, UDP, MQTT, egress drops), from the controller WPA trace (`wifi_auth`),
+and from setup steps. Guest serial text is never used as an event source.
+
+| `status` | Meaning |
+| --- | --- |
+| `RUNNING` | The observation window is still open |
+| `PASS` | Every assertion was observed and succeeded |
+| `FAIL` | An explicit failure: see `failure_codes` |
+| `PARTIAL` | The window closed with no network attempt and a Wi-Fi stack is present (`no_network_activity`) |
+| `NOT_USED` | No network attempt, and the image has no Wi-Fi stack or the caller set `network_code=absent` |
+
+Stable failure codes: `wifi_auth_failed` (EAPOL 2/4 or 4/4 MIC mismatch on the
+controller), `dhcp_timeout`, `dns_failed`, `tcp_refused`, `http_status`,
+`fixture_rejected`, `host_egress_denied`, `no_network_activity`.
+
+The window closes early on PASS or after three WPA2 rejections. Otherwise it
+runs until `timeout_seconds`. The pcap is finalized at stop; read `/network`
+again after stop for the retained `pcap_isolation` and capture hash. The
+evidence ZIP contains `network/review-sta-fixture.json` and
+`network/review-sta-verdict.json`.
+
+`external_dependencies` in the capability lists families that no in-session
+peer can serve: RF attacks and monitor mode, LoRa/Meshtastic peers, NFC cards,
+IR receivers, phone provisioning, USB hosts and arbitrary Internet/TLS
+services. A review should record those as not verified because of an external
+dependency.
+
+This is virtual-device validation of the station data plane. It does not
+establish RF behavior, WPA3, enterprise authentication, TLS to real services or
+an untrusted-firmware sandbox. Control-firmware results are in
+[tests/network/review_sta_controls](../tests/network/review_sta_controls/README.md).
 
 ### Wait for a network session
 

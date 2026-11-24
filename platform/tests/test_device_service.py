@@ -561,9 +561,17 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 "not-supported",
             )
             self.assertEqual(rows[unsupported]["network_profiles"], [])
-        self.assertFalse(rows["core2"]["features"]["network"])
+        # features.network is true for a validated catalog path or an
+        # admitted portable review-sta board; catalog status stays separate.
+        for review_board in ("core2", "cardputer", "paperdiy"):
+            expected = rows[review_board]["backend_ready"]
+            self.assertEqual(rows[review_board]["features"]["network"], expected)
+            self.assertEqual(rows[review_board]["network_review"]["network"],
+                             "supported" if expected else "unsupported")
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])
+        self.assertEqual(rows["tab5"]["network_review"],
+                         {"network": "unsupported", "reason": "no_review_sta_model"})
         self.assertTrue(payload["network_enabled"])
 
     def test_review_create_publish_after_missing_reconcile_is_fenced(self):

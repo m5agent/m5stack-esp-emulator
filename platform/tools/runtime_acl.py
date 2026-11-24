@@ -29,6 +29,7 @@ OPERATIONS = frozenset(
         "network.softap.probe",
         "network.softap.provision",
         "network.sta.time.probe",
+        "network.sta.review",
         "program.read",
         "program.execute",
         "program.interrupt",

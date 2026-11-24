@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-23`
+日期：`2026-11-24`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,22 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-24 便携 review-sta 网络审查控制固件
+
+[#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
+在 macOS 独立 Device Service（代理自有端口与状态）上运行，无网络命名空间。运行时为常驻
+原生 QEMU `04abc3ba8cb1…`，控制固件由 `tests/network/review_sta_controls` 的 ESP-IDF v5.5.4
+源码构建。Cardputer、Cardputer ADV、StickS3、StopWatch、PaperDIY、PaperS3、Core2 与 StickC
+Plus2 的 known-good 均为 `PASS`，错误 WPA2 密码均为 `FAIL wifi_auth_failed`，离线镜像均为
+`NOT_USED`。StickS3、StopWatch、PaperDIY 与 StickC Plus2 在同一 guest 按住 B 后为 `PASS`，
+不输入为 `PARTIAL`。`matrix2` 共 `32/32` 与预期一致，每个最终 pcap 无夹具外地址。
+
+同日较早的 `matrix1` 中，Core2 与 StickC Plus2 因经典 NIC 未输出 WPA 跟踪而判 `FAIL`/`PARTIAL`；
+`probe1` 的 StickS3 setup 因事件字段冲突判 `PARTIAL`。两者修复后全部重跑，早期结果保留在
+[结构化证据](evidence/2026-11-24-review-sta-portable/summary.json)。Core2 的 B 是触摸条，未作为
+setup 对照；审查服务 11 条任务重跑、WPA3、TLS、物理 RF 与 browser-WASM 为 `NOT RUN`。
+[摘要](evidence/2026-11-24-review-sta-portable/README.md)
 
 ## 2026-11-23 原版 S3-watch 同来宾 WPA2 与只读 HTTP
 
