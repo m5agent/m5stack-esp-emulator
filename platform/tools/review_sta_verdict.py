@@ -9,13 +9,14 @@ Status semantics (#238):
 """
 from __future__ import annotations
 
+import ipaddress
 import re
 
 from review_sta_config import GATEWAY, LEASE
 
 FAILURE_CODES = (
     "wifi_auth_failed", "dhcp_timeout", "dns_failed", "tcp_refused", "http_status",
-    "fixture_rejected", "host_egress_denied", "no_network_activity",
+    "fixture_rejected", "host_egress_denied", "no_network_activity", "wifi_scan_only",
 )
 _TRACE = re.compile(r"\[esp32s3-wifi\] WPA: (.*)")
 _AUTH_FAIL = ("EAPOL 2/4 MIC mismatch", "EAPOL 4/4 MIC mismatch")
@@ -46,6 +47,21 @@ def wifi_auth_events(stderr_text: str, security: str, leased: bool) -> list[dict
         # the first proof that association completed.
         events.append({"type": "wifi_auth", "security": "open", "status": "PASS",
                        "source": "dhcp-after-association"})
+    return events
+
+
+def radio_events(stdout_text: str) -> list[dict]:
+    """Station management requests the AP model actually received."""
+    events = []
+    probes = stdout_text.count("QEMU: Received probe request!")
+    auths = stdout_text.count("QEMU: Received authentication request!")
+    assocs = stdout_text.count("QEMU: Received association request!")
+    if probes:
+        events.append({"type": "wifi_scan", "probe_requests": probes, "status": "OBSERVED",
+                       "source": "controller-ap-model"})
+    if auths or assocs:
+        events.append({"type": "wifi_assoc", "auth_requests": auths, "assoc_requests": assocs,
+                       "status": "OBSERVED", "source": "controller-ap-model"})
     return events
 
 
@@ -80,30 +96,58 @@ def _event_passed(assertion: dict, event: dict) -> bool:
     return event.get("status") == "PASS"
 
 
+def _host(endpoint) -> str | None:
+    if not isinstance(endpoint, str):
+        return None
+    return endpoint.rpartition(":")[0] if endpoint.count(":") == 1 else endpoint
+
+
 def _pcap_isolation(capture: dict) -> dict:
-    """Every captured IP flow must stay between the lease and the fixture gateway."""
+    """Station traffic must stay between the lease and the fixture gateway.
+
+    The capture also sees frames the guest emits on its own behalf, for
+    example a firmware SoftAP (192.168.4.1) announcing mDNS. Those never leave
+    the socketpair and are reported as `guest_local`, not as egress. Only a
+    unicast destination outside the fixture, reached from the station lease
+    or the gateway, counts against isolation.
+    """
     if capture.get("status") != "PASS" or not isinstance(capture.get("flows"), list):
         return {"status": "UNAVAILABLE"}
-    allowed = {str(GATEWAY), str(LEASE), "0.0.0.0", "255.255.255.255"}
-    outside = set()
+    station = {str(GATEWAY), str(LEASE)}
+    outside, guest_local = set(), set()
     for flow in capture["flows"]:
-        for side in ("source", "destination"):
-            endpoint = flow.get(side)
-            host = endpoint.rpartition(":")[0] if isinstance(endpoint, str) and ":" in endpoint else endpoint
-            if isinstance(host, str) and host not in allowed:
-                outside.add(host)
+        source, destination = _host(flow.get("source")), _host(flow.get("destination"))
+        if source is None or destination is None:
+            continue
+        try:
+            dst = ipaddress.IPv4Address(destination)
+            src = ipaddress.IPv4Address(source)
+        except ValueError:
+            continue
+        broadcast = dst.is_multicast or destination == "255.255.255.255" or src.is_unspecified
+        if source in station and not broadcast and destination not in station:
+            outside.add(destination)
+        elif destination in station and source not in station and not src.is_unspecified:
+            outside.add(source)
+        elif source not in station and not src.is_unspecified:
+            guest_local.add(source)
     return {"status": "PASS" if not outside else "FAIL",
             "flows": len(capture["flows"]), "non_fixture_addresses": sorted(outside)[:16],
+            "guest_local_sources": sorted(guest_local)[:16],
             "capture_sha256": (capture.get("input") or {}).get("sha256")}
 
 
 def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
-             window_closed: bool, firmware_wifi_stack: bool | None) -> dict:
+             window_closed: bool, firmware_wifi_stack: bool | None, stdout_text: str = "") -> dict:
     events = [dict(e) for e in peer.get("events", []) if isinstance(e, dict)]
     leased = any(e["type"] == "dhcp_lease" for e in events)
     auth = wifi_auth_events(stderr_text, config["wifi_auth"], leased)
-    events = auth + events
-    attempted = bool(auth) or any(e["type"] != "setup_input" for e in events)
+    radio = radio_events(stdout_text)
+    events = radio + auth + events
+    joined = any(e["type"] == "wifi_assoc" for e in radio)
+    scanned_only = bool(radio) and not joined
+    attempted = bool(auth) or joined or any(
+        e["type"] not in ("setup_input", "wifi_scan") for e in events)
     rows, failures = [], []
     for assertion in config["assertions"]:
         matched = [e for e in events if _matches(assertion, e)]
@@ -144,7 +188,9 @@ def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
         status = "FAIL"
     codes = list(dict.fromkeys(failures))
     if status == "PARTIAL":
-        codes = ["no_network_activity"]
+        # A scan without a join usually means the firmware found no saved or
+        # matching network and is waiting for user setup.
+        codes = ["no_network_activity"] + (["wifi_scan_only"] if scanned_only else [])
     data_plane = ("PASS" if leased and status == "PASS" else
                   "FAIL" if status == "FAIL" else
                   "NOT_USED" if status == "NOT_USED" else "PARTIAL")
