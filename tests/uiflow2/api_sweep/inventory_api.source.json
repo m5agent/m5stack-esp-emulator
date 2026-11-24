@@ -2,8 +2,8 @@
   "schema_version": 1,
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
-  "contract_version": "1.99.5",
-  "contract_sha256": "2bdcdbd42af109fcf93c149c859e02eec28cb8b77d735991c46b7f70bd3cf51b",
+  "contract_version": "1.100.0",
+  "contract_sha256": "6b8008a590ea216ac2fbfa5eeda66b740f76e56e355458f4f9300dd75f47628b",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -344,6 +344,19 @@
         "GET /devices/{device_id}/capabilities cardputer-adv",
         "GET /devices/{device_id}/capabilities missing-resource",
         "GET /devices/{device_id}/capabilities missing-auth"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /devices/{device_id}/network-capabilities",
+      "method": "GET",
+      "path": "/devices/{device_id}/network-capabilities",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /devices/{device_id}/network-capabilities cardputer-adv",
+        "GET /devices/{device_id}/network-capabilities missing-resource",
+        "GET /devices/{device_id}/network-capabilities missing-auth"
       ],
       "positive_status": "NOT RUN"
     },
@@ -1627,6 +1640,33 @@
       "operation_id": "GET /devices/{device_id}/capabilities",
       "method": "GET",
       "path": "/devices/cardputer-adv/capabilities",
+      "coverage": "rejection-only",
+      "expected_status": [401],
+      "authenticated": false,
+      "error_codes": ["unauthorized"]
+    },
+    {
+      "case_id": "GET /capacity",
+      "case_id": "GET /devices/{device_id}/network-capabilities cardputer-adv",
+      "operation_id": "GET /devices/{device_id}/network-capabilities",
+      "method": "GET",
+      "path": "/devices/cardputer-adv/network-capabilities",
+      "coverage": "positive-read",
+      "expected_status": [200]
+    },
+    {
+      "case_id": "GET /devices/{device_id}/network-capabilities missing-resource",
+      "operation_id": "GET /devices/{device_id}/network-capabilities",
+      "method": "GET",
+      "path": "/devices/api-sweep-absent/network-capabilities",
+      "coverage": "rejection-only",
+      "expected_status": [404]
+    },
+    {
+      "case_id": "GET /devices/{device_id}/network-capabilities missing-auth",
+      "operation_id": "GET /devices/{device_id}/network-capabilities",
+      "method": "GET",
+      "path": "/devices/cardputer-adv/network-capabilities",
       "coverage": "rejection-only",
       "expected_status": [401],
       "authenticated": false,

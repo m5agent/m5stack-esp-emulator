@@ -1,0 +1,1358 @@
+{
+ "schema_version": 1,
+ "date": "2026-11-24",
+ "issue": "https://github.com/m5agent/m5stack-esp-emulator/issues/238",
+ "validation": "virtual-device validation (native QEMU via dedicated Device Service /api/v1 sessions)",
+ "hardware_validation": "NOT RUN",
+ "browser_wasm": "NOT RUN",
+ "base_commit": "0817c8f34ad4be935cb6408ea461c1a57553e278",
+ "source_sha256": {
+  "platform/tools/review_sta_config.py": "e7ec0538057f198b518e3df8235efdefca3bac0fb29841e4794e0f98a7030517",
+  "platform/tools/review_sta_peer.py": "e7604848b6fa316447b92b81c141e23b7626dc9cbb0088a09d0ce375db77e2a8",
+  "platform/tools/review_sta_verdict.py": "8a53b60367fe8c5adcf5aba7b62e180a9d80bf51dbb3d08cebe62f8dc2719edc",
+  "tests/network/review_sta_controls/main/review_contract.h": "fffd36688de953e083070219f81a1b2e65ad8793f0850eeb999ab2b06ddda94d",
+  "tests/network/review_sta_controls/main/review_main.c": "95047a0685be2bd2379f849247e168f0611f6d24d37b99430fa84eb34cbef08c",
+  "tests/network/review_sta_controls/main/review_ops.c": "097247167b8032bc2ea85bc0a0f79412ec2ab6f67b382893b7a61625f6822587",
+  "tests/network/review_sta_controls/run_matrix.py": "e59626538e2cedc1dd5342999ad6f444b46d4394e5ab9cc47e96f31064fabec7"
+ },
+ "runtime": {
+  "qemu_system_xtensa_sha256": "04abc3ba8cb115919e7faebd55425c802f4f6e40b10bc3cc422c51700add728e",
+  "esp32s3_rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+  "esp32_rom_sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+  "source": "resident native rollout a4343d86d main-1995 (same binary for S3 and classic radio)",
+  "host": "macOS arm64, no network namespace, no root"
+ },
+ "control_firmware": {
+  "toolchain": "ESP-IDF v5.5.4, xtensa-esp-elf 14.2.0",
+  "images_sha256": {
+   "review-ctrl-classic-16mb-good.bin": "cab6c57897ff02337556094e4f17e03df322a6474f5e3d8c90cd007190f3ef8d",
+   "review-ctrl-classic-16mb-offline.bin": "42daa82c59a9dd887d902678cf4f7ba30ae07717b80da92ab4cc4dd911a370d3",
+   "review-ctrl-classic-16mb-wrong.bin": "14871f36dc7a675ff96efec3af91cf2b0d15b949a76de162197f274cdb055268",
+   "review-ctrl-classic-8mb-good.bin": "66ec1c1e94ec78688aaa56f8cd99256c8f368489cef517e09bef2dfa47ed177e",
+   "review-ctrl-classic-8mb-offline.bin": "a53f1cc88cd7cdf8e5b29bd008b859c2c2def6db630574e4bc7cb82285e8e709",
+   "review-ctrl-classic-8mb-wrong.bin": "b02005d274f282360004616a4a012a2645fe584481cf50adcd25c919219f215b",
+   "review-ctrl-core2-setup-b.bin": "a824ac5e19521b34432dad48565e387f9b908443c6cdad15cde47cb399d251d4",
+   "review-ctrl-paperdiy-setup-b.bin": "3010932f1744f740b87a37e3900c8a23996da0481fc2c378cafe315cfcb3c24d",
+   "review-ctrl-s3-16mb-good.bin": "9fc09bb583b7035444817b000560be313a59d73f790bce432283c7210eaac30e",
+   "review-ctrl-s3-16mb-offline.bin": "f22fc8ce264876ee8e9817eb023ff92102d016a14e9d70ba169d9a6b1b8c93dd",
+   "review-ctrl-s3-16mb-wrong.bin": "5df6e001ec18625852cc43af2256ce8a270d37c3f69c6f02d0da162ba1850dec",
+   "review-ctrl-s3-8mb-good.bin": "0c37fa1260ef9625b569a4faa33ea861b09684e910d4ff9a423b47dce1d41e87",
+   "review-ctrl-s3-8mb-offline.bin": "cb0d0a8829ad0626a875f7bcaea469b3946fd4b6a4bc4a3bb394db8238b6f07b",
+   "review-ctrl-s3-8mb-wrong.bin": "fb179fb8893615832490a8f3d17b3f2eb1e59fa5e9888f7b7fa8a12fd4ee95f4",
+   "review-ctrl-stickcplus2-setup-b.bin": "addef8ab04c676c5bfdd9e0d201ba25020ad526bb35fa5529a29c8260e1d66c1",
+   "review-ctrl-sticks3-setup-b.bin": "3f99834e45ea51f6d965113367c592a48f7fcf192b16c42fa1f3a186dd72fca1",
+   "review-ctrl-stopwatch-setup-b.bin": "9e230626eb8106e3f1dc6fd1708669c4c8b6aecb0980c1d3915c2a7dbe4ac029"
+  },
+  "note": "built by tests/network/review_sta_controls/build.sh from the committed source; binaries are not committed"
+ },
+ "service": {
+  "port": "agent-owned 18931",
+  "state": "separate state dir and token",
+  "stop": "purge=0, default Flash release"
+ },
+ "result": {
+  "cases": 32,
+  "matched_expected": 32
+ },
+ "runs": [
+  {
+   "device": "cardputer",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "0c37fa1260ef9625b569a4faa33ea861b09684e910d4ff9a423b47dce1d41e87",
+   "pcap_sha256": "d4c0f0dd3fc1b34f4becb2d6b21a2a5814b643243774c774707854f56e6de8d8",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "07db445ca9162792f8ccd11d808ac63f376fbb5fb68d074343706e79bf3e41a4",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "cardputer",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "fb179fb8893615832490a8f3d17b3f2eb1e59fa5e9888f7b7fa8a12fd4ee95f4",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "c1d04022b36328c7c0e0f5c555ddaf0800f113670699cd579659a7cfcb511347",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "cardputer",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "cb0d0a8829ad0626a875f7bcaea469b3946fd4b6a4bc4a3bb394db8238b6f07b",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "e282469bb6c18d61cee26938c21b31c55a9e381d82298f4ef7682eac7a35da44",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "cardputer-adv",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "0c37fa1260ef9625b569a4faa33ea861b09684e910d4ff9a423b47dce1d41e87",
+   "pcap_sha256": "47d2efdb177ef283d2ee642a6d6bf2c1478d374f6ad0c7821467be885cf8017b",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "34946f4e4afaddd8951628e2c2d68eaed24e1f2d0dda9c1d67d715a711970f48",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "cardputer-adv",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "fb179fb8893615832490a8f3d17b3f2eb1e59fa5e9888f7b7fa8a12fd4ee95f4",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "3d6a25c255807f1974d921112da0d65c5043eb2eafb6e0f67c0582f1e220510f",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "cardputer-adv",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "cb0d0a8829ad0626a875f7bcaea469b3946fd4b6a4bc4a3bb394db8238b6f07b",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+   "evidence_zip_sha256": "a313322141689c4af98918c42e53f21fd7396300a406ad8d9bbe505cfe4dd69f",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "sticks3",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "0c37fa1260ef9625b569a4faa33ea861b09684e910d4ff9a423b47dce1d41e87",
+   "pcap_sha256": "ec06ca09dee3d695495be471a8b27616304d675f6f05f816f41c468e643a34ef",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "9a890c3078b3e7533f46c3d170f78fa9b597166b54edc5e17d9e296b5457e0b1",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "sticks3",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "fb179fb8893615832490a8f3d17b3f2eb1e59fa5e9888f7b7fa8a12fd4ee95f4",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "4b1ca21852c9c8b17e91dd67890c7335f7f75d8def8591e42dbc979f7e139fa4",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "sticks3",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "cb0d0a8829ad0626a875f7bcaea469b3946fd4b6a4bc4a3bb394db8238b6f07b",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "6db8fd14d01649dbbc7166eb35358004ffd739c17adc143998c2b51587c3d09b",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "sticks3",
+   "mode": "setup",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "3f99834e45ea51f6d965113367c592a48f7fcf192b16c42fa1f3a186dd72fca1",
+   "pcap_sha256": "b2c622a34cc5da241f6c2e0f09fa93de3c04cf7bb8b91210ab5fbe97ec8190d2",
+   "pcap_flows": 8,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ]
+   ],
+   "setup": [
+    {
+     "kind": "wait",
+     "input": null,
+     "action": null,
+     "status": "PASS"
+    },
+    {
+     "kind": "button",
+     "input": "button:b",
+     "action": "hold",
+     "status": "PASS"
+    }
+   ],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "cbd3fa31704f9180203ed0dae6f1c6dd64f37642edcb46157d3972dc7eed772d",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "sticks3",
+   "mode": "setup-skip",
+   "expected": "PARTIAL",
+   "status": "PARTIAL",
+   "data_plane": "PARTIAL",
+   "failure_codes": [
+    "no_network_activity"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "3f99834e45ea51f6d965113367c592a48f7fcf192b16c42fa1f3a186dd72fca1",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "NOT_OBSERVED"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ],
+    [
+     "http_request:/review/status",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": null,
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "a764e6f1c301339685b48881ec754652cca6d7692c25a2c4862900545c5982d4",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stopwatch",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "9fc09bb583b7035444817b000560be313a59d73f790bce432283c7210eaac30e",
+   "pcap_sha256": "556f45bb71db989eadf3d9fe2489ad1bc5a641a4aae519e9121cfc777bd3736c",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+   "evidence_zip_sha256": "2076318830a13efcd0b2ade8c6394ac69a9c38d3d99fba26e16205ccfc5f8d9b",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stopwatch",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "5df6e001ec18625852cc43af2256ce8a270d37c3f69c6f02d0da162ba1850dec",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+   "evidence_zip_sha256": "25e99d0fc341cb65a02027e0744212034d44cecdfd03f0838e2ef8e3f02ae57a",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stopwatch",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "f22fc8ce264876ee8e9817eb023ff92102d016a14e9d70ba169d9a6b1b8c93dd",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+   "evidence_zip_sha256": "0eebf5a670d8d142e1c04d94a1f2127052198040a897f5c9babf53e5d8a26580",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stopwatch",
+   "mode": "setup",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "9e230626eb8106e3f1dc6fd1708669c4c8b6aecb0980c1d3915c2a7dbe4ac029",
+   "pcap_sha256": "56e2ed867d6c26a98726531ac87b93c4ba49c43941037e54aa7a3e819449bdf0",
+   "pcap_flows": 8,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ]
+   ],
+   "setup": [
+    {
+     "kind": "wait",
+     "input": null,
+     "action": null,
+     "status": "PASS"
+    },
+    {
+     "kind": "button",
+     "input": "button:b",
+     "action": "hold",
+     "status": "PASS"
+    }
+   ],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+   "evidence_zip_sha256": "c9a5e069d52627274b27867fad33f47b08a8917687b8ed57152ef0b1848ad0ef",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stopwatch",
+   "mode": "setup-skip",
+   "expected": "PARTIAL",
+   "status": "PARTIAL",
+   "data_plane": "PARTIAL",
+   "failure_codes": [
+    "no_network_activity"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "9e230626eb8106e3f1dc6fd1708669c4c8b6aecb0980c1d3915c2a7dbe4ac029",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "NOT_OBSERVED"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ],
+    [
+     "http_request:/review/status",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": null,
+   "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+   "evidence_zip_sha256": "d6149c5782b1a2691c0cc623f46a1cea5f46696ac2ac8146151fe24afb005a01",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "paperdiy",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "9fc09bb583b7035444817b000560be313a59d73f790bce432283c7210eaac30e",
+   "pcap_sha256": "cf293af44ee7f2df625410af67e24d77c81d1f13a0fd3278efd1960bb8c40a66",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "5f5fbe55e60cff8efd0086c55337d481532117d92e379f9189d7ad3d7625d803",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "paperdiy",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "5df6e001ec18625852cc43af2256ce8a270d37c3f69c6f02d0da162ba1850dec",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "0fbc9b1d3e160f172226f19b49e97736763a6a39611e3d50411c0f6ef80a2f1e",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "paperdiy",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "f22fc8ce264876ee8e9817eb023ff92102d016a14e9d70ba169d9a6b1b8c93dd",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "840267834548a4e1db2cde19d76167c2e2a5edde2d324b450dd795d84b319f18",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "paperdiy",
+   "mode": "setup",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "3010932f1744f740b87a37e3900c8a23996da0481fc2c378cafe315cfcb3c24d",
+   "pcap_sha256": "f8753f27449ed68c970d21abebd14c269f2b64eb47d5340fdafb799f0ba84823",
+   "pcap_flows": 8,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ]
+   ],
+   "setup": [
+    {
+     "kind": "wait",
+     "input": null,
+     "action": null,
+     "status": "PASS"
+    },
+    {
+     "kind": "button",
+     "input": "button:b",
+     "action": "hold",
+     "status": "PASS"
+    }
+   ],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "07cbac7d6c8052f4fdfad9c6de5bb0d330f4517d625c7fa1aff7d768cfbab663",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "paperdiy",
+   "mode": "setup-skip",
+   "expected": "PARTIAL",
+   "status": "PARTIAL",
+   "data_plane": "PARTIAL",
+   "failure_codes": [
+    "no_network_activity"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "3010932f1744f740b87a37e3900c8a23996da0481fc2c378cafe315cfcb3c24d",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "NOT_OBSERVED"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ],
+    [
+     "http_request:/review/status",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": null,
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "26e95853f6b66f9ce185ca0223f9e98e78b69a1ed4809b9d52d59eaa6656b850",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "papers3",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "9fc09bb583b7035444817b000560be313a59d73f790bce432283c7210eaac30e",
+   "pcap_sha256": "e36178a43a5b5ed0f1c8fcb2b3129fc3852c6c2608638cc32a9f62dd5b5e6276",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "0ae524048be2b97c9ff83fa990a15072de999be273c6d34551337d4421c6783c",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "papers3",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "5df6e001ec18625852cc43af2256ce8a270d37c3f69c6f02d0da162ba1850dec",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "0e228ea6f0dc260ba091f931a3b1b236707a42829901f7e66b2c27a2c55aed7a",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "papers3",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "f22fc8ce264876ee8e9817eb023ff92102d016a14e9d70ba169d9a6b1b8c93dd",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "5eefb0277b0d6980b2747ca6cbb24bb285e5403f8fddefc47f19565273cd1955",
+   "evidence_zip_sha256": "7b0a2adec930fc924cbdbb33f7d8323e1a39925e5ccdfbba3df5bcfbf09365c2",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "core2",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "cab6c57897ff02337556094e4f17e03df322a6474f5e3d8c90cd007190f3ef8d",
+   "pcap_sha256": "47f0343ca203dca8c3fcf9d1bd1b5177e8ec831b5fea0038fb909d895f5bc8f9",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+   "evidence_zip_sha256": "25e2fc6b51e8669cbeade140e227bf3bc90852b904494be274b8d4ea477675ff",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "core2",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "14871f36dc7a675ff96efec3af91cf2b0d15b949a76de162197f274cdb055268",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+   "evidence_zip_sha256": "9641680ac878b1218a5cdf54c665e3747fd95cfbdeef44705ce557a0a0929e19",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "core2",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "42daa82c59a9dd887d902678cf4f7ba30ae07717b80da92ab4cc4dd911a370d3",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+   "evidence_zip_sha256": "01e04600cd709e26cb29b1760f6959d4ee567313a0a7f798f07c968b5f26f0e3",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stickc-plus2",
+   "mode": "good",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "66ec1c1e94ec78688aaa56f8cd99256c8f368489cef517e09bef2dfa47ed177e",
+   "pcap_sha256": "52bf09880661411bc497a409b120421d0da446731946df63ed263846cda5ba49",
+   "pcap_flows": 16,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "dns_query:review.test",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ],
+    [
+     "http_request:/review/config",
+     "PASS"
+    ],
+    [
+     "tcp_connect:19193",
+     "PASS"
+    ],
+    [
+     "udp_exchange:19090",
+     "PASS"
+    ],
+    [
+     "mqtt_connect",
+     "PASS"
+    ],
+    [
+     "mqtt_publish:review/ctrl",
+     "PASS"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "b706a4ada917fe989e6ae16f8ac0fec3f347d49b6d5a95ff8aadafd3d7c1db64",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stickc-plus2",
+   "mode": "bad",
+   "expected": "FAIL",
+   "status": "FAIL",
+   "data_plane": "FAIL",
+   "failure_codes": [
+    "wifi_auth_failed"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "b02005d274f282360004616a4a012a2645fe584481cf50adcd25c919219f215b",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "FAIL"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_LEASE attempts=3",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "b75312c67c6168fd7ff40ff7fd187e3998d836b46daebe17b1f23e3fc8d235f4",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stickc-plus2",
+   "mode": "offline",
+   "expected": "NOT_USED",
+   "status": "NOT_USED",
+   "data_plane": "NOT_USED",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "a53f1cc88cd7cdf8e5b29bd008b859c2c2def6db630574e4bc7cb82285e8e709",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT OFFLINE",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "d933f35e12e26f1777d05cee1a4335a449361d0b1775cc8b335d0d0c50bb14ed",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stickc-plus2",
+   "mode": "setup",
+   "expected": "PASS",
+   "status": "PASS",
+   "data_plane": "PASS",
+   "failure_codes": [],
+   "result": "PASS",
+   "firmware_sha256": "addef8ab04c676c5bfdd9e0d201ba25020ad526bb35fa5529a29c8260e1d66c1",
+   "pcap_sha256": "e250fb9308409b7d83371dd75795bf2f0f7f0a7e76e6defd675a84f76827d0ea",
+   "pcap_flows": 8,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "PASS"
+    ],
+    [
+     "dhcp_lease",
+     "PASS"
+    ],
+    [
+     "http_request:/review/status",
+     "PASS"
+    ]
+   ],
+   "setup": [
+    {
+     "kind": "wait",
+     "input": null,
+     "action": null,
+     "status": "PASS"
+    },
+    {
+     "kind": "button",
+     "input": "button:b",
+     "action": "hold",
+     "status": "PASS"
+    }
+   ],
+   "serial_result": "REVIEW_CTRL RESULT PASS",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "b4401ee654ba91b7a32e3258eddf98934b30e5ceaf4a90f816adbf264a717dce",
+   "peer_released": true,
+   "stop_state": "stopped"
+  },
+  {
+   "device": "stickc-plus2",
+   "mode": "setup-skip",
+   "expected": "PARTIAL",
+   "status": "PARTIAL",
+   "data_plane": "PARTIAL",
+   "failure_codes": [
+    "no_network_activity"
+   ],
+   "result": "PASS",
+   "firmware_sha256": "addef8ab04c676c5bfdd9e0d201ba25020ad526bb35fa5529a29c8260e1d66c1",
+   "pcap_sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+   "pcap_flows": 0,
+   "non_fixture_addresses": [],
+   "assertions": [
+    [
+     "wifi_auth",
+     "NOT_OBSERVED"
+    ],
+    [
+     "dhcp_lease",
+     "NOT_OBSERVED"
+    ],
+    [
+     "http_request:/review/status",
+     "NOT_OBSERVED"
+    ]
+   ],
+   "setup": [],
+   "serial_result": "REVIEW_CTRL RESULT NO_SETUP",
+   "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+   "evidence_zip_sha256": "05d4116d5591fac8ea3061dd437c5738f154a9443b8d3f8c6115f83c8db9ce96",
+   "peer_released": true,
+   "stop_state": "stopped"
+  }
+ ],
+ "earlier_failures": [
+  {
+   "run": "matrix1",
+   "note": "Same day, same images. Core2 and StickC Plus2 good/setup reported FAIL fixture_rejected and bad reported PARTIAL: the classic NIC did not emit the shared WPA trace, so wifi_auth had no controller evidence. Data plane assertions all passed. Fixed by enabling the shared WPA trace for review-sta on the classic NIC; matrix2 reran every case.",
+   "cases": [
+    {
+     "device": "core2",
+     "mode": "good",
+     "status": "FAIL",
+     "failure_codes": [
+      "fixture_rejected"
+     ]
+    },
+    {
+     "device": "core2",
+     "mode": "bad",
+     "status": "PARTIAL",
+     "failure_codes": [
+      "no_network_activity"
+     ]
+    },
+    {
+     "device": "core2",
+     "mode": "setup",
+     "status": "FAIL",
+     "failure_codes": [
+      "fixture_rejected"
+     ]
+    },
+    {
+     "device": "stickc-plus2",
+     "mode": "good",
+     "status": "FAIL",
+     "failure_codes": [
+      "fixture_rejected"
+     ]
+    },
+    {
+     "device": "stickc-plus2",
+     "mode": "bad",
+     "status": "PARTIAL",
+     "failure_codes": [
+      "no_network_activity"
+     ]
+    },
+    {
+     "device": "stickc-plus2",
+     "mode": "setup",
+     "status": "FAIL",
+     "failure_codes": [
+      "fixture_rejected"
+     ]
+    }
+   ]
+  },
+  {
+   "run": "probe1",
+   "note": "StickS3 setup ended PARTIAL because the setup thread raised a TypeError (event kind collision) after the serial marker and before the button hold. Fixed and covered by test_event_accepts_kind_field_without_collision."
+  },
+  {
+   "run": "smoke1",
+   "note": "First Cardputer good run used fixture paths that did not match the control firmware contract and reported FAIL http_status/fixture_rejected; the runner fixtures were aligned to review_contract.h."
+  }
+ ],
+ "not_covered": [
+  "Core2 setup-required control: Core2 button B is a touch-strip region, not a GPIO, so the GPIO setup image is not a valid control",
+  "Cardputer, Cardputer ADV and PaperS3 setup-required controls: no button B",
+  "Re-run of the 11 review-service E_NETWORK_PARTIAL tasks: NOT RUN (requires the review service change)",
+  "WPA3, enterprise auth, TLS to real services, RF, physical hardware",
+  "Tab5 network: reported unsupported, no model"
+ ]
+}

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.99.5
+  version: 1.100.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -924,6 +924,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeviceCapabilities"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+  /devices/{device_id}/network-capabilities:
+    get:
+      summary: Read the portable review-sta network capability for one device
+      description: >
+        Reports whether the device admits `runtime=qemu-wifi` with
+        `network.profile=review-sta`. The profile uses a per-session Unix
+        socketpair peer with no host IP backend and does not require a Linux
+        network namespace. `network=unsupported` is an explicit capability
+        boundary, not a test failure. `external_dependencies` lists capability
+        families that no in-session peer can serve.
+      parameters:
+        - $ref: "#/components/parameters/DeviceId"
+      responses:
+        "200":
+          description: Review-facing network capability
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkReviewCapability"
         "401":
           $ref: "#/components/responses/Error"
         "404":
@@ -4088,6 +4114,38 @@ components:
         one guest without starting the external BLE peer. network is the
         separate esp-emu diagnostic lane and cannot establish a whole-device
         PASS by itself.
+    NetworkReviewCapability:
+      type: object
+      required: [device_id, schema_version, network, review_sta, external_dependencies]
+      properties:
+        device_id: {type: string}
+        schema_version: {type: integer, const: 1}
+        network: {type: string, enum: [supported, unsupported]}
+        reason: {type: string, enum: [backend_unavailable, no_review_sta_model]}
+        external_dependencies:
+          type: object
+          additionalProperties: {type: string}
+        review_sta:
+          oneOf:
+            - type: "null"
+            - type: object
+              properties:
+                runtime: {type: string, const: qemu-wifi}
+                profile: {type: string, const: review-sta}
+                nic: {type: string}
+                network_isolation: {type: string, const: userspace-fixture-only}
+                host_egress: {type: string, const: deny}
+                requires_linux_namespace: {type: boolean, const: false}
+                pcap: {type: boolean}
+                security: {type: array, items: {type: string, enum: [open, wpa2-psk]}}
+                fixtures: {type: array, items: {type: string, enum: [dhcp, dns, http, tcp, udp, mqtt]}}
+                setup_input_kinds: {type: array, items: {type: string}}
+                assertion_types: {type: array, items: {type: string}}
+                gateway: {type: string}
+                lease: {type: string}
+                max_timeout_seconds: {type: integer}
+                statuses: {type: array, items: {type: string, enum: [PASS, FAIL, PARTIAL, NOT_USED]}}
+                failure_codes: {type: array, items: {type: string}}
     DeviceCapabilities:
       type: object
       additionalProperties: false

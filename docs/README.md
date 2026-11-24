@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-11-23`
+日期：`2026-11-24`
 
 从[项目首页](../README.md)开始。这里按任务列出常用入口。
 每份文档的职责、适用范围和复核日期见[完整登记](document-register.md)。
@@ -23,6 +23,7 @@
 | 审核原版或应用分段 BIN | [固件审查工作流](firmware-review-and-simulation-workflow.md) · [FirmwareManifest](firmware-manifest.md) |
 | 确认模型、内存和控制器能力 | [设备适配矩阵](qemu-device-adaptation-matrix.md) · [运行时模型缺口](runtime-model-gap-register.md) · [统一设备运行时](unified-device-runtime.md) |
 | 查 PSRAM、Wi-Fi、BLE 与 Worker 边界 | [Core2 native HCI](core2-native-hci-backend.md) · [网络模拟方案](network-simulation-plan.md) · [网络诊断](network-lane.md) |
+| 在 macOS 上做无命名空间的同 guest 网络审查 | [控制固件与运行方法](../tests/network/review_sta_controls/README.md) · [证据](evidence/2026-11-24-review-sta-portable/README.md) |
 | 验证 S3-watch 原版的 WPA2 热点和 HTTP | [执行用例](../tests/network/native_s3_watch_wpa2/README.md) · [原生对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) |
 | 主机、Unit 与物理引脚 | [设备目录](../devices/README.md) · [外设仿真架构](peripheral-simulation-architecture.md) · [设备与 Unit 研究](unit-research/host-runtime-compatibility.md) |
 | 接入 Agent | [Skill 安装](../skills/README.md) · [Agent Skill 分发](plans/2026-10-29-agent-skills.md) |

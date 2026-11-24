@@ -599,6 +599,9 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.list_devices(include_unsupported=include)
             elif method == "GET" and len(parts) == 2 and parts[0] == "devices":
                 response = service.get_device(parts[1])
+            elif method == "GET" and len(parts) == 3 and parts[0] == "devices" and parts[2] == "network-capabilities":
+                response = service.get_network_capabilities(parts[1])
+                headers["Cache-Control"] = "no-store"
             elif method == "GET" and len(parts) == 3 and parts[0] == "devices" and parts[2] == "capabilities":
                 response = service.get_device_capabilities(parts[1])
                 headers["Cache-Control"] = "no-store"

@@ -111,6 +111,16 @@ from device_service_network import (  # noqa: E402
     parse_udp_fixture,
 )
 from device_service_network_execution import parse_network_execution  # noqa: E402, F401
+from review_sta_config import (  # noqa: E402
+    EXTERNAL_DEPENDENCIES as REVIEW_STA_EXTERNAL_DEPENDENCIES,
+    ISOLATION as REVIEW_STA_ISOLATION,
+    PROFILE as REVIEW_STA_PROFILE,
+    board_nic as review_sta_board_nic,
+    capability as review_sta_capability,
+    parse_review_sta,
+)
+from review_sta_peer import ReviewStaPeer  # noqa: E402
+from review_sta_verdict import evaluate as evaluate_review_sta, firmware_has_wifi_stack  # noqa: E402
 from device_service_softap_peer import (  # noqa: E402
     ACL_OPERATION as SOFTAP_ACL_OPERATION,
     NIC as SOFTAP_NIC,
@@ -500,6 +510,7 @@ UNIX_WIFI_PEER_OPERATIONS = {
     STICKS3_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
     STOPWATCH_PROVISION_PROFILE: PROVISION_ACL_OPERATION,
     STA_TIME_PROFILE: STA_TIME_ACL_OPERATION,
+    REVIEW_STA_PROFILE: "network.sta.review",
 }
 UNIX_WIFI_PEER_PROFILES = frozenset(UNIX_WIFI_PEER_OPERATIONS)
 UNIFIED_HTTP_PORTS = {
@@ -1151,6 +1162,11 @@ def parse_qemu_wifi_execution(
     streams = parse_sta_stream_fixtures(value)
     if streams and (profile != GENERIC_WIFI_PROFILE or spec.id not in {"cardputer", "cardputer-adv"}):
         raise ServiceError("invalid_network", "local STA stream fixtures require Cardputer/ADV generic-observe", 400)
+    if profile == REVIEW_STA_PROFILE:
+        review_nic = review_sta_board_nic(spec)
+        if review_nic is None:
+            raise ServiceError("unsupported_network_profile", f"review-sta is not admitted for {spec.id}", 409)
+        return parse_review_sta(value, nic=review_nic)
     if profile == STA_TIME_PROFILE:
         if spec.id != STA_TIME_DEVICE:
             raise ServiceError("unsupported_network_profile", "local time fixture requires Cardputer ADV", 400)
@@ -2955,6 +2971,7 @@ class DeviceSession:
         self.sta_stream_logs = {key: self.dir / (key.replace("_", "-") + ".json") for key in STA_STREAM_PORTS}
         self.softap_fixture_receipt = self.dir / "softap-fixture.json"
         self.sta_time_fixture_receipt = self.dir / "sta-time-fixture.json"
+        self.review_sta_receipt = self.dir / "review-sta-fixture.json"
         self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_sandbox_config_path = self.dir / "network-sandbox.json"
         self.network_gateway_recovery_path = self.dir / "gateway-recovery.json"
@@ -4776,6 +4793,121 @@ class DeviceSession:
             "reason": "capture file has not been created",
         }
 
+    # ---- review-sta (#238) -------------------------------------------------
+
+    def _start_review_sta_window(self) -> None:
+        """Run setup_inputs on the same guest, then close the observation window."""
+        self._review_sta_window = {"state": "open", "started_at": time.time(),
+                                   "deadline": time.time() + self.network_config["timeout_seconds"],
+                                   "setup": []}
+        threading.Thread(target=self._run_review_sta_window, name=f"review-sta-{self.id}", daemon=True).start()
+
+    def _run_review_sta_window(self) -> None:
+        window = self._review_sta_window
+        peer = self._unix_wifi_peer
+        try:
+            for index, step in enumerate(self.network_config.get("setup_inputs", [])):
+                if self._stop_event.is_set():
+                    return
+                result = {"index": index, "kind": step["kind"]}
+                try:
+                    if step["kind"] == "wait":
+                        marker = step.get("serial_marker")
+                        if marker:
+                            self.wait_for_marker(marker, step["seconds"])
+                            result["serial_marker"] = "observed"
+                        else:
+                            self._stop_event.wait(step["seconds"])
+                    else:
+                        receipt = self.inject(step)
+                        result.update(input=receipt.get("input"), action=receipt.get("action"))
+                    result["status"] = "PASS"
+                except SessionCancelled:
+                    raise
+                except ServiceError as error:
+                    result.update(status="FAIL", code=error.code, error=error.message)
+                except Exception as error:  # one bad step must not end the window silently
+                    result.update(status="FAIL", code="setup_input_error", error=str(error)[:200])
+                window["setup"].append(result)
+                if isinstance(peer, ReviewStaPeer):
+                    peer.event("setup_input", step=index,
+                               **{("input_kind" if k == "kind" else k): v
+                                  for k, v in result.items() if k != "index"})
+                if result["status"] != "PASS":
+                    break
+            while not self._stop_event.is_set() and time.time() < window["deadline"]:
+                verdict = self._review_sta_verdict(window_closed=False)
+                # Stop early only when a later event is not expected to change
+                # the result: every assertion passed, or the controller
+                # rejected WPA2 and no lease followed within a 15 s grace for
+                # guest retries. Other failures keep the window open so the
+                # full event chain is retained.
+                if verdict["status"] == "PASS":
+                    break
+                if "wifi_auth_failed" in verdict["failure_codes"] and verdict["ipv4"] is None:
+                    window.setdefault("auth_failed_at", time.time())
+                    if time.time() - window["auth_failed_at"] >= 15:
+                        break
+                self._stop_event.wait(0.5)
+        except SessionCancelled:
+            return
+        finally:
+            window["state"] = "closed"
+            window["closed_at"] = time.time()
+            if not self._stop_event.is_set():
+                try:
+                    self.network_result = self.network_evidence()
+                    self._record_event("review_sta_window_closed", status=self.network_result.get("status"),
+                                       failure_codes=self.network_result.get("failure_codes", []))
+                except Exception as error:  # evidence must not crash the session thread
+                    self._record_event("review_sta_window_error", error=str(error))
+
+    def _review_sta_firmware_stack(self) -> bool | None:
+        cached = getattr(self, "_review_sta_stack", "unset")
+        if cached != "unset":
+            return cached
+        try:
+            image = Path(self.firmware_path).read_bytes()
+        except (OSError, TypeError):
+            value = None
+        else:
+            value = firmware_has_wifi_stack(image)
+        self._review_sta_stack = value
+        return value
+
+    def _review_sta_verdict(self, *, window_closed: bool) -> dict:
+        peer = self._read_wifi_peer_receipt(self.review_sta_receipt)
+        try:
+            stderr_text = self.stderr_path.read_text(errors="replace")[-262144:]
+        except OSError:
+            stderr_text = ""
+        return evaluate_review_sta(
+            self.network_config, peer, stderr_text=stderr_text,
+            capture=self._network_capture_evidence(), window_closed=window_closed,
+            firmware_wifi_stack=self._review_sta_firmware_stack(),
+        )
+
+    def _review_sta_evidence(self, evidence: dict) -> None:
+        window = getattr(self, "_review_sta_window", None) or {"state": "pending", "setup": []}
+        closed = window["state"] == "closed" or self.state not in ACTIVE_STATES
+        verdict = self._review_sta_verdict(window_closed=closed)
+        peer = self._read_wifi_peer_receipt(self.review_sta_receipt)
+        capture = evidence.get("packet_capture") or {}
+        evidence.update(verdict)
+        evidence["kind"] = "m5stack-qemu-review-sta"
+        evidence["profile"] = REVIEW_STA_PROFILE
+        evidence["isolation"] = {
+            "mode": REVIEW_STA_ISOLATION, "transport": "unix-socketpair", "host_ip_backends": 0,
+            "host_egress": "deny", "dropped_egress_frames": peer.get("dropped_egress_frames", 0),
+            "cleanup_completed": peer.get("released") is True,
+        }
+        evidence["window"] = {"state": window["state"], "timeout_seconds": self.network_config["timeout_seconds"],
+                              "setup": window["setup"]}
+        evidence["pcap_sha256"] = (capture.get("input") or {}).get("sha256")
+        evidence["fixture_log_sha256"] = peer.get("fixture_log_sha256")
+        evidence["security"] = self.network_config["wifi_auth"]
+        evidence["ssid"] = self.network_config["wifi_ssid"]
+
     def _softap_receipt(self) -> dict:
         return self._read_wifi_peer_receipt(self.softap_fixture_receipt)
 
@@ -4848,7 +4980,9 @@ class DeviceSession:
         evidence["packet_capture"] = self._network_capture_evidence()
         if self.runtime == QEMU_WIFI_RUNTIME:
             evidence["native_data_plane"] = native_sta_data_plane(evidence["packet_capture"])
-        if self.network_config.get("profile") in SOFTAP_PROFILE_BOARDS:
+        if self.network_config.get("profile") == REVIEW_STA_PROFILE:
+            self._review_sta_evidence(evidence)
+        elif self.network_config.get("profile") in SOFTAP_PROFILE_BOARDS:
             stopwatch = self.network_config["profile"] == STOPWATCH_PROVISION_PROFILE
             provisioning = self.network_config["profile"] in {STICKS3_PROVISION_PROFILE, STOPWATCH_PROVISION_PROFILE}
             peer = self._softap_receipt()
@@ -4930,6 +5064,7 @@ class DeviceSession:
             or any(previous.get(key) != evidence.get(key) for key in STA_STREAM_PORTS)
             or previous.get("softap_fixture") != evidence.get("softap_fixture")
             or previous.get("sta_time_fixture") != evidence.get("sta_time_fixture")
+            or previous.get("events") != evidence.get("events")
         ):
             self._persist_session()
         return evidence
@@ -5346,6 +5481,8 @@ class DeviceSession:
         if self.program_bootstrap:
             self._probe_program_loader()
         self._set_state("running")
+        if self.network_config.get("profile") == REVIEW_STA_PROFILE:
+            self._start_review_sta_window()
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
@@ -6474,6 +6611,15 @@ class DeviceSession:
                 self._unix_wifi_peer = StationTimePeer(
                     wifi_mac, lambda receipt: atomic_write_json(self.sta_time_fixture_receipt, receipt),
                     withhold_ntp=self.network_config["withhold_ntp"],
+                )
+                peer_fd = self._unix_wifi_peer.child.fileno()
+                command.extend(["-nic", f"socket,fd={peer_fd},model={nic},mac={wifi_mac},id=wifi0"])
+            elif profile == REVIEW_STA_PROFILE:
+                # The station MAC is the session's eFuse identity; the peer
+                # answers only frames from it. No host IP backend exists.
+                self._unix_wifi_peer = ReviewStaPeer(
+                    wifi_mac, self.network_config,
+                    lambda receipt: atomic_write_json(self.review_sta_receipt, receipt),
                 )
                 peer_fd = self._unix_wifi_peer.child.fileno()
                 command.extend(["-nic", f"socket,fd={peer_fd},model={nic},mac={wifi_mac},id=wifi0"])
@@ -9436,6 +9582,16 @@ class DeviceSession:
                 files["network/softap-fixture.json"] = (
                     json.dumps(network_payload["softap_fixture"], indent=2) + "\n"
                 ).encode()
+            elif self.network_config.get("profile") == REVIEW_STA_PROFILE:
+                files["network/review-sta-fixture.json"] = (
+                    json.dumps(self._read_wifi_peer_receipt(self.review_sta_receipt), indent=2) + "\n"
+                ).encode()
+                files["network/review-sta-verdict.json"] = (
+                    json.dumps({k: network_payload.get(k) for k in (
+                        "status", "data_plane", "failure_codes", "assertions", "events", "isolation",
+                        "pcap_isolation", "pcap_sha256", "fixture_log_sha256", "window",
+                    )}, indent=2) + "\n"
+                ).encode()
             elif self.network_config.get("profile") == STA_TIME_PROFILE:
                 files["network/sta-time-fixture.json"] = (
                     json.dumps(network_payload["sta_time_fixture"], indent=2) + "\n"
@@ -9732,6 +9888,7 @@ class DeviceSession:
             self._unix_wifi_peer = None
         elif external_pid is not None and self.network_config.get("profile") in UNIX_WIFI_PEER_PROFILES:
             receipt_path = (self.sta_time_fixture_receipt if self.network_config["profile"] == STA_TIME_PROFILE
+                            else self.review_sta_receipt if self.network_config["profile"] == REVIEW_STA_PROFILE
                             else self.softap_fixture_receipt)
             peer_receipt = self._read_wifi_peer_receipt(receipt_path)
             if peer_receipt.get("status", "NOT_RUN") != "NOT_RUN":
@@ -11740,6 +11897,9 @@ class DeviceService:
         backend_ready = spec.backend_ready
         machine = spec.missing_backend_machine if not backend_ready else None
         native_network = native_sta_capability(spec, backend_ready=backend_ready)
+        review_network = review_sta_capability(spec, backend_ready=backend_ready)
+        if review_network["review_sta"]:
+            native_network = {**native_network, "review_sta": review_network["review_sta"]}
         return {
             "device_id": spec.id,
             "name": spec.name,
@@ -11786,8 +11946,8 @@ class DeviceService:
                 "storage": spec.supported and (spec.has_sd_card if spec.service_kind != "tab5"
                                                else backend_ready and self._tab5_sd_worker_ready()),
                 "network": (
-                    spec.network_status == "validated"
-                    and bool(spec.network_profiles)
+                    (spec.network_status == "validated" and bool(spec.network_profiles))
+                    or review_network["network"] == "supported"
                 ),
                 "network_capture": (
                     spec.network_status == "validated"
@@ -11795,6 +11955,7 @@ class DeviceService:
                 ),
             },
             **({"native_network": native_network} if native_network else {}),
+            "network_review": {k: review_network[k] for k in ("network", "reason") if k in review_network},
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
             "network_status": spec.network_status,
@@ -11827,6 +11988,11 @@ class DeviceService:
     def get_device(self, device_id: str) -> dict:
         return self._public_device(self._device_spec(device_id))
 
+    def get_network_capabilities(self, device_id: str) -> dict:
+        spec = self._device_spec(device_id)
+        return {"device_id": spec.id,
+                **review_sta_capability(spec, backend_ready=spec.backend_ready)}
+
     def get_device_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
         if not spec.supported:
@@ -11841,6 +12007,9 @@ class DeviceService:
             local_status = "unavailable"
         ready = local_status == "ready"
         native_network = native_sta_capability(spec, backend_ready=ready)
+        review_network = review_sta_capability(spec, backend_ready=ready)
+        if review_network["review_sta"]:
+            native_network = {**native_network, "review_sta": review_network["review_sta"]}
 
         sd = {"admission": "unsupported"}
         if spec.supported and spec.service_kind == "tab5" and self.tab5_dsi_firmware_sha256s:
@@ -11884,6 +12053,8 @@ class DeviceService:
                 "catalog_status": spec.network_status,
                 "catalog_profiles": list(spec.network_profiles),
                 **({"native": native_network} if native_network else {}),
+                "review": review_network["network"],
+                **({"review_reason": review_network["reason"]} if "reason" in review_network else {}),
             },
             "fixtures": {
                 "sd": sd,
@@ -12619,7 +12790,7 @@ class DeviceService:
                     if firmware_sha != S3_WATCH_FIRMWARE_SHA256:
                         raise ServiceError("firmware_mismatch", "S3-watch peer requires the pinned original image", 409)
                     require_s3_watch_backend(spec.qemu)
-                elif profile != STA_TIME_PROFILE:
+                elif profile not in {STA_TIME_PROFILE, REVIEW_STA_PROFILE}:
                     require_softap_backend(
                         spec.qemu, portal=profile == STICKS3_PORTAL_PROFILE,
                         station=profile == STICKS3_PROVISION_PROFILE,

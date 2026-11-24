@@ -64,6 +64,10 @@ def apply_qemu_wifi_environment(
     env["M5SW_WIFI_AUTH"] = auth
     if nic == "misc.esp32s3.wifi" and auth == "wpa2-psk":
         env["M5SW_S3_WIFI_TRACE"] = "1"
+    elif network_config.get("profile") == "review-sta" and auth == "wpa2-psk":
+        # The WPA2 handshake model in esp32_wifi_ap.c is shared by both NICs
+        # and is gated by this variable; review-sta reads only its MIC result.
+        env["M5SW_S3_WIFI_TRACE"] = "1"
 
 
 STICKS3_MONITOR_PROFILE = "sticks3-monitor-fixture"
