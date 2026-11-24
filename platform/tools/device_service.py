@@ -23,6 +23,7 @@ import signal
 import stat
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import uuid
@@ -120,6 +121,8 @@ from review_sta_config import (  # noqa: E402
     parse_review_sta,
 )
 from review_sta_peer import ReviewStaPeer  # noqa: E402
+from review_sta_preset import build_station_nvs  # noqa: E402
+from sd_image import create_fat32_mbr_image  # noqa: E402
 from review_sta_verdict import evaluate as evaluate_review_sta, firmware_has_wifi_stack  # noqa: E402
 from device_service_softap_peer import (  # noqa: E402
     ACL_OPERATION as SOFTAP_ACL_OPERATION,
@@ -4913,6 +4916,8 @@ class DeviceSession:
         evidence["fixture_log_sha256"] = peer.get("fixture_log_sha256")
         evidence["security"] = self.network_config["wifi_auth"]
         evidence["ssid"] = self.network_config["wifi_ssid"]
+        evidence["preset"] = {"requested": self.network_config.get("preset") or {},
+                              "applied": self.network_config.get("preset_applied") or {}}
 
     def _softap_receipt(self) -> dict:
         return self._read_wifi_peer_receipt(self.softap_fixture_receipt)
@@ -11994,6 +11999,54 @@ class DeviceService:
     def get_device(self, device_id: str) -> dict:
         return self._public_device(self._device_spec(device_id))
 
+    def _apply_review_sta_presets(self, spec: DeviceSpec, payload: dict, network_config: dict,
+                                  firmware_path: Path) -> dict:
+        """Expand review-sta presets into ordinary session storage/NVS fixtures."""
+        preset = network_config.get("preset") or {}
+        applied: dict = {}
+        if preset.get("sd_card") == "blank" and payload.get("storage") is None:
+            if not spec.has_sd_card:
+                applied["sd_card"] = "not_modeled"
+            else:
+                blank = self._review_sta_blank_sd()
+                payload = {**payload, "storage": {"sd_image_artifact_id": blank["artifact_id"]}}
+                applied["sd_card"] = {"artifact_id": blank["artifact_id"], "format": "fat32-mbr",
+                                      "bytes": blank["size"]}
+        if preset.get("saved_station") and payload.get("nvs") is None:
+            try:
+                partition = resolve_nvs_partition(firmware_path, flash_size=spec.flash_size, partition_label="nvs")
+            except ServiceError:
+                partition = None
+            built = None
+            if partition is not None:
+                built = build_station_nvs(int(partition["size"]), firmware_path.read_bytes(),
+                                          ssid=network_config["wifi_ssid"],
+                                          password=network_config["wifi_password"])
+            if built is None:
+                applied["saved_station"] = "no_known_layout"
+            else:
+                image, namespaces = built
+                artifact = self.upload_artifact(image, name="review-sta-saved-station.nvs.bin")
+                payload = {**payload, "nvs": {"partition_label": "nvs", "image_artifact_id": artifact["artifact_id"]}}
+                applied["saved_station"] = {"namespaces": namespaces, "artifact_id": artifact["artifact_id"]}
+        network_config["preset_applied"] = applied
+        return payload
+
+    def _review_sta_blank_sd(self) -> dict:
+        cached = getattr(self, "_review_sta_blank_sd_artifact", None)
+        if cached:
+            try:
+                self.artifacts.path(cached["artifact_id"])
+                return cached
+            except ServiceError:
+                pass
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "blank.img"
+            create_fat32_mbr_image(image, size_mib=64, label="M5REVIEW")
+            artifact = self.upload_artifact(image.read_bytes(), name="review-sta-blank-fat32.img")
+        self._review_sta_blank_sd_artifact = artifact
+        return artifact
+
     def get_network_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
         return {"device_id": spec.id,
@@ -12849,6 +12902,8 @@ class DeviceService:
                 self.artifacts.get(str(elf_artifact_id))
                 if elf_artifact_id not in source_artifacts:
                     source_artifacts.append(str(elf_artifact_id))
+        if (network_config or {}).get("profile") == REVIEW_STA_PROFILE:
+            payload = self._apply_review_sta_presets(spec, payload, network_config, firmware_path)
         storage_payload = payload.get("storage")
         filesystem_request = {}
         if isinstance(storage_payload, dict) and "filesystem" in storage_payload:

@@ -361,6 +361,31 @@ class ReviewStaVerdictTests(unittest.TestCase):
         self.assertEqual(verdict["status"], "FAIL")
         self.assertIn("dhcp_timeout", verdict["failure_codes"])
 
+    def test_external_requests_are_listed(self):
+        events = [{"type": "dhcp_lease", "status": "PASS"},
+                  {"type": "dns_query", "name": "radio.example.cn", "status": "FAIL", "code": "dns_failed"},
+                  {"type": "egress_denied", "dst": "1.2.3.4:443", "status": "FAIL", "code": "host_egress_denied"}]
+        verdict = evaluate(_config(), {"events": events}, stderr_text="", capture={},
+                           window_closed=True, firmware_wifi_stack=True)
+        self.assertTrue(verdict["station_joined"])
+        self.assertEqual(verdict["external_requests"],
+                         {"dns_names": ["radio.example.cn"], "destinations": ["1.2.3.4:443"]})
+
+    def test_saved_station_preset_writes_only_verified_layouts(self):
+        from review_sta_preset import build_station_nvs
+        from nvs_image import build_nvs_image
+        self.assertIsNone(build_station_nvs(20480, b"\x00wifi\x00\x00config\x00", ssid="M5-REVIEW", password=""))
+        image, names = build_station_nvs(20480, b"..\x00mp3net\x00..", ssid="M5-REVIEW", password="")
+        self.assertEqual(names, ["mp3net"])
+        self.assertEqual(len(image), 20480)
+        self.assertIn(b"M5-REVIEW", image)
+
+    def test_preset_config_is_validated(self):
+        cfg = _config(preset={"sd_card": "blank", "saved_station": True})
+        self.assertEqual(cfg["preset"], {"sd_card": "blank", "saved_station": True})
+        with self.assertRaises(ServiceError):
+            _config(preset={"sd_card": "full"})
+
     def test_auth_events_come_only_from_controller_trace(self):
         self.assertEqual(wifi_auth_events("WPA2-PSK ready", "wpa2-psk", True), [])
         self.assertTrue(firmware_has_wifi_stack(b"..net80211.."))

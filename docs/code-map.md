@@ -112,6 +112,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/review_sta_config.py` | 便携 `review-sta` 请求解析、准入板型、外部依赖清单和 capability 描述 | `/devices/{id}/network-capabilities`、`test_review_sta.py` |
 | `platform/tools/review_sta_peer.py` | `review-sta` 每会话 UNIX socketpair 对端：ARP、DHCP、DNS、HTTP、TCP、UDP、MQTT 与出站丢弃事件 | `review-sta` profile、`test_review_sta.py` |
 | `platform/tools/review_sta_verdict.py` | 由对端事件、控制器 WPA 跟踪和 pcap 判定 PASS/FAIL/PARTIAL/NOT_USED 及稳定失败码 | `GET /sessions/{id}/network`、`test_review_sta.py` |
+| `platform/tools/review_sta_preset.py` | `review-sta` 会话级预置：已核对应用的已保存 Wi-Fi NVS 布局 | `network.preset.saved_station`、`test_review_sta.py` |
 | `platform/tools/device_service_sta_time_peer.py` | Cardputer ADV STA 的会话私有 Unix DHCP、DNS 和 SNTP 对端 | 本地时间 profile、`test_device_service_sta_time_peer.py` |
 | `platform/tools/device_service_crash.py` | 解析同会话串口 panic、引导、core dump 和后端报告，按完整 ELF 哈希和应用描述符核对 Xtensa 与原生 C6 的函数地址，采样原生 Xtensa 和 C6 当前 CPU PC | 会话 `/crash`、`/crash/cpu-pc` 与 ZIP、`test_device_service_crash.py` |
 | `platform/tools/device_service_audio.py` | 校验有界 WAV 夹具并解析调用方声明的 s16le 单声道窗口，计算数字 RMS、峰值和主频 | 原生 Cardputer `/audio.inject` 与 `/audio.pcm`、`test_device_service_audio.py` |

@@ -27,7 +27,7 @@ Plus2 的 known-good 均为 `PASS`，错误 WPA2 密码均为 `FAIL wifi_auth_fa
 同日较早的 `matrix1` 中，Core2 与 StickC Plus2 因经典 NIC 未输出 WPA 跟踪而判 `FAIL`/`PARTIAL`；
 `probe1` 的 StickS3 setup 因事件字段冲突判 `PARTIAL`。两者修复后全部重跑，早期结果保留在
 [结构化证据](evidence/2026-11-24-review-sta-portable/summary.json)。Core2 的 B 是触摸条，未作为
-setup 对照。修正 pcap 隔离与扫描事件后 `matrix3` 复跑 `32/32`。隔离审查服务复跑当前 14 条网络任务，均进入 `review-sta`，不再出现命名空间或目录未公布原因；窗口内无固件发出扫描，全部为 `PARTIAL no_network_activity`，需要配网输入。WPA3、TLS、物理 RF 与 browser-WASM 为 `NOT RUN`。
+setup 对照。修正 pcap 隔离与扫描事件后 `matrix3` 复跑 `32/32`。隔离审查服务复跑当前 14 条网络任务，均进入 `review-sta`，不再出现命名空间或目录未公布原因；窗口内无固件发出扫描，全部为 `PARTIAL no_network_activity`，需要配网输入。同日新增 `network.preset`：原版 CardRadio 在会话级空白 SD 与 `mp3net` 已保存网络下入网与 DHCP 通过；未核对布局的应用保持 `PARTIAL`。WPA3、TLS、物理 RF 与 browser-WASM 为 `NOT RUN`。
 [摘要](evidence/2026-11-24-review-sta-portable/README.md)
 
 ## 2026-11-23 原版 S3-watch 同来宾 WPA2 与只读 HTTP

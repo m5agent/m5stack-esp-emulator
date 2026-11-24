@@ -194,7 +194,16 @@ def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
     data_plane = ("PASS" if leased and status == "PASS" else
                   "FAIL" if status == "FAIL" else
                   "NOT_USED" if status == "NOT_USED" else "PARTIAL")
+    # What the firmware tried to reach beyond the fixture. A review can record
+    # these as external dependencies; they are never served or forwarded.
+    external = {
+        "dns_names": sorted({e.get("name") for e in events
+                             if e["type"] == "dns_query" and e.get("code") == "dns_failed" and e.get("name")})[:32],
+        "destinations": sorted({e.get("dst") for e in events
+                                if e["type"] == "egress_denied" and e.get("dst")})[:32],
+    }
     return {"status": status, "data_plane": data_plane, "failure_codes": codes,
+            "external_requests": external, "station_joined": leased,
             "events": events, "assertions": rows, "pcap_isolation": isolation,
             "ipv4": str(LEASE) if leased else None,
             "firmware_wifi_stack": firmware_wifi_stack}

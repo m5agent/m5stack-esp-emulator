@@ -253,7 +253,7 @@
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
 | [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-24` | HTTP 与 OpenAPI，对应 Device Service 1.100.0 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-24` | HTTP 与 OpenAPI，对应 Device Service 1.101.0 |
 | [Tab5 ST7123 单点拖动](evidence/2026-11-17-tab5-st7123-drag/README.md) | 原生来宾证据 | `2026-11-17` | 来宾正反向轨迹、释放以及原版回归 |
 | [Tab5 ST7123 关机锁存](evidence/2026-11-17-tab5-power-latch/README.md) | 原生来宾证据 | `2026-11-17` | 原版关机脉冲、EN、重启和 ZIP 取证 |
 | [Tab5 ST7123 长按](evidence/2026-11-17-tab5-st7123-hold/README.md) | 原生来宾证据 | `2026-11-17` | 单触点持续、释放及原版关机总线请求 |

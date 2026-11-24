@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.100.0
+  version: 1.101.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -4146,6 +4146,11 @@ components:
                 max_timeout_seconds: {type: integer}
                 statuses: {type: array, items: {type: string, enum: [PASS, FAIL, PARTIAL, NOT_USED]}}
                 failure_codes: {type: array, items: {type: string}}
+                presets:
+                  type: object
+                  properties:
+                    sd_card: {type: array, items: {type: string, enum: [none, blank]}}
+                    saved_station: {type: boolean}
     DeviceCapabilities:
       type: object
       additionalProperties: false

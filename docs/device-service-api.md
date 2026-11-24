@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-19`.
 
-Status: local MVP with unified-device runtime contract `1.100.0` and bounded
+Status: local MVP with unified-device runtime contract `1.101.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3972,10 +3972,18 @@ PaperS3 (S3 Wi-Fi) and Core2, StickC Plus2 (classic ESP32 Wi-Fi). Tab5 returns
 - `network_code` may be `present`, `absent` or `unknown` (default). It lets the
   caller declare that a firmware has no network function.
 - `capture_pcap` is always true.
+- `preset.sd_card="blank"` attaches a session-local blank FAT32 card when the
+  request has no `storage` and the board models an SD slot.
+  `preset.saved_station=true` writes the review SSID into saved-network NVS
+  layouts that are verified against an application's source and present in
+  the image (currently CardRadio `mp3net`). The source firmware is not
+  modified. `/network` reports `preset.requested` and `preset.applied`
+  (`not_modeled`, `no_known_layout` or the artifact used).
 
 `GET /sessions/{id}/network` returns `status`, `data_plane`, `failure_codes`,
 `events`, `assertions`, `isolation`, `pcap_isolation`, `pcap_sha256`,
-`fixture_log_sha256` and `window`. Events come from the peer (DHCP, DNS, TCP,
+`fixture_log_sha256`, `window`, `station_joined` and `external_requests`
+(DNS names and destinations the firmware asked for outside the fixture). Events come from the peer (DHCP, DNS, TCP,
 HTTP, UDP, MQTT, egress drops), from the controller WPA trace (`wifi_auth`),
 and from setup steps. Guest serial text is never used as an event source.
 

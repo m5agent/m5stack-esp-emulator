@@ -248,7 +248,8 @@ def _assertions(value: object, fixtures: dict) -> list[dict]:
 
 def parse_review_sta(value: dict, *, nic: str) -> dict:
     allowed = {"profile", "ssid", "password", "security", "wifi_ssid", "wifi_password", "wifi_auth",
-               "fixtures", "setup_inputs", "assertions", "timeout_seconds", "capture_pcap", "network_code"}
+               "fixtures", "setup_inputs", "assertions", "timeout_seconds", "capture_pcap", "network_code",
+               "preset"}
     _only(value, allowed, "network")
     ssid = value.get("ssid", value.get("wifi_ssid", "M5-REVIEW"))
     security = value.get("security", value.get("wifi_auth", "open"))
@@ -292,7 +293,16 @@ def parse_review_sta(value: dict, *, nic: str) -> dict:
     tcp_ports = [fixtures[k]["port"] for k in ("http", "tcp", "mqtt") if k in fixtures]
     if len(tcp_ports) != len(set(tcp_ports)):
         raise ServiceError("fixture_rejected", "TCP fixtures must use distinct ports", 400)
+    preset = value.get("preset") or {}
+    if not isinstance(preset, dict) or set(preset) - {"sd_card", "saved_station"}:
+        raise _bad("network.preset accepts sd_card and saved_station")
+    if preset.get("sd_card", "none") not in ("none", "blank"):
+        raise _bad("network.preset.sd_card must be none or blank")
+    if type(preset.get("saved_station", False)) is not bool:
+        raise _bad("network.preset.saved_station must be a boolean")
     return {
+        "preset": {"sd_card": preset.get("sd_card", "none"),
+                   "saved_station": preset.get("saved_station", False)},
         "profile": PROFILE, "net_mode": "unix-socketpair", "nic": nic,
         "capture_pcap": True, "http_fixture": False,
         "wifi_ssid": ssid, "wifi_password": password, "wifi_auth": security,
@@ -317,6 +327,7 @@ def capability(spec, *, backend_ready: bool) -> dict:
         "requires_linux_namespace": False, "pcap": True,
         "security": list(SECURITIES), "fixtures": list(FIXTURE_KINDS),
         "setup_input_kinds": list(SETUP_KINDS), "assertion_types": list(ASSERTION_TYPES),
+        "presets": {"sd_card": ["none", "blank"], "saved_station": True},
         "gateway": str(GATEWAY), "lease": str(LEASE),
         "max_timeout_seconds": 300, "statuses": ["PASS", "FAIL", "PARTIAL", "NOT_USED"],
         "failure_codes": ["wifi_auth_failed", "dhcp_timeout", "dns_failed", "tcp_refused",
