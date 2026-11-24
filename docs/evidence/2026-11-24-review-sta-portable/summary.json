@@ -1524,5 +1524,29 @@
     "firmware_wifi_stack": true
    }
   ]
+ },
+ "cardradio_preset": {
+  "source": "fengzeest-cpu/Cardradio src/main.cpp setup() mountSD loop; src/Net.cpp Preferences mp3net cnt/s<i>/p<i>",
+  "firmware_job": "job-ea9c50fa3fdb",
+  "preset": {
+   "sd_card": "blank fat32-mbr 64 MiB f3771c01...",
+   "saved_station": "mp3net c1281bfa..."
+  },
+  "result": {
+   "status": "PASS",
+   "events": [
+    "wifi_scan",
+    "wifi_assoc",
+    "wifi_auth",
+    "dhcp_discover",
+    "dhcp_lease"
+   ],
+   "pcap_isolation": "PASS"
+  },
+  "staging_review": {
+   "CardRadio": "done SIM_VERIFIED (submit disabled)",
+   "Bruce CN": "PARTIAL no_known_layout",
+   "Monster": "PARTIAL no_known_layout"
+  }
  }
 }

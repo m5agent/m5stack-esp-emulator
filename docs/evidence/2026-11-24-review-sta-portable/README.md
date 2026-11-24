@@ -45,6 +45,17 @@ QEMU `04abc3ba…` 跑了 8 款板卡的控制固件，`32/32` 与预期一致�
   Wi-Fi，属于缺少配网输入，不是网络模型缺口。Monster 首次判 `FAIL host_egress_denied`
   来自其自建热点的 mDNS，按上面的隔离修正重新计算为 `PARTIAL`。
 
+## CardRadio 原版与会话预置
+
+上线后 CardRadio v1.0（`job-ea9c50fa3fdb`）仍判 `PARTIAL no_network_activity`。源码
+（fengzeest-cpu/Cardradio `src/main.cpp`、`src/Net.cpp`）显示两个前置条件：开机先挂载 SD，
+没有卡会一直停在“没有 microSD 卡”；挂载后只连接 Preferences `mp3net` 中保存的网络。
+
+新增 `network.preset`：`sd_card=blank` 挂接会话级空白 FAT32 卡，`saved_station=true` 只向
+镜像中出现且已按源码核对的布局写入审查 SSID（目前仅 `mp3net`）。同一原版 BIN 在不改镜像
+的情况下扫描、入网、DHCP 全部通过，`/network` 为 `PASS`，pcap 隔离 PASS。Bruce CN 与
+Monster 的已保存网络布局未核对，预置记为 `no_known_layout`，结果保持 `PARTIAL`。
+
 ## 早期失败（保留）
 
 - `matrix1`：同一批镜像，Core2 与 StickC Plus2 的 good/setup 判 `FAIL fixture_rejected`，
