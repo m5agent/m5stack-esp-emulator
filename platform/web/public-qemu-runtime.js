@@ -3,6 +3,7 @@ import {getUIFlowWorkbenchFirmware,resolveUIFlowWorkbenchProfile} from './public
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {loadQemuSdExample} from './public-qemu-sd-media.js';
+import {resolveQemuUnitExample,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
 import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
@@ -16,19 +17,24 @@ export function browserQemuHistory(storage) {
   try { const rows=JSON.parse((storage || globalThis.localStorage).getItem(HISTORY_KEY)||'[]'); return Array.isArray(rows)?rows:[]; } catch { return []; }
 }
 export class PublicQemuRuntime {
-  constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
+  constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onUnitExampleState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
     requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
-    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles});
+    Object.assign(this,{onSerial,onFrame,onDeviceState,onUnitExampleState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles});
     this.loadAsset=downloadImpl===downloadFirmware?loadVerifiedRuntimeAsset:createVerifiedAssetLoader({downloadImpl,cacheStorage:null});
     this.compileWasm=compileImpl?createVerifiedModuleCompiler({compile:compileImpl}):compileVerifiedRuntimeModule;
     this.fetchImpl=(...args)=>fetchImpl(...args);
     this.uartListeners=new Set();this.uartOwner=null;this.consoleEpoch=0;this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
+    this.lastUnitExampleState=null;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
     runtime:this.receipt||null,boot:this.bootEvidence(),display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
     resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
   state(status) { this.status=status;this.onState(this.observe()); }
+  clearUnitExampleState() {
+    if(!this.lastUnitExampleState)return;
+    this.lastUnitExampleState=null;this.onUnitExampleState(null);
+  }
   ask(op,value={},transfer=[]) {
     check(this.port,'浏览器设备尚未连接。');const id=++this.id;
     return new Promise((resolve,reject)=>{
@@ -72,6 +78,7 @@ export class PublicQemuRuntime {
       if(data.value.event==='RESET'){
         this.consoleEpoch=Number.isSafeInteger(data.value.consoleEpoch)?data.value.consoleEpoch:this.consoleEpoch+1;
         this.uartOwner=null;this.readySerialOffset=this.serial.length;this.readyMarkerObserved=false;this.lastDeviceState=null;
+        this.clearUnitExampleState();
         if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');
       }
     }
@@ -85,6 +92,12 @@ export class PublicQemuRuntime {
       try { validateQemuOnboardState(this.profile,data.value); }
       catch(error){this.receive({type:'error',value:error.message},generation);return;}
       this.lastDeviceState=structuredClone(data.value);this.outputSequence++;this.onDeviceState(this.lastDeviceState);
+    }
+    if(data.type==='unit-example-state') {
+      if(!['running','paused','sleeping'].includes(this.status)||this.stopping||this.exit)return;
+      try { validateQemuUnitExampleState(this.profile,data.value); }
+      catch(error){this.receive({type:'error',value:error.message},generation);return;}
+      this.lastUnitExampleState=structuredClone(data.value);this.onUnitExampleState(this.lastUnitExampleState);
     }
     if(data.type==='exit') { this.exit=data.value; if(!this.stopping){this.state('stopped');void this.stop();} }
     if(data.type==='error') {
@@ -141,6 +154,7 @@ export class PublicQemuRuntime {
         clearQemuFirmwareExecutionBinding(profile);
         profile.admission='candidate';profile.clockDivisor=clockDivisor;profile.profile=`${deviceId}-wasm-${clockDivisor===1?'wallclock-candidate':'vm-div8'}`;
       }
+      profile=resolveQemuUnitExample(profile,inputSHA256);
       validateQemuProfile(profile);
       this.profile=profile;
       active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor};
@@ -183,6 +197,7 @@ export class PublicQemuRuntime {
         firmwareSha256:firmwareSHA256,firmwareInputSha256:inputSHA256,firmwareRuntimeSha256:firmwareSHA256,
         normalization:{kind:inputBytes===runtimeBytes?'none':'pad-ff',inputBytes,runtimeBytes},
         ...(sdExample ? {sdCard:sdExample.identity} : {}),
+        ...(profile.unitExample ? {unitExample:profile.unitExample} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
@@ -249,6 +264,7 @@ export class PublicQemuRuntime {
     this.pollLane(generation,'frame',headless?250:33);
     if(this.profile?.outputs)this.pollLane(generation,'outputs',headless?250:50);
     if(this.profile?.deviceId==='cardputer-adv')this.pollLane(generation,'display',250);
+    if(this.profile?.unitExample)this.pollLane(generation,'unit-example-state',250);
   }
   pollLane(generation,op,intervalMs) {
     if(generation!==this.generation||!this.port||this.stopping||this.exit)return;
@@ -293,7 +309,10 @@ export class PublicQemuRuntime {
     check(this.status==='running'||this.status==='sleeping'&&(['button','reset'].includes(event?.type)||touchRelease)
       ||this.status==='paused'&&(event?.down===false||event?.type==='reset'),'请先启动或继续设备。');
     qemuInputCommand(this.profile,event); // Validate before crossing the iframe boundary.
+    const {generation,consoleEpoch}=this;
     const result=await this.ask('input',event);
+    if(event.type==='example-distance'&&(generation!==this.generation||consoleEpoch!==this.consoleEpoch||this.stopping))
+      throw new DOMException('Unit 示例所属设备或程序已改变。','AbortError');
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};
   }
   subscribeUart(listener){this.uartListeners.add(listener);return ()=>this.uartListeners.delete(listener);}
@@ -329,11 +348,13 @@ export class PublicQemuRuntime {
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,
     last_device_state:this.lastDeviceState?{...this.lastDeviceState,observation_sequence:this.outputSequence}:null,
+    ...(this.profile?.unitExample?{unit_example_state:this.lastUnitExampleState}:{}),
     cleanup:this.cleanupResult,machine_events:this.machineEvents||[],limits:this.profile?.limitations||[]};}
   stop(){
     if(this.stopping)return this.stopping;
     this.uartOwner=null;
     this.stopPolling();
+    this.clearUnitExampleState();
     if(!this.iframe&&!this.abort)return Promise.resolve(this.observe());
     this.stopping=(async()=>{
       this.abort?.abort();this.signalCleanup?.();this.signalCleanup=null;

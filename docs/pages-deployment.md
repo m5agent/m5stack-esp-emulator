@@ -302,6 +302,14 @@ CoreS3 和 Cardputer-Adv。
 副本，下次启动从原素材重新挂载。通过本地文件或公开链接提供对应固件，
 运行收据的 `sdCard` 字段记录卡镜像身份。素材导出包括已审查的静态种子。
 
+### CoreS3 超声波和继电器例程
+
+使用 CoreS3 浏览器工作台加载验收过的 Arduino Ultrasonic-I2C 或 Unit Relay 完整
+固件。工作台根据输入固件 SHA-256 自动挂接对应虚拟 Unit，运行收据记录 `unitExample`。
+超声波的 Port A 滑块可调整模拟距离，原例程经 I²C 读取并更新屏幕；每次新建会话从
+1000 mm 开始。继电器通过客体屏幕切换，工作台同步显示 Port B 的虚拟 GPIO 电平。
+支持的固件摘要随工作台的 `public-qemu-unit-examples.js` 提供。
+
 ### CoreS3 绘图例程
 
 在浏览器工作台选择 CoreS3，将启动环境设为「CoreS3 绘图 · UIFlow2 v2.5.5」。

@@ -1,4 +1,5 @@
 import {validateQemuServoOutputProfile,validateQemuServoState} from './public-qemu-servo.js';
+import {qemuUnitExampleDistanceCommand,validateQemuUnitExampleProfile} from './public-qemu-unit-examples.js';
 import {assetUrl, siteRoot} from './public-config.js';
 
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
@@ -241,13 +242,17 @@ export function validateQemuProfile(profile) {
       && encoder.path === '/machine/encoder' && encoder.property === 'detents'
       && encoder.minimum === -4096 && encoder.maximum === 4096, 'Invalid QEMU encoder endpoint');
   }
-  check(input.pir === null || input.pir?.path === '/machine/units/pir' && input.pir.property === 'motion', 'Invalid QEMU Unit endpoint');
-  check(profile.units?.schema_version === 1 && Array.isArray(profile.units.attachments)
-    && profile.units.attachments.length === (input.pir ? 1 : 0), 'Invalid QEMU Unit wiring');
-  if (input.pir) {
-    const unit = profile.units.attachments[0];
-    check(unit.id === 'pir' && unit.unit_id === 'pir' && unit.port_id === 'port-a' && unit.pins?.yellow === 2 && unit.pins?.white === 1
-      && unit.visual_port === 'grove' && unit.initial?.motion === false, 'Unreviewed QEMU PIR wiring');
+  if (Object.hasOwn(profile, 'unitExample') || Object.hasOwn(profile, 'unitExampleFirmwareInputSHA256')) {
+    validateQemuUnitExampleProfile(profile);
+  } else {
+    check(input.pir === null || input.pir?.path === '/machine/units/pir' && input.pir.property === 'motion', 'Invalid QEMU Unit endpoint');
+    check(profile.units?.schema_version === 1 && Array.isArray(profile.units.attachments)
+      && profile.units.attachments.length === (input.pir ? 1 : 0), 'Invalid QEMU Unit wiring');
+    if (input.pir) {
+      const unit = profile.units.attachments[0];
+      check(unit.id === 'pir' && unit.unit_id === 'pir' && unit.port_id === 'port-a' && unit.pins?.yellow === 2 && unit.pins?.white === 1
+        && unit.visual_port === 'grove' && unit.initial?.motion === false, 'Unreviewed QEMU PIR wiring');
+    }
   }
   const reference = profile.reference;
   const url = new URL(reference?.url);
@@ -296,6 +301,7 @@ export function validateQemuBrowserProfiles(registry) {
   const seen = new Set();
   for (const profile of registry.profiles) {
     validateQemuProfile(profile);
+    check(!Object.hasOwn(profile, 'unitExample'), 'QEMU Unit examples must bind to a verified runtime upload');
     check(!seen.has(profile.deviceId), 'Duplicate QEMU browser profile'); seen.add(profile.deviceId);
   }
   return registry;
@@ -462,6 +468,7 @@ export function qemuInputCommand(profile, event) {
     check(input.pir && typeof event.motion === 'boolean', 'PIR is not attached to the selected profile');
     return {execute:'qom-set',arguments:{...input.pir,value:event.motion},readback:{execute:'qom-get',arguments:{...input.pir}}};
   }
+  if (event?.type === 'example-distance') return qemuUnitExampleDistanceCommand(profile, event);
   throw new Error('Input is not admitted by the selected QEMU browser profile');
 }
 

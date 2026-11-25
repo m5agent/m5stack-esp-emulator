@@ -5,6 +5,7 @@ import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
+import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
 
 const s3AdcFields = [
   [2,128,2,1], [2,149,8,0], [2,157,6,0], [2,163,6,0], [2,169,6,0],
@@ -309,6 +310,76 @@ assert.throws(() => qemuInputCommand(atom, {type:'key',key:'a',down:true}));
 assert.equal(qemuInputCommand(s3, {type:'pir',motion:true}).readback.execute, 'qom-get');
 assert.throws(() => qemuInputCommand(atom, {type:'pir',motion:true}));
 assert.throws(() => qemuInputCommand(s3, {type:'uart',text:'hello'}));
+
+const sonicHash = '0bb888aeb6fdde9200b7f81ab15ea314d75303ed6917aea58ff2a507c195e221';
+const relayHash = 'a645e2a79947a01227c69ee565545838722ef0ebd7805d15705039bddcef84ca';
+const sonic = resolveQemuUnitExample(s3, sonicHash);
+const relay = resolveQemuUnitExample(s3, relayHash);
+assert.strictEqual(resolveQemuUnitExample(s3, '0'.repeat(64)), s3);
+const otherBoard = pick('cardputer-adv');
+assert.strictEqual(resolveQemuUnitExample(otherBoard, sonicHash), otherBoard);
+assert.deepEqual(qemuUnitExampleQueries(s3), {});
+assert.equal(s3.units.attachments[0].unit_id, 'pir');
+assert.equal(s3.inputs.pir.property, 'motion');
+
+for (const [profile, kind, hash, attachment] of [
+  [sonic, 'ultrasonic-i2c', sonicHash, {id:'ultrasonic',unit_id:'ultrasonic-i2c',port_id:'port-a',pins:{white:1,yellow:2},
+    visual_port:'grove',initial:{'distance-mm':1000}}],
+  [relay, 'relay', relayHash, {id:'relay',unit_id:'relay',port_id:'port-b',pins:{white:8,yellow:9},visual_port:'grove',initial:{}}],
+]) {
+  assert.deepEqual(validateQemuProfile(profile), {...s3,unitExample:kind,unitExampleFirmwareInputSHA256:hash,
+    inputs:{...s3.inputs,pir:null},units:{schema_version:1,attachments:[attachment]}});
+  assert.strictEqual(resolveQemuUnitExample(profile, hash), profile);
+  assert.throws(() => resolveQemuUnitExample(profile, '0'.repeat(64)), /firmware changed/);
+  assert.throws(() => qemuInputCommand(profile, {type:'pir',motion:true}), /not attached/);
+  assert.throws(() => validateQemuBrowserProfiles({...registry,profiles:[profile]}), /runtime upload/);
+  for (const mutate of [p => p.flashMb = 8, p => p.board = 'm5cardputeradv', p => p.unitExample = [kind],
+    p => p.unitExampleFirmwareInputSHA256 = '0'.repeat(64), p => delete p.unitExampleFirmwareInputSHA256,
+    p => p.units.attachments.push(s3.units.attachments[0]), p => p.units.attachments[0].pins.white = 0,
+    p => p.units.attachments[0].port_id = 'port-c', p => p.units.attachments[0].initial.reset = true,
+    p => p.units.attachments[0].path = '/machine/other', p => p.inputs.pir = s3.inputs.pir]) {
+    const changed = structuredClone(profile);
+    mutate(changed);
+    assert.throws(() => validateQemuProfile(changed), /QEMU Unit example/);
+  }
+}
+
+const get = (path, property) => ({execute:'qom-get',arguments:{path,property}});
+assert.deepEqual(qemuUnitExampleQueries(sonic), {
+  distanceMm:get('/machine/units/ultrasonic','distance-mm'),
+  transactions:get('/machine/units/ultrasonic/chip','transactions'),
+  bytesRead:get('/machine/units/ultrasonic/chip','read-bytes'),
+  bytesWritten:get('/machine/units/ultrasonic/chip','written-bytes'),
+});
+assert.deepEqual(qemuUnitExampleQueries(relay), {
+  level:get('/machine/units/relay','output-level'),transitions:get('/machine/units/relay','output-transitions'),
+});
+for (const millimeters of [20, 1000, 4500]) {
+  const target = {path:'/machine/units/ultrasonic',property:'distance-mm'};
+  assert.deepEqual(qemuInputCommand(sonic, {type:'example-distance',millimeters}), {execute:'qom-set',
+    arguments:{...target,value:millimeters},readback:{execute:'qom-get',arguments:target},readbackResult:'distanceMm'});
+}
+for (const event of [{millimeters:19}, {millimeters:4501}, {millimeters:1.5}, {millimeters:'20'},
+  {millimeters:250,path:'/machine/unreviewed'}, {millimeters:250,property:'transactions'}]) {
+  assert.throws(() => qemuInputCommand(sonic, {type:'example-distance', ...event}), /not admitted/);
+}
+for (const profile of [s3, relay]) {
+  assert.throws(() => qemuInputCommand(profile, {type:'example-distance',millimeters:1000}), /not admitted/);
+  assert.throws(() => qemuInputCommand(profile, {type:'relay',level:true}), /not admitted/);
+}
+assert.deepEqual(qemuInputCommand(relay, {type:'touch',x:144,y:122,down:true}), qemuInputCommand(s3, {type:'touch',x:144,y:122,down:true}));
+const sonicState = {kind:'ultrasonic-i2c',distanceMm:250,transactions:8,bytesRead:12,bytesWritten:6};
+const relayState = {kind:'relay',level:true,transitions:2};
+assert.strictEqual(validateQemuUnitExampleState(sonic, sonicState), sonicState);
+assert.strictEqual(validateQemuUnitExampleState(relay, relayState), relayState);
+for (const state of [{...sonicState,distanceMm:4600}, {...sonicState,bytesRead:-1}, {...sonicState,transactions:Infinity},
+  {...sonicState,bytesWritten:null}, {...sonicState,path:'/machine/other'}, relayState]) {
+  assert.throws(() => validateQemuUnitExampleState(sonic, state), /example state/);
+}
+for (const state of [{...relayState,level:1}, {...relayState,transitions:2.5}, sonicState]) {
+  assert.throws(() => validateQemuUnitExampleState(relay, state), /example state/);
+}
+
 const probe = pick('atoms3r'), probeFlash = validateQemuFirmware(image(probe), probe), vfsAt = 0x8020;
 const vfsView = new DataView(probeFlash.buffer);
 vfsView.setUint16(vfsAt, 0x50aa, true); probeFlash[vfsAt + 2] = 1; probeFlash[vfsAt + 3] = 0x81;

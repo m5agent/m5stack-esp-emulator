@@ -204,6 +204,27 @@ function updateBrowserEvidence() {
   label.dataset.sessionId=session;
   browserEvidenceState(ready?'ready':'unavailable',ready?'本地运行记录可下载。':'');
 }
+function updateBrowserUnitExample(run) {
+  const controller=active(run)&&run.controller instanceof PublicQemuRuntime?run.controller:null;
+  const kind=controller?.profile?.unitExample;
+  const live=kind&&['booting','running','paused'].includes(controller.status);
+  const panel=$('browserExampleUnitPanel'), input=$('browserExampleDistance'), output=$('browserExampleUnitState');
+  const reading=live?controller.lastUnitExampleState:null;
+  panel.hidden=!live;
+  panel.dataset.kind=live?kind:'';
+  $('browserExampleDistanceControl').hidden=!live||kind!=='ultrasonic-i2c';
+  input.disabled=!reading||controller.status!=='running'||!!run?.unitDistancePending;
+
+  if(!reading)delete input.dataset.sessionId;
+  if(reading?.kind==='ultrasonic-i2c'&&input.dataset.sessionId!==controller.sessionId){
+    input.value=String(reading.distanceMm);
+    input.dataset.sessionId=controller.sessionId;
+  }
+  const text=reading?.kind==='ultrasonic-i2c'?`I²C 距离 ${reading.distanceMm} mm`
+    : reading?.kind==='relay'?`Port B 继电器 · GPIO ${reading.level?'高电平':'低电平'}`
+    : live?'等待虚拟 Unit 状态':'';
+  if(output.textContent!==text)output.textContent=text;
+}
 function status(status, detail, session = state.run?.controller?.current) {
   const labels = {
     loading: '正在加载固件',
@@ -229,6 +250,7 @@ function status(status, detail, session = state.run?.controller?.current) {
   $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
   $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
+  updateBrowserUnitExample(state.run);
   updateBrowserEvidence();
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : state.run?.owned===false ? '停止查看' : '停止';
@@ -993,6 +1015,7 @@ async function startRun() {
         sdExamples:state.config.browser_sd_examples,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onDeviceState: (value) => applyBrowserDeviceState(value, run),
+        onUnitExampleState: () => {if(active(run))updateBrowserUnitExample(run);},
         onState: (value) => {
           if (active(run)) {
             applyBrowserPresentation(value);
@@ -1598,6 +1621,26 @@ $('browserPir').addEventListener('change', async (event) => {
   try { const receipt = await run.controller.input({type:'pir',motion:event.target.checked});
     $('browserPirState').textContent = receipt.result.motion ? 'QOM: MOTION' : 'QOM: CLEAR';
   } catch (cause) { error(cause); }
+});
+$('browserExampleDistance').addEventListener('change',async(event)=>{
+  const run=state.run;
+  if(!active(run)||run.controller.profile?.unitExample!=='ultrasonic-i2c'
+     ||run.controller.status!=='running'||run.unitDistancePending)return;
+  const millimeters=Number(event.target.value);
+  run.unitDistancePending=true;
+  updateBrowserUnitExample(run);
+  try{
+    await run.controller.input({type:'example-distance',millimeters});
+  }catch(cause){
+    if(active(run)){
+      const reading=run.controller.lastUnitExampleState;
+      if(reading)event.target.value=String(reading.distanceMm);
+      error(cause);
+    }
+  }finally{
+    run.unitDistancePending=false;
+    if(active(run))updateBrowserUnitExample(run);
+  }
 });
 $('nativeScreenBtn').addEventListener('click',()=>{
   $('rawFramePanel').hidden=!$('rawFramePanel').hidden;
