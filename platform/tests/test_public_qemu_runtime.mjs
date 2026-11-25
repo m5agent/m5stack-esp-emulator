@@ -1,6 +1,7 @@
 // Host adapter contracts only. Mock downloads/messages never execute a guest.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {gzipSync} from 'node:zlib';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
 import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {sha256Bytes} from '../web/sha256.js';
@@ -145,6 +146,50 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  const seed=new Uint8Array(512);seed.set([17,24,55]);
+  const packedSeed=gzipSync(seed);
+  const example={device:'cores3',firmware_sha256:sha256Bytes(input),bytes:seed.byteLength,sha256:sha256Bytes(seed),
+    gzip_bytes:packedSeed.byteLength,gzip_sha256:sha256Bytes(packedSeed)};
+  let cardDownloads=0;
+  const downloadWithCard=async(url,config)=>{
+    if(url.includes('/sd-media/')){
+      assert.equal(url,root+`platform/runtime/qemu/sd-media/${example.sha256}.img.gz`);
+      assert.equal(config.expectedSha256,example.gzip_sha256);
+      cardDownloads++;
+      return {bytes:Uint8Array.from(packedSeed).buffer,size:packedSeed.length,sha256:example.gzip_sha256};
+    }
+    const size=roms.get(url)?.bytes??8;
+    return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};
+  };
+  const withCard=create({sdExamples:[example],downloadImpl:downloadWithCard});
+  for(let i=0;i<2;i++){
+    await withCard.runtime.start({device:'cores3',firmware:firmware()});
+    const message=frames.at(-1).calls.find(row=>row.op==='start');
+    const workerCard=new Uint8Array(message.value.sdCard);
+    assert.deepEqual(workerCard,seed,'each launch starts with the unmodified card');
+    assert.deepEqual(withCard.runtime.receipt.sdCard,{bytes:512,sha256:example.sha256,mode:'session-copy'});
+    workerCard[0]=0;
+    await withCard.runtime.stop();
+  }
+  assert.equal(cardDownloads,1,'only immutable gzip bytes are reused');
+  const differentFirmware=new Uint8Array(firmware());differentFirmware[differentFirmware.length-1]=1;
+  await withCard.runtime.start({device:'cores3',firmware:differentFirmware});
+  assert.equal(withCard.runtime.receipt.sdCard,undefined);
+  assert.equal(frames.at(-1).calls.find(row=>row.op==='start').value.sdCard,undefined);
+  assert.equal(cardDownloads,1);
+  await withCard.runtime.stop();
+
+  const invalidCard=create({sdExamples:[{...example,bytes:1024}],downloadImpl:downloadWithCard});
+  const priorFrames=frames.length;
+  await assert.rejects(invalidCard.runtime.start({device:'cores3',firmware:firmware()}),/示例 microSD/);
+  assert.equal(frames.length,priorFrames,'a wrongly sized decompressed card cannot start a guest');
+  const corruptCard=create({sdExamples:[{...example,gzip_sha256:'0'.repeat(64)}],downloadImpl:async(_url,config)=>{
+    assert.equal(config.expectedSha256,'0'.repeat(64));
+    throw new Error('SHA-256 mismatch');
+  }});
+  await assert.rejects(corruptCard.runtime.start({device:'cores3',firmware:firmware()}),/校验示例 microSD/);
+  assert.equal(frames.length,priorFrames,'corrupt gzip cannot create a guest iframe');
 
   for(const extra of [{cpuExecution:'jit'},{accelerator:{kind:'tcg-wallclock',thread:'single',tbSizeMb:128}},{oneInsnPerTb:true}]) {
     const removed=create({allowCandidateProfiles:true});

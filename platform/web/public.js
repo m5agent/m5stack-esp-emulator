@@ -941,6 +941,7 @@ async function startRun() {
       run.controller = new BrowserRuntime({
         ...callbacks,
         root,profiles:state.qemuProfiles,workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
+        sdExamples:state.config.browser_sd_examples,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onDeviceState: (value) => applyBrowserDeviceState(value, run),
         onState: (value) => {

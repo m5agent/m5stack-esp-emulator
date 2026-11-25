@@ -1,6 +1,7 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
 import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
+import {validQemuSdImage} from './public-qemu-sd-media.js';
 // The engine owns Emscripten and MEMFS. The top page owns its native pthread Workers.
 // The iframe transfers one private port; no window control channel is used.
 // workersCreated/workersRemaining count Emscripten pthread handles, excluding this engine.
@@ -153,6 +154,10 @@ async function start(config) {
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
   validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
+  const sdCard=config.sdCard;
+  if(sdCard!==undefined&&(!(sdCard instanceof ArrayBuffer)||!validQemuSdImage(boardProfile.deviceId,sdCard.byteLength))) {
+    throw new Error('QEMU microSD image is incompatible with the device');
+  }
   frameTransport=config.frameTransport;
   const options = {
     arguments:buildQemuArguments(boardProfile),
@@ -181,6 +186,10 @@ async function start(config) {
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
+      if(sdCard) {
+        m.FS.writeFile('/sd-card.img',new Uint8Array(sdCard),{canOwn:true});
+        m.ENV.M5SW_SPI_SD_IMAGE='/sd-card.img';
+      }
       if (boardProfile.accelerator?.icountMaxPerCpuNs !== undefined)
         m.ENV.M5SW_ICOUNT_MAX_PERCPU_NS=String(boardProfile.accelerator.icountMaxPerCpuNs);
       const consoleBase = boardProfile.target==='riscv32-softmmu' ? '/bridge/usb' : '/bridge/uart';

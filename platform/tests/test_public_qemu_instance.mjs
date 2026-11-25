@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
+import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
 const profile=getQemuBrowserProfile('cores3',registry);
@@ -26,7 +27,7 @@ class TestURL extends URL {
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-  validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
+  validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -60,7 +61,7 @@ const fakeFactory=`export default async function(options){
   options.onRuntimeInitialized();return module;
 }`;
 const compiledModule=await WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0]));
-await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',wasmModule:compiledModule,worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
+await one.onmessage({data:{id:4,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),javascriptURL:origin+'/showcase/runtime/qemu.js',wasmModule:compiledModule,worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0),sdCard:new ArrayBuffer(512)}}});
 assert.equal(one.messages.at(-1).id,4);assert.equal(one.messages.at(-1).error,undefined);
 assert.ok(vm.runInContext('module.compiledInstance',context) instanceof WebAssembly.Instance,'a reused compilation creates a fresh engine instance');
 assert.equal(vm.runInContext('module.compiledModule',context),compiledModule,'the Emscripten callback receives the Module needed to initialize pthreads');
@@ -70,6 +71,8 @@ assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8')
 assert.equal(vm.runInContext('module.ENV.M5_WASM_FRAMEBUFFER',context),'0');
 assert.equal(vm.runInContext(`module.FS.files.get('/rom/${profile.roms[0].name}').byteLength`,context),profile.roms[0].bytes);
 assert.equal(vm.runInContext("module.FS.files.get('/efuse.bin').byteLength",context),4096);
+assert.equal(vm.runInContext('module.ENV.M5SW_SPI_SD_IMAGE',context),'/sd-card.img');
+assert.equal(vm.runInContext("module.FS.files.get('/sd-card.img').byteLength",context),512);
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
 const commands=()=>JSON.parse(vm.runInContext("JSON.stringify(new TextDecoder().decode(new Uint8Array(qmpInput.splice(0))).trim().split('\\n').filter(Boolean).map(line=>JSON.parse(line)))",context));
 const respond=(command,value)=>vm.runInContext(`output(${JSON.stringify(JSON.stringify({return:value,id:command.id})+'\n')})`,context);

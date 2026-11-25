@@ -288,6 +288,20 @@ Service Worker 首控流程。聚合器为每个公开板型启动独立 guest�
 并核对实际 HTTPS 资产及运行收据。不得把本地子路径测试写成公开部署测试；
 实际 URL 和结果写入验证台账。
 
+### 文档例程的 microSD 素材
+
+本地导出可附加 `--qemu-sd-media <目录>`。该目录包含 FAT 卡镜像和
+`manifest.json`。清单使用 `schema_version: 1` 和 `examples` 数组，每条
+声明 `device`、`firmware_sha256`、`image`、`bytes` 与 `sha256`。
+`image` 是目录内的 `.img` 文件名，`sha256` 是原始卡镜像摘要。
+镜像按 512 字节对齐，原始镜像及 gzip 上限均为 64 MiB。当前支持已准入的
+CoreS3 和 Cardputer-Adv。
+
+按设备和输入固件 SHA-256 命中时，工作台校验素材的 gzip 和原始摘要，
+在当前浏览器 QEMU 会话中通过虚拟 SPI microSD 挂接可写副本。停止后销毁
+副本，下次启动从原素材重新挂载。通过本地文件或公开链接提供对应固件，
+运行收据的 `sdCard` 字段记录卡镜像身份。素材导出包括已审查的静态种子。
+
 ### 逐板 fixture 与输入门禁
 
 StopWatch、StamPLC、StackChan、PaperColor、PaperMono 和 Cardputer-ADV

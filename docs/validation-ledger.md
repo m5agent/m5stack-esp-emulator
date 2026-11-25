@@ -55,6 +55,14 @@ CoreS3 Arduino Wakeup 原始固件 `2ddff71f…f295` 在锁定 WASM `618f4713…
 对照保持 guest-shutdown，两个锁定构建会话正常回收。原生、真机与正式托管未执行。
 [定时唤醒 #252](https://github.com/m5agent/m5stack-esp-emulator/issues/252) · [固件、事件、画面与清理证据](https://github.com/m5agent/agent-work-logs/tree/2f0bf877cf340b2e4a0e7eb2bed055e3a9378ebf/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-rtc-pmic-wakeup)
 
+同一 WASM `618f4713…1a62` 的工作台导出按设备和精确固件摘要挂接每会话
+独立的 SPI microSD。CoreS3 原 SDcard、Picture 通过实际 LCD 显示两张种子图，
+SDcard 显示写入成功。独立诊断观察到实际 CMD17、CMD24 和 11 次写入接受。
+Cardputer-Adv 原 8 MiB SDcard 同页启动两次，均以初始素材读取 28 字节并写入
+1 MiB。CoreS3 WAV 读取 384,044 字节文件的头部和首段，后续播放未完成验收。
+无卡和损坏响应对照分别复现来宾缺卡及启动前拒绝，正常会话均回收 Worker。
+正式托管和真机未执行。[microSD #253](https://github.com/m5agent/m5stack-esp-emulator/issues/253) · [真帧、SPI 和清理证据](https://github.com/m5agent/agent-work-logs/tree/5eeae15fb82e8b4d30d29b79ccc60e2cdbe405a2/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-browser-demo-microsd)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
