@@ -7,7 +7,7 @@ import {resolveQemuUnitExample,validateQemuUnitExampleState} from './public-qemu
 import {bindQemuGnssExample} from './public-qemu-gnss-example.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,clearQemuFirmwareExecutionBinding,validateQemuFirmware,validateQemuProfile,validateQemuRuntimeRequirements,qemuInputCommand,validateQemuOnboardState,qemuRuntimeIdentity,qemuUsbSerialJtagAvailable,resolveQemuCapExample,validateQemuCc1101PeerState} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,clearQemuFirmwareExecutionBinding,validateQemuFirmware,validateQemuProfile,validateQemuRuntimeRequirements,qemuInputCommand,validateQemuOnboardState,qemuRuntimeIdentity,qemuUsbSerialJtagAvailable,resolveQemuCapExample,resolveQemuSx1262Example,validateQemuCc1101PeerState,validateQemuSx1262PeerState} from './public-qemu-profiles.js';
 const HISTORY_KEY = 'm5-public-qemu-history-v1';
 const EXAMPLE_SHA = '78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
 const serialEncoder = new TextEncoder();
@@ -140,7 +140,7 @@ export class PublicQemuRuntime {
     }
   }
   async start(options={}) {
-    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer}=options;
+    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer,sx1262Example}=options;
     await this.stop();
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.serialChannel='console';this.serialBytes=0;this.usbSerial='';this.usbSerialBytes=0;this.usbSerialState=null;
@@ -155,7 +155,7 @@ export class PublicQemuRuntime {
     this.state('loading');
     try {
       active();
-      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer'].includes(key)),'Unsupported QEMU execution option');
+      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer','sx1262Example'].includes(key)),'Unsupported QEMU execution option');
       const deviceId=typeof device==='string'?device:device?.id;
       const registry=this.profiles||await loadQemuBrowserProfiles({root:this.root,fetchImpl:this.fetchImpl,signal:bootAbort.signal});
       active();
@@ -190,9 +190,10 @@ export class PublicQemuRuntime {
       profile=resolveQemuUnitExample(profile,inputSHA256);
       profile=bindQemuGnssExample(profile,gnssExample,inputSHA256);
       profile=resolveQemuCapExample(profile,capExample,inputSHA256,capPeer);
+      profile=resolveQemuSx1262Example(profile,sx1262Example,inputSHA256);
       validateQemuProfile(profile);
       this.profile=profile;
-      active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor,...(capExample ? {capExample} : {}),...(capPeer ? {capPeer} : {})};
+      active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor,...(capExample ? {capExample} : {}),...(capPeer ? {capPeer} : {}),...(sx1262Example ? {sx1262Example} : {})};
       const sdExample=this.sdExamples===undefined?null:await loadQemuSdExample(
         this.sdExamples,deviceId,inputSHA256,{root:this.root,signal:bootAbort.signal,loadAsset:this.loadAsset,fetchImpl:this.fetchImpl});
       active();
@@ -238,6 +239,7 @@ export class PublicQemuRuntime {
         ...(usbSerialJtag ? {usbSerialJtag:{direction:'guest-to-host',controller:'esp32s3-usb-serial-jtag'}} : {}),
         ...(profile.capExample ? {capExample:profile.capExample} : {}),
         ...(profile.capPeer ? {capPeer:true} : {}),
+        ...(profile.sx1262Example ? {sx1262Example:profile.sx1262Example} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
@@ -343,6 +345,14 @@ export class PublicQemuRuntime {
   async pause(){check(this.status==='running','设备未运行。');await this.ask('pause');this.state('paused');return this.observe();}
   async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state(this.guestReady()?'running':'booting');return this.observe();}
   reset(){check(['running','paused','sleeping'].includes(this.status),'设备未运行。');return this.input({type:'reset',down:true});}
+  async readSx1262PeerState() {
+    check(this.profile?.sx1262Example&&this.status==='running'&&!this.stopping,'QEMU SX1262 peer is not running');
+    const {generation,consoleEpoch}=this;
+    const state=await this.ask('sx1262-peer-state');
+    if(this.generation!==generation||this.consoleEpoch!==consoleEpoch||this.stopping)
+      throw new DOMException('QEMU SX1262 peer session changed','AbortError');
+    return validateQemuSx1262PeerState(state);
+  }
   async readCc1101PeerState() {
     check(this.profile?.capPeer&&this.status==='running'&&!this.stopping,'QEMU CC1101 peer is not running');
     const {generation,consoleEpoch}=this;
@@ -359,7 +369,7 @@ export class PublicQemuRuntime {
     qemuInputCommand(this.profile,event); // Validate before crossing the iframe boundary.
     const {generation,consoleEpoch}=this;
     const result=await this.ask('input',event);
-    if(['example-distance','cc1101-peer-frame'].includes(event.type)
+    if(['example-distance','cc1101-peer-frame','sx1262-peer-packet'].includes(event.type)
       &&(generation!==this.generation||consoleEpoch!==this.consoleEpoch||this.stopping))
       throw new DOMException('示例所属设备或程序已改变。','AbortError');
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};

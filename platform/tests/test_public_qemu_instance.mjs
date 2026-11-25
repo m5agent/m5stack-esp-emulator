@@ -5,7 +5,8 @@ import vm from 'node:vm';
 import {validateQemuProfile, validateQemuRuntimeRequirements, buildQemuArguments, buildQemuEfuse, qemuInputCommand,
   getQemuBrowserProfile, qemuUsbSerialJtagAvailable, QEMU_USB_SERIAL_JTAG_OUTPUT, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,
   QEMU_CARDPUTER_BOOT_RUNTIME_PATCH, resolveQemuCapExample, resolveQemuFirmwareProfile, QEMU_CARDPUTER_CC1101_RUNTIME_PATCH,
-  QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH, qemuCc1101PeerStateQuery, validateQemuCc1101PeerState} from '../web/public-qemu-profiles.js';
+  QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH, qemuCc1101PeerStateQuery, validateQemuCc1101PeerState,
+  resolveQemuSx1262Example,qemuSx1262PeerStateQuery,validateQemuSx1262PeerState,qemuSx1262ReceiveArmed} from '../web/public-qemu-profiles.js';
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
@@ -33,7 +34,7 @@ const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
   qemuUnitExampleQueries,validateQemuUnitExampleState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
-  qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,
+  qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuSx1262PeerStateQuery,validateQemuSx1262PeerState,qemuSx1262ReceiveArmed,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -300,6 +301,44 @@ assert.equal(one.messages.filter(item=>item.type==='frame').length,1,'headless o
 const unstable=one.onmessage({data:{id:26,op:'outputs'}});respond(commands()[0],1);await tick();
 const unstableValues=commands();respond(unstableValues[0],0x40a020);respond(unstableValues[1],false);await tick();respond(commands()[0],2);await unstable;
 assert.equal(one.messages.at(-1).value.unchanged,true);assert.equal(one.messages.filter(item=>item.type==='device-state').length,1,'a concurrent LED update must drop the mixed snapshot');
+const sxHash='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+context.sx1262Profile=resolveQemuSx1262Example(resolveQemuFirmwareProfile(getQemuBrowserProfile('cardputer-adv',registry),sxHash),
+  'lora868-rf-rx',sxHash);
+vm.runInContext('boardProfile=sx1262Profile',context);
+await one.onmessage({data:{id:40,op:'sx1262-peer-state',value:{path:'/machine/other'}}});
+assert.match(one.messages.at(-1).error,/no caller path or property/);
+assert.equal(commands().length,0);
+const sxSample={frequency_word:910163968,irq_status:0,commands:25,tx_sequence:0,busy:false,
+  tx_hex:'',dio1:false,receiving:true,rx_sequence:0,reset_edges:1,rx_bytes_read:0};
+const stateRequest=one.onmessage({data:{id:41,op:'sx1262-peer-state'}});
+const [stateQuery]=commands();
+assert.deepEqual(stateQuery.arguments,{path:'/machine/cardputer-adv-lora',property:'state'});
+respond(stateQuery,sxSample);await stateRequest;
+assert.deepEqual(one.messages.at(-1).value,sxSample);
+const sxInput={type:'sx1262-peer-packet',packetHex:'7761736d'};
+const notReady=one.onmessage({data:{id:42,op:'input',value:sxInput}});
+const [armCheck]=commands();
+respond(armCheck,{...sxSample,irq_status:2,dio1:true});
+await notReady;
+assert.match(one.messages.at(-1).error,/not armed/);
+assert.deepEqual(commands(),[],'a pending radio FIFO blocks injection');
+const sxIngress=one.onmessage({data:{id:43,op:'input',value:sxInput}});
+const [sxRead]=commands();
+await one.onmessage({data:{id:44,op:'input',value:sxInput}});
+assert.match(one.messages.at(-1).error,/already pending/);
+assert.equal(commands().length,0);
+respond(sxRead,sxSample);await tick();
+const [sxWrite]=commands();
+assert.equal(sxWrite.execute,'qom-set');
+assert.deepEqual(sxWrite.arguments,{path:'/machine/cardputer-adv-lora',property:'rx-packet',value:'7761736d'});
+respond(sxWrite,{});await sxIngress;
+assert.equal(one.messages.at(-1).error,undefined);
+const staleSx=one.onmessage({data:{id:45,op:'input',value:sxInput}});
+const [staleRead]=commands();
+vm.runInContext('resetEpoch++',context);
+respond(staleRead,sxSample);await staleSx;
+assert.match(one.messages.at(-1).error,/session changed/);
+assert.equal(commands().length,0,'an old SX1262 readback cannot execute a write after reset');
 context.displayProfile=profile;vm.runInContext('boardProfile=displayProfile',context);
 const lateInput=one.onmessage({data:{id:22,op:'input',value:{type:'touch',x:1,y:1,down:false}}});
 assert.equal(commands().length,1);

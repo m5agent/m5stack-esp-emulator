@@ -1,0 +1,389 @@
+diff --git a/hw/m5stopwatch/m5_sx1262.c b/hw/m5stopwatch/m5_sx1262.c
+index eafab65..9752a91 100644
+--- a/hw/m5stopwatch/m5_sx1262.c
++++ b/hw/m5stopwatch/m5_sx1262.c
+@@ -8,9 +8,20 @@
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
++#include "qemu/bswap.h"
++#include "qemu/timer.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "qapi/qmp/qdict.h"
+ #include "m5stopwatch.h"
+ 
+ #define SX1262_MAX_PACKET 255
++#define ADV_SX1262_NRESET 3
++#define ADV_SX1262_DIO1 4
++#define ADV_SX1262_NSS 5
++#define ADV_SX1262_BUSY 6
++#define SX1262_TX_DONE 0x0001
++#define SX1262_RX_DONE 0x0002
+ 
+ typedef enum {
+     SX_IDLE,
+@@ -18,6 +29,8 @@ typedef enum {
+     SX_RESPONSE,
+     SX_WRITE_BUFFER,
+     SX_READ_BUFFER,
++    SX_WRITE_REGISTER,
++    SX_READ_REGISTER,
+ } Sx1262Mode;
+ 
+ typedef struct M5Sx1262State {
+@@ -37,8 +50,101 @@ typedef struct M5Sx1262State {
+     uint16_t rx_pos;
+     uint16_t irq_status;
+     uint16_t registers[16];
++    uint16_t register_address;
++    uint8_t *cap_registers;
++    bool cap;
++    bool selected;
++    bool reset;
++    bool receiving;
++    bool continuous;
++    bool tx_pending;
++    uint16_t irq_mask;
++    uint16_t dio1_mask;
++    uint16_t committed_len;
++    uint8_t committed_tx[SX1262_MAX_PACKET];
++    uint64_t commands;
++    uint64_t reset_edges;
++    uint64_t tx_sequence;
++    uint64_t rx_sequence;
++    uint64_t rx_bytes_read;
++    uint32_t frequency;
++    QEMUTimer *busy_timer;
++    QEMUTimer *tx_timer;
+ } M5Sx1262State;
+ 
++static void sx1262_cap_busy_ready(void *opaque)
++{
++    esp32_gpio_set_input(ADV_SX1262_BUSY, false);
++}
++
++static void sx1262_cap_busy(M5Sx1262State *s, int64_t duration_ns)
++{
++    esp32_gpio_set_input(ADV_SX1262_BUSY, true);
++    timer_mod_ns(s->busy_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                 duration_ns);
++}
++
++static void sx1262_cap_update_irq(M5Sx1262State *s)
++{
++    esp32_gpio_set_input(ADV_SX1262_DIO1,
++                        (s->irq_status & s->irq_mask & s->dio1_mask) != 0);
++}
++
++static void sx1262_cap_cancel(M5Sx1262State *s)
++{
++    s->receiving = false;
++    s->continuous = false;
++    s->tx_pending = false;
++    timer_del(s->tx_timer);
++}
++
++static void sx1262_cap_complete_tx(void *opaque)
++{
++    M5Sx1262State *s = opaque;
++    if (!s->tx_pending || s->reset) {
++        return;
++    }
++    s->tx_pending = false;
++    s->tx_sequence++;
++    s->irq_status |= SX1262_TX_DONE;
++    sx1262_cap_update_irq(s);
++}
++
++static void sx1262_cap_reset_state(M5Sx1262State *s)
++{
++    sx1262_cap_cancel(s);
++    timer_del(s->busy_timer);
++    s->selected = false;
++    s->mode = SX_IDLE;
++    s->irq_mask = s->dio1_mask = s->irq_status = 0;
++    s->rx_len = s->tx_len = s->committed_len = 0;
++    s->frequency = 0;
++    memset(s->cap_registers, 0, 0x10000);
++    sx1262_cap_update_irq(s);
++}
++
++static void sx1262_cap_reset_pin(void *opaque, int pin, int level)
++{
++    M5Sx1262State *s = opaque;
++    if (!level && !s->reset) {
++        s->reset = true;
++        s->reset_edges++;
++        sx1262_cap_reset_state(s);
++        esp32_gpio_set_input(ADV_SX1262_BUSY, true);
++    } else if (level && s->reset) {
++        s->reset = false;
++        sx1262_cap_busy(s, 1000000);
++    }
++}
++
++static void sx1262_cap_machine_reset(void *opaque, int pin, int level)
++{
++    M5Sx1262State *s = opaque;
++    s->reset = false;
++    sx1262_cap_reset_state(s);
++    sx1262_cap_busy_ready(s);
++}
++
+ static uint8_t sx1262_status(void)
+ {
+     return 0x20; /* STDBY_RC, command status OK */
+@@ -60,16 +166,29 @@ static void sx1262_command(M5Sx1262State *s)
+     switch (s->opcode) {
+     case 0x02: /* CLR_IRQ_STATUS */
+         s->irq_status &= ~(((uint16_t)s->args[0] << 8) | s->args[1]);
++        if (s->cap) {
++            sx1262_cap_update_irq(s);
++        }
+         s->mode = SX_IDLE;
+         break;
+     case 0x07: /* CLR_ERRORS */
+         s->mode = SX_IDLE;
+         break;
+     case 0x08: /* CFG_DIO_IRQ */
++        if (s->cap) {
++            s->irq_mask = ((uint16_t)s->args[0] << 8) | s->args[1];
++            s->dio1_mask = ((uint16_t)s->args[2] << 8) | s->args[3];
++            sx1262_cap_update_irq(s);
++        }
+         s->mode = SX_IDLE;
+         break;
+     case 0x0d: { /* WRITE_REGISTER */
+         uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
++        if (s->cap) {
++            s->register_address = addr;
++            s->mode = SX_WRITE_REGISTER;
++            break;
++        }
+         s->registers[(addr >> 4) & 0xf] = s->args[2];
+         s->mode = SX_IDLE;
+         break;
+@@ -99,6 +218,11 @@ static void sx1262_command(M5Sx1262State *s)
+         break;
+     case 0x1d: { /* READ_REGISTER */
+         uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
++        if (s->cap) {
++            s->register_address = addr;
++            s->mode = SX_READ_REGISTER;
++            break;
++        }
+         response[0] = s->registers[(addr >> 4) & 0xf];
+         sx1262_set_response(s, response, 1);
+         break;
+@@ -124,7 +248,34 @@ static void sx1262_command(M5Sx1262State *s)
+     case 0x97: /* SET_DIO3_AS_TCXO_CTRL */
+     case 0x98: /* CALIBRATE_IMAGE */
+     case 0x9d: /* SET_DIO2_AS_RF_SWITCH_CTRL */
+-        if (s->opcode == 0x83) {
++        if (s->cap) {
++            switch (s->opcode) {
++            case 0x80:
++            case 0x84:
++                sx1262_cap_cancel(s);
++                break;
++            case 0x82:
++                sx1262_cap_cancel(s);
++                s->receiving = true;
++                s->continuous = s->args[0] == 0xff &&
++                                s->args[1] == 0xff && s->args[2] == 0xff;
++                break;
++            case 0x83:
++                sx1262_cap_cancel(s);
++                memcpy(s->committed_tx, s->tx_packet, s->tx_len);
++                s->committed_len = s->tx_len;
++                s->tx_pending = true;
++                /* Virtual packet completion. RF airtime is not modeled. */
++                timer_mod_ns(s->tx_timer,
++                             qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
++                break;
++            case 0x86:
++                s->frequency = ldl_be_p(s->args);
++                break;
++            default:
++                break;
++            }
++        } else if (s->opcode == 0x83) {
+             memcpy(s->rx_packet, s->tx_packet, s->tx_len);
+             s->rx_len = s->tx_len;
+             s->irq_status = 1; /* TX_DONE */
+@@ -149,9 +300,15 @@ static uint8_t sx1262_transfer(void *opaque, uint8_t tx)
+     if (getenv("M5SW_SX1262_TRACE")) {
+         fprintf(stderr, "[sx1262] mode=%d tx=%02x\n", s->mode, tx);
+     }
++    if (s->cap && s->reset) {
++        return 0xff;
++    }
+ 
+     switch (s->mode) {
+     case SX_IDLE:
++        if (s->cap) {
++            s->commands++;
++        }
+         s->opcode = tx;
+         s->arg_count = 0;
+         s->expected_args = 0;
+@@ -161,7 +318,7 @@ static uint8_t sx1262_transfer(void *opaque, uint8_t tx)
+         case 0x02: s->expected_args = 2; break;
+         case 0x07: s->expected_args = 1; break;
+         case 0x08: s->expected_args = 8; break;
+-        case 0x0d: s->expected_args = 3; break;
++        case 0x0d: s->expected_args = s->cap ? 2 : 3; break;
+         case 0x0e: s->expected_args = 1; break;
+         case 0x1d: s->expected_args = 3; break;
+         case 0x1e: s->expected_args = 1; break;
+@@ -213,9 +370,17 @@ static uint8_t sx1262_transfer(void *opaque, uint8_t tx)
+             return sx1262_status();
+         }
+         if (s->rx_pos < s->rx_len) {
++            if (s->cap) {
++                s->rx_bytes_read++;
++            }
+             return s->rx_packet[s->rx_pos++];
+         }
+         return 0;
++    case SX_WRITE_REGISTER:
++        s->cap_registers[s->register_address++] = tx;
++        return sx1262_status();
++    case SX_READ_REGISTER:
++        return s->cap_registers[s->register_address++];
+     default:
+         return sx1262_status();
+     }
+@@ -225,10 +390,14 @@ static void sx1262_set_cs(void *opaque, int level)
+ {
+     M5Sx1262State *s = opaque;
+     if (level) {
++        if (s->cap && s->selected && !s->reset) {
++            sx1262_cap_busy(s, 100000);
++        }
+         s->mode = SX_IDLE;
+         s->response_pos = 0;
+         s->response_len = 0;
+     }
++    s->selected = !level;
+ }
+ 
+ static const M5SpiSlaveOps sx1262_ops = {
+@@ -245,3 +414,89 @@ void m5_sx1262_attach(DeviceState *spi, int cs_pin)
+     esp32_gpio_force_line(21, 0);
+     esp32_gpio_set_input(5, 0);  /* DIO1 idle */
+ }
++
++static void sx1262_cap_get_state(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    M5Sx1262State *s = opaque;
++    QDict *state = qdict_new();
++    char hex[2 * SX1262_MAX_PACKET + 1] = {0};
++    if (!s->tx_pending) {
++        for (unsigned i = 0; i < s->committed_len; i++) {
++            g_snprintf(hex + 2 * i, 3, "%02x", s->committed_tx[i]);
++        }
++    }
++    qdict_put_int(state, "commands", s->commands);
++    qdict_put_int(state, "reset_edges", s->reset_edges);
++    qdict_put_int(state, "frequency_word", s->frequency);
++    qdict_put_int(state, "irq_status", s->irq_status);
++    qdict_put_int(state, "tx_sequence", s->tx_sequence);
++    qdict_put_int(state, "rx_sequence", s->rx_sequence);
++    qdict_put_int(state, "rx_bytes_read", s->rx_bytes_read);
++    qdict_put_bool(state, "receiving", s->receiving);
++    qdict_put_bool(state, "busy", esp32_gpio_get_line(ADV_SX1262_BUSY));
++    qdict_put_bool(state, "dio1", esp32_gpio_get_line(ADV_SX1262_DIO1));
++    qdict_put_str(state, "tx_hex", hex);
++    QObject *value = QOBJECT(state);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void sx1262_cap_receive(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5Sx1262State *s = opaque;
++    g_autofree char *hex = NULL;
++    uint8_t bytes[SX1262_MAX_PACKET];
++    if (!visit_type_str(v, name, &hex, errp)) {
++        return;
++    }
++    size_t len = strlen(hex);
++    if (!len || (len & 1) || len > 2 * SX1262_MAX_PACKET) {
++        error_setg(errp, "SX1262 receive requires one nonempty hex packet");
++        return;
++    }
++    if (!s->receiving || s->reset || (s->irq_status & SX1262_RX_DONE)) {
++        error_setg(errp, "SX1262 receive is not armed or FIFO is still pending");
++        return;
++    }
++    for (unsigned i = 0; i < len / 2; i++) {
++        int hi = g_ascii_xdigit_value(hex[2 * i]);
++        int lo = g_ascii_xdigit_value(hex[2 * i + 1]);
++        if (hi < 0 || lo < 0) {
++            error_setg(errp, "Invalid SX1262 packet byte");
++            return;
++        }
++        bytes[i] = (hi << 4) | lo;
++    }
++    memcpy(s->rx_packet, bytes, len / 2);
++    s->rx_len = len / 2;
++    s->rx_pos = 0;
++    s->rx_sequence++;
++    s->receiving = s->continuous;
++    s->irq_status |= SX1262_RX_DONE;
++    sx1262_cap_update_irq(s);
++}
++
++void m5_sx1262_attach_cardputer_adv(DeviceState *spi)
++{
++    M5Sx1262State *s = g_new0(M5Sx1262State, 1);
++    s->cap = true;
++    s->ops = &sx1262_ops;
++    s->cap_registers = g_new0(uint8_t, 0x10000);
++    s->busy_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, sx1262_cap_busy_ready, s);
++    s->tx_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, sx1262_cap_complete_tx, s);
++    esp32s3_gpspi_attach_spi_slave_passive_cs(spi, &sx1262_ops, s,
++                                             ADV_SX1262_NSS);
++    esp32_gpio_add_out_listener(ADV_SX1262_NRESET, sx1262_cap_reset_pin, s);
++    esp32_gpio_add_reset_listener(ADV_SX1262_NRESET, sx1262_cap_machine_reset, s);
++    sx1262_cap_machine_reset(s, ADV_SX1262_NRESET, 1);
++
++    Object *observer = object_new("container");
++    object_property_add_child(qdev_get_machine(), "cardputer-adv-lora", observer);
++    object_property_add(observer, "state", "any", sx1262_cap_get_state, NULL,
++                        NULL, s);
++    object_property_add(observer, "rx-packet", "str", NULL, sx1262_cap_receive,
++                        NULL, s);
++    object_unref(observer);
++}
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index 7284760..0fab64b 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -156,6 +156,10 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_gpspi_set_dc_pin(sd_spi, 34);
+     esp32s3_gpspi_set_panel_cs_pin(sd_spi, 37);
+     m5_spi_sd_attach(sd_spi, 12);
++    if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_LORA"), "1") == 0) {
++        m5_sx1262_attach_cardputer_adv(sd_spi);
++        return;
++    }
+     /* Cap CC1101 adds both chips on the external connector. A bare
+      * Cardputer ADV has neither device on G5/G6. */
+     if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_CC1101"), "1") == 0) {
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index a39b91d..fa69dbb 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -159,6 +159,7 @@ void esp32s3_gpspi_attach_spi_slave_passive_cs(DeviceState *dev,
+ void esp32s3_gpspi_set_spi_slave_dma(DeviceState *dev, int cs_pin,
+                                      uint32_t gdma_periph);
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
++void m5_sx1262_attach_cardputer_adv(DeviceState *spi);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_cc1101_spi_attach_peer(DeviceState *spi, int cs_pin, int gdo0_pin);

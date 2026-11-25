@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
 import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,
-  QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
+  QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,QEMU_CARDPUTER_SX1262_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {sha256Bytes} from '../web/sha256.js';
 
 const root='https://example.test/showcase/';
@@ -81,6 +81,7 @@ class MockWorker {
       port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
         :data.op==='usb-serial-jtag-state'?{consoleEpoch:0,txBytes:64,txPackets:2}
+        :data.op==='sx1262-peer-state'?config.sx1262State
         :data.op==='dispose'?{workersRemaining:0,workersTerminatedByDispose:0,
           ...(config.engineDisposal||config.ownerFinalization?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
             ownerTerminatesAfterAcknowledgement:!!config.ownerFinalization,engineSelfClosesAfterAcknowledgement:!config.ownerFinalization}:{})}:undefined});
@@ -252,6 +253,10 @@ try {
   await assert.rejects(arbitraryCap.runtime.start({device:'cardputer-adv',firmware:advCapFirmware,capExample:'cc1101-rf-tx'}),
     /reviewed original workbench BIN/);
   assert.equal(arbitraryCap.downloads.length,0);
+  const arbitrarySx=create();
+  await assert.rejects(arbitrarySx.runtime.start({device:'cardputer-adv',firmware:advCapFirmware,sx1262Example:'lora1262-rf-rx'}),
+    /reviewed original workbench BIN/);
+  assert.equal(arbitrarySx.downloads.length,0);
   assert.equal(frames.length,priorFrames,'an unrelated ADV upload must fail explicit Cap admission before creating a guest');
   await assert.rejects(invalidCard.runtime.start({device:'cores3',firmware:firmware()}),/示例 microSD/);
   assert.equal(frames.length,priorFrames,'a wrongly sized decompressed card cannot start a guest');
@@ -274,6 +279,56 @@ try {
     /physical input required source patch/);
   assert.equal(oldInputRuntime.downloads.length,0,'an old G0 runtime fails before downloading executable or ROM assets');
   assert.equal(frames.length,oldInputFrameCount,'an old G0 runtime cannot create a guest iframe');
+
+  const radioFirmware=new Uint8Array(8*1024*1024).fill(0xff);
+  radioFirmware.set(new Uint8Array(advCapFirmware));
+  const radioHash='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+  const sxPatches=[...manifest.source.patches,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH];
+  const sxManifest=patches=>async()=>new Response(JSON.stringify({...manifest,source:{...manifest.source,patches}}));
+  const missingSx=create({fetchImpl:sxManifest(sxPatches)});
+  const sx1262State={frequency_word:910163968,irq_status:0,commands:25,tx_sequence:0,busy:false,
+    tx_hex:'',dio1:false,receiving:true,rx_sequence:0,reset_edges:1,rx_bytes_read:0};
+  const sxRuntime=create({fetchImpl:sxManifest([...sxPatches,QEMU_CARDPUTER_SX1262_RUNTIME_PATCH])});
+  options={sx1262State};
+  Object.defineProperty(globalThis,'crypto',{configurable:true,value:{
+    randomUUID:()=>realCrypto.randomUUID(),
+    subtle:{digest:(algorithm,bytes)=>bytes.byteLength===radioFirmware.byteLength
+      ? Promise.resolve(Uint8Array.from(Buffer.from(radioHash,'hex')).buffer)
+      : realCrypto.subtle.digest(algorithm,bytes)},
+  }});
+  try {
+    const launch={device:'cardputer-adv',firmware:radioFirmware,sx1262Example:'lora1262-rf-rx'};
+    await assert.rejects(missingSx.runtime.start(launch),/SX1262 Cap source patch/);
+    assert.equal(missingSx.downloads.length,0);
+    await sxRuntime.runtime.start(launch);
+  } finally {
+    Object.defineProperty(globalThis,'crypto',cryptoDescriptor);
+    options={};
+  }
+  const sxFrame=frames.at(-1);
+  assert.equal(sxFrame.calls.find(row=>row.op==='start').value.profile.sx1262Example,'lora1262-rf-rx');
+  assert.equal(sxRuntime.runtime.receipt.sx1262Example,'lora1262-rf-rx');
+  assert.equal(sxRuntime.runtime.saved.sx1262Example,'lora1262-rf-rx');
+  assert.equal(sxRuntime.runtime.receipt.firmwareInputSha256,radioHash);
+  assert.equal(sxRuntime.runtime.receipt.capExample,undefined);
+  assert.equal(sxRuntime.runtime.receipt.gnssExample,undefined);
+  assert.equal(sxRuntime.runtime.receipt.usbSerialJtag.controller,'esp32s3-usb-serial-jtag');
+  sxRuntime.runtime.receive({type:'serial',value:sxFrame.profile.readyMarker},sxRuntime.runtime.generation);
+  assert.equal(sxRuntime.runtime.status,'running');
+  assert.deepEqual(await sxRuntime.runtime.readSx1262PeerState(),sx1262State);
+  const rxPacket={type:'sx1262-peer-packet',packetHex:'7761736d'};
+  assert.equal((await sxRuntime.runtime.input(rxPacket)).accepted,true);
+  assert.deepEqual(sxFrame.calls.at(-1).value,rxPacket);
+  await assert.rejects(sxRuntime.runtime.input({...rxPacket,packetHex:'AA'}),/Invalid SX1262 peer packet/);
+  sxFrame.config.ignore=['sx1262-peer-state'];
+  const staleState=sxRuntime.runtime.readSx1262PeerState();
+  staleState.catch(()=>{});
+  await until(()=>sxFrame.calls.filter(row=>row.op==='sx1262-peer-state').length===2);
+  const pendingSx=sxFrame.calls.filter(row=>row.op==='sx1262-peer-state').at(-1);
+  sxRuntime.runtime.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},sxRuntime.runtime.generation);
+  sxFrame.worker.port.postMessage({id:pendingSx.id,value:sx1262State});
+  await assert.rejects(staleState,error=>error.name==='AbortError');
+  await sxRuntime.runtime.stop();
 
   for(const device of ['papercolor','papermono','cardputer-adv']){
     const profile=getQemuBrowserProfile(device,profiles),panel=create();

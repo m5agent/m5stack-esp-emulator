@@ -52,12 +52,20 @@ export const QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH = Object.freeze({
   sha256:'feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2',
 });
 const cardputerCc1101Examples = new Set(['cc1101-rf-tx','cc1101-rf-rx']);
-const cardputerCc1101WorkbenchSHA256 = 'b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
-export function supportsQemuCc1101Workbench(profile) {
+const cardputerAdvRadioWorkbenchSHA256 = 'b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+function supportsCardputerAdvRadioWorkbench(profile) {
   return profile?.deviceId==='cardputer-adv'
-    &&profile.firmwareSHA256===cardputerCc1101WorkbenchSHA256;
+    &&profile.firmwareSHA256===cardputerAdvRadioWorkbenchSHA256;
 }
 const cc1101PeerPath = '/machine/cc1101-peer';
+export const QEMU_CARDPUTER_SX1262_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0046-cardputer-adv-sx1262-cap-peer.patch',
+  sha256:'0c7b037ed3e95102c8d588d042767a0d61591946323f21a9f87a8e02f0c90238',
+});
+const cardputerSx1262Examples = new Set(['lora1262-rf-tx','lora1262-rf-rx','lora868-rf-tx','lora868-rf-rx']);
+const sx1262PeerPath='/machine/cardputer-adv-lora';
+export const supportsQemuCc1101Workbench=supportsCardputerAdvRadioWorkbench;
+export const supportsQemuSx1262Workbench=supportsCardputerAdvRadioWorkbench;
 const QEMU_CARDPUTER_K132_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0034-cardputer-k132-board.patch',
   sha256:'6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af',
@@ -136,6 +144,13 @@ export function validateQemuRuntimeRequirements(profile, manifest) {
     const matches=Array.isArray(patches)?patches.filter(row=>row?.path===patch.path):[];
     check(matches.length===1&&matches[0].sha256===patch.sha256,
       'QEMU runtime lacks the Cardputer-Adv CC1101 peer patch');
+  }
+  if (profile.sx1262Example !== undefined) {
+    const patches=manifest?.source?.patches;
+    const patch=QEMU_CARDPUTER_SX1262_RUNTIME_PATCH;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===patch.path):[];
+    check(matches.length===1&&matches[0].sha256===patch.sha256,
+      'QEMU runtime lacks the Cardputer-Adv SX1262 Cap source patch');
   }
   return profile;
 }
@@ -333,13 +348,24 @@ export function validateQemuProfile(profile) {
   if (profile.capExample !== undefined) {
     check(cardputerCc1101Examples.has(profile.capExample)
       && profile.deviceId==='cardputer-adv' && profile.board==='m5cardputeradv'
-      && profile.firmwareVariant?.firmwareSHA256===cardputerCc1101WorkbenchSHA256
+      && profile.firmwareVariant?.firmwareSHA256===cardputerAdvRadioWorkbenchSHA256
       && profile.oneInsnPerTb===true,
     'Invalid QEMU Cardputer-Adv Cap example binding');
   }
   if (profile.capPeer !== undefined) {
     check(profile.capPeer===true&&cardputerCc1101Examples.has(profile.capExample),
       'Invalid QEMU Cardputer-Adv CC1101 peer binding');
+  }
+  if (profile.sx1262Example !== undefined) {
+    check(!Object.hasOwn(profile,'gnssExample')&&!Object.hasOwn(profile,'capExample')&&!Object.hasOwn(profile,'capPeer'),
+      'Cardputer-Adv Cap examples are mutually exclusive');
+    check(cardputerSx1262Examples.has(profile.sx1262Example)
+      && profile.deviceId==='cardputer-adv' && profile.board==='m5cardputeradv' && profile.chip==='esp32s3'
+      && profile.firmwareVariant?.fixture==='uiflow-workbench-v1'
+      && profile.firmwareVariant.firmwareSHA256===cardputerAdvRadioWorkbenchSHA256
+      && profile.readyFirmwareSHA256===cardputerAdvRadioWorkbenchSHA256
+      && profile.oneInsnPerTb===true && profile.clockDivisor===1,
+    'Invalid QEMU Cardputer-Adv SX1262 example binding');
   }
   return profile;
 }
@@ -352,7 +378,8 @@ export function validateQemuBrowserProfiles(registry) {
     validateQemuProfile(profile);
     check(!Object.hasOwn(profile, 'unitExample'), 'QEMU Unit examples must bind to a verified runtime upload');
     check(!Object.hasOwn(profile, 'gnssExample'), 'QEMU GNSS examples must bind to a verified run');
-    check(profile.capExample===undefined,'QEMU browser registry must not attach a Cap example by default');
+    check(profile.capExample===undefined&&!Object.hasOwn(profile,'sx1262Example'),
+      'QEMU browser registry must not attach a Cap example by default');
     check(!seen.has(profile.deviceId), 'Duplicate QEMU browser profile'); seen.add(profile.deviceId);
   }
   return registry;
@@ -376,7 +403,7 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
   validateQemuProfile(profile);
   check(identity.test(firmwareSHA256), 'Invalid QEMU firmware SHA256');
   const resolved = structuredClone(profile);
-  delete resolved.capExample; delete resolved.capPeer;
+  delete resolved.capExample; delete resolved.capPeer; delete resolved.sx1262Example;
   delete resolved.firmwareVariant;
   delete resolved.oneInsnPerTb; delete resolved.requiredRuntimePatch;
   if (resolved.accelerator?.icountMaxPerCpuNs !== undefined) delete resolved.accelerator.icountMaxPerCpuNs;
@@ -397,8 +424,41 @@ export function resolveQemuCapExample(profile, example, firmwareInputSHA256, pee
   if (example===undefined&&peer===undefined) return profile;
   check(peer===undefined||peer===true,'Invalid QEMU Cardputer-Adv CC1101 peer option');
   check(example!==undefined,'The QEMU CC1101 peer requires an explicit example');
-  check(firmwareInputSHA256===cardputerCc1101WorkbenchSHA256,'QEMU CC1101 Cap example requires the reviewed original workbench BIN');
+  check(firmwareInputSHA256===cardputerAdvRadioWorkbenchSHA256,'QEMU CC1101 Cap example requires the reviewed original workbench BIN');
   return validateQemuProfile({...profile,capExample:example,...(peer?{capPeer:true}:{})});
+}
+
+export function resolveQemuSx1262Example(profile, example, firmwareInputSHA256) {
+  if (example===undefined) return profile;
+  check(firmwareInputSHA256===cardputerAdvRadioWorkbenchSHA256,
+    'QEMU SX1262 Cap example requires the reviewed original workbench BIN');
+  return validateQemuProfile({...profile,sx1262Example:example});
+}
+
+export function validSx1262PeerPacket(hex) {
+  return typeof hex==='string'&&/^(?:[0-9a-f]{2}){1,255}$/.test(hex);
+}
+
+export function qemuSx1262PeerStateQuery(profile) {
+  validateQemuProfile(profile);
+  check(cardputerSx1262Examples.has(profile.sx1262Example),'QEMU SX1262 peer is not admitted');
+  return {execute:'qom-get',arguments:{path:sx1262PeerPath,property:'state'}};
+}
+
+export function validateQemuSx1262PeerState(state) {
+  const counters=['commands','reset_edges','tx_sequence','rx_sequence','rx_bytes_read'];
+  const inRange=(value,max)=>Number.isInteger(value)&&value>=0&&value<=max;
+  check(state&&Object.keys(state).length===11
+    &&counters.every(field=>Number.isSafeInteger(state[field])&&state[field]>=0)
+    &&inRange(state.frequency_word,0xffffffff)&&inRange(state.irq_status,0xffff)
+    &&['receiving','busy','dio1'].every(field=>typeof state[field]==='boolean')
+    &&(state.tx_hex===''||validSx1262PeerPacket(state.tx_hex)),'Invalid QEMU SX1262 peer state');
+  return state;
+}
+
+export function qemuSx1262ReceiveArmed(state) {
+  const {receiving,busy,dio1,irq_status}=validateQemuSx1262PeerState(state);
+  return receiving&&!busy&&!dio1&&(irq_status&0x0002)===0;
 }
 
 export function validCc1101PeerFrame(frame) {
@@ -424,7 +484,7 @@ export function validateQemuCc1101PeerState(state) {
 
 /** A diagnostic override cannot inherit an admitted variant's execution flags. */
 export function clearQemuFirmwareExecutionBinding(profile) {
-  delete profile.capExample; delete profile.capPeer;
+  delete profile.capExample; delete profile.capPeer; delete profile.sx1262Example;
   delete profile.firmwareVariant; delete profile.oneInsnPerTb; delete profile.requiredRuntimePatch;
   if (profile.accelerator?.icountMaxPerCpuNs !== undefined) delete profile.accelerator.icountMaxPerCpuNs;
   // A publisher BIN with no app-ready marker must not retain a ready identity
@@ -521,6 +581,13 @@ export function buildQemuEfuse(profile) {
 /** Coordinates are already in the QEMU physical frame; do not rotate twice. */
 export function qemuInputCommand(profile, event) {
   validateQemuProfile(profile);
+  if (event?.type==='sx1262-peer-packet') {
+    check(cardputerSx1262Examples.has(profile.sx1262Example)&&profile.sx1262Example.endsWith('-rx'),
+      'QEMU SX1262 peer input is not admitted');
+    check(Object.keys(event).length===2&&validSx1262PeerPacket(event.packetHex),
+      'Invalid SX1262 peer packet');
+    return {execute:'qom-set',arguments:{path:sx1262PeerPath,property:'rx-packet',value:event.packetHex}};
+  }
   if (event?.type==='cc1101-peer-frame') {
     check(profile.capPeer===true&&profile.capExample==='cc1101-rf-rx','QEMU CC1101 peer input is not admitted');
     check(Object.keys(event).length===2&&Object.hasOwn(event,'frameHex')&&validCc1101PeerFrame(event.frameHex),

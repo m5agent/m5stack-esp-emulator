@@ -5,7 +5,9 @@ import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256,
   resolveQemuCapExample, validateQemuRuntimeRequirements, QEMU_CARDPUTER_CC1101_RUNTIME_PATCH, QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH,
-  qemuCc1101PeerStateQuery, validateQemuCc1101PeerState, qemuUsbSerialJtagAvailable, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
+  qemuCc1101PeerStateQuery, validateQemuCc1101PeerState, qemuUsbSerialJtagAvailable, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,
+  resolveQemuSx1262Example, supportsQemuSx1262Workbench, QEMU_CARDPUTER_SX1262_RUNTIME_PATCH,
+  qemuSx1262PeerStateQuery, validateQemuSx1262PeerState, qemuSx1262ReceiveArmed, validSx1262PeerPacket} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
 import {GNSS_EXAMPLE_ID,bindQemuGnssExample,qemuGnssFixBytes} from '../web/public-qemu-gnss-example.js';
@@ -85,6 +87,49 @@ const peerState={reset_epoch:1,marcstate:13,rx_armed:true,gdo0:false,tx_sequence
 assert.deepEqual(validateQemuCc1101PeerState(peerState),peerState);
 assert.throws(()=>validateQemuCc1101PeerState({...peerState,rx_accepted:-1}),/Invalid QEMU CC1101 peer state/);
 assert.throws(()=>validateQemuCc1101PeerState({...peerState,tx_fifo_hex:'0262'}),/Invalid QEMU CC1101 peer state/);
+const sxPatch=QEMU_CARDPUTER_SX1262_RUNTIME_PATCH;
+const sxInput={type:'sx1262-peer-packet',packetHex:'7761736d'};
+const sxSample={frequency_word:910163968,irq_status:0,commands:25,tx_sequence:0,busy:false,
+  tx_hex:'',dio1:false,receiving:true,rx_sequence:0,reset_edges:1,rx_bytes_read:0};
+assert.equal(resolveQemuSx1262Example(capBase,undefined,advWorkbenchSHA256),capBase);
+assert.ok(supportsQemuSx1262Workbench({deviceId:'cardputer-adv',firmwareSHA256:advWorkbenchSHA256}));
+assert.equal(supportsQemuSx1262Workbench({deviceId:'cores3',firmwareSHA256:advWorkbenchSHA256}),false);
+for(const variant of ['lora1262','lora868']){
+  for(const role of ['tx','rx']){
+    const id=`${variant}-rf-${role}`;
+    const sx=resolveQemuSx1262Example(capBase,id,advWorkbenchSHA256);
+    assert.equal(sx.sx1262Example,id);
+    assert.doesNotThrow(()=>validateQemuRuntimeRequirements(sx,{source:{patches:[...capBasePatches,sxPatch]}}));
+    for(const missingOrWrong of [[],[sxPatch,sxPatch],[{...sxPatch,sha256:'0'.repeat(64)}]])
+      assert.throws(()=>validateQemuRuntimeRequirements(sx,{source:{patches:[...capBasePatches,...missingOrWrong]}}),
+        /SX1262 Cap source patch/);
+    assert.deepEqual(qemuSx1262PeerStateQuery(sx),{execute:'qom-get',arguments:{path:'/machine/cardputer-adv-lora',property:'state'}});
+    if(role==='tx')assert.throws(()=>qemuInputCommand(sx,sxInput),/not admitted/);
+    else{
+      assert.deepEqual(qemuInputCommand(sx,sxInput),{execute:'qom-set',arguments:{
+        path:'/machine/cardputer-adv-lora',property:'rx-packet',value:'7761736d'}});
+      assert.throws(()=>qemuInputCommand(sx,{...sxInput,path:'/machine/other'}),/Invalid SX1262 peer packet/);
+      assert.throws(()=>qemuInputCommand(sx,{...sxInput,packetHex:'ab'.repeat(256)}),/Invalid SX1262 peer packet/);
+    }
+    assert.throws(()=>validateQemuBrowserProfiles({...registry,profiles:[sx]}),/must not attach a Cap example by default/);
+  }
+}
+assert.throws(()=>resolveQemuSx1262Example(capBase,'lora-rf-rx','0'.repeat(64)),/reviewed original workbench BIN/);
+assert.throws(()=>resolveQemuSx1262Example(capBase,'lora-rf-rx',advWorkbenchSHA256),/Invalid QEMU Cardputer-Adv SX1262/);
+assert.throws(()=>resolveQemuSx1262Example(pick('cores3'),'lora868-rf-rx',advWorkbenchSHA256),/Invalid QEMU Cardputer-Adv SX1262/);
+assert.throws(()=>resolveQemuSx1262Example(peerRx,'lora868-rf-rx',advWorkbenchSHA256),/mutually exclusive/);
+assert.throws(()=>resolveQemuSx1262Example(bindQemuGnssExample(capBase,GNSS_EXAMPLE_ID,advWorkbenchSHA256),
+  'lora868-rf-rx',advWorkbenchSHA256),/mutually exclusive/);
+assert.throws(()=>qemuSx1262PeerStateQuery(capBase),/not admitted/);
+assert.ok(validSx1262PeerPacket('00')&&validSx1262PeerPacket('ff'.repeat(255)));
+for(const hex of ['',null,'Aa','1',' g','ab'.repeat(256)])assert.equal(validSx1262PeerPacket(hex),false);
+assert.equal(validateQemuSx1262PeerState(sxSample),sxSample);
+assert.throws(()=>validateQemuSx1262PeerState({...sxSample,tx_hex:'AA'}),/Invalid QEMU SX1262 peer state/);
+assert.throws(()=>validateQemuSx1262PeerState({...sxSample,frequency_word:2**32}),/Invalid QEMU SX1262 peer state/);
+assert.throws(()=>validateQemuSx1262PeerState({...sxSample,reset_edges:-1}),/Invalid QEMU SX1262 peer state/);
+assert.equal(qemuSx1262ReceiveArmed(sxSample),true);
+for(const fields of [{busy:true},{dio1:true},{irq_status:2},{receiving:false}])
+  assert.equal(qemuSx1262ReceiveArmed({...sxSample,...fields}),false);
 // Board-wired physical controls must survive admission through both press and
 // release. These are independent board expectations, not a list inferred from
 // whichever controls happen to remain enabled in the registry under test.

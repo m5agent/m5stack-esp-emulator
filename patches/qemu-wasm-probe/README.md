@@ -592,3 +592,16 @@ The browser workbench offers separate TX and RX roles on the pinned UIFlow2
 example firmware. A same-origin tab pair transfers completed FIFO frames
 with one outstanding acknowledgement. This model does not measure RF
 behavior, propagation or signal quality.
+
+## Cardputer-ADV SX1262 LoRa Cap virtual peer (`0046`)
+
+The optional LoRa Cap routes SPI2 to the SX1262, RESET to GPIO3, DIO1
+to GPIO4, NSS to GPIO5 and BUSY to GPIO6. It exposes the completed TX
+FIFO and accepts a bounded packet into the RX FIFO while reception is
+armed. The guest reads the packet over SPI after the modeled DIO1
+interrupt. The original PaperMono model and the separate CC1101 routes
+retain their existing behavior.
+
+The browser can pair the original LoRa1262 or LoRa868 example roles
+over a local channel. Packet completion is virtual. This lane covers
+controller and application data.
