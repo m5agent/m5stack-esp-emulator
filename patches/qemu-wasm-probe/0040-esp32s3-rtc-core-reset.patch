@@ -1,0 +1,142 @@
+diff --git a/hw/misc/esp32s3_rtc_cntl.c b/hw/misc/esp32s3_rtc_cntl.c
+index df996ef..8c726e3 100644
+--- a/hw/misc/esp32s3_rtc_cntl.c
++++ b/hw/misc/esp32s3_rtc_cntl.c
+@@ -181,6 +181,15 @@ static void esp32s3_rtc_update_cpu_stall(Esp32s3RtcCntlState* s)
+     qemu_set_irq(s->cpu_stall_req[1], s->cpu_stall_state[1]);
+ }
+ 
++void esp32s3_rtc_clear_software_stalls(Esp32s3RtcCntlState *s)
++{
++    s->options0_reg &= ~(R_RTC_CNTL_OPTIONS0_SW_STALL_PROCPU_C0_MASK |
++                         R_RTC_CNTL_OPTIONS0_SW_STALL_APPCPU_C0_MASK);
++    s->sw_cpu_stall_reg &= ~(R_RTC_CNTL_SW_CPU_STALL_PROCPU_C1_MASK |
++                             R_RTC_CNTL_SW_CPU_STALL_APPCPU_C1_MASK);
++    esp32s3_rtc_update_cpu_stall(s);
++}
++
+ static void esp32s3_rtc_update_clk(Esp32s3RtcCntlState* s)
+ {
+     const uint32_t slowclk_freq[] = {150000, 32768, 8000000/256};
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 0462fab..d6e19ad 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -39,6 +39,8 @@
+ #include "sysemu/reset.h"
+ #include "sysemu/cpus.h"
+ #include "sysemu/runstate.h"
++#include "sysemu/runstate-action.h"
++#include "qapi/qapi-events-run-state.h"
+ #include "sysemu/blockdev.h"
+ #include "sysemu/block-backend.h"
+ #include "exec/exec-all.h"
+@@ -204,22 +206,37 @@ static void esp32s3_dig_reset(void *opaque, int n, int level)
+     }
+ }
+ 
+-static void esp32s3_cpu_reset(void* opaque, int n, int level)
++static void esp32s3_reset_core(XtensaCPU *cpu, bool static_vectors)
++{
++    xtensa_select_static_vectors(&cpu->env, static_vectors);
++    remove_cpu_watchpoints(cpu);
++    cpu_reset(CPU(cpu));
++}
++
++static void esp32s3_cpu_reset_work(CPUState *cpu, run_on_cpu_data data)
++{
++    esp32s3_reset_core(XTENSA_CPU(cpu), data.host_int);
++    /* PROCPU owns the boot console. Its reset starts a new console epoch. */
++    if (cpu->cpu_index == 0) {
++        qapi_event_send_reset(true, SHUTDOWN_CAUSE_GUEST_RESET);
++    }
++}
++
++static void esp32s3_cpu_reset(void *opaque, int n, int level)
+ {
+     Esp32s3SocState *s = ESP32S3_SOC(opaque);
+-    if (level) {
+-        if (n == 0) {
+-            s->requested_reset = ESP32S3_SOC_RESET_PROCPU;
+-            qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
+-        } else {
+-            /*
+-             * APPCPU is already spinning in the ROM mailbox loop.  ESP-IDF
+-             * pulses this reset before publishing the CPU1 entry point, so
+-             * resetting the whole machine here restarts CPU0.  Keeping CPU1
+-             * in its ROM wait state also preserves the mailbox hand-off.
+-             */
+-        }
++
++    if (!level) {
++        return;
++    }
++    if (n == 0 && reboot_action == REBOOT_ACTION_SHUTDOWN) {
++        qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++        return;
+     }
++    /* The writing CPU may still have restart work to finish. Apply the
++     * pulse at the target CPU's next execution boundary. */
++    async_run_on_cpu(CPU(&s->cpu[n]), esp32s3_cpu_reset_work,
++                     RUN_ON_CPU_HOST_INT(s->rtc_cntl.stat_vector_sel[n]));
+ }
+ 
+ static void esp32s3_soc_reset(DeviceState *dev)
+@@ -228,6 +245,9 @@ static void esp32s3_soc_reset(DeviceState *dev)
+     if (s->requested_reset == 0) {
+         s->requested_reset = ESP32S3_SOC_RESET_ALL;
+     }
++    if (s->requested_reset & ESP32S3_SOC_RESET_RTC) {
++        esp32s3_rtc_clear_software_stalls(&s->rtc_cntl);
++    }
+     if (s->requested_reset & ESP32S3_SOC_RESET_PERIPH) {
+         device_cold_reset(DEVICE(&s->intmatrix));
+         for (int i = 0; i < ESP32S3_UART_COUNT; ++i) {
+@@ -235,20 +255,27 @@ static void esp32s3_soc_reset(DeviceState *dev)
+         }
+     }
+     if (s->requested_reset & ESP32S3_SOC_RESET_PROCPU) {
+-        xtensa_select_static_vectors(&s->cpu[0].env, s->rtc_cntl.stat_vector_sel[0]);
+-        remove_cpu_watchpoints(&s->cpu[0]);
+-        cpu_reset(CPU(&s->cpu[0]));
++        esp32s3_reset_core(&s->cpu[0], s->rtc_cntl.stat_vector_sel[0]);
+     }
+     if (s->requested_reset & ESP32S3_SOC_RESET_APPCPU && (ESP32S3_CPU_COUNT > 1)) {
+-        xtensa_select_static_vectors(&s->cpu[1].env, s->rtc_cntl.stat_vector_sel[1]);
+-        remove_cpu_watchpoints(&s->cpu[1]);
+-        cpu_reset(CPU(&s->cpu[1]));
++        esp32s3_reset_core(&s->cpu[1], s->rtc_cntl.stat_vector_sel[1]);
+     }
+     s->requested_reset = 0;
+ }
+ 
+-static void esp32s3_cpu_stall(void* opaque, int n, int level)
++static void esp32s3_cpu_stall(void *opaque, int n, int level)
+ {
++    Esp32s3SocState *s = ESP32S3_SOC(opaque);
++    XtensaCPU *cpu = &s->cpu[n];
++
++    if (!!level == cpu->env.runstall) {
++        return;
++    }
++    if (!level) {
++        /* A release can arrive before the target consumes a pending halt. */
++        cpu_reset_interrupt(CPU(cpu), CPU_INTERRUPT_HALT);
++    }
++    xtensa_runstall(&cpu->env, level);
+ }
+ 
+ static void esp32s3_clk_update(void* opaque, int n, int level)
+diff --git a/include/hw/misc/esp32s3_rtc_cntl.h b/include/hw/misc/esp32s3_rtc_cntl.h
+index 45bd7e2..702ff33 100644
+--- a/include/hw/misc/esp32s3_rtc_cntl.h
++++ b/include/hw/misc/esp32s3_rtc_cntl.h
+@@ -86,6 +86,8 @@ typedef struct Esp32s3RtcCntlState {
+     bool stat_vector_sel[ESP32S3_CPU_COUNT];
+ } Esp32s3RtcCntlState;
+ 
++void esp32s3_rtc_clear_software_stalls(Esp32s3RtcCntlState *s);
++
+ REG32(RTC_CNTL_OPTIONS0, 0x00)
+     FIELD(RTC_CNTL_OPTIONS0, SW_SYS_RESET, 31, 1)
+     FIELD(RTC_CNTL_OPTIONS0, SW_PROCPU_RESET, 5, 1)

@@ -521,3 +521,15 @@ at `0x34` through the Cardputer-ADV's internal GPIO8/9 I²C bus.
 board wiring from native `0204`. The GPIO display probe reads the same panel
 identifier as hardware SPI. The TCA8418 responds to software I²C on the
 internal bus it shares with the hardware I²C controller.
+
+## ESP32-S3 RTC core reset and RUNSTALL (`0040`)
+
+RTC software reset pulses schedule work on the addressed Xtensa core. This
+lets ESP-IDF on CPU1 reset and stall CPU0, finish its restart sequence, release
+CPU0, and apply CPU1's own reset pulse. CPU0 announces each completed reset
+to the existing QMP console owner. CPU1 can reset independently during normal
+boot. Machine and digital reset retain their QEMU paths. A full reset clears
+software stall requests while retaining RTC scratch and reset-cause fields.
+
+The [CoreS3 browser workbench regression](../../tests/browser-qemu/uiflow_workbench/README.md)
+exercises software reset and the UIFlow2 task watchdog in the actual guest.

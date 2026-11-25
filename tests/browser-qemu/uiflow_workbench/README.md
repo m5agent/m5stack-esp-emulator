@@ -71,6 +71,14 @@ runs, UTF-8 printing and the multiline sum;
 the report preserves that narrower scope. Both modes require normal guest exit
 and independent CDP Worker disappearance before closing the browser context.
 
+Set `M5_UIFLOW_GUEST_RESET=software` or `M5_UIFLOW_GUEST_RESET=watchdog`
+to check a CoreS3 reset initiated by the guest. The software case submits
+`machine.reset()` through the actual editor. The watchdog case starts a
+UIFlow2 `hardware.WDT` and waits for the task watchdog to expire. Each case
+requires cancellation of the old editor program, a fresh READY on the same
+browser guest, successful execution in the new console epoch, and normal
+Worker cleanup. These checks can accompany the full or smoke editor case.
+
 Button behavior is tested separately by
 `platform/tests/test_public_qemu_buttons_guest.mjs`, using the original UIFlow
 Button API and actual public-model inputs. The programming tests do not grant
