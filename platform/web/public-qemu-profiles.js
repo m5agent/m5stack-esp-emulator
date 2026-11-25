@@ -43,6 +43,21 @@ export const QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH = Object.freeze({
   sha256:'730b55228fe499c0b64ee26cfb0bd880d99cd8a7bdc3950a125480be9fb56590',
 });
 export const QEMU_USB_SERIAL_JTAG_OUTPUT = '/bridge/usb-cdc.out';
+export const QEMU_CARDPUTER_CC1101_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-m5stack-peripherals/0165-cardputer-adv-explicit-caps.patch',
+  sha256:'994b286fe515fc394520867be6c56ff5e68b5ed592bdb26f264e31e8affcfdb8',
+});
+export const QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch',
+  sha256:'feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2',
+});
+const cardputerCc1101Examples = new Set(['cc1101-rf-tx','cc1101-rf-rx']);
+const cardputerCc1101WorkbenchSHA256 = 'b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+export function supportsQemuCc1101Workbench(profile) {
+  return profile?.deviceId==='cardputer-adv'
+    &&profile.firmwareSHA256===cardputerCc1101WorkbenchSHA256;
+}
+const cc1101PeerPath = '/machine/cc1101-peer';
 const QEMU_CARDPUTER_K132_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0034-cardputer-k132-board.patch',
   sha256:'6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af',
@@ -108,6 +123,19 @@ export function validateQemuRuntimeRequirements(profile, manifest) {
     const matches=Array.isArray(patches)?patches.filter(row=>row?.path===profile.requiredInputPatch.path):[];
     check(matches.length===1&&matches[0].sha256===profile.requiredInputPatch.sha256,
       'QEMU runtime lacks the physical input required source patch');
+  }
+  if (profile.capExample !== undefined) {
+    const patches=manifest?.source?.patches;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===QEMU_CARDPUTER_CC1101_RUNTIME_PATCH.path):[];
+    check(matches.length===1&&matches[0].sha256===QEMU_CARDPUTER_CC1101_RUNTIME_PATCH.sha256,
+      'QEMU runtime lacks the Cardputer-Adv CC1101 Cap source patch');
+  }
+  if (profile.capPeer === true) {
+    const patches=manifest?.source?.patches;
+    const patch=QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===patch.path):[];
+    check(matches.length===1&&matches[0].sha256===patch.sha256,
+      'QEMU runtime lacks the Cardputer-Adv CC1101 peer patch');
   }
   return profile;
 }
@@ -260,7 +288,10 @@ export function validateQemuProfile(profile) {
         && unit.visual_port === 'grove' && unit.initial?.motion === false, 'Unreviewed QEMU PIR wiring');
     }
   }
-  if (Object.hasOwn(profile, 'gnssExample')) validateQemuGnssExample(profile);
+  if (Object.hasOwn(profile, 'gnssExample')) {
+    check(!Object.hasOwn(profile,'capExample')&&!Object.hasOwn(profile,'capPeer'),'Cardputer-Adv Cap examples are mutually exclusive');
+    validateQemuGnssExample(profile);
+  }
   const reference = profile.reference;
   const url = new URL(reference?.url);
   check(reference?.kind === 'official-base' && url.protocol === 'https:' && url.hostname === 'm5burner-cdn.m5stack.com' && !url.username && !url.password && !url.search && !url.hash
@@ -299,6 +330,17 @@ export function validateQemuProfile(profile) {
       hashes.add(variant.firmwareSHA256);
     }
   }
+  if (profile.capExample !== undefined) {
+    check(cardputerCc1101Examples.has(profile.capExample)
+      && profile.deviceId==='cardputer-adv' && profile.board==='m5cardputeradv'
+      && profile.firmwareVariant?.firmwareSHA256===cardputerCc1101WorkbenchSHA256
+      && profile.oneInsnPerTb===true,
+    'Invalid QEMU Cardputer-Adv Cap example binding');
+  }
+  if (profile.capPeer !== undefined) {
+    check(profile.capPeer===true&&cardputerCc1101Examples.has(profile.capExample),
+      'Invalid QEMU Cardputer-Adv CC1101 peer binding');
+  }
   return profile;
 }
 
@@ -310,6 +352,7 @@ export function validateQemuBrowserProfiles(registry) {
     validateQemuProfile(profile);
     check(!Object.hasOwn(profile, 'unitExample'), 'QEMU Unit examples must bind to a verified runtime upload');
     check(!Object.hasOwn(profile, 'gnssExample'), 'QEMU GNSS examples must bind to a verified run');
+    check(profile.capExample===undefined,'QEMU browser registry must not attach a Cap example by default');
     check(!seen.has(profile.deviceId), 'Duplicate QEMU browser profile'); seen.add(profile.deviceId);
   }
   return registry;
@@ -333,6 +376,7 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
   validateQemuProfile(profile);
   check(identity.test(firmwareSHA256), 'Invalid QEMU firmware SHA256');
   const resolved = structuredClone(profile);
+  delete resolved.capExample; delete resolved.capPeer;
   delete resolved.firmwareVariant;
   delete resolved.oneInsnPerTb; delete resolved.requiredRuntimePatch;
   if (resolved.accelerator?.icountMaxPerCpuNs !== undefined) delete resolved.accelerator.icountMaxPerCpuNs;
@@ -348,8 +392,39 @@ export function resolveQemuFirmwareProfile(profile, firmwareSHA256) {
   return validateQemuProfile(resolved);
 }
 
+/** Select the Cap only for an explicit original RF example on its exact BIN. */
+export function resolveQemuCapExample(profile, example, firmwareInputSHA256, peer) {
+  if (example===undefined&&peer===undefined) return profile;
+  check(peer===undefined||peer===true,'Invalid QEMU Cardputer-Adv CC1101 peer option');
+  check(example!==undefined,'The QEMU CC1101 peer requires an explicit example');
+  check(firmwareInputSHA256===cardputerCc1101WorkbenchSHA256,'QEMU CC1101 Cap example requires the reviewed original workbench BIN');
+  return validateQemuProfile({...profile,capExample:example,...(peer?{capPeer:true}:{})});
+}
+
+export function validCc1101PeerFrame(frame) {
+  return typeof frame==='string'&&/^(?:[0-9a-f]{2}){2,64}$/.test(frame)
+    && parseInt(frame.slice(0,2),16)===frame.length/2-1;
+}
+
+export function qemuCc1101PeerStateQuery(profile) {
+  validateQemuProfile(profile);
+  check(profile.capPeer===true,'QEMU CC1101 peer is not admitted');
+  return {execute:'qom-get',arguments:{path:cc1101PeerPath,property:'state'}};
+}
+
+export function validateQemuCc1101PeerState(state) {
+  const counters=['reset_epoch','tx_sequence','rx_accepted','rx_interrupts','rx_fifo_bytes_read','rx_completed'];
+  check(state&&Object.keys(state).length===10&&counters.every(field=>Number.isSafeInteger(state[field])&&state[field]>=0)
+    && Number.isInteger(state.marcstate)&&state.marcstate>=0&&state.marcstate<=31
+    && typeof state.rx_armed==='boolean'&&typeof state.gdo0==='boolean'
+    && (state.tx_fifo_hex===''||validCc1101PeerFrame(state.tx_fifo_hex)),
+  'Invalid QEMU CC1101 peer state');
+  return state;
+}
+
 /** A diagnostic override cannot inherit an admitted variant's execution flags. */
 export function clearQemuFirmwareExecutionBinding(profile) {
+  delete profile.capExample; delete profile.capPeer;
   delete profile.firmwareVariant; delete profile.oneInsnPerTb; delete profile.requiredRuntimePatch;
   if (profile.accelerator?.icountMaxPerCpuNs !== undefined) delete profile.accelerator.icountMaxPerCpuNs;
   // A publisher BIN with no app-ready marker must not retain a ready identity
@@ -446,6 +521,12 @@ export function buildQemuEfuse(profile) {
 /** Coordinates are already in the QEMU physical frame; do not rotate twice. */
 export function qemuInputCommand(profile, event) {
   validateQemuProfile(profile);
+  if (event?.type==='cc1101-peer-frame') {
+    check(profile.capPeer===true&&profile.capExample==='cc1101-rf-rx','QEMU CC1101 peer input is not admitted');
+    check(Object.keys(event).length===2&&Object.hasOwn(event,'frameHex')&&validCc1101PeerFrame(event.frameHex),
+      'Invalid CC1101 peer FIFO frame');
+    return {execute:'qom-set',arguments:{path:cc1101PeerPath,property:'rx-frame-hex',value:event.frameHex}};
+  }
   const input = profile.inputs, {width, height} = profile.display || {};
   if (event?.type === 'reset') {
     check(input.reset === true && event.down === true && Object.keys(event).sort().join(',') === 'down,type', 'Hardware reset is not admitted');

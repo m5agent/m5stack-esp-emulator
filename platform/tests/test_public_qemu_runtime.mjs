@@ -247,6 +247,12 @@ try {
 
   const invalidCard=create({sdExamples:[{...example,bytes:1024}],downloadImpl:downloadWithCard});
   const priorFrames=frames.length;
+  const arbitraryCap=create();
+  const advCapFirmware=firmware(getQemuBrowserProfile('cardputer-adv',profiles));
+  await assert.rejects(arbitraryCap.runtime.start({device:'cardputer-adv',firmware:advCapFirmware,capExample:'cc1101-rf-tx'}),
+    /reviewed original workbench BIN/);
+  assert.equal(arbitraryCap.downloads.length,0);
+  assert.equal(frames.length,priorFrames,'an unrelated ADV upload must fail explicit Cap admission before creating a guest');
   await assert.rejects(invalidCard.runtime.start({device:'cores3',firmware:firmware()}),/示例 microSD/);
   assert.equal(frames.length,priorFrames,'a wrongly sized decompressed card cannot start a guest');
   const corruptCard=create({sdExamples:[{...example,gzip_sha256:'0'.repeat(64)}],downloadImpl:async(_url,config)=>{

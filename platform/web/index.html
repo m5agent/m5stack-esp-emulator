@@ -133,6 +133,16 @@
             <button class="secondary-button" id="browserGnssPositionB" type="button" disabled>地点 B</button>
             <output id="browserGnssState" aria-live="polite"></output>
           </div>
+          <div id="browserCc1101Panel" class="console-content" hidden>
+            <span>CC1101 Cap · <strong id="browserCc1101Role"></strong></span>
+            <p class="field-help">在同一工作台的另一标签页启动另一角色，两边输入相同配对码再连接。</p>
+            <label for="browserCc1101Code">配对码</label>
+            <input class="public-field" id="browserCc1101Code" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" />
+            <button class="secondary-button" id="browserCc1101NewCode" type="button">生成配对码</button>
+            <button class="secondary-button" id="browserCc1101Connect" type="button">连接</button>
+            <button class="text-button" id="browserCc1101Disconnect" type="button" disabled>断开</button>
+            <output id="browserCc1101State" aria-live="polite"></output>
+          </div>
           <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
           <p id="browserEvidenceStatus" class="field-help" role="status" data-testid="browser-evidence-status" data-evidence-state="unavailable" hidden></p>
           <section class="python-workbench" aria-labelledby="pythonHeading">
@@ -189,6 +199,8 @@ print("Hello, UIFlow!")
                 <option value="uiflow" selected>本地 MicroPython 编程</option>
                 <option value="cores3-display" hidden>CoreS3 绘图 · UIFlow2 v2.5.5</option>
                 <option value="cardputer-adv-cap-gnss" hidden>LoRa Cap 定位 · UIFlow2 v2.5.3</option>
+                <option value="cc1101-rf-tx" hidden>CC1101 Cap 发送端 · UIFlow2 v2.5.3</option>
+                <option value="cc1101-rf-rx" hidden>CC1101 Cap 接收端 · UIFlow2 v2.5.3</option>
                 <option value="uiflow-cloud" hidden>官方 UIFlow2 · 云端配对</option>
                 <option value="probe">屏幕与按键示例</option>
                 <option value="wallclock-candidate">正常速度（LVGL 调度候选修复）</option>

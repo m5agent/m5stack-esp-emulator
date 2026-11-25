@@ -1,6 +1,7 @@
 import {renderSerialChannelSelect} from './serial-channel-state.js';
 import {renderUIFlowCloudStatus} from './uiflow-cloud-status.js';
 import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles,getUIFlowWorkbenchExample,getUIFlowWorkbenchFirmware} from './public-uiflow-firmware.js';
+import {openQemuPeerPair,newQemuPeerCode} from './public-qemu-peer-pair.js';
 import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from './public-qemu-gnss-example.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
@@ -10,7 +11,7 @@ import {PublicDeviceService, deviceIdentityCapability} from './public-service.js
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
-import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget,supportsQemuCc1101Workbench,validCc1101PeerFrame} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
 import {qemuOnboardVisualCommands} from './public-qemu-frame.js';
 import {qemuServoVisualCommands,qemuServoDiagnostic} from './public-qemu-servo.js';
@@ -64,6 +65,19 @@ const source = () => document.querySelector('input[name="firmwareSource"]:checke
 const active = (run) => run && run === state.run && run.generation === state.runGeneration && !run.stopping;
 const drawingExampleId = 'cores3-display';
 const drawingExample = deviceId => getUIFlowWorkbenchExample(state.workbenchProfiles,deviceId,drawingExampleId);
+const cc1101Roles=new Map([['cc1101-rf-tx','tx'],['cc1101-rf-rx','rx']]);
+const cc1101Role=()=>cc1101Roles.get($('referenceExample').value);
+const cc1101RoleLabel=role=>role==='tx'?'发送端':'接收端';
+function cc1101Source(role) {
+  if(!['tx','rx'].includes(role))return null;
+  const row=state.config.browser_cc1101_examples?.[role];
+  return row?.path===`platform/runtime/qemu-probe/fixture/cc1101_cap_rf_${role}_example.py`
+    && /^[0-9a-f]{64}$/.test(row.sha256) && Number.isInteger(row.bytes) && row.bytes>0 && row.bytes<=8192 ? row : null;
+}
+function cc1101Available(profile,workbench,role) {
+  return state.config.browser_runtime_engine==='qemu-wasm'&&typeof BroadcastChannel==='function'&&profile?.deviceId==='cardputer-adv'
+    && supportsQemuCc1101Workbench(workbench)&&cc1101Source(role);
+}
 function message(id, text = '') {
   $(id).textContent = text;
   $(id).hidden = !text;
@@ -91,6 +105,9 @@ function reference(device = state.selected) {
   if ($('referenceExample').value===GNSS_EXAMPLE_ID)
     return profile&&supportsQemuGnssWorkbench(workbench) ? {name:'LoRa Cap 定位 · UIFlow2 v2.5.3',
       composedWorkbench:true,gnssExample:GNSS_EXAMPLE_ID,sha256:workbench.firmwareSHA256} : null;
+  const role=cc1101Role();
+  if(role)return cc1101Available(profile,workbench,role) ? {name:`CC1101 Cap ${cc1101RoleLabel(role)} · UIFlow2 v2.5.3`,
+    composedWorkbench:true,cc1101Role:role,sha256:workbench.firmwareSHA256} : null;
   if (lane(device)==='service' && serviceProgrammingDevice(device?.id) && $('referenceExample').value==='uiflow')
     return {name:`${device.name} · 本地 MicroPython 编程`,nativeWorkbench:true};
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · 本地 MicroPython 编程`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
@@ -138,6 +155,8 @@ function lane(device = state.selected) {
     &&browserProfile(device?.id)&&!selectedAttachments().length?'browser':null;
   if(source()==='reference'&&$('referenceExample').value===GNSS_EXAMPLE_ID&&mode!=='model')
     return mode!=='service'&&reference(device)?.gnssExample&&!selectedAttachments().length?'browser':null;
+  if(source()==='reference'&&cc1101Role()&&mode!=='model')
+    return mode!=='service'&&reference(device)?.cc1101Role&&!selectedAttachments().length?'browser':null;
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud' && mode!=='model')
     return mode!=='browser'&&serviceCloudStartup(device?.id)?'service':null;
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
@@ -240,6 +259,57 @@ function updateBrowserGnssExample(run) {
   $('browserGnssPositionB').disabled=locked;
   $('browserGnssState').textContent=live&&run.gnssEpoch===controller.consoleEpoch ? run.gnssMessage : '';
 }
+function closeBrowserCc1101(run) {
+  if(!run?.cc1101Pair)return;
+  const {connection}=run.cc1101Pair;
+  run.cc1101Pair=null;
+  connection?.close();
+  run.cc1101Message='';
+}
+function updateBrowserCc1101(run) {
+  const controller=active(run)&&run.cc1101Role?run.controller:null;
+  const live=controller?.profile?.capPeer&&['booting','running','paused'].includes(controller.status);
+  if(!live||run.cc1101Pair&&run.cc1101Pair.epoch!==controller.consoleEpoch)closeBrowserCc1101(run);
+  const ready=live&&controller.status==='running';
+  $('browserCc1101Panel').hidden=!live;
+  $('browserCc1101Role').textContent=live?cc1101RoleLabel(run.cc1101Role):'';
+  $('browserCc1101NewCode').disabled=$('browserCc1101Connect').disabled=!ready||!!run.cc1101Pair;
+  $('browserCc1101Code').disabled=!ready||!!run.cc1101Pair;
+  $('browserCc1101Disconnect').disabled=!run?.cc1101Pair;
+  $('browserCc1101State').textContent=live?run.cc1101Message||'':'';
+}
+function connectBrowserCc1101(){
+  const run=state.run,controller=run?.controller;
+  if(!active(run)||run.cc1101Pair||!controller.profile?.capPeer||controller.status!=='running')return;
+  const pair={epoch:controller.consoleEpoch};
+  run.cc1101Pair=pair;
+  const labels={waiting:'等待另一标签页…',paired:'已配对',disconnected:'配对已断开',
+    timeout:'接收端未确认，请重新配对。',unavailable:'无法读取 CC1101，请重新启动。',
+    'receiver-rejected':'接收端暂未就绪。'};
+  try{
+    pair.connection=openQemuPeerPair({
+      protocol:'cc1101',role:run.cc1101Role,code:$('browserCc1101Code').value,scope:root.pathname,
+      canUse:()=>active(run)&&run.cc1101Pair===pair&&controller.status==='running'&&controller.consoleEpoch===pair.epoch,
+      readState:async()=>{
+        const model=await controller.readCc1101PeerState();
+        return run.cc1101Role==='rx' ? {epoch:model.reset_epoch,armed:model.rx_armed} :
+          {epoch:model.reset_epoch,sequence:model.tx_sequence,frameHex:model.tx_fifo_hex};
+      },
+      validateFrame:validCc1101PeerFrame,
+      receiveFrame:frameHex=>controller.input({type:'cc1101-peer-frame',frameHex}),
+      onStatus:({state:phase,accepted})=>{
+        if(!active(run)||run.cc1101Pair!==pair)return;
+        if(['disconnected','timeout','unavailable'].includes(phase))run.cc1101Pair=null;
+        run.cc1101Message=accepted?`${labels[phase]} · 已转交 ${accepted} 帧`:labels[phase];
+        updateBrowserCc1101(run);
+      },
+    });
+  }catch(cause){
+    run.cc1101Pair=null;
+    run.cc1101Message=cause.message;
+    updateBrowserCc1101(run);
+  }
+}
 function status(status, detail, session = state.run?.controller?.current) {
   const labels = {
     loading: '正在加载固件',
@@ -267,6 +337,7 @@ function status(status, detail, session = state.run?.controller?.current) {
   $('browserPir').disabled = status !== 'running';
   updateBrowserUnitExample(state.run);
   updateBrowserGnssExample(state.run);
+  updateBrowserCc1101(state.run);
   updateBrowserEvidence();
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : state.run?.owned===false ? '停止查看' : '停止';
@@ -315,7 +386,9 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   const replace=pythonBusy&&run.python.canReplace===true&&run.pythonPhase==='running';
   $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy&&!replace;
   const exampleButton=$('loadWorkbenchExampleBtn');
-  exampleButton.hidden=!(programming&&receipt.uiflowWorkbench.exampleId===drawingExampleId);
+  const hasCc1101=!!run?.cc1101Role&&run.controller.profile?.capPeer&&cc1101Source(run.cc1101Role);
+  exampleButton.hidden=!(programming&&receipt.uiflowWorkbench.exampleId===drawingExampleId||hasCc1101);
+  exampleButton.textContent=hasCc1101?'载入 CC1101 官方例程':'载入绘图例程';
   exampleButton.disabled=currentStatus!=='running'||busy;
   $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running'||run.python?.canInterrupt===false;
   $('pythonInterruptBtn').title=run?.python?.canInterrupt===false?'此旧会话不提供中断；新建 UIFlow 编程环境可使用中断。':'';
@@ -335,19 +408,19 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
 async function loadWorkbenchExample() {
   const run=state.run,button=$('loadWorkbenchExampleBtn');
   if(!active(run)||button.hidden||button.disabled)return;
-  const example=drawingExample(run.controller.receipt.deviceId);
-  if(!example)return;
-  const editor=$('pythonSource'), previous=editor.value;
+  const exampleSource=cc1101Source(run.cc1101Role)||drawingExample(run.controller.receipt.deviceId)?.source;
+  if(!exampleSource)return;
+  const editor=$('pythonSource'), previous=editor.value, epoch=run.controller.consoleEpoch;
   run.loadingExample=true;
   const signal=state.abort?.signal;
   let failure;
   updatePythonControls();
   try {
-    const {path,sha256,bytes}=example.source;
+    const {path,sha256,bytes}=exampleSource;
     const url=assetUrl('platform/runtime/qemu-probe/fixture/'+path.split('/').at(-1),root);
     const asset=await loadVerifiedRuntimeAsset(url,{signal,expectedSha256:sha256,expectedBytes:bytes,maxBytes:bytes});
-    if(!active(run)||signal?.aborted)return;
-    if(editor.value!==previous)throw new Error('编辑器内容已变化，请再次载入绘图例程。');
+    if(!active(run)||signal?.aborted||run.controller.consoleEpoch!==epoch)return;
+    if(editor.value!==previous)throw new Error('编辑器内容已变化，请再次载入例程。');
     editor.value=new TextDecoder('utf-8',{fatal:true}).decode(asset.bytes);
     editor.focus();
   } catch(cause) {
@@ -435,6 +508,10 @@ function updateCapability() {
     $('capabilityTitle').textContent='LoRa Cap 定位例程需要浏览器运行';
     $('capabilityText').textContent='请选择浏览器运行，再载入官方 GPS 例程。';
   }
+  if(source()==='reference'&&cc1101Role()&&mode==='service'){
+    $('capabilityTitle').textContent='CC1101 配对需要浏览器运行';
+    $('capabilityText').textContent='请选择浏览器运行，并在另一标签页启动另一角色。';
+  }
   if (selectedAttachments().length && !['service','model'].includes(selectedLane)) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
@@ -517,7 +594,8 @@ function renderDetails() {
   for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
     ? !serviceCloudStartup() : option.value===drawingExampleId
       ? !profile||!drawingExample(device?.id) : option.value===GNSS_EXAMPLE_ID
-        ? !profile||!supportsQemuGnssWorkbench(workbench) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
+        ? !profile||!supportsQemuGnssWorkbench(workbench) : cc1101Roles.has(option.value)
+          ? !cc1101Available(profile,workbench,cc1101Roles.get(option.value)) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
   $('referenceDescription').textContent = ref?.nativeCloud
     ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
@@ -527,6 +605,8 @@ function renderDetails() {
     ? '启动后载入官方绘图例程，运行代码查看图形与二维码。'
     : ref?.gnssExample
     ? '载入并运行官方 LoRa1262 或 LoRa868 GPS 例程后，点击地点 A 或 B 模拟定位。'
+    : ref?.cc1101Role
+    ? '运行官方例程，在同一工作台的另一标签页启动另一角色，再使用相同配对码连接。'
     : ref?.composedWorkbench
     ? '官方 UIFlow2 运行时配网页编程启动脚本，就绪后可在下方运行 MicroPython；不运行官方云端配对界面。'
     : ref?.wallclockCandidate
@@ -700,7 +780,7 @@ async function deliverInput(command, original = {}) {
   try {
     if (run.kind === 'browser') {
       if (command.type==='touch' && run.controller instanceof PublicQemuRuntime && !run.controller.profile?.inputs.touch) return;
-      if (command.type === 'reset') await releaseInputs(run);
+      if (command.type === 'reset') {closeBrowserCc1101(run);await releaseInputs(run);}
       if (command.type === 'capacitive-touch') {
         const key = `capacitive-touch-${command.zone}`;
         if (command.down) state.holds.set(key, command);
@@ -754,6 +834,7 @@ async function stopRun() {
     updateCapability();
     return;
   }
+  closeBrowserCc1101(run);
   run.stopping = true;
   run.stopGeneration = generation;
   state.busy = true;
@@ -1019,7 +1100,7 @@ async function startRun() {
     if (generation !== state.runGeneration || selection !== state.selection) return;
     clearBrowserOutputs(browserProfile(state.selected.id));
     message('runProgress', nativeCloud ? '正在启动官方 UIFlow2，联网与配对进度请查看设备屏幕…' : nativeWorkbench ? '正在启动本地 MicroPython 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
-    run = {kind, generation, controller: null,cloudStartup:!!nativeCloud};
+    run = {kind, generation, controller: null,cloudStartup:!!nativeCloud,cc1101Role:source()==='reference'?ref?.cc1101Role:undefined};
     const callbacks = {
       onSerial: (text) => {
         if (active(run)&&!(run.controller instanceof PublicQemuRuntime&&run.controller.receipt?.usbSerialJtag)) appendSerial(text);
@@ -1063,7 +1144,8 @@ async function startRun() {
       state.run = run;
       state.shell?.focusInput?.();
       const gnssOptions=source()==='reference'&&ref?.gnssExample?{gnssExample:ref.gnssExample}:{};
-      await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal,...gnssOptions});
+      const cc1101Options=run.cc1101Role?{capExample:`cc1101-rf-${run.cc1101Role}`,capPeer:true}:{};
+      await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal,...gnssOptions,...cc1101Options});
     } else {
       const imported = nativeWorkbench||nativeCloud ? null : await state.service.importFirmware(
         new File([loaded.bytes], loaded.name, {type: 'application/octet-stream'}),
@@ -1384,8 +1466,8 @@ async function share() {
         firmware: firmwareUrl,
         sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference'&&!ref?.nativeCloud ? ref?.sha256 : null),
         serviceUrl: $('serviceUrl').value.trim(),
-        mode: selectedSource==='reference'&&(ref?.exampleId||ref?.gnssExample)&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
-        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&(ref?.nativeCloud||ref?.gnssExample)),
+        mode: selectedSource==='reference'&&(ref?.exampleId||ref?.gnssExample||ref?.cc1101Role)&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
+        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&(ref?.nativeCloud||ref?.gnssExample||ref?.cc1101Role)),
       },
       new URL(root),
     );
@@ -1396,6 +1478,8 @@ async function share() {
           ? '已复制设备链接。连接支持云端配对的服务后，可启动官方 UIFlow2。'
           : selectedSource === 'reference'&&ref?.gnssExample
           ? '已复制设备和固件链接。打开后选择「LoRa Cap 定位」。'
+          : selectedSource === 'reference'&&ref?.cc1101Role
+          ? '已复制工作台链接。打开后选择 CC1101 角色，并输入当前配对码。'
           : selectedSource === 'local'
           ? '已复制设备链接。本地文件需由对方重新选择。'
           : '已复制链接，打开即可加载对应设备与固件。';
@@ -1594,6 +1678,15 @@ $('pauseBtn').addEventListener('click', async () => {
 $('firmwareFile').addEventListener('change', updateFirmwareSelection);
 $('pythonRunBtn').addEventListener('click',()=>void runPython());
 $('loadWorkbenchExampleBtn').addEventListener('click',loadWorkbenchExample);
+$('browserCc1101NewCode').addEventListener('click',()=>{
+  $('browserCc1101Code').value=newQemuPeerCode();
+  $('browserCc1101Code').select();
+});
+$('browserCc1101Connect').addEventListener('click',connectBrowserCc1101);
+$('browserCc1101Disconnect').addEventListener('click',()=>{
+  closeBrowserCc1101(state.run);
+  updateBrowserCc1101(state.run);
+});
 $('pythonInterruptBtn').addEventListener('click',async()=>{
   const run=state.run;
   try{await run?.python?.interrupt();if(active(run))$('pythonStatus').textContent='正在中断…';}catch(cause){error(cause);}
@@ -1735,6 +1828,7 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
 window.addEventListener('blur', () => void releaseInputs());
 window.addEventListener('pagehide', () => {
   state.selection++;
+  closeBrowserCc1101(state.run);
   disposeUnitPreview();
   state.abort?.abort();
   state.run?.controller.stop();

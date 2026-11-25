@@ -4,7 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile, validateQemuFirmware,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256,
-  qemuUsbSerialJtagAvailable, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
+  resolveQemuCapExample, validateQemuRuntimeRequirements, QEMU_CARDPUTER_CC1101_RUNTIME_PATCH, QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH,
+  qemuCc1101PeerStateQuery, validateQemuCc1101PeerState, qemuUsbSerialJtagAvailable, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
 import {GNSS_EXAMPLE_ID,bindQemuGnssExample,qemuGnssFixBytes} from '../web/public-qemu-gnss-example.js';
@@ -44,6 +45,46 @@ for (const board of ['cores3','sticks3','cardputer','corematrix']) {
   assert.equal(qemuUsbSerialJtagAvailable(pick(board),[usbPatch]),false);
   assert.deepEqual(buildQemuArguments(pick(board),[usbPatch]),buildQemuArguments(pick(board)));
 }
+const advWorkbenchSHA256='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+const capBase=resolveQemuFirmwareProfile(pick('cardputer-adv'),advWorkbenchSHA256);
+const capBasePatches=[capBase.requiredInputPatch,capBase.requiredRuntimePatch];
+assert.equal(resolveQemuCapExample(capBase,undefined,advWorkbenchSHA256),capBase);
+assert.equal(capBase.capExample,undefined,'the same ordinary ADV workbench stays bare');
+assert.doesNotThrow(()=>validateQemuRuntimeRequirements(capBase,{source:{patches:capBasePatches}}));
+for (const example of ['cc1101-rf-tx','cc1101-rf-rx']) {
+  const selected=resolveQemuCapExample(capBase,example,advWorkbenchSHA256);
+  assert.deepEqual(selected,{...capBase,capExample:example});
+  const patch=QEMU_CARDPUTER_CC1101_RUNTIME_PATCH;
+  assert.doesNotThrow(()=>validateQemuRuntimeRequirements(selected,{source:{patches:[...capBasePatches,patch]}}));
+  for (const extra of [[],[{...patch,sha256:'0'.repeat(64)}],[patch,patch]]) {
+    assert.throws(()=>validateQemuRuntimeRequirements(selected,{source:{patches:[...capBasePatches,...extra]}}),/CC1101 Cap source patch/);
+  }
+  assert.throws(()=>resolveQemuCapExample(capBase,example,'0'.repeat(64)),/reviewed original workbench BIN/);
+  assert.throws(()=>resolveQemuCapExample(pick('cores3'),example,advWorkbenchSHA256),/Invalid QEMU Cardputer-Adv Cap/);
+}
+assert.throws(()=>resolveQemuCapExample(capBase,'cc1101-nfc',advWorkbenchSHA256),/Invalid QEMU Cardputer-Adv Cap/);
+assert.throws(()=>validateQemuBrowserProfiles({...registry,profiles:[{...capBase,capExample:'cc1101-rf-rx'}]}),/must not attach a Cap/);
+const peerRx=resolveQemuCapExample(capBase,'cc1101-rf-rx',advWorkbenchSHA256,true);
+const peerTx=resolveQemuCapExample(capBase,'cc1101-rf-tx',advWorkbenchSHA256,true);
+assert.throws(()=>validateQemuProfile({...peerRx,gnssExample:'cardputer-adv-cap-gnss'}),/mutually exclusive/);
+const peerPatches=[...capBasePatches,QEMU_CARDPUTER_CC1101_RUNTIME_PATCH];
+assert.throws(()=>validateQemuRuntimeRequirements(peerRx,{source:{patches:peerPatches}}),/peer patch/);
+assert.doesNotThrow(()=>validateQemuRuntimeRequirements(peerRx,{source:{patches:[...peerPatches,QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH]}}));
+assert.throws(()=>resolveQemuCapExample(capBase,undefined,advWorkbenchSHA256,true),/requires an explicit example/);
+assert.throws(()=>qemuCc1101PeerStateQuery(capBase),/peer is not admitted/);
+assert.deepEqual(qemuCc1101PeerStateQuery(peerTx),{execute:'qom-get',arguments:{path:'/machine/cc1101-peer',property:'state'}});
+const receive={type:'cc1101-peer-frame',frameHex:'0162'};
+assert.deepEqual(qemuInputCommand(peerRx,receive),{execute:'qom-set',arguments:{path:'/machine/cc1101-peer',property:'rx-frame-hex',value:'0162'}});
+assert.throws(()=>qemuInputCommand(peerTx,receive),/peer input is not admitted/);
+for(const test of [{...receive,path:'/machine/other'},{...receive,frameHex:'0262'},{...receive,frameHex:'016g'},
+  {...receive,frameHex:'40'+'00'.repeat(64)}]) {
+  assert.throws(()=>qemuInputCommand(peerRx,test),/Invalid CC1101 peer FIFO frame/);
+}
+const peerState={reset_epoch:1,marcstate:13,rx_armed:true,gdo0:false,tx_sequence:0,tx_fifo_hex:'',
+  rx_accepted:0,rx_interrupts:0,rx_fifo_bytes_read:0,rx_completed:0};
+assert.deepEqual(validateQemuCc1101PeerState(peerState),peerState);
+assert.throws(()=>validateQemuCc1101PeerState({...peerState,rx_accepted:-1}),/Invalid QEMU CC1101 peer state/);
+assert.throws(()=>validateQemuCc1101PeerState({...peerState,tx_fifo_hex:'0262'}),/Invalid QEMU CC1101 peer state/);
 // Board-wired physical controls must survive admission through both press and
 // release. These are independent board expectations, not a list inferred from
 // whichever controls happen to remain enabled in the registry under test.

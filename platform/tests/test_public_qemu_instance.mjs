@@ -2,8 +2,10 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,qemuUsbSerialJtagAvailable,
-  QEMU_USB_SERIAL_JTAG_OUTPUT,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+import {validateQemuProfile, validateQemuRuntimeRequirements, buildQemuArguments, buildQemuEfuse, qemuInputCommand,
+  getQemuBrowserProfile, qemuUsbSerialJtagAvailable, QEMU_USB_SERIAL_JTAG_OUTPUT, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,
+  QEMU_CARDPUTER_BOOT_RUNTIME_PATCH, resolveQemuCapExample, resolveQemuFirmwareProfile, QEMU_CARDPUTER_CC1101_RUNTIME_PATCH,
+  QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH, qemuCc1101PeerStateQuery, validateQemuCc1101PeerState} from '../web/public-qemu-profiles.js';
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
@@ -31,6 +33,7 @@ const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
   qemuUnitExampleQueries,validateQemuUnitExampleState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
+  qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -75,6 +78,8 @@ assert.match(one.messages.at(-1).error,/not admitted/);
 assert.equal(vm.runInContext("module.FS.devices['/bridge/usb-cdc.out']",context),undefined);
 assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8');
 assert.equal(vm.runInContext('module.ENV.M5_WASM_FRAMEBUFFER',context),'0');
+assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101',context),undefined);
+assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER',context),undefined);
 assert.equal(vm.runInContext(`module.FS.files.get('/rom/${profile.roms[0].name}').byteLength`,context),profile.roms[0].bytes);
 assert.equal(vm.runInContext("module.FS.files.get('/efuse.bin').byteLength",context),4096);
 assert.equal(vm.runInContext('module.ENV.M5SW_SPI_SD_IMAGE',context),'/sd-card.img');
@@ -327,19 +332,25 @@ process.on('unhandledRejection',onRaceUnhandled);
 try {
   const raceContext=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
+    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
+    qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
   const racePort={messages:[],closed:false,start(){this.started=true;},close(){this.closed=true;raceLifecycle.push('port-closed');},
     postMessage(value){this.messages.push(value);if(value.id===302)raceLifecycle.push('dispose-ack');}};
   raceCallbacks.get('message')({data:{type:'m5-qemu-engine-connect'},ports:[racePort]});
-  const adv=getQemuBrowserProfile('cardputer-adv',registry);
+  const advSHA256='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+  const adv=resolveQemuFirmwareProfile(getQemuBrowserProfile('cardputer-adv',registry),advSHA256);
+  const cap=resolveQemuCapExample(adv,'cc1101-rf-rx',advSHA256,true);
   await racePort.onmessage({data:{id:300,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),
-    javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile:adv,frameTransport:'qmp-screendump',
-    runtimePatches:[QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH],
-    roms:adv.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
+    javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile:cap,frameTransport:'qmp-screendump',
+    runtimePatches:[cap.requiredInputPatch,cap.requiredRuntimePatch,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,QEMU_CARDPUTER_CC1101_RUNTIME_PATCH,
+      QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH],
+    roms:cap.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
   assert.equal(racePort.messages.at(-1).id,300);assert.equal(racePort.messages.at(-1).error,undefined);
+  assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101',raceContext),'1');
+  assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER',raceContext),'1');
   const raceCommands=()=>JSON.parse(vm.runInContext("JSON.stringify(new TextDecoder().decode(new Uint8Array(qmpInput.splice(0))).trim().split('\\n').filter(Boolean).map(line=>JSON.parse(line)))",raceContext));
   const raceRespond=(command,value)=>vm.runInContext(`output(${JSON.stringify(JSON.stringify({return:value,id:command.id})+'\n')})`,raceContext);
   vm.runInContext(`
@@ -358,6 +369,21 @@ try {
     .map(property=>({execute:'qom-get',path:'/machine/soc/jtag',property})));
   raceRespond(reads[0],4);raceRespond(reads[1],1);await observation;
   assert.deepEqual(JSON.parse(JSON.stringify(racePort.messages.at(-1).value)),{consoleEpoch:0,txBytes:4,txPackets:1});
+  await racePort.onmessage({data:{id:309,op:'cc1101-peer-state',value:{path:'/machine/other'}}});
+  assert.match(racePort.messages.at(-1).error,/no caller path or property/);
+  assert.equal(raceCommands().length,0);
+  const peerRead=racePort.onmessage({data:{id:310,op:'cc1101-peer-state'}});
+  const [peerQuery]=raceCommands();
+  assert.deepEqual(peerQuery.arguments,{path:'/machine/cc1101-peer',property:'state'});
+  const samplePeer={reset_epoch:1,marcstate:13,rx_armed:true,gdo0:false,tx_sequence:0,tx_fifo_hex:'',
+    rx_accepted:0,rx_interrupts:0,rx_fifo_bytes_read:0,rx_completed:0};
+  raceRespond(peerQuery,samplePeer);await peerRead;
+  assert.deepEqual(racePort.messages.at(-1).value,samplePeer);
+  const peerSend=racePort.onmessage({data:{id:311,op:'input',value:{type:'cc1101-peer-frame',frameHex:'0162'}}});
+  const [peerSet]=raceCommands();
+  assert.equal(peerSet.execute,'qom-set');
+  assert.deepEqual(peerSet.arguments,{path:'/machine/cc1101-peer',property:'rx-frame-hex',value:'0162'});
+  raceRespond(peerSet,{});await peerSend;
   vm.runInContext(`output(${JSON.stringify(JSON.stringify({QMP:{version:{},capabilities:[]}})+'\n')})`,raceContext);
   const raceCapability=raceCommands();assert.equal(raceCapability.length,1);assert.equal(raceCapability[0].execute,'qmp_capabilities');
   raceRespond(raceCapability[0],{});await tick();

@@ -1,5 +1,5 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
-import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT} from './public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,qemuCc1101PeerStateQuery,validateQemuCc1101PeerState} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
 import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
@@ -192,6 +192,8 @@ async function start(config) {
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
+      if(boardProfile.capExample)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101='1';
+      if(boardProfile.capPeer===true)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER='1';
       if(sdCard) {
         m.FS.writeFile('/sd-card.img',new Uint8Array(sdCard),{canOwn:true});
         m.ENV.M5SW_SPI_SD_IMAGE='/sd-card.img';
@@ -348,6 +350,15 @@ async function request(op, value) {
     if (closed || disposeRequested || consoleEpoch!==resetEpoch) throw new Error('USB Serial/JTAG observation expired');
     if (![txBytes,txPackets].every(value=>Number.isSafeInteger(value)&&value>=0)) throw new Error('Invalid USB Serial/JTAG controller counters');
     return {consoleEpoch,txBytes,txPackets};
+  }
+  if (op === 'cc1101-peer-state') {
+    if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length))
+      throw new Error('QEMU CC1101 peer reads accept no caller path or property');
+    const epoch=resetEpoch;
+    const command=qemuCc1101PeerStateQuery(boardProfile);
+    const observed=await qmp(command.execute,command.arguments);
+    if(epoch!==resetEpoch||closed||disposeRequested)throw new Error('QEMU CC1101 peer session changed');
+    return validateQemuCc1101PeerState(observed);
   }
   if (op === 'display') {
     // Only Cardputer's admitted native-glass presentation uses this QOM
