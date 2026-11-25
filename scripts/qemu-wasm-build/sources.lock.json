@@ -175,7 +175,7 @@
     "hw/m5stopwatch/m5_epd_panel.c": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
     "hw/m5stopwatch/m5_i2s.c": "99f5893d000255d7139d893c49fed5841964b2680d664e77cba7172d1e16fe87",
     "hw/m5stopwatch/m5_i2s_esp32.c": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
-    "hw/m5stopwatch/m5_lcd_cam.c": "45e8d6e9eacd5e5a9a6f9df9d43c4bfd5495a16de4e74dab3fd67166cd5b3a61",
+    "hw/m5stopwatch/m5_lcd_cam.c": "b75a0d06ea1cd0a790892a6ece4f4e2c022336093cc7700d9aa51a9d3edf9557",
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
@@ -648,6 +648,10 @@
     {
       "path": "patches/qemu-wasm-probe/0042-cores3-rtc-pmic-wakeup.patch",
       "sha256": "75611938089cdcf21ecb4991b7ccb179f3bfd7c6e610321857194abba455313d"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0043-lcd-cam-pace-dvp-records.patch",
+      "sha256": "13b36b85ba9c5aa9be9449d9af32bec66a8990af8087991b750f6789e8268971"
     }
   ],
   "qemu": {
