@@ -248,6 +248,40 @@ def stage_qemu_sd_media(directory: Path, runtime_directory: Path, registry: dict
     return [bindings[key] for key in sorted(bindings)]
 
 
+def stage_uiflow_workbench_examples(root: Path, output: Path, workbench: dict,
+                                  selected_devices: set[str]) -> None:
+    if "examples" not in workbench:
+        return
+    examples = workbench["examples"]
+    if not isinstance(examples, list) or len(examples) > 1:
+        raise ValueError("invalid UIFlow workbench examples")
+    if not examples:
+        return
+    example = examples[0]
+    source = Path("tests/browser-qemu/uiflow_workbench/cores3_display_example.py")
+    if (not isinstance(example, dict) or example.get("id") != "cores3-display"
+            or example.get("deviceId") != "cores3" or example.get("version") != "2.5.5"):
+        raise ValueError("unknown UIFlow workbench example")
+    identity = example.get("source")
+    if (not isinstance(identity, dict) or set(identity) != {"path", "bytes", "sha256"}
+            or identity["path"] != source.as_posix() or type(identity["bytes"]) is not int
+            or not isinstance(identity["sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", identity["sha256"])):
+        raise ValueError("invalid UIFlow workbench example source")
+    if example["deviceId"] not in selected_devices:
+        workbench["examples"] = []
+        return
+    source_file = root / source
+    if source_file.resolve() != source_file or not source_file.is_file():
+        raise ValueError("UIFlow workbench example source is missing or a symlink")
+    content = source_file.read_bytes()
+    if len(content) != identity["bytes"] or hashlib.sha256(content).hexdigest() != identity["sha256"]:
+        raise ValueError("UIFlow workbench example source identity mismatch")
+    destination = output / "platform/runtime/qemu-probe/fixture" / source.name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(content)
+
+
 def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False) -> dict[str, bytes]:
     directory = directory.resolve()
     manifest = json.loads((directory / "manifest.json").read_text())
@@ -372,6 +406,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             selected_devices = {row["deviceId"] for row in registry["profiles"]}
             workbench["profiles"] = [row for row in workbench["profiles"]
                                      if row["deviceId"] in selected_devices]
+            stage_uiflow_workbench_examples(root, temporary, workbench, selected_devices)
             (temporary / workbench_path).write_bytes(encode_json(workbench))
             # Probe sources are text, not prebuilt or derived firmware. Copy
             # only sources selected by an explicit per-board fixture identity.

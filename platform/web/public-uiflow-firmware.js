@@ -15,6 +15,8 @@ const CONFIG = {block_size:4096, read_size:128, prog_size:32, lookahead_size:128
 const registryCache = new Map();
 const STARTUP_DIR = 'tests/browser-qemu/uiflow_workbench/';
 const CORE_S3_LVGL_SOURCE_PATH = 'tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py';
+const CORE_S3_DISPLAY_SOURCE_PATH = STARTUP_DIR + 'cores3_display_example.py';
+const OFFICIAL_BASE_URL = /^https:\/\/m5burner-cdn\.m5stack\.com\/community\/1\/\d+\/\d+\/bin\/\d+\.bin$/;
 const check = (ok, message) => { if (!ok) throw new Error(message); };
 const abort = signal => { if (signal?.aborted) throw signal.reason || new DOMException('Cancelled', 'AbortError'); };
 
@@ -52,6 +54,22 @@ export function validateUIFlowWorkbenchRegistry(registry) {
     }
     seen.add(row.deviceId);
   }
+  if (registry.examples !== undefined) {
+    check(Array.isArray(registry.examples) && registry.examples.length <= 1, 'Invalid UIFlow programming examples');
+    for (const example of registry.examples) {
+      const base = registry.profiles.find(row => row.deviceId === 'cores3');
+      check(example?.id === 'cores3-display' && example.deviceId === 'cores3' && example.version === '2.5.5'
+        && base && typeof example.baseUrl === 'string' && OFFICIAL_BASE_URL.test(example.baseUrl)
+        && HASH.test(example.baseSHA256) && example.baseSHA256 !== base.baseSHA256
+        && HASH.test(example.firmwareSHA256) && example.firmwareSHA256 !== base.firmwareSHA256
+        && Number.isSafeInteger(example.baseBytes) && example.baseBytes >= base.vfsOffset + base.vfsSize
+        && example.baseBytes <= base.flashBytes
+        && Number.isSafeInteger(example.baseFileCount) && example.baseFileCount >= 2
+        && example.source?.path === CORE_S3_DISPLAY_SOURCE_PATH && HASH.test(example.source.sha256)
+        && Number.isSafeInteger(example.source.bytes) && example.source.bytes > 0 && example.source.bytes <= 4096,
+      'Invalid UIFlow programming example identity');
+    }
+  }
   return registry;
 }
 
@@ -67,14 +85,36 @@ export async function loadUIFlowWorkbenchProfiles({root = siteRoot(), signal, fe
   return registry;
 }
 
-function boundWorkbench(profile, registry) {
+// Lookups also support browser modes launched without a workbench registry.
+export function getUIFlowWorkbenchExample(registry, deviceId, exampleId) {
+  const example = registry?.examples?.find(row => row.deviceId === deviceId && row.id === exampleId);
+  return example ? structuredClone(example) : null;
+}
+
+function exampleWorkbench(row, example) {
+  const {id:exampleId, version, baseUrl, baseSHA256, baseBytes, baseFileCount, firmwareSHA256, source} = example;
+  return {...row, exampleId, version, baseUrl, baseSHA256, baseBytes, baseFileCount, firmwareSHA256, source};
+}
+
+export function getUIFlowWorkbenchFirmware(registry, deviceId, firmwareSHA256) {
+  const row = registry?.profiles?.find(item => item.deviceId === deviceId);
+  if (!row) return null;
+  if (row.firmwareSHA256 === firmwareSHA256) return structuredClone(row);
+  const example = registry.examples?.find(item => item.deviceId === deviceId && item.firmwareSHA256 === firmwareSHA256);
+  return example ? structuredClone(exampleWorkbench(row, example)) : null;
+}
+
+function boundWorkbench(profile, registry, exampleId) {
   validateQemuProfile(profile); validateUIFlowWorkbenchRegistry(registry);
   const row = registry.profiles.find(item => item.deviceId === profile.deviceId);
   check(row && row.board === profile.board && row.chip === profile.chip && row.flashBytes === profile.flashMb * 1048576
     && row.baseSHA256 === profile.reference.sha256 && row.baseBytes === profile.reference.bytes
     && row.vfsOffset === profile.fixture.vfsOffset && row.vfsSize === profile.fixture.vfsSize,
   'This board has no matching UIFlow programming firmware');
-  return row;
+  if (exampleId === undefined) return row;
+  const example = registry.examples?.find(item => item.deviceId === row.deviceId && item.id === exampleId);
+  check(example, 'This board has no matching UIFlow programming example');
+  return exampleWorkbench(row, example);
 }
 
 /** Bind readiness to the exact composed programming image. An explicitly
@@ -83,13 +123,17 @@ function boundWorkbench(profile, registry) {
 export function resolveUIFlowWorkbenchProfile(profile, firmwareSHA256, registry) {
   validateQemuProfile(profile); validateUIFlowWorkbenchRegistry(registry);
   if (!registry.profiles.some(row => row.deviceId === profile.deviceId)) return structuredClone(profile);
-  const row = boundWorkbench(profile, registry);
+  const base = boundWorkbench(profile, registry);
+  const example = registry.examples?.find(row => row.deviceId === profile.deviceId && row.firmwareSHA256 === firmwareSHA256);
+  const row = example ? exampleWorkbench(base, example) : base;
   if (firmwareSHA256 !== row.firmwareSHA256) return structuredClone(profile);
   const variant = profile.firmwareVariant;
   check(variant ? variant.firmwareSHA256 === row.firmwareSHA256
     && variant.sourceSHA256 === row.files['main.py'].sha256 && variant.readyMarker === row.readyMarker
     && variant.fixture === 'uiflow-workbench-v1' && variant.sourceKind === undefined
-    : profile.oneInsnPerTb === undefined && profile.requiredRuntimePatch === undefined,
+    && (!example || (variant.clockDivisor === 1 && variant.oneInsnPerTb === true
+      && variant.schedulerCandidate === 'qemu-tci-mmio-blocks-v1'))
+    : !example && profile.oneInsnPerTb === undefined && profile.requiredRuntimePatch === undefined,
   'UIFlow programming firmware requires its exact workbench source, fixture and ready binding');
   const result = structuredClone(profile);
   result.readyMarker = UIFLOW_WORKBENCH_READY; result.readyFirmwareSHA256 = row.firmwareSHA256;
@@ -102,8 +146,8 @@ export function resolveUIFlowWorkbenchProfile(profile, firmwareSHA256, registry)
 
 /** Filesystem-only core, shared by the browser and reproducible WASM builder.
  * `engine` is the real source-built LittleFS module, never a guest interpreter. */
-export async function composeUIFlowWorkbenchImage({profile, registry, baseBytes, engine, signal, verifyResult = true}) {
-  abort(signal); const row = boundWorkbench(profile, registry);
+export async function composeUIFlowWorkbenchImage({profile, registry, baseBytes, engine, signal, verifyResult = true, exampleId}) {
+  abort(signal); const row = boundWorkbench(profile, registry, exampleId);
   const raw = baseBytes instanceof Uint8Array ? baseBytes : new Uint8Array(baseBytes);
   check(raw.length === row.baseBytes && await sha256Buffer(raw, {signal}) === row.baseSHA256, 'UIFlow official base SHA256 or size mismatch');
   const image = validateQemuFirmware(raw, profile), vfs = qemuProbeVfs(image, profile), allocations = [];
@@ -136,8 +180,9 @@ export async function composeUIFlowWorkbenchImage({profile, registry, baseBytes,
     const digest = await sha256Buffer(image, {signal});
     if (verifyResult) check(digest === row.firmwareSHA256, 'UIFlow composed firmware SHA256 mismatch');
     abort(signal);
-    return {bytes:image, sha256:digest, fileName:`${profile.deviceId}-uiflow-workbench.bin`,
+    return {bytes:image, sha256:digest, fileName:`${row.exampleId || profile.deviceId}-uiflow-workbench.bin`,
       provenance:{kind:'browser-local-uiflow-workbench', base_sha256:row.baseSHA256, firmware_sha256:digest,
+        ...(row.exampleId ? {example_id:row.exampleId, sdk_version:row.version} : {}),
         composer_commit:COMPOSER_COMMIT, source_readback_verified:true, outside_vfs_unchanged:true,
         preserved_file_count:row.baseFileCount - 2, disk_version_before:beforeVersion, disk_version_after:afterVersion,
         files:Object.fromEntries(Object.entries(row.files).map(([name, source]) => [name, source.sha256]))}};
@@ -148,11 +193,11 @@ export async function composeUIFlowWorkbenchImage({profile, registry, baseBytes,
 }
 
 export async function composeUIFlowWorkbenchFirmware({profile, deviceId = profile?.deviceId, root = siteRoot(),
-  signal, fetchImpl = globalThis.fetch, onProgress = () => {}, baseBytes, registry} = {}) {
+  signal, fetchImpl = globalThis.fetch, onProgress = () => {}, baseBytes, registry, exampleId} = {}) {
   abort(signal); onProgress({phase:'load-composer'});
   if (!profile) profile = getQemuBrowserProfile(deviceId, await loadQemuBrowserProfiles({root, signal, fetchImpl}));
   registry ||= await loadUIFlowWorkbenchProfiles({root, signal, fetchImpl});
-  const row = boundWorkbench(profile, registry), manifestURL = assetUrl('platform/runtime/littlefs/manifest.json', new URL(root));
+  const row = boundWorkbench(profile, registry, exampleId), manifestURL = assetUrl('platform/runtime/littlefs/manifest.json', new URL(root));
   const response = await fetchImpl(manifestURL, {signal, credentials:'omit', cache:'no-cache'});
   check(response.ok, `UIFlow composer manifest returned HTTP ${response.status}`);
   const manifest = await response.json();
@@ -170,14 +215,14 @@ export async function composeUIFlowWorkbenchFirmware({profile, deviceId = profil
     return new Uint8Array(result.bytes);
   };
   const [moduleBytes, wasm, raw] = await Promise.all([asset('module'), asset('wasm'), baseBytes !== undefined
-    ? Promise.resolve(baseBytes) : loadVerifiedRuntimeAsset(profile.reference.url, {signal, fetchImpl,
+    ? Promise.resolve(baseBytes) : loadVerifiedRuntimeAsset(row.baseUrl || profile.reference.url, {signal, fetchImpl,
       expectedSha256:row.baseSHA256, expectedBytes:row.baseBytes, maxBytes:row.baseBytes}).then(result => new Uint8Array(result.bytes))]);
   abort(signal); onProgress({phase:'compose'});
   const blob = URL.createObjectURL(new Blob([moduleBytes], {type:'text/javascript'}));
   try {
     const {default:factory} = await import(blob);
     const engine = await factory({wasmBinary:wasm, locateFile:name => new URL(name, manifestURL).href, print(){}, printErr(){}});
-    const result = await composeUIFlowWorkbenchImage({profile, registry, baseBytes:raw, engine, signal});
+    const result = await composeUIFlowWorkbenchImage({profile, registry, baseBytes:raw, engine, signal, exampleId});
     result.provenance.composer_wasm_sha256 = manifest.assets.wasm.sha256;
     onProgress({phase:'ready'}); return result;
   } finally { URL.revokeObjectURL(blob); }

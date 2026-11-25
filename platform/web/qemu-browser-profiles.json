@@ -727,6 +727,20 @@
             "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
             "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
           }
+        },
+        {
+          "firmwareSHA256": "565f1de9c87e8fe12f133e64ae6e3c6d32085c46e52269b864ea1cf4604f0927",
+          "profile": "cores3-wasm-docs-v255-lvgl-wallclock-candidate",
+          "clockDivisor": 1,
+          "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
+          "fixture": "uiflow-workbench-v1",
+          "sourceSHA256": "12ae78c798dc3f36d2e35d5a7927e403ff46131bd3437870552fa953476c6e06",
+          "schedulerCandidate": "qemu-tci-mmio-blocks-v1",
+          "oneInsnPerTb": true,
+          "requiredRuntimePatch": {
+            "path": "patches/qemu-wasm-probe/0027-gpio-bounded-transactions.patch",
+            "sha256": "43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf"
+          }
         }
       ]
     },

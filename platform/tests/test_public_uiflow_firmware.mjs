@@ -4,7 +4,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, resolveUIFlowWorkbenchProfile,
-  UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
+  getUIFlowWorkbenchExample, getUIFlowWorkbenchFirmware, UIFLOW_WORKBENCH_READY} from '../web/public-uiflow-firmware.js';
 import {validateQemuBrowserProfiles, resolveQemuFirmwareProfile, validateQemuRuntimeRequirements, buildQemuArguments,
   clearQemuFirmwareExecutionBinding, QEMU_ONE_INSN_RUNTIME_PATCH, QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {planPublicQemuGate, publicQemuGateChildEnvironment, validatePublicQemuGateResult, PUBLIC_QEMU_GATE_PHASES,
@@ -102,6 +102,56 @@ for (const row of registry.profiles) {
 }
 const cores3 = qemu.profiles.find(profile => profile.deviceId === 'cores3');
 const workbench = registry.profiles.find(row => row.deviceId === 'cores3');
+const displayExample = getUIFlowWorkbenchExample(registry,'cores3','cores3-display');
+assert.deepEqual(displayExample, {
+  id:'cores3-display', deviceId:'cores3', version:'2.5.5',
+  baseUrl:'https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2122962394541932546/bin/2122962394541932547.bin',
+  baseSHA256:'60441fe0dc16ab08865ad3cb4f83bd246a6efae61536103bd915109786bd3833',
+  baseBytes:16121856, baseFileCount:17, firmwareSHA256:'565f1de9c87e8fe12f133e64ae6e3c6d32085c46e52269b864ea1cf4604f0927',
+  source:{path:'tests/browser-qemu/uiflow_workbench/cores3_display_example.py', bytes:1729,
+    sha256:'03869b2d115675642900d900a9bc9c442a75a92b99db05883948876a22cbfe3d'},
+});
+const displaySource = await fs.readFile(path.join(root,displayExample.source.path));
+assert.equal(displaySource.byteLength,displayExample.source.bytes);
+assert.equal(sha(displaySource),displayExample.source.sha256);
+assert.equal(getUIFlowWorkbenchExample(registry,'cores3','unknown-example'),null);
+assert.equal(getUIFlowWorkbenchExample(registry,'cardputer-adv',displayExample.id),null);
+for (const missing of [undefined,null]) {
+  assert.equal(getUIFlowWorkbenchExample(missing,'cores3',displayExample.id),null);
+  assert.equal(getUIFlowWorkbenchFirmware(missing,'cores3',displayExample.firmwareSHA256),null);
+}
+const defaultOnly = structuredClone(registry);
+delete defaultOnly.examples;
+assert.equal(getUIFlowWorkbenchExample(defaultOnly,'cores3',displayExample.id),null);
+assert.equal(getUIFlowWorkbenchFirmware(registry,'cardputer-adv',displayExample.firmwareSHA256),null);
+assert.equal(getUIFlowWorkbenchFirmware(registry,'cores3',displayExample.baseSHA256),null);
+assert.deepEqual(getUIFlowWorkbenchFirmware(defaultOnly,'cores3',workbench.firmwareSHA256),workbench);
+const displayWorkbench = getUIFlowWorkbenchFirmware(registry,'cores3',displayExample.firmwareSHA256);
+assert.deepEqual(displayWorkbench, {...workbench, exampleId:displayExample.id, version:displayExample.version,
+  baseUrl:displayExample.baseUrl, baseBytes:displayExample.baseBytes, baseSHA256:displayExample.baseSHA256,
+  baseFileCount:displayExample.baseFileCount, firmwareSHA256:displayExample.firmwareSHA256, source:displayExample.source});
+for (const change of [value=>value.examples.push(structuredClone(displayExample)),
+  value=>value.examples[0].baseUrl += '?override=1', value=>value.examples[0].deviceId='cardputer-adv',
+  value=>value.examples[0].baseSHA256=workbench.baseSHA256, value=>value.examples[0].firmwareSHA256=workbench.firmwareSHA256,
+  value=>value.examples[0].baseBytes--, value=>value.examples[0].source.path='../../escaped.py']) {
+  const invalid=structuredClone(registry);
+  change(invalid);
+  assert.throws(()=>validateUIFlowWorkbenchRegistry(invalid),/Invalid UIFlow programming example/);
+}
+const displayProfile = resolveQemuFirmwareProfile(cores3,displayExample.firmwareSHA256);
+assert.equal(displayProfile.profile,'cores3-wasm-docs-v255-lvgl-wallclock-candidate');
+assert.equal(displayProfile.clockDivisor,1);
+assert.equal(displayProfile.oneInsnPerTb,true);
+assert.deepEqual(displayProfile.requiredRuntimePatch,QEMU_ONE_INSN_RUNTIME_PATCH);
+assert.deepEqual(resolveUIFlowWorkbenchProfile(displayProfile,displayExample.firmwareSHA256,registry),displayProfile);
+assert.throws(()=>resolveUIFlowWorkbenchProfile(cores3,displayExample.firmwareSHA256,registry),/exact workbench/);
+for (const [key,value] of [['sourceSHA256','0'.repeat(64)], ['fixture','unrelated-fixture-v1'],
+  ['readyMarker','UNRELATED_READY']]) {
+  const invalid=structuredClone(cores3);
+  invalid.firmwareProfiles.find(row=>row.firmwareSHA256===displayExample.firmwareSHA256)[key]=value;
+  const resolved=resolveQemuFirmwareProfile(invalid, displayExample.firmwareSHA256);
+  assert.throws(()=>resolveUIFlowWorkbenchProfile(resolved,displayExample.firmwareSHA256,registry),/exact workbench/);
+}
 const exactVariant = cores3.firmwareProfiles.find(row => row.firmwareSHA256 === workbench.firmwareSHA256);
 const resolveWorkbench = (profile = cores3, workbenchRegistry = registry) => resolveUIFlowWorkbenchProfile(
   resolveQemuFirmwareProfile(profile, workbench.firmwareSHA256), workbench.firmwareSHA256, workbenchRegistry);
@@ -127,7 +177,9 @@ for (const other of cores3.firmwareProfiles.filter(row => row.firmwareSHA256 !==
   assert.throws(() => resolveUIFlowWorkbenchProfile(resolved, workbench.firmwareSHA256, registry), /exact workbench/, 'another exact image cannot acquire workbench readiness');
   assert.deepEqual(resolveUIFlowWorkbenchProfile(resolved, other.firmwareSHA256, registry), resolved, 'other images keep their separately bound policy');
   assert.notEqual(resolved.readyFirmwareSHA256, workbench.firmwareSHA256);
-  if (other.firmwareSHA256 === CORE_S3_UNPATCHED_WORKBENCH_FLASH) {
+  if (other.firmwareSHA256 === displayExample.firmwareSHA256) {
+    assert.deepEqual(resolved,displayProfile);
+  } else if (other.firmwareSHA256 === CORE_S3_UNPATCHED_WORKBENCH_FLASH) {
     assert.equal(resolved.profile, 'cores3-wasm-uiflow-workbench-wallclock-candidate');
     assert.equal(resolved.readyMarker, workbench.readyMarker);
     assert.equal(resolved.firmwareVariant.sourceSHA256, EXACT_S3_WORKBENCH_MAIN);
@@ -493,23 +545,38 @@ if (args.get('--runtime') && args.get('--firmware-cache')) {
   const manifest = JSON.parse(await fs.readFile(path.join(runtime, 'manifest.json')));
   const {default:factory} = await import(pathToFileURL(path.join(runtime, manifest.assets.module.path)).href);
   const engine = await factory({wasmBinary:await fs.readFile(path.join(runtime, manifest.assets.wasm.path)), print(){}, printErr(){}});
-  for (const device of (args.get('--devices') || 'cores3,stickc-plus,atom-matrix').split(',')) {
-    const row = registry.profiles.find(row => row.deviceId === device), profile = qemu.profiles.find(row => row.deviceId === device);
+  const jobs = (args.get('--devices') || 'cores3,stickc-plus,atom-matrix').split(',').map(deviceId=>({deviceId}));
+  if (args.has('--example')) {
+    assert.equal(args.get('--example'),displayExample.id);
+    jobs.push({deviceId:displayExample.deviceId,exampleId:displayExample.id});
+  }
+  for (const {deviceId,exampleId} of jobs) {
+    const row = exampleId ? displayWorkbench : registry.profiles.find(item => item.deviceId === deviceId);
+    const profile = qemu.profiles.find(item => item.deviceId === deviceId);
     assert.ok(row && profile);
     const base = await fs.readFile(path.join(cache, row.baseSHA256 + '.bin'));
-    const result = await composeUIFlowWorkbenchImage({profile, registry, baseBytes:base, engine});
+    const options = {profile, registry, baseBytes:base, engine, exampleId};
+    const result = await composeUIFlowWorkbenchImage(options);
     assert.equal(result.sha256, row.firmwareSHA256); assert.equal(result.provenance.source_readback_verified, true);
     assert.deepEqual(result.bytes.slice(0, row.vfsOffset), new Uint8Array(base.subarray(0, row.vfsOffset)));
     assert.deepEqual(result.bytes.slice(row.vfsOffset + row.vfsSize, base.length), new Uint8Array(base.subarray(row.vfsOffset + row.vfsSize)));
     assert.ok(result.bytes.slice(base.length).every(byte => byte === 255), 'Flash padding must remain erased');
     const bad = Buffer.from(base); bad[0] ^= 1;
-    await assert.rejects(composeUIFlowWorkbenchImage({profile, registry, baseBytes:bad, engine}), /official base SHA256/);
-    const changed = structuredClone(registry); changed.profiles.find(row => row.deviceId === device).files['main.py'].text = 'print("altered")\n';
-    changed.profiles.find(row => row.deviceId === device).files['main.py'].bytes = new TextEncoder().encode('print("altered")\n').length;
-    await assert.rejects(composeUIFlowWorkbenchImage({profile, registry:changed, baseBytes:base, engine}), /startup source SHA256/);
+    await assert.rejects(composeUIFlowWorkbenchImage({...options,baseBytes:bad}), /official base SHA256/);
+    const changed = structuredClone(registry);
+    const main = changed.profiles.find(item => item.deviceId === deviceId).files['main.py'];
+    main.text = 'print("altered")\n';
+    main.bytes = new TextEncoder().encode(main.text).length;
+    await assert.rejects(composeUIFlowWorkbenchImage({...options,registry:changed}), /startup source SHA256/);
     const abort = new AbortController(); abort.abort();
-    await assert.rejects(composeUIFlowWorkbenchImage({profile, registry, baseBytes:base, engine, signal:abort.signal}), /abort/i);
-    console.log(`${device}: real LittleFS WASM composition and negative controls PASS; guest execution NOT RUN`);
+    await assert.rejects(composeUIFlowWorkbenchImage({...options,signal:abort.signal}), /abort/i);
+    if (exampleId) {
+      assert.equal(result.provenance.example_id,exampleId);
+      assert.equal(result.provenance.sdk_version,displayExample.version);
+      await assert.rejects(composeUIFlowWorkbenchImage({...options,exampleId:undefined}), /official base SHA256/);
+      await assert.rejects(composeUIFlowWorkbenchImage({...options,exampleId:'unknown-example'}), /no matching UIFlow programming example/);
+    } else assert.equal(result.provenance.example_id,undefined);
+    console.log(`${exampleId || deviceId}: real LittleFS WASM composition and negative controls PASS; guest execution NOT RUN`);
   }
 }
 console.log('UIFlow programming firmware contracts PASS. Firmware guest execution: NOT RUN.');

@@ -5,6 +5,23 @@
   "composer_commit": "6cb4e86540eca0d9ba62500a298385c9d863c8be",
   "readyMarker": "M5_UIFLOW_WORKBENCH_READY",
   "scope": "Official UIFlow2 runtime plus explicit programming startup; packaging identities do not grant browser functional acceptance.",
+  "examples": [
+    {
+      "id": "cores3-display",
+      "deviceId": "cores3",
+      "version": "2.5.5",
+      "baseUrl": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2122962394541932546/bin/2122962394541932547.bin",
+      "baseSHA256": "60441fe0dc16ab08865ad3cb4f83bd246a6efae61536103bd915109786bd3833",
+      "baseBytes": 16121856,
+      "baseFileCount": 17,
+      "firmwareSHA256": "565f1de9c87e8fe12f133e64ae6e3c6d32085c46e52269b864ea1cf4604f0927",
+      "source": {
+        "path": "tests/browser-qemu/uiflow_workbench/cores3_display_example.py",
+        "bytes": 1729,
+        "sha256": "03869b2d115675642900d900a9bc9c442a75a92b99db05883948876a22cbfe3d"
+      }
+    }
+  ],
   "profiles": [
     {
       "deviceId": "stopwatch",

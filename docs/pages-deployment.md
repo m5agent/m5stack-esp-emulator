@@ -302,6 +302,12 @@ CoreS3 和 Cardputer-Adv。
 副本，下次启动从原素材重新挂载。通过本地文件或公开链接提供对应固件，
 运行收据的 `sdCard` 字段记录卡镜像身份。素材导出包括已审查的静态种子。
 
+### CoreS3 绘图例程
+
+在浏览器工作台选择 CoreS3，将启动环境设为「CoreS3 绘图 · UIFlow2 v2.5.5」。
+启动后点击「载入绘图例程」，再运行代码。工作台在浏览器内组合官方固件，
+并校验原版 Python 文件。分享链接按组合镜像摘要选择此预设。
+
 ### 逐板 fixture 与输入门禁
 
 StopWatch、StamPLC、StackChan、PaperColor、PaperMono 和 Cardputer-ADV
