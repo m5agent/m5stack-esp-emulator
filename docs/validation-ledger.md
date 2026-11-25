@@ -27,6 +27,12 @@ CoreS3 完整编辑器与 Cardputer-Adv 快速编辑器。正式文档部署仍�
 
 [浏览器实测回执](https://github.com/m5agent/agent-work-logs/tree/c93ead09f421f7fa2a4e412d521e3c7e0d7a5e6c/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-workbench-fixes)
 
+新源构建 WASM `9c37ace1…1372` 将 Cardputer-Adv GPIO 面板 ID 和 TCA8418
+探测带入浏览器。在原 Display 和 Keyboard 镜像上实际执行 变化画面、A/B/C、
+Delete（Fn 层）与 Enter，以及 ADV UIFlow2、K132 和 CoreS3 的独立参考回归。
+CoreS3 的 WDT 和 `machine.reset()` 来宾主动热复位仍在 ROM entry 后停滞，
+宿主 QMP Reset 对照能恢复。同一运行时前后对照和清理见[验证记录](https://github.com/m5agent/agent-work-logs/tree/536423ad15b5b1af6509287d15e6c54b0b0e0a63/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-board-probe-and-guest-reset).
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile

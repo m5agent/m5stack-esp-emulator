@@ -275,7 +275,9 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 ### UI-02/03 文档例程 WASM 试点
 
 - 在文档预览单独验证能开启跨源隔离的托管方式，再接入 CoreS3 和 Cardputer-Adv 的已验例程。验收包括同页运行、首个可操作画面、实际交互输出、跳转或停止后回收及其他文档资源加载。[正式文档嵌入阻塞](https://github.com/m5agent/m5stack-esp-emulator/issues/242)
-- 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 用原显示和键盘例程回归板卡探测。CoreS3 摄像头、Unit 和 Cardputer-Adv LoRa Cap 分别验完整数据路径与界面反馈。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245) · [CoreS3 摄像头](https://github.com/m5agent/m5stack-esp-emulator/issues/243) · [CoreS3 Unit](https://github.com/m5agent/m5stack-esp-emulator/issues/246) · [ADV LoRa Cap](https://github.com/m5agent/m5stack-esp-emulator/issues/244)
+- 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 的候选涉及新 WASM 源层，正式托管需回归相同的原显示、键盘和参考镜像。CoreS3 摄像头、Unit 和 Cardputer-Adv LoRa Cap 分别验完整数据路径与界面反馈。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245) · [CoreS3 摄像头](https://github.com/m5agent/m5stack-esp-emulator/issues/243) · [CoreS3 Unit](https://github.com/m5agent/m5stack-esp-emulator/issues/246) · [ADV LoRa Cap](https://github.com/m5agent/m5stack-esp-emulator/issues/244)
+
+- 验证 CoreS3 的四个 BSP LVGL 画面、RTC 定时唤醒和来宾热复位。按例程加入 microSD、可控网络及其他 Unit。固件固定、真实帧、控制器和资源生命周期一起验收。[BSP #250](https://github.com/m5agent/m5stack-esp-emulator/issues/250) · [定时唤醒 #252](https://github.com/m5agent/m5stack-esp-emulator/issues/252) · [microSD #253](https://github.com/m5agent/m5stack-esp-emulator/issues/253) · [热复位 #254](https://github.com/m5agent/m5stack-esp-emulator/issues/254) · [例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255)
 
 ### UNIT-DEFER-01：Unit 剩余 planned/DEFER（收口后仅 2 项）
 
