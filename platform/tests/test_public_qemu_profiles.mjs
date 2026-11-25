@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile, validateQemuFirmware,
   buildQemuArguments, buildQemuEfuse, advanceQemuEncoderTarget, qemuInputCommand, loadQemuBrowserProfiles, resolveQemuFirmwareProfile,
-  qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256} from '../web/public-qemu-profiles.js';
+  qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256,
+  qemuUsbSerialJtagAvailable, QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
 import {GNSS_EXAMPLE_ID,bindQemuGnssExample,qemuGnssFixBytes} from '../web/public-qemu-gnss-example.js';
@@ -28,6 +29,21 @@ validateQemuBrowserProfiles(registry);
 const sortedRegistry=JSON.parse(JSON.stringify(registry,(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value));
 validateQemuBrowserProfiles(sortedRegistry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
+const advUsb = pick('cardputer-adv'), usbPatch = QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH;
+const baselineAdvArguments = buildQemuArguments(advUsb);
+const expectedChardev = ['-chardev','file,id=usb-serial-jtag,path=/bridge/usb-cdc.out'];
+assert.equal(qemuUsbSerialJtagAvailable(advUsb,[usbPatch]),true);
+const cdcArguments = buildQemuArguments(advUsb,[usbPatch]);
+assert.deepEqual(cdcArguments.splice(cdcArguments.indexOf('-chardev'),2),expectedChardev);
+assert.deepEqual(cdcArguments,baselineAdvArguments,'the explicit USB output preserves UART0/1 and other machine arguments');
+for (const patches of [undefined,[],[usbPatch,usbPatch],[{...usbPatch,sha256:'0'.repeat(64)}]]) {
+  assert.equal(qemuUsbSerialJtagAvailable(advUsb,patches),false);
+  assert.deepEqual(buildQemuArguments(advUsb,patches),baselineAdvArguments);
+}
+for (const board of ['cores3','sticks3','cardputer','corematrix']) {
+  assert.equal(qemuUsbSerialJtagAvailable(pick(board),[usbPatch]),false);
+  assert.deepEqual(buildQemuArguments(pick(board),[usbPatch]),buildQemuArguments(pick(board)));
+}
 // Board-wired physical controls must survive admission through both press and
 // release. These are independent board expectations, not a list inferred from
 // whichever controls happen to remain enabled in the registry under test.

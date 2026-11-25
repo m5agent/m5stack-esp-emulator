@@ -304,7 +304,9 @@ function updateStageFirmwareNotice(currentStatus, uiflowReady) {
 }
 function updatePythonControls(currentStatus=state.run?.controller?.status || state.run?.controller?.current?.state) {
   const run=state.run, native=active(run)&&run.kind==='service'&&!!run.python;
-  if (!active(run) || run.kind !== 'service' || !run.controller.current) $('serialChannel').disabled = true;
+  const browserUsb=active(run)&&run.controller instanceof PublicQemuRuntime&&run.controller.receipt?.usbSerialJtag;
+  if (browserUsb) showSerialView(run.controller.serialView());
+  else if (!active(run) || run.kind !== 'service' || !run.controller.current) $('serialChannel').disabled = true;
   const supported=active(run)&&(run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart || native&&(run.python.ready||run.python.busy));
   const receipt=run?.controller?.receipt;
   const programming=!!receipt?.uiflowWorkbench&&receipt.deviceId===state.selected?.id
@@ -318,7 +320,8 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running'||run.python?.canInterrupt===false;
   $('pythonInterruptBtn').title=run?.python?.canInterrupt===false?'此旧会话不提供中断；新建 UIFlow 编程环境可使用中断。':'';
   $('pauseBtn').disabled=!!run?.serialSending||pythonBusy&&run.pythonPhase!=='running';
-  $('serialInput').disabled=$('serialSendBtn').disabled=!!native||!supported||currentStatus!=='running'||busy;
+  const usbReceiveOnly=browserUsb&&run.controller.serialChannel==='usb-serial-jtag';
+  $('serialInput').disabled=$('serialSendBtn').disabled=!!native||!supported||currentStatus!=='running'||busy||!!usbReceiveOnly;
   if(native&&!supported)$('pythonStatus').textContent='正在同步服务中的 UIFlow 编程环境…';
   else if(!supported)$('pythonStatus').textContent=pythonUnavailableReason();
   else if(currentStatus==='paused')$('pythonStatus').textContent='设备已暂停，请先继续';
@@ -1019,7 +1022,7 @@ async function startRun() {
     run = {kind, generation, controller: null,cloudStartup:!!nativeCloud};
     const callbacks = {
       onSerial: (text) => {
-        if (active(run)) appendSerial(text);
+        if (active(run)&&!(run.controller instanceof PublicQemuRuntime&&run.controller.receipt?.usbSerialJtag)) appendSerial(text);
       },
       onSerialView: view => {if (active(run)) showSerialView(view);},
       onError: (cause) => {
@@ -1613,7 +1616,7 @@ $('serialForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const run = state.run,
     text = $('serialInput').value;
-  if (!active(run) || !text) return;
+  if (!active(run) || !text || run.controller instanceof PublicQemuRuntime&&run.controller.serialChannel==='usb-serial-jtag') return;
   if (run.kind !== 'browser') {
     error(new Error('当前服务未开放串口文本输入。'));
     return;
@@ -1741,8 +1744,11 @@ window.addEventListener('pagehide', () => {
 
 $('serialChannel').addEventListener('change', () => {
   const run = state.run;
-  if (run?.kind === 'service' && active(run)) {
-    try {run.controller.selectSerialChannel($('serialChannel').value);} catch (cause) {error(cause);}
+  if (active(run) && (run.kind==='service'||run.controller instanceof PublicQemuRuntime&&run.controller.receipt?.usbSerialJtag)) {
+    try {
+      run.controller.selectSerialChannel($('serialChannel').value);
+      if (run.controller instanceof PublicQemuRuntime) updatePythonControls();
+    } catch (cause) {error(cause);}
   }
 });
 

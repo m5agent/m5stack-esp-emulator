@@ -1,5 +1,5 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
-import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
 import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
@@ -13,6 +13,7 @@ let previousOutputs, previousUnitExampleState;
 let controllerInputs = Promise.resolve();
 let resetEpoch = 0;
 let panelPath;
+let usbSerialJtag = false;
 let workersCreated = 0;
 let relocatedGlueSha256;
 let runtimeArguments,qemuExit,awaitingOwnerFinalization=false;
@@ -158,13 +159,14 @@ async function start(config) {
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
   validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
+  usbSerialJtag=qemuUsbSerialJtagAvailable(boardProfile,config.runtimePatches);
   const sdCard=config.sdCard;
   if(sdCard!==undefined&&(!(sdCard instanceof ArrayBuffer)||!validQemuSdImage(boardProfile.deviceId,sdCard.byteLength))) {
     throw new Error('QEMU microSD image is incompatible with the device');
   }
   frameTransport=config.frameTransport;
   const options = {
-    arguments:buildQemuArguments(boardProfile),
+    arguments:buildQemuArguments(boardProfile,config.runtimePatches),
     wasmBinary:config.wasm, mainScriptUrlOrBlob:script,
     locateFile:(name) => name.endsWith('.worker.js') ? worker : name,
     print:(text) => output(String(text) + '\n'),
@@ -200,7 +202,7 @@ async function start(config) {
       const consoleInput = consoleBase+'.in', consoleOutput = consoleBase+'.out';
       const gnss = !!boardProfile.gnssExample;
       const chardevPaths = [...new Set([consoleInput,consoleOutput,'/bridge/uart.out','/bridge/serial1',
-        ...(gnss?['/bridge/gnss.in','/bridge/gnss.out']:[])])];
+        ...(gnss?['/bridge/gnss.in','/bridge/gnss.out']:[]),...(usbSerialJtag?[QEMU_USB_SERIAL_JTAG_OUTPUT]:[])])];
       for (const [index,path] of chardevPaths.entries()) {
         const dev = m.FS.makedev(64,index);
         const serialDecoder = new TextDecoder();
@@ -227,8 +229,11 @@ async function start(config) {
             // Chromium rejects SharedArrayBuffer-backed TextDecoder input.
             // FS buffers can be the shared WASM heap: copy before decoding.
             const bytes=Uint8Array.from(buffer.subarray(offset,offset+length));
-            if(path===consoleOutput)emit('uart-bytes',bytes);
             const text = serialDecoder.decode(bytes, {stream:true});
+            if(usbSerialJtag&&path===QEMU_USB_SERIAL_JTAG_OUTPUT){
+              emit('usb-serial-jtag',{text,bytes:length});return length;
+            }
+            if(path===consoleOutput)emit('uart-bytes',bytes);
             serial = (serial + text).slice(-65536); emit('serial', text); return length;
           },
           poll:() => 4 | ((path===consoleInput&&uartInput.length)
@@ -332,6 +337,17 @@ async function request(op, value) {
       if (!current()) return {unchanged:true};
       throw error;
     }
+  }
+  if (op === 'usb-serial-jtag-state') {
+    if (!usbSerialJtag || value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length))
+      throw new Error('USB Serial/JTAG read is not admitted');
+    const consoleEpoch = resetEpoch, path = '/machine/soc/jtag';
+    const [txBytes,txPackets] = await Promise.all([
+      qmp('qom-get',{path,property:'cdc-tx-bytes'}),qmp('qom-get',{path,property:'cdc-tx-packets'}),
+    ]);
+    if (closed || disposeRequested || consoleEpoch!==resetEpoch) throw new Error('USB Serial/JTAG observation expired');
+    if (![txBytes,txPackets].every(value=>Number.isSafeInteger(value)&&value>=0)) throw new Error('Invalid USB Serial/JTAG controller counters');
+    return {consoleEpoch,txBytes,txPackets};
   }
   if (op === 'display') {
     // Only Cardputer's admitted native-glass presentation uses this QOM

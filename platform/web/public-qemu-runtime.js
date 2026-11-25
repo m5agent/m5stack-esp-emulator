@@ -7,9 +7,10 @@ import {resolveQemuUnitExample,validateQemuUnitExampleState} from './public-qemu
 import {bindQemuGnssExample} from './public-qemu-gnss-example.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity, qemuUsbSerialJtagAvailable} from './public-qemu-profiles.js';
 const HISTORY_KEY = 'm5-public-qemu-history-v1';
 const EXAMPLE_SHA = '78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
+const serialEncoder = new TextEncoder();
 export const QEMU_BROWSER_PROFILE = Object.freeze({deviceId:'cores3',board:'m5cores3',chip:'esp32s3',flashMb:16,
   display:{width:320,height:240},execution:'browser-qemu-wasm',profile:'cores3-wasm-vm-div8',
   limitations:['实验性离线 CoreS3 / LVGL / 触摸 / PIR。','虚拟时间为墙钟的 1/8；看门狗到期也随之变慢。','网络、音频、其他 Unit 与任意固件兼容性未验证；刷新不保留 Flash。']});
@@ -18,15 +19,16 @@ export function browserQemuHistory(storage) {
   try { const rows=JSON.parse((storage || globalThis.localStorage).getItem(HISTORY_KEY)||'[]'); return Array.isArray(rows)?rows:[]; } catch { return []; }
 }
 export class PublicQemuRuntime {
-  constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onUnitExampleState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
+  constructor({onSerial=()=>{},onSerialView=()=>{},onFrame=()=>{},onDeviceState=()=>{},onUnitExampleState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
     requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
-    Object.assign(this,{onSerial,onFrame,onDeviceState,onUnitExampleState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles});
+    Object.assign(this,{onSerial,onSerialView,onFrame,onDeviceState,onUnitExampleState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles});
     this.loadAsset=downloadImpl===downloadFirmware?loadVerifiedRuntimeAsset:createVerifiedAssetLoader({downloadImpl,cacheStorage:null});
     this.compileWasm=compileImpl?createVerifiedModuleCompiler({compile:compileImpl}):compileVerifiedRuntimeModule;
     this.fetchImpl=(...args)=>fetchImpl(...args);
     this.uartListeners=new Set();this.uartOwner=null;this.consoleEpoch=0;this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;this.display=null;
     this.lastUnitExampleState=null;
+    this.serialChannel='console';this.serial='';this.serialBytes=0;this.usbSerial='';this.usbSerialBytes=0;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
     runtime:this.receipt||null,boot:this.bootEvidence(),display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
@@ -35,6 +37,27 @@ export class PublicQemuRuntime {
   clearUnitExampleState() {
     if(!this.lastUnitExampleState)return;
     this.lastUnitExampleState=null;this.onUnitExampleState(null);
+  }
+  serialView() {
+    const channels=[{channel:'console',transport:'console',bytes:this.serialBytes}];
+    if (this.receipt?.usbSerialJtag) channels.push({channel:'usb-serial-jtag',transport:'usb-serial-jtag',bytes:this.usbSerialBytes});
+    const channel=this.serialChannel;
+    return channel==='usb-serial-jtag'?{channel,channels,text:this.usbSerial,bytes:this.usbSerialBytes}
+      :{channel,channels,text:this.serial,bytes:this.serialBytes};
+  }
+  selectSerialChannel(channel) {
+    check(this.serialView().channels.some(item=>item.channel===channel),'串口通道不可用。');
+    this.serialChannel=channel;this.onSerialView(this.serialView());
+  }
+  async readUsbSerialJtag() {
+    check(this.receipt?.usbSerialJtag&&!this.stopping,'USB Serial/JTAG 通道不可用。');
+    const {generation,consoleEpoch}=this;
+    const state=await this.ask('usb-serial-jtag-state');
+    if(generation!==this.generation||consoleEpoch!==this.consoleEpoch||this.stopping)
+      throw new DOMException('USB Serial/JTAG 所属设备或程序已改变。','AbortError');
+    check(state?.consoleEpoch===consoleEpoch&&[state.txBytes,state.txPackets].every(value=>Number.isSafeInteger(value)&&value>=0),
+      'USB Serial/JTAG 控制器回读无效。');
+    this.usbSerialState=state;return state;
   }
   ask(op,value={},transfer=[]) {
     check(this.port,'浏览器设备尚未连接。');const id=++this.id;
@@ -68,8 +91,15 @@ export class PublicQemuRuntime {
     }
     if(data.type==='serial') {
       const serial=this.serial+data.value;this.readySerialOffset=Math.max(0,(this.readySerialOffset||0)-Math.max(0,serial.length-65536));
-      this.serial=serial.slice(-65536);this.onSerial(data.value);
+      this.serial=serial.slice(-65536);this.serialBytes+=serialEncoder.encode(data.value).length;this.onSerial(data.value);
+      if(this.receipt?.usbSerialJtag&&this.serialChannel==='console')this.onSerialView(this.serialView());
       if(this.status==='booting'&&this.guestReady())this.state('running');
+    }
+    if(data.type==='usb-serial-jtag'&&this.receipt?.usbSerialJtag) {
+      const {text,bytes}=data.value||{};
+      if(typeof text!=='string'||!Number.isSafeInteger(bytes)||bytes<1||bytes>64)return;
+      this.usbSerial=(this.usbSerial+text).slice(-65536);this.usbSerialBytes+=bytes;
+      if(this.serialChannel==='usb-serial-jtag')this.onSerialView(this.serialView());
     }
     if(data.type==='machine-event') {
       if(!['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(data.value?.event))return;
@@ -80,6 +110,7 @@ export class PublicQemuRuntime {
         this.consoleEpoch=Number.isSafeInteger(data.value.consoleEpoch)?data.value.consoleEpoch:this.consoleEpoch+1;
         this.uartOwner=null;this.readySerialOffset=this.serial.length;this.readyMarkerObserved=false;this.lastDeviceState=null;
         this.clearUnitExampleState();
+        this.usbSerialState=null;
         if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');
       }
     }
@@ -112,6 +143,7 @@ export class PublicQemuRuntime {
     const {device,firmware,signal,clockDivisor,gnssExample}=options;
     await this.stop();
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
+    this.serialChannel='console';this.serialBytes=0;this.usbSerial='';this.usbSerialBytes=0;this.usbSerialState=null;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.display=null;this.displayPollAt=0;
     this.receipt=null;this.profile=null;this.stoppedAt=null;this.assetsReady=false;this.guestStarted=false;this.readyMarkerObserved=false;
@@ -189,6 +221,7 @@ export class PublicQemuRuntime {
       const wasm=wasmAsset.bytes;
       this.frameTransport=profile.display===null?null:manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
       const workbench=getUIFlowWorkbenchFirmware(this.workbenchProfiles,deviceId,firmwareSHA256);
+      const usbSerialJtag=qemuUsbSerialJtagAvailable(profile,manifest.source.patches);
       this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,clockOverride,
         accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,requiredInputPatch:profile.requiredInputPatch||null,
         uiflowWorkbench:workbench?{baseSha256:workbench.baseSHA256,composerCommit:this.workbenchProfiles.composer_commit,
@@ -201,6 +234,7 @@ export class PublicQemuRuntime {
         ...(sdExample ? {sdCard:sdExample.identity} : {}),
         ...(profile.unitExample ? {unitExample:profile.unitExample} : {}),
         ...(profile.gnssExample ? {gnssExample:profile.gnssExample,gnssTransport:'esp-uart2'} : {}),
+        ...(usbSerialJtag ? {usbSerialJtag:{direction:'guest-to-host',controller:'esp32s3-usb-serial-jtag'}} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
@@ -357,6 +391,7 @@ export class PublicQemuRuntime {
   }
   evidence(){return {schema_version:1,kind:'browser-local-qemu-evidence',session_id:this.sessionId,console_epoch:this.consoleEpoch,started_at:this.startedAt,
     stopped_at:this.stoppedAt||null,receipt:this.receipt,boot:this.bootEvidence(),serial:this.serial,diagnostics:this.diagnostics,inputs:this.inputs,display:this.display,
+    ...(this.receipt?.usbSerialJtag?{usb_serial_jtag:{text:this.usbSerial,bytes:this.usbSerialBytes,state:this.usbSerialState}}:{}),
     last_frame:this.lastFrame?{width:this.lastFrame.width,height:this.lastFrame.height,sequence:this.lastFrame.sequence,
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,

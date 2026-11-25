@@ -570,3 +570,11 @@ the guest returns a buffer.
 
 The camera source period is a model setting. The CoreS3 QVGA acceptance
 covers 320×240 RGB565 using the original UIFlow2 camera program.
+
+## Cardputer-ADV USB Serial/JTAG output (`0044`)
+
+An explicit USB Serial/JTAG chardev enables the fixed CDC IN endpoint on
+Cardputer-ADV. The FIFO, interrupt and virtual host timing follow native
+patches `0173` and `0177`. The endpoint reports emitted bytes and packets
+through read-only QOM counters. The browser presents device-to-host USB
+output as its own channel alongside the existing UART console.

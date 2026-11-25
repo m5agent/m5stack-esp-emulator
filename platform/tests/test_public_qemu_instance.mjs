@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,qemuUsbSerialJtagAvailable,
+  QEMU_USB_SERIAL_JTAG_OUTPUT,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
@@ -29,7 +30,7 @@ const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.u
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
-  qemuUnitExampleQueries,validateQemuUnitExampleState,
+  qemuUnitExampleQueries,validateQemuUnitExampleState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -50,7 +51,7 @@ await one.onmessage({data:{id:1,op:'uart',value:{text:'contract'}}});assert.matc
 const fakeFactory=`export default async function(options){
   const devices=[];const stream={stream_ops:{}};
   const files=new Map();const module={ENV:{},reportExit:options.onExit,arguments:options.arguments,HEAPU8:new Uint8Array(new SharedArrayBuffer(65536)),FS:{devices,files,mkdirTree(){},writeFile:(name,value)=>files.set(name,value),makedev:(a,b)=>b,
-    registerDevice:(id,ops)=>devices[id]=ops,mkdev(){},getStream:()=>stream,
+    registerDevice:(id,ops)=>devices[id]=ops,mkdev(path,mode,id){devices[path]=devices[id];},getStream:()=>stream,
     ErrnoError:class extends Error{}}};
   if(options.instantiateWasm){
     // Emscripten's synchronous createWasm result becomes wasmExports. Preserve
@@ -69,6 +70,9 @@ assert.ok(vm.runInContext('module.compiledInstance',context) instanceof WebAssem
 assert.equal(vm.runInContext('module.compiledModule',context),compiledModule,'the Emscripten callback receives the Module needed to initialize pthreads');
 await one.onmessage({data:{id:5,op:'start',value:{}}});assert.match(one.messages.at(-1).error,/already initialized/);
 assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(module.arguments)',context)),buildQemuArguments(profile));
+await one.onmessage({data:{id:140,op:'usb-serial-jtag-state',value:{}}});
+assert.match(one.messages.at(-1).error,/not admitted/);
+assert.equal(vm.runInContext("module.FS.devices['/bridge/usb-cdc.out']",context),undefined);
 assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8');
 assert.equal(vm.runInContext('module.ENV.M5_WASM_FRAMEBUFFER',context),'0');
 assert.equal(vm.runInContext(`module.FS.files.get('/rom/${profile.roms[0].name}').byteLength`,context),profile.roms[0].bytes);
@@ -323,19 +327,37 @@ process.on('unhandledRejection',onRaceUnhandled);
 try {
   const raceContext=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
+    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
   const racePort={messages:[],closed:false,start(){this.started=true;},close(){this.closed=true;raceLifecycle.push('port-closed');},
     postMessage(value){this.messages.push(value);if(value.id===302)raceLifecycle.push('dispose-ack');}};
   raceCallbacks.get('message')({data:{type:'m5-qemu-engine-connect'},ports:[racePort]});
+  const adv=getQemuBrowserProfile('cardputer-adv',registry);
   await racePort.onmessage({data:{id:300,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),
-    javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile,frameTransport:'qmp-screendump',
-    roms:profile.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
+    javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile:adv,frameTransport:'qmp-screendump',
+    runtimePatches:[QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH],
+    roms:adv.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
   assert.equal(racePort.messages.at(-1).id,300);assert.equal(racePort.messages.at(-1).error,undefined);
   const raceCommands=()=>JSON.parse(vm.runInContext("JSON.stringify(new TextDecoder().decode(new Uint8Array(qmpInput.splice(0))).trim().split('\\n').filter(Boolean).map(line=>JSON.parse(line)))",raceContext));
   const raceRespond=(command,value)=>vm.runInContext(`output(${JSON.stringify(JSON.stringify({return:value,id:command.id})+'\n')})`,raceContext);
+  vm.runInContext(`
+    const bytes = new Uint8Array(new SharedArrayBuffer(4));
+    bytes.set([0x55,0x53,0x42,0x0a]);
+    module.FS.devices['/bridge/usb-cdc.out'].write(null,bytes,0,4);
+  `,raceContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(racePort.messages.at(-1))),{type:'usb-serial-jtag',value:{text:'USB\n',bytes:4}});
+  assert.equal(racePort.messages.some(item=>['serial','uart-bytes'].includes(item.type)),false);
+  await racePort.onmessage({data:{id:303,op:'usb-serial-jtag-state',value:{path:'/machine/other'}}});
+  assert.match(racePort.messages.at(-1).error,/not admitted/);
+  assert.deepEqual(raceCommands(),[]);
+  const observation=racePort.onmessage({data:{id:304,op:'usb-serial-jtag-state',value:{}}});
+  const reads=raceCommands();
+  assert.deepEqual(reads.map(({execute,arguments:args})=>({execute,...args})),['cdc-tx-bytes','cdc-tx-packets']
+    .map(property=>({execute:'qom-get',path:'/machine/soc/jtag',property})));
+  raceRespond(reads[0],4);raceRespond(reads[1],1);await observation;
+  assert.deepEqual(JSON.parse(JSON.stringify(racePort.messages.at(-1).value)),{consoleEpoch:0,txBytes:4,txPackets:1});
   vm.runInContext(`output(${JSON.stringify(JSON.stringify({QMP:{version:{},capabilities:[]}})+'\n')})`,raceContext);
   const raceCapability=raceCommands();assert.equal(raceCapability.length,1);assert.equal(raceCapability[0].execute,'qmp_capabilities');
   raceRespond(raceCapability[0],{});await tick();

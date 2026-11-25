@@ -278,6 +278,7 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 - 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 的候选涉及新 WASM 源层，正式托管需回归相同的原显示、键盘和参考镜像。LoRa1262/LoRa868 GPS 原例程的 UART2 定位已验；继续处理 SX1262 原例程的 SPI、BUSY、IRQ 和双端有效载荷。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245) · [ADV LoRa Cap](https://github.com/m5agent/m5stack-esp-emulator/issues/244)
 
 - 按例程加入可控网络及其他 Unit。固件固定、真实帧、控制器和资源生命周期一起验收。CoreS3 卡载 WAV 可读，播放仍需验证。[例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255) · [音频 #248](https://github.com/m5agent/m5stack-esp-emulator/issues/248)
+- 保留 Cardputer-Adv 原版 Button 的默认 USB CDC 应用日志复现，以及 IR NEC 的平面显示方向、裁切和 GPIO44 LEDC 验证。[Button #257](https://github.com/m5agent/m5stack-esp-emulator/issues/257) · [IR #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258)
 
 ### UNIT-DEFER-01：Unit 剩余 planned/DEFER（收口后仅 2 项）
 

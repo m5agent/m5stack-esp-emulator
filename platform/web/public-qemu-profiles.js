@@ -38,6 +38,11 @@ export const QEMU_CARDPUTER_BOOT_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0029-cardputer-adv-boot-button.patch',
   sha256:'04d7a7e5b29e3e3b4729fb14520afe43e422f0df5371c9fcbbfde5644de88b85',
 });
+export const QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH = Object.freeze({
+  path:'patches/qemu-wasm-probe/0044-cardputer-adv-usb-serial-jtag-tx.patch',
+  sha256:'730b55228fe499c0b64ee26cfb0bd880d99cd8a7bdc3950a125480be9fb56590',
+});
+export const QEMU_USB_SERIAL_JTAG_OUTPUT = '/bridge/usb-cdc.out';
 const QEMU_CARDPUTER_K132_RUNTIME_PATCH = Object.freeze({
   path:'patches/qemu-wasm-probe/0034-cardputer-k132-board.patch',
   sha256:'6c854c75cfd248ff145a794240212a8a1de017113d9d72360b9a844181ab40af',
@@ -385,7 +390,15 @@ export function validateQemuFirmware(firmware, profile) {
   const flash = new Uint8Array(flashBytes); flash.fill(255); flash.set(bytes); return flash;
 }
 
-export function buildQemuArguments(profile) {
+export function qemuUsbSerialJtagAvailable(profile, runtimePatches) {
+  if (profile?.deviceId !== 'cardputer-adv' || profile.board !== 'm5cardputeradv'
+    || profile.target !== 'xtensa-softmmu' || profile.chip !== 'esp32s3'
+    || !Array.isArray(runtimePatches)) return false;
+  const matches = runtimePatches.filter(row => row?.path === QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH.path);
+  return matches.length === 1 && matches[0].sha256 === QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH.sha256;
+}
+
+export function buildQemuArguments(profile, runtimePatches) {
   validateQemuProfile(profile);
   // C61 exposes three hardware UARTs before the USB Serial/JTAG chardev.
   // Keep ROM UART diagnostics and the stock MicroPython USB input distinct.
@@ -395,6 +408,8 @@ export function buildQemuArguments(profile) {
       ...(profile.gnssExample?['pipe:/bridge/gnss']:[])];
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
     ...serials.flatMap(device=>['-serial',device]), '-qmp', 'stdio'];
+  if (qemuUsbSerialJtagAvailable(profile, runtimePatches))
+    args.push('-chardev', `file,id=usb-serial-jtag,path=${QEMU_USB_SERIAL_JTAG_OUTPUT}`);
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
   if (profile.oneInsnPerTb === true) {
     args.push('-accel', 'tcg,thread=multi,one-insn-per-tb=on');
