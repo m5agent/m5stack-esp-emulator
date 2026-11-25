@@ -116,6 +116,13 @@ Cardputer-Adv 的 LoRa1262 和 LoRa868 原发送、接收例程分别通过本�
 页面断开后四台来宾正常退出，共回收 24 个 Worker。未执行物理 RF 或部署。
 [LoRa Cap #244](https://github.com/m5agent/m5stack-esp-emulator/issues/244) · [锁定构建、双端与清理证据](https://github.com/m5agent/agent-work-logs/tree/34a27650829d592bb6fdc1f371d75a6eca17cdf8/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-sx1262-workbench)
 
+CoreS3 锁定 WASM `be385f43…06fc` 在显式启用音频的本地工作台通过 Arduino 卡载
+WAV 和原 UIFlow2 v2.5.3 麦克风例程。前者以原始音量向浏览器输出 575,037 个非零
+PCM 采样，后者经 I²S 录入虚拟 440 Hz 信号并回放 119,996 个非零采样，实际画面经过
+录制、播放、完成并响应编辑器中断。两次 Stop 均正常退出，关闭 AudioContext、iframe
+和各 6 个 Worker。未测试物理声学和正式托管。
+[音频 #248](https://github.com/m5agent/m5stack-esp-emulator/issues/248) · [Speaker 原素材 #271](https://github.com/m5agent/m5stack-esp-emulator/issues/271) · [完整构建与来宾证据](https://github.com/m5agent/agent-work-logs/tree/2f4820958b4ee35a6fd8790566b33fcb00f87d48/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-browser-audio)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
