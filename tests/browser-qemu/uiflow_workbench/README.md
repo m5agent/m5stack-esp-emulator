@@ -7,7 +7,11 @@ display or button test application and no host-side Python execution.
 
 This is **official UIFlow2 runtime plus a programming startup script**, not an
 unmodified factory menu. All firmware bytes outside the existing LittleFS VFS
-are preserved. Native-UART builds keep their original console; USB-console
+are preserved. CoreS3 imports the explicit single-schedule LVGL compatibility
+module from the existing wall-clock fixture, then binds it to the original
+M5UI port. Other workbench boards use the common startup. Original input,
+rendering and touch drivers still run in the guest. Native-UART builds keep
+their original console; USB-console
 builds use the same UART0/dupterm setup as the existing browser fixtures.
 
 `compose.mjs` builds the exact images with the source-built browser LittleFS

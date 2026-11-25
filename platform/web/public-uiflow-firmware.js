@@ -13,6 +13,8 @@ const HASH = /^[a-f0-9]{64}$/;
 const CONFIG = {block_size:4096, read_size:128, prog_size:32, lookahead_size:128,
   block_cycles:100, cache_size:128, name_max:255, disk_version:0};
 const registryCache = new Map();
+const STARTUP_DIR = 'tests/browser-qemu/uiflow_workbench/';
+const CORE_S3_LVGL_SOURCE_PATH = 'tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py';
 const check = (ok, message) => { if (!ok) throw new Error(message); };
 const abort = signal => { if (signal?.aborted) throw signal.reason || new DOMException('Cancelled', 'AbortError'); };
 
@@ -22,6 +24,12 @@ export function validateUIFlowWorkbenchRegistry(registry) {
     && registry.composer_commit === COMPOSER_COMMIT && Array.isArray(registry.profiles), 'Invalid UIFlow programming registry');
   const seen = new Set();
   for (const row of registry.profiles) {
+    const cores3 = row.deviceId === 'cores3';
+    const sourcePaths = {
+      'boot.py': [STARTUP_DIR + 'boot_uart.py', STARTUP_DIR + 'boot_native.py'],
+      'main.py': [STARTUP_DIR + (cores3 ? 'main_cores3.py' : 'main.py')],
+      ...(cores3 ? {'candidate_lvgl_loop.py': [CORE_S3_LVGL_SOURCE_PATH]} : {}),
+    };
     const boardMatches = row.deviceId === 'corematrix'
       ? row.chip === 'esp32c61' && row.board === 'esp32c61,m5corematrix=on' && row.flashBytes === 16 * 1048576
       : /^[a-z0-9-]+$/.test(row.board) && ['esp32', 'esp32s3'].includes(row.chip);
@@ -35,13 +43,12 @@ export function validateUIFlowWorkbenchRegistry(registry) {
       && Number.isSafeInteger(row.baseFileCount) && row.baseFileCount >= 2
       && row.baseDiskVersion === 131072 && row.derivedDiskVersion === 131073
       && row.packaging === 'COMPOSED_NOT_EXECUTED' && row.readyMarker === UIFLOW_WORKBENCH_READY
-      && Object.keys(row.files || {}).sort().join(',') === 'boot.py,main.py', 'Invalid UIFlow programming firmware identity');
+      && Object.keys(row.files || {}).sort().join(',') === Object.keys(sourcePaths).sort().join(','), 'Invalid UIFlow programming firmware identity');
     for (const [name, source] of Object.entries(row.files)) {
       check(typeof source.text === 'string' && source.text.length > 0 && source.text.length <= 4096
         && !source.text.includes('\0') && HASH.test(source.sha256) && Number.isSafeInteger(source.bytes)
         && source.bytes === new TextEncoder().encode(source.text).length
-        && /^tests\/browser-qemu\/uiflow_workbench\/(boot_native|boot_uart|main)\.py$/.test(source.path)
-        && (name === 'main.py' ? source.path.endsWith('/main.py') : /\/boot_(native|uart)\.py$/.test(source.path)), 'Invalid UIFlow programming startup source');
+        && sourcePaths[name].includes(source.path), 'Invalid UIFlow programming startup source');
     }
     seen.add(row.deviceId);
   }
@@ -122,7 +129,8 @@ export async function composeUIFlowWorkbenchImage({profile, registry, baseBytes,
         && file.bytes.every((byte, index) => engine.HEAPU8[readback + index] === byte), 'UIFlow startup source readback mismatch');
     }
     const afterCount = call('_m5_lfs_scan'), afterVersion = call('_m5_lfs_disk_version');
-    check(afterCount === beforeCount && afterVersion === row.derivedDiskVersion, 'UIFlow derived filesystem membership/version mismatch');
+    const addedFiles = Object.hasOwn(row.files, 'candidate_lvgl_loop.py') ? 1 : 0;
+    check(afterCount === beforeCount + addedFiles && afterVersion === row.derivedDiskVersion, 'UIFlow derived filesystem membership/version mismatch');
     call('_m5_lfs_unmount'); mounted = false;
     image.set(engine.HEAPU8.subarray(region, region + vfs.size), vfs.offset);
     const digest = await sha256Buffer(image, {signal});
