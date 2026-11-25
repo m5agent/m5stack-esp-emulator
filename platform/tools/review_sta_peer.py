@@ -160,6 +160,12 @@ class ReviewStaPeer(SoftAPPeer):
         return []
 
     def _drop(self, destination: bytes, port: int, transport: str) -> list[bytes]:
+        if destination == b"\x00\x00\x00\x00":
+            # An unresolved name leaves the unspecified address in the socket
+            # (for example SNTP after NXDOMAIN). It names no host, so it is
+            # recorded but is not an attempt to leave the fixture.
+            self.event("unroutable_dropped", dst=f"0.0.0.0:{port}", transport=transport)
+            return []
         self._dropped += 1
         if self._dropped <= 16:
             self.event("egress_denied", dst=f"{socket.inet_ntoa(destination)}:{port}",

@@ -95,7 +95,7 @@ Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外
 
 ### 同 guest 网络与常驻 worker
 
-- **#238 review-sta**：便携 profile 与 8 款板卡控制固件已有 virtual-device 结果。审查服务已改用 `review-sta`，当前网络任务不再因命名空间或目录未公布转人工。剩余：这些原版应用需在界面中配置 Wi-Fi，按应用补保存快照的配网输入（键盘/按键序列）后才能得到 PASS/FAIL；Core2 触摸条 B 的 setup 对照；Cardputer 键盘与 PaperS3 触摸的 setup 输入对照；更多原版应用的事件断言。[控制固件证据](evidence/2026-11-24-review-sta-portable/README.md)
+- **#238 review-sta**：便携 profile 与 8 款板卡控制固件已有 virtual-device 结果。审查服务已改用 `review-sta`，当前网络任务不再因命名空间或目录未公布转人工。剩余：这些原版应用需在界面中配置 Wi-Fi，按应用补保存快照的配网输入（键盘/按键序列）后才能得到 PASS/FAIL；Core2 触摸条 B 的 setup 对照；Cardputer 键盘与 PaperS3 触摸的 setup 输入对照；更多原版应用的事件断言。[控制固件证据](evidence/2026-11-24-review-sta-portable/README.md)；2026-11-25 增加驱动初始化判定与 `until=joined`，Monster 3.0.2 在收到 OFFER 后不发 DHCPREQUEST 待查 [证据](evidence/2026-11-25-review-sta-activity/README.md)
 - 扩展更多原版的常驻准入/拒绝、HTTPS/云端协议、SoftAP 门户与应用断言；按板型补 Wi-Fi 事件。保持既有网络授权及隔离约束，固定夹具不转授任意外网能力。[既有保存快照数据面](../tests/network/native_sta_peers/local-streams-saved-review-summary.json)
 - 继续验证切换 Worker 时的待恢复绑定、可信冷恢复、持久卷独占及宿主资源回收，以及宿主断电/系统重启；正常同卷重启、运行器退出隔离和单机 VZ 不替代这些范围。[安装与生命周期](macos-linux-review-worker.md) · [既有常驻与隔离证据](validation-ledger.md#2026-11-19-常驻-linux-的-cardputerdict-adv-独立复审)
 - 验收关联同 guest 的 DNS/HTTP/TCP/UDP 或 TLS、缓存/介质与 PCM；错误回复、策略拒绝、前置动作不足和环境不能准入分别出结论。更多原版应用仍开放。

@@ -184,6 +184,10 @@ def _setup_inputs(value: object) -> list[dict]:
         field = f"network.setup_inputs[{index}]"
         if not isinstance(step, dict) or step.get("kind") not in SETUP_KINDS:
             raise _bad(f"{field}.kind must be one of {', '.join(SETUP_KINDS)}")
+        until = step.get("until")
+        if until not in (None, "joined"):
+            raise _bad(f"{field}.until must be joined when present")
+        step = {k: v for k, v in step.items() if k != "until"}
         if step["kind"] == "wait":
             _only(step, {"kind", "seconds", "serial_marker"}, field)
             seconds = step.get("seconds", 1)
@@ -193,11 +197,12 @@ def _setup_inputs(value: object) -> list[dict]:
             if marker is not None and (not isinstance(marker, str) or not 1 <= len(marker) <= 200):
                 raise _bad(f"{field}.serial_marker must be a short string")
             steps.append({"kind": "wait", "seconds": float(seconds),
-                          **({"serial_marker": marker} if marker else {})})
+                          **({"serial_marker": marker} if marker else {}),
+                          **({"until": until} if until else {})})
         else:
             # Board-specific fields are validated by the same input path used
             # for /input at execution time, against the running guest.
-            steps.append(dict(step))
+            steps.append({**step, **({"until": until} if until else {})})
     return steps
 
 
@@ -326,7 +331,7 @@ def capability(spec, *, backend_ready: bool) -> dict:
         "network_isolation": ISOLATION, "host_egress": "deny",
         "requires_linux_namespace": False, "pcap": True,
         "security": list(SECURITIES), "fixtures": list(FIXTURE_KINDS),
-        "setup_input_kinds": list(SETUP_KINDS), "assertion_types": list(ASSERTION_TYPES),
+        "setup_input_kinds": list(SETUP_KINDS), "setup_input_conditions": ["joined"], "assertion_types": list(ASSERTION_TYPES),
         "presets": {"sd_card": ["none", "blank"], "saved_station": True},
         "gateway": str(GATEWAY), "lease": str(LEASE),
         "max_timeout_seconds": 300, "statuses": ["PASS", "FAIL", "PARTIAL", "NOT_USED"],
