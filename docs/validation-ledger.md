@@ -63,6 +63,13 @@ Cardputer-Adv 原 8 MiB SDcard 同页启动两次，均以初始素材读取 28 
 无卡和损坏响应对照分别复现来宾缺卡及启动前拒绝，正常会话均回收 Worker。
 正式托管和真机未执行。[microSD #253](https://github.com/m5agent/m5stack-esp-emulator/issues/253) · [真帧、SPI 和清理证据](https://github.com/m5agent/agent-work-logs/tree/5eeae15fb82e8b4d30d29b79ccc60e2cdbe405a2/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-browser-demo-microsd)
 
+CoreS3 工作台新增 UIFlow2 v2.5.5 绘图预设，浏览器组合得到 `565f1de9…0927`，
+用同一 WASM `618f4713…1a62` 执行经校验的官方 Python。来宾报告 `w: 320h:240`，
+新 RGB565 帧完整显示绘图，二维码解码为 `Hello`。中断和手动重开分享链接通过。
+同一导出的默认 v2.5.3 会话两次执行原始初始程序。两个实际会话均正常回收。
+固件和 ROM 请求使用摘要匹配的缓存复现，正式托管、真机及分享链接自动启动未执行。
+[绘图裁切 #249](https://github.com/m5agent/m5stack-esp-emulator/issues/249) · [组合、实际帧和回收证据](https://github.com/m5agent/agent-work-logs/tree/89bf4a03a80c17878de241245eb86d72df2b437d/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-uiflow-display)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
