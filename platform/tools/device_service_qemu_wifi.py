@@ -62,7 +62,9 @@ def apply_qemu_wifi_environment(
         network_config.get("wifi_password", "")
     )
     env["M5SW_WIFI_AUTH"] = auth
-    if nic == "misc.esp32s3.wifi" and auth == "wpa2-psk":
+    if nic == "misc.esp32s3.wifi" and (auth == "wpa2-psk" or network_config.get("profile") == "review-sta"):
+        # review-sta also reads the S3 NIC's DMA-ring trace to tell "driver
+        # never started" from "driver started but never joined".
         env["M5SW_S3_WIFI_TRACE"] = "1"
     elif network_config.get("profile") == "review-sta" and auth == "wpa2-psk":
         # The WPA2 handshake model in esp32_wifi_ap.c is shared by both NICs

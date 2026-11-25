@@ -280,6 +280,11 @@ class ReviewStaEnvironmentTests(unittest.TestCase):
             nic="misc.esp32_wifi"))
         self.assertEqual(env["M5SW_S3_WIFI_TRACE"], "1")
         self.assertEqual(env["M5SW_WIFI_AUTH"], "wpa2-psk")
+        # An open review-sta session on the S3 NIC also needs the DMA trace.
+        s3 = {}
+        apply_qemu_wifi_environment(s3, "misc.esp32s3.wifi", parse_review_sta(
+            {"profile": "review-sta"}, nic="misc.esp32s3.wifi"))
+        self.assertEqual(s3["M5SW_S3_WIFI_TRACE"], "1")
         other = {}
         apply_qemu_wifi_environment(other, "misc.esp32_wifi", {"profile": "core2-openmac",
                                                                "wifi_auth": "wpa2-psk"})
@@ -309,6 +314,34 @@ class ReviewStaVerdictTests(unittest.TestCase):
         declared = evaluate(_config(network_code="absent"), {"events": []}, stderr_text="", capture={},
                             window_closed=True, firmware_wifi_stack=None)
         self.assertEqual(declared["status"], "NOT_USED")
+
+    def test_driver_never_started_is_not_used_with_reason(self):
+        cfg = _config()
+        idle = evaluate(cfg, {"events": []}, stderr_text="", capture={}, window_closed=True,
+                        firmware_wifi_stack=True, wifi_initialized=False)
+        self.assertEqual(idle["status"], "NOT_USED")
+        self.assertEqual(idle["reason"], "wifi_not_initialized")
+        self.assertEqual(idle["failure_codes"], [])
+        self.assertEqual(idle["data_plane"], "NOT_USED")
+        started = evaluate(cfg, {"events": []}, stderr_text="", capture={}, window_closed=True,
+                           firmware_wifi_stack=True, wifi_initialized=True)
+        self.assertEqual(started["status"], "PARTIAL")
+        self.assertEqual(started["reason"], "wifi_initialized_no_scan")
+        self.assertEqual(started["failure_codes"], ["no_network_activity"])
+        unknown = evaluate(cfg, {"events": []}, stderr_text="", capture={}, window_closed=True,
+                           firmware_wifi_stack=True, wifi_initialized=None)
+        self.assertEqual(unknown["status"], "PARTIAL")
+        self.assertIsNone(unknown["reason"])
+        stackless = evaluate(cfg, {"events": []}, stderr_text="", capture={}, window_closed=True,
+                             firmware_wifi_stack=False, wifi_initialized=True)
+        self.assertEqual(stackless["reason"], "no_wifi_stack")
+
+    def test_scan_after_init_is_not_marked_unused(self):
+        scan = "QEMU: Received probe request!\n"
+        verdict = evaluate(_config(), {"events": []}, stderr_text="", capture={}, window_closed=True,
+                           firmware_wifi_stack=True, wifi_initialized=False, stdout_text=scan)
+        self.assertEqual(verdict["status"], "PARTIAL")
+        self.assertEqual(verdict["reason"], None)
 
     def test_open_window_without_events_is_running(self):
         verdict = evaluate(_config(), {"events": []}, stderr_text="", capture={},
@@ -349,6 +382,17 @@ class ReviewStaVerdictTests(unittest.TestCase):
         self.assertEqual(verdict["pcap_isolation"]["guest_local_sources"], ["192.168.4.1"])
         self.assertEqual(verdict["status"], "PARTIAL")
 
+    def test_unspecified_destination_is_not_egress(self):
+        capture = {"status": "PASS", "input": {"sha256": "0" * 64}, "flows": [
+            {"source": "10.0.2.15:123", "destination": "0.0.0.0:0"},
+            {"source": "10.0.2.15:5000", "destination": "10.0.2.2:53"}]}
+        events = [{"type": "dhcp_lease", "status": "PASS"}, {"type": "unroutable_dropped", "dst": "0.0.0.0:0"}]
+        verdict = evaluate(_config(), {"events": events}, stderr_text="", capture=capture,
+                           window_closed=True, firmware_wifi_stack=True)
+        self.assertEqual(verdict["pcap_isolation"]["status"], "PASS")
+        self.assertEqual(verdict["status"], "PASS")
+        self.assertEqual(verdict["external_requests"]["destinations"], [])
+
     def test_scan_only_is_partial_and_join_without_lease_is_dhcp_timeout(self):
         scan = "QEMU: Received probe request!\n" * 4
         verdict = evaluate(_config(), {"events": []}, stderr_text="", capture={},
@@ -379,6 +423,14 @@ class ReviewStaVerdictTests(unittest.TestCase):
         self.assertEqual(names, ["mp3net"])
         self.assertEqual(len(image), 20480)
         self.assertIn(b"M5-REVIEW", image)
+
+    def test_setup_step_until_joined_is_accepted_and_bounded(self):
+        cfg = _config(setup_inputs=[{"kind": "key", "key": "ret", "action": "tap", "until": "joined"},
+                                    {"kind": "wait", "seconds": 5, "until": "joined"}])
+        self.assertEqual([s.get("until") for s in cfg["setup_inputs"]], ["joined", "joined"])
+        self.assertNotIn("until", _config(setup_inputs=[{"kind": "wait", "seconds": 1}])["setup_inputs"][0])
+        with self.assertRaises(ServiceError):
+            _config(setup_inputs=[{"kind": "wait", "seconds": 1, "until": "never"}])
 
     def test_preset_config_is_validated(self):
         cfg = _config(preset={"sd_card": "blank", "saved_station": True})

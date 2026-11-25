@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-11-24`
+日期：`2026-11-25`
 
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，
 [验证台账](validation-ledger.md)保存原版固件、运行时、操作和结果的精确身份。
@@ -9,7 +9,7 @@
 | 入口 | 当前结果 |
 | --- | --- |
 | 原生工作台和审核 Device Service | 1.99.5 提供原版 Tab5 UserDemo I²S1 双麦输入、录制和数字回放，已验证静音、错误格式和复位。 [原版与常驻读回](validation-ledger.md#2026-11-19-tab5-userdemo-原版双麦录制与回放) |
-| 便携网络审查 | 1.100.0 新增 `qemu-wifi` 的 `review-sta`：每会话 UNIX socketpair 夹具，不需要 Linux 命名空间，返回事件、断言、稳定失败码与 pcap 隔离结论。8 款板卡控制固件 `32/32` 与预期一致；Tab5 报告 `network=unsupported`。审查服务尚未切换。 [控制固件证据](validation-ledger.md#2026-11-24-便携-review-sta-网络审查控制固件) |
+| 便携网络审查 | 1.102.0 的 `qemu-wifi` `review-sta`：每会话 UNIX socketpair 夹具，不需要 Linux 命名空间，返回事件、断言、稳定失败码与 pcap 隔离结论。8 款板卡控制固件 `32/32` 与预期一致；Tab5 报告 `network=unsupported`。审查服务已切换；2026-11-25 增加 `wifi_initialized` 判定与 `until=joined` 条件步骤。 [控制固件证据](validation-ledger.md#2026-11-24-便携-review-sta-网络审查控制固件) |
 | 审核与 Linux Worker | Reviewer 0.31.1 核对了存储不足后的同任务恢复。托管 Linux 已通过原版 Core2 独立复审与 CardputerDict ADV 的 HTTPS、SD 和 PCM。 [审核证据](validation-ledger.md#2026-11-19-reviewer-磁盘容量归因与同任务恢复) |
 | PaperDIY 原生 STA 板级准入 | 精确 `m5paperdiy` 模型在隔离 Linux 会话通过受控关联与 DHCP，开放最小 `generic-observe` STA 声明。未获得双向 TCP/UDP payload，原版 CrossPoint 应用尚未复测。 [限定证据](evidence/2026-11-23-paperdiy-native-sta/summary.json) |
 | StopWatch 原版首次配网与重启 | Demo Plus V0.6-OPT 从原始空 NVS 经真实设置、AP 门户 JSON 提交和退出配网取得 STA 地址，原应用保存凭据后同会话重启自动回连。独立 `stopwatch-open-softap-provisioning` 为零主机 IP backend 的固定开放实验网络；WPA2、外网、浏览器及物理 RF 未验证。 [原版冷启动证据](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json) |

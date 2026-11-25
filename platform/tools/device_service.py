@@ -123,7 +123,9 @@ from review_sta_config import (  # noqa: E402
 from review_sta_peer import ReviewStaPeer  # noqa: E402
 from review_sta_preset import build_station_nvs  # noqa: E402
 from sd_image import create_fat32_mbr_image  # noqa: E402
-from review_sta_verdict import evaluate as evaluate_review_sta, firmware_has_wifi_stack  # noqa: E402
+from review_sta_verdict import (  # noqa: E402
+    DRIVER_MARKERS, evaluate as evaluate_review_sta, firmware_has_wifi_stack,
+)
 from device_service_softap_peer import (  # noqa: E402
     ACL_OPERATION as SOFTAP_ACL_OPERATION,
     NIC as SOFTAP_NIC,
@@ -4813,6 +4815,15 @@ class DeviceSession:
                 if self._stop_event.is_set():
                     return
                 result = {"index": index, "kind": step["kind"]}
+                if step.get("until") == "joined" and self._review_sta_verdict(window_closed=False)["station_joined"]:
+                    # A conditional (probe) step: the station already leased an
+                    # address, so further navigation input is unnecessary.
+                    result.update(status="SKIPPED", reason="station_joined", until="joined")
+                    window["setup"].append(result)
+                    continue
+                if step.get("until"):
+                    result["until"] = step["until"]
+                step = {k: v for k, v in step.items() if k != "until"}
                 try:
                     if step["kind"] == "wait":
                         marker = step.get("serial_marker")
@@ -4894,7 +4905,29 @@ class DeviceSession:
             self.network_config, peer, stderr_text=stderr_text, stdout_text=stdout_text,
             capture=self._network_capture_evidence(), window_closed=window_closed,
             firmware_wifi_stack=self._review_sta_firmware_stack(),
+            wifi_initialized=self._review_sta_driver_initialized(),
         )
+
+    def _review_sta_driver_initialized(self) -> bool | None:
+        """True once the S3 NIC saw the guest program its DMA rings.
+
+        The first marker lands early in a long stderr file, so the whole file
+        is scanned (and the positive result cached). Classic ESP32 has no
+        equivalent trace; it reports None and keeps the PARTIAL semantics.
+        """
+        if self.network_config.get("nic") != "misc.esp32s3.wifi":
+            return None
+        if getattr(self, "_review_sta_driver_seen", False):
+            return True
+        try:
+            with open(self.stderr_path, "r", errors="replace") as handle:
+                for line in handle:
+                    if any(marker in line for marker in DRIVER_MARKERS):
+                        self._review_sta_driver_seen = True
+                        return True
+        except OSError:
+            return None
+        return False
 
     def _review_sta_evidence(self, evidence: dict) -> None:
         window = getattr(self, "_review_sta_window", None) or {"state": "pending", "setup": []}

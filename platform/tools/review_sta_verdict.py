@@ -3,8 +3,11 @@
 Status semantics (#238):
 - PASS: every required assertion was observed.
 - FAIL: an explicit network failure (auth, DHCP, DNS, TCP, HTTP, fixture).
-- PARTIAL: the window closed without any network attempt by the guest.
-- NOT_USED: the firmware has no Wi-Fi stack and made no attempt.
+- PARTIAL: the Wi-Fi driver ran (or only scanned) but the station never joined.
+- NOT_USED: the window closed with no station activity and the controller saw
+  no driver initialisation (`wifi_initialized` false), or the image has no
+  Wi-Fi stack. `reason` says which; the reviewer decides whether an unused
+  network is acceptable for the claim.
 - RUNNING: the window is still open and no verdict is final yet.
 """
 from __future__ import annotations
@@ -63,6 +66,12 @@ def radio_events(stdout_text: str) -> list[dict]:
         events.append({"type": "wifi_assoc", "auth_requests": auths, "assoc_requests": assocs,
                        "status": "OBSERVED", "source": "controller-ap-model"})
     return events
+
+
+# Controller trace lines that only appear after the guest driver programmed
+# the Wi-Fi MAC DMA rings (ESP32-S3 NIC, `M5SW_S3_WIFI_TRACE`). They come from
+# the NIC model, never from guest serial text or image strings.
+DRIVER_MARKERS = ("[esp32s3-wifi] RX DMA base=", "[esp32s3-wifi] TX DMA outlink=")
 
 
 def _matches(assertion: dict, event: dict) -> bool:
@@ -124,7 +133,8 @@ def _pcap_isolation(capture: dict) -> dict:
             src = ipaddress.IPv4Address(source)
         except ValueError:
             continue
-        broadcast = dst.is_multicast or destination == "255.255.255.255" or src.is_unspecified
+        broadcast = (dst.is_multicast or destination == "255.255.255.255" or src.is_unspecified
+                     or dst.is_unspecified)
         if source in station and not broadcast and destination not in station:
             outside.add(destination)
         elif destination in station and source not in station and not src.is_unspecified:
@@ -138,7 +148,8 @@ def _pcap_isolation(capture: dict) -> dict:
 
 
 def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
-             window_closed: bool, firmware_wifi_stack: bool | None, stdout_text: str = "") -> dict:
+             window_closed: bool, firmware_wifi_stack: bool | None, stdout_text: str = "",
+             wifi_initialized: bool | None = None) -> dict:
     events = [dict(e) for e in peer.get("events", []) if isinstance(e, dict)]
     leased = any(e["type"] == "dhcp_lease" for e in events)
     auth = wifi_auth_events(stderr_text, config["wifi_auth"], leased)
@@ -148,7 +159,10 @@ def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
     scanned_only = bool(radio) and not joined
     attempted = bool(auth) or joined or any(
         e["type"] not in ("setup_input", "wifi_scan") for e in events)
-    rows, failures = [], []
+    rows, failures, reason = [], [], None
+    if radio and wifi_initialized is False:
+        # A management frame reached the AP model, so the driver did run.
+        wifi_initialized = True
     for assertion in config["assertions"]:
         matched = [e for e in events if _matches(assertion, e)]
         passed = [e for e in matched if _event_passed(assertion, e)]
@@ -183,10 +197,21 @@ def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
     elif not window_closed:
         status = "RUNNING"
     elif not attempted:
-        status = "NOT_USED" if firmware_wifi_stack is False or config.get("network_code") == "absent" else "PARTIAL"
+        # `wifi_initialized` is True/False when the NIC trace was observable and
+        # None when this NIC has no driver-level signal (classic ESP32).
+        if firmware_wifi_stack is False or config.get("network_code") == "absent":
+            status, reason = "NOT_USED", "no_wifi_stack"
+        elif wifi_initialized is False:
+            status, reason = "NOT_USED", "wifi_not_initialized"
+        else:
+            status, reason = "PARTIAL", None
     else:
         status = "FAIL"
     codes = list(dict.fromkeys(failures))
+    if status == "NOT_USED" and reason is None:
+        reason = "no_wifi_stack"
+    if status == "PARTIAL" and not scanned_only and wifi_initialized:
+        reason = "wifi_initialized_no_scan"
     if status == "PARTIAL":
         # A scan without a join usually means the firmware found no saved or
         # matching network and is waiting for user setup.
@@ -204,6 +229,7 @@ def evaluate(config: dict, peer: dict, *, stderr_text: str, capture: dict,
     }
     return {"status": status, "data_plane": data_plane, "failure_codes": codes,
             "external_requests": external, "station_joined": leased,
+            "wifi_initialized": wifi_initialized, "reason": reason,
             "events": events, "assertions": rows, "pcap_isolation": isolation,
             "ipv4": str(LEASE) if leased else None,
             "firmware_wifi_stack": firmware_wifi_stack}

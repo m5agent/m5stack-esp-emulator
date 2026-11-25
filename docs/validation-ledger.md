@@ -30,6 +30,11 @@ Plus2 的 known-good 均为 `PASS`，错误 WPA2 密码均为 `FAIL wifi_auth_fa
 setup 对照。修正 pcap 隔离与扫描事件后 `matrix3` 复跑 `32/32`。隔离审查服务复跑当前 14 条网络任务，均进入 `review-sta`，不再出现命名空间或目录未公布原因；窗口内无固件发出扫描，全部为 `PARTIAL no_network_activity`，需要配网输入。同日新增 `network.preset`：原版 CardRadio 在会话级空白 SD 与 `mp3net` 已保存网络下入网与 DHCP 通过；未核对布局的应用保持 `PARTIAL`。WPA3、TLS、物理 RF 与 browser-WASM 为 `NOT RUN`。
 [摘要](evidence/2026-11-24-review-sta-portable/README.md)
 
+## 2026-11-25 review-sta 驱动初始化与条件步骤
+
+对 `/network` 增加 `wifi_initialized` 与 `reason`：ESP32-S3 NIC 上窗口内来宾从未配置 Wi-Fi MAC DMA 时判 `NOT_USED`（`wifi_not_initialized`），不再判 `PARTIAL`。Bruce 在 SNTP 域名解析失败后向 `0.0.0.0:0` 发 UDP，原先被误计为 `host_egress_denied`，现记为 `unroutable_dropped`。`setup_inputs` 步骤支持 `until=joined`。Cardputer ADV 上用一组 Enter 导航探针复跑：Bruce CN 1.17-zh 与 CardOS-zh V6.2 入网并取得租约，pcap 隔离 PASS；Monster for Cyberspace 3.0.2 关联并发出 DHCPDISCOVER，收到与 CardOS 相同的 OFFER 后不发送 REQUEST，判 `FAIL dhcp_timeout`，原因待查。探针只证明入网，不证明任何应用功能。控制固件 good/offline 复跑与预期一致。Core2 与 StickC Plus2 无该信号。物理硬件、browser-WASM、WPA3 与 TLS 为 `NOT RUN`。
+[摘要](evidence/2026-11-25-review-sta-activity/README.md)
+
 ## 2026-11-23 原版 S3-watch 同来宾 WPA2 与只读 HTTP
 
 原版 **S3-watch 0.1 (worked)** `eb7f9425c07c…`，native macOS arm64

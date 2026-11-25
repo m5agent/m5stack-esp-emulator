@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-11-19`.
 
-Status: local MVP with unified-device runtime contract `1.101.0` and bounded
+Status: local MVP with unified-device runtime contract `1.102.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -3966,6 +3966,11 @@ PaperS3 (S3 Wi-Fi) and Core2, StickC Plus2 (classic ESP32 Wi-Fi). Tab5 returns
 - `setup_inputs` run in order after the session reaches `running`, on the same
   guest and through the same input path and ACL as `POST /input`. A `wait` step
   can block on a serial marker. A failed step is recorded and ends the setup.
+  A step may carry `"until": "joined"` (advertised as
+  `setup_input_conditions`). Once the station holds a lease the step is
+  recorded as `SKIPPED` with `reason=station_joined` and not injected. A
+  caller can use that for a bounded, exploratory navigation sequence; record
+  it as a probe, not as proof that a specific feature works.
 - `assertions` defaults to `wifi_auth` + `dhcp_lease`. Types are `wifi_auth`,
   `dhcp_lease`, `dns_query`, `tcp_connect`, `http_request`, `udp_exchange`,
   `mqtt_connect` and `mqtt_publish`.
@@ -3992,8 +3997,17 @@ and from setup steps. Guest serial text is never used as an event source.
 | `RUNNING` | The observation window is still open |
 | `PASS` | Every assertion was observed and succeeded |
 | `FAIL` | An explicit failure: see `failure_codes` |
-| `PARTIAL` | The window closed with no network attempt and a Wi-Fi stack is present (`no_network_activity`) |
-| `NOT_USED` | No network attempt, and the image has no Wi-Fi stack or the caller set `network_code=absent` |
+| `PARTIAL` | The Wi-Fi driver ran or scanned but the station never joined (`no_network_activity`, optionally `wifi_scan_only`) |
+| `NOT_USED` | The window closed with no station activity and `reason` is `wifi_not_initialized` (the controller never saw the guest program the Wi-Fi MAC), `no_wifi_stack` or `network_code=absent` |
+
+`wifi_initialized` is `true` or `false` on the ESP32-S3 NIC, where the model
+traces the guest's Wi-Fi DMA ring set-up, and `null` on the classic ESP32 NIC,
+which has no such signal and therefore keeps `PARTIAL` for an idle window. It
+comes from the controller model, never from image strings or serial text. A
+firmware that links a Wi-Fi stack but never starts it is `NOT_USED`; the
+caller decides whether an unused network is acceptable for the claim. A UDP
+packet to `0.0.0.0` (an unresolved name) is dropped as `unroutable_dropped` and
+is not counted as egress.
 
 Stable failure codes: `wifi_auth_failed` (EAPOL 2/4 or 4/4 MIC mismatch on the
 controller), `dhcp_timeout`, `dns_failed`, `tcp_refused`, `http_status`,

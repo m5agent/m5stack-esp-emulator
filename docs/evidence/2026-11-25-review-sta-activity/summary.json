@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-25",
+  "validation": "virtual-device validation",
+  "scope": "review-sta driver-initialisation verdict, unspecified-destination handling and conditional setup steps (#238 follow-up)",
+  "device": "cardputer-adv",
+  "runtime": "qemu-wifi",
+  "profile": "review-sta",
+  "api_contract": "1.102.0",
+  "firmware": {
+    "bruce_cn_1_17_zh": "6eea3be2518fcaea17900695961ce90d4d549cb914f5321cdafd9986255037b1",
+    "cardos_zh_v6_2": "4a254e103280fdaddaaa3f1899bf670f7e0e03d06a31f8cfb04624c0efe9452f",
+    "monster_v3_0_2": "52e452cbf313540f8356ee2be56e56806de726c20169c512d830e59ab1fafa5e"
+  },
+  "control_firmware": {
+    "offline_s3_8mb": "NOT_USED, reason wifi_not_initialized",
+    "good_s3_8mb": "PASS"
+  },
+  "replays": [
+    {
+      "firmware": "Bruce CN 1.17-zh",
+      "probe": "idle window",
+      "status": "NOT_USED",
+      "reason": "wifi_not_initialized"
+    },
+    {
+      "firmware": "Bruce CN 1.17-zh",
+      "probe": "Enter navigation (setup_inputs until=joined)",
+      "status": "PASS",
+      "station_joined": true,
+      "pcap_isolation": "PASS"
+    },
+    {
+      "firmware": "CardOS-zh V6.2",
+      "probe": "Enter navigation",
+      "status": "PASS",
+      "station_joined": true,
+      "external_dns": [
+        "ntp.aliyun.com",
+        "ntp.tencent.com"
+      ]
+    },
+    {
+      "firmware": "Monster for Cyberspace 3.0.2",
+      "probe": "Enter navigation",
+      "status": "FAIL",
+      "failure_codes": [
+        "dhcp_timeout"
+      ],
+      "note": "associates and broadcasts DHCPDISCOVER, receives the peer OFFER, never sends REQUEST; same OFFER is accepted by CardOS. Open."
+    }
+  ],
+  "fixed": [
+    "Bruce DNS-failed SNTP sends UDP to 0.0.0.0:0, previously counted as host_egress_denied (false FAIL)"
+  ],
+  "not_run": [
+    "physical hardware",
+    "browser-WASM",
+    "WPA3",
+    "real TLS",
+    "Core2 and StickC Plus2 driver-initialisation signal (classic NIC has none)"
+  ]
+}
