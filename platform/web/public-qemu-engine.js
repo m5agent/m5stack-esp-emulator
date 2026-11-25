@@ -1,6 +1,7 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
 import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuSx1262PeerStateQuery,validateQemuSx1262PeerState,qemuSx1262ReceiveArmed} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
+import {hasQemuAudioPatches,qemuAudioRing,qemuVirtualMic,writeQemuAudio} from './public-qemu-audio.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
 import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
 import {qemuGnssFixBytes} from './public-qemu-gnss-example.js';
@@ -12,6 +13,15 @@ let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
 let previousOutputs, previousUnitExampleState;
 let controllerInputs = Promise.resolve();
 let resetEpoch = 0;
+let audioMode, micArmed = false;
+const VIRTUAL_MIC_PATH = '/bridge/virtual-mic.pcm';
+
+function setVirtualMic(enabled) {
+  if (enabled === micArmed) return;
+  if (enabled) module.FS.writeFile(VIRTUAL_MIC_PATH, qemuVirtualMic());
+  else module.FS.unlink(VIRTUAL_MIC_PATH);
+  micArmed = enabled;
+}
 let panelPath;
 let usbSerialJtag = false;
 let workersCreated = 0;
@@ -95,7 +105,7 @@ function output(text) {
       })().catch(fail);
     }
     if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
-      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;gnssInput=null;previousOutputs=undefined;previousUnitExampleState=undefined;sourceSequence=0;}
+      if (message.event==='RESET') {setVirtualMic(false);resetEpoch++;uartInput.length=0;gnssInput=null;previousOutputs=undefined;previousUnitExampleState=undefined;sourceSequence=0;}
       emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true,
         ...(message.event==='RESET'?{consoleEpoch:resetEpoch}:{})});
     }
@@ -164,6 +174,13 @@ async function start(config) {
   if(sdCard!==undefined&&(!(sdCard instanceof ArrayBuffer)||!validQemuSdImage(boardProfile.deviceId,sdCard.byteLength))) {
     throw new Error('QEMU microSD image is incompatible with the device');
   }
+  const audio = config.audio;
+  if (audio && (boardProfile.deviceId !== 'cores3' || !['wav','mic'].includes(audio.kind) ||
+      !hasQemuAudioPatches(config.runtimePatches) || (audio.kind === 'wav' && !sdCard))) {
+    throw new Error('QEMU audio example does not match the runtime');
+  }
+  const audioRing = audio ? qemuAudioRing(audio.ring) : null;
+  audioMode = audio?.kind;
   frameTransport=config.frameTransport;
   const options = {
     arguments:buildQemuArguments(boardProfile,config.runtimePatches),
@@ -198,6 +215,18 @@ async function start(config) {
       if(sdCard) {
         m.FS.writeFile('/sd-card.img',new Uint8Array(sdCard),{canOwn:true});
         m.ENV.M5SW_SPI_SD_IMAGE='/sd-card.img';
+      }
+      if (audioRing) {
+        Object.assign(m.ENV, {M5SW_I2S_DMA_IRQ:'1', M5_WASM_I2S_TX_PACING:'1', M5_WASM_I2S_PCM_STREAM:'1'});
+        if (audioMode === 'mic') {
+          Object.assign(m.ENV, {M5SW_I2S_RX_PCM_FILE:VIRTUAL_MIC_PATH, M5_WASM_I2S_VIRTUAL_MIC:'1'});
+        }
+        const dev = m.FS.makedev(65, 0);
+        m.FS.registerDevice(dev, {
+          open: stream => { stream.seekable = false; },
+          write: (_, bytes, offset, length) => writeQemuAudio(audioRing, bytes, offset, length),
+        });
+        m.FS.mkdev('/bridge/audio-pcm', 0o222, dev);
       }
       if (boardProfile.accelerator?.icountMaxPerCpuNs !== undefined)
         m.ENV.M5SW_ICOUNT_MAX_PERCPU_NS=String(boardProfile.accelerator.icountMaxPerCpuNs);
@@ -296,6 +325,13 @@ async function request(op, value) {
     }
   }
   if (op === 'start') return start(value);
+  if (op === 'audio-mic') {
+    if (audioMode !== 'mic' || typeof value?.enabled !== 'boolean' || value.consoleEpoch !== resetEpoch) {
+      throw new Error('Virtual microphone is unavailable for this guest');
+    }
+    setVirtualMic(value.enabled);
+    return {enabled:micArmed};
+  }
   if (op === 'dispose') {
     disposeRequested=true;
     const workersTerminatedByDispose=workers.size;cleanup();

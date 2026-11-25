@@ -386,7 +386,7 @@ def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False
     return files
 
 
-def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = (), qemu_sd_media: Path | None = None) -> dict:
+def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = (), qemu_sd_media: Path | None = None, qemu_cores3_audio: bool = False) -> dict:
     root, output = root.resolve(), output.resolve()
     base_path = normalize_base_path(base_path)
     service_url = normalize_service_url(service_url)
@@ -394,6 +394,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         raise ValueError("select one browser engine per exported site")
     if (qemu_candidate_profiles or qemu_c61_runtime) and not qemu_runtime:
         raise ValueError("QEMU candidate profiles and the C61 runtime require the primary QEMU runtime")
+    if qemu_cores3_audio and not qemu_runtime:
+        raise ValueError("CoreS3 audio preview requires the primary QEMU runtime")
     if qemu_sd_media is not None and not qemu_runtime:
         raise ValueError("QEMU SD media requires the primary QEMU runtime")
     # Never overwrite a source tree or an arbitrary existing user directory.
@@ -435,6 +437,13 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                 (runtime_directory / name).write_bytes(content)
         if qemu_runtime:
             runtime_manifest, runtime_files = qemu_runtime_files(qemu_runtime, allow_diagnostic=allow_diagnostic_runtime)
+            if qemu_cores3_audio:
+                audio_patches = ("cores3-i2s-tx-descriptor-pacing", "cores3-i2s-web-pcm-stream")
+                patches = runtime_manifest["source"]["patches"]
+                if not all(any(re.fullmatch(r"patches/qemu-wasm-probe/\d{4}-" + name + r"\.patch", row["path"])
+                               and re.fullmatch(r"[0-9a-f]{64}", row["sha256"]) for row in patches)
+                           for name in audio_patches):
+                    raise ValueError("CoreS3 audio preview requires I2S pacing and streaming patches")
             runtime_directory = temporary / "platform/runtime/qemu"
             runtime_directory.mkdir(parents=True, exist_ok=True)
             for name, content in runtime_files.items():
@@ -520,7 +529,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             "browser_runtime_engine": runtime_manifest.get("engine", "esp32sim") if runtime_manifest else None,
             "browser_runtime_build": runtime_manifest["build"]["kind"] if runtime_manifest else None,
             "browser_candidate_profiles": list(qemu_candidate_profiles),
-            "publication_eligible": not bool(qemu_candidate_profiles),
+            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio),
             "browser_wallclock_example": bool(qemu_runtime and wallclock_example),
         }
         if sd_examples is not None:
@@ -529,6 +538,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             config["browser_cc1101_examples"] = cc1101_examples
         if sx1262_examples:
             config["browser_sx1262_examples"] = sx1262_examples
+        if qemu_cores3_audio:
+            config["browser_cores3_audio"] = True
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))
         (temporary / "site-config.json").write_bytes(encode_json(config))
         # Unit visual availability and emulated protocol coverage remain distinct.
@@ -559,7 +570,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             "execution": execution,
             "firmware_bundled": False, "assets": asset_rows,
             "candidate_profiles": list(qemu_candidate_profiles),
-            "publication_eligible": not bool(qemu_candidate_profiles),
+            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio),
         }
         (temporary / MANIFEST_NAME).write_bytes(encode_json(manifest))
         if output.exists():
@@ -581,12 +592,14 @@ def main() -> None:
     parser.add_argument("--qemu-c61-runtime", type=Path, help="directory from the RISC-V C61 source build")
     parser.add_argument("--qemu-sd-media", type=Path, metavar="DIRECTORY",
                         help="reviewed demonstration SD images and manifest.json")
+    parser.add_argument("--qemu-cores3-audio", action="store_true",
+                        help="preview-only opt-in for the exact CoreS3 WAV and virtual microphone examples")
     parser.add_argument("--littlefs-runtime", type=Path, help="source-built browser LittleFS composer")
     parser.add_argument("--allow-diagnostic-runtime", action="store_true", help="explicit preview-only opt-in for the pinned downloaded WASM")
     parser.add_argument("--qemu-candidate-profile", action="append", default=[], help="preview-only board candidate; never supplied by the Pages publication workflow")
     args = parser.parse_args()
     try:
-        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile), qemu_sd_media=args.qemu_sd_media)
+        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile), qemu_sd_media=args.qemu_sd_media, qemu_cores3_audio=args.qemu_cores3_audio)
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"public site export failed: {error}\n")
     print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "bytes": sum(row["bytes"] for row in manifest["assets"]), "base_path": manifest["base_path"], "published": False}))
