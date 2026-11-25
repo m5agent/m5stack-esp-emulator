@@ -161,7 +161,7 @@
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
     "hw/m5stopwatch/co5300.c": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
     "hw/m5stopwatch/esp32s3_fe.c": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
-    "hw/m5stopwatch/esp32s3_gpspi.c": "5e260f5b4959416000da546370c2aa6e9422ca6bfc4e380b409a471f105f6c4d",
+    "hw/m5stopwatch/esp32s3_gpspi.c": "6ed07163266a09d875df8866b5df88e52a2446dc8e2d35b75be22b8b7265637e",
     "hw/m5stopwatch/esp32s3_i2c.c": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
     "hw/m5stopwatch/esp32s3_phy.c": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
     "hw/m5stopwatch/esp32s3_regi2c.c": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
@@ -197,7 +197,7 @@
     "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
     "hw/m5stopwatch/m5cardputeradv.c": "c4a4072dc25854d9c4e0017c95c829b5d66b0bd850e9865b98928e7bccbfadff",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
-    "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
+    "hw/m5stopwatch/m5cores3.c": "22119b525d82f00e9becfd210ba895262514cb7549d3c284fe2779e6c238fcea",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
     "hw/m5stopwatch/m5paper_et047.c": "88d4b30712372c88cabf375cf16e569a3d533f2731014dd6e918a49a3cb7cdf8",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
@@ -207,7 +207,7 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
-    "hw/m5stopwatch/m5stopwatch.h": "4200253d415a652700568e66d97c35f3be05bb9da915c5b55c776cec214e98f8",
+    "hw/m5stopwatch/m5stopwatch.h": "ac9b10c69cd212a49bcfa31ec9a974bcc8501341661161576075af4e5bd7fbf0",
     "hw/m5stopwatch/m5sw_i2c_devs.c": "96d85651f66778e7c2abb95cebb2dbc3eb985eefcfe9ece6f71fba2b01f01ca7",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
@@ -640,6 +640,10 @@
     {
       "path": "patches/qemu-wasm-probe/0040-esp32s3-rtc-core-reset.patch",
       "sha256": "1199ac7a42976f9436675c8480a96a5aa67615ce9627a2b75ae42c49812db09f"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0041-cores3-gpspi-host-routes.patch",
+      "sha256": "c2b0404f419117d2456db06f69239440c3953c73ec7b8cbe03afa4882320b59c"
     }
   ],
   "qemu": {
