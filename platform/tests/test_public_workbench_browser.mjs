@@ -1,5 +1,6 @@
 // Default: browser contracts only. --real-browser-runtime explicitly runs the
-// official PaperS3 guest in the exported WASM. No Device Service or hardware.
+// official PaperS3 guest in the exported WASM. --embedding-isolation uses a
+// WASM export to exercise the blocked-iframe UI without running a guest.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
@@ -13,6 +14,8 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const site = resolve(process.env.M5_PUBLIC_SITE || resolve(repo, '.work/public-ux-contract-site'));
 const out = process.env.M5_PUBLIC_UI_OUT || '/tmp/m5-public-workbench-browser';
 const realBrowser = process.argv.includes('--real-browser-runtime');
+const embeddingIsolation = process.argv.includes('--embedding-isolation');
+assert.ok(!(realBrowser && embeddingIsolation), 'select one browser regression');
 const runtimeArgument = process.argv.indexOf('--runtime');
 const runtimePath = resolve(
   runtimeArgument >= 0 ? process.argv[runtimeArgument + 1] : resolve(repo, '.work/browser-runtime'),
@@ -76,6 +79,11 @@ const checks = [],
   requests = [], workers = [];
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost');
+  if (url.pathname === '/embedding-fixture/' && embeddingIsolation) {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('<!doctype html><title>Unisolated host</title><iframe title="Workbench" width="1200" height="850" allow="cross-origin-isolated" src="/showcase/?device=cores3&mode=browser&autostart=0"></iframe>');
+    return;
+  }
   if (url.pathname === '/fixture/real.bin' && realBrowser) {
     response.writeHead(200, {'Content-Type': 'application/octet-stream'});
     response.end(await readFile(firmwarePath));
@@ -147,7 +155,28 @@ const test = async (name, run) => {
   await run();
   checks.push(name);
 };
-try {
+async function testEmbeddingIsolation() {
+  await test('unisolated-embed-explains-disabled-start-through-device-switch', async () => {
+    await page.goto(`${base}/embedding-fixture/`, {waitUntil: 'domcontentloaded'});
+    assert.equal(await page.evaluate(() => crossOriginIsolated), false);
+    const workbench = page.frameLocator('iframe[title="Workbench"]');
+    for (const device of ['cores3', 'cardputer-adv']) {
+      if (device !== 'cores3') await workbench.locator(`#deviceNav button[data-device-id="${device}"]`).click();
+      await workbench.locator(`#deviceMount[data-device-id="${device}"]`).waitFor();
+      assert.ok(await workbench.locator('body').evaluate(() => !crossOriginIsolated && !!navigator.serviceWorker.controller));
+      assert.ok(await workbench.locator('#startBtn').isDisabled());
+      assert.equal(await workbench.locator('#capabilityTitle').textContent(), '浏览器运行不可用');
+      assert.match(await workbench.locator('#capabilityText').textContent(), /共享内存.*新标签页/);
+    }
+    await workbench.locator('.advanced-options > summary').click();
+    await workbench.locator('#runtimeMode').selectOption('model');
+    assert.equal(await workbench.locator('#capabilityTitle').textContent(), '仅浏览模型');
+    assert.ok(await workbench.locator('#startBtn').isEnabled());
+    assert.ok(!requests.some(url => /qemu-system-xtensa\.wasm|\/api\/v1\//.test(url)));
+  });
+}
+
+async function testWorkbench() {
   const config = JSON.parse(await readFile(resolve(site, 'platform/web/site-config.json'), 'utf8'));
   if (!realBrowser) assert.equal(config.browser_board_execution, false, 'host contract uses an export without an executable runtime');
   const modelReady = async id => page.waitForFunction(id => document.querySelector('#deviceMount')?.dataset.deviceId === id
@@ -779,6 +808,14 @@ try {
         worker_terminated: true,
       });
     });
+}
+
+try {
+  if (embeddingIsolation) {
+    const config = JSON.parse(await readFile(resolve(site, 'platform/web/site-config.json'), 'utf8'));
+    assert.equal(config.browser_runtime_engine, 'qemu-wasm', 'embedding contract needs the WASM-enabled export');
+    await testEmbeddingIsolation();
+  } else await testWorkbench();
   assert.deepEqual(pageErrors, []);
   await writeFile(
     `${out}/report.json`,

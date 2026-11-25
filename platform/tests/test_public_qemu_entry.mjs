@@ -114,13 +114,14 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
 
 for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavailable']){
   const app=await entry({search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0',isolationError:Object.assign(new Error(code),{code})});
-  assert.equal(app.state.browserUnavailable,true);assert.equal(app.browserProfile('cores3'),null);
+  assert.match(app.state.browserUnavailableReason,new RegExp(code));assert.equal(app.browserProfile('cores3'),null);
   assert.equal(app.state.devices.length,catalog.devices.length+visualCandidates.length);assert.equal(app.state.selected.id,'cores3');
   assert.ok(app.events.includes('render-devices')&&app.events.includes('render-units'));
   assert.ok(app.events.includes('connect-service'));assert.equal(app.lane(),'service');
   app.element('runtimeMode').value='model';assert.equal(app.lane(),'model');
   app.element('runtimeMode').value='browser';assert.equal(app.lane(),null);
-  assert.match(app.element('errorBanner').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
+  app.updateCapability();
+  assert.match(app.element('capabilityText').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
 }
 const navigation=await entry({isolation:{isolated:false,reloading:true}});
 assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolation navigation must not accept firmware or start execution');
@@ -137,7 +138,7 @@ localService.state.serviceDevices=[{device_id:'cardputer-adv',creatable:true}];
 localService.state.picker={attachments:()=>[{id:'service-unit'}]};assert.equal(localService.lane(),'service');
 localService.element('runtimeMode').value='browser';assert.equal(localService.lane(),null,'Unit routing remains fail-closed in browser mode');
 localService.state.picker=null;localService.element('runtimeMode').value='auto';
-localService.state.browserUnavailable=true;
+localService.state.browserUnavailableReason='Isolation unavailable';
 assert.equal(localService.deviceRuntimeLabel(localService.state.selected),'服务可运行','connected devices must not keep the connect-service label');
 const localBrowser=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&mode=browser&autostart=0'});
 assert.equal(localBrowser.element('serviceUrl').value,'http://127.0.0.1:8787');
@@ -330,9 +331,9 @@ assert.equal(localFile.element('browserEvidenceStatus').dataset.evidenceState,'u
 assert.equal(localFile.element('browserEvidenceBtn').hidden,true);
 
 const unavailable=await entry({registryFailure:true,search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0'});
-assert.equal(unavailable.state.browserUnavailable,true);assert.equal(unavailable.browserProfile('cores3'),null);
+assert.match(unavailable.state.browserUnavailableReason,/仍可浏览模型或连接 HTTPS 仿真服务/);assert.equal(unavailable.browserProfile('cores3'),null);
 assert.ok(unavailable.events.includes('render-devices')&&unavailable.events.includes('connect-service'));assert.equal(unavailable.lane(),'service');
-unavailable.element('runtimeMode').value='model';assert.equal(unavailable.lane(),'model');assert.match(unavailable.element('errorBanner').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
+unavailable.element('runtimeMode').value='model';assert.equal(unavailable.lane(),'model');
 
 const original=await entry();assert.equal(original.events.some(item=>item.startsWith('start:')),false);
 assert.equal(original.reference().composedWorkbench,true,'official UIFlow programming firmware is the default');
