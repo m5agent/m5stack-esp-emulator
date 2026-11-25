@@ -282,6 +282,40 @@ def stage_uiflow_workbench_examples(root: Path, output: Path, workbench: dict,
     destination.write_bytes(content)
 
 
+def stage_qemu_cc1101_examples(root: Path, output: Path, runtime: dict,
+                                workbench: dict) -> dict[str, dict]:
+    peer_patch = {
+        "path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
+        "sha256": "feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2",
+    }
+    matching = [row for row in runtime.get("source", {}).get("patches", [])
+                if row.get("path") == peer_patch["path"]]
+    if matching != [peer_patch] or not any(
+        row["deviceId"] == "cardputer-adv"
+        and row["firmwareSHA256"] == "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd"
+        for row in workbench["profiles"]
+    ):
+        return {}
+    examples = {}
+    for role, size, digest in (
+        ("tx", 3425, "12d62591b8400f84dce2560601b4fe7939785ef6be1f9b574c1b419a58b2ce40"),
+        ("rx", 3930, "725c082f699a054b1b5983cdac62981b3287d24675ee3002efbd5b8058512744"),
+    ):
+        name = f"cc1101_cap_rf_{role}_example.py"
+        source = root / "tests/browser-qemu/uiflow_workbench" / name
+        if source.resolve() != source or not source.is_file():
+            raise ValueError("CC1101 original example source is missing or a symlink")
+        content = source.read_bytes()
+        if len(content) != size or hashlib.sha256(content).hexdigest() != digest:
+            raise ValueError("CC1101 original example source identity mismatch")
+        path = f"platform/runtime/qemu-probe/fixture/{name}"
+        destination = output / path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(content)
+        examples[role] = {"path": path, "bytes": size, "sha256": digest}
+    return examples
+
+
 def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False) -> dict[str, bytes]:
     directory = directory.resolve()
     manifest = json.loads((directory / "manifest.json").read_text())
@@ -374,6 +408,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             (temporary / "coi-serviceworker.js").write_bytes(isolation_worker.read_bytes())
         runtime_manifest = None
         sd_examples = None
+        cc1101_examples = {}
         if browser_runtime:
             runtime_manifest, runtime_files = browser_runtime_files(browser_runtime, allow_diagnostic=allow_diagnostic_runtime)
             runtime_directory = temporary / "platform/runtime/esp32sim"
@@ -407,6 +442,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             workbench["profiles"] = [row for row in workbench["profiles"]
                                      if row["deviceId"] in selected_devices]
             stage_uiflow_workbench_examples(root, temporary, workbench, selected_devices)
+            cc1101_examples = stage_qemu_cc1101_examples(root, temporary, runtime_manifest, workbench)
             (temporary / workbench_path).write_bytes(encode_json(workbench))
             # Probe sources are text, not prebuilt or derived firmware. Copy
             # only sources selected by an explicit per-board fixture identity.
@@ -470,6 +506,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         }
         if sd_examples is not None:
             config["browser_sd_examples"] = sd_examples
+        if cc1101_examples:
+            config["browser_cc1101_examples"] = cc1101_examples
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))
         (temporary / "site-config.json").write_bytes(encode_json(config))
         # Unit visual availability and emulated protocol coverage remain distinct.

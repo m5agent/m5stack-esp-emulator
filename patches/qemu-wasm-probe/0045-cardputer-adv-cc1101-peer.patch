@@ -1,0 +1,357 @@
+diff --git a/hw/m5stopwatch/m5_cc1101_spi.c b/hw/m5stopwatch/m5_cc1101_spi.c
+--- a/hw/m5stopwatch/m5_cc1101_spi.c
++++ b/hw/m5stopwatch/m5_cc1101_spi.c
+@@ -2,19 +2,24 @@
+  * CC1101 Sub-GHz SPI transceiver model for UIFlow2 Cap CC1101.
+  *
+  * The model implements the configuration/status register map, command
+- * strobes, FIFO transfers and a deterministic local TX-to-RX loopback. RF
+- * propagation is intentionally out of scope; the SPI transport and packet
+- * FIFO behavior are real guest-visible paths.
++ * strobes, FIFO transfers and a deterministic local TX-to-RX loopback.
++ * An explicit virtual peer can forward a completed FIFO frame to another
++ * guest's armed receiver. This routes bytes without an RF propagation model.
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
+ #include "qemu/timer.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "qapi/qmp/qdict.h"
++#include "sysemu/reset.h"
+ #include "hw/gpio/esp32_gpio.h"
+ #include "m5stopwatch.h"
+ 
+ #define CC1101_FIFO_SIZE 64
++#define CC1101_PEER_RX_DWELL_MS 5
+ 
+ enum {
+     CC_IDLE,
+@@ -41,14 +46,43 @@
+     int gdo0_pin;
+     bool packet_ready;
+     QEMUTimer *rx_timer;
++    bool peer_enabled;
++    bool peer_gdo0;
++    uint8_t peer_tx_frame[CC1101_FIFO_SIZE];
++    uint32_t peer_tx_len;
++    uint64_t peer_reset_epoch;
++    uint64_t peer_tx_sequence;
++    uint64_t peer_rx_accepted;
++    uint64_t peer_rx_interrupts;
++    uint64_t peer_rx_fifo_bytes;
++    uint64_t peer_rx_completed;
+ } M5Cc1101SpiState;
+ 
++static void cc1101_clear_rx(M5Cc1101SpiState *s)
++{
++    s->rx_len = 0;
++    s->rx_pos = 0;
++    s->packet_ready = false;
++    s->peer_gdo0 = false;
++    if (s->gdo0_pin >= 0) {
++        esp32_gpio_force_line(s->gdo0_pin, 0);
++    }
++    if (s->rx_timer) {
++        timer_del(s->rx_timer);
++    }
++}
++
+ static void cc1101_rx_timer(void *opaque)
+ {
+     M5Cc1101SpiState *s = opaque;
+ 
+-    if (s->packet_ready && s->gdo0_pin >= 0) {
++    if (s->packet_ready && s->gdo0_pin >= 0 &&
++        (!s->peer_enabled || s->marc_state == 0x0d)) {
+         esp32_gpio_force_line(s->gdo0_pin, 1);
++        if (s->peer_enabled) {
++            s->peer_gdo0 = true;
++            s->peer_rx_interrupts++;
++        }
+     }
+ }
+ 
+@@ -62,15 +96,44 @@
+     s->tx_len = 0;
+     s->air_len = 0;
+     s->air_pending = false;
+-    s->rx_len = 0;
++    if (s->peer_enabled) {
++        s->peer_reset_epoch++;
++        s->peer_tx_len = 0;
++        s->tx_poll_count = 0;
++        s->phase = CC_IDLE;
++        s->reg = 0;
++    }
++    cc1101_clear_rx(s);
++}
++
++static bool cc1101_peer_frame_valid(const uint8_t *frame, size_t size)
++{
++    return size > 1 && size <= CC1101_FIFO_SIZE && frame[0] == size - 1;
++}
++
++static bool cc1101_peer_rx_armed(const M5Cc1101SpiState *s)
++{
++    return s->peer_enabled && s->marc_state == 0x0d && !s->packet_ready;
++}
++
++static bool cc1101_peer_receive(M5Cc1101SpiState *s,
++                               const uint8_t *frame, size_t size)
++{
++    if (!cc1101_peer_frame_valid(frame, size) || !cc1101_peer_rx_armed(s)) {
++        return false;
++    }
++    memcpy(s->rx_fifo, frame, size);
++    s->rx_fifo[size] = 0x80; /* Deterministic RSSI byte. */
++    s->rx_fifo[size + 1] = 0x80; /* CRC OK, deterministic LQI. */
++    s->rx_len = size + 2;
+     s->rx_pos = 0;
+-    s->packet_ready = false;
+-    if (s->gdo0_pin >= 0) {
+-        esp32_gpio_force_line(s->gdo0_pin, 0);
+-    }
+-    if (s->rx_timer) {
+-        timer_del(s->rx_timer);
+-    }
++    s->packet_ready = true;
++    s->peer_rx_accepted++;
++    s->peer_gdo0 = false;
++    esp32_gpio_force_line(s->gdo0_pin, 0);
++    timer_mod(s->rx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + CC1101_PEER_RX_DWELL_MS);
++    return true;
+ }
+ 
+ static void cc1101_strobe(M5Cc1101SpiState *s, uint8_t command)
+@@ -88,6 +151,9 @@
+         break;
+     case 0x34: /* SRX */
+         s->marc_state = 0x0d;
++        if (s->peer_enabled) {
++            break;
++        }
+         if (s->air_pending) {
+             s->rx_len = MIN(s->air_len + 2, sizeof(s->rx_fifo));
+             memcpy(s->rx_fifo, s->air_fifo, s->air_len);
+@@ -105,13 +171,16 @@
+         }
+         break;
+     case 0x35: /* STX */
++        if (s->peer_enabled) {
++            cc1101_clear_rx(s);
++        }
+         s->marc_state = 0x13;
+         s->tx_poll_count = 4;
+         s->air_len = MIN(s->tx_len, sizeof(s->air_fifo));
+         if (s->tx_len) {
+             memcpy(s->air_fifo, s->tx_fifo, s->air_len);
+         }
+-        s->air_pending = true;
++        s->air_pending = !s->peer_enabled;
+         s->packet_ready = false;
+         if (s->gdo0_pin >= 0) {
+             esp32_gpio_force_line(s->gdo0_pin, 0);
+@@ -119,23 +188,21 @@
+         break;
+     case 0x36: /* SIDLE */
+         s->marc_state = 0x01;
++        if (s->peer_enabled) {
++            cc1101_clear_rx(s);
++        }
+         break;
+     case 0x3a: /* SFRX */
+-        s->rx_len = 0;
+-        s->rx_pos = 0;
+-        s->packet_ready = false;
+-        if (s->rx_timer) {
+-            timer_del(s->rx_timer);
+-        }
+-        if (s->gdo0_pin >= 0) {
+-            esp32_gpio_force_line(s->gdo0_pin, 0);
+-        }
++        cc1101_clear_rx(s);
+         break;
+     case 0x3b: /* SFTX */
+         s->tx_len = 0;
+         break;
+     case 0x39: /* SPWD */
+         s->marc_state = 0x00;
++        if (s->peer_enabled) {
++            cc1101_clear_rx(s);
++        }
+         break;
+     default:
+         break;
+@@ -160,6 +227,12 @@
+         if (state == 0x13 && s->tx_poll_count) {
+             if (--s->tx_poll_count == 0) {
+                 s->marc_state = 0x01;
++                if (s->peer_enabled &&
++                    cc1101_peer_frame_valid(s->air_fifo, s->air_len)) {
++                    memcpy(s->peer_tx_frame, s->air_fifo, s->air_len);
++                    s->peer_tx_len = s->air_len;
++                    s->peer_tx_sequence++;
++                }
+             }
+         }
+         return s->marc_state;
+@@ -208,7 +281,15 @@
+         }
+         break;
+     case CC_FIFO_READ:
+-        value = s->rx_pos < s->rx_len ? s->rx_fifo[s->rx_pos++] : 0;
++        if (s->rx_pos < s->rx_len && (!s->peer_enabled || s->peer_gdo0)) {
++            value = s->rx_fifo[s->rx_pos++];
++            if (s->peer_enabled) {
++                s->peer_rx_fifo_bytes++;
++                if (s->rx_pos == s->rx_len) {
++                    s->peer_rx_completed++;
++                }
++            }
++        }
+         break;
+     default:
+         break;
+@@ -231,14 +312,106 @@
+     .transfer = cc1101_transfer,
+ };
+ 
+-void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin)
++static M5Cc1101SpiState *cc1101_attach(DeviceState *spi, int cs_pin,
++                                     int gdo0_pin, bool peer_enabled)
+ {
+     M5Cc1101SpiState *s = g_new0(M5Cc1101SpiState, 1);
+ 
+     s->gdo0_pin = gdo0_pin;
+-    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, cc1101_rx_timer, s);
++    s->peer_enabled = peer_enabled;
++    s->rx_timer = timer_new_ms(peer_enabled ? QEMU_CLOCK_VIRTUAL
++                                           : QEMU_CLOCK_REALTIME,
++                               cc1101_rx_timer, s);
+     cc1101_reset(s);
+     esp32s3_gpspi_attach_spi_slave_passive_cs(spi, &cc1101_ops, s, cs_pin);
+     esp32_gpio_set_input(gdo0_pin, 0);
+     esp32_gpio_force_line(gdo0_pin, 0);
+-}
++    return s;
++}
++
++void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin)
++{
++    cc1101_attach(spi, cs_pin, gdo0_pin, false);
++}
++
++static void cc1101_peer_get_state(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    const M5Cc1101SpiState *s = opaque;
++    const char digits[] = "0123456789abcdef";
++    char hex[2 * CC1101_FIFO_SIZE + 1];
++    QDict *state = qdict_new();
++
++    for (uint32_t i = 0; i < s->peer_tx_len; i++) {
++        hex[2 * i] = digits[s->peer_tx_frame[i] >> 4];
++        hex[2 * i + 1] = digits[s->peer_tx_frame[i] & 0xf];
++    }
++    hex[2 * s->peer_tx_len] = '\0';
++    qdict_put_int(state, "reset_epoch", s->peer_reset_epoch);
++    qdict_put_int(state, "marcstate", s->marc_state);
++    qdict_put_bool(state, "rx_armed", cc1101_peer_rx_armed(s));
++    qdict_put_bool(state, "gdo0", s->peer_gdo0);
++    qdict_put_int(state, "tx_sequence", s->peer_tx_sequence);
++    qdict_put_str(state, "tx_fifo_hex", hex);
++    qdict_put_int(state, "rx_accepted", s->peer_rx_accepted);
++    qdict_put_int(state, "rx_interrupts", s->peer_rx_interrupts);
++    qdict_put_int(state, "rx_fifo_bytes_read", s->peer_rx_fifo_bytes);
++    qdict_put_int(state, "rx_completed", s->peer_rx_completed);
++    QObject *value = QOBJECT(state);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
++}
++
++static void cc1101_peer_set_frame(Object *obj, Visitor *v, const char *name,
++                                  void *opaque, Error **errp)
++{
++    M5Cc1101SpiState *s = opaque;
++    g_autofree char *hex = NULL;
++    uint8_t frame[CC1101_FIFO_SIZE];
++    size_t chars;
++
++    if (!visit_type_str(v, name, &hex, errp)) {
++        return;
++    }
++    chars = strlen(hex);
++    if ((chars % 2) || chars < 4 || chars > sizeof(frame) * 2) {
++        error_setg(errp, "Invalid CC1101 peer FIFO frame length");
++        return;
++    }
++    for (size_t i = 0; i < chars / 2; i++) {
++        int hi = g_ascii_xdigit_value(hex[2 * i]);
++        int lo = g_ascii_xdigit_value(hex[2 * i + 1]);
++
++        if (hi < 0 || lo < 0) {
++            error_setg(errp, "Invalid CC1101 peer FIFO frame encoding");
++            return;
++        }
++        frame[i] = (hi << 4) | lo;
++    }
++    if (!cc1101_peer_frame_valid(frame, chars / 2)) {
++        error_setg(errp, "Invalid CC1101 peer FIFO length header");
++        return;
++    }
++    if (!cc1101_peer_receive(s, frame, chars / 2)) {
++        error_setg(errp, "CC1101 peer receiver is not armed");
++    }
++}
++
++static void cc1101_peer_reset(void *opaque)
++{
++    cc1101_reset(opaque);
++}
++
++void m5_cc1101_spi_attach_peer(DeviceState *spi, int cs_pin, int gdo0_pin)
++{
++    M5Cc1101SpiState *s = cc1101_attach(spi, cs_pin, gdo0_pin, true);
++    Object *observer = object_new("container");
++
++    object_property_add_child(qdev_get_machine(), "cc1101-peer", observer);
++    object_property_add(observer, "state", "any", cc1101_peer_get_state,
++                        NULL, NULL, s);
++    object_property_add(observer, "rx-frame-hex", "str", NULL,
++                        cc1101_peer_set_frame, NULL, s);
++    object_unref(observer);
++    qemu_register_reset(cc1101_peer_reset, s);
++}
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -161,7 +161,12 @@
+     if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_CC1101"), "1") == 0) {
+         m5_st25r3916_spi_attach(spi, 6, 4);
+         m5_st25r3916_spi_attach(sd_spi, 6, 4);
+-        m5_cc1101_spi_attach(spi, 5, 15);
+-        m5_cc1101_spi_attach(sd_spi, 5, 15);
++        if (g_strcmp0(getenv("M5SW_CARDPUTER_ADV_CAP_CC1101_PEER"), "1") == 0) {
++            /* The ADV Cap driver uses SPI2. One receiver owns its GDO0. */
++            m5_cc1101_spi_attach_peer(sd_spi, 5, 15);
++        } else {
++            m5_cc1101_spi_attach(spi, 5, 15);
++            m5_cc1101_spi_attach(sd_spi, 5, 15);
++        }
+     }
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -161,6 +161,7 @@
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
++void m5_cc1101_spi_attach_peer(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
+ void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_scs_servo_attach(DeviceState *uart);

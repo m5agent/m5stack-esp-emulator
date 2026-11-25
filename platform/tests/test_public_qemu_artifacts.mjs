@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {resolve,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
 import {capturePublicQemuProvenance,QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
+import {QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 
 const sha256=value=>createHash('sha256').update(value).digest('hex');
 const canonical=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
@@ -15,7 +16,7 @@ const selected=ids=>({...canonical,profiles:canonical.profiles.filter(profile=>p
 const builder=await readFile(new URL('../tools/build_public_site.py',import.meta.url));
 const temp=await mkdtemp(resolve(tmpdir(),'m5-public-provenance-')),repo=resolve(temp,'repo'),site=resolve(temp,'site');
 const executionDependencies=['public-verified-assets.js','public-qemu-engine-owner.js','public-qemu-servo.js','public-qemu-unit-examples.js',
-  'public-qemu-profiles.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js'];
+  'public-qemu-profiles.js','public-qemu-peer-pair.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js'];
 const source=new Map([
   ['platform/web/index.html','<script src="/platform/web/public.js"></script>'],
   ['platform/web/public.js','export const fixture="/devices/catalog.json";'],
@@ -74,6 +75,27 @@ try{
   await put(site,'platform/runtime/qemu/qemu.wasm',Buffer.alloc(wasm.length,1));
   await assert.rejects(capturePublicQemuProvenance(options),/site manifest SHA mismatch/);
   await put(site,'platform/runtime/qemu/qemu.wasm',wasm);
+  const configPath='platform/web/site-config.json',cc1101Rows={};
+  for(const role of ['tx','rx']){
+    const name=`cc1101_cap_rf_${role}_example.py`;
+    const sourcePath='tests/browser-qemu/uiflow_workbench/'+name,path='platform/runtime/qemu-probe/fixture/'+name;
+    const bytes=await readFile(new URL('../../'+sourcePath,import.meta.url));
+    await put(repo,sourcePath,bytes);
+    files.set(path,bytes);
+    cc1101Rows[role]={path,bytes:bytes.length,sha256:sha256(bytes)};
+  }
+  files.set(configPath,Buffer.from(JSON.stringify({browser_cc1101_examples:cc1101Rows})));
+  await refresh();
+  await assert.rejects(capturePublicQemuProvenance(options),/requires its exact runtime source patch/);
+  const capRuntime=JSON.parse(files.get(runtimePath));
+  capRuntime.source.patches=[QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH];
+  files.set(runtimePath,Buffer.from(JSON.stringify(capRuntime)));
+  await refresh();
+  assert.deepEqual((await capturePublicQemuProvenance(options)).cc1101_example_sources,cc1101Rows);
+  const unrelated='platform/runtime/qemu-probe/fixture/unreviewed.py';
+  files.set(configPath,Buffer.from(JSON.stringify({browser_cc1101_examples:{...cc1101Rows,rx:{...cc1101Rows.rx,path:unrelated}}})));
+  await refresh();
+  await assert.rejects(capturePublicQemuProvenance(options),/cc1101_cap_rf_rx_example.py/);
   const changed=JSON.parse(await readFile(resolve(site,'public-site-manifest.json'),'utf8'));changed.assets.push({path:'../outside',bytes:0,sha256:'0'.repeat(64)});
   await put(site,'public-site-manifest.json',JSON.stringify(changed));
   await assert.rejects(capturePublicQemuProvenance(options),/invalid static artifact path/);

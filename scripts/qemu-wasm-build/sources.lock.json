@@ -171,7 +171,7 @@
     "hw/m5stopwatch/m5_bcm_spi_panel.c": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
     "hw/m5stopwatch/m5_board.c": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
     "hw/m5stopwatch/m5_can_peer.c": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
-    "hw/m5stopwatch/m5_cc1101_spi.c": "37ffaf55c60188c881787a18ba3dc9eb5bd5db7b9f268659d73723072e81d715",
+    "hw/m5stopwatch/m5_cc1101_spi.c": "3ce2816d782133b9ab9f60c4ef9bbd8e14af5567b9dfa95ca3de33d749b0210c",
     "hw/m5stopwatch/m5_epd_panel.c": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
     "hw/m5stopwatch/m5_i2s.c": "99f5893d000255d7139d893c49fed5841964b2680d664e77cba7172d1e16fe87",
     "hw/m5stopwatch/m5_i2s_esp32.c": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
@@ -195,7 +195,7 @@
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
     "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
-    "hw/m5stopwatch/m5cardputeradv.c": "c4a4072dc25854d9c4e0017c95c829b5d66b0bd850e9865b98928e7bccbfadff",
+    "hw/m5stopwatch/m5cardputeradv.c": "4ab07f573f1f2f5281fb2ba2b85bbf3001536edd9ceac7e1df9ab5a4a5934aa5",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "ae90adb4d6f308284c877aa629702e8218f881234e0c4cd13391dde5a0b90cd9",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
@@ -207,7 +207,7 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
-    "hw/m5stopwatch/m5stopwatch.h": "1339014943f6f3e8a4785081228df91068a32afa9bdb26af9501799713f25a92",
+    "hw/m5stopwatch/m5stopwatch.h": "ee027b3ab6f19f8c476cf3fee70ca3bd1a74141e9edc46792928d20aa2948256",
     "hw/m5stopwatch/m5sw_i2c_devs.c": "a4c9cc62f63205b76ab2eaa1f0ad3bb21e32a29e646f3a86f25322643010dbda",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
@@ -658,6 +658,10 @@
     {
       "path": "patches/qemu-wasm-probe/0044-cardputer-adv-usb-serial-jtag-tx.patch",
       "sha256": "730b55228fe499c0b64ee26cfb0bd880d99cd8a7bdc3950a125480be9fb56590"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
+      "sha256": "feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2"
     }
   ],
   "qemu": {

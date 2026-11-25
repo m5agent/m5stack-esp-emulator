@@ -578,3 +578,17 @@ Cardputer-ADV. The FIFO, interrupt and virtual host timing follow native
 patches `0173` and `0177`. The endpoint reports emitted bytes and packets
 through read-only QOM counters. The browser presents device-to-host USB
 output as its own channel alongside the existing UART console.
+
+## Cardputer-ADV CC1101 Cap virtual peer (`0045`)
+
+An explicit CC1101 Cap exposes a completed transmit FIFO snapshot and a
+bounded virtual receive frame through the board-local QOM peer object. The
+receiver checks variable-length framing and waits for the modeled GDO0
+transition before the guest drains the RX FIFO over SPI. SRES cancels the
+pending receive and clears the FIFO. The existing single-chip loopback keeps
+its SPI and GPIO route.
+
+The browser workbench offers separate TX and RX roles on the pinned UIFlow2
+example firmware. A same-origin tab pair transfers completed FIFO frames
+with one outstanding acknowledgement. This model does not measure RF
+behavior, propagation or signal quality.

@@ -98,6 +98,17 @@ GPIO44 LEDC 波形未执行。Button 关 CDC 对照经 G0 触发并从 UART0 输
 原版默认 CDC Button 尚未得到应用报文。测试会话均正常退出并回收 Worker。
 [USB #257](https://github.com/m5agent/m5stack-esp-emulator/issues/257) · [IR #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258) · [锁定构建、应用和失败对照](https://github.com/m5agent/agent-work-logs/tree/cbb4fd3f9c3a31199f77013049f43be2956efdfa/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-usb-cdc)
 
+同一 `ee110d20…cc60` 最终标准导出上，默认 CDC Button 原镜像三次实际 G0
+按放均收到 USB 的 Pressed 和 Released，每次控制器新增 37 字节/8 包。独立同镜像
+跟踪确认客体 GPIO0 输入为高、低、高。保留之前无应用输出和 `ipc1` 的失败证据。
+[Button 三次复验](https://github.com/m5agent/agent-work-logs/tree/33b551b6d190d115f1702493a837baaa07a83a8e/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-button-default-cdc) · [偶发冷启动 #268](https://github.com/m5agent/m5stack-esp-emulator/issues/268)
+
+Cardputer-Adv 的 CC1101 官方 TX/RX 原例程在全量锁定 WASM `dca8fddb…9772`
+的两个标准工作台标签页通过。无对端时接收计数为零；配对后用真实 TX FIFO 的
+`CC1101, SEQ=0, Hello` 触发收端 GDO0 和 SPI FIFO，原程序显示 RX=1、CRC=0。
+原始帧更新，两端通过页面断开并退出，12 个 Worker 全部回收。未验证物理 RF 或部署。
+[CC1101 #247](https://github.com/m5agent/m5stack-esp-emulator/issues/247) · [锁定构建、配对和来宾证据](https://github.com/m5agent/agent-work-logs/tree/400bfbf8519b802c13ad771554bcabfc3dd9920f/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-cc1101-workbench)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile

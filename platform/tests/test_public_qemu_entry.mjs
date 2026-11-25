@@ -14,6 +14,7 @@ import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
 import * as qemuServo from '../web/public-qemu-servo.js';
+import * as qemuPeerPair from '../web/public-qemu-peer-pair.js';
 import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime.js';
 import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from '../web/public-qemu-gnss-example.js';
 
@@ -46,9 +47,9 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
-  exampleSourceLoader,
+  exampleSourceLoader,cc1101Examples,peerFactory,
   isolation={isolated:true,reloading:false}}={}){
-  const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[];
+  const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[],windowListeners=new Map();
   let evidenceBlob;
   class TestURL extends URL {
     static createObjectURL(blob){evidenceBlob=blob;return 'blob:https://example.test/evidence';}
@@ -78,11 +79,11 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,{
+  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,qemuPeerPair,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     PublicMicroPythonRunner,deviceIdentityCapability,GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench,
@@ -97,9 +98,10 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
   if(exampleSourceLoader)dependencies.loadVerifiedRuntimeAsset=exampleSourceLoader;
-  const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
+  if(peerFactory)dependencies.openQemuPeerPair=peerFactory;
+  const context=vm.createContext({...dependencies,document,window:{addEventListener(type,listener){windowListeners.set(type,listener);}},
     navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
-    URL:TestURL,URLSearchParams,Map,TextEncoder,TextDecoder,AbortController,DOMException,Blob,console,setTimeout,
+    URL:TestURL,URLSearchParams,Map,TextEncoder,TextDecoder,AbortController,DOMException,Blob,console,setTimeout,BroadcastChannel,
     fetch:fetchFixture,events,serviceRows,
   });
   vm.runInContext(body+`
@@ -109,11 +111,11 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     const startRunActual=startRun;
     startRun=async()=>events.push('start:'+lane());
     globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,
-      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual};
+      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual,updateBrowserCc1101};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
-  return {...context.contract,elements,events,clipboard,downloads,element,radios,nativeStarts};
+  return {...context.contract,elements,events,clipboard,downloads,element,radios,nativeStarts,windowListeners};
 }
 
 for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavailable']){
@@ -210,6 +212,64 @@ staticBrowser.element('runtimeMode').value='auto';
 await staticBrowser.share();
 assert.equal(new URL(staticBrowser.clipboard.at(-1)).searchParams.get('autostart'),'0');
 assert.match(staticBrowser.element('shareStatus').textContent,/打开后选择/);
+staticBrowser.element('referenceExample').value='cc1101-rf-rx';
+assert.equal(staticBrowser.reference(),null,'a baseline site cannot advertise CC1101');
+assert.equal(staticBrowser.lane(),null);
+const cc1101Examples=Object.fromEntries(['tx','rx'].map(role=>[role,
+  {path:`platform/runtime/qemu-probe/fixture/cc1101_cap_rf_${role}_example.py`,sha256:'5'.repeat(64),bytes:3500}]));
+const cc1101=await entry({search:'?device=cardputer-adv&autostart=0',cc1101Examples});
+assert.equal(cc1101.element('referenceExample').value,'uiflow','available CC1101 cases do not change the bare default');
+assert.equal(cc1101.element('browserCc1101Panel').hidden,true);
+for(const role of ['tx','rx']){
+  cc1101.element('referenceExample').value='cc1101-rf-'+role;
+  assert.equal(cc1101.reference().cc1101Role,role);
+  assert.equal(cc1101.reference().sha256,workbenchRegistry.profiles.find(row=>row.deviceId==='cardputer-adv').firmwareSHA256);
+  assert.equal(cc1101.lane(),'browser');
+}
+cc1101.element('runtimeMode').value='service';
+assert.equal(cc1101.lane(),null,'same-origin peer selection cannot fall through to host service');
+cc1101.element('runtimeMode').value='auto';
+cc1101.element('browserCc1101Code').value='a'.repeat(32);
+await cc1101.share();
+const cc1101Share=new URL(cc1101.clipboard.at(-1));
+assert.equal(cc1101Share.searchParams.get('autostart'),'0');
+assert.ok(!cc1101Share.href.includes('a'.repeat(32))&&!cc1101Share.href.includes('cc1101-rf'));
+let closeCount=0,pairOptions;
+const cc1101Cleanup=await entry({search:'?device=cardputer-adv&autostart=0',cc1101Examples,peerFactory:options=>{
+  pairOptions=options;
+  options.onStatus({state:'waiting',accepted:0});
+  return {close(){closeCount++;}};
+}});
+const ccController=new PublicQemuRuntime({root:pageRoot,profiles:registry});
+ccController.status='running';
+ccController.profile={...cc1101Cleanup.browserProfile('cardputer-adv'),capPeer:true};
+ccController.readCc1101PeerState=async()=>({reset_epoch:1,rx_armed:true});
+let stopped=false;
+ccController.stop=()=>{stopped=true;};
+const ccRun={kind:'browser',generation:cc1101Cleanup.state.runGeneration,controller:ccController,cc1101Role:'rx'};
+cc1101Cleanup.state.run=ccRun;
+cc1101Cleanup.updateBrowserCc1101(ccRun);
+assert.equal(cc1101Cleanup.element('browserCc1101Panel').hidden,false);
+cc1101Cleanup.element('browserCc1101Code').value='a'.repeat(32);
+cc1101Cleanup.element('browserCc1101Connect').listeners.get('click')();
+assert.equal(pairOptions.role,'rx');
+assert.deepEqual({...await pairOptions.readState()},{epoch:1,armed:true});
+assert.ok(pairOptions.canUse());
+ccController.consoleEpoch++;
+assert.equal(pairOptions.canUse(),false);
+cc1101Cleanup.updateBrowserCc1101(ccRun);
+assert.equal(closeCount,1,'real machine reset epoch disconnects the paired session');
+cc1101Cleanup.element('browserCc1101Connect').listeners.get('click')();
+assert.ok(pairOptions.canUse());
+cc1101Cleanup.state.shell=null;
+cc1101Cleanup.state.picker=null;
+cc1101Cleanup.windowListeners.get('pagehide')();
+assert.equal(closeCount,2,'navigation closes the pair before the guest stop');
+assert.equal(pairOptions.canUse(),false);
+assert.equal(stopped,true);
+const cc1101WrongBoard=await entry({search:'?device=cores3&autostart=0',cc1101Examples});
+cc1101WrongBoard.element('referenceExample').value='cc1101-rf-rx';
+assert.equal(cc1101WrongBoard.reference(),null);
 const disabledBrowser=await entry({browserEnabled:false,search:'?device=stopwatch&autostart=0'});
 assert.equal(disabledBrowser.browserProfile('stopwatch'),null);assert.equal(disabledBrowser.lane(),null);
 const legacy={deviceId:'stopwatch',board:'stopwatch',display:{width:468,height:466}};

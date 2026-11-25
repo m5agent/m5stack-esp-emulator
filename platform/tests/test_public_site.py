@@ -16,6 +16,39 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_cc1101_official_sources_require_pinned_patch_and_exact_workbench(self):
+        workbench = json.loads((public.ROOT / "platform/web/uiflow-workbench-profiles.json").read_text())
+        preview = {"path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
+                   "sha256": "feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2"}
+        runtime = {"source": {"patches": [preview]}}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve() / "input"
+            source_folder = Path("tests/browser-qemu/uiflow_workbench")
+            (root / source_folder).mkdir(parents=True)
+            output = Path(directory) / "output"
+            for role in ("tx", "rx"):
+                filename = f"cc1101_cap_rf_{role}_example.py"
+                shutil.copyfile(public.ROOT / source_folder / filename, root / source_folder / filename)
+            for disabled, profiles in (
+                ({}, workbench),
+                ({"source": {"patches": [preview, preview]}}, workbench),
+                (runtime, {"profiles": [row for row in workbench["profiles"] if row["deviceId"] != "cardputer-adv"]}),
+            ):
+                self.assertEqual(public.stage_qemu_cc1101_examples(root, output, disabled, profiles), {})
+                self.assertFalse(output.exists())
+            examples = public.stage_qemu_cc1101_examples(root, output, runtime, workbench)
+            self.assertEqual(set(examples), {"rx", "tx"})
+            self.assertEqual(set(path.name for path in output.rglob("*.py")),
+                             {"cc1101_cap_rf_rx_example.py", "cc1101_cap_rf_tx_example.py"})
+            for role, row in examples.items():
+                actual = (output / row["path"]).read_bytes()
+                self.assertEqual(actual, (public.ROOT / source_folder / f"cc1101_cap_rf_{role}_example.py").read_bytes())
+                self.assertEqual(hashlib.sha256(actual).hexdigest(), row["sha256"])
+                self.assertEqual(len(actual), row["bytes"])
+            (root / source_folder / "cc1101_cap_rf_rx_example.py").write_text("pass")
+            with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                public.stage_qemu_cc1101_examples(root, output, runtime, workbench)
+
     def test_epd_quality_patterns_match_pinned_fixture_sources(self):
         subprocess.run([sys.executable, str(public.ROOT / "tests/browser-qemu/board_display/epd_oracle.py"), "--check"],
                        check=True, capture_output=True, text=True)

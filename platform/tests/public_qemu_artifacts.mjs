@@ -6,6 +6,7 @@ import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
+import {QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
 
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
@@ -20,6 +21,7 @@ export const QEMU_EXECUTED_WEB_PATHS=Object.freeze([
   'platform/web/public-qemu-frame.js','platform/web/public-qemu-probe-firmware.js','platform/web/public-qemu-servo.js',
   'platform/web/public-qemu-unit-examples.js',
   'platform/web/public-qemu-gnss-example.js',
+  'platform/web/public-qemu-peer-pair.js',
   'platform/web/model-shell.js','platform/web/device-shell-factory.js',
   'platform/web/public-unit-assembly.js','platform/web/public-service-program.js',
   'platform/web/public-session-controller.js','platform/web/unit-panel.js','platform/web/preview-client.js',
@@ -125,6 +127,27 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
   // The root copies have a different pathname but must be the same execution.
   assert.deepEqual(await verified('index.html'),await verified('platform/web/index.html'),'root entry differs from public web entry');
   assert.deepEqual(await verified('coi-serviceworker.js'),await verified('platform/web/public-coi-serviceworker.js'),'project-root isolation wrapper differs');
+  let cc1101Sources;
+  const configPath='platform/web/site-config.json';
+  if(declared.has(configPath)){
+    const configuration=JSON.parse(await verified(configPath));
+    const examples=configuration.browser_cc1101_examples;
+    if(examples!==undefined){
+      assert.deepEqual(Object.keys(examples).sort(),['rx','tx'],'expected an exact set of CC1101 roles');
+      const pin=QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH;
+      assert.deepEqual(runtime.source?.patches?.filter(row=>row.path===pin.path),[pin],
+        'CC1101 role requires its exact runtime source patch');
+      cc1101Sources={};
+      for(const [role,row] of Object.entries(examples)){
+        const name=`cc1101_cap_rf_${role}_example.py`;
+        assert.equal(row.path,'platform/runtime/qemu-probe/fixture/'+name);
+        const [original,delivered]=await Promise.all([readFile(resolve(repo,'tests/browser-qemu/uiflow_workbench',name)),verified(row.path)]);
+        assert.equal(row.sha256,sha256(original));assert.equal(row.bytes,original.length);
+        assert.deepEqual(delivered,original);
+        cc1101Sources[role]=row;
+      }
+    }
+  }
   async function verifiedRuntimeAssets(directory, manifest){
     const assets={};
     for(const row of Object.values(manifest.assets)){
@@ -146,6 +169,7 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
     runtime_build:runtime.build,required_rom:runtime.required_rom,runtime_assets:runtimeAssets,
     ...(c61?{c61_runtime_manifest_sha256:sha256(c61Bytes),c61_runtime_source_commit:c61.source?.commit,
       c61_runtime_build:c61.build,c61_required_rom:c61.required_rom,c61_runtime_assets:c61Assets}:{}),
+    ...(cc1101Sources?{cc1101_example_sources:cc1101Sources}:{}),
     test_script:{path:testScript,sha256:sha256(runner)},helper_sha256:sha256(helper),
   };
 }
