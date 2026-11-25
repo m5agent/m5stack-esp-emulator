@@ -129,6 +129,12 @@ Keyboard 也通过。新建的同源四旋转固件复验 −90°、0°、+90°�
 四个来宾正常退出，各回收 6 个 Worker。此锁定运行未采集 NEC 波形，早前两档时序失败保留。
 [IR 时序 #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258) · [0049 来宾和清理证据](https://github.com/m5agent/agent-work-logs/tree/6a40219a3ef6aace200e4066db38546634ae59e0/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-signed-portrait-locked-0049)
 
+在锁定 WASM `8067a6b8…2c1e` 的本地标准工作台，CoreS3 显式选 Dual Kmeter 预设，
+经原工作台加载并运行官方 Blockly 完整生成的 Python。用实际温度字段依次观察
+23.50、−12.34、87.65 °C 和相符的原屏幕更新，模拟 M-Bus I²C 事务从 14 增至 496。
+同一镜像的普通启动未挂接。两次 Stop 均退出 0 并清理各 6 个 Worker。真机和托管未执行。
+[例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255) · [0050 锁定构建和实际来宾对照](https://github.com/m5agent/agent-work-logs/tree/04833ade8a082bd282e447465686a021626a0ad6/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-dual-kmeter-workbench)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile

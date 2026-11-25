@@ -284,7 +284,7 @@ def stage_uiflow_workbench_examples(root: Path, output: Path, workbench: dict,
 
 def stage_qemu_cc1101_examples(root: Path, output: Path, runtime: dict,
                                 workbench: dict) -> dict[str, dict]:
-    return stage_qemu_cap_examples(root, output, runtime, workbench, {
+    return stage_qemu_workbench_sources(root, output, runtime, workbench, {
         "path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
         "sha256": "feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2",
     }, "CC1101", (
@@ -295,7 +295,7 @@ def stage_qemu_cc1101_examples(root: Path, output: Path, runtime: dict,
 
 def stage_qemu_sx1262_examples(root: Path, output: Path, runtime: dict,
                                workbench: dict) -> dict[str, dict]:
-    return stage_qemu_cap_examples(root, output, runtime, workbench, {
+    return stage_qemu_workbench_sources(root, output, runtime, workbench, {
         "path": "patches/qemu-wasm-probe/0046-cardputer-adv-sx1262-cap-peer.patch",
         "sha256": "0c7b037ed3e95102c8d588d042767a0d61591946323f21a9f87a8e02f0c90238",
     }, "SX1262", (
@@ -306,14 +306,26 @@ def stage_qemu_sx1262_examples(root: Path, output: Path, runtime: dict,
     ))
 
 
-def stage_qemu_cap_examples(root: Path, output: Path, runtime: dict, workbench: dict,
-                           peer_patch: dict, device: str,
-                           inputs: tuple[tuple[str, str, int, str], ...]) -> dict[str, dict]:
+def stage_qemu_dual_kmeter_example(root: Path, output: Path, runtime: dict,
+                                 workbench: dict) -> dict:
+    examples = stage_qemu_workbench_sources(root, output, runtime, workbench, {
+        "path": "patches/qemu-wasm-probe/0050-cores3-dual-kmeter-example.patch",
+        "sha256": "e412ebb45fb7fc171f5059d57a04b443f3d014e6441297c3583cb621001dfdd1",
+    }, "DualKmeter", (
+        ("temperature", "cores3_dual_kmeter_example.py", 774, "6765c65ac5e3a6219d762fe2cbc4639301714719646a79b115cc794e2b44fb37"),
+    ), device_id="cores3", firmware_sha256="b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49")
+    return examples.get("temperature", {})
+
+
+def stage_qemu_workbench_sources(root: Path, output: Path, runtime: dict, workbench: dict,
+                                 required_patch: dict, title: str,
+                                 inputs: tuple[tuple[str, str, int, str], ...], *,
+                                 device_id: str = "cardputer-adv",
+                                 firmware_sha256: str = "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd") -> dict[str, dict]:
     matching = [row for row in runtime.get("source", {}).get("patches", [])
-                if row.get("path") == peer_patch["path"]]
-    if matching != [peer_patch] or not any(
-        row["deviceId"] == "cardputer-adv"
-        and row["firmwareSHA256"] == "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd"
+                if row.get("path") == required_patch["path"]]
+    if matching != [required_patch] or not any(
+        row["deviceId"] == device_id and row["firmwareSHA256"] == firmware_sha256
         for row in workbench["profiles"]
     ):
         return {}
@@ -321,10 +333,10 @@ def stage_qemu_cap_examples(root: Path, output: Path, runtime: dict, workbench: 
     for role, name, size, digest in inputs:
         source = root / "tests/browser-qemu/uiflow_workbench" / name
         if source.resolve() != source or not source.is_file():
-            raise ValueError(f"{device} original example source is missing or a symlink")
+            raise ValueError(f"{title} original example source is missing or a symlink")
         content = source.read_bytes()
         if len(content) != size or hashlib.sha256(content).hexdigest() != digest:
-            raise ValueError(f"{device} original example source identity mismatch")
+            raise ValueError(f"{title} original example source identity mismatch")
         path = f"platform/runtime/qemu-probe/fixture/{name}"
         destination = output / path
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -429,6 +441,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         sd_examples = None
         cc1101_examples = {}
         sx1262_examples = {}
+        dual_kmeter_example = {}
         if browser_runtime:
             runtime_manifest, runtime_files = browser_runtime_files(browser_runtime, allow_diagnostic=allow_diagnostic_runtime)
             runtime_directory = temporary / "platform/runtime/esp32sim"
@@ -471,6 +484,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             stage_uiflow_workbench_examples(root, temporary, workbench, selected_devices)
             cc1101_examples = stage_qemu_cc1101_examples(root, temporary, runtime_manifest, workbench)
             sx1262_examples = stage_qemu_sx1262_examples(root, temporary, runtime_manifest, workbench)
+            dual_kmeter_example = stage_qemu_dual_kmeter_example(root, temporary, runtime_manifest, workbench)
             (temporary / workbench_path).write_bytes(encode_json(workbench))
             # Probe sources are text, not prebuilt or derived firmware. Copy
             # only sources selected by an explicit per-board fixture identity.
@@ -538,6 +552,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             config["browser_cc1101_examples"] = cc1101_examples
         if sx1262_examples:
             config["browser_sx1262_examples"] = sx1262_examples
+        if dual_kmeter_example:
+            config["browser_dual_kmeter_example"] = dual_kmeter_example
         if qemu_cores3_audio:
             config["browser_cores3_audio"] = True
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))

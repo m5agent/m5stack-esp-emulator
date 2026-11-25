@@ -157,3 +157,36 @@ of UART. Use Python string escapes when such a value is needed. Raw REPL uses
 EOT bytes to terminate stdout/stderr; arbitrary binary stdout containing EOT
 is not a transparent binary transport and can terminate a stream early. The
 editor is a text console, not a binary-file transfer interface.
+
+## CoreS3 Dual Kmeter example
+
+`cores3_dual_kmeter_example.py` is the unmodified full-preview Python generated
+by UIFlow2 V2.5.5 from the
+[official CoreS3 Dual Kmeter Blockly project](https://github.com/m5stack/uiflow-micropython/blob/73696ca95594646f09a39e4f525b20cf5cc550e5/examples/module/dualkmeter/dualkmeter_cores3.m5f2).
+The 2,294-byte project SHA-256 is
+`f228aa58eebcb6879a7f1d0c4f527b615cf9f6552fb7286c184c36e9261a39ee`.
+The 774-byte Python SHA-256 is
+`6765c65ac5e3a6219d762fe2cbc4639301714719646a79b115cc794e2b44fb37`.
+
+Select **CoreS3 Dual Kmeter · UIFlow2 v2.5.3** in the browser workbench and
+start. Load the official example into the editor, run it, then set the
+temperature to −12.34 and 87.65 °C with the numeric input. The default
+temperature is 23.50 °C. The existing editor Interrupt and Stop controls
+end the guest run.
+
+The exact composed v2.5.3 Flash SHA-256 is
+`b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49`.
+Use an export with the 0050 source layer and check the runtime's typed I²C
+readback counters and the guest's actual pixels. The board model attaches
+one M127 peer to I²C1 on selection. The ordinary CoreS3 workbench starts the
+same composed Flash without that peer.
+
+On the incremental 0049 preview, the original Python produced the guest
+text 23.5, −12.34 and 87.65 while I²C transaction counts advanced from 204
+to 450 to 688. Editor Interrupt succeeded and the normal Stop closed the
+iframe and all six Workers. Preview WASM SHA-256
+`a6b7eacd1e5c7400e490d3a506be82b24713d84e956544b5d0b05ece89b505d1`.
+Raw report SHA-256
+`6a0acd9c6fb27d8024df4be56a60a24e0a7b840041922e8624d09e34e1c6e14e`.
+This is virtual-device evidence for the readiness/Celsius path on that
+preview. The source-locked 0050 export has a separate browser gate.

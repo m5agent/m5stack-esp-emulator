@@ -197,7 +197,7 @@
     "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
     "hw/m5stopwatch/m5cardputeradv.c": "9a5d2b36473f79f2c8f4d1dd9a5944fc38c1e2e7a35ca69a9ae4d447bd4f4f05",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
-    "hw/m5stopwatch/m5cores3.c": "ae90adb4d6f308284c877aa629702e8218f881234e0c4cd13391dde5a0b90cd9",
+    "hw/m5stopwatch/m5cores3.c": "98b5f3e6cfccbc077d8478d6f96e148a86f07ff045d1981d377cb87787c414f0",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
     "hw/m5stopwatch/m5paper_et047.c": "88d4b30712372c88cabf375cf16e569a3d533f2731014dd6e918a49a3cb7cdf8",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
@@ -208,7 +208,7 @@
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
     "hw/m5stopwatch/m5stopwatch.h": "9b334235a8de7d44e915f3b1a205d99bd31ba78591e554f150d9af7f66cdb7c9",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "a4c9cc62f63205b76ab2eaa1f0ad3bb21e32a29e646f3a86f25322643010dbda",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "116b52ca7c2d6f5dc38ffe35338b868ba8ef3efb3213c34140d06781d0b8728c",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
@@ -678,6 +678,10 @@
     {
       "path": "patches/qemu-wasm-probe/0049-cardputer-adv-portrait-direction.patch",
       "sha256": "d95f729f5cae8a38105849a4b434ed0bf7409f16d7951f49310de12da64ab916"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0050-cores3-dual-kmeter-example.patch",
+      "sha256": "e412ebb45fb7fc171f5059d57a04b443f3d014e6441297c3583cb621001dfdd1"
     }
   ],
   "qemu": {

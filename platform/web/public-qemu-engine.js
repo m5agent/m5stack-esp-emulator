@@ -3,7 +3,7 @@ import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,b
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {hasQemuAudioPatches,qemuAudioRing,qemuVirtualMic,writeQemuAudio} from './public-qemu-audio.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
-import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
+import {DUAL_KMETER_EXAMPLE_ID,qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
 import {qemuGnssFixBytes} from './public-qemu-gnss-example.js';
 // The engine owns Emscripten and MEMFS. The top page owns its native pthread Workers.
 // The iframe transfers one private port; no window control channel is used.
@@ -219,6 +219,7 @@ async function start(config) {
       if(boardProfile.capExample)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101='1';
       if(boardProfile.capPeer===true)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER='1';
       if(boardProfile.sx1262Example)m.ENV.M5SW_CARDPUTER_ADV_CAP_LORA='1';
+      if(boardProfile.unitExample===DUAL_KMETER_EXAMPLE_ID)m.ENV.M5_WASM_CORES3_DUAL_KMETER_EXAMPLE='1';
       if(sdCard) {
         m.FS.writeFile('/sd-card.img',new Uint8Array(sdCard),{canOwn:true});
         m.ENV.M5SW_SPI_SD_IMAGE='/sd-card.img';
@@ -476,11 +477,11 @@ async function request(op, value) {
       controllerInputs=operation.catch(()=>{});return operation;
     }
     const field = command.readbackResult;
-    if (field === 'detents' || field === 'distanceMm') {
+    const label = {detents:'encoder', distanceMm:'distance', temperatureCentiC:'temperature'}[field];
+    if (label) {
       // Serialize the fixed write/readback pair so a later pointer target
       // cannot overtake the readback for an earlier physical target.
       const epoch = resetEpoch;
-      const label = field === 'detents' ? 'encoder' : 'distance';
       const active = () => {
         if (closed || disposeRequested || epoch !== resetEpoch)
           throw new Error(`QEMU ${label} input was disposed or reset`);

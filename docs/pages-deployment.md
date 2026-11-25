@@ -310,6 +310,12 @@ CoreS3 和 Cardputer-Adv。
 1000 mm 开始。继电器通过客体屏幕切换，工作台同步显示 Port B 的虚拟 GPIO 电平。
 支持的固件摘要随工作台的 `public-qemu-unit-examples.js` 提供。
 
+### CoreS3 Dual Kmeter 例程
+
+在 CoreS3 浏览器工作台将启动环境设为「CoreS3 Dual Kmeter · UIFlow2 v2.5.3」。
+启动后点「载入 Dual Kmeter 官方例程」，在编辑器中运行，再通过温度字段调整读数。
+原程序从模拟 M-Bus I²C 模块读取温度并更新屏幕。普通本地 MicroPython 启动不会挂接此模块。
+
 ### Cardputer-Adv LoRa Cap 定位例程
 
 在浏览器工作台选择 Cardputer-Adv，将启动环境设为「LoRa Cap 定位 · UIFlow2

@@ -10,7 +10,9 @@ import {validateQemuProfile, validateQemuRuntimeRequirements, buildQemuArguments
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
-import {qemuUnitExampleQueries,resolveQemuUnitExample,validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
+import {DUAL_KMETER_EXAMPLE_ID,DUAL_KMETER_FIRMWARE_SHA256,
+  qemuUnitExampleQueries,resolveQemuUnitExample,validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
+import {resolveUIFlowWorkbenchProfile} from '../web/public-uiflow-firmware.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
 const profile=getQemuBrowserProfile('cores3',registry);
@@ -33,7 +35,7 @@ const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.u
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
-  qemuUnitExampleQueries,validateQemuUnitExampleState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
+  DUAL_KMETER_EXAMPLE_ID,qemuUnitExampleQueries,validateQemuUnitExampleState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
   qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuSx1262PeerStateQuery,validateQemuSx1262PeerState,qemuSx1262ReceiveArmed,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
@@ -81,6 +83,7 @@ assert.equal(vm.runInContext('module.ENV.M5_WASM_VM_CLOCK_DIVISOR',context),'8')
 assert.equal(vm.runInContext('module.ENV.M5_WASM_FRAMEBUFFER',context),'0');
 assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101',context),undefined);
 assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER',context),undefined);
+assert.equal(vm.runInContext('module.ENV.M5_WASM_CORES3_DUAL_KMETER_EXAMPLE',context),undefined);
 assert.equal(vm.runInContext(`module.FS.files.get('/rom/${profile.roms[0].name}').byteLength`,context),profile.roms[0].bytes);
 assert.equal(vm.runInContext("module.FS.files.get('/efuse.bin').byteLength",context),4096);
 assert.equal(vm.runInContext('module.ENV.M5SW_SPI_SD_IMAGE',context),'/sd-card.img');
@@ -237,6 +240,34 @@ assert.deepEqual(relayQueries.map(({execute,arguments:args})=>[execute,args.path
 ]);
 respond(relayQueries[0],true);respond(relayQueries[1],7);await relay;
 assert.deepEqual(observations().at(-1),{kind:'relay',level:true,transitions:7});
+const meterRegistry=JSON.parse(await readFile(new URL('../web/uiflow-workbench-profiles.json',import.meta.url),'utf8'));
+context.meterProfile=resolveQemuUnitExample(resolveUIFlowWorkbenchProfile(
+  resolveQemuFirmwareProfile(profile,DUAL_KMETER_FIRMWARE_SHA256),DUAL_KMETER_FIRMWARE_SHA256,meterRegistry),
+  DUAL_KMETER_FIRMWARE_SHA256,DUAL_KMETER_EXAMPLE_ID);
+vm.runInContext('boardProfile=meterProfile',context);
+await one.onmessage({data:{id:180,op:'input',value:{type:'example-temperature',temperatureCentiC:2350,path:'/machine/soc'}}});
+assert.match(one.messages.at(-1).error,/not admitted/);
+assert.deepEqual(commands(),[]);
+const meterReading=one.onmessage({data:{id:181,op:'unit-example-state'}});
+const meterReads=commands();
+assert.deepEqual(meterReads.map(({execute,arguments:args})=>[execute,args.path,args.property]),
+  ['temperature-centi-c','transactions','read-bytes','written-bytes'].map(property=>['qom-get','/machine/dual-kmeter',property]));
+for(const [index,value] of [2350,8,12,4].entries())respond(meterReads[index],value);
+await meterReading;
+assert.deepEqual(observations().at(-1),{kind:DUAL_KMETER_EXAMPLE_ID,temperatureCentiC:2350,transactions:8,bytesRead:12,bytesWritten:4});
+const temperature=one.onmessage({data:{id:182,op:'input',value:{type:'example-temperature',temperatureCentiC:-1234}}});
+await tick();
+const [meterSet]=commands();
+assert.equal(meterSet.execute,'qom-set');
+assert.deepEqual(meterSet.arguments,{path:'/machine/dual-kmeter',property:'temperature-centi-c',value:-1234});
+respond(meterSet,{});await tick();
+const [meterGet]=commands();
+assert.equal(meterGet.execute,'qom-get');
+assert.deepEqual(meterGet.arguments,{path:'/machine/dual-kmeter',property:'temperature-centi-c'});
+respond(meterGet,-1234);await temperature;
+assert.deepEqual(JSON.parse(JSON.stringify(one.messages.find(row=>row.id===182).value)),
+  {temperatureCentiC:-1234,source:'qemu-qom-readback'});
+assert.equal(observations().at(-1).temperatureCentiC,2350,'input receipt cannot replace the next measured controller observation');
 vm.runInContext('boardProfile=originalEncoderProfile',context);
 
 // Two concurrent head touches retain each other's bits, with fixed routes only.
@@ -372,7 +403,7 @@ try {
   const raceContext=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
     validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
-    qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
+    DUAL_KMETER_EXAMPLE_ID,qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});

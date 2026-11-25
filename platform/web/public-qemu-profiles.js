@@ -1,5 +1,6 @@
 import {validateQemuServoOutputProfile,validateQemuServoState} from './public-qemu-servo.js';
-import {qemuUnitExampleDistanceCommand,validateQemuUnitExampleProfile} from './public-qemu-unit-examples.js';
+import {DUAL_KMETER_EXAMPLE_ID,DUAL_KMETER_RUNTIME_PATCH,
+  qemuUnitExampleDistanceCommand,qemuUnitExampleTemperatureCommand,validateQemuUnitExampleProfile} from './public-qemu-unit-examples.js';
 import {validateQemuGnssExample} from './public-qemu-gnss-example.js';
 import {assetUrl, siteRoot} from './public-config.js';
 
@@ -114,6 +115,12 @@ function validateFirmwareVariant(variant, profile) {
 /** Execution metadata may require a source patch absent from an older cache. */
 export function validateQemuRuntimeRequirements(profile, manifest) {
   validateQemuProfile(profile);
+  if (profile.unitExample === DUAL_KMETER_EXAMPLE_ID) {
+    const patches=manifest?.source?.patches;
+    const matches=Array.isArray(patches)?patches.filter(row=>row?.path===DUAL_KMETER_RUNTIME_PATCH.path):[];
+    check(matches.length===1&&matches[0].sha256===DUAL_KMETER_RUNTIME_PATCH.sha256,
+      'QEMU runtime lacks the required DualKmeter example source patch');
+  }
   if (profile.accelerator?.icountMaxPerCpuNs !== undefined) {
     const patches=manifest?.source?.patches;
     const matches=Array.isArray(patches)?patches.filter(row=>row?.path===QEMU_ICOUNT_FAIRNESS_RUNTIME_PATCH.path):[];
@@ -636,6 +643,7 @@ export function qemuInputCommand(profile, event) {
     return {execute:'qom-set',arguments:{...input.pir,value:event.motion},readback:{execute:'qom-get',arguments:{...input.pir}}};
   }
   if (event?.type === 'example-distance') return qemuUnitExampleDistanceCommand(profile, event);
+  if (event?.type === 'example-temperature') return qemuUnitExampleTemperatureCommand(profile, event);
   throw new Error('Input is not admitted by the selected QEMU browser profile');
 }
 
