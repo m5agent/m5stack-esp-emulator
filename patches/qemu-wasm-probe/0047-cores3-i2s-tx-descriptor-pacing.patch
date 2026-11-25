@@ -1,0 +1,288 @@
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 6c4c19c..918a4f9 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -515,6 +515,30 @@ uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
+     return consumed;
+ }
+ 
++static uint32_t esp_gdma_out_descriptor_addr(DmaConfigState *state)
++{
++    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
++
++    return state->current_desc_addr ? state->current_desc_addr
++        : high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++}
++
++/* Observe the next descriptor without moving the ring or raising an IRQ. */
++uint32_t esp_gdma_peek_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                     uint32_t *length)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    uint32_t addr = esp_gdma_out_descriptor_addr(state);
++    GdmaLinkedList desc;
++
++    *length = 0;
++    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
++        return 0;
++    }
++    *length = desc.config.length;
++    return addr;
++}
++
+ /*
+  * Consume one descriptor from a running peripheral-to-memory OUT channel
+  * without clearing START. Cyclic DMA keeps advancing through the linked ring;
+@@ -525,10 +549,7 @@ uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
+                                           uint8_t *buffer, uint32_t size)
+ {
+     DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
+-    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
+-    uint32_t addr = state->current_desc_addr
+-                  ? state->current_desc_addr
+-                  : high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    uint32_t addr = esp_gdma_out_descriptor_addr(state);
+     GdmaLinkedList desc;
+     uint32_t copy;
+     uint32_t next;
+diff --git a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+index 5b8aa86..1f10f7e 100644
+--- a/hw/m5stopwatch/m5_i2s.c
++++ b/hw/m5stopwatch/m5_i2s.c
+@@ -17,10 +17,22 @@
+ #define R_INT_CLR  0x18
+ #define R_RX_CONF  0x20
+ #define R_TX_CONF  0x24
++#define R_TX_CONF1 0x2c
++#define R_TX_CLKM_CONF 0x34
++#define R_TX_CLKM_DIV_CONF 0x3c
++#define R_TX_TDM_CTRL 0x54
+ #define RX_UPDATE  (1u << 8)
+ #define TX_UPDATE  (1u << 8)
+ #define RX_START   (1u << 2)
+ #define TX_START   (1u << 2)
++#define TX_SLAVE   (1u << 3)
++#define TX_MONO    (1u << 5)
++#define TX_CHAN_EQUAL (1u << 6)
++#define TX_TDM     (1u << 19)
++#define TX_PDM     (1u << 20)
++#define TX_CLK_ACTIVE (1u << 26)
++#define TX_CLK_ENABLE (1u << 29)
++#define TX_CLK_DIV_YN1 (1u << 27)
+ 
+ struct M5I2SState {
+     SysBusDevice parent_obj;
+@@ -44,6 +56,13 @@ struct M5I2SState {
+     bool tx_started;
+     bool dma_active;
+     uint32_t dma_channel;
++    QEMUTimer *paced_tx_timer;
++    int64_t paced_tx_due_ns;
++    uint32_t paced_tx_rate;
++    uint32_t paced_tx_frame_bytes;
++    uint32_t paced_tx_channel;
++    uint32_t paced_tx_desc;
++    uint32_t paced_tx_desc_bytes;
+     QEMUTimer *rx_timer;
+     uint8_t *rx_pcm;
+     uint32_t rx_pcm_size;
+@@ -173,6 +192,102 @@ static bool i2s_store_pcm(M5I2SState *s, const uint8_t *buffer, uint32_t bytes)
+     return true;
+ }
+ 
++static bool i2s_decode_standard_tx(M5I2SState *s, uint32_t tx_conf)
++{
++    /* ESP32-S3 TRM §28.6. Standard mode uses two 16-bit wire slots.
++     * In copy-mono mode one enabled slot's DMA sample feeds both wire slots.
++     */
++    static const uint32_t clocks[] = {40000000, 240000000, 160000000, 0};
++    uint32_t conf1 = s->regs[R_TX_CONF1 / 4];
++    uint32_t clkm = s->regs[R_TX_CLKM_CONF / 4];
++    uint32_t div = s->regs[R_TX_CLKM_DIV_CONF / 4];
++    uint32_t tdm = s->regs[R_TX_TDM_CTRL / 4];
++    uint32_t slot_mask = tdm & 0xffff;
++    bool mono = tx_conf & TX_MONO;
++    uint32_t clock = clocks[(clkm >> 27) & 3];
++    uint32_t integer = clkm & 0xff;
++    uint32_t bck_div = ((conf1 >> 7) & 0x3f) + 1;
++    uint32_t x = (div >> 18) & 0x1ff;
++    uint32_t y = (div >> 9) & 0x1ff;
++    uint32_t z = div & 0x1ff;
++    uint32_t fraction_den = 1, fraction_num = 0;
++    uint64_t divisor;
++    uint32_t rate;
++
++    if (!(tx_conf & TX_TDM) || (tx_conf & (TX_PDM | TX_SLAVE)) ||
++        (clkm & (TX_CLK_ENABLE | TX_CLK_ACTIVE)) !=
++            (TX_CLK_ENABLE | TX_CLK_ACTIVE) || !clock || !integer ||
++        ((conf1 >> 13) & 0x1f) != 15 || ((conf1 >> 24) & 0x1f) != 15 ||
++        ((tdm >> 16) & 0xf) != 1) {
++        return false;
++    }
++    if (mono ? !(tx_conf & TX_CHAN_EQUAL) ||
++                   (slot_mask != 1 && slot_mask != 2) : slot_mask != 3) {
++        return false;
++    }
++    if (z) {
++        if (!y || y >= z) {
++            return false;
++        }
++        fraction_den = (x + 1) * z + y;
++        fraction_num = div & TX_CLK_DIV_YN1 ? fraction_den - z : z;
++    } else if (div & TX_CLK_DIV_YN1) {
++        return false;
++    }
++    divisor = ((uint64_t)integer * fraction_den + fraction_num) * bck_div * 32;
++    rate = ((uint64_t)clock * fraction_den + divisor / 2) / divisor;
++    if (rate < 8000 || rate > 192000) {
++        return false;
++    }
++    s->paced_tx_rate = rate;
++    s->paced_tx_frame_bytes = mono ? 2 : 4;
++    return true;
++}
++
++static int64_t i2s_tx_descriptor_period(const M5I2SState *s, uint32_t bytes)
++{
++    if (!bytes || bytes % s->paced_tx_frame_bytes) {
++        return 20 * SCALE_MS;
++    }
++    return (uint64_t)(bytes / s->paced_tx_frame_bytes) * NANOSECONDS_PER_SECOND
++        / s->paced_tx_rate;
++}
++
++static void i2s_paced_tx_timer(void *opaque)
++{
++    M5I2SState *s = opaque;
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
++    int64_t anchor = now;
++    uint32_t channel, desc, bytes;
++    int64_t period;
++
++    if (!s->tx_started) {
++        return;
++    }
++    if (!s->gdma || !esp_gdma_get_channel_periph(s->gdma, GDMA_I2S1,
++                                                ESP_GDMA_OUT_IDX, &channel)) {
++        s->paced_tx_due_ns = 0;
++        timer_mod(s->paced_tx_timer, now + SCALE_MS);
++        return;
++    }
++    desc = esp_gdma_peek_out_descriptor(s->gdma, channel, &bytes);
++    if (s->paced_tx_due_ns && channel == s->paced_tx_channel &&
++        desc == s->paced_tx_desc && bytes == s->paced_tx_desc_bytes) {
++        anchor = s->paced_tx_due_ns;
++        i2s_complete_dma(s, channel);
++        desc = esp_gdma_peek_out_descriptor(s->gdma, channel, &bytes);
++    }
++    period = i2s_tx_descriptor_period(s, bytes);
++    /* Keep phase through ordinary timer jitter. A long host delay must not
++     * replay a burst of queued IRQs into a guest that could not refill GDMA.
++     */
++    s->paced_tx_due_ns = (anchor + period > now ? anchor : now) + period;
++    s->paced_tx_channel = channel;
++    s->paced_tx_desc = desc;
++    s->paced_tx_desc_bytes = bytes;
++    timer_mod(s->paced_tx_timer, s->paced_tx_due_ns);
++}
++
+ static void i2s_tx_timer(void *opaque)
+ {
+     M5I2SState *s = opaque;
+@@ -342,6 +457,8 @@ static void i2s_write(void *opaque, hwaddr addr, uint64_t value,
+         break;
+     case R_TX_CONF:
+         if ((v & TX_START) && !s->tx_started) {
++            bool paced = false;
++
+             i2s_capture_tx(s);
+             if (!s->pcm_started) {
+                 s->pcm_writes = 0;
+@@ -351,8 +468,33 @@ static void i2s_write(void *opaque, hwaddr addr, uint64_t value,
+             s->capture_until_ms =
+                 qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2000;
+             s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 500;
+-            timer_mod(s->tx_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++            if (s->paced_tx_timer && s->port == 1) {
++                paced = i2s_decode_standard_tx(s, v);
++                if (s->trace) {
++                    fprintf(stderr, "[i2s%d] TX pacing conf=%08x conf1=%08x"
++                            " clkm=%08x div=%08x tdm=%08x rate=%u"
++                            " frame-bytes=%u\n",
++                            s->port, v, s->regs[R_TX_CONF1 / 4],
++                            s->regs[R_TX_CLKM_CONF / 4],
++                            s->regs[R_TX_CLKM_DIV_CONF / 4],
++                            s->regs[R_TX_TDM_CTRL / 4],
++                            paced ? s->paced_tx_rate : 0,
++                            paced ? s->paced_tx_frame_bytes : 0);
++                }
++            }
++            if (paced) {
++                s->dma_active = false;
++                s->paced_tx_due_ns = 0;
++                timer_del(s->tx_timer);
++                timer_mod(s->paced_tx_timer,
++                          qemu_clock_get_ns(QEMU_CLOCK_REALTIME));
++            } else {
++                timer_mod(s->tx_timer,
++                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++            }
++        } else if (!(v & TX_START) && s->paced_tx_timer) {
++            timer_del(s->paced_tx_timer);
++            s->paced_tx_due_ns = 0;
+         }
+         s->tx_started = !!(v & TX_START);
+         s->regs[addr / 4] = v & ~TX_UPDATE;
+@@ -388,6 +530,10 @@ static void i2s_reset(DeviceState *dev)
+     s->rx_dma_active = false;
+     s->rx_dma_channel = 0;
+     s->pcm_started = false;
++    s->paced_tx_due_ns = 0;
++    if (s->paced_tx_timer) {
++        timer_del(s->paced_tx_timer);
++    }
+     if (s->rx_timer) {
+         timer_del(s->rx_timer);
+     }
+@@ -396,6 +542,16 @@ static void i2s_reset(DeviceState *dev)
+     }
+ }
+ 
++static bool i2s_paced_tx_enabled(void)
++{
++#ifdef __EMSCRIPTEN__
++    return m5_board == M5_BOARD_CORES3 &&
++        g_strcmp0(getenv("M5_WASM_I2S_TX_PACING"), "1") == 0;
++#else
++    return false;
++#endif
++}
++
+ static void i2s_init(Object *obj)
+ {
+     M5I2SState *s = M5_I2S(obj);
+@@ -405,6 +561,10 @@ static void i2s_init(Object *obj)
+     sysbus_init_irq(sbd, &s->irq);
+     s->trace = getenv("M5SW_I2S_TRACE") != NULL;
+     s->dma_irq = getenv("M5SW_I2S_DMA_IRQ") != NULL;
++    if (s->dma_irq && i2s_paced_tx_enabled()) {
++        s->paced_tx_timer = timer_new_ns(QEMU_CLOCK_REALTIME,
++                                         i2s_paced_tx_timer, s);
++    }
+     s->pcm_limit = 4 << 20;
+     s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_tx_timer, s);
+     s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_rx_timer, s);
+diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+index 0b005b9..c368c78 100644
+--- a/include/hw/dma/esp_gdma.h
++++ b/include/hw/dma/esp_gdma.h
+@@ -175,6 +175,8 @@ uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
+                                         uint32_t max_size);
+ uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
+                                        uint8_t *buffer, uint32_t size);
++uint32_t esp_gdma_peek_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                     uint32_t *length);
+ uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
+                                           uint8_t *buffer, uint32_t size);
+ uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,

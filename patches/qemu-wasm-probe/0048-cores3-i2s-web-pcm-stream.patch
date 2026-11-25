@@ -1,0 +1,90 @@
+diff --git a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+index 1f10f7e..4f59cea 100644
+--- a/hw/m5stopwatch/m5_i2s.c
++++ b/hw/m5stopwatch/m5_i2s.c
+@@ -44,6 +44,9 @@ struct M5I2SState {
+     ESPGdmaState *gdma;
+     uint32_t port;
+     FILE *pcm_file;
++#ifdef __EMSCRIPTEN__
++    FILE *pcm_stream;
++#endif
+     uint64_t pcm_bytes;
+     uint64_t pcm_limit;
+     uint32_t pcm_writes;
+@@ -118,7 +121,7 @@ static void i2s_capture_tx(M5I2SState *s)
+ 
+ static bool i2s_store_pcm(M5I2SState *s, const uint8_t *buffer, uint32_t bytes);
+ 
+-static void i2s_complete_dma(M5I2SState *s, uint32_t channel)
++static void i2s_complete_dma(M5I2SState *s, uint32_t channel, bool paced)
+ {
+     const uint32_t snapshot_size = 4096;
+     g_autofree uint8_t *buffer = g_malloc0(snapshot_size);
+@@ -145,6 +148,20 @@ static void i2s_complete_dma(M5I2SState *s, uint32_t channel)
+         fprintf(stderr, "\n");
+     }
+     i2s_store_pcm(s, buffer, bytes);
++#ifdef __EMSCRIPTEN__
++    /* The browser sink consumes only the format verified by the paced timer. */
++    if (paced && s->paced_tx_rate == 48000 && s->paced_tx_frame_bytes == 2 &&
++        bytes % 2 == 0 &&
++        g_strcmp0(getenv("M5_WASM_I2S_PCM_STREAM"), "1") == 0) {
++        if (!s->pcm_stream) {
++            s->pcm_stream = fopen("/bridge/audio-pcm", "wb");
++        }
++        if (s->pcm_stream) {
++            fwrite(buffer, 1, bytes, s->pcm_stream);
++            fflush(s->pcm_stream);
++        }
++    }
++#endif
+     s->dma_events++;
+ }
+ 
+@@ -274,7 +291,7 @@ static void i2s_paced_tx_timer(void *opaque)
+     if (s->paced_tx_due_ns && channel == s->paced_tx_channel &&
+         desc == s->paced_tx_desc && bytes == s->paced_tx_desc_bytes) {
+         anchor = s->paced_tx_due_ns;
+-        i2s_complete_dma(s, channel);
++        i2s_complete_dma(s, channel, true);
+         desc = esp_gdma_peek_out_descriptor(s->gdma, channel, &bytes);
+     }
+     period = i2s_tx_descriptor_period(s, bytes);
+@@ -315,7 +332,7 @@ static void i2s_tx_timer(void *opaque)
+                 fprintf(stderr, "[i2s%d] dma completion due chan=%u\n",
+                         s->port, s->dma_channel);
+             }
+-            i2s_complete_dma(s, s->dma_channel);
++            i2s_complete_dma(s, s->dma_channel, false);
+             s->dma_active = false;
+             s->dma_due_ms =
+                 qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
+@@ -415,6 +432,14 @@ static void i2s_rx_start(M5I2SState *s)
+     s->rx_dma_active = true;
+     s->rx_pcm_pos = 0;
+     s->rx_dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
++#ifdef __EMSCRIPTEN__
++    if (s->port == 1 && m5_board == M5_BOARD_CORES3 &&
++        g_strcmp0(getenv("M5_WASM_I2S_VIRTUAL_MIC"), "1") == 0) {
++        /* A new RX transaction must use the current editor-run input. */
++        g_clear_pointer(&s->rx_pcm, g_free);
++        s->rx_pcm_size = 0;
++    }
++#endif
+     if (path) {
+         g_autofree char *contents = NULL;
+         gsize length = 0;
+@@ -530,6 +555,12 @@ static void i2s_reset(DeviceState *dev)
+     s->rx_dma_active = false;
+     s->rx_dma_channel = 0;
+     s->pcm_started = false;
++#ifdef __EMSCRIPTEN__
++    if (s->pcm_stream) {
++        fclose(s->pcm_stream);
++        s->pcm_stream = NULL;
++    }
++#endif
+     s->paced_tx_due_ns = 0;
+     if (s->paced_tx_timer) {
+         timer_del(s->paced_tx_timer);

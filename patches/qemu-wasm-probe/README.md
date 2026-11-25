@@ -605,3 +605,21 @@ retain their existing behavior.
 The browser can pair the original LoRa1262 or LoRa868 example roles
 over a local channel. Packet completion is virtual. This lane covers
 controller and application data.
+
+## CoreS3 I²S descriptor pacing and browser PCM (0047 and 0048)
+
+Layer 0047 paces CoreS3 I²S1 standard master TX descriptors according to the
+configured sample rate, active slots and descriptor length. This mode requires
+the explicit WASM pacing and DMA interrupt settings. The guest updates its
+regular GDMA descriptors and receives the existing completion interrupt.
+Other I²S modes keep their existing timing path.
+
+Layer 0048 forwards completed 48 kHz mono signed-16 frames to an opt-in browser
+character device. The Web Audio sink owns a bounded queue for each browser
+session. Virtual microphone input uses the existing file-backed I²S RX path and
+is scoped to the pinned workbench example.
+
+Export an audio preview with `build_public_site.py --qemu-cores3-audio`.
+The firmware and microSD binding remain hash-checked. The preview requires the
+two layers in the runtime manifest and is marked ineligible for the default
+Pages deployment. The user enables audio before clicking Start.
