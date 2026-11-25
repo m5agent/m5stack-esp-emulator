@@ -318,6 +318,13 @@ v2.5.3」。启动后导入并运行 LoRa1262 或 LoRa868 的官方 GPS Python �
 来宾原程序在屏幕上显示各自的经纬度和 GPS 时间。运行记录包括 UART2 读取字节数。
 此预设覆盖模拟定位，LoRa 收发验收见 [#244](https://github.com/m5agent/m5stack-esp-emulator/issues/244)。
 
+### Cardputer-Adv Cap 收发例程
+
+在同一浏览器打开两个工作台标签页。两边选择同一个 Cap 的发送端和接收端，
+启动后点击各自的「载入官方例程」。先运行接收端，生成配对码并在两个标签页连接，
+再运行发送端。LoRa1262 和 LoRa868 用设备键盘输入文字后按 Enter；CC1101
+的发送例程会自行发送。收端画面显示实际从虚拟芯片 FIFO 读取的内容。
+
 ### CoreS3 绘图例程
 
 在浏览器工作台选择 CoreS3，将启动环境设为「CoreS3 绘图 · UIFlow2 v2.5.5」。

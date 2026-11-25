@@ -11,9 +11,10 @@ const html=await fs.readFile(new URL('../web/index.html',import.meta.url),'utf8'
 assert.match(html, /<select[^>]*id="serialChannel"/, 'the fixture represents the actual serial output selector');
 assert.match(html, /<button[^>]*id="loadWorkbenchExampleBtn"/, 'the fixture represents the exact example loader');
 const functions=source.slice(source.indexOf('const pythonPhases='),source.indexOf('function updateCapability()'));
+const radio=source.slice(source.indexOf('function browserRadio('),source.indexOf('function closeBrowserRadioPair('));
 const serial=source.slice(source.indexOf("$('serialForm').addEventListener('submit'"),source.indexOf("$('browserPir').addEventListener('change'"));
 const keyboard=source.slice(source.indexOf("$('pythonSource').addEventListener('keydown'"),source.indexOf("$('serialForm').addEventListener('submit'"));
-assert.ok(functions.startsWith('const pythonPhases=')&&serial&&keyboard,'the production handlers must be exercised');
+assert.ok(functions.startsWith('const pythonPhases=')&&radio&&serial&&keyboard,'the production handlers must be exercised');
 function fixture(){
   const handlers=new Map(),nodes={},errors=[],writes=[];
   for(const id of ['serialForm','serialInput','serialSendBtn','serialChannel','pythonSource','pythonRunBtn','pythonInterruptBtn','loadWorkbenchExampleBtn','pythonStatus','pythonOutput','pauseBtn',
@@ -30,7 +31,7 @@ function fixture(){
   const context={state,$:id=>nodes[id],active:value=>value===state.run&&value.generation===state.runGeneration&&!value.stopping,
     PublicQemuRuntime,PublicMicroPythonRunner,TextEncoder,Uint8Array,DOMException,
     error:error=>{if(error.name!=='AbortError')errors.push(error);}};
-  vm.createContext(context);vm.runInContext(functions+'\n'+serial+'\n'+keyboard,context);
+  vm.createContext(context);vm.runInContext(radio+'\n'+functions+'\n'+serial+'\n'+keyboard,context);
   context.updatePythonControls();
   assert.equal(nodes.serialChannel.disabled,true,'browser-WASM keeps a single console and cannot select a native USB channel');
   assert.equal(nodes.loadWorkbenchExampleBtn.hidden,true,'a generic session does not expose a bound example source');

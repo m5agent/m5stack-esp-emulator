@@ -47,7 +47,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
-  exampleSourceLoader,cc1101Examples,peerFactory,
+  exampleSourceLoader,cc1101Examples,sx1262Examples,peerFactory,
   isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[],windowListeners=new Map();
   let evidenceBlob;
@@ -79,7 +79,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
@@ -111,7 +111,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     const startRunActual=startRun;
     startRun=async()=>events.push('start:'+lane());
     globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,
-      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual,updateBrowserCc1101};
+      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual,updateBrowserRadioPair};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -248,7 +248,7 @@ let stopped=false;
 ccController.stop=()=>{stopped=true;};
 const ccRun={kind:'browser',generation:cc1101Cleanup.state.runGeneration,controller:ccController,cc1101Role:'rx'};
 cc1101Cleanup.state.run=ccRun;
-cc1101Cleanup.updateBrowserCc1101(ccRun);
+cc1101Cleanup.updateBrowserRadioPair(ccRun);
 assert.equal(cc1101Cleanup.element('browserCc1101Panel').hidden,false);
 cc1101Cleanup.element('browserCc1101Code').value='a'.repeat(32);
 cc1101Cleanup.element('browserCc1101Connect').listeners.get('click')();
@@ -257,7 +257,7 @@ assert.deepEqual({...await pairOptions.readState()},{epoch:1,armed:true});
 assert.ok(pairOptions.canUse());
 ccController.consoleEpoch++;
 assert.equal(pairOptions.canUse(),false);
-cc1101Cleanup.updateBrowserCc1101(ccRun);
+cc1101Cleanup.updateBrowserRadioPair(ccRun);
 assert.equal(closeCount,1,'real machine reset epoch disconnects the paired session');
 cc1101Cleanup.element('browserCc1101Connect').listeners.get('click')();
 assert.ok(pairOptions.canUse());
@@ -270,6 +270,46 @@ assert.equal(stopped,true);
 const cc1101WrongBoard=await entry({search:'?device=cores3&autostart=0',cc1101Examples});
 cc1101WrongBoard.element('referenceExample').value='cc1101-rf-rx';
 assert.equal(cc1101WrongBoard.reference(),null);
+staticBrowser.element('referenceExample').value='lora1262-rf-rx';
+assert.equal(staticBrowser.reference(),null);
+const sx1262Examples={};
+for(const variant of ['lora1262','lora868'])for(const [role,sourceSuffix] of [['tx','sender'],['rx','receiver']]){
+  sx1262Examples[`${variant}-rf-${role}`]={path:`platform/runtime/qemu-probe/fixture/cardputer_adv_${variant}_cap_${sourceSuffix}_example.py`,sha256:'6'.repeat(64),bytes:1800};
+}
+const sx1262=await entry({search:'?device=cardputer-adv&autostart=0',sx1262Examples,peerFactory:options=>{
+  pairOptions=options;
+  return {close(){closeCount++;}};
+}});
+assert.equal(sx1262.element('referenceExample').value,'uiflow');
+assert.equal(sx1262.element('browserCc1101Panel').hidden,true);
+for(const id of Object.keys(sx1262Examples)){
+  sx1262.element('referenceExample').value=id;
+  assert.equal(sx1262.reference().sx1262Example,id);
+  assert.equal(sx1262.lane(),'browser');
+}
+sx1262.element('runtimeMode').value='service';
+assert.equal(sx1262.lane(),null);
+const sxController=new PublicQemuRuntime({root:pageRoot,profiles:registry});
+sxController.status='running';
+sxController.profile={...sx1262.browserProfile('cardputer-adv'),sx1262Example:'lora868-rf-rx'};
+sxController.readSx1262PeerState=async()=>({commands:25,reset_edges:2,frequency_word:910163968,irq_status:0,
+  tx_sequence:0,rx_sequence:0,rx_bytes_read:0,receiving:true,busy:false,dio1:false,tx_hex:''});
+sxController.input=async event=>({accepted:true,event});
+const sxRun={kind:'browser',generation:sx1262.state.runGeneration,controller:sxController,sx1262Example:'lora868-rf-rx'};
+sx1262.state.run=sxRun;
+sx1262.updateBrowserRadioPair(sxRun);
+assert.equal(sx1262.element('browserRadioCapName').textContent,'LoRa868 Cap');
+assert.equal(sx1262.element('browserCc1101Role').textContent,'接收端');
+sx1262.element('browserCc1101Code').value='b'.repeat(32);
+sx1262.element('browserCc1101Connect').listeners.get('click')();
+assert.equal(pairOptions.protocol,'lora868');
+assert.equal(pairOptions.role,'rx');
+assert.deepEqual({...await pairOptions.readState()},{epoch:2,armed:true});
+assert.deepEqual({... (await pairOptions.receiveFrame('7761736d')).event},{type:'sx1262-peer-packet',packetHex:'7761736d'});
+sxController.consoleEpoch++;
+assert.equal(pairOptions.canUse(),false);
+sx1262.updateBrowserRadioPair(sxRun);
+assert.equal(closeCount,3);
 const disabledBrowser=await entry({browserEnabled:false,search:'?device=stopwatch&autostart=0'});
 assert.equal(disabledBrowser.browserProfile('stopwatch'),null);assert.equal(disabledBrowser.lane(),null);
 const legacy={deviceId:'stopwatch',board:'stopwatch',display:{width:468,height:466}};

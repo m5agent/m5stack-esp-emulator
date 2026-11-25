@@ -1,5 +1,5 @@
 import {readQemuServoOutputs} from './public-qemu-servo.js';
-import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,qemuCc1101PeerStateQuery,validateQemuCc1101PeerState} from './public-qemu-profiles.js';
+import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,qemuCc1101PeerStateQuery,validateQemuCc1101PeerState,qemuSx1262PeerStateQuery,validateQemuSx1262PeerState,qemuSx1262ReceiveArmed} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
 import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
@@ -194,6 +194,7 @@ async function start(config) {
       Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
       if(boardProfile.capExample)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101='1';
       if(boardProfile.capPeer===true)m.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101_PEER='1';
+      if(boardProfile.sx1262Example)m.ENV.M5SW_CARDPUTER_ADV_CAP_LORA='1';
       if(sdCard) {
         m.FS.writeFile('/sd-card.img',new Uint8Array(sdCard),{canOwn:true});
         m.ENV.M5SW_SPI_SD_IMAGE='/sd-card.img';
@@ -265,6 +266,18 @@ async function start(config) {
   module = await createQemu(options);
   if (disposeRequested) { cleanup(); throw new Error('Instance disposed during start'); }
 }
+let sx1262IngressPending=false;
+function checkSx1262Session(epoch) {
+  if (epoch!==resetEpoch||closed||disposeRequested)throw new Error('QEMU SX1262 peer session changed');
+}
+async function readSx1262PeerState(epoch) {
+  checkSx1262Session(epoch);
+  const command=qemuSx1262PeerStateQuery(boardProfile);
+  const state=await qmp(command.execute,command.arguments);
+  checkSx1262Session(epoch);
+  return validateQemuSx1262PeerState(state);
+}
+
 async function request(op, value) {
   if (op === 'gnss-fixture') {
     if (closed || disposeRequested || gnssInput) throw new Error('GNSS sample input is busy or closed');
@@ -351,6 +364,11 @@ async function request(op, value) {
     if (![txBytes,txPackets].every(value=>Number.isSafeInteger(value)&&value>=0)) throw new Error('Invalid USB Serial/JTAG controller counters');
     return {consoleEpoch,txBytes,txPackets};
   }
+  if (op === 'sx1262-peer-state') {
+    if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length))
+      throw new Error('QEMU SX1262 peer reads accept no caller path or property');
+    return readSx1262PeerState(resetEpoch);
+  }
   if (op === 'cc1101-peer-state') {
     if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length))
       throw new Error('QEMU CC1101 peer reads accept no caller path or property');
@@ -381,6 +399,20 @@ async function request(op, value) {
   if (op === 'input' || op === 'touch' || op === 'pir') {
     const event=op==='input'?value:{...value,type:op};
     const command=qemuInputCommand(boardProfile,event);
+    if(event.type==='sx1262-peer-packet'){
+      if(sx1262IngressPending)throw new Error('QEMU SX1262 receive already pending');
+      const epoch=resetEpoch;
+      sx1262IngressPending=true;
+      try{
+        const state=await readSx1262PeerState(epoch);
+        if(!qemuSx1262ReceiveArmed(state))throw new Error('QEMU SX1262 receiver is not armed');
+        const result=await qmp(command.execute,command.arguments);
+        checkSx1262Session(epoch);
+        return result;
+      }finally{
+        sx1262IngressPending=false;
+      }
+    }
     if (command.bitInput) {
       const target=command.bitInput;
       const operation=controllerInputs.then(async()=>{

@@ -284,10 +284,31 @@ def stage_uiflow_workbench_examples(root: Path, output: Path, workbench: dict,
 
 def stage_qemu_cc1101_examples(root: Path, output: Path, runtime: dict,
                                 workbench: dict) -> dict[str, dict]:
-    peer_patch = {
+    return stage_qemu_cap_examples(root, output, runtime, workbench, {
         "path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
         "sha256": "feeae444d6f29dce4780b366759d66a727a850f22daf12012e37c31ba80381a2",
-    }
+    }, "CC1101", (
+        ("tx", "cc1101_cap_rf_tx_example.py", 3425, "12d62591b8400f84dce2560601b4fe7939785ef6be1f9b574c1b419a58b2ce40"),
+        ("rx", "cc1101_cap_rf_rx_example.py", 3930, "725c082f699a054b1b5983cdac62981b3287d24675ee3002efbd5b8058512744"),
+    ))
+
+
+def stage_qemu_sx1262_examples(root: Path, output: Path, runtime: dict,
+                               workbench: dict) -> dict[str, dict]:
+    return stage_qemu_cap_examples(root, output, runtime, workbench, {
+        "path": "patches/qemu-wasm-probe/0046-cardputer-adv-sx1262-cap-peer.patch",
+        "sha256": "0c7b037ed3e95102c8d588d042767a0d61591946323f21a9f87a8e02f0c90238",
+    }, "SX1262", (
+        ("lora1262-rf-tx", "cardputer_adv_lora1262_cap_sender_example.py", 1699, "08bb6c92c945c25354dde44133711ccf51fc47320a7e079653f84351ac936f51"),
+        ("lora1262-rf-rx", "cardputer_adv_lora1262_cap_receiver_example.py", 1866, "6c3765e32fd6d2b730f164fc1aea478d150738f918f25509216325d23678abe9"),
+        ("lora868-rf-tx", "cardputer_adv_lora868_cap_sender_example.py", 1662, "d5bb7f05ccab053c41e83dc6d85ea6ee9cf1e5036f91614975f07df474c3d626"),
+        ("lora868-rf-rx", "cardputer_adv_lora868_cap_receiver_example.py", 1811, "174c834489590531f2271229b5b5c0093ea12f1c941826b6d6873fd683778df0"),
+    ))
+
+
+def stage_qemu_cap_examples(root: Path, output: Path, runtime: dict, workbench: dict,
+                           peer_patch: dict, device: str,
+                           inputs: tuple[tuple[str, str, int, str], ...]) -> dict[str, dict]:
     matching = [row for row in runtime.get("source", {}).get("patches", [])
                 if row.get("path") == peer_patch["path"]]
     if matching != [peer_patch] or not any(
@@ -297,17 +318,13 @@ def stage_qemu_cc1101_examples(root: Path, output: Path, runtime: dict,
     ):
         return {}
     examples = {}
-    for role, size, digest in (
-        ("tx", 3425, "12d62591b8400f84dce2560601b4fe7939785ef6be1f9b574c1b419a58b2ce40"),
-        ("rx", 3930, "725c082f699a054b1b5983cdac62981b3287d24675ee3002efbd5b8058512744"),
-    ):
-        name = f"cc1101_cap_rf_{role}_example.py"
+    for role, name, size, digest in inputs:
         source = root / "tests/browser-qemu/uiflow_workbench" / name
         if source.resolve() != source or not source.is_file():
-            raise ValueError("CC1101 original example source is missing or a symlink")
+            raise ValueError(f"{device} original example source is missing or a symlink")
         content = source.read_bytes()
         if len(content) != size or hashlib.sha256(content).hexdigest() != digest:
-            raise ValueError("CC1101 original example source identity mismatch")
+            raise ValueError(f"{device} original example source identity mismatch")
         path = f"platform/runtime/qemu-probe/fixture/{name}"
         destination = output / path
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -409,6 +426,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         runtime_manifest = None
         sd_examples = None
         cc1101_examples = {}
+        sx1262_examples = {}
         if browser_runtime:
             runtime_manifest, runtime_files = browser_runtime_files(browser_runtime, allow_diagnostic=allow_diagnostic_runtime)
             runtime_directory = temporary / "platform/runtime/esp32sim"
@@ -443,6 +461,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                                      if row["deviceId"] in selected_devices]
             stage_uiflow_workbench_examples(root, temporary, workbench, selected_devices)
             cc1101_examples = stage_qemu_cc1101_examples(root, temporary, runtime_manifest, workbench)
+            sx1262_examples = stage_qemu_sx1262_examples(root, temporary, runtime_manifest, workbench)
             (temporary / workbench_path).write_bytes(encode_json(workbench))
             # Probe sources are text, not prebuilt or derived firmware. Copy
             # only sources selected by an explicit per-board fixture identity.
@@ -508,6 +527,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             config["browser_sd_examples"] = sd_examples
         if cc1101_examples:
             config["browser_cc1101_examples"] = cc1101_examples
+        if sx1262_examples:
+            config["browser_sx1262_examples"] = sx1262_examples
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))
         (temporary / "site-config.json").write_bytes(encode_json(config))
         # Unit visual availability and emulated protocol coverage remain distinct.

@@ -49,6 +49,25 @@ class PublicSiteTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "identity mismatch"):
                 public.stage_qemu_cc1101_examples(root, output, runtime, workbench)
 
+    def test_sx1262_exports_four_original_examples_only_with_its_locked_patch(self):
+        workbench = json.loads((public.ROOT / "platform/web/uiflow-workbench-profiles.json").read_text())
+        peer = {"path": "patches/qemu-wasm-probe/0046-cardputer-adv-sx1262-cap-peer.patch",
+                "sha256": "0c7b037ed3e95102c8d588d042767a0d61591946323f21a9f87a8e02f0c90238"}
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
+            off = {"source": {"patches": [{**peer, "sha256": "0" * 64}]}}
+            self.assertEqual(public.stage_qemu_sx1262_examples(public.ROOT, output, off, workbench), {})
+            self.assertFalse(output.exists())
+            runtime = {"source": {"patches": [peer]}}
+            examples = public.stage_qemu_sx1262_examples(public.ROOT, output, runtime, workbench)
+            self.assertEqual(set(examples), {"lora1262-rf-tx", "lora1262-rf-rx", "lora868-rf-tx", "lora868-rf-rx"})
+            for row in examples.values():
+                actual = (output / row["path"]).read_bytes()
+                original = public.ROOT / "tests/browser-qemu/uiflow_workbench" / Path(row["path"]).name
+                self.assertEqual(actual, original.read_bytes())
+                self.assertEqual(len(actual), row["bytes"])
+                self.assertEqual(hashlib.sha256(actual).hexdigest(), row["sha256"])
+
     def test_epd_quality_patterns_match_pinned_fixture_sources(self):
         subprocess.run([sys.executable, str(public.ROOT / "tests/browser-qemu/board_display/epd_oracle.py"), "--check"],
                        check=True, capture_output=True, text=True)
