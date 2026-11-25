@@ -558,3 +558,15 @@ request with no timer wake armed ends the session as before.
 
 This path covers the level interrupt used by the Arduino Wakeup example.
 Calendar alarms and periodic interrupt pulses remain outside this patch.
+
+## LCD_CAM DVP record timing (`0043`)
+
+CAM_START now arms the capture timer before the first DMA record. The
+synthetic DVP source paces each record by its fraction of the configured
+frame, using a nominal 30 source frames per virtual second. Relative
+nanosecond deadlines retain the full interval. The controller waits for
+GDMA EOF acknowledgement, and the idle VSYNC path can rearm capture when
+the guest returns a buffer.
+
+The camera source period is a model setting. The CoreS3 QVGA acceptance
+covers 320×240 RGB565 using the original UIFlow2 camera program.

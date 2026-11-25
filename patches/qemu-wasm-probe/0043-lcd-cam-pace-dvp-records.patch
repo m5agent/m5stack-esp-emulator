@@ -1,0 +1,99 @@
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index 17dfd5e..ada8f7f 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -129,6 +129,22 @@ static void lcd_cam_fill_frame(M5LcdCamState *s, uint8_t *data, uint32_t len)
+     s->frame_offset = (s->frame_offset + len) % frame_bytes;
+ }
+ 
++static void lcd_cam_schedule_capture(M5LcdCamState *s, int64_t interval_ns)
++{
++    timer_mod_ns(s->capture_timer,
++                 qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + interval_ns);
++}
++
++static void lcd_cam_schedule_record(M5LcdCamState *s)
++{
++    uint64_t bytes = MIN(s->chunk_len, s->frame_bytes - s->frame_offset);
++    uint64_t interval = DIV_ROUND_UP((NANOSECONDS_PER_SECOND / 30) * bytes,
++                                     s->frame_bytes);
++
++    /* Pace the synthesized DVP stream at a nominal 30 source frames/s. */
++    lcd_cam_schedule_capture(s, interval);
++}
++
+ static void lcd_cam_capture(M5LcdCamState *s)
+ {
+     uint32_t channel;
+@@ -151,8 +167,7 @@ static void lcd_cam_capture(M5LcdCamState *s)
+         return;
+     }
+     if (!(s->int_ena & CAM_VSYNC_INT)) {
+-        timer_mod(s->capture_timer,
+-                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++        lcd_cam_schedule_capture(s, 10 * SCALE_MS);
+         return;
+     }
+ 
+@@ -171,8 +186,7 @@ static void lcd_cam_capture(M5LcdCamState *s)
+              */
+             s->int_raw |= CAM_VSYNC_INT;
+             lcd_cam_update_irq(s);
+-            timer_mod(s->capture_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++            lcd_cam_schedule_capture(s, 10 * SCALE_MS);
+             return;
+         }
+         /* One camera EOF covers cam_rec_data_bytelen bytes, not one GDMA
+@@ -182,8 +196,7 @@ static void lcd_cam_capture(M5LcdCamState *s)
+         if (esp_gdma_read_chan_register(s->gdma, ESP_GDMA_IN_IDX, channel,
+                                        GDMA_INT_ST_REG)
+             & R_GDMA_INTERRUPT_IN_SUC_EOF_MASK) {
+-            timer_mod(s->capture_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++            lcd_cam_schedule_capture(s, SCALE_MS);
+             return;
+         }
+         s->dma_armed = false;
+@@ -207,8 +220,11 @@ static void lcd_cam_capture(M5LcdCamState *s)
+             esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
+                                         R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
+             s->chunks_left--;
+-            timer_mod(s->capture_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++            if (s->chunks_left) {
++                lcd_cam_schedule_record(s);
++            } else {
++                lcd_cam_schedule_capture(s, SCALE_MS);
++            }
+         } else {
+             if (s->frame_auto_increment) {
+                 s->frame_seed++;
+@@ -223,8 +239,7 @@ static void lcd_cam_capture(M5LcdCamState *s)
+              * holds every frame buffer. Returning a buffer does not issue a
+              * new CAM_START; the next VSYNC lets cam_hal arm DMA again.
+              */
+-            timer_mod(s->capture_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++            lcd_cam_schedule_capture(s, 10 * SCALE_MS);
+         }
+     }
+ }
+@@ -329,7 +344,7 @@ static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
+             s->chunks_left = (s->frame_bytes + s->chunk_len - 1)
+                            / s->chunk_len;
+             s->frame_offset = 0;
+-            lcd_cam_capture(s);
++            lcd_cam_schedule_record(s);
+         }
+         break;
+     }
+@@ -406,7 +421,7 @@ static void lcd_cam_init(Object *obj)
+     object_property_add_bool(
+         obj, "auto-increment", frame_auto_increment_get,
+         frame_auto_increment_set);
+-    s->capture_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++    s->capture_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                     (QEMUTimerCB *)lcd_cam_capture, s);
+ }
+ 
