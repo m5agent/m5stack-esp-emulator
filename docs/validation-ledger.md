@@ -91,6 +91,13 @@ UART2 读取 423 字节 NMEA，原屏显示两组预期经纬度及时间。普�
 键盘控制和原串口，未启用定位。虚拟定位通过，LoRa 无线收发仍待验证。
 [Cardputer-Adv LoRa Cap #244](https://github.com/m5agent/m5stack-esp-emulator/issues/244)
 
+Cardputer-Adv 浏览器 WASM `ee110d20…cc60` 接通 USB Serial/JTAG CDC IN。
+原版 IR NEC 固件从独立 USB 控制台实际输出地址 `0x1111` 和命令 `0x34`、`0x35`，
+控制器累计 435 字节/42 包，原生帧开始更新；平面竖屏仍有方向和裁切问题，
+GPIO44 LEDC 波形未执行。Button 关 CDC 对照经 G0 触发并从 UART0 输出；
+原版默认 CDC Button 尚未得到应用报文。测试会话均正常退出并回收 Worker。
+[USB #257](https://github.com/m5agent/m5stack-esp-emulator/issues/257) · [IR #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258) · [锁定构建、应用和失败对照](https://github.com/m5agent/agent-work-logs/tree/cbb4fd3f9c3a31199f77013049f43be2956efdfa/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-usb-cdc)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
