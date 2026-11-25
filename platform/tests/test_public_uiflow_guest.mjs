@@ -21,7 +21,10 @@ const readyTimeout = Number(process.env.M5_QEMU_READY_TIMEOUT_MS || 300000);
 assert.ok(Number.isSafeInteger(readyTimeout) && readyTimeout >= 30000 && readyTimeout <= 600000);
 const smokeOnly = process.env.M5_UIFLOW_SMOKE_ONLY === '1';
 const unitPreview = process.env.M5_UIFLOW_UNIT_PREVIEW === '1';
+const guestReset = process.env.M5_UIFLOW_GUEST_RESET;
 if (unitPreview) assert.ok(device === 'cores3' && !smokeOnly, 'Unit preview acceptance requires the complete CoreS3 editor case');
+if (guestReset) assert.ok(device === 'cores3' && ['software','watchdog'].includes(guestReset),
+  'Guest reset acceptance requires CoreS3 and M5_UIFLOW_GUEST_RESET=software or watchdog');
 const modules = process.env.M5_WASM_NODE_MODULES || resolve(repo, 'platform/tests/node_modules');
 const {chromium} = await import(pathToFileURL(resolve(modules, 'playwright/index.mjs')));
 const nonce = randomUUID().replaceAll('-', ''), hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -36,13 +39,14 @@ let server, browser, page, workers;
 const mime = {'.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.json':'application/json',
   '.wasm':'application/wasm', '.css':'text/css', '.png':'image/png', '.webp':'image/webp', '.svg':'image/svg+xml', '.woff2':'font/woff2'};
 
-async function waitForGuest(predicate, description, timeout = readyTimeout) {
+async function waitForGuest(predicate, description, timeout = readyTimeout, {rejectPanic = true} = {}) {
   const deadline = Date.now() + timeout;
   let nextReceipt = 0;
   for (;;) {
     const current = await page.evaluate(() => ({status:globalThis.uiflowRuntime?.status, console_epoch:globalThis.uiflowRuntime?.consoleEpoch,
       guest_ready:globalThis.uiflowRuntime?.guestReady(),
-      serial:globalThis.uiflowRuntime?.serial || '', banner:document.querySelector('#errorBanner')?.hidden ? '' : document.querySelector('#errorBanner')?.textContent,
+      serial:globalThis.uiflowRuntime?.serial || '', readySerialOffset:globalThis.uiflowRuntime?.readySerialOffset || 0,
+      banner:document.querySelector('#errorBanner')?.hidden ? '' : document.querySelector('#errorBanner')?.textContent,
       python:document.querySelector('#pythonStatus')?.textContent, output:document.querySelector('#pythonOutput')?.textContent,
       executions:globalThis.uiflowExecutions || []}));
     if (Date.now() >= nextReceipt) {
@@ -50,7 +54,10 @@ async function waitForGuest(predicate, description, timeout = readyTimeout) {
       nextReceipt = Date.now() + 10000;
     }
     if (current.banner) throw new Error(current.banner);
-    if (/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(current.serial)) throw new Error('Guest panic while ' + description);
+    const currentSerial = current.serial.slice(current.readySerialOffset);
+    if (rejectPanic && /Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(currentSerial)) {
+      throw new Error('Guest panic while ' + description);
+    }
     if (predicate(current)) return current;
     if (Date.now() >= deadline) throw new Error('Guest observation timed out: ' + description);
     await page.waitForTimeout(100);
@@ -302,6 +309,33 @@ try {
   check('same-console-through-pre-reset-programs', await page.evaluate(({session, generation, epoch}) => uiflowRuntime.sessionId === session
     && uiflowRuntime.generation === generation && uiflowRuntime.consoleEpoch === epoch
     && !uiflowRuntime.machineEvents.some(row => row.event === 'RESET'), {session:report.session_id, generation:report.generation, epoch:report.console_epoch}));
+  if (guestReset) {
+    const index = await page.evaluate(() => uiflowExecutions.length);
+    const source = guestReset === 'software'
+      ? 'import machine\nmachine.reset()\n'
+      : 'import time\nfrom hardware import WDT\nwdt = WDT(timeout=2500)\nwhile True:\n    time.sleep_ms(20)\n';
+    await page.locator('#pythonSource').fill(source);
+    await page.locator('#pythonRunBtn').click();
+    const rebooted = await waitForGuest(state => state.status === 'running' && state.guest_ready
+      && state.console_epoch > report.console_epoch, 'new UIFlow boot after guest reset', readyTimeout,
+      {rejectPanic: guestReset !== 'watchdog'});
+    const observed = await page.evaluate(() => ({session: uiflowRuntime.sessionId, generation: uiflowRuntime.generation,
+      events: uiflowRuntime.machineEvents.filter(row => row.event === 'RESET'),
+      resetSerial: uiflowRuntime.serial.slice(uiflowRuntime.readySerialOffset)}));
+    const oldExecution = rebooted.executions[index];
+    report.guest_reset = {mode: guestReset, before_console_epoch: report.console_epoch,
+      after_console_epoch: rebooted.console_epoch, source, source_sha256: hash(source), old_execution: oldExecution, ...observed};
+    check('guest-reset-cancels-old-console-program', oldExecution?.source === source && oldExecution.error_name === 'AbortError');
+    check('guest-reset-keeps-browser-session', observed.session === report.session_id && observed.generation === report.generation);
+    check('guest-reset-reaches-new-ready-marker', observed.events.length > 0
+      && observed.events.every(row => row.guest && row.reason === 'guest-reset')
+      && observed.resetSerial.includes('M5_UIFLOW_WORKBENCH_READY'), observed);
+    if (guestReset === 'watchdog') check('task-watchdog-triggered-in-guest',
+      rebooted.serial.includes('Task watchdog got triggered') && rebooted.serial.includes('mpy_machine_wdt'));
+    report.current_console_epoch = rebooted.console_epoch;
+    const marker = `M5_GUEST_RESTART_${nonce}`;
+    await runProgram('after-guest-reset', `print("${marker}")\n`, {stdout: marker});
+  }
   if(!smokeOnly && await page.evaluate(()=>uiflowRuntime.profile.inputs.reset===true)){
     const index=await page.evaluate(()=>uiflowExecutions.length);
     const source=`import time\nprint("M5_RESET_RUNNING_${nonce}")\nwhile True:\n    time.sleep_ms(10)\n`;
@@ -310,8 +344,8 @@ try {
     await page.evaluate(()=>uiflowRuntime.reset());
     const cancelled=await waitForGuest(state=>state.executions[index]?.finished_at,'old program cancelled by hardware reset',15000);
     check('hardware-reset-cancels-old-console-program',cancelled.executions[index].error_name==='AbortError',cancelled.executions[index]);
-    const rebooted=await waitForGuest(state=>state.status==='running'&&state.guest_ready&&state.console_epoch>report.console_epoch,'new UIFlow boot after hardware reset');
-    report.hardware_reset={before_console_epoch:report.console_epoch,after_console_epoch:rebooted.console_epoch,
+    const rebooted=await waitForGuest(state=>state.status==='running'&&state.guest_ready&&state.console_epoch>report.current_console_epoch,'new UIFlow boot after hardware reset');
+    report.hardware_reset={before_console_epoch:report.current_console_epoch,after_console_epoch:rebooted.console_epoch,
       old_execution:cancelled.executions[index],source,source_sha256:hash(source)};
     report.current_console_epoch=rebooted.console_epoch;
     check('hardware-reset-keeps-browser-session-with-new-console',await page.evaluate(({session,generation})=>uiflowRuntime.sessionId===session

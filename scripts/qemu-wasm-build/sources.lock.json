@@ -223,7 +223,7 @@
     "hw/misc/esp32_wlan_packet.c": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
     "hw/misc/esp32_wlan_packet.h": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
     "hw/misc/esp32s3_cache.c": "4db4329a453f99444add015bb8b8cf90b6232897e71e9c15078db51c68397e8a",
-    "hw/misc/esp32s3_rtc_cntl.c": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b",
+    "hw/misc/esp32s3_rtc_cntl.c": "67c30b212320c571c5ab568b3eeb13532787a2f077f8b9c4f8b7e409332dbd69",
     "hw/misc/esp32s3_wifi.c": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
     "hw/misc/esp_sha.c": "28e57226512099c4642366ce24bef013eed0509d9de55bb53f19cc6d9ae42401",
     "hw/misc/meson.build": "695e02205c8ade53660bc718fd4e7d547d32e6d3bd4e9c97f7e0b0062bfe328a",
@@ -240,7 +240,7 @@
     "hw/xtensa/esp32.c": "24f39d8969d5fe187df2f7c42d6cbca1d3131b79efb11470c1b32f1e5484b2f5",
     "hw/xtensa/esp32_intc.c": "760b86bd07b471b8846e349751cbd30d5374a46ba658cf751ea1b57c363a3574",
     "hw/xtensa/esp32_native_hci.c": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
-    "hw/xtensa/esp32s3.c": "8ef1b850972e06c5ed18a5fefcac9b37302d9e29c745b2b779c0a0f0228fd2d1",
+    "hw/xtensa/esp32s3.c": "ed3f60a929b6f6a950f6f9f2a88bcc3f24e1665aae03be8a6ce05dd898fc204a",
     "hw/xtensa/esp32s3_clk.c": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
     "hw/xtensa/esp32s3_intc.c": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
     "hw/xtensa/meson.build": "1a10878b1818cac14858804f46220bedf3f77deb87133ee98a6134589fc131cc",
@@ -261,6 +261,7 @@
     "include/hw/misc/esp32_rtc_cntl.h": "cc75730e8718f7b457e1626c89b1dafce6464f6e13f8b301c545f48c1cc9c0c4",
     "include/hw/misc/esp32_unknown.h": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
     "include/hw/misc/esp32_wifi.h": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
+    "include/hw/misc/esp32s3_rtc_cntl.h": "e55ab1683e1d0b769aa8b79a922fb8263557c16af68dc566fba8f042bf0e0ef7",
     "include/hw/misc/esp32s3_wifi.h": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
     "include/hw/misc/m5_bcm_spi_panel.h": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
     "include/hw/misc/unimp-default.h": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
@@ -635,6 +636,10 @@
     {
       "path": "patches/qemu-wasm-probe/0039-cardputer-adv-gpio-board-detect.patch",
       "sha256": "006ae17f94f3f86f8571626e08c44e54bd67e1bb55905317711240a3df46a836"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0040-esp32s3-rtc-core-reset.patch",
+      "sha256": "1199ac7a42976f9436675c8480a96a5aa67615ce9627a2b75ae42c49812db09f"
     }
   ],
   "qemu": {

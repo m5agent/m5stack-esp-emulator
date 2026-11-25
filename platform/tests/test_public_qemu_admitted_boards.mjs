@@ -77,7 +77,7 @@ export async function schedulePublicQemuGate(cases,{workers=1,runCase}={}){
 export function publicQemuGateChildEnvironment(parent,item,{site,output}){
   const chrome=parent.M5_WASM_CHROME||parent.M5_CHROME||'';
   return {...parent,M5_PUBLIC_SITE:site,M5_PUBLIC_QEMU_OUT:output,M5_QEMU_DEVICE:item.device,
-    M5_QEMU_EXAMPLE:item.example||'',M5_UIFLOW_SMOKE_ONLY:'',M5_PUBLIC_UI:'1',M5_PUBLIC_URL:'',
+    M5_QEMU_EXAMPLE:item.example||'',M5_UIFLOW_SMOKE_ONLY:'',M5_UIFLOW_GUEST_RESET:'',M5_PUBLIC_UI:'1',M5_PUBLIC_URL:'',
     M5_QEMU_UPLOAD:'',M5_QEMU_CLOCK_DIVISOR:'',M5_QEMU_FRAME_DIAGNOSTIC:'',
     M5_CARDPUTER_KEYBOARD_IRQ:item.lane==='cardputer-keyboard'?'1':'',
     M5_QEMU_BUTTON_HOLD_MS:'250',M5_WASM_CHROME:chrome,M5_CHROME:chrome};

@@ -30,8 +30,15 @@ CoreS3 完整编辑器与 Cardputer-Adv 快速编辑器。正式文档部署仍�
 新源构建 WASM `9c37ace1…1372` 将 Cardputer-Adv GPIO 面板 ID 和 TCA8418
 探测带入浏览器。在原 Display 和 Keyboard 镜像上实际执行 变化画面、A/B/C、
 Delete（Fn 层）与 Enter，以及 ADV UIFlow2、K132 和 CoreS3 的独立参考回归。
-CoreS3 的 WDT 和 `machine.reset()` 来宾主动热复位仍在 ROM entry 后停滞，
+原版 WASM 的 CoreS3 WDT 和 `machine.reset()` 来宾主动热复位在 ROM entry 后停滞，
 宿主 QMP Reset 对照能恢复。同一运行时前后对照和清理见[验证记录](https://github.com/m5agent/agent-work-logs/tree/536423ad15b5b1af6509287d15e6c54b0b0e0a63/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-board-probe-and-guest-reset).
+
+浏览器源构建 WASM `42da2149…7558` 将 ESP32-S3 RTC 软件复位交给目标 CPU，
+并让 RTC stall 请求进入 Xtensa RUNSTALL。CoreS3 编程固件 `b9fe8334…2d49`
+在 Chrome 中执行 `machine.reset()` 和文档 WDT 程序，均在原会话等待到新
+READY 并恢复 UART 编辑执行。宿主 QMP reset 对照也通过，含 PROCPU 已 stall
+时的 RTC 读回 `2/33 → 0/0`。以上各会话正常退出并回收 Worker。
+原生运行时、真机和正式托管发布未在此轮验证。[热复位 #254](https://github.com/m5agent/m5stack-esp-emulator/issues/254) · [本轮执行证据](https://github.com/m5agent/agent-work-logs/tree/f60f9e577aadd8c75279861bb506b00bc9a61d2c/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-rtc-reset)
 
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
