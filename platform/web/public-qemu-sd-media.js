@@ -24,10 +24,17 @@ export async function loadQemuSdExample(examples, device, firmwareSha256, {root,
     && Number.isSafeInteger(gzipBytes) && gzipBytes > 0 && gzipBytes <= DEFAULT_MAX_FIRMWARE_BYTES);
   signal.throwIfAborted();
   const url = assetUrl(`platform/runtime/qemu/sd-media/${sha256}.img.gz`, root);
-  const {bytes: compressed} = await loadAsset(url, {
-    signal, expectedBytes: gzipBytes, expectedSha256: gzipSha256, maxBytes: gzipBytes,
-    fetchImpl: (url, options) => fetchImpl(url, {...options, redirect: 'error'}),
-  });
+  let compressed;
+  try {
+    const loaded = await loadAsset(url, {
+      signal, expectedBytes: gzipBytes, expectedSha256: gzipSha256, maxBytes: gzipBytes,
+      fetchImpl: (url, options) => fetchImpl(url, {...options, redirect: 'error'}),
+    });
+    compressed = loaded.bytes;
+  } catch (error) {
+    signal.throwIfAborted();
+    throw new Error('无法读取或校验示例 microSD 素材。', {cause: error});
+  }
   signal.throwIfAborted();
 
   // Only the gzip seed is cached. Each engine gets an independent writable image.

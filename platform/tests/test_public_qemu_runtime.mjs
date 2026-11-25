@@ -184,6 +184,12 @@ try {
   const priorFrames=frames.length;
   await assert.rejects(invalidCard.runtime.start({device:'cores3',firmware:firmware()}),/示例 microSD/);
   assert.equal(frames.length,priorFrames,'a wrongly sized decompressed card cannot start a guest');
+  const corruptCard=create({sdExamples:[{...example,gzip_sha256:'0'.repeat(64)}],downloadImpl:async(_url,config)=>{
+    assert.equal(config.expectedSha256,'0'.repeat(64));
+    throw new Error('SHA-256 mismatch');
+  }});
+  await assert.rejects(corruptCard.runtime.start({device:'cores3',firmware:firmware()}),/校验示例 microSD/);
+  assert.equal(frames.length,priorFrames,'corrupt gzip cannot create a guest iframe');
 
   for(const extra of [{cpuExecution:'jit'},{accelerator:{kind:'tcg-wallclock',thread:'single',tbSizeMb:128}},{oneInsnPerTb:true}]) {
     const removed=create({allowCandidateProfiles:true});
