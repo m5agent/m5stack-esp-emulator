@@ -70,6 +70,14 @@ CoreS3 工作台新增 UIFlow2 v2.5.5 绘图预设，浏览器组合得到 `565f
 固件和 ROM 请求使用摘要匹配的缓存复现，正式托管、真机及分享链接自动启动未执行。
 [绘图裁切 #249](https://github.com/m5agent/m5stack-esp-emulator/issues/249) · [组合、实际帧和回收证据](https://github.com/m5agent/agent-work-logs/tree/89bf4a03a80c17878de241245eb86d72df2b437d/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-uiflow-display)
 
+CoreS3 原版 UIFlow2 Camera 在旧 WASM 的 MMIO 跟踪复现 28 次 QVGA 短帧。
+按源帧周期交付 LCD_CAM DMA 的锁定 WASM `e350ed7b…5f4b`，与带跟踪候选逐字节一致。
+固定候选固件的两次跟踪共完成 958/959 次采集，一次提前停止随后恢复，每个完整
+采集有十组 EOF 确认。标准工作台用 `b9fe8334…2d49` 运行原程序，从首个正确帧
+观察 30 秒，采样 118 帧均为预期原生 RGB565，持续更新。两个路径均无短帧或
+溢出告警并正常回收 Worker。原生、物理及正式托管未执行。
+[CoreS3 摄像头 #243](https://github.com/m5agent/m5stack-esp-emulator/issues/243) · [DMA 和默认工作台证据](https://github.com/m5agent/agent-work-logs/tree/ebb9f299ced43f4d7f06137b2d11bad6b703b5cd/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-qvga-camera)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
