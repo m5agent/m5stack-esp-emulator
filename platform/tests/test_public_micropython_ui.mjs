@@ -9,13 +9,14 @@ import {PublicMicroPythonRunner} from '../web/public-micropython.js';
 const source=await fs.readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const html=await fs.readFile(new URL('../web/index.html',import.meta.url),'utf8');
 assert.match(html, /<select[^>]*id="serialChannel"/, 'the fixture represents the actual serial output selector');
+assert.match(html, /<button[^>]*id="loadWorkbenchExampleBtn"/, 'the fixture represents the exact example loader');
 const functions=source.slice(source.indexOf('const pythonPhases='),source.indexOf('function updateCapability()'));
 const serial=source.slice(source.indexOf("$('serialForm').addEventListener('submit'"),source.indexOf("$('browserPir').addEventListener('change'"));
 const keyboard=source.slice(source.indexOf("$('pythonSource').addEventListener('keydown'"),source.indexOf("$('serialForm').addEventListener('submit'"));
 assert.ok(functions.startsWith('const pythonPhases=')&&serial&&keyboard,'the production handlers must be exercised');
 function fixture(){
   const handlers=new Map(),nodes={},errors=[],writes=[];
-  for(const id of ['serialForm','serialInput','serialSendBtn','serialChannel','pythonSource','pythonRunBtn','pythonInterruptBtn','pythonStatus','pythonOutput','pauseBtn',
+  for(const id of ['serialForm','serialInput','serialSendBtn','serialChannel','pythonSource','pythonRunBtn','pythonInterruptBtn','loadWorkbenchExampleBtn','pythonStatus','pythonOutput','pauseBtn',
     'runtimeStatus','stageFirmwareNotice','stageFirmwareTitle','stageFirmwareDetail','stageFirmwareEditor'])
     nodes[id]={disabled:false,textContent:'',value:'',dataset:{},addEventListener:(type,handler)=>handlers.set(id+':'+type,handler)};
   nodes.serialInput.value='x'.repeat(2050);nodes.pythonSource.value='print(1)';
@@ -32,6 +33,7 @@ function fixture(){
   vm.createContext(context);vm.runInContext(functions+'\n'+serial+'\n'+keyboard,context);
   context.updatePythonControls();
   assert.equal(nodes.serialChannel.disabled,true,'browser-WASM keeps a single console and cannot select a native USB channel');
+  assert.equal(nodes.loadWorkbenchExampleBtn.hidden,true,'a generic session does not expose a bound example source');
   return {context,run,runtime,nodes,handlers,errors,writes,ack:()=>acknowledge()};
 }
 {
