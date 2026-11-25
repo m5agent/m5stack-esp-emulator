@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 import hashlib
 from pathlib import Path
@@ -9,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import build_public_site as public
 
@@ -178,6 +180,151 @@ class PublicSiteTests(unittest.TestCase):
             self.assertFalse((output / "platform/web/observatory-scene.js").exists())
             self.assertFalse((output / ".work").exists())
             self.assertTrue((output / ".nojekyll").is_file())
+
+    def test_export_qemu_sd_media_is_pinned_deduplicated_and_optional(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            root, media, output = (work / name for name in ("source", "media", "site"))
+            self.fixture(root)
+            media.mkdir()
+            raw = b"M5Stack documentation SD fixture".ljust(512, b"\0")
+            raw_sha = hashlib.sha256(raw).hexdigest()
+            for name in ("first.img", "second.img"):
+                (media / name).write_bytes(raw)
+            bindings = [
+                {"device": "cores3", "firmware_sha256": "a" * 64, "image": "first.img",
+                 "bytes": len(raw), "sha256": raw_sha},
+                {"device": "cardputer-adv", "firmware_sha256": "b" * 64, "image": "second.img",
+                 "bytes": len(raw), "sha256": raw_sha},
+            ]
+            manifest = media / "manifest.json"
+            manifest.write_bytes(public.encode_json({"schema_version": 1, "examples": bindings}))
+            # Keep the actual registry selection path while using a tiny source-build stub.
+            qemu_source = {"commit": "a" * 40}
+            qemu_profiles = []
+            for row in bindings:
+                device = row["device"]
+                qemu_profiles.append({
+                    "deviceId": device, "board": device, "admission": "public", "clockDivisor": 8,
+                    "target": "xtensa-softmmu", "limitations": [],
+                    "reference": {"name": device, "url": "", "sha256": row["firmware_sha256"]},
+                })
+            (root / "platform/web/qemu-browser-profiles.json").write_bytes(public.encode_json({
+                "schema_version": 1, "engine": "qemu-wasm", "target": "xtensa-softmmu",
+                "source": qemu_source, "profiles": qemu_profiles,
+            }))
+            (root / "platform/web/uiflow-workbench-profiles.json").write_text('{"profiles":[]}')
+            runtime = {
+                "engine": "qemu-wasm", "source": qemu_source, "build": {"kind": "source-build"},
+                "compiled_profiles": [row["deviceId"] for row in qemu_profiles],
+            }
+            with self.assertRaisesRegex(ValueError, "requires the primary QEMU runtime"):
+                public.build_site(root, output, qemu_sd_media=media)
+            with patch.object(public, "qemu_runtime_files", return_value=(runtime, {"runtime.json": b"{}"})):
+                default = public.build_site(root, output, qemu_runtime=work)
+                baseline_config = (output / "site-config.json").read_bytes()
+                self.assertNotIn("browser_sd_examples", json.loads(baseline_config))
+                seeded = public.build_site(root, output, qemu_runtime=work, qemu_sd_media=media)
+                config = json.loads((output / "site-config.json").read_bytes())
+                self.assertEqual(config, json.loads((output / "platform/web/site-config.json").read_bytes()))
+                image = f"platform/runtime/qemu/sd-media/{raw_sha}.img.gz"
+                compressed = (output / image).read_bytes()
+                self.assertEqual(gzip.decompress(compressed), raw)
+                self.assertEqual(compressed[:8], b"\x1f\x8b\x08\x00\x00\x00\x00\x00")
+                compressed_identity = {
+                    "gzip_bytes": len(compressed), "gzip_sha256": hashlib.sha256(compressed).hexdigest(),
+                }
+                self.assertEqual(config.pop("browser_sd_examples"), [
+                    {**{key: value for key, value in row.items() if key != "image"}, **compressed_identity}
+                    for row in reversed(bindings)
+                ])
+                self.assertEqual(config, json.loads(baseline_config))
+                self.assertTrue(seeded["publication_eligible"])
+                self.assertFalse(seeded["firmware_bundled"])
+                added = {row["path"] for row in seeded["assets"]} - {row["path"] for row in default["assets"]}
+                self.assertEqual(added, {image})
+                self.assertIn({
+                    "path": image, "bytes": compressed_identity["gzip_bytes"],
+                    "sha256": compressed_identity["gzip_sha256"],
+                }, seeded["assets"])
+
+                manifest.write_bytes(public.encode_json({
+                    "schema_version": 1, "examples": list(reversed(bindings)),
+                }))
+                self.assertEqual(public.build_site(root, output, qemu_runtime=work, qemu_sd_media=media), seeded)
+                (media / "first.img").write_bytes(b"changed".ljust(512, b"\0"))
+                with self.assertRaisesRegex(ValueError, "SHA-256 or size mismatch"):
+                    public.build_site(root, output, qemu_runtime=work, qemu_sd_media=media)
+                self.assertEqual(json.loads((output / public.MANIFEST_NAME).read_bytes()), seeded)
+                self.assertEqual(public.build_site(root, output, qemu_runtime=work), default)
+                self.assertFalse((output / image).exists())
+
+    def test_qemu_sd_media_rejects_unadmitted_invalid_and_symlink_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            media, runtime = work / "media", work / "runtime"
+            media.mkdir()
+            raw = hashlib.shake_256(b"deterministic incompressible fixture").digest(512)
+            row = {
+                "device": "cores3", "firmware_sha256": "a" * 64, "image": "card.img",
+                "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
+            }
+            good = {"schema_version": 1, "examples": [row]}
+            manifest = media / "manifest.json"
+            image = media / "card.img"
+            image.write_bytes(raw)
+            registry = {"profiles": [
+                {"deviceId": "cores3", "admission": "public"},
+                {"deviceId": "cardputer-adv", "admission": "candidate"},
+                {"deviceId": "core2", "admission": "public"},
+            ]}
+            invalid = [
+                ({**good, "extra": None}, "manifest"),
+                ({**good, "schema_version": True}, "manifest"),
+                ({**good, "examples": []}, "empty examples"),
+                ({**good, "examples": [row, row]}, "duplicate device and firmware"),
+            ]
+            for change, error in (
+                ({"other": True}, "fields"), ({"device": "cardputer-adv"}, "admitted"),
+                ({"device": "core2"}, "admitted"), ({"device": []}, "admitted"),
+                ({"firmware_sha256": "short"}, "SHA-256"), ({"sha256": "A" * 64}, "SHA-256"),
+                ({"image": "../card.img"}, "bare"), ({"image": "child\\card.img"}, "bare"),
+                ({"image": "C:card.img"}, "bare"), ({"image": "card.txt"}, "bare"),
+                ({"bytes": True}, "multiple of 512"), ({"bytes": 513}, "multiple of 512"),
+                ({"bytes": 64 * 1024 * 1024 + 512}, "64 MiB"), ({"bytes": 1024}, "size mismatch"),
+            ):
+                invalid.append(({**good, "examples": [{**row, **change}]}, error))
+            for index, (content, error) in enumerate(invalid):
+                with self.subTest(content=content), self.assertRaisesRegex(ValueError, error):
+                    manifest.write_bytes(public.encode_json(content))
+                    target = work / f"invalid-{index}"
+                    target.mkdir()
+                    public.stage_qemu_sd_media(media, target, registry)
+
+            manifest.write_text('{"schema_version":1,"schema_version":1,"examples":[]}')
+            with self.assertRaisesRegex(ValueError, "duplicate JSON field"):
+                public.stage_qemu_sd_media(media, runtime, registry)
+            manifest.write_bytes(public.encode_json(good))
+            oversized_target = work / "oversized"
+            oversized_target.mkdir()
+            with patch.object(public, "QEMU_SD_MEDIA_MAX_BYTES", 512):
+                with self.assertRaisesRegex(ValueError, "gzip exceeds"):
+                    public.stage_qemu_sd_media(media, oversized_target, registry)
+            runtime.mkdir()
+            linked = work / "link"
+            linked.symlink_to(media, target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, "symlinks"):
+                public.stage_qemu_sd_media(linked, runtime, registry)
+            manifest.rename(work / "manifest.json")
+            manifest.symlink_to(work / "manifest.json")
+            with self.assertRaisesRegex(ValueError, "symlinks"):
+                public.stage_qemu_sd_media(media, runtime, registry)
+            manifest.unlink()
+            (work / "manifest.json").rename(manifest)
+            image.rename(work / "card.img")
+            image.symlink_to(work / "card.img")
+            with self.assertRaisesRegex(ValueError, "missing or a symlink"):
+                public.stage_qemu_sd_media(media, runtime, registry)
 
     def test_refuses_unowned_destination_and_symlink_assets(self):
         with tempfile.TemporaryDirectory() as directory:

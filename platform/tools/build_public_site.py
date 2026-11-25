@@ -7,9 +7,10 @@ Only reviewed browser assets and public device/Unit metadata enter the export.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import shutil
 import tempfile
@@ -22,6 +23,8 @@ ASSET_SUFFIXES = TEXT_SUFFIXES | {".png", ".webp", ".jpg", ".jpeg", ".avif", ".g
 MANIFEST_NAME = "public-site-manifest.json"
 MANIFEST_KIND = "m5stack-public-site"
 PREFIX_PATH = re.compile(r"(?<=[\"'`(])/(platform|devices|data)/")
+QEMU_SD_MEDIA_DEVICES = {"cores3", "cardputer-adv"}
+QEMU_SD_MEDIA_MAX_BYTES = 64 * 1024 * 1024
 
 
 def normalize_base_path(value: str) -> str:
@@ -173,6 +176,78 @@ def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str
     return registry, browser
 
 
+def stage_qemu_sd_media(directory: Path, runtime_directory: Path, registry: dict) -> list[dict]:
+    """Stage content-addressed media for exact publicly admitted firmware inputs."""
+    def unique_fields(pairs: list[tuple[str, object]]) -> dict:
+        fields = dict(pairs)
+        if len(fields) != len(pairs):
+            raise ValueError("duplicate JSON field in QEMU SD media manifest")
+        return fields
+
+    manifest_path = directory / "manifest.json"
+    if directory.is_symlink() or manifest_path.is_symlink():
+        raise ValueError("QEMU SD media directory and manifest cannot be symlinks")
+    if not directory.is_dir() or not manifest_path.is_file():
+        raise ValueError("QEMU SD media requires a directory with manifest.json")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"), object_pairs_hook=unique_fields)
+    if (not isinstance(manifest, dict) or set(manifest) != {"schema_version", "examples"}
+            or type(manifest["schema_version"]) is not int or manifest["schema_version"] != 1
+            or not isinstance(manifest["examples"], list) or not manifest["examples"]):
+        raise ValueError("invalid QEMU SD media manifest or empty examples")
+    admitted = {row["deviceId"] for row in registry["profiles"] if row["admission"] == "public"}
+    staged = {}
+    bindings = {}
+    output = runtime_directory / "sd-media"
+    output.mkdir()
+    for example in manifest["examples"]:
+        if (not isinstance(example, dict)
+                or set(example) != {"device", "firmware_sha256", "image", "bytes", "sha256"}):
+            raise ValueError("invalid QEMU SD media example fields")
+        device, firmware_sha, image, size, raw_sha = (
+            example[field] for field in ("device", "firmware_sha256", "image", "bytes", "sha256")
+        )
+        if not isinstance(device, str) or device not in QEMU_SD_MEDIA_DEVICES or device not in admitted:
+            raise ValueError("QEMU SD media example device must be publicly admitted")
+        if any(not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+               for digest in (firmware_sha, raw_sha)):
+            raise ValueError("invalid QEMU SD media SHA-256")
+        if (not isinstance(image, str) or not image.endswith(".img") or len(image) <= 4
+                or Path(image).name != image or PureWindowsPath(image).name != image
+                or any(ord(character) < 32 for character in image)):
+            raise ValueError("QEMU SD media image must be a bare .img filename")
+        if type(size) is not int or not 512 <= size <= QEMU_SD_MEDIA_MAX_BYTES or size % 512:
+            raise ValueError("QEMU SD media size must be a multiple of 512 bytes, up to 64 MiB")
+        binding = (device, firmware_sha)
+        if binding in bindings:
+            raise ValueError("duplicate device and firmware binding in QEMU SD media manifest")
+        source = directory / image
+        if source.is_symlink() or not source.is_file():
+            raise ValueError("QEMU SD media image is missing or a symlink")
+        with source.open("rb") as handle:
+            raw = handle.read(size + 1)
+        if len(raw) != size or hashlib.sha256(raw).hexdigest() != raw_sha:
+            raise ValueError("QEMU SD media image SHA-256 or size mismatch")
+        if raw_sha not in staged:
+            target = output / f"{raw_sha}.img.gz"
+            with target.open("wb") as handle, gzip.GzipFile(
+                filename="", mode="wb", fileobj=handle, mtime=0
+            ) as writer:
+                writer.write(raw)
+            compressed_size = target.stat().st_size
+            if compressed_size > QEMU_SD_MEDIA_MAX_BYTES:
+                raise ValueError("QEMU SD media gzip exceeds the 64 MiB browser asset limit")
+            with target.open("rb") as handle:
+                staged[raw_sha] = {
+                    "gzip_bytes": compressed_size,
+                    "gzip_sha256": hashlib.file_digest(handle, "sha256").hexdigest(),
+                }
+        bindings[binding] = {
+            "device": device, "firmware_sha256": firmware_sha, "bytes": size, "sha256": raw_sha,
+            **staged[raw_sha],
+        }
+    return [bindings[key] for key in sorted(bindings)]
+
+
 def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False) -> dict[str, bytes]:
     directory = directory.resolve()
     manifest = json.loads((directory / "manifest.json").read_text())
@@ -226,7 +301,7 @@ def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False
     return files
 
 
-def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = ()) -> dict:
+def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = (), qemu_sd_media: Path | None = None) -> dict:
     root, output = root.resolve(), output.resolve()
     base_path = normalize_base_path(base_path)
     service_url = normalize_service_url(service_url)
@@ -234,6 +309,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         raise ValueError("select one browser engine per exported site")
     if (qemu_candidate_profiles or qemu_c61_runtime) and not qemu_runtime:
         raise ValueError("QEMU candidate profiles and the C61 runtime require the primary QEMU runtime")
+    if qemu_sd_media is not None and not qemu_runtime:
+        raise ValueError("QEMU SD media requires the primary QEMU runtime")
     # Never overwrite a source tree or an arbitrary existing user directory.
     in_sources = any(path == output or path in output.parents for path in (root / "platform", root / "devices", root / ".git"))
     if output == root or output in root.parents or in_sources or any((output / name).exists() for name in (".git", "platform", "devices")) and not (output / MANIFEST_NAME).is_file():
@@ -262,6 +339,7 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         if isolation_worker.is_file():
             (temporary / "coi-serviceworker.js").write_bytes(isolation_worker.read_bytes())
         runtime_manifest = None
+        sd_examples = None
         if browser_runtime:
             runtime_manifest, runtime_files = browser_runtime_files(browser_runtime, allow_diagnostic=allow_diagnostic_runtime)
             runtime_directory = temporary / "platform/runtime/esp32sim"
@@ -283,6 +361,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                     (c61_directory / name).write_bytes(content)
             registry, browser_profiles = qemu_site_profiles(root, runtime_manifest, qemu_candidate_profiles,
                                                            c61_manifest=c61_manifest)
+            if qemu_sd_media is not None:
+                sd_examples = stage_qemu_sd_media(qemu_sd_media, runtime_directory, registry)
             if c61_manifest and not any(row["target"] == "riscv32-softmmu" for row in registry["profiles"]):
                 raise ValueError("the C61 runtime has no selected browser profile")
             (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
@@ -353,6 +433,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             "publication_eligible": not bool(qemu_candidate_profiles),
             "browser_wallclock_example": bool(qemu_runtime and wallclock_example),
         }
+        if sd_examples is not None:
+            config["browser_sd_examples"] = sd_examples
         (temporary / "platform/web/site-config.json").write_bytes(encode_json(config))
         (temporary / "site-config.json").write_bytes(encode_json(config))
         # Unit visual availability and emulated protocol coverage remain distinct.
@@ -403,12 +485,14 @@ def main() -> None:
     parser.add_argument("--browser-runtime", type=Path, help="directory from bootstrap_browser_runtime.py")
     parser.add_argument("--qemu-runtime", type=Path, help="directory from bootstrap_qemu_browser_runtime.py")
     parser.add_argument("--qemu-c61-runtime", type=Path, help="directory from the RISC-V C61 source build")
+    parser.add_argument("--qemu-sd-media", type=Path, metavar="DIRECTORY",
+                        help="reviewed demonstration SD images and manifest.json")
     parser.add_argument("--littlefs-runtime", type=Path, help="source-built browser LittleFS composer")
     parser.add_argument("--allow-diagnostic-runtime", action="store_true", help="explicit preview-only opt-in for the pinned downloaded WASM")
     parser.add_argument("--qemu-candidate-profile", action="append", default=[], help="preview-only board candidate; never supplied by the Pages publication workflow")
     args = parser.parse_args()
     try:
-        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile))
+        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile), qemu_sd_media=args.qemu_sd_media)
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"public site export failed: {error}\n")
     print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "bytes": sum(row["bytes"] for row in manifest["assets"]), "base_path": manifest["base_path"], "published": False}))

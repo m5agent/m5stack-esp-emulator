@@ -2,6 +2,7 @@ import {admitQemuEnginePort,createQemuEngineOwner} from './public-qemu-engine-ow
 import {resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
+import {loadQemuSdExample} from './public-qemu-sd-media.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
 import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
@@ -16,9 +17,9 @@ export function browserQemuHistory(storage) {
 }
 export class PublicQemuRuntime {
   constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
-    requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,workbenchProfiles,allowCandidateProfiles=false}={}) {
+    requestTimeout=20000,storage,downloadImpl=downloadFirmware,compileImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
-    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,allowCandidateProfiles});
+    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,workbenchProfiles,sdExamples,allowCandidateProfiles});
     this.loadAsset=downloadImpl===downloadFirmware?loadVerifiedRuntimeAsset:createVerifiedAssetLoader({downloadImpl,cacheStorage:null});
     this.compileWasm=compileImpl?createVerifiedModuleCompiler({compile:compileImpl}):compileVerifiedRuntimeModule;
     this.fetchImpl=(...args)=>fetchImpl(...args);
@@ -143,6 +144,9 @@ export class PublicQemuRuntime {
       validateQemuProfile(profile);
       this.profile=profile;
       active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor};
+      const sdExample=this.sdExamples===undefined?null:await loadQemuSdExample(
+        this.sdExamples,deviceId,inputSHA256,{root:this.root,signal:bootAbort.signal,loadAsset:this.loadAsset,fetchImpl:this.fetchImpl});
+      active();
       const runtimeIdentity=qemuRuntimeIdentity(profile);
       const manifestUrl=assetUrl(`platform/runtime/${runtimeIdentity.directory}/runtime.json`,this.root);
       const response=await this.fetchImpl(manifestUrl,{signal:bootAbort.signal});
@@ -177,6 +181,7 @@ export class PublicQemuRuntime {
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareInputSha256:inputSHA256,firmwareRuntimeSha256:firmwareSHA256,
         normalization:{kind:inputBytes===runtimeBytes?'none':'pad-ff',inputBytes,runtimeBytes},
+        ...(sdExample ? {sdCard:sdExample.identity} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
@@ -203,7 +208,10 @@ export class PublicQemuRuntime {
       const wasmModule=compiledWasm.module;this.receipt.wasmCompilation=compiledWasm.cache;
       this.assetsReady=true;
       const ready=this.waitFor('ready',90000);ready.catch(()=>{});this.state('booting');
-      const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,runtimePatches:manifest.source.patches},[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer]),ready]);
+      const assets=[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer];
+      if(sdExample)assets.push(sdExample.image);
+      const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,
+        ...(sdExample ? {sdCard:sdExample.image} : {}),runtimePatches:manifest.source.patches},assets),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.guestStarted=true;
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
