@@ -3,6 +3,7 @@ import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,b
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
 import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
+import {qemuGnssFixBytes} from './public-qemu-gnss-example.js';
 // The engine owns Emscripten and MEMFS. The top page owns its native pthread Workers.
 // The iframe transfers one private port; no window control channel is used.
 // workersCreated/workersRemaining count Emscripten pthread handles, excluding this engine.
@@ -16,6 +17,7 @@ let workersCreated = 0;
 let relocatedGlueSha256;
 let runtimeArguments,qemuExit,awaitingOwnerFinalization=false;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
+let gnssInput, gnssOffset=0;
 const encoder = new TextEncoder(), decoder = new TextDecoder();
 // Emscripten allocates a Worker-shaped handle synchronously. Its actual
 // dedicated Worker is started by the top owner, using the verified blob URL.
@@ -92,7 +94,7 @@ function output(text) {
       })().catch(fail);
     }
     if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
-      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;previousOutputs=undefined;previousUnitExampleState=undefined;sourceSequence=0;}
+      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;gnssInput=null;previousOutputs=undefined;previousUnitExampleState=undefined;sourceSequence=0;}
       emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true,
         ...(message.event==='RESET'?{consoleEpoch:resetEpoch}:{})});
     }
@@ -107,6 +109,7 @@ function output(text) {
 function fail(error) { emit('error', String(error?.message || error)); }
 function cleanup() {
   uartInput.length=0;
+  gnssInput=null;
   for (const worker of workers) worker.terminate();
   workers.clear();
   for (const url of urls) URL.revokeObjectURL(url);
@@ -195,19 +198,29 @@ async function start(config) {
         m.ENV.M5SW_ICOUNT_MAX_PERCPU_NS=String(boardProfile.accelerator.icountMaxPerCpuNs);
       const consoleBase = boardProfile.target==='riscv32-softmmu' ? '/bridge/usb' : '/bridge/uart';
       const consoleInput = consoleBase+'.in', consoleOutput = consoleBase+'.out';
-      const chardevPaths = [...new Set([consoleInput,consoleOutput,'/bridge/uart.out','/bridge/serial1'])];
+      const gnss = !!boardProfile.gnssExample;
+      const chardevPaths = [...new Set([consoleInput,consoleOutput,'/bridge/uart.out','/bridge/serial1',
+        ...(gnss?['/bridge/gnss.in','/bridge/gnss.out']:[])])];
       for (const [index,path] of chardevPaths.entries()) {
         const dev = m.FS.makedev(64,index);
         const serialDecoder = new TextDecoder();
         m.FS.registerDevice(dev, {
           open:stream => { stream.seekable = false; }, close:() => {},
           read:(stream,buffer,offset,length) => {
+            if (path==='/bridge/gnss.in') {
+              if (!gnssInput || gnssOffset===gnssInput.length) throw new m.FS.ErrnoError(6);
+              const count=Math.min(gnssInput.length-gnssOffset,length);
+              buffer.set(gnssInput.subarray(gnssOffset,gnssOffset+count),offset);
+              gnssOffset+=count;
+              return count;
+            }
             if (path!==consoleInput||!uartInput.length) throw new m.FS.ErrnoError(6);
             const count = Math.min(uartInput.length,length);
             for (let i=0;i<count;i++) buffer[offset+i] = uartInput.shift();
             return count;
           },
           write:(stream,buffer,offset,length) => {
+            if (path==='/bridge/gnss.out')return length;
             // StackChan UART1 is the internal SCS bus, not the user's console.
             // Its parsed register output is read separately from scs_servo QOM.
             if(path==='/bridge/serial1'&&boardProfile.deviceId==='stackchan')return length;
@@ -218,7 +231,8 @@ async function start(config) {
             const text = serialDecoder.decode(bytes, {stream:true});
             serial = (serial + text).slice(-65536); emit('serial', text); return length;
           },
-          poll:() => 4 | (path===consoleInput&&uartInput.length ? 1 : 0),
+          poll:() => 4 | ((path===consoleInput&&uartInput.length)
+            ||(path==='/bridge/gnss.in'&&gnssInput&&gnssOffset<gnssInput.length) ? 1 : 0),
           llseek:() => { throw new m.FS.ErrnoError(70); },
         });
         m.FS.mkdev(path,0o666,dev);
@@ -245,6 +259,22 @@ async function start(config) {
   if (disposeRequested) { cleanup(); throw new Error('Instance disposed during start'); }
 }
 async function request(op, value) {
+  if (op === 'gnss-fixture') {
+    if (closed || disposeRequested || gnssInput) throw new Error('GNSS sample input is busy or closed');
+    const fixture=qemuGnssFixBytes(boardProfile,value?.fix);
+    gnssInput=fixture;
+    gnssOffset=0;
+    try {
+      const deadline=performance.now()+6000;
+      while (gnssInput===fixture && gnssOffset<fixture.length && !disposeRequested && performance.now()<deadline)
+        await new Promise(resolve=>setTimeout(resolve,25));
+      if (gnssInput!==fixture || disposeRequested) throw new Error('GNSS sample interrupted');
+      if (gnssOffset!==fixture.length) throw new Error('QEMU UART2 did not consume the GNSS sample');
+      return {transport:'esp-uart2',bytesConsumed:gnssOffset};
+    } finally {
+      if (gnssInput===fixture) gnssInput=null;
+    }
+  }
   if (op === 'start') return start(value);
   if (op === 'dispose') {
     disposeRequested=true;
