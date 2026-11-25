@@ -40,6 +40,13 @@ READY 并恢复 UART 编辑执行。宿主 QMP reset 对照也通过，含 PROCP
 时的 RTC 读回 `2/33 → 0/0`。以上各会话正常退出并回收 Worker。
 原生运行时、真机和正式托管发布未在此轮验证。[热复位 #254](https://github.com/m5agent/m5stack-esp-emulator/issues/254) · [本轮执行证据](https://github.com/m5agent/agent-work-logs/tree/f60f9e577aadd8c75279861bb506b00bc9a61d2c/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-rtc-reset)
 
+新源构建 WASM `11c5dea1…0555` 给 CoreS3 SPI2 和 SPI3 独立的寄存器、GDMA
+及中断。旧版原 Widgets 的 SPI3 GDMA 启动无面板字节。新版同一 BSP 的
+Widgets、Music、Stress 和 Benchmark 原镜像在 Chrome 默认 profile 均输出
+320×240 RGB565。实际触摸在同会话切换 Widgets 的 Profile/Analytics，并恢复
+原帧。独立挂盘正控保留了同路径的 SD 与 Picture 读写和画面，Worker 正常回收。
+物理、原生及正式托管未执行。[BSP 黑屏 #250](https://github.com/m5agent/m5stack-esp-emulator/issues/250) · [相同镜像的显示和触摸证据](https://github.com/m5agent/agent-work-logs/tree/bde3defea428b87dc45317a6144aa53efc017754/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-bsp-spi)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
