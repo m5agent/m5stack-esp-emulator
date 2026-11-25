@@ -15,6 +15,7 @@ import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
 import * as qemuServo from '../web/public-qemu-servo.js';
 import * as qemuPeerPair from '../web/public-qemu-peer-pair.js';
+import * as qemuUnitExamples from '../web/public-qemu-unit-examples.js';
 import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime.js';
 import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from '../web/public-qemu-gnss-example.js';
 
@@ -47,7 +48,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
-  exampleSourceLoader,cc1101Examples,sx1262Examples,peerFactory,
+  exampleSourceLoader,cc1101Examples,sx1262Examples,dualKmeterExample,peerFactory,
   isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[],windowListeners=new Map();
   let evidenceBlob;
@@ -79,11 +80,11 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples,browser_dual_kmeter_example:dualKmeterExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,qemuPeerPair,{
+  Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,qemuPeerPair,qemuUnitExamples,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     PublicMicroPythonRunner,deviceIdentityCapability,GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench,
@@ -111,7 +112,8 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     const startRunActual=startRun;
     startRun=async()=>events.push('start:'+lane());
     globalThis.contract={state,browserProfile,lane,deviceRuntimeLabel,share,reference,status,applyBrowserFrame,applyBrowserPresentation,
-      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual,updateBrowserRadioPair};
+      firmware,updateCapability,sourceChanged,updateBrowserBoot,updateFirmwareIdentity,updateReferenceDefault,startRunActual,updateBrowserRadioPair,
+      renderDetails};
     globalThis.initialization=init();
   `,context);
   await context.initialization;
@@ -537,6 +539,68 @@ drawing.element('pythonSource').value='print("retained until explicit load")';
 await sourceButton.listeners.get('click')();
 assert.equal(drawing.element('pythonSource').value,drawingSource.toString('utf8'));
 assert.equal(sourceButton.disabled,false);
+
+const meterSourceBytes=await readFile(new URL('../../tests/browser-qemu/uiflow_workbench/cores3_dual_kmeter_example.py',import.meta.url));
+const meterSource={path:'platform/runtime/qemu-probe/fixture/cores3_dual_kmeter_example.py',
+  sha256:createHash('sha256').update(meterSourceBytes).digest('hex'),bytes:meterSourceBytes.byteLength};
+const {DUAL_KMETER_EXAMPLE_ID,DUAL_KMETER_FIRMWARE_SHA256}=qemuUnitExamples;
+const meterApp=await entry({search:'?device=cores3&mode=browser&autostart=0',dualKmeterExample:meterSource,
+  exampleSourceLoader:async(url,options)=>{
+    assert.equal(url,pageRoot+meterSource.path);
+    assert.equal(options.expectedSha256,meterSource.sha256);
+    assert.equal(options.expectedBytes,meterSource.bytes);
+    return {bytes:meterSourceBytes};
+  }});
+assert.equal(meterApp.reference().dualKmeterSource,undefined);
+const meterOption={value:DUAL_KMETER_EXAMPLE_ID,hidden:true};
+meterApp.element('referenceExample').options=[meterOption];
+meterApp.renderDetails();
+assert.equal(meterOption.hidden,false);
+meterApp.element('referenceExample').value=DUAL_KMETER_EXAMPLE_ID;
+assert.deepEqual(meterApp.reference().dualKmeterSource,meterSource);
+assert.equal(meterApp.reference().sha256,DUAL_KMETER_FIRMWARE_SHA256);
+assert.equal(meterApp.lane(),'browser');
+meterApp.element('runtimeMode').value='service';
+assert.equal(meterApp.lane(),null);
+meterApp.element('runtimeMode').value='browser';
+await meterApp.share();
+assert.equal(new URL(meterApp.clipboard[0]).searchParams.get('autostart'),'0');
+assert.match(meterApp.element('shareStatus').textContent,/Dual Kmeter/);
+const wrongMeter=await entry({search:'?device=cardputer-adv&mode=browser&autostart=0',dualKmeterExample:meterSource});
+wrongMeter.element('referenceExample').options=[meterOption];
+wrongMeter.renderDetails();
+assert.equal(meterOption.hidden,true);
+wrongMeter.element('referenceExample').value=DUAL_KMETER_EXAMPLE_ID;
+assert.equal(wrongMeter.reference(),null);
+assert.equal(wrongMeter.lane(),null);
+const meterRun=new PublicQemuRuntime({root:pageRoot,profiles:registry,workbenchProfiles:workbenchRegistry});
+meterRun.profile={...meterApp.browserProfile('cores3'),unitExample:DUAL_KMETER_EXAMPLE_ID};
+meterRun.status='running';
+meterRun.sessionId='meter-session';
+meterRun.receipt={deviceId:'cores3',firmwareSha256:DUAL_KMETER_FIRMWARE_SHA256,
+  unitExample:DUAL_KMETER_EXAMPLE_ID,uiflowWorkbench:{}};
+meterRun.lastUnitExampleState={kind:DUAL_KMETER_EXAMPLE_ID,temperatureCentiC:2350,transactions:7,bytesRead:12,bytesWritten:4};
+meterApp.state.run={controller:meterRun,kind:'browser',generation:meterApp.state.runGeneration,dualKmeterSource:meterSource};
+meterApp.status('running');
+await meterApp.element('loadWorkbenchExampleBtn').listeners.get('click')();
+assert.equal(meterApp.element('pythonSource').value,meterSourceBytes.toString('utf8'));
+const temperature=meterApp.element('browserExampleTemperature'), temperatures=[];
+assert.equal(temperature.disabled,false);
+assert.equal(temperature.value,'23.50');
+assert.match(meterApp.element('browserExampleUnitState').textContent,/23\.50 °C/);
+temperature.valueAsNumber=-12.34;
+temperature.checkValidity=()=>true;
+meterRun.input=async event=>temperatures.push(JSON.parse(JSON.stringify(event)));
+await temperature.listeners.get('change')({target:temperature});
+assert.deepEqual(temperatures,[{type:'example-temperature',temperatureCentiC:-1234}]);
+assert.match(meterApp.element('browserExampleUnitState').textContent,/23\.50 °C/,
+  'The displayed state waits for actual controller readback.');
+temperature.value='-12.345';
+temperature.valueAsNumber=-12.345;
+temperature.checkValidity=()=>temperature.disabled;
+await temperature.listeners.get('change')({target:temperature});
+assert.equal(temperatures.length,1,'A number with too many decimal places must never be rounded and sent.');
+assert.equal(temperature.value,'23.50');
 
 const unitApp=await entry({search:'?device=cores3&mode=browser&autostart=0'});
 const unitController=new PublicQemuRuntime({root:pageRoot,profiles:registry});

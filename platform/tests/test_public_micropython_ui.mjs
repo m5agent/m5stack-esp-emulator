@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import {PublicQemuRuntime} from '../web/public-qemu-runtime.js';
 import {PublicMicroPythonRunner} from '../web/public-micropython.js';
+import {DUAL_KMETER_EXAMPLE_ID} from '../web/public-qemu-unit-examples.js';
 
 const source=await fs.readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const html=await fs.readFile(new URL('../web/index.html',import.meta.url),'utf8');
@@ -29,7 +30,7 @@ function fixture(){
   const run={kind:'browser',generation:1,controller:runtime};
   const state={run,runGeneration:1};
   const context={state,$:id=>nodes[id],active:value=>value===state.run&&value.generation===state.runGeneration&&!value.stopping,
-    PublicQemuRuntime,PublicMicroPythonRunner,TextEncoder,Uint8Array,DOMException,
+    PublicQemuRuntime,PublicMicroPythonRunner,DUAL_KMETER_EXAMPLE_ID,TextEncoder,Uint8Array,DOMException,
     error:error=>{if(error.name!=='AbortError')errors.push(error);}};
   vm.createContext(context);vm.runInContext(radio+'\n'+functions+'\n'+serial+'\n'+keyboard,context);
   context.updatePythonControls();

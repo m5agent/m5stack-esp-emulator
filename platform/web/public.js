@@ -10,6 +10,7 @@ import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
+import {DUAL_KMETER_EXAMPLE_ID,dualKmeterExampleSource} from './public-qemu-unit-examples.js';
 import {CORES3_MIC_FIRMWARE_SHA,CORES3_WAV_SHA,CORES3_WAV_SD_SHA} from './public-qemu-audio.js';
 import {createQemuAudioPlayer} from './public-qemu-audio-player.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
@@ -123,6 +124,11 @@ function reference(device = state.selected) {
     return startup ? {name:`${device.name} · 官方 UIFlow2 · 云端配对`,nativeCloud:true,sha256:startup.reference_sha256} : null;
   }
   const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
+  if ($('referenceExample').value===DUAL_KMETER_EXAMPLE_ID) {
+    const dualKmeterSource=dualKmeterExampleSource(profile,workbench,state.config.browser_dual_kmeter_example);
+    return dualKmeterSource ? {name:'CoreS3 Dual Kmeter · UIFlow2 v2.5.3',
+      composedWorkbench:true,dualKmeterSource,sha256:workbench.firmwareSHA256} : null;
+  }
   if ($('referenceExample').value===GNSS_EXAMPLE_ID)
     return profile&&supportsQemuGnssWorkbench(workbench) ? {name:'LoRa Cap 定位 · UIFlow2 v2.5.3',
       composedWorkbench:true,gnssExample:GNSS_EXAMPLE_ID,sha256:workbench.firmwareSHA256} : null;
@@ -177,6 +183,8 @@ function lane(device = state.selected) {
   const drawing = source()==='reference'&&$('referenceExample').value===drawingExampleId;
   if(drawing&&mode!=='model')return mode!=='service'&&drawingExample(device?.id)
     &&browserProfile(device?.id)&&!selectedAttachments().length?'browser':null;
+  if(source()==='reference'&&$('referenceExample').value===DUAL_KMETER_EXAMPLE_ID&&mode!=='model')
+    return mode!=='service'&&reference(device)?.dualKmeterSource&&!selectedAttachments().length?'browser':null;
   if(source()==='reference'&&$('referenceExample').value===GNSS_EXAMPLE_ID&&mode!=='model')
     return mode!=='service'&&reference(device)?.gnssExample&&!selectedAttachments().length?'browser':null;
   if(source()==='reference'&&cc1101Role()&&mode!=='model')
@@ -260,19 +268,28 @@ function updateBrowserUnitExample(run) {
   const kind=controller?.profile?.unitExample;
   const live=kind&&['booting','running','paused'].includes(controller.status);
   const panel=$('browserExampleUnitPanel'), input=$('browserExampleDistance'), output=$('browserExampleUnitState');
+  const temperature=$('browserExampleTemperature');
   const reading=live?controller.lastUnitExampleState:null;
   panel.hidden=!live;
   panel.dataset.kind=live?kind:'';
   $('browserExampleDistanceControl').hidden=!live||kind!=='ultrasonic-i2c';
   input.disabled=!reading||controller.status!=='running'||!!run?.unitDistancePending;
+  $('browserExampleTemperatureControl').hidden=!live||kind!==DUAL_KMETER_EXAMPLE_ID;
+  temperature.disabled=reading?.kind!==DUAL_KMETER_EXAMPLE_ID||controller.status!=='running'||!!run?.unitTemperaturePending;
 
   if(!reading)delete input.dataset.sessionId;
   if(reading?.kind==='ultrasonic-i2c'&&input.dataset.sessionId!==controller.sessionId){
     input.value=String(reading.distanceMm);
     input.dataset.sessionId=controller.sessionId;
   }
+  if(reading?.kind!==DUAL_KMETER_EXAMPLE_ID)delete temperature.dataset.sessionId;
+  else if(temperature.dataset.sessionId!==controller.sessionId){
+    temperature.value=(reading.temperatureCentiC/100).toFixed(2);
+    temperature.dataset.sessionId=controller.sessionId;
+  }
   const text=reading?.kind==='ultrasonic-i2c'?`I²C 距离 ${reading.distanceMm} mm`
     : reading?.kind==='relay'?`Port B 继电器 · GPIO ${reading.level?'高电平':'低电平'}`
+    : reading?.kind===DUAL_KMETER_EXAMPLE_ID?`M-Bus 温度 ${(reading.temperatureCentiC/100).toFixed(2)} °C`
     : live?'等待虚拟 Unit 状态':'';
   if(output.textContent!==text)output.textContent=text;
 }
@@ -432,8 +449,10 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy&&!replace;
   const exampleButton=$('loadWorkbenchExampleBtn');
   const radio=browserRadio(run);
-  exampleButton.hidden=!(programming&&receipt.uiflowWorkbench.exampleId===drawingExampleId||radio?.source);
-  exampleButton.textContent=radio?.source?`载入 ${radio.protocol==='cc1101'?'CC1101':radio.name} 官方例程`:'载入绘图例程';
+  const meter=programming&&receipt.unitExample===DUAL_KMETER_EXAMPLE_ID&&run.dualKmeterSource;
+  exampleButton.hidden=!(programming&&receipt.uiflowWorkbench.exampleId===drawingExampleId||radio?.source||meter);
+  exampleButton.textContent=meter?'载入 Dual Kmeter 官方例程'
+    :radio?.source?`载入 ${radio.protocol==='cc1101'?'CC1101':radio.name} 官方例程`:'载入绘图例程';
   exampleButton.disabled=currentStatus!=='running'||busy;
   $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running'||run.python?.canInterrupt===false;
   $('pythonInterruptBtn').title=run?.python?.canInterrupt===false?'此旧会话不提供中断；新建 UIFlow 编程环境可使用中断。':'';
@@ -453,7 +472,9 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
 async function loadWorkbenchExample() {
   const run=state.run,button=$('loadWorkbenchExampleBtn');
   if(!active(run)||button.hidden||button.disabled)return;
-  const exampleSource=browserRadio(run)?.source||drawingExample(run.controller.receipt.deviceId)?.source;
+  const receipt=run.controller.receipt;
+  const exampleSource=browserRadio(run)?.source||(receipt.unitExample===DUAL_KMETER_EXAMPLE_ID
+    ? run.dualKmeterSource : drawingExample(receipt.deviceId)?.source);
   if(!exampleSource)return;
   const editor=$('pythonSource'), previous=editor.value, epoch=run.controller.consoleEpoch;
   run.loadingExample=true;
@@ -567,6 +588,10 @@ function updateCapability() {
     $('capabilityTitle').textContent='绘图例程需要浏览器运行';
     $('capabilityText').textContent='请选择浏览器运行，或切换到支持仿真服务的启动环境。';
   }
+  if(source()==='reference'&&$('referenceExample').value===DUAL_KMETER_EXAMPLE_ID&&mode==='service'){
+    $('capabilityTitle').textContent='Dual Kmeter 例程需要浏览器运行';
+    $('capabilityText').textContent='请选择浏览器运行方式。';
+  }
   if(source()==='reference'&&$('referenceExample').value===GNSS_EXAMPLE_ID&&mode==='service'){
     $('capabilityTitle').textContent='LoRa Cap 定位例程需要浏览器运行';
     $('capabilityText').textContent='请选择浏览器运行，再载入官方 GPS 例程。';
@@ -634,7 +659,7 @@ function renderDetails() {
     list = node('dl');
   const qemu=state.config.browser_runtime_engine==='qemu-wasm',profile=browserProfile(device?.id);
   const legacy=qemu?null:device.browser;
-  const workbench=state.workbenchProfiles?.profiles.some(row=>row.deviceId===device.id);
+  const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device.id);
   const range=qemu
     ? profile?(workbench?'浏览器本地运行 · MicroPython 编程':'浏览器候选预览 · 屏幕与按键示例')
       : device.visual_only||device.browser_only?'当前浏览器仅供模型预览':'浏览器尚未准入；需连接支持本型号的仿真服务'
@@ -662,7 +687,8 @@ function renderDetails() {
   const ref = reference();
   $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
   for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
-    ? !serviceCloudStartup() : option.value===drawingExampleId
+    ? !serviceCloudStartup() : option.value===DUAL_KMETER_EXAMPLE_ID
+      ? !dualKmeterExampleSource(profile,workbench,state.config.browser_dual_kmeter_example) : option.value===drawingExampleId
       ? !profile||!drawingExample(device?.id) : option.value===GNSS_EXAMPLE_ID
         ? !profile||!supportsQemuGnssWorkbench(workbench) : cc1101Roles.has(option.value)
           ? !cc1101Available(profile,workbench,cc1101Roles.get(option.value)) : sx1262Examples.has(option.value)
@@ -674,6 +700,8 @@ function renderDetails() {
     ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
     : ref?.exampleId
     ? '启动后载入官方绘图例程，运行代码查看图形与二维码。'
+    : ref?.dualKmeterSource
+    ? '启动后载入并运行官方例程，再调整模拟温度观察屏幕读数。'
     : ref?.gnssExample
     ? '载入并运行官方 LoRa1262 或 LoRa868 GPS 例程后，点击地点 A 或 B 模拟定位。'
     : ref?.cc1101Role
@@ -1185,7 +1213,8 @@ async function startRun(audio) {
     clearBrowserOutputs(browserProfile(state.selected.id));
     message('runProgress', nativeCloud ? '正在启动官方 UIFlow2，联网与配对进度请查看设备屏幕…' : nativeWorkbench ? '正在启动本地 MicroPython 并连接所选 Unit…' : `已校验 ${loaded.name} · ${bytes(loaded.size)}，正在启动…`);
     run = {kind, generation, controller: null,cloudStartup:!!nativeCloud,
-      cc1101Role:source()==='reference'?ref?.cc1101Role:undefined,sx1262Example:source()==='reference'?ref?.sx1262Example:undefined};
+      cc1101Role:source()==='reference'?ref?.cc1101Role:undefined,sx1262Example:source()==='reference'?ref?.sx1262Example:undefined,
+      dualKmeterSource:source()==='reference'?ref?.dualKmeterSource:undefined};
     const callbacks = {
       onSerial: (text) => {
         if (active(run)&&!(run.controller instanceof PublicQemuRuntime&&run.controller.receipt?.usbSerialJtag)) appendSerial(text);
@@ -1234,6 +1263,7 @@ async function startRun(audio) {
       const radioOptions=run.cc1101Role?{capExample:`cc1101-rf-${run.cc1101Role}`,capPeer:true}:
         run.sx1262Example?{sx1262Example:run.sx1262Example}:{};
       await run.controller.start({device: state.selected.id,firmware:loaded.bytes,signal:abort.signal,...gnssOptions,...radioOptions,
+        ...(run.dualKmeterSource ? {unitExample:DUAL_KMETER_EXAMPLE_ID} : {}),
         ...(audio && run.controller instanceof PublicQemuRuntime ? {audio} : {})});
       if (audio && active(run) && !run.controller.receipt?.audio) {
         message('browserAudioStatus','本次固件和素材未匹配已验证的声音示例。');
@@ -1558,8 +1588,8 @@ async function share() {
         firmware: firmwareUrl,
         sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference'&&!ref?.nativeCloud ? ref?.sha256 : null),
         serviceUrl: $('serviceUrl').value.trim(),
-        mode: selectedSource==='reference'&&(ref?.exampleId||ref?.gnssExample||ref?.cc1101Role||ref?.sx1262Example)&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
-        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&(ref?.nativeCloud||ref?.gnssExample||ref?.cc1101Role||ref?.sx1262Example)),
+        mode: selectedSource==='reference'&&(ref?.exampleId||ref?.gnssExample||ref?.cc1101Role||ref?.sx1262Example||ref?.dualKmeterSource)&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
+        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&(ref?.nativeCloud||ref?.gnssExample||ref?.cc1101Role||ref?.sx1262Example||ref?.dualKmeterSource)),
       },
       new URL(root),
     );
@@ -1574,6 +1604,8 @@ async function share() {
           ? '已复制工作台链接。打开后选择 CC1101 角色，并输入当前配对码。'
           : selectedSource === 'reference'&&ref?.sx1262Example
           ? '已复制工作台链接。打开后选择对应的 LoRa Cap 和角色，再输入当前配对码。'
+          : selectedSource === 'reference'&&ref?.dualKmeterSource
+          ? '已复制工作台链接。打开后选择「CoreS3 Dual Kmeter」。'
           : selectedSource === 'local'
           ? '已复制设备链接。本地文件需由对方重新选择。'
           : '已复制链接，打开即可加载对应设备与固件。';
@@ -1866,6 +1898,28 @@ $('browserExampleDistance').addEventListener('change',async(event)=>{
     }
   }finally{
     run.unitDistancePending=false;
+    if(active(run))updateBrowserUnitExample(run);
+  }
+});
+$('browserExampleTemperature').addEventListener('change',async(event)=>{
+  const run=state.run, input=event.target;
+  if(!active(run)||run.controller.profile?.unitExample!==DUAL_KMETER_EXAMPLE_ID
+    ||run.controller.status!=='running'||run.unitTemperaturePending)return;
+  try{
+    if(!input.checkValidity()||!Number.isFinite(input.valueAsNumber))
+      throw new Error('请输入 −200 到 1350 °C 之间、最多两位小数的温度。');
+    const temperatureCentiC=Math.round(input.valueAsNumber*100);
+    run.unitTemperaturePending=true;
+    updateBrowserUnitExample(run);
+    await run.controller.input({type:'example-temperature',temperatureCentiC});
+  }catch(cause){
+    if(active(run)){
+      const reading=run.controller.lastUnitExampleState;
+      if(reading)input.value=(reading.temperatureCentiC/100).toFixed(2);
+      error(cause);
+    }
+  }finally{
+    run.unitTemperaturePending=false;
     if(active(run))updateBrowserUnitExample(run);
   }
 });

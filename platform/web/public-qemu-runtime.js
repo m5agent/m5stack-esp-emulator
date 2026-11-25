@@ -180,7 +180,7 @@ export class PublicQemuRuntime {
     }
   }
   async start(options={}) {
-    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer,sx1262Example,audio}=options;
+    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer,sx1262Example,audio,unitExample}=options;
     await this.stop();
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.serialChannel='console';this.serialBytes=0;this.usbSerial='';this.usbSerialBytes=0;this.usbSerialState=null;
@@ -195,7 +195,7 @@ export class PublicQemuRuntime {
     this.state('loading');
     try {
       active();
-      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer','sx1262Example','audio'].includes(key)),'Unsupported QEMU execution option');
+      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer','sx1262Example','audio','unitExample'].includes(key)),'Unsupported QEMU execution option');
       const deviceId=typeof device==='string'?device:device?.id;
       const registry=this.profiles||await loadQemuBrowserProfiles({root:this.root,fetchImpl:this.fetchImpl,signal:bootAbort.signal});
       active();
@@ -227,7 +227,7 @@ export class PublicQemuRuntime {
         clearQemuFirmwareExecutionBinding(profile);
         profile.admission='candidate';profile.clockDivisor=clockDivisor;profile.profile=`${deviceId}-wasm-${clockDivisor===1?'wallclock-candidate':'vm-div8'}`;
       }
-      profile=resolveQemuUnitExample(profile,inputSHA256);
+      profile=resolveQemuUnitExample(profile,inputSHA256,unitExample);
       profile=bindQemuGnssExample(profile,gnssExample,inputSHA256);
       profile=resolveQemuCapExample(profile,capExample,inputSHA256,capPeer);
       profile=resolveQemuSx1262Example(profile,sx1262Example,inputSHA256);

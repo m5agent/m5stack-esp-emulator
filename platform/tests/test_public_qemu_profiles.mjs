@@ -9,7 +9,9 @@ import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile,
   resolveQemuSx1262Example, supportsQemuSx1262Workbench, QEMU_CARDPUTER_SX1262_RUNTIME_PATCH,
   qemuSx1262PeerStateQuery, validateQemuSx1262PeerState, qemuSx1262ReceiveArmed, validSx1262PeerPacket} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
-import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
+import {DUAL_KMETER_EXAMPLE_ID,DUAL_KMETER_FIRMWARE_SHA256,DUAL_KMETER_RUNTIME_PATCH,
+  resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
+import {resolveUIFlowWorkbenchProfile} from '../web/public-uiflow-firmware.js';
 import {GNSS_EXAMPLE_ID,bindQemuGnssExample,qemuGnssFixBytes} from '../web/public-qemu-gnss-example.js';
 
 const s3AdcFields = [
@@ -472,6 +474,35 @@ for (const [profile, kind, hash, attachment] of [
 }
 
 const get = (path, property) => ({execute:'qom-get',arguments:{path,property}});
+const workbenchRegistry = JSON.parse(await readFile(new URL('../web/uiflow-workbench-profiles.json',import.meta.url),'utf8'));
+const meterBase = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(s3,DUAL_KMETER_FIRMWARE_SHA256),
+  DUAL_KMETER_FIRMWARE_SHA256,workbenchRegistry);
+assert.strictEqual(resolveQemuUnitExample(meterBase,DUAL_KMETER_FIRMWARE_SHA256),meterBase);
+assert.throws(() => qemuInputCommand(meterBase,{type:'example-temperature',temperatureCentiC:2350}),/not admitted/);
+const meter = resolveQemuUnitExample(meterBase,DUAL_KMETER_FIRMWARE_SHA256,DUAL_KMETER_EXAMPLE_ID);
+assert.deepEqual(validateQemuProfile(meter),meter);
+assert.deepEqual(meter.units.attachments,[]);
+assert.throws(() => resolveQemuUnitExample(s3,DUAL_KMETER_FIRMWARE_SHA256,DUAL_KMETER_EXAMPLE_ID),/invalid.*dualkmeter/i);
+assert.throws(() => resolveQemuUnitExample(meterBase,sonicHash,DUAL_KMETER_EXAMPLE_ID),/exact CoreS3/);
+assert.throws(() => validateQemuRuntimeRequirements(meter,{source:{patches:[meterBase.requiredRuntimePatch]}}),/required DualKmeter/);
+assert.doesNotThrow(() => validateQemuRuntimeRequirements(meter,{source:{patches:[meterBase.requiredRuntimePatch,DUAL_KMETER_RUNTIME_PATCH]}}));
+const meterTarget = {path:'/machine/dual-kmeter',property:'temperature-centi-c'};
+assert.deepEqual(qemuUnitExampleQueries(meter),{
+  temperatureCentiC:get(meterTarget.path,meterTarget.property),
+  transactions:get(meterTarget.path,'transactions'),bytesRead:get(meterTarget.path,'read-bytes'),
+  bytesWritten:get(meterTarget.path,'written-bytes'),
+});
+for (const temperatureCentiC of [-20000,-1234,2350,135000]) {
+  assert.deepEqual(qemuInputCommand(meter,{type:'example-temperature',temperatureCentiC}),
+    {execute:'qom-set',arguments:{...meterTarget,value:temperatureCentiC},
+      readback:{execute:'qom-get',arguments:meterTarget},readbackResult:'temperatureCentiC'});
+  assert.doesNotThrow(() => validateQemuUnitExampleState(meter,
+    {kind:DUAL_KMETER_EXAMPLE_ID,temperatureCentiC,transactions:0,bytesRead:0,bytesWritten:0}));
+}
+for (const bad of [{temperatureCentiC:-20001},{temperatureCentiC:135001},{temperatureCentiC:23.5},
+  {temperatureCentiC:'2350'},{temperatureCentiC:2350,path:'/machine/soc'}]) {
+  assert.throws(() => qemuInputCommand(meter,{type:'example-temperature',...bad}),/not admitted/);
+}
 assert.deepEqual(qemuUnitExampleQueries(sonic), {
   distanceMm:get('/machine/units/ultrasonic','distance-mm'),
   transactions:get('/machine/units/ultrasonic/chip','transactions'),

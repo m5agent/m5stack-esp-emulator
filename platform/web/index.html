@@ -125,6 +125,11 @@
               <input id="browserExampleDistance" type="range" min="20" max="4500" step="1"
                 value="1000" aria-describedby="browserExampleUnitState" />
             </div>
+            <div id="browserExampleTemperatureControl" hidden>
+              <label for="browserExampleTemperature">Dual Kmeter 模拟温度（°C）</label>
+              <input id="browserExampleTemperature" type="number" min="-200" max="1350" step="0.01"
+                aria-describedby="browserExampleUnitState" disabled />
+            </div>
             <output id="browserExampleUnitState" aria-live="polite"></output>
           </div>
           <div id="browserGnssPanel" class="console-content" hidden>
@@ -198,6 +203,7 @@ print("Hello, UIFlow!")
               <select class="public-field" id="referenceExample">
                 <option value="uiflow" selected>本地 MicroPython 编程</option>
                 <option value="cores3-display" hidden>CoreS3 绘图 · UIFlow2 v2.5.5</option>
+                <option value="cores3-dual-kmeter" hidden>CoreS3 Dual Kmeter · UIFlow2 v2.5.3</option>
                 <option value="cardputer-adv-cap-gnss" hidden>LoRa Cap 定位 · UIFlow2 v2.5.3</option>
                 <option value="cc1101-rf-tx" hidden>CC1101 Cap 发送端 · UIFlow2 v2.5.3</option>
                 <option value="cc1101-rf-rx" hidden>CC1101 Cap 接收端 · UIFlow2 v2.5.3</option>

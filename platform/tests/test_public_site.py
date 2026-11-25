@@ -16,6 +16,35 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_dual_kmeter_source_requires_locked_patch_and_pinned_core_s3_workbench(self):
+        workbench = json.loads((public.ROOT / "platform/web/uiflow-workbench-profiles.json").read_text())
+        pending = {"path": "patches/qemu-wasm-probe/0050-cores3-dual-kmeter-example.patch",
+                   "sha256": "e412ebb45fb7fc171f5059d57a04b443f3d014e6441297c3583cb621001dfdd1"}
+        runtime = {"source": {"patches": [pending]}}
+        core = next(row for row in workbench["profiles"] if row["deviceId"] == "cores3")
+        with tempfile.TemporaryDirectory() as directory:
+            root, output = (Path(directory).resolve() / part for part in ("input", "output"))
+            name = "cores3_dual_kmeter_example.py"
+            original = Path("tests/browser-qemu/uiflow_workbench") / name
+            (root / original).parent.mkdir(parents=True)
+            exact = (public.ROOT / original).read_bytes()
+            (root / original).write_bytes(exact)
+            for manifest, profiles in (
+                ({}, workbench),
+                ({"source": {"patches": [pending, pending]}}, workbench),
+                (runtime, {"profiles": [{**core, "firmwareSHA256": "0" * 64}]}),
+                (runtime, {"profiles": [{**core, "deviceId": "cardputer-adv"}]}),
+            ):
+                self.assertEqual(public.stage_qemu_dual_kmeter_example(root, output, manifest, profiles), {})
+                self.assertFalse(output.exists())
+            source = public.stage_qemu_dual_kmeter_example(root, output, runtime, workbench)
+            self.assertEqual(source, {"path": f"platform/runtime/qemu-probe/fixture/{name}",
+                                     "bytes": len(exact), "sha256": hashlib.sha256(exact).hexdigest()})
+            self.assertEqual((output / source["path"]).read_bytes(), exact)
+            (root / original).write_text("pass")
+            with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                public.stage_qemu_dual_kmeter_example(root, output, runtime, workbench)
+
     def test_cc1101_official_sources_require_pinned_patch_and_exact_workbench(self):
         workbench = json.loads((public.ROOT / "platform/web/uiflow-workbench-profiles.json").read_text())
         preview = {"path": "patches/qemu-wasm-probe/0045-cardputer-adv-cc1101-peer.patch",
