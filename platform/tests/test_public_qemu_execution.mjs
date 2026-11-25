@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import {validateQemuProfile,validateQemuRuntimeRequirements,resolveQemuFirmwareProfile,clearQemuFirmwareExecutionBinding,
-  buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+  buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT} from '../web/public-qemu-profiles.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url)));
 const base=getQemuBrowserProfile('stackchan',registry), firmwareSHA256='a'.repeat(64);
@@ -127,7 +127,7 @@ function engine(){
   const context=vm.createContext({Worker:NativeWorker,EventTarget,TextEncoder,TextDecoder,Uint8Array,Map,Set,
     URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,
     location:{origin:'https://example.test'},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance,
-    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,
+    validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,qemuUsbSerialJtagAvailable,QEMU_USB_SERIAL_JTAG_OUTPUT,
     self:{postMessage(){},close(){}},addEventListener(){}});
   vm.runInContext(source+'\nglobalThis.contract={start,request,snapshot:()=>({arguments:runtimeArguments,env:module?.ENV})};',context,
     {importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});

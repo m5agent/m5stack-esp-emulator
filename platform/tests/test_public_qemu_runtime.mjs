@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import {PublicQemuRuntime,browserQemuHistory} from '../web/public-qemu-runtime.js';
-import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH} from '../web/public-qemu-profiles.js';
+import {getQemuBrowserProfile,validateQemuProfile,validateQemuFirmware,buildQemuArguments,QEMU_ONE_INSN_RUNTIME_PATCH,QEMU_CARDPUTER_BOOT_RUNTIME_PATCH,
+  QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH} from '../web/public-qemu-profiles.js';
 import {sha256Bytes} from '../web/sha256.js';
 
 const root='https://example.test/showcase/';
@@ -79,10 +80,11 @@ class MockWorker {
       if(data.op==='start')frame.profile=data.value.profile;
       port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
         :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
+        :data.op==='usb-serial-jtag-state'?{consoleEpoch:0,txBytes:64,txPackets:2}
         :data.op==='dispose'?{workersRemaining:0,workersTerminatedByDispose:0,
           ...(config.engineDisposal||config.ownerFinalization?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,
             ownerTerminatesAfterAcknowledgement:!!config.ownerFinalization,engineSelfClosesAfterAcknowledgement:!config.ownerFinalization}:{})}:undefined});
-      if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile)}}));
+      if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456,arguments:config.actualArguments||buildQemuArguments(frame.profile,data.value.runtimePatches)}}));
       if(data.op==='dispose'&&config.ownerFinalization)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-drained'}}));
       if(data.op==='dispose'&&config.engineDisposal)queueMicrotask(()=>this.emit('message',{data:{type:'m5-qemu-engine-closing'}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0,workersRemaining:0,workersCreated:4}}));
@@ -275,6 +277,37 @@ try {
     assert.equal(panel.runtime.display?.orientation??null,device==='cardputer-adv'?'landscape':null);
     assert.deepEqual(panel.errors,[]);await panel.runtime.stop();
   }
+
+  const advProfile=getQemuBrowserProfile('cardputer-adv',profiles), serialViews=[];
+  const cdcManifest={...manifest,source:{...manifest.source,patches:[...manifest.source.patches,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH]}};
+  const cdc=create({fetchImpl:async()=>new Response(JSON.stringify(cdcManifest)),onSerialView:view=>serialViews.push(view)}).runtime;
+  await cdc.start({device:'cardputer-adv',firmware:firmware(advProfile)});
+  const cdcGeneration=cdc.generation, cdcRaw=[];
+  const unsubscribeCdc=cdc.subscribeUart(bytes=>cdcRaw.push(...bytes));
+  assert.deepEqual(cdc.receipt.usbSerialJtag,{direction:'guest-to-host',controller:'esp32s3-usb-serial-jtag'});
+  cdc.receive({type:'serial',value:'UART log'},cdcGeneration);
+  cdc.receive({type:'usb-serial-jtag',value:{text:'stale',bytes:5}},cdcGeneration-1);
+  cdc.receive({type:'usb-serial-jtag',value:{text:'oversize',bytes:65}},cdcGeneration);
+  cdc.receive({type:'usb-serial-jtag',value:{text:'USB\n',bytes:4}},cdcGeneration);
+  assert.deepEqual(cdcRaw,[],'browser program UART never consumes USB output');
+  unsubscribeCdc();
+  assert.equal(cdc.serialView().text,'UART log');
+  cdc.selectSerialChannel('usb-serial-jtag');
+  assert.equal(serialViews.at(-1).text,'USB\n');
+  cdc.receive({type:'serial',value:'2'},cdcGeneration);
+  assert.equal(serialViews.at(-1).text,'USB\n','inactive UART cannot replace the USB view');
+  assert.deepEqual(await cdc.readUsbSerialJtag(),{consoleEpoch:0,txBytes:64,txPackets:2});
+  assert.deepEqual(cdc.evidence().usb_serial_jtag,{text:'USB\n',bytes:4,state:{consoleEpoch:0,txBytes:64,txPackets:2}});
+  cdc.selectSerialChannel('console');
+  assert.equal(serialViews.at(-1).text,'UART log2');
+  cdc.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},cdcGeneration);
+  assert.equal(cdc.evidence().usb_serial_jtag.state,null);
+  await assert.rejects(cdc.readUsbSerialJtag(),/回读无效/);
+  await cdc.stop();
+  await cdc.start({device:'cores3',firmware:firmware()});
+  assert.equal(cdc.evidence().usb_serial_jtag,undefined);
+  assert.throws(()=>cdc.selectSerialChannel('usb-serial-jtag'),/串口通道不可用/);
+  await cdc.stop();
 
   // Reset is an in-place QMP input: no new container, firmware download or Flash.
   options={};const resetting=create();await resetting.runtime.start({device:'cores3',firmware:firmware()});
