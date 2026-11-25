@@ -1,0 +1,71 @@
+Report the sign of portrait presentation from MADCTL and the
+physical glass mount. Preserve the native framebuffer, panel writes,
+and the legacy logical-orientation property.
+
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index 1076f9dd34e7618df50e4c62edb4387cee0911c5..8d7597c4fcffd132a7a86b5be5986336f31f65b5 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -16,6 +16,7 @@
+ #include "qemu/osdep.h"
+ #include "qemu/main-loop.h"
+ #include "qapi/error.h"
++#include "qapi/visitor.h"
+ #include "qemu/timer.h"
+ #include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-core.h"
+@@ -615,16 +616,40 @@ static void m5_panel_set_refresh_now(Object *obj, bool value, Error **errp)
+     }
+ }
+ 
+-static char *m5_panel_logical_orientation_get(Object *obj, Error **errp)
++static bool m5_panel_logical_axes_exchanged(const M5SpiPanelState *s)
+ {
+-    M5SpiPanelState *s = (M5SpiPanelState *)obj;
+     /* CASET/RASET select the next drawing rectangle, not the panel rotation.
+      * A small fillRect/text write must not change the presentation. MADCTL.MV
+      * exchanges logical axes; glass_rotation accounts for board mounting.
+      */
+-    bool exchanged = s->apply_madctl && s->vis_w != s->vis_h &&
+-                     (!!(s->madctl & 0x20) != !!(s->glass_rotation & 1));
+-    return g_strdup(exchanged ? "portrait" : "landscape");
++    return s->apply_madctl && s->vis_w != s->vis_h &&
++           (!!(s->madctl & 0x20) != !!(s->glass_rotation & 1));
++}
++
++static char *m5_panel_logical_orientation_get(Object *obj, Error **errp)
++{
++    return g_strdup(m5_panel_logical_axes_exchanged((M5SpiPanelState *)obj)
++                    ? "portrait" : "landscape");
++}
++
++static void m5_panel_portrait_rotation_get(Object *obj, Visitor *v,
++                                           const char *name, void *opaque,
++                                           Error **errp)
++{
++    M5SpiPanelState *s = (M5SpiPanelState *)obj;
++    int64_t rotation = 0;
++
++    if (m5_panel_logical_axes_exchanged(s)) {
++        /* Follow guest logical +X through MADCTL to memory, then undo the
++         * physical glass-to-memory transform. A positive native Y derivative
++         * needs a positive Z rotation in the viewer (Y up).
++         */
++        uint8_t axis_flip = (s->glass_rotation & 1) ? 0x40 : 0x80;
++        bool memory_axis_reversed = !!(s->madctl & axis_flip);
++        bool glass_axis_reversed = !!(s->glass_rotation & 2);
++        rotation = memory_axis_reversed == glass_axis_reversed ? 90 : -90;
++    }
++    visit_type_int(v, name, &rotation, errp);
+ }
+ 
+ static uint8_t tca8418_event(int row, int col, bool down)
+@@ -908,6 +933,8 @@ static void m5_panel_realize(DeviceState *dev, Error **errp)
+                              m5_panel_get_refresh_now, m5_panel_set_refresh_now);
+     object_property_add_str(OBJECT(s), "logical-orientation",
+                             m5_panel_logical_orientation_get, NULL);
++    object_property_add(OBJECT(s), "logical-portrait-rotation-deg", "int",
++                        m5_panel_portrait_rotation_get, NULL, NULL, NULL);
+ }
+ 
+ static Property m5_panel_props[] = {

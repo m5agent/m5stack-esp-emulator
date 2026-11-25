@@ -162,8 +162,8 @@
 | `firmware_filesystems.py` | 1532 |
 
 - `tests/`：`183` 个可执行 Python 测试文件，分布在 `84` 个目录；`253` 个 evidence JSON。
-- `patches/`：`17` 个补丁组，`384` 个 patch 文件。
-- 文档：`753` 个 Markdown 页面；除本生成页外共 `81890` 行。
+- `patches/`：`17` 个补丁组，`385` 个 patch 文件。
+- 文档：`753` 个 Markdown 页面；除本生成页外共 `81897` 行。
 
 ## 文档与测试
 

@@ -23,6 +23,9 @@ function setVirtualMic(enabled) {
   micArmed = enabled;
 }
 let panelPath;
+let signedPortrait = false;
+const portraitPatch = {path:'patches/qemu-wasm-probe/0049-cardputer-adv-portrait-direction.patch',
+  sha256:'d95f729f5cae8a38105849a4b434ed0bf7409f16d7951f49310de12da64ab916'};
 let usbSerialJtag = false;
 let workersCreated = 0;
 let relocatedGlueSha256;
@@ -169,6 +172,10 @@ async function start(config) {
   if (disposeRequested) throw new Error('Instance disposed during start');
   boardProfile=validateQemuProfile(config.profile);
   validateQemuRuntimeRequirements(boardProfile,{source:{patches:config.runtimePatches}});
+  if(boardProfile.deviceId==='cardputer-adv'&&Array.isArray(config.runtimePatches)){
+    const matches=config.runtimePatches.filter(row=>row?.path===portraitPatch.path);
+    signedPortrait=matches.length===1&&matches[0].sha256===portraitPatch.sha256;
+  }
   usbSerialJtag=qemuUsbSerialJtagAvailable(boardProfile,config.runtimePatches);
   const sdCard=config.sdCard;
   if(sdCard!==undefined&&(!(sdCard instanceof ArrayBuffer)||!validQemuSdImage(boardProfile.deviceId,sdCard.byteLength))) {
@@ -423,6 +430,11 @@ async function request(op, value) {
       const panel = children.find(row => row.type === 'child<m5.spi-panel>');
       if (!panel) throw new Error('QEMU display panel is unavailable');
       panelPath = `/machine/unattached/${panel.name}`;
+    }
+    if (signedPortrait) {
+      const deviceRotationDeg=await qmp('qom-get',{path:panelPath,property:'logical-portrait-rotation-deg'});
+      if (![-90,0,90].includes(deviceRotationDeg)) throw new Error('QEMU display panel returned an invalid portrait rotation');
+      return {orientation:deviceRotationDeg===0?'landscape':'portrait',deviceRotationDeg};
     }
     const orientation = await qmp('qom-get', {path:panelPath, property:'logical-orientation'});
     if (!['landscape','portrait','unknown'].includes(orientation))

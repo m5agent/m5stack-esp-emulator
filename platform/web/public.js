@@ -1052,14 +1052,22 @@ function applyBrowserPresentation(value, run = state.run) {
   const display = value?.display || null;
   state.shell?.setDeviceRotation?.(display?.deviceRotationDeg || 0);
   const panel = $('rawFramePanel');
-  if (display?.orientation === 'portrait') panel.dataset.orientation = 'portrait';
-  else delete panel.dataset.orientation;
+  const portrait=display?.orientation==='portrait';
+  const rotation=portrait?String(display.deviceRotationDeg===90?90:-90):undefined;
+  const rotationChanged=panel.dataset.portraitRotationDeg!==rotation;
+  if (portrait) {
+    panel.dataset.orientation='portrait';
+    panel.dataset.portraitRotationDeg=rotation;
+  } else {
+    delete panel.dataset.orientation;
+    delete panel.dataset.portraitRotationDeg;
+  }
   // Orientation arrives through QMP independently of shared-frame updates.
   // Repaint retained real pixels when static glass needs a new presentation.
   const frame = run.controller instanceof PublicQemuRuntime ? run.controller.lastFrame : null;
   if (frame) {
-    const portrait=display?.orientation==='portrait',canvas=$('rawFrameCanvas');
-    if (canvas.width!==(portrait?frame.height:frame.width)||canvas.height!==(portrait?frame.width:frame.height))
+    const canvas=$('rawFrameCanvas');
+    if (rotationChanged||canvas.width!==(portrait?frame.height:frame.width)||canvas.height!==(portrait?frame.width:frame.height))
       applyBrowserFrame(frame,run);
   }
 }
@@ -1081,12 +1089,13 @@ function applyBrowserFrame(frame, run) {
     }
     if (!portrait) context.putImageData(image, 0, 0);
     else {
+      const clockwise=run.controller.display.deviceRotationDeg!==90;
       const rotated = context.createImageData(frame.height, frame.width);
       for (let y = 0; y < frame.height; y++) for (let x = 0; x < frame.width; x++) {
         const from = (y * frame.width + x) * 4;
-        // Match the portrait device presentation: native glass top-left
-        // rotates clockwise into the flat-screen view.
-        const to = (x * frame.height + frame.height - 1 - y) * 4;
+        // Canvas Y grows down, so its angle is opposite the 3D Z rotation.
+        const to = (clockwise ? x * frame.height + frame.height - 1 - y
+          : (frame.width - 1 - x) * frame.height + y) * 4;
         rotated.data.set(image.data.subarray(from, from + 4), to);
       }
       context.putImageData(rotated, 0, 0);
@@ -1913,11 +1922,13 @@ for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'])
     if (type === 'pointerdown') canvas.setPointerCapture(event.pointerId);
     const shownX = Math.max(0, Math.min(canvas.width - 1, Math.floor(((event.clientX - rect.left) * canvas.width) / rect.width)));
     const shownY = Math.max(0, Math.min(canvas.height - 1, Math.floor(((event.clientY - rect.top) * canvas.height) / rect.height)));
-    const portrait = canvas.closest('#rawFramePanel')?.dataset.orientation === 'portrait';
+    const panel = canvas.closest('#rawFramePanel');
+    const portrait = panel?.dataset.orientation === 'portrait';
+    const counterclockwise = panel?.dataset.portraitRotationDeg === '90';
+    let x=shownX,y=shownY;
+    if(portrait)[x,y]=counterclockwise?[canvas.height-1-shownY,shownX]:[shownY,canvas.width-1-shownX];
     void deliverInput({
-      type: 'touch',
-      x: portrait ? shownY : shownX,
-      y: portrait ? canvas.width - 1 - shownX : shownY,
+      type: 'touch', x, y,
       down: ['pointerdown', 'pointermove'].includes(type),
     });
   });

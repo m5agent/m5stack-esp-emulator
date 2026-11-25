@@ -180,7 +180,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
-    "hw/m5stopwatch/m5_spi_panel.c": "afb525628307c631b07ce689fbe1b9346fa8b5d3ee70e3186a461eaf725fbf36",
+    "hw/m5stopwatch/m5_spi_panel.c": "6b599e4d483ed028ff2a0103a94f073ea5085780a8f3ae85ebcaaa0270b4618a",
     "hw/m5stopwatch/m5_spi_sd.c": "d84f58dc7554f69d1ee4c68548951ebda0ee7aec22877f52fbb7606081c1a24e",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "f6ac801a1ce8dcb0fd3878b6979b5b8e4aed2746408a665cd56c4c7b0a8423d5",
     "hw/m5stopwatch/m5_sx1262.c": "56bbe167e1ae30c2a1ee104e6f2d307d12ad4d42920c9354a3df9b68da217c7f",
@@ -674,6 +674,10 @@
     {
       "path": "patches/qemu-wasm-probe/0048-cores3-i2s-web-pcm-stream.patch",
       "sha256": "fa1c5cebf9e9ec80a05203c801c739ad92b01d5a278a558da41f5a4645667e88"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0049-cardputer-adv-portrait-direction.patch",
+      "sha256": "d95f729f5cae8a38105849a4b434ed0bf7409f16d7951f49310de12da64ab916"
     }
   ],
   "qemu": {
