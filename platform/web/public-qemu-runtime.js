@@ -1,5 +1,5 @@
 import {admitQemuEnginePort,createQemuEngineOwner} from './public-qemu-engine-owner.js';
-import {resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
+import {getUIFlowWorkbenchFirmware,resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {loadQemuSdExample} from './public-qemu-sd-media.js';
@@ -172,10 +172,11 @@ export class PublicQemuRuntime {
       }))]);active();
       const wasm=wasmAsset.bytes;
       this.frameTransport=profile.display===null?null:manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
-      const workbench=this.workbenchProfiles?.profiles.find(row=>row.deviceId===deviceId&&row.firmwareSHA256===firmwareSHA256);
+      const workbench=getUIFlowWorkbenchFirmware(this.workbenchProfiles,deviceId,firmwareSHA256);
       this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,clockOverride,
         accelerator:profile.accelerator||null,oneInsnPerTb:profile.oneInsnPerTb===true,requiredRuntimePatch:profile.requiredRuntimePatch||null,requiredInputPatch:profile.requiredInputPatch||null,
         uiflowWorkbench:workbench?{baseSha256:workbench.baseSHA256,composerCommit:this.workbenchProfiles.composer_commit,
+          ...(workbench.exampleId?{exampleId:workbench.exampleId,version:workbench.version}:{}),
           startupSources:Object.fromEntries(Object.entries(workbench.files).map(([name,row])=>[name,row.sha256]))}:null,sourceCommit:runtimeIdentity.commit,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),

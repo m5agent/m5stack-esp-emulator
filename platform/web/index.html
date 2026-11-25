@@ -132,6 +132,7 @@ print("Hello, UIFlow!")
             <div class="python-actions">
               <button id="pythonRunBtn" class="primary-button" type="button" disabled>运行代码</button>
               <button id="pythonInterruptBtn" class="secondary-button" type="button" disabled>中断</button>
+              <button id="loadWorkbenchExampleBtn" class="text-button" type="button" hidden>载入绘图例程</button>
               <label class="text-button python-file">导入 .py<input id="pythonFile" type="file" accept=".py,text/x-python,text/plain" /></label>
               <button id="pythonClearBtn" class="text-button" type="button">清空输出</button>
             </div>
@@ -172,6 +173,7 @@ print("Hello, UIFlow!")
               <label class="public-label" for="referenceExample">启动环境</label>
               <select class="public-field" id="referenceExample">
                 <option value="uiflow" selected>本地 MicroPython 编程</option>
+                <option value="cores3-display" hidden>CoreS3 绘图 · UIFlow2 v2.5.5</option>
                 <option value="uiflow-cloud" hidden>官方 UIFlow2 · 云端配对</option>
                 <option value="probe">屏幕与按键示例</option>
                 <option value="wallclock-candidate">正常速度（LVGL 调度候选修复）</option>

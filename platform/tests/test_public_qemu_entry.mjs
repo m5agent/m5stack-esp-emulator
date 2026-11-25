@@ -19,6 +19,7 @@ import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime
 const pageRoot='https://example.test/showcase/';
 const fixtureSha='78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
 const wallclockSha=demoFirmware.WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256;
+const drawingSha='565f1de9c87e8fe12f133e64ae6e3c6d32085c46e52269b864ea1cf4604f0927';
 const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 assert.match(html,/id="firmwareFile" data-testid="firmware-file"/);
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
@@ -44,6 +45,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
+  exampleSourceLoader,
   isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[];
   let evidenceBlob;
@@ -93,9 +95,10 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
+  if(exampleSourceLoader)dependencies.loadVerifiedRuntimeAsset=exampleSourceLoader;
   const context=vm.createContext({...dependencies,document,window:{addEventListener(){}},
     navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
-    URL:TestURL,URLSearchParams,Map,TextEncoder,AbortController,DOMException,Blob,console,setTimeout,
+    URL:TestURL,URLSearchParams,Map,TextEncoder,TextDecoder,AbortController,DOMException,Blob,console,setTimeout,
     fetch:fetchFixture,events,serviceRows,
   });
   vm.runInContext(body+`
@@ -386,6 +389,43 @@ wallclock.radios.get('local').checked=false;wallclock.radios.get('reference').ch
 for(const search of [share.search+'&autostart=0',share.search.replace(fixtureSha,'0'.repeat(64)),share.search.replace('cores3','core2'),share.search.replace('mode=browser','mode=model')]){
   const app=await entry({search});assert.equal(app.events.some(item=>item.startsWith('start:')),false,'wrong device/hash, disabled autostart and model mode cannot run the reference');
 }
+const drawingSource=await readFile(new URL('../../tests/browser-qemu/uiflow_workbench/cores3_display_example.py',import.meta.url));
+const drawingSourceSha=createHash('sha256').update(drawingSource).digest('hex');
+const drawing=await entry({search:'?device=cores3&mode=browser&autostart=0',exampleSourceLoader:async(url,options)=>{
+  assert.equal(url,pageRoot+'platform/runtime/qemu-probe/fixture/cores3_display_example.py');
+  assert.equal(options.expectedSha256,drawingSourceSha);
+  assert.equal(options.expectedBytes,drawingSource.length);
+  return {bytes:drawingSource};
+}});
+assert.equal(drawing.element('referenceExample').value,'uiflow');
+assert.equal(drawing.element('loadWorkbenchExampleBtn').hidden,true);
+drawing.element('referenceExample').value='cores3-display';
+assert.equal(drawing.reference().sha256,drawingSha);
+assert.equal(drawing.reference().exampleId,'cores3-display');
+await drawing.share();
+const drawingLink=new URL(drawing.clipboard[0]);
+assert.equal(drawingLink.searchParams.get('sha256'),drawingSha);
+assert.equal(drawingLink.searchParams.has('firmware'),false);
+const reopenedDrawing=await entry({search:drawingLink.search});
+assert.equal(reopenedDrawing.element('referenceExample').value,'cores3-display');
+assert.ok(reopenedDrawing.events.includes('start:browser'));
+const wrongDrawingBoard=await entry({search:drawingLink.search.replace('device=cores3','device=core2')});
+assert.ok(!wrongDrawingBoard.events.includes('start:browser'));
+
+const drawingRun=new PublicQemuRuntime({root:pageRoot,profiles:registry,workbenchProfiles:workbenchRegistry});
+drawingRun.profile=drawing.browserProfile('cores3');
+drawingRun.status='running';
+drawingRun.receipt={deviceId:'cores3',firmwareSha256:drawingSha,uiflowWorkbench:{exampleId:'cores3-display',version:'2.5.5'}};
+drawing.state.run={controller:drawingRun,kind:'browser',generation:drawing.state.runGeneration};
+drawing.status('running');
+const sourceButton=drawing.element('loadWorkbenchExampleBtn');
+assert.equal(sourceButton.hidden,false);
+assert.equal(sourceButton.disabled,false);
+drawing.element('pythonSource').value='print("retained until explicit load")';
+await sourceButton.listeners.get('click')();
+assert.equal(drawing.element('pythonSource').value,drawingSource.toString('utf8'));
+assert.equal(sourceButton.disabled,false);
+
 for(const profile of registry.profiles){
   const app=await entry({publicationEligible:false,search:`?device=${profile.deviceId}&mode=browser&autostart=0`});
   assert.equal(app.browserProfile(profile.deviceId).board,profile.board);assert.equal(app.lane(),'browser');

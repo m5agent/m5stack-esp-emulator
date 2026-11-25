@@ -181,6 +181,66 @@ class PublicSiteTests(unittest.TestCase):
             self.assertFalse((output / ".work").exists())
             self.assertTrue((output / ".nojekyll").is_file())
 
+    def test_export_workbench_example_keeps_the_exact_source_for_selected_cores3(self):
+        source_path = "tests/browser-qemu/uiflow_workbench/cores3_display_example.py"
+        asset_path = "platform/runtime/qemu-probe/fixture/cores3_display_example.py"
+        workbench_path = "platform/web/uiflow-workbench-profiles.json"
+        source_bytes = (public.ROOT / source_path).read_bytes()
+        source_sha = "03869b2d115675642900d900a9bc9c442a75a92b99db05883948876a22cbfe3d"
+        self.assertEqual(len(source_bytes), 1729)
+        self.assertEqual(hashlib.sha256(source_bytes).hexdigest(), source_sha)
+        example = {
+            "id": "cores3-display", "deviceId": "cores3", "version": "2.5.5",
+            "baseUrl": "https://example.test/base.bin", "baseSHA256": "a" * 64,
+            "baseBytes": 16773120, "baseFileCount": 17, "firmwareSHA256": "b" * 64,
+            "source": {"path": source_path, "bytes": 1729, "sha256": source_sha},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root, output = (Path(directory) / name for name in ("source", "site"))
+            self.fixture(root)
+            source = root / source_path
+            source.parent.mkdir(parents=True)
+            source.write_bytes(source_bytes)
+            (source.parent / "unreviewed.py").write_text("print('excluded')\n")
+            (root / "platform/web/unreviewed.py").write_text("print('excluded')\n")
+            workbench = root / workbench_path
+            old = {"profiles": [{"deviceId": "cores3"}, {"deviceId": "cardputer-adv"}]}
+            workbench.write_bytes(public.encode_json(old))
+            runtime = {"engine": "qemu-wasm", "build": {"kind": "source-build"}}
+            registry = {
+                "profiles": [{"deviceId": "cores3", "admission": "public"}],
+            }
+            with (patch.object(public, "qemu_runtime_files", return_value=(runtime, {})),
+                  patch.object(public, "qemu_site_profiles", return_value=(registry, {}))):
+                public.build_site(root, output, qemu_runtime=root)
+                self.assertNotIn("examples", json.loads((output / workbench_path).read_bytes()))
+                workbench.write_bytes(public.encode_json({**old, "examples": [example]}))
+                manifest = public.build_site(root, output, qemu_runtime=root)
+                exported = json.loads((output / workbench_path).read_bytes())
+                self.assertEqual(exported, {"profiles": [{"deviceId": "cores3"}], "examples": [example]})
+                self.assertEqual((output / asset_path).read_bytes(), source_bytes)
+                self.assertIn({"path": asset_path, "bytes": 1729, "sha256": source_sha}, manifest["assets"])
+                self.assertFalse(any(row["path"].endswith(("unreviewed.py", ".bin")) for row in manifest["assets"]))
+                self.assertFalse(manifest["firmware_bundled"])
+
+                for untrusted_path in ("../outside.py", "tests/browser-qemu/uiflow_workbench/unreviewed.py"):
+                    invalid = {**example, "source": {**example["source"], "path": untrusted_path}}
+                    workbench.write_bytes(public.encode_json({**old, "examples": [invalid]}))
+                    with self.subTest(path=untrusted_path), self.assertRaisesRegex(ValueError, "example source"):
+                        public.build_site(root, output, qemu_runtime=root)
+                workbench.write_bytes(public.encode_json({**old, "examples": [example]}))
+                source.write_bytes(b"x" + source_bytes[1:])
+                with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                    public.build_site(root, output, qemu_runtime=root)
+                self.assertEqual((output / asset_path).read_bytes(), source_bytes)
+
+                registry["profiles"] = [{"deviceId": "cardputer-adv", "admission": "public"}]
+                public.build_site(root, output, qemu_runtime=root)
+                self.assertEqual(json.loads((output / workbench_path).read_bytes()), {
+                    "profiles": [{"deviceId": "cardputer-adv"}], "examples": [],
+                })
+                self.assertFalse((output / asset_path).exists())
+
     def test_export_qemu_sd_media_is_pinned_deduplicated_and_optional(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)

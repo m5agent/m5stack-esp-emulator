@@ -1,9 +1,10 @@
 import {renderSerialChannelSelect} from './serial-channel-state.js';
 import {renderUIFlowCloudStatus} from './uiflow-cloud-status.js';
-import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles} from './public-uiflow-firmware.js';
+import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles,getUIFlowWorkbenchExample,getUIFlowWorkbenchFirmware} from './public-uiflow-firmware.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
+import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
@@ -60,6 +61,8 @@ const node = (tag, className, value) => {
 const bytes = (size) => (size >= 1048576 ? `${(size / 1048576).toFixed(1)} MiB` : `${size} B`);
 const source = () => document.querySelector('input[name="firmwareSource"]:checked').value;
 const active = (run) => run && run === state.run && run.generation === state.runGeneration && !run.stopping;
+const drawingExampleId = 'cores3-display';
+const drawingExample = deviceId => getUIFlowWorkbenchExample(state.workbenchProfiles,deviceId,drawingExampleId);
 function message(id, text = '') {
   $(id).textContent = text;
   $(id).hidden = !text;
@@ -74,6 +77,11 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
+  if ($('referenceExample').value===drawingExampleId) {
+    const example=profile&&drawingExample(device?.id);
+    return example ? {name:`CoreS3 绘图 · UIFlow2 v${example.version}`,
+      composedWorkbench:true,exampleId:example.id,sha256:example.firmwareSHA256} : null;
+  }
   if ($('referenceExample').value==='uiflow-cloud') {
     const startup=serviceCloudStartup(device?.id);
     return startup ? {name:`${device.name} · 官方 UIFlow2 · 云端配对`,nativeCloud:true,sha256:startup.reference_sha256} : null;
@@ -121,6 +129,9 @@ function selectedAttachments() {
 }
 function lane(device = state.selected) {
   const mode = $('runtimeMode').value;
+  const drawing = source()==='reference'&&$('referenceExample').value===drawingExampleId;
+  if(drawing&&mode!=='model')return mode!=='service'&&drawingExample(device?.id)
+    &&browserProfile(device?.id)&&!selectedAttachments().length?'browser':null;
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud' && mode!=='model')
     return mode!=='browser'&&serviceCloudStartup(device?.id)?'service':null;
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
@@ -257,12 +268,15 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   const run=state.run, native=active(run)&&run.kind==='service'&&!!run.python;
   if (!active(run) || run.kind !== 'service' || !run.controller.current) $('serialChannel').disabled = true;
   const supported=active(run)&&(run.controller instanceof PublicQemuRuntime&&run.controller.profile?.inputs.uart || native&&(run.python.ready||run.python.busy));
-  const programming=!!run?.controller?.receipt?.uiflowWorkbench&&state.workbenchProfiles?.profiles.some(row=>
-    row.deviceId===state.selected?.id&&row.deviceId===run.controller.receipt.deviceId
-      &&row.firmwareSHA256===run.controller.receipt.firmwareSha256);
-  const pythonBusy=!!run?.python?.busy,busy=pythonBusy||!!run?.serialSending;
+  const receipt=run?.controller?.receipt;
+  const programming=!!receipt?.uiflowWorkbench&&receipt.deviceId===state.selected?.id
+    &&!!getUIFlowWorkbenchFirmware(state.workbenchProfiles,receipt.deviceId,receipt.firmwareSha256);
+  const pythonBusy=!!run?.python?.busy,busy=pythonBusy||!!run?.serialSending||!!run?.loadingExample;
   const replace=pythonBusy&&run.python.canReplace===true&&run.pythonPhase==='running';
   $('pythonRunBtn').disabled=!supported||currentStatus!=='running'||busy&&!replace;
+  const exampleButton=$('loadWorkbenchExampleBtn');
+  exampleButton.hidden=!(programming&&receipt.uiflowWorkbench.exampleId===drawingExampleId);
+  exampleButton.disabled=currentStatus!=='running'||busy;
   $('pythonInterruptBtn').disabled=!supported||currentStatus!=='running'||!pythonBusy||run.pythonPhase!=='running'||run.python?.canInterrupt===false;
   $('pythonInterruptBtn').title=run?.python?.canInterrupt===false?'此旧会话不提供中断；新建 UIFlow 编程环境可使用中断。':'';
   $('pauseBtn').disabled=!!run?.serialSending||pythonBusy&&run.pythonPhase!=='running';
@@ -277,11 +291,39 @@ function updatePythonControls(currentStatus=state.run?.controller?.status || sta
   const readyWorkbench = currentStatus === 'running' && supported && (programming || (native && run.owned !== false && run.python.ready));
   updateStageFirmwareNotice($('runtimeStatus').dataset.status, readyWorkbench && !busy && !run.pythonPhase);
 }
+async function loadWorkbenchExample() {
+  const run=state.run,button=$('loadWorkbenchExampleBtn');
+  if(!active(run)||button.hidden||button.disabled)return;
+  const example=drawingExample(run.controller.receipt.deviceId);
+  if(!example)return;
+  const editor=$('pythonSource'), previous=editor.value;
+  run.loadingExample=true;
+  const signal=state.abort?.signal;
+  let failure;
+  updatePythonControls();
+  try {
+    const {path,sha256,bytes}=example.source;
+    const url=assetUrl('platform/runtime/qemu-probe/fixture/'+path.split('/').at(-1),root);
+    const asset=await loadVerifiedRuntimeAsset(url,{signal,expectedSha256:sha256,expectedBytes:bytes,maxBytes:bytes});
+    if(!active(run)||signal?.aborted)return;
+    if(editor.value!==previous)throw new Error('编辑器内容已变化，请再次载入绘图例程。');
+    editor.value=new TextDecoder('utf-8',{fatal:true}).decode(asset.bytes);
+    editor.focus();
+  } catch(cause) {
+    failure=cause;
+  } finally {
+    run.loadingExample=false;
+    if(active(run)){
+      updatePythonControls();
+      if(failure&&!signal?.aborted)$('pythonStatus').textContent=failure.message;
+    }
+  }
+}
 async function runPython() {
   const run=state.run;
   if(!active(run)||(!(run.controller instanceof PublicQemuRuntime)&&!run.python))return;
   run.python ||= new PublicMicroPythonRunner(run.controller);
-  if(run.python.busy&&!(run.python.canReplace===true&&run.pythonPhase==='running')||run.serialSending)return;
+  if(run.python.busy&&!(run.python.canReplace===true&&run.pythonPhase==='running')||run.serialSending||run.loadingExample)return;
   const click=run.pythonClick=(run.pythonClick||0)+1,current=()=>active(run)&&run.pythonClick===click;
   $('pythonOutput').textContent='';
   try {
@@ -343,6 +385,10 @@ function updateCapability() {
     $('capabilityText').textContent=selectedLane==='service'
       ? '设备运行官方启动界面，并自行连接 UIFlow 云端。配对状态请查看设备屏幕。'
       : '请连接支持此型号云端启动的服务并选择自动或服务运行；浏览器编程请选择“本地 MicroPython 编程”。';
+  }
+  if(source()==='reference'&&$('referenceExample').value===drawingExampleId&&mode==='service'){
+    $('capabilityTitle').textContent='绘图例程需要浏览器运行';
+    $('capabilityText').textContent='请选择浏览器运行，或切换到支持仿真服务的启动环境。';
   }
   if (selectedAttachments().length && !['service','model'].includes(selectedLane)) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
@@ -424,12 +470,15 @@ function renderDetails() {
   const ref = reference();
   $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
   for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
-    ? !serviceCloudStartup() : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
+    ? !serviceCloudStartup() : option.value===drawingExampleId
+      ? !profile||!drawingExample(device?.id) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
   $('referenceDescription').textContent = ref?.nativeCloud
     ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
     : ref?.nativeWorkbench
     ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
+    : ref?.exampleId
+    ? '启动后载入官方绘图例程，运行代码查看图形与二维码。'
     : ref?.composedWorkbench
     ? '官方 UIFlow2 运行时配网页编程启动脚本，就绪后可在下方运行 MicroPython；不运行官方云端配对界面。'
     : ref?.wallclockCandidate
@@ -704,7 +753,7 @@ async function firmware(signal, runGeneration) {
       $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
     );
   if (selectedSource === 'reference' && ref?.composedWorkbench) {
-    const result=await composeUIFlowWorkbenchFirmware({profile:browserProfile(state.selected.id),registry:state.workbenchProfiles,root,signal,
+    const result=await composeUIFlowWorkbenchFirmware({profile:browserProfile(state.selected.id),registry:state.workbenchProfiles,root,signal,exampleId:ref.exampleId,
       onProgress:progress=>{if(runGeneration===state.runGeneration)message('runProgress',progress.phase==='compose'?'正在准备 UIFlow 编程环境…':'正在校验 UIFlow 固件…');}});
     if(expected&&expected!==result.sha256)throw new Error('UIFlow 固件 SHA-256 与预期不一致。');
     return {bytes:result.bytes,sha256:result.sha256,name:result.fileName,size:result.bytes.byteLength,provenance:result.provenance};
@@ -1285,7 +1334,7 @@ async function share() {
         firmware: firmwareUrl,
         sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference'&&!ref?.nativeCloud ? ref?.sha256 : null),
         serviceUrl: $('serviceUrl').value.trim(),
-        mode: $('runtimeMode').value,
+        mode: selectedSource==='reference'&&ref?.exampleId&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
         autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&ref?.nativeCloud),
       },
       new URL(root),
@@ -1401,6 +1450,7 @@ async function init() {
     if (launch.sha256===DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='stock-div8';
     else if (launch.sha256===WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256) $('referenceExample').value='wallclock-candidate';
     else if(state.qemuProfiles?.profiles.some(row=>row.deviceId===launch.device.id&&row.fixture?.firmwareSHA256===launch.sha256))$('referenceExample').value='probe';
+    else if(!launch.firmware&&launch.sha256&&launch.sha256===drawingExample(launch.device.id)?.firmwareSHA256)$('referenceExample').value=drawingExampleId;
     if(launch.sha256)$('firmwareSha').value=launch.sha256;
     renderDetails();updateCapability();
   }
@@ -1491,6 +1541,7 @@ $('pauseBtn').addEventListener('click', async () => {
 });
 $('firmwareFile').addEventListener('change', updateFirmwareSelection);
 $('pythonRunBtn').addEventListener('click',()=>void runPython());
+$('loadWorkbenchExampleBtn').addEventListener('click',loadWorkbenchExample);
 $('pythonInterruptBtn').addEventListener('click',async()=>{
   const run=state.run;
   try{await run?.python?.interrupt();if(active(run))$('pythonStatus').textContent='正在中断…';}catch(cause){error(cause);}

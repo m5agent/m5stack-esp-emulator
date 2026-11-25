@@ -90,10 +90,30 @@ export async function capturePublicQemuProvenance({repo,site,publicUrl,fetchImpl
       const canonical=JSON.parse(source),actual=JSON.parse(exported);
       const selected=new Set(JSON.parse(await verified('platform/web/qemu-browser-profiles.json')).profiles.map(profile=>profile.deviceId));
       const profiles=canonical.profiles.filter(profile=>selected.has(profile.deviceId));
-      assert.deepEqual(actual,{...canonical,profiles},'workbench export does not match selected QEMU profiles');
+      const expected={...canonical,profiles};
+      const selectedExamples=[];
+      if(Object.hasOwn(canonical,'examples')){
+        assert.ok(Array.isArray(canonical.examples)&&canonical.examples.length<=1,'invalid canonical UIFlow examples');
+        for(const example of canonical.examples){
+          const sourcePath='tests/browser-qemu/uiflow_workbench/cores3_display_example.py';
+          assert.ok(example?.id==='cores3-display'&&example.deviceId==='cores3'&&example.version==='2.5.5'
+            &&example.source?.path===sourcePath,'invalid canonical UIFlow example source');
+          if(!selected.has(example.deviceId))continue;
+          const assetPath='platform/runtime/qemu-probe/fixture/cores3_display_example.py';
+          const [original,delivered]=await Promise.all([readFile(resolve(repo,sourcePath)),verified(assetPath)]);
+          assert.equal(original.length,example.source.bytes,'UIFlow example source length mismatch');
+          assert.equal(sha256(original),example.source.sha256,'UIFlow example source SHA mismatch');
+          assert.deepEqual(delivered,original,'UIFlow example export differs from the checked-in source');
+          selectedExamples.push({id:example.id,firmware_sha256:example.firmwareSHA256,source_path:sourcePath,
+            asset_path:assetPath,bytes:original.length,sha256:example.source.sha256});
+        }
+        expected.examples=canonical.examples.filter(example=>selected.has(example.deviceId));
+      }
+      assert.deepEqual(actual,expected,'workbench export does not match selected QEMU profiles and examples');
       const builder=await readFile(resolve(repo,'platform/tools/build_public_site.py'));
       row.transform={identity:'build_public_site.qemu_workbench_selection-v1',builder_sha256:sha256(builder),
-        selected_profiles:profiles.map(profile=>profile.deviceId)};
+        selected_profiles:profiles.map(profile=>profile.deviceId),
+        ...(Object.hasOwn(expected,'examples')?{selected_examples:selectedExamples}:{})};
     }else{
       const rewritten=Buffer.from(source.toString('utf8').replace(/(?<=["'`(])\/(platform|devices|data)\//g,(_,group)=>manifest.base_path+group+'/'));
       assert.equal(sha256(exported),sha256(rewritten),`export does not match current source: ${path}`);

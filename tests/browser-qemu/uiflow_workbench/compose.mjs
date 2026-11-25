@@ -4,7 +4,9 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
-import {composeUIFlowWorkbenchImage, validateUIFlowWorkbenchRegistry, UIFLOW_WORKBENCH_READY} from '../../../platform/web/public-uiflow-firmware.js';
+import {composeUIFlowWorkbenchImage, resolveUIFlowWorkbenchProfile, validateUIFlowWorkbenchRegistry,
+  UIFLOW_WORKBENCH_READY} from '../../../platform/web/public-uiflow-firmware.js';
+import {resolveQemuFirmwareProfile} from '../../../platform/web/public-qemu-profiles.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const args = new Map();
@@ -14,6 +16,7 @@ for (let i = 2; i < process.argv.length; i++) {
 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const registryPath = path.join(root, 'platform/web/uiflow-workbench-profiles.json');
+const stored = validateUIFlowWorkbenchRegistry(JSON.parse(await fs.readFile(registryPath)));
 const profiles = JSON.parse(await fs.readFile(path.join(root, 'platform/web/qemu-browser-profiles.json'))).profiles
   .filter(row => row.admission === 'public' || row.firmwareProfiles?.some(variant => variant.fixture === 'uiflow-workbench-v1'));
 const sourceFiles = {};
@@ -42,9 +45,17 @@ const rows = profiles.map(profile => ({
 const registry = {schema_version:1, kind:'m5stack-browser-uiflow-workbench', firmware_bundled:false,
   composer_commit:'6cb4e86540eca0d9ba62500a298385c9d863c8be', readyMarker:UIFLOW_WORKBENCH_READY,
   scope:'Official UIFlow2 runtime plus explicit programming startup; packaging identities do not grant browser functional acceptance.',
+  ...(stored.examples === undefined ? {} : {examples:stored.examples}),
   profiles:rows};
+for (const example of registry.examples || []) {
+  const source = await fs.readFile(path.join(root, example.source.path));
+  assert.equal(source.length,example.source.bytes);
+  assert.equal(sha(source),example.source.sha256);
+  const profile = profiles.find(item => item.deviceId === example.deviceId);
+  const resolved = resolveQemuFirmwareProfile(profile, example.firmwareSHA256);
+  resolveUIFlowWorkbenchProfile(resolved, example.firmwareSHA256, stored);
+}
 if (args.get('--check')) {
-  const stored = validateUIFlowWorkbenchRegistry(JSON.parse(await fs.readFile(registryPath)));
   assert.equal(stored.profiles.length, rows.length);
   for (const expected of rows) {
     const actual = stored.profiles.find(row => row.deviceId === expected.deviceId);
@@ -55,6 +66,9 @@ if (args.get('--check')) {
   process.exit(0);
 }
 assert.ok(args.get('--runtime') && args.get('--firmware-cache') && args.get('--out-dir'), 'explicit --runtime, --firmware-cache and --out-dir are required');
+const exampleId = args.get('--example');
+const example = registry.examples?.find(item => item.id === exampleId);
+assert.ok(!args.has('--example') || (example && !args.has('--write-registry')), 'Choose a reviewed example without --write-registry');
 const runtime = path.resolve(args.get('--runtime')), cache = path.resolve(args.get('--firmware-cache')), output = path.resolve(args.get('--out-dir'));
 assert.ok(path.relative(root, output).startsWith('.work/'), 'image output must be ignored .work storage in this checkout');
 await fs.mkdir(cache, {recursive:true}); await fs.mkdir(output, {recursive:true});
@@ -69,28 +83,34 @@ const wasm = await fs.readFile(path.join(runtime, manifest.assets.wasm.path));
 const engine = await factory({wasmBinary:wasm, print(){}, printErr(){}});
 const selected = args.get('--devices') ? new Set(args.get('--devices').split(',')) : null;
 if (selected) for (const id of selected) assert.ok(profiles.some(row => row.deviceId === id), `board has no reviewed workbench configuration: ${id}`);
+if (example && selected) assert.ok(selected.has(example.deviceId), 'The selected example must use a selected device');
 const results = [];
 for (const row of rows) {
   if (selected && !selected.has(row.deviceId)) continue;
-  const profile = profiles.find(profile => profile.deviceId === row.deviceId), file = path.join(cache, row.baseSHA256 + '.bin');
+  if (example && row.deviceId !== example.deviceId) continue;
+  const {baseBytes,baseSHA256} = example || row;
+  const profile = profiles.find(profile => profile.deviceId === row.deviceId), file = path.join(cache, baseSHA256 + '.bin');
   let base;
   try { base = await fs.readFile(file); }
   catch (error) {
     if (error.code !== 'ENOENT' || !args.get('--download')) throw error;
-    const url = new URL(profile.reference.url);
+    const url = new URL(example?.baseUrl || profile.reference.url);
     assert.equal(url.protocol, 'https:'); assert.equal(url.hostname, 'm5burner-cdn.m5stack.com');
     const response = await fetch(url, {redirect:'error', signal:AbortSignal.timeout(120000)});
     assert.ok(response.ok, `official firmware HTTP ${response.status}`);
     base = Buffer.from(await response.arrayBuffer());
-    assert.equal(base.length, row.baseBytes); assert.equal(sha(base), row.baseSHA256);
+    assert.equal(base.length, baseBytes); assert.equal(sha(base), baseSHA256);
     await fs.writeFile(file, base, {flag:'wx'});
   }
-  assert.equal(base.length, row.baseBytes); assert.equal(sha(base), row.baseSHA256);
-  const composed = await composeUIFlowWorkbenchImage({profile, registry, baseBytes:base, engine, verifyResult:false});
-  row.firmwareSHA256 = composed.sha256;
-  await fs.writeFile(path.join(output, row.deviceId + '.bin'), composed.bytes);
-  results.push({deviceId:row.deviceId, sha256:row.firmwareSHA256, provenance:composed.provenance, guest_execution:'NOT RUN'});
-  console.log(`${row.deviceId}: ${row.firmwareSHA256} (composed/readback verified; guest NOT RUN)`);
+  assert.equal(base.length, baseBytes); assert.equal(sha(base), baseSHA256);
+  const composed = await composeUIFlowWorkbenchImage({profile, registry, baseBytes:base, engine,
+    exampleId, verifyResult:example !== undefined});
+  if (!example) row.firmwareSHA256 = composed.sha256;
+  const name = example?.id || row.deviceId;
+  await fs.writeFile(path.join(output, name + '.bin'), composed.bytes);
+  results.push({deviceId:row.deviceId, ...(example ? {exampleId:example.id} : {}), sha256:composed.sha256,
+    provenance:composed.provenance, guest_execution:'NOT RUN'});
+  console.log(`${name}: ${composed.sha256} (composed/readback verified; guest NOT RUN)`);
 }
 const text = JSON.stringify(registry, null, 2) + '\n';
 await fs.writeFile(path.join(output, 'profiles.json'), text);
