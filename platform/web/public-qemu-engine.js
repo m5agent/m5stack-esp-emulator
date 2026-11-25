@@ -2,13 +2,14 @@ import {readQemuServoOutputs} from './public-qemu-servo.js';
 import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 import {validQemuSdImage} from './public-qemu-sd-media.js';
+import {qemuUnitExampleQueries,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
 // The engine owns Emscripten and MEMFS. The top page owns its native pthread Workers.
 // The iframe transfers one private port; no window control channel is used.
 // workersCreated/workersRemaining count Emscripten pthread handles, excluding this engine.
 let port, module, started = false, closed = false, disposeRequested = false, serial = '', qmpLine = '';
 let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
-let previousOutputs;
-let encoderInputs = Promise.resolve();
+let previousOutputs, previousUnitExampleState;
+let controllerInputs = Promise.resolve();
 let resetEpoch = 0;
 let panelPath;
 let workersCreated = 0;
@@ -91,7 +92,7 @@ function output(text) {
       })().catch(fail);
     }
     if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
-      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;previousOutputs=undefined;sourceSequence=0;}
+      if (message.event==='RESET') {resetEpoch++;uartInput.length=0;previousOutputs=undefined;previousUnitExampleState=undefined;sourceSequence=0;}
       emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true,
         ...(message.event==='RESET'?{consoleEpoch:resetEpoch}:{})});
     }
@@ -279,6 +280,29 @@ async function request(op, value) {
     previousOutputs = identity;
     emit('device-state', state); return {observed:true};
   }
+  if (op === 'unit-example-state') {
+    if (!boardProfile?.unitExample) throw new Error('QEMU Unit example is not admitted');
+    if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length))
+      throw new Error('QEMU Unit example reads accept no caller path, property or value');
+    const epoch = resetEpoch;
+    const current = () => epoch === resetEpoch && !closed && !disposeRequested;
+    try {
+      const queries = Object.entries(qemuUnitExampleQueries(boardProfile));
+      const fields = await Promise.all(queries.map(async ([field,command]) =>
+        [field,await qmp(command.execute,command.arguments)]));
+      if (!current()) return {unchanged:true};
+      const state = {kind:boardProfile.unitExample,...Object.fromEntries(fields)};
+      validateQemuUnitExampleState(boardProfile,state);
+      const identity = JSON.stringify(state);
+      if (identity === previousUnitExampleState) return {unchanged:true};
+      previousUnitExampleState = identity;
+      emit('unit-example-state',state);
+      return {observed:true};
+    } catch (error) {
+      if (!current()) return {unchanged:true};
+      throw error;
+    }
+  }
   if (op === 'display') {
     // Only Cardputer's admitted native-glass presentation uses this QOM
     // contract. E-paper and other panel types need no SPI-panel lookup.
@@ -302,7 +326,7 @@ async function request(op, value) {
     const command=qemuInputCommand(boardProfile,event);
     if (command.bitInput) {
       const target=command.bitInput;
-      const operation=encoderInputs.then(async()=>{
+      const operation=controllerInputs.then(async()=>{
         if(closed||disposeRequested)throw new Error('QEMU touch input was disposed');
         const current=await qmp('qom-get',{path:target.path,property:target.property});
         if(!Number.isInteger(current)||current<0||current>255)throw new Error('Invalid controller touch state');
@@ -312,19 +336,28 @@ async function request(op, value) {
         if(observed!==value)throw new Error('QEMU touch target readback mismatch');
         return {touch_bits:observed,source:'qemu-qom-readback'};
       });
-      encoderInputs=operation.catch(()=>{});return operation;
+      controllerInputs=operation.catch(()=>{});return operation;
     }
-    if (command.readbackResult === 'detents') {
+    const field = command.readbackResult;
+    if (field === 'detents' || field === 'distanceMm') {
       // Serialize the fixed write/readback pair so a later pointer target
       // cannot overtake the readback for an earlier physical target.
-      const operation = encoderInputs.then(async () => {
-        if (closed || disposeRequested) throw new Error('QEMU encoder input was disposed');
+      const epoch = resetEpoch;
+      const label = field === 'detents' ? 'encoder' : 'distance';
+      const active = () => {
+        if (closed || disposeRequested || epoch !== resetEpoch)
+          throw new Error(`QEMU ${label} input was disposed or reset`);
+      };
+      const operation = controllerInputs.then(async () => {
+        active();
         await qmp(command.execute, command.arguments);
+        active();
         const target = await qmp(command.readback.execute, command.readback.arguments);
-        if (!Number.isInteger(target) || target !== command.arguments.value) throw new Error('QEMU encoder target readback mismatch');
-        return {detents:target, source:'qemu-qom-readback'};
+        active();
+        if (!Number.isInteger(target) || target !== command.arguments.value) throw new Error(`QEMU ${label} target readback mismatch`);
+        return {[field]:target, source:'qemu-qom-readback'};
       });
-      encoderInputs = operation.catch(() => {});
+      controllerInputs = operation.catch(() => {});
       return operation;
     }
     const result=await qmp(command.execute,command.arguments);

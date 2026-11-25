@@ -14,14 +14,16 @@ const candidates=canonical.profiles.filter(profile=>profile.admission==='candida
 const selected=ids=>({...canonical,profiles:canonical.profiles.filter(profile=>profile.admission==='public'&&profile.deviceId==='cores3'||ids.includes(profile.deviceId))});
 const builder=await readFile(new URL('../tools/build_public_site.py',import.meta.url));
 const temp=await mkdtemp(resolve(tmpdir(),'m5-public-provenance-')),repo=resolve(temp,'repo'),site=resolve(temp,'site');
+const executionDependencies=['public-verified-assets.js','public-qemu-engine-owner.js','public-qemu-servo.js','public-qemu-unit-examples.js',
+  'public-qemu-profiles.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js'];
 const source=new Map([
   ['platform/web/index.html','<script src="/platform/web/public.js"></script>'],
   ['platform/web/public.js','export const fixture="/devices/catalog.json";'],
   ['platform/web/public-coi-serviceworker.js','/* static worker fixture */'],
-  ...['public-verified-assets.js','public-qemu-engine-owner.js','public-qemu-servo.js','public-qemu-profiles.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js'].map(name=>['platform/web/'+name,'/* execution dependency fixture '+name+' */']),
+  ...executionDependencies.map(name=>['platform/web/'+name,'/* execution dependency fixture '+name+' */']),
 ]);
 source.set('platform/web/qemu-browser-profiles.json',JSON.stringify(canonical));
-for(const name of ['public-verified-assets.js','public-qemu-engine-owner.js','public-qemu-servo.js','public-qemu-profiles.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js'])assert.ok(QEMU_EXECUTED_WEB_PATHS.includes('platform/web/'+name));
+for(const name of executionDependencies)assert.ok(QEMU_EXECUTED_WEB_PATHS.includes('platform/web/'+name));
 const files=new Map([...source].map(([path,text])=>[path,Buffer.from(text.replaceAll('"/platform/','"/showcase/platform/').replaceAll('"/devices/','"/showcase/devices/'))]));
 files.set('platform/web/qemu-browser-profiles.json',Buffer.from(JSON.stringify(selected([]))));
 files.set('index.html',files.get('platform/web/index.html'));files.set('coi-serviceworker.js',files.get('platform/web/public-coi-serviceworker.js'));
@@ -66,7 +68,7 @@ try{
   await put(repo,'platform/web/public.js','/* newer source */');
   await assert.rejects(capturePublicQemuProvenance(options),/export does not match current source/);
   await put(repo,'platform/web/public.js',source.get('platform/web/public.js'));
-  for(const name of ['public-verified-assets.js','public-qemu-engine-owner.js','public-qemu-servo.js','public-qemu-profiles.js','qemu-browser-profiles.json','public-qemu-frame.js','public-qemu-probe-firmware.js','model-shell.js','device-shell-factory.js']){
+  for(const name of executionDependencies){
     const path='platform/web/'+name;await put(repo,path,name==='qemu-browser-profiles.json'?JSON.stringify({...canonical,scope:'changed dependency'}):'/* changed dependency */');await assert.rejects(capturePublicQemuProvenance(options),/export does not match current source|deterministic selection/);await put(repo,path,source.get(path));
   }
   await put(site,'platform/runtime/qemu/qemu.wasm',Buffer.alloc(wasm.length,1));

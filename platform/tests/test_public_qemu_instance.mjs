@@ -6,6 +6,7 @@ import {validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,b
 import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 import {validQemuSdImage} from '../web/public-qemu-sd-media.js';
+import {qemuUnitExampleQueries,resolveQemuUnitExample,validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
 const profile=getQemuBrowserProfile('cores3',registry);
@@ -28,6 +29,7 @@ const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.u
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,EventTarget,MessageChannel,MessageEvent,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Int8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,WebAssembly,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
   validateQemuProfile,validateQemuRuntimeRequirements,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,validQemuSdImage,
+  qemuUnitExampleQueries,validateQemuUnitExampleState,
   self:{postMessage:value=>{lifecycle.push(value.type);if(value.type==='m5-qemu-engine-finalized')context.finalizedToken=value.token;},
     close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
@@ -150,6 +152,83 @@ vm.runInContext('output(JSON.stringify({event:"RESET",data:{guest:true}})+"\\n")
 assert.equal(vm.runInContext('uartInput.length',context),0,'hardware reset clears queued but unconsumed UART bytes');
 await one.onmessage({data:{id:105,op:'uart',value:{bytes:[3],consoleEpoch:1}}});
 assert.match(one.messages.at(-1).error,/console was reset/);
+// Fixed example state uses QOM readback. Neither the command nor the target
+// property can be influenced by the caller of the private polling operation.
+await one.onmessage({data:{id:150,op:'unit-example-state'}});
+assert.match(one.messages.at(-1).error,/not admitted/);
+assert.deepEqual(commands(),[]);
+context.sonarProfile=resolveQemuUnitExample(profile,'0bb888aeb6fdde9200b7f81ab15ea314d75303ed6917aea58ff2a507c195e221');
+context.relayProfile=resolveQemuUnitExample(profile,'a645e2a79947a01227c69ee565545838722ef0ebd7805d15705039bddcef84ca');
+vm.runInContext('boardProfile=sonarProfile',context);
+await one.onmessage({data:{id:151,op:'unit-example-state',value:{path:'/machine/other'}}});
+assert.match(one.messages.at(-1).error,/no caller path, property or value/);
+assert.deepEqual(commands(),[]);
+const observation=one.onmessage({data:{id:152,op:'unit-example-state',value:{}}});
+const readQueries=commands();
+assert.deepEqual(readQueries.map(({execute,arguments:args})=>[execute,args.path,args.property]),[
+  ['qom-get','/machine/units/ultrasonic','distance-mm'],
+  ['qom-get','/machine/units/ultrasonic/chip','transactions'],
+  ['qom-get','/machine/units/ultrasonic/chip','read-bytes'],
+  ['qom-get','/machine/units/ultrasonic/chip','written-bytes'],
+]);
+for(const [index,value] of [540,5,12,3].entries())respond(readQueries[index],value);
+await observation;
+const observations=()=>one.messages.filter(row=>row.type==='unit-example-state').map(row=>JSON.parse(JSON.stringify(row.value)));
+assert.deepEqual(observations(),[{kind:'ultrasonic-i2c',distanceMm:540,transactions:5,bytesRead:12,bytesWritten:3}]);
+const invalidObservation=one.onmessage({data:{id:153,op:'unit-example-state',value:{}}});
+const invalidQueries=commands();
+for(const [index,value] of [540,-1,12,3].entries())respond(invalidQueries[index],value);
+await invalidObservation;
+assert.match(one.messages.find(row=>row.id===153).error,/Invalid QEMU Unit example state/);
+assert.equal(observations().length,1);
+
+const distance=one.onmessage({data:{id:154,op:'input',value:{type:'example-distance',millimeters:730}}});
+await tick();
+const [distanceSet]=commands();
+assert.equal(distanceSet.execute,'qom-set');
+assert.deepEqual(distanceSet.arguments,{path:'/machine/units/ultrasonic',property:'distance-mm',value:730});
+respond(distanceSet,{});await tick();
+const [distanceGet]=commands();
+assert.equal(distanceGet.execute,'qom-get');
+assert.deepEqual(distanceGet.arguments,{path:'/machine/units/ultrasonic',property:'distance-mm'});
+respond(distanceGet,730);await distance;
+assert.deepEqual(JSON.parse(JSON.stringify(one.messages.find(row=>row.id===154).value)),{distanceMm:730,source:'qemu-qom-readback'});
+assert.equal(observations().length,1,'input result must not fabricate a controller-state event');
+
+const oldObservation=one.onmessage({data:{id:155,op:'unit-example-state'}});
+const beforeReset=commands();
+const oldDistance=one.onmessage({data:{id:159,op:'input',value:{type:'example-distance',millimeters:800}}});
+await tick();
+const [oldDistanceSet]=commands();
+assert.equal(oldDistanceSet.execute,'qom-set');
+vm.runInContext('output(JSON.stringify({event:"RESET",data:{guest:true}})+"\\n")',context);
+for(const [index,value] of [750,6,14,4].entries())respond(beforeReset[index],value);
+respond(oldDistanceSet,{});
+await oldObservation;
+await oldDistance;
+assert.equal(one.messages.find(row=>row.id===155).value.unchanged,true);
+assert.equal(observations().length,1,'pre-reset QOM results cannot repopulate the new boot state');
+assert.match(one.messages.find(row=>row.id===159).error,/input was disposed or reset/);
+assert.deepEqual(commands(),[],'a reset cancels the old write before any readback in the new boot');
+const newObservation=one.onmessage({data:{id:156,op:'unit-example-state'}});
+const afterReset=commands();
+for(const [index,value] of [540,5,12,3].entries())respond(afterReset[index],value);
+await newObservation;
+assert.equal(observations().length,2,'reset evidence may be numerically identical but belongs to the new boot');
+
+vm.runInContext('boardProfile=relayProfile',context);
+await one.onmessage({data:{id:157,op:'input',value:{type:'example-distance',millimeters:730}}});
+assert.match(one.messages.at(-1).error,/not admitted/);
+assert.deepEqual(commands(),[]);
+const relay=one.onmessage({data:{id:158,op:'unit-example-state'}});
+const relayQueries=commands();
+assert.deepEqual(relayQueries.map(({execute,arguments:args})=>[execute,args.path,args.property]),[
+  ['qom-get','/machine/units/relay','output-level'],['qom-get','/machine/units/relay','output-transitions'],
+]);
+respond(relayQueries[0],true);respond(relayQueries[1],7);await relay;
+assert.deepEqual(observations().at(-1),{kind:'relay',level:true,transitions:7});
+vm.runInContext('boardProfile=originalEncoderProfile',context);
+
 // Two concurrent head touches retain each other's bits, with fixed routes only.
 context.stackProfile=getQemuBrowserProfile('stackchan',registry);
 vm.runInContext('boardProfile=stackProfile',context);

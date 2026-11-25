@@ -70,6 +70,7 @@ class MockWorker {
         port.postMessage({id:data.id,error:'This device has no dynamic SPI orientation contract'});return;
       }
       if(config.ignore?.includes(data.op))return;
+      if(data.op==='input'&&data.value.type==='example-distance'&&config.deferDistance)return;
       if(data.op==='start'&&config.rejectStart){port.postMessage({id:data.id,error:'contract start rejection'});return;}
       if(data.op==='dispose'&&config.rejectDispose){
         if(config.failedEngineOnDispose)this.emit('error',{message:'contract disposal engine failure'});
@@ -87,6 +88,7 @@ class MockWorker {
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0,workersRemaining:0,workersCreated:4}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
       if(data.op==='outputs')port.postMessage({type:'device-state',value:config.outputState||{schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x204060,led_frames:1,pressed:false}});
+      if(data.op==='unit-example-state'&&config.unitState)port.postMessage({type:'unit-example-state',value:config.unitState});
     };
     port.start();port.postMessage({type:'connected',value:{}});
   }
@@ -119,6 +121,9 @@ try {
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
   assert.deepEqual(normal.runtime.receipt.actualArguments,buildQemuArguments(coreProfile));
   assert.equal(normal.runtime.receipt.firmwareVariant,null,'an unknown complete Flash hash stays on the baseline clock profile');
+  assert.equal(normal.runtime.receipt.unitExample,undefined);
+  assert.equal(normal.runtime.evidence().unit_example_state,undefined);
+  assert.equal(frames.at(-1).calls.some(row=>row.op==='unit-example-state'),false);
   const startMessage=frames.at(-1).calls.find(row=>row.op==='start');
   assert.equal(startMessage.value.profile.deviceId,'cores3');assert.deepEqual(startMessage.value.roms.map(({name,sha256})=>({name,sha256})),coreProfile.roms.map(({name,sha256})=>({name,sha256})));
   assert.equal(startMessage.value.roms[0].bytes.byteLength,coreProfile.roms[0].bytes);assert.equal(startMessage.value.rom,undefined,'the old singular-ROM protocol must not leak through');
@@ -146,6 +151,64 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  // Only the synthetic input digest is substituted. The padded Flash hash
+  // remains real, so the runtime must select the binding by upload identity.
+  const inputDigest='0bb888aeb6fdde9200b7f81ab15ea314d75303ed6917aea58ff2a507c195e221';
+  const unitFirmware=firmware(),cryptoDescriptor=Object.getOwnPropertyDescriptor(globalThis,'crypto'),realCrypto=globalThis.crypto;
+  const unitUpdates=[],initialUnitState={kind:'ultrasonic-i2c',distanceMm:1000,transactions:7,bytesRead:14,bytesWritten:2};
+  options={unitState:initialUnitState,deferDistance:true};
+  const bound=create({onUnitExampleState:value=>unitUpdates.push(value)});
+  Object.defineProperty(globalThis,'crypto',{configurable:true,value:{
+    randomUUID:()=>realCrypto.randomUUID(),
+    subtle:{digest:(algorithm,bytes)=>bytes.byteLength===unitFirmware.byteLength
+      ? Promise.resolve(Uint8Array.from(Buffer.from(inputDigest,'hex')).buffer)
+      : realCrypto.subtle.digest(algorithm,bytes)},
+  }});
+  try {await bound.runtime.start({device:'cores3',firmware:unitFirmware});}
+  finally {Object.defineProperty(globalThis,'crypto',cryptoDescriptor);}
+  const unitFrame=frames.at(-1),unitGeneration=bound.runtime.generation;
+  await until(()=>unitUpdates.length===1);
+  assert.equal(unitFrame.profile.unitExample,'ultrasonic-i2c');
+  assert.equal(unitFrame.profile.units.attachments[0].id,'ultrasonic');
+  assert.equal(bound.runtime.receipt.unitExample,'ultrasonic-i2c');
+  assert.equal(bound.runtime.receipt.firmwareInputSha256,inputDigest);
+  assert.notEqual(bound.runtime.receipt.firmwareRuntimeSha256,inputDigest);
+  assert.deepEqual(bound.runtime.evidence().unit_example_state,initialUnitState);
+  unitFrame.config.unitState=null;
+  await assert.rejects(bound.runtime.input({type:'pir',motion:true}),/PIR is not attached/);
+  const distance=bound.runtime.input({type:'example-distance',millimeters:730});
+  await until(()=>unitFrame.calls.some(row=>row.op==='input'&&row.value.millimeters===730));
+  const inputRequest=unitFrame.calls.find(row=>row.op==='input'&&row.value.millimeters===730);
+  unitFrame.worker.port.postMessage({id:inputRequest.id,value:{distanceMm:730,source:'qemu-qom-readback'}});
+  assert.deepEqual((await distance).result,{distanceMm:730,source:'qemu-qom-readback'});
+  assert.deepEqual(bound.runtime.evidence().unit_example_state,initialUnitState,'input acknowledgement cannot replace observed Unit state');
+  await bound.runtime.pause();
+  const newUnitState={...initialUnitState,distanceMm:730,transactions:8};
+  bound.runtime.receive({type:'unit-example-state',value:newUnitState},unitGeneration);
+  assert.deepEqual(bound.runtime.evidence().unit_example_state,newUnitState,'an actual in-flight QOM sample remains valid when the guest pauses');
+  await bound.runtime.resume();
+  const oldInput=bound.runtime.input({type:'example-distance',millimeters:800});
+  const oldInputRejected=assert.rejects(oldInput,error=>error.name==='AbortError');
+  await until(()=>unitFrame.calls.some(row=>row.op==='input'&&row.value.millimeters===800));
+  const oldInputRequest=unitFrame.calls.find(row=>row.op==='input'&&row.value.millimeters===800);
+  bound.runtime.receive({type:'machine-event',value:{event:'RESET',consoleEpoch:1}},unitGeneration);
+  assert.equal(unitUpdates.at(-1),null);
+  assert.equal(bound.runtime.evidence().unit_example_state,null);
+  unitFrame.worker.port.postMessage({id:oldInputRequest.id,value:{distanceMm:800,source:'qemu-qom-readback'}});
+  await oldInputRejected;
+  assert.equal(bound.runtime.inputs.length,1,'a reply from the old reset epoch cannot be recorded as a new input');
+  bound.runtime.receive({type:'unit-example-state',value:newUnitState},unitGeneration);
+  assert.deepEqual(bound.runtime.evidence().unit_example_state,newUnitState);
+  await bound.runtime.stop();
+  assert.equal(bound.runtime.evidence().unit_example_state,null);
+  assert.equal(bound.runtime.pollLanes.size,0);
+  assert.equal(unitUpdates.at(-1),null);
+  const unitCallbackCount=unitUpdates.length;
+  bound.runtime.receive({type:'unit-example-state',value:newUnitState},unitGeneration);
+  assert.equal(unitUpdates.length,unitCallbackCount,'an old private worker cannot repopulate Unit state after stop');
+  assert.deepEqual(bound.errors,[]);
+  options={};
 
   const seed=new Uint8Array(512);seed.set([17,24,55]);
   const packedSeed=gzipSync(seed);

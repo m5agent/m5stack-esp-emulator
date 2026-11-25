@@ -119,6 +119,14 @@
             <span id="browserPirState">QOM: CLEAR</span>
             <p>输入经原生 Unit / GPIO 控制器送入当前固件；屏幕与串口显示客体读回。</p>
           </div>
+          <div id="browserExampleUnitPanel" class="console-content" hidden>
+            <div id="browserExampleDistanceControl" hidden>
+              <label for="browserExampleDistance">超声波距离（毫米）</label>
+              <input id="browserExampleDistance" type="range" min="20" max="4500" step="1"
+                value="1000" aria-describedby="browserExampleUnitState" />
+            </div>
+            <output id="browserExampleUnitState" aria-live="polite"></output>
+          </div>
           <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
           <p id="browserEvidenceStatus" class="field-help" role="status" data-testid="browser-evidence-status" data-evidence-state="unavailable" hidden></p>
           <section class="python-workbench" aria-labelledby="pythonHeading">
