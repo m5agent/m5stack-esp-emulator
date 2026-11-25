@@ -155,7 +155,7 @@
     "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
     "hw/dma/esp32s3_gdma.c": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
     "hw/dma/esp_gdma.c": "2737ef4c3fb95cd3ef5d316f56f7c4c0092b980baa1de62eb46d7345486446a9",
-    "hw/gpio/esp32_gpio.c": "afb956b4b6b01989ca538fa2a1bddcd74bae7e08391fb498f475e585741bd576",
+    "hw/gpio/esp32_gpio.c": "1928831ac484806c6181dc92b37c28253e994fa9421c35207f4f027ccf94550b",
     "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
     "hw/gpio/meson.build": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83",
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
@@ -180,7 +180,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
     "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
-    "hw/m5stopwatch/m5_spi_panel.c": "cb6a31a41f13364f26c22f33a983725e8e7121dfca6f0fe96cca47fdc01de520",
+    "hw/m5stopwatch/m5_spi_panel.c": "afb525628307c631b07ce689fbe1b9346fa8b5d3ee70e3186a461eaf725fbf36",
     "hw/m5stopwatch/m5_spi_sd.c": "d84f58dc7554f69d1ee4c68548951ebda0ee7aec22877f52fbb7606081c1a24e",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "f6ac801a1ce8dcb0fd3878b6979b5b8e4aed2746408a665cd56c4c7b0a8423d5",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -195,7 +195,7 @@
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
     "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
-    "hw/m5stopwatch/m5cardputeradv.c": "a9503e5ab59ea0c7ffc0fad154485b58b924bbd8c94b9c95ad87fc74dcca2916",
+    "hw/m5stopwatch/m5cardputeradv.c": "c4a4072dc25854d9c4e0017c95c829b5d66b0bd850e9865b98928e7bccbfadff",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
@@ -207,7 +207,7 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
-    "hw/m5stopwatch/m5stopwatch.h": "3eb019b4dda0bd9e722bf1a1999bef04655003506ce66a25442ef8ba76e63353",
+    "hw/m5stopwatch/m5stopwatch.h": "4200253d415a652700568e66d97c35f3be05bb9da915c5b55c776cec214e98f8",
     "hw/m5stopwatch/m5sw_i2c_devs.c": "96d85651f66778e7c2abb95cebb2dbc3eb985eefcfe9ece6f71fba2b01f01ca7",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
@@ -248,7 +248,7 @@
     "include/hw/arm/bcm2835_peripherals.h": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
     "include/hw/char/esp32_uart.h": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
     "include/hw/dma/esp_gdma.h": "0cce991fe75b76da95ef1a779d4200fa0710409046123717964893c7abdd84ae",
-    "include/hw/gpio/esp32_gpio.h": "ec1de9ac0f750c81d1ccc30ed7729e1316b2a63121f911eacc5eb9a8bb4b1a81",
+    "include/hw/gpio/esp32_gpio.h": "e3188dbe797f45602a16eef4031078f3645899b39ca50f8ad1367a84b23e4f01",
     "include/hw/gpio/esp32s3_gpio_pad_aux.h": "e6ebf222cf20d85337168d9ae51399484a466d176d5b9995b125057892ef2a19",
     "include/hw/i2c/esp32_i2c.h": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
     "include/hw/misc/bcm2835_unicam.h": "a43c240fc392e4174f6927a881e83ea7f7983b1c3b569c2dc6ede220bb7295c6",
@@ -631,6 +631,10 @@
     {
       "path": "patches/qemu-wasm-probe/0038-icount-percpu-fairness-cap.patch",
       "sha256": "7942e09a3459c768d7c76bada20bc808b3142c7421465c2db40037680434a49b"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0039-cardputer-adv-gpio-board-detect.patch",
+      "sha256": "006ae17f94f3f86f8571626e08c44e54bd67e1bb55905317711240a3df46a836"
     }
   ],
   "qemu": {
