@@ -1,0 +1,355 @@
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+index 7819979..a8c29cb 100644
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -1,5 +1,5 @@
+ /*
+- * ESP32-S3 GP-SPI2 master (subset): user-defined transactions with
++ * ESP32-S3 GP-SPI master (subset): user-defined transactions with
+  * command/address/MOSI phases, W0..W15 buffer or GDMA out-link as source.
+  * Quad/dual line modes do not change the byte stream, so they are accepted
+  * transparently. Bytes are forwarded to an attached CO5300 panel model.
+@@ -11,6 +11,7 @@
+ #include "hw/irq.h"
+ #include "exec/address-spaces.h"
+ #include "hw/dma/esp32s3_gdma.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+ 
+@@ -20,6 +21,7 @@
+ #define R_USER1    0x14
+ #define R_USER2    0x18
+ #define R_MS_DLEN  0x1c
++#define R_MISC     0x20
+ #define R_DMA_CONF 0x30
+ #define R_DMA_INT_ENA 0x34
+ #define R_DMA_INT_CLR 0x38
+@@ -37,6 +39,9 @@
+ #define DMA_RX_ENA   (1u << 27)
+ #define DMA_TX_ENA   (1u << 28)
+ #define INT_TRANS_DONE (1u << 12)
++#define MISC_CS0_DIS  BIT(0)
++#define MISC_CK_DIS   BIT(6)
++#define MISC_CS0_POL  BIT(7)
+ 
+ #define M5_GPSPI_MAX_SLAVES 4
+ 
+@@ -69,6 +74,8 @@ struct Esp32s3GpspiState {
+     int dc_pin;
+     int panel_cs_pin;
+     int panel_cs_level;
++    const M5GpspiPanelRoute *panel_route;
++    Esp32s3GpspiState *board_bus;
+     M5GpspiSlave slaves[M5_GPSPI_MAX_SLAVES];
+     int slave_count;
+     int active_slave;
+@@ -96,6 +103,39 @@ static void gpspi_update_irq(Esp32s3GpspiState *s)
+     qemu_set_irq(s->irq_alias, level);
+ }
+ 
++static bool gpspi_panel_selected(Esp32s3GpspiState *s, bool transferring)
++{
++    Esp32s3GpspiState *bus = s->board_bus;
++    const M5GpspiPanelRoute *route = s->panel_route;
++    Esp32GpioPadSnapshot cs;
++
++    if (bus->panel_cs_pin < 0) {
++        return true;
++    }
++    if (!route) {
++        return !bus->panel_cs_level;
++    }
++    if (!esp32_gpio_pad_snapshot(esp32_gpio_get_controller(true),
++                                 bus->panel_cs_pin, &cs)) {
++        return false;
++    }
++    if (cs.out_sel == 256) {
++        return !bus->panel_cs_level;
++    }
++    if (!transferring || cs.out_sel != route->cs0_signal ||
++        cs.mux_path != ESP32_GPIO_MUX_GPIO_MATRIX || cs.override_mask ||
++        esp32_gpio_matrix_out_signal(route->clk_pin, true) != route->clk_signal ||
++        esp32_gpio_matrix_out_signal(route->mosi_pin, true) != route->mosi_signal) {
++        return false;
++    }
++
++    uint32_t misc = s->regs[R_MISC / 4];
++    bool output_enabled = (!cs.oen_sel || cs.enable_reg) ^ cs.oen_inv;
++    bool active_high = !!(misc & MISC_CS0_POL) ^ cs.out_inv;
++    return output_enabled && !active_high &&
++           !(misc & (MISC_CS0_DIS | MISC_CK_DIS));
++}
++
+ static void sink(Esp32s3GpspiState *s, const uint8_t *b, uint32_t n,
+                  bool command_phase)
+ {
+@@ -106,16 +146,17 @@ static void sink(Esp32s3GpspiState *s, const uint8_t *b, uint32_t n,
+         fprintf(stderr, "[spi-xfer] %c len=%u first=%02x\n",
+                 command_phase ? 'C' : 'D', n, b[0]);
+     }
+-    if (s->panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (!n || s->board_bus->active_slave >= 0 ||
++        !gpspi_panel_selected(s, true)) {
++        return;
++    }
++    if (s->panel) {
+         co5300_write(s->panel, b, n);
+     }
+-    if (s->spi_panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (s->spi_panel) {
+         m5_spi_panel_write(s->spi_panel, b, n, command_phase);
+     }
+-    if (s->epd_panel && n && s->active_slave < 0 &&
+-        (s->panel_cs_pin < 0 || !s->panel_cs_level)) {
++    if (s->epd_panel) {
+         m5_epd_panel_write(s->epd_panel, b, n, command_phase);
+     }
+ }
+@@ -124,16 +165,17 @@ static void gpspi_forward_slave(Esp32s3GpspiState *s,
+                                 const uint8_t *tx, uint32_t n,
+                                 uint8_t *rx, bool capture)
+ {
++    Esp32s3GpspiState *bus = s->board_bus;
+     M5GpspiSlave *slave;
+ 
+     if (getenv("M5SW_SPI_XFER_TRACE")) {
+         fprintf(stderr, "[gpspi-forward] active=%d n=%u capture=%d\n",
+-                s->active_slave, n, capture);
++                bus->active_slave, n, capture);
+     }
+-    if (s->active_slave < 0) {
++    if (bus->active_slave < 0) {
+         return;
+     }
+-    slave = &s->slaves[s->active_slave];
++    slave = &bus->slaves[bus->active_slave];
+     if (!slave->ops || slave->cs_level != 0) {
+         return;
+     }
+@@ -147,9 +189,11 @@ static void gpspi_forward_slave(Esp32s3GpspiState *s,
+ 
+ static uint32_t gpspi_active_dma_periph(Esp32s3GpspiState *s)
+ {
+-    if (s->active_slave >= 0 &&
+-        s->slaves[s->active_slave].gdma_periph >= 0) {
+-        return s->slaves[s->active_slave].gdma_periph;
++    Esp32s3GpspiState *bus = s->board_bus;
++
++    if (bus->active_slave >= 0 &&
++        bus->slaves[bus->active_slave].gdma_periph >= 0) {
++        return bus->slaves[bus->active_slave].gdma_periph;
+     }
+     return s->gdma_periph;
+ }
+@@ -189,7 +233,7 @@ static void gpspi_cs_line(void *opaque, int pin, int level)
+     }
+ }
+ 
+-/* Pull n bytes from the GDMA out-link chain bound to SPI2 */
++/* Pull bytes from the GDMA out-link chain bound to this controller. */
+ static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, uint8_t *dst, uint32_t n)
+ {
+     uint32_t got = 0;
+@@ -242,11 +286,12 @@ static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, uint8_t *dst, uint32_t n)
+ 
+ static void gpspi_exec(Esp32s3GpspiState *s)
+ {
++    Esp32s3GpspiState *bus = s->board_bus;
+     uint32_t user = s->regs[R_USER / 4];
+     uint8_t tmp[8];
+     uint8_t xfer[4096];
+     uint32_t xfer_len = 0;
+-    if (s->active_slave < 0) {
++    if (bus->active_slave < 0) {
+         s->last_slave = -1;
+     }
+     memset(xfer, 0xff, sizeof(xfer));
+@@ -298,8 +343,8 @@ static void gpspi_exec(Esp32s3GpspiState *s)
+         uint32_t copy = MIN(nb, sizeof(xfer));
+ 
+         memset(s->rx, 0, sizeof(s->rx));
+-        if (s->active_slave >= 0) {
+-            s->last_slave = s->active_slave;
++        if (bus->active_slave >= 0) {
++            s->last_slave = bus->active_slave;
+             gpspi_forward_slave(s, xfer, copy, s->rx, true);
+             s->rx_len = copy;
+             bool rx_dma = s->regs[R_DMA_CONF / 4] & DMA_RX_ENA;
+@@ -379,8 +424,7 @@ static uint64_t gpspi_read_reg(Esp32s3GpspiState *s, hwaddr addr)
+          * M5GFX autodetect probes observe the same ST7789 ID and select the
+          * wrong board (for example Cardputer becomes DinMeter).
+          */
+-        if (s->spi_panel
+-            && (s->panel_cs_pin < 0 || !s->panel_cs_level)
++        if (s->spi_panel && gpspi_panel_selected(s, false)
+             && addr >= R_W0 && addr < R_W0 + 0x40) {
+             return m5_spi_panel_read_id(s->spi_panel);
+         }
+@@ -404,6 +448,7 @@ static uint64_t gpspi_read(void *opaque, hwaddr addr, unsigned size)
+ 
+ static void gpspi_write_reg(Esp32s3GpspiState *s, hwaddr addr, uint64_t val)
+ {
++    Esp32s3GpspiState *bus = s->board_bus;
+     if (getenv("M5SW_GPSPI_TRACE") &&
+         (addr == R_CMD || addr == R_USER || addr == R_USER1 ||
+          addr == R_USER2 || addr == R_MS_DLEN || addr == R_DMA_CONF ||
+@@ -412,8 +457,8 @@ static void gpspi_write_reg(Esp32s3GpspiState *s, hwaddr addr, uint64_t val)
+         fprintf(stderr, "[gpspi-trace] write %03x=%08x\n",
+                 (unsigned)addr, (unsigned)val);
+     }
+-    if (getenv("M5SW_SPI_XFER_TRACE") && s->slave_count
+-        && (s->active_slave >= 0 || addr == R_CMD || addr == R_DMA_CONF
++    if (getenv("M5SW_SPI_XFER_TRACE") && bus->slave_count
++        && (bus->active_slave >= 0 || addr == R_CMD || addr == R_DMA_CONF
+             || addr == R_MS_DLEN || addr == R_USER
+             || addr == R_USER1 || addr == R_USER2)) {
+         fprintf(stderr, "[gpspi-mmio] wr %03x <- %08x\n",
+@@ -442,7 +487,7 @@ static void gpspi_write_reg(Esp32s3GpspiState *s, hwaddr addr, uint64_t val)
+         gpspi_update_irq(s);
+         break;
+     default:
+-        if (getenv("M5SW_SPI_XFER_TRACE") && s->slave_count &&
++        if (getenv("M5SW_SPI_XFER_TRACE") && bus->slave_count &&
+             addr >= R_W0 && addr < R_W0 + 0x40 && val != 0xffffffff) {
+             fprintf(stderr, "[spi-tx] W0+%02x <- %08x\n",
+                     (unsigned)(addr - R_W0), (unsigned)val);
+@@ -494,6 +539,7 @@ static void gpspi_init(Object *obj)
+     s->last_slave = -1;
+     s->panel_cs_pin = -1;
+     s->panel_cs_level = 1;
++    s->board_bus = s;
+     s->debug_id = next_debug_id++;
+ }
+ 
+@@ -551,6 +597,17 @@ void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin)
+     }
+ }
+ 
++void esp32s3_gpspi_share_board_bus(DeviceState *dev, DeviceState *primary)
++{
++    ESP32S3_GPSPI(dev)->board_bus = ESP32S3_GPSPI(primary);
++}
++
++void esp32s3_gpspi_set_panel_matrix_route(DeviceState *dev,
++                                         const M5GpspiPanelRoute *route)
++{
++    ESP32S3_GPSPI(dev)->panel_route = route;
++}
++
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+                                     const M5SpiSlaveOps *ops,
+                                     void *opaque, int cs_pin)
+diff --git a/hw/m5stopwatch/m5cores3.c b/hw/m5stopwatch/m5cores3.c
+index d45a0ba..363c066 100644
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -12,6 +12,22 @@
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+ 
++static DeviceState *m5cores3_spi(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                                ESPGdmaState *gdma, hwaddr address,
++                                unsigned dma, int irq, M5SpiPanelState *panel)
++{
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, address,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(spi), 0,
++                       qdev_get_gpio_in(intmatrix, irq));
++    esp32s3_gpspi_attach(spi, gdma, NULL, panel, dma);
++    esp32s3_gpspi_set_dc_pin(spi, 35);
++    return spi;
++}
++
+ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                          ESPGdmaState *gdma)
+ {
+@@ -70,17 +86,6 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         SYS_BUS_DEVICE(cam), 0,
+         qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
+ 
+-    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+-    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+-    MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+-    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
+-    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
+-    memory_region_init_alias(spi2_alias, NULL, "m5cores3.spi2-alias",
+-                             spi_mr, 0, memory_region_size(spi_mr));
+-    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
+-    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
+-                                ETS_SPI3_INTR_SOURCE);
+-
+     DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
+     qdev_prop_set_uint32(panel, "mem-width", 320);
+     qdev_prop_set_uint32(panel, "mem-height", 240);
+@@ -95,18 +100,28 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_bit(panel, "touch", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+-    /* The panel is on SPI2, matching M5GFX and the shared M-Bus wiring. */
+-    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
+-    esp32s3_gpspi_set_dc_pin(spi, 35);
+-    esp32s3_gpspi_set_panel_cs_pin(spi, 3);
+-    /*
+-     * Display and M-Bus share the ESP32-S3 SPI2 register window.  M-Bus
+-     * provides the external SD card on CS4 and the MAX3421E USB host on
+-     * CS0 with IRQ G14; the display has no readback path and is gated off
+-     * whenever an M-Bus slave owns the transaction.
+-     */
+-    m5_spi_sd_attach(spi, 4);
+-    m5_max3421e_attach(spi, 0, 14);
+-    esp32s3_gpspi_set_spi_slave_dma(spi, 4, GDMA_SPI2);
+-    esp32s3_gpspi_set_spi_slave_dma(spi, 0, GDMA_SPI2);
++
++    DeviceState *spi2 = m5cores3_spi(sys_mem, intmatrix, gdma, 0x60024000,
++        GDMA_SPI2, ETS_SPI2_INTR_SOURCE, M5_SPI_PANEL(panel));
++    DeviceState *spi3 = m5cores3_spi(sys_mem, intmatrix, gdma, 0x60025000,
++        GDMA_SPI3, ETS_SPI3_INTR_SOURCE, M5_SPI_PANEL(panel));
++    static const M5GpspiPanelRoute spi2_lcd_route = {
++        .cs0_signal = 110, /* FSPICS0_OUT_IDX */
++        .clk_pin = 36, .clk_signal = 101, /* FSPICLK_OUT_IDX */
++        .mosi_pin = 37, .mosi_signal = 103, /* FSPID_OUT_IDX */
++    };
++    static const M5GpspiPanelRoute spi3_lcd_route = {
++        .cs0_signal = 71, /* SPI3_CS0_OUT_IDX */
++        .clk_pin = 36, .clk_signal = 66, /* SPI3_CLK_OUT_IDX */
++        .mosi_pin = 37, .mosi_signal = 68, /* SPI3_D_OUT_IDX */
++    };
++
++    /* One physical panel/M-Bus. Each SPI host retains its own registers,
++     * GDMA selector and interrupt. GPIO observers belong to the bus owner. */
++    esp32s3_gpspi_set_panel_cs_pin(spi2, 3);
++    m5_spi_sd_attach(spi2, 4);
++    m5_max3421e_attach(spi2, 0, 14);
++    esp32s3_gpspi_share_board_bus(spi3, spi2);
++    esp32s3_gpspi_set_panel_matrix_route(spi2, &spi2_lcd_route);
++    esp32s3_gpspi_set_panel_matrix_route(spi3, &spi3_lcd_route);
+ }
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 5528376..06dfec7 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -136,6 +136,18 @@ void esp32s3_gpspi_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+                           uint32_t gdma_periph);
+ void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin);
+ void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin);
++void esp32s3_gpspi_share_board_bus(DeviceState *dev, DeviceState *primary);
++
++typedef struct M5GpspiPanelRoute {
++    int cs0_signal;
++    int clk_pin;
++    int clk_signal;
++    int mosi_pin;
++    int mosi_signal;
++} M5GpspiPanelRoute;
++
++void esp32s3_gpspi_set_panel_matrix_route(DeviceState *dev,
++                                         const M5GpspiPanelRoute *route);
+ void esp32s3_gpspi_connect_irqs(DeviceState *dev, DeviceState *intmatrix,
+                                 int irq_a, int irq_b);
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,

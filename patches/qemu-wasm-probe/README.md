@@ -533,3 +533,16 @@ software stall requests while retaining RTC scratch and reset-cause fields.
 
 The [CoreS3 browser workbench regression](../../tests/browser-qemu/uiflow_workbench/README.md)
 exercises software reset and the UIFlow2 task watchdog in the actual guest.
+
+## CoreS3 GP-SPI hosts and LCD selection (`0041`)
+
+CoreS3 SPI2 and SPI3 each have their own MMIO state, GDMA selector and IRQ.
+Both controllers reach the same board panel, SD card and MAX3421E. The first
+controller owns the board's GPIO listeners and external slave state.
+
+A hardware-driven LCD transaction requires matching CS0, clock and MOSI
+signals on the board's configured GPIO matrix routes. The SPI master CS
+disable, polarity and GPIO output enable determine whether the panel sees
+the transfer. Software GPIO chip select uses the established GPIO listener.
+This keeps the ESP-IDF SPI3 path and the CoreS3 M5GFX SPI2 path on the same
+panel model with independent controller transactions.
