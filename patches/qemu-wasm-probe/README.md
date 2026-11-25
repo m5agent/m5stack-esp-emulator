@@ -510,3 +510,14 @@ Flash IPC. It leaves the icount shift, virtual clock divisor, guest
 instructions and watchdog configuration intact. An unset cap preserves the
 original scheduler behavior, including on Atom Matrix v1.1 and uploaded
 images with a different Flash identity.
+
+## Cardputer-ADV GPIO board detection (`0039`)
+
+The newer M5GFX board detector reads the ST7789V2 identifier through GPIO
+before initializing the hardware SPI controller. It also probes the TCA8418
+at `0x34` through the Cardputer-ADV's internal GPIO8/9 I²C bus.
+
+`0039` ports the GPIO peer drive from native `0199` and the Cardputer-ADV
+board wiring from native `0204`. The GPIO display probe reads the same panel
+identifier as hardware SPI. The TCA8418 responds to software I²C on the
+internal bus it shares with the hardware I²C controller.
