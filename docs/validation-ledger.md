@@ -78,6 +78,13 @@ CoreS3 原版 UIFlow2 Camera 在旧 WASM 的 MMIO 跟踪复现 28 次 QVGA 短�
 溢出告警并正常回收 Worker。原生、物理及正式托管未执行。
 [CoreS3 摄像头 #243](https://github.com/m5agent/m5stack-esp-emulator/issues/243) · [DMA 和默认工作台证据](https://github.com/m5agent/agent-work-logs/tree/ebb9f299ced43f4d7f06137b2d11bad6b703b5cd/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-qvga-camera)
 
+标准工作台使用同一锁定 WASM `e350ed7b…5f4b` 自动为两份 CoreS3 原始 Arduino
+固件挂接对应 Unit。超声波 `0bb888ae…e221` 在同一 guest 经 I²C 和 LCD 复现
+1000→250→1700→1000 mm；重开恢复 1000 mm，方向键可调至 1001 mm。继电器
+`a645e2a7…84ca` 由两次真实触摸驱动 Port B GPIO 与 LCD 同步切换。无关
+Display 对照未挂接 Unit，四次运行均正常回收 Worker。真机、原生及正式托管未执行。
+[CoreS3 Unit #246](https://github.com/m5agent/m5stack-esp-emulator/issues/246) · [控制器、帧、输入与回收证据](https://github.com/m5agent/agent-work-logs/tree/759a4d98fe9a4514e7226acceda987ac7359144e/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-unit-examples)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
