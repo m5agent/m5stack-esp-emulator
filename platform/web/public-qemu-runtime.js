@@ -2,6 +2,7 @@ import {admitQemuEnginePort,createQemuEngineOwner} from './public-qemu-engine-ow
 import {getUIFlowWorkbenchFirmware,resolveUIFlowWorkbenchProfile} from './public-uiflow-firmware.js';
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
+import {CORES3_MIC_SOURCE_SHA,QEMU_AUDIO_RATE,qemuAudioExample} from './public-qemu-audio.js';
 import {loadQemuSdExample} from './public-qemu-sd-media.js';
 import {resolveQemuUnitExample,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
 import {bindQemuGnssExample} from './public-qemu-gnss-example.js';
@@ -33,7 +34,43 @@ export class PublicQemuRuntime {
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
     runtime:this.receipt||null,boot:this.bootEvidence(),display:this.display,sessionId:this.sessionId,consoleEpoch:this.consoleEpoch,persistentStorage:false,cleanup:this.cleanupResult||null,
     resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
-  state(status) { this.status=status;this.onState(this.observe()); }
+  state(status) { this.status=status;this.updateAudioOutput();this.onState(this.observe()); }
+  updateAudioOutput() {
+    const enabled = this.status === 'running' && (this.receipt?.audio?.example === 'wav' || !!this.micOwner);
+    if (this.audioPlayer && this.audioOutputActive !== enabled) {
+      this.audioOutputActive = enabled;
+      this.audioPlayer.setActive(enabled);
+    }
+  }
+  closeAudio() {
+    if (!this.audioPlayer) return;
+    this.audioPlayer.close();
+    this.receipt.audio.stats = this.audioPlayer.stats();
+    this.audioPlayer = this.micOwner = null;
+    this.audioOutputActive = false;
+  }
+  async armVirtualMic(source) {
+    if (this.receipt?.audio?.example !== 'mic' || sha256Bytes(new TextEncoder().encode(source)) !== CORES3_MIC_SOURCE_SHA) return;
+    check(!this.micOwner && this.status === 'running','虚拟麦克风正在使用，或设备未就绪。');
+    const {generation,consoleEpoch} = this;
+    const owner = this.micOwner = {};
+    const current = () => this.generation === generation && this.consoleEpoch === consoleEpoch && this.micOwner === owner;
+    try {
+      const response = await this.ask('audio-mic',{enabled:true,consoleEpoch});
+      if (!current()) throw new DOMException('设备会话已改变','AbortError');
+      check(response?.enabled === true,'无法加载虚拟麦克风信号。');
+      this.updateAudioOutput();
+    } catch (error) {
+      if (current()) this.micOwner = null;
+      throw error;
+    }
+    return async () => {
+      if (!current()) return;
+      this.micOwner = null;
+      this.updateAudioOutput();
+      await this.ask('audio-mic',{enabled:false,consoleEpoch});
+    };
+  }
   clearUnitExampleState() {
     if(!this.lastUnitExampleState)return;
     this.lastUnitExampleState=null;this.onUnitExampleState(null);
@@ -111,6 +148,9 @@ export class PublicQemuRuntime {
         this.uartOwner=null;this.readySerialOffset=this.serial.length;this.readyMarkerObserved=false;this.lastDeviceState=null;
         this.clearUnitExampleState();
         this.usbSerialState=null;
+        this.micOwner = null;
+        this.audioPlayer?.setActive(false);
+        this.audioOutputActive = false;
         if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');
       }
     }
@@ -140,7 +180,7 @@ export class PublicQemuRuntime {
     }
   }
   async start(options={}) {
-    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer,sx1262Example}=options;
+    const {device,firmware,signal,clockDivisor,gnssExample,capExample,capPeer,sx1262Example,audio}=options;
     await this.stop();
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.serialChannel='console';this.serialBytes=0;this.usbSerial='';this.usbSerialBytes=0;this.usbSerialState=null;
@@ -155,7 +195,7 @@ export class PublicQemuRuntime {
     this.state('loading');
     try {
       active();
-      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer','sx1262Example'].includes(key)),'Unsupported QEMU execution option');
+      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample','capExample','capPeer','sx1262Example','audio'].includes(key)),'Unsupported QEMU execution option');
       const deviceId=typeof device==='string'?device:device?.id;
       const registry=this.profiles||await loadQemuBrowserProfiles({root:this.root,fetchImpl:this.fetchImpl,signal:bootAbort.signal});
       active();
@@ -205,6 +245,9 @@ export class PublicQemuRuntime {
         &&(manifest.target||'xtensa-softmmu')===profile.target&&manifest.source?.commit===runtimeIdentity.commit
         &&(manifest.compiled_profiles||manifest.profiles)?.includes(deviceId),'C/QEMU 来源或执行配置不匹配。');
       validateQemuRuntimeRequirements(profile,manifest);
+      const audioExample = audio?.player && clockDivisor === undefined &&
+        (audio.request !== 'mic' || getUIFlowWorkbenchFirmware(this.workbenchProfiles,deviceId,firmwareSHA256)) &&
+        qemuAudioExample(audio.request,{deviceId,inputSHA256,firmwareSHA256,sdSHA256:sdExample?.identity.sha256,patches:manifest.source.patches});
       const resource=async(row,maxBytes)=>{
         check(row&&/^[a-zA-Z0-9_.-]+$/.test(row.path)&&/^[a-f0-9]{64}$/.test(row.sha256),'C/QEMU 资源清单无效。');
         const result=await this.loadAsset(new URL(row.path,manifestUrl).href,{signal:bootAbort.signal,expectedSha256:row.sha256,expectedBytes:row.bytes,maxBytes,fetchImpl:this.fetchImpl});
@@ -240,9 +283,25 @@ export class PublicQemuRuntime {
         ...(profile.capExample ? {capExample:profile.capExample} : {}),
         ...(profile.capPeer ? {capPeer:true} : {}),
         ...(profile.sx1262Example ? {sx1262Example:profile.sx1262Example} : {}),
+        ...(audioExample ? {audio:{example:audioExample,playback:'pending',rate:QEMU_AUDIO_RATE,source:
+          audioExample === 'mic' ? 'virtual-microphone' : 'session-microsd'}} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
+      if (audioExample) {
+        const player = this.audioPlayer = audio.player;
+        const report = playback => {
+          if (this.audioPlayer !== player || generation !== this.generation) return;
+          this.receipt.audio.playback = playback;
+          this.onState(this.observe());
+        };
+        void player.connect().then(connected => {
+          if (connected) report('connected');
+        }, () => {
+          player.close();
+          report('unavailable');
+        });
+      }
       const iframe=document.createElement('iframe');this.iframe=iframe;
       iframe.title=`Local ${deviceId} QEMU`;iframe.setAttribute('aria-hidden','true');
       iframe.style.cssText='position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;border:0';
@@ -269,7 +328,8 @@ export class PublicQemuRuntime {
       const assets=[javascript,wasm,worker,...roms.map(row=>row.bytes),flash.buffer];
       if(sdExample)assets.push(sdExample.image);
       const [,runtime]=await Promise.all([this.ask('start',{javascript,wasm,wasmModule,worker,javascriptURL:new URL(manifest.assets.javascript.path,manifestUrl).href,profile,frameTransport:this.frameTransport,roms,firmware:flash.buffer,
-        ...(sdExample ? {sdCard:sdExample.image} : {}),runtimePatches:manifest.source.patches},assets),ready]);
+        ...(sdExample ? {sdCard:sdExample.image} : {}),
+        ...(audioExample ? {audio:{kind:audioExample,ring:this.audioPlayer.ring}} : {}),runtimePatches:manifest.source.patches},assets),ready]);
       active();check(runtime.shared&&runtime.crossOriginIsolated,'QEMU 共享内存不可用。');
       this.guestStarted=true;
       this.receipt.memoryBytes=runtime.memoryBytes;this.receipt.relocatedGlueSha256=runtime.relocatedGlueSha256;
@@ -423,6 +483,7 @@ export class PublicQemuRuntime {
   stop(){
     if(this.stopping)return this.stopping;
     this.uartOwner=null;
+    this.closeAudio();
     this.stopPolling();
     this.clearUnitExampleState();
     if(!this.iframe&&!this.abort)return Promise.resolve(this.observe());

@@ -293,6 +293,32 @@ class PublicSiteTests(unittest.TestCase):
                 })
                 self.assertFalse((output / asset_path).exists())
 
+    def test_cores3_audio_requires_explicit_preview_and_both_runtime_patches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, output = (Path(directory) / name for name in ("source", "site"))
+            self.fixture(root)
+            (root / "platform/web/uiflow-workbench-profiles.json").write_bytes(public.encode_json({"profiles": []}))
+            with self.assertRaisesRegex(ValueError, "primary QEMU runtime"):
+                public.build_site(root, output, qemu_cores3_audio=True)
+            patches = []
+            runtime = {"engine": "qemu-wasm", "build": {"kind": "source-build"}, "source": {"patches": patches}}
+            registry = {"profiles": [{"deviceId": "cores3", "admission": "public"}]}
+            for index, name in enumerate(("cores3-i2s-tx-descriptor-pacing", "cores3-i2s-web-pcm-stream"), 45):
+                patches.append({"path": f"patches/qemu-wasm-probe/{index:04d}-{name}.patch", "sha256": "a" * 64})
+            with (patch.object(public, "qemu_runtime_files", return_value=(runtime, {})),
+                  patch.object(public, "qemu_site_profiles", return_value=(registry, {}))):
+                manifest = public.build_site(root, output, qemu_runtime=root)
+                self.assertTrue(manifest["publication_eligible"])
+                self.assertNotIn("browser_cores3_audio", json.loads((output / "site-config.json").read_text()))
+                manifest = public.build_site(root, output, qemu_runtime=root, qemu_cores3_audio=True)
+                config = json.loads((output / "site-config.json").read_text())
+                self.assertIs(config["browser_cores3_audio"], True)
+                self.assertFalse(manifest["publication_eligible"])
+                self.assertFalse(config["publication_eligible"])
+                patches.pop()
+                with self.assertRaisesRegex(ValueError, "pacing and streaming"):
+                    public.build_site(root, output, qemu_runtime=root, qemu_cores3_audio=True)
+
     def test_export_qemu_sd_media_is_pinned_deduplicated_and_optional(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)
@@ -541,8 +567,11 @@ class PublicSiteTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is required for browser module contracts")
     def test_browser_runtime_contracts(self):
-        result = subprocess.run(["node", "--experimental-default-type=module", str(Path(__file__).with_name("test_public_browser_runtime.mjs"))], capture_output=True, text=True, timeout=30)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for contract in ("test_public_browser_runtime.mjs", "test_public_qemu_audio.mjs"):
+            with self.subTest(contract=contract):
+                result = subprocess.run(["node", "--experimental-default-type=module", str(Path(__file__).with_name(contract))],
+                                        capture_output=True, text=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

@@ -259,6 +259,11 @@ print("Hello, UIFlow!")
               <option value="model">仅浏览模型</option>
             </select>
           </details>
+          <div id="browserAudioSetting" hidden>
+            <label><input id="browserAudioOptIn" type="checkbox" aria-describedby="browserAudioHelp" /> 播放本次模拟器音频</label>
+            <p id="browserAudioHelp" class="field-help"></p>
+          </div>
+          <p id="browserAudioStatus" class="field-help" role="status" hidden></p>
           <button class="primary-button" id="startBtn" type="button" disabled>
             开始运行 <span aria-hidden="true">→</span>
           </button>

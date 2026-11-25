@@ -10,6 +10,8 @@ import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
+import {CORES3_MIC_FIRMWARE_SHA,CORES3_WAV_SHA,CORES3_WAV_SD_SHA} from './public-qemu-audio.js';
+import {createQemuAudioPlayer} from './public-qemu-audio-player.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
 import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget,supportsQemuCc1101Workbench,validCc1101PeerFrame,supportsQemuSx1262Workbench,validSx1262PeerPacket,qemuSx1262ReceiveArmed} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
@@ -480,11 +482,19 @@ async function runPython() {
   const run=state.run;
   if(!active(run)||(!(run.controller instanceof PublicQemuRuntime)&&!run.python))return;
   run.python ||= new PublicMicroPythonRunner(run.controller);
-  if(run.python.busy&&!(run.python.canReplace===true&&run.pythonPhase==='running')||run.serialSending||run.loadingExample)return;
+  if(run.preparingVirtualMic||run.python.busy&&!(run.python.canReplace===true&&run.pythonPhase==='running')||run.serialSending||run.loadingExample)return;
   const click=run.pythonClick=(run.pythonClick||0)+1,current=()=>active(run)&&run.pythonClick===click;
   $('pythonOutput').textContent='';
+  const code=$('pythonSource').value;
+  let releaseMic;
   try {
-    await run.python.run($('pythonSource').value,{
+    if (run.controller.receipt?.audio?.example === 'mic') {
+      run.preparingVirtualMic = true;
+      try { releaseMic = await run.controller.armVirtualMic(code); }
+      finally { run.preparingVirtualMic = false; }
+      if (!current()) return;
+    }
+    await run.python.run(code,{
       onPhase:phase=>{if(current()){run.pythonPhase=phase;$('pythonStatus').textContent=pythonPhases[phase];updatePythonControls();}},
       onOutput:text=>{if(current()){const out=$('pythonOutput');out.textContent=(out.textContent+text).slice(-65536);out.scrollTop=out.scrollHeight;}},
     });
@@ -492,7 +502,17 @@ async function runPython() {
     run.pythonPhase=cause.code==='micropython_repl_timeout'?'noRepl':'failed';
     $('pythonStatus').textContent=pythonPhases[run.pythonPhase];
     $('pythonOutput').textContent+=`\n${cause.message}`;
-  }}finally{if(current())updatePythonControls();}
+  }}finally{
+    if (releaseMic) await releaseMic().catch(cause => { if (current() && cause.name !== 'AbortError') error(cause); });
+    if(current())updatePythonControls();
+  }
+}
+function browserAudioExample() {
+  if (state.config.browser_cores3_audio !== true || state.selected?.id !== 'cores3' || lane() !== 'browser') return null;
+  if (source() === 'reference' && $('referenceExample').value === 'uiflow' && reference()?.sha256 === CORES3_MIC_FIRMWARE_SHA) return 'mic';
+  if (source() === 'local' && state.config.browser_sd_examples?.some(row =>
+    row.device === 'cores3' && row.firmware_sha256 === CORES3_WAV_SHA && row.sha256 === CORES3_WAV_SD_SHA)) return 'wav';
+  return null;
 }
 function updateCapability() {
   const device = state.selected,
@@ -569,6 +589,13 @@ function updateCapability() {
   $('startBtn').textContent =
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
   $('cancelLoadBtn').hidden = !state.busy;
+  const audioExample = browserAudioExample();
+  $('browserAudioSetting').hidden = !audioExample;
+  $('browserAudioOptIn').disabled = state.busy;
+  if (!audioExample) $('browserAudioOptIn').checked = false;
+  $('browserAudioHelp').textContent = audioExample === 'mic'
+    ? '仅原始官方麦克风 Python 例程使用合成测试音。'
+    : '需要原始 Arduino WAV 固件和匹配的示例 microSD 素材。';
   $('addSelectedUnitBtn').disabled=!state.selectedUnit||state.busy||!!state.run;
   const identitySupported=serviceCloudIdentity();
   $('cloudIdentityFields').hidden = source() !== 'reference' || !reference()?.nativeCloud || selectedLane !== 'service' || !identitySupported;
@@ -868,6 +895,7 @@ async function deliverEncoderInput(event) {
 async function stopRun() {
   if (state.stopping) return state.stopping;
   const generation = ++state.runGeneration;
+  message('browserAudioStatus');
   state.abort?.abort();
   state.abort = null;
   const run = state.run;
@@ -1093,13 +1121,14 @@ function applyBrowserFrame(frame, run) {
     $('deviceMount').dataset.frameSequence = frame.sequence;
   } else error(new Error(`固件输出 ${frame.width} × ${frame.height} 与当前模型屏幕不匹配。`));
 }
-async function startRun() {
+async function startRun(audio) {
   if (state.busy) return;
   const selection = state.selection;
   await stopRun();
   if (selection !== state.selection) return;
   message('errorBanner');
   message('launchNotice');
+  message('browserAudioStatus');
   const assembly=state.picker?.snapshot?.();
   if(assembly?.valid===false){error(new Error(assembly.issues?.[0]?.message||'请先调整 Unit 连线。'));updateCapability();return;}
   const kind = lane();
@@ -1176,6 +1205,8 @@ async function startRun() {
             if(value.boot) {
               updateBrowserBoot(value);
               updateFirmwareIdentity(value.runtime);
+              const playback = value.runtime?.audio?.playback;
+              if (playback === 'unavailable') message('browserAudioStatus','当前浏览器未能启动音频输出。');
             }
             status(value.status);
             if (value.status==='stopped'||value.status==='error') clearBrowserOutputs(run.controller.profile);
@@ -1193,7 +1224,11 @@ async function startRun() {
       const gnssOptions=source()==='reference'&&ref?.gnssExample?{gnssExample:ref.gnssExample}:{};
       const radioOptions=run.cc1101Role?{capExample:`cc1101-rf-${run.cc1101Role}`,capPeer:true}:
         run.sx1262Example?{sx1262Example:run.sx1262Example}:{};
-      await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal,...gnssOptions,...radioOptions});
+      await run.controller.start({device: state.selected.id,firmware:loaded.bytes,signal:abort.signal,...gnssOptions,...radioOptions,
+        ...(audio && run.controller instanceof PublicQemuRuntime ? {audio} : {})});
+      if (audio && active(run) && !run.controller.receipt?.audio) {
+        message('browserAudioStatus','本次固件和素材未匹配已验证的声音示例。');
+      }
     } else {
       const imported = nativeWorkbench||nativeCloud ? null : await state.service.importFirmware(
         new File([loaded.bytes], loaded.name, {type: 'application/octet-stream'}),
@@ -1691,7 +1726,18 @@ $('resetViewBtn').addEventListener('click', () => {
   state.shell?.resetView?.();
   if (!state.shell?.resetView) state.shell?.viewer?.fit();
 });
-$('startBtn').addEventListener('click', () => void startRun().catch(error));
+$('startBtn').addEventListener('click', () => {
+  const request = $('browserAudioOptIn').checked ? browserAudioExample() : null;
+  let player, unavailable = false;
+  if (request) {
+    try { player = createQemuAudioPlayer(); } catch { unavailable = true; }
+  }
+  void startRun(player ? {request,player} : undefined).catch(error).finally(() => {
+    if (player && state.run?.controller?.audioPlayer !== player) player.close();
+    if (unavailable && state.run?.kind === 'browser' && browserAudioExample() === request)
+      message('browserAudioStatus','当前浏览器未能启动音频输出。');
+  });
+});
 $('stopBtn').addEventListener('click', () => void stopRun().catch(error));
 $('cancelLoadBtn').addEventListener('click', () => void stopRun().catch(error));
 $('runtimeMode').addEventListener('change', ()=>{updateReferenceDefault();renderDetails();updateCapability();updatePythonControls();});

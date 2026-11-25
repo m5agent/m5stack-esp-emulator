@@ -154,7 +154,7 @@
     "hw/char/esp32s3_uart.c": "487df4d05e694047435a9aca433cd89d90f47a1a1134742dd0f3d014fea440a4",
     "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
     "hw/dma/esp32s3_gdma.c": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
-    "hw/dma/esp_gdma.c": "2737ef4c3fb95cd3ef5d316f56f7c4c0092b980baa1de62eb46d7345486446a9",
+    "hw/dma/esp_gdma.c": "07fe570ca807e2d99b5a4ac97290615b5d17857d7b3066e8208be8ee20a9fcf0",
     "hw/gpio/esp32_gpio.c": "1928831ac484806c6181dc92b37c28253e994fa9421c35207f4f027ccf94550b",
     "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
     "hw/gpio/meson.build": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83",
@@ -173,7 +173,7 @@
     "hw/m5stopwatch/m5_can_peer.c": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
     "hw/m5stopwatch/m5_cc1101_spi.c": "3ce2816d782133b9ab9f60c4ef9bbd8e14af5567b9dfa95ca3de33d749b0210c",
     "hw/m5stopwatch/m5_epd_panel.c": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
-    "hw/m5stopwatch/m5_i2s.c": "99f5893d000255d7139d893c49fed5841964b2680d664e77cba7172d1e16fe87",
+    "hw/m5stopwatch/m5_i2s.c": "4dc4cd7a1c857765453b7cd60626ec4b659109ff5af3c5d6342c9ae419571918",
     "hw/m5stopwatch/m5_i2s_esp32.c": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
     "hw/m5stopwatch/m5_lcd_cam.c": "b75a0d06ea1cd0a790892a6ece4f4e2c022336093cc7700d9aa51a9d3edf9557",
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
@@ -248,7 +248,7 @@
     "include/glib-compat.h": "620b8868a3ce5fda543fc65f46c8257beb84587d4bdc29cdd345eac81961ae9c",
     "include/hw/arm/bcm2835_peripherals.h": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
     "include/hw/char/esp32_uart.h": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
-    "include/hw/dma/esp_gdma.h": "0cce991fe75b76da95ef1a779d4200fa0710409046123717964893c7abdd84ae",
+    "include/hw/dma/esp_gdma.h": "65e53f8443ebe35575e2c6219524ac72f29513335bfea92cf7346c4bd1ca621b",
     "include/hw/gpio/esp32_gpio.h": "e3188dbe797f45602a16eef4031078f3645899b39ca50f8ad1367a84b23e4f01",
     "include/hw/gpio/esp32s3_gpio_pad_aux.h": "e6ebf222cf20d85337168d9ae51399484a466d176d5b9995b125057892ef2a19",
     "include/hw/i2c/esp32_i2c.h": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
@@ -666,6 +666,14 @@
     {
       "path": "patches/qemu-wasm-probe/0046-cardputer-adv-sx1262-cap-peer.patch",
       "sha256": "0c7b037ed3e95102c8d588d042767a0d61591946323f21a9f87a8e02f0c90238"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0047-cores3-i2s-tx-descriptor-pacing.patch",
+      "sha256": "4cb387233e51cde64bf039a7324725e48903494ac2be090e2364a47ecb4cd8ca"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0048-cores3-i2s-web-pcm-stream.patch",
+      "sha256": "fa1c5cebf9e9ec80a05203c801c739ad92b01d5a278a558da41f5a4645667e88"
     }
   ],
   "qemu": {
