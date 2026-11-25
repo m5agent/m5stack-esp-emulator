@@ -197,8 +197,16 @@ try {
   assert.equal(resetting.runtime.iframe,resetFrame);assert.equal(resetting.runtime.sessionId,resetId);
   assert.equal(resetting.runtime.generation,resetGeneration);assert.equal(resetting.downloads.length,resetDownloads);
   assert.equal(resetFrame.calls.filter(row=>row.op==='start').length,1);assert.equal(resetting.runtime.observe().resetCount,2);
+  const heldTouch={type:'touch',x:170,y:165};
+  await resetting.runtime.input({...heldTouch,down:true});
   resetting.runtime.receive({type:'machine-event',value:{event:'SUSPEND'}},resetGeneration);
   assert.equal(resetting.runtime.status,'sleeping');
+  const inputsBeforeRelease=resetFrame.calls.filter(row=>row.op==='input').length;
+  await assert.rejects(resetting.runtime.input({...heldTouch,x:180,down:true}),/请先启动/);
+  assert.equal(resetFrame.calls.filter(row=>row.op==='input').length,inputsBeforeRelease);
+  await resetting.runtime.input({...heldTouch,down:false});
+  assert.deepEqual(resetFrame.calls.filter(row=>row.op==='input').slice(-2).map(row=>row.value),
+    [{...heldTouch,down:true},{...heldTouch,down:false}]);
   await resetting.runtime.input({type:'button',id:'power',down:true});
   await resetting.runtime.input({type:'button',id:'power',down:false});
   await assert.rejects(resetting.runtime.input({type:'pir',motion:true}),/请先启动/);
