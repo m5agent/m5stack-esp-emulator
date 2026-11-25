@@ -14,6 +14,19 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
+
+正式文档页嵌入公开模拟器后，Chrome 158 的父子页都没有共享内存。隔离同源
+文档预览分别使用 CoreS3 `78961297…bd3f` 和 Cardputer-Adv `9ca3d53a…623b`，
+在 WASM `96c7f8ba…40d8` 上两次完成各自的画面、触摸或键盘及六 Worker 回收。
+CoreS3 早期触摸失败独立保留。
+
+CoreS3 默认浏览器编程镜像改用 M5UI 合并调度，候选 `b9fe8334…2d49`
+通过六个原例程连续执行及独立按钮来宾像素。合并后的导出通过隔离提示回归、
+CoreS3 完整编辑器与 Cardputer-Adv 快速编辑器。正式文档部署仍需 [#242](https://github.com/m5agent/m5stack-esp-emulator/issues/242) 的托管验收。
+
+[浏览器实测回执](https://github.com/m5agent/agent-work-logs/tree/c93ead09f421f7fa2a4e412d521e3c7e0d7a5e6c/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-workbench-fixes)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
