@@ -109,6 +109,13 @@ Cardputer-Adv 的 CC1101 官方 TX/RX 原例程在全量锁定 WASM `dca8fddb…
 原始帧更新，两端通过页面断开并退出，12 个 Worker 全部回收。未验证物理 RF 或部署。
 [CC1101 #247](https://github.com/m5agent/m5stack-esp-emulator/issues/247) · [锁定构建、配对和来宾证据](https://github.com/m5agent/agent-work-logs/tree/400bfbf8519b802c13ad771554bcabfc3dd9920f/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-cc1101-workbench)
 
+Cardputer-Adv 的 LoRa1262 和 LoRa868 原发送、接收例程分别通过本地锁定 WASM
+`210db550…e211` 的标准工作台双标签页验证。收端未配对时接收次数为零。配对后，发端
+真实键盘输入 `wasm` 并按 Enter。两组均从送端 SPI FIFO 读到 `7761736d`，直接采样到
+收端 DIO1 拉高和 RX_DONE，记录其 SPI FIFO 读出四字节，并看到原回调和画面更新。
+页面断开后四台来宾正常退出，共回收 24 个 Worker。未执行物理 RF 或部署。
+[LoRa Cap #244](https://github.com/m5agent/m5stack-esp-emulator/issues/244) · [锁定构建、双端与清理证据](https://github.com/m5agent/agent-work-logs/tree/34a27650829d592bb6fdc1f371d75a6eca17cdf8/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-sx1262-workbench)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
