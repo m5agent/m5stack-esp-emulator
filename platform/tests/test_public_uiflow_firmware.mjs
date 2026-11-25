@@ -23,7 +23,7 @@ const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
   "atoms3": "8252177a41539523b8fcdd49c3d2bb0835c5087d76ab9cbe563051b44074e1ab",
   "atoms3-lite": "5c06f621bd765980f8ac274760b5648df58f3828d647f9d13acf77fb4d9601e8",
   "atoms3r": "babc0e35df7677a469e8829ac98eb465a6565d431182c0c6ff812df0c50be45a",
-  "cores3": "52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d",
+  "cores3": "b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49",
   "cardputer-adv": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
   "cardputer": "220add58feadeb6087593bf9e6c078e51a3541a0c6b80be8460559d51db12fd8",
   "stamplc": "0b2b9b4f69dba03a7f764499555bdbf5d2e608c9c1c6496369e8d520186fcb5d",
@@ -34,6 +34,8 @@ const EXACT_S3_WORKBENCH_FLASH = Object.freeze({
   "paperdiy": "f2b52d72b9bdc8d439695aaa835a09fa6c8d29d81f586de1ff491029a253acc9"
 });
 const EXACT_S3_WORKBENCH_MAIN = 'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0';
+const CORE_S3_LVGL_WORKBENCH_MAIN = '12ae78c798dc3f36d2e35d5a7927e403ff46131bd3437870552fa953476c6e06';
+const CORE_S3_UNPATCHED_WORKBENCH_FLASH = '52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d';
 const STANDARD_TCI_PAPER_WORKBENCH = new Set(['papers3','paperdiy']);
 assert.deepEqual(Object.keys(EXACT_S3_WORKBENCH_FLASH).sort(),registry.profiles
   .filter(row=>qemu.profiles.find(profile=>profile.deviceId===row.deviceId)?.chip==='esp32s3')
@@ -49,7 +51,13 @@ for (const row of registry.profiles) {
     assert.equal(bytes.toString('utf8'), source.text); assert.equal(bytes.length, source.bytes); assert.equal(sha(bytes), source.sha256);
   }
   assert.equal(row.files['boot.py'].path.endsWith('/boot_native.py'), profile.fixture.sources?.['boot.py']?.path.endsWith('/core2_boot.py') === true);
-  assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
+  if (row.deviceId === 'cores3') {
+    assert.equal(row.files['main.py'].sha256, CORE_S3_LVGL_WORKBENCH_MAIN);
+    assert.equal(row.files['candidate_lvgl_loop.py'].path, 'tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py');
+  } else {
+    assert.deepEqual(Object.keys(row.files), ['boot.py','main.py']);
+    assert.equal(row.files['main.py'].text, 'import M5\n\nM5.begin()\nprint("M5_UIFLOW_WORKBENCH_READY")\n');
+  }
   const resolved = resolveUIFlowWorkbenchProfile(resolveQemuFirmwareProfile(profile, row.firmwareSHA256), row.firmwareSHA256, registry);
   assert.equal(resolved.readyMarker, UIFLOW_WORKBENCH_READY); assert.equal(resolved.readyFirmwareSHA256, row.firmwareSHA256);
   if (row.deviceId === 'atom-matrix') {
@@ -66,7 +74,7 @@ for (const row of registry.profiles) {
     assert.equal(row.firmwareSHA256,EXACT_S3_WORKBENCH_FLASH[row.deviceId]);
     assert.equal(resolved.clockDivisor, 1); assert.equal(resolved.oneInsnPerTb, standardPaper?undefined:true);
     assert.equal(resolved.profile, standardPaper?`${row.deviceId}-wasm-uiflow-workbench-wallclock`
-      :row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+      :row.deviceId==='cores3'?'cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate'
       :`${row.deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`);
     assert.deepEqual(resolved.requiredRuntimePatch, standardPaper?undefined:QEMU_ONE_INSN_RUNTIME_PATCH);
     assert.equal(resolved.firmwareVariant.firmwareSHA256, row.firmwareSHA256);
@@ -98,10 +106,10 @@ const exactVariant = cores3.firmwareProfiles.find(row => row.firmwareSHA256 === 
 const resolveWorkbench = (profile = cores3, workbenchRegistry = registry) => resolveUIFlowWorkbenchProfile(
   resolveQemuFirmwareProfile(profile, workbench.firmwareSHA256), workbench.firmwareSHA256, workbenchRegistry);
 assert.deepEqual(exactVariant, {
-  firmwareSHA256:'52f38f562f6e3749357a2ed4834efd72d16870046ea052f2f31691743cb5384d',
-  profile:'cores3-wasm-uiflow-workbench-wallclock-candidate', clockDivisor:1,
+  firmwareSHA256:'b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49',
+  profile:'cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate', clockDivisor:1,
   readyMarker:UIFLOW_WORKBENCH_READY, fixture:'uiflow-workbench-v1',
-  sourceSHA256:'a109d9c11c09b4aa649e1a0a2d0929136fe7083f75bf2452e9c17b57f8b13ab0',
+  sourceSHA256:CORE_S3_LVGL_WORKBENCH_MAIN,
   schedulerCandidate:'qemu-tci-mmio-blocks-v1', oneInsnPerTb:true,
   requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH,
 });
@@ -118,7 +126,14 @@ for (const other of cores3.firmwareProfiles.filter(row => row.firmwareSHA256 !==
   const resolved = resolveQemuFirmwareProfile(cores3, other.firmwareSHA256);
   assert.throws(() => resolveUIFlowWorkbenchProfile(resolved, workbench.firmwareSHA256, registry), /exact workbench/, 'another exact image cannot acquire workbench readiness');
   assert.deepEqual(resolveUIFlowWorkbenchProfile(resolved, other.firmwareSHA256, registry), resolved, 'other images keep their separately bound policy');
-  assert.notEqual(resolved.readyMarker, workbench.readyMarker);
+  assert.notEqual(resolved.readyFirmwareSHA256, workbench.firmwareSHA256);
+  if (other.firmwareSHA256 === CORE_S3_UNPATCHED_WORKBENCH_FLASH) {
+    assert.equal(resolved.profile, 'cores3-wasm-uiflow-workbench-wallclock-candidate');
+    assert.equal(resolved.readyMarker, workbench.readyMarker);
+    assert.equal(resolved.firmwareVariant.sourceSHA256, EXACT_S3_WORKBENCH_MAIN);
+  } else {
+    assert.notEqual(resolved.readyMarker, workbench.readyMarker);
+  }
 }
 const unknownCoreS3 = resolveQemuFirmwareProfile(cores3, 'f'.repeat(64));
 assert.deepEqual(resolveUIFlowWorkbenchProfile(unknownCoreS3, 'f'.repeat(64), registry), unknownCoreS3);
@@ -210,15 +225,16 @@ for(const [deviceId,firmwareSHA256] of Object.entries(EXACT_S3_WORKBENCH_FLASH))
   const profile=qemu.profiles.find(row=>row.deviceId===deviceId);
   const workbench=registry.profiles.find(row=>row.deviceId===deviceId);
   assert.equal(workbench.firmwareSHA256,firmwareSHA256);
-  assert.equal(workbench.files['main.py'].sha256,EXACT_S3_WORKBENCH_MAIN);
+  const expectedMain=deviceId==='cores3'?CORE_S3_LVGL_WORKBENCH_MAIN:EXACT_S3_WORKBENCH_MAIN;
+  assert.equal(workbench.files['main.py'].sha256,expectedMain);
   const standardPaper=STANDARD_TCI_PAPER_WORKBENCH.has(deviceId);
   const variant=profile.firmwareProfiles.find(row=>row.firmwareSHA256===firmwareSHA256);
   assert.deepEqual(variant,{firmwareSHA256,
     profile:standardPaper?`${deviceId}-wasm-uiflow-workbench-wallclock`
-      :deviceId==='cores3'?'cores3-wasm-uiflow-workbench-wallclock-candidate'
+      :deviceId==='cores3'?'cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate'
       :`${deviceId}-wasm-uiflow-workbench-wallclock-oneinsn-candidate`,
     clockDivisor:1,readyMarker:UIFLOW_WORKBENCH_READY,fixture:'uiflow-workbench-v1',
-    sourceSHA256:EXACT_S3_WORKBENCH_MAIN,schedulerCandidate:standardPaper?'qemu-tci-wallclock-v1':'qemu-tci-mmio-blocks-v1',
+    sourceSHA256:expectedMain,schedulerCandidate:standardPaper?'qemu-tci-wallclock-v1':'qemu-tci-mmio-blocks-v1',
     ...(standardPaper?{}:{oneInsnPerTb:true,requiredRuntimePatch:QEMU_ONE_INSN_RUNTIME_PATCH})});
   const resolveExact=(candidate=profile,workbenchRegistry=registry)=>resolveUIFlowWorkbenchProfile(
     resolveQemuFirmwareProfile(candidate,firmwareSHA256),firmwareSHA256,workbenchRegistry);
@@ -272,6 +288,14 @@ for (const change of [copy => copy.profiles.push(copy.profiles[0]), copy => copy
   copy => copy.readyMarker = 'unrelated']) {
   const copy = structuredClone(registry); change(copy); assert.throws(() => validateUIFlowWorkbenchRegistry(copy));
 }
+
+const missingCoreS3Scheduler = structuredClone(registry);
+delete missingCoreS3Scheduler.profiles.find(row => row.deviceId === 'cores3').files['candidate_lvgl_loop.py'];
+assert.throws(() => validateUIFlowWorkbenchRegistry(missingCoreS3Scheduler), /firmware identity/);
+const extraScheduler = structuredClone(registry);
+extraScheduler.profiles.find(row => row.deviceId === 'cardputer-adv').files['candidate_lvgl_loop.py'] =
+  workbench.files['candidate_lvgl_loop.py'];
+assert.throws(() => validateUIFlowWorkbenchRegistry(extraScheduler), /firmware identity/);
 
 // Planning contracts execute no browser or firmware. The actual gate remains
 // fail-fast and must collect an independent guest report for every planned row.

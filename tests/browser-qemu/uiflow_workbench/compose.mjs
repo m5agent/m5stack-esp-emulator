@@ -17,9 +17,15 @@ const registryPath = path.join(root, 'platform/web/uiflow-workbench-profiles.jso
 const profiles = JSON.parse(await fs.readFile(path.join(root, 'platform/web/qemu-browser-profiles.json'))).profiles
   .filter(row => row.admission === 'public' || row.firmwareProfiles?.some(variant => variant.fixture === 'uiflow-workbench-v1'));
 const sourceFiles = {};
-for (const name of ['boot_native.py', 'boot_uart.py', 'main.py']) {
-  const file = `tests/browser-qemu/uiflow_workbench/${name}`, bytes = await fs.readFile(path.join(root, file));
-  sourceFiles[name] = {path:file, text:bytes.toString('utf8'), bytes:bytes.length, sha256:sha(bytes)};
+for (const file of [
+  'tests/browser-qemu/uiflow_workbench/boot_native.py',
+  'tests/browser-qemu/uiflow_workbench/boot_uart.py',
+  'tests/browser-qemu/uiflow_workbench/main.py',
+  'tests/browser-qemu/uiflow_workbench/main_cores3.py',
+  'tests/browser-qemu/cores3_lvgl_wallclock/candidate_lvgl_loop.py',
+]) {
+  const bytes = await fs.readFile(path.join(root, file));
+  sourceFiles[path.basename(file)] = {path:file, text:bytes.toString('utf8'), bytes:bytes.length, sha256:sha(bytes)};
 }
 const rows = profiles.map(profile => ({
   deviceId:profile.deviceId, board:profile.board, chip:profile.chip,
@@ -29,7 +35,9 @@ const rows = profiles.map(profile => ({
   baseDiskVersion:profile.fixture.baseDiskVersion ?? 131072,
   derivedDiskVersion:profile.fixture.derivedDiskVersion ?? 131073,
   firmwareSHA256:'0'.repeat(64), readyMarker:UIFLOW_WORKBENCH_READY, packaging:'COMPOSED_NOT_EXECUTED',
-  files:{'boot.py':sourceFiles[profile.fixture.sources?.['boot.py']?.path.endsWith('/core2_boot.py') ? 'boot_native.py' : 'boot_uart.py'], 'main.py':sourceFiles['main.py']},
+  files:{'boot.py':sourceFiles[profile.fixture.sources?.['boot.py']?.path.endsWith('/core2_boot.py') ? 'boot_native.py' : 'boot_uart.py'], 'main.py':sourceFiles[profile.deviceId === 'cores3' ? 'main_cores3.py' : 'main.py'],
+    ...(profile.deviceId === 'cores3' ? {'candidate_lvgl_loop.py':sourceFiles['candidate_lvgl_loop.py']} : {})},
+
 }));
 const registry = {schema_version:1, kind:'m5stack-browser-uiflow-workbench', firmware_bundled:false,
   composer_commit:'6cb4e86540eca0d9ba62500a298385c9d863c8be', readyMarker:UIFLOW_WORKBENCH_READY,
