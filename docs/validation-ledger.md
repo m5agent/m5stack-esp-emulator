@@ -47,6 +47,14 @@ Widgets、Music、Stress 和 Benchmark 原镜像在 Chrome 默认 profile 均输
 原帧。独立挂盘正控保留了同路径的 SD 与 Picture 读写和画面，Worker 正常回收。
 物理、原生及正式托管未执行。[BSP 黑屏 #250](https://github.com/m5agent/m5stack-esp-emulator/issues/250) · [相同镜像的显示和触摸证据](https://github.com/m5agent/agent-work-logs/tree/bde3defea428b87dc45317a6144aa53efc017754/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-bsp-spi)
 
+CoreS3 Arduino Wakeup 原始固件 `2ddff71f…f295` 在锁定 WASM `618f4713…1a62`
+的默认 profile 中连续两次从触摸进入休眠。RTC Control2 到期为 `0x05`，AXP2101
+由 RTC IRQ 唤醒，同一来宾收到 SUSPEND、来宾 RESET 和 WAKEUP，随后 ROM 上电
+并重绘原提示。两轮休眠到 QMP 唤醒均观察到约五秒。首次候选在启动中短暂恢复
+旧画面时过早触摸，第二轮未进入休眠；复跑确认画面稳定后两轮通过。普通关机
+对照保持 guest-shutdown，两个锁定构建会话正常回收。原生、真机与正式托管未执行。
+[定时唤醒 #252](https://github.com/m5agent/m5stack-esp-emulator/issues/252) · [固件、事件、画面与清理证据](https://github.com/m5agent/agent-work-logs/tree/2f0bf877cf340b2e4a0e7eb2bed055e3a9378ebf/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-rtc-pmic-wakeup)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile
