@@ -123,6 +123,12 @@ PCM 采样，后者经 I²S 录入虚拟 440 Hz 信号并回放 119,996 个非�
 和各 6 个 Worker。未测试物理声学和正式托管。
 [音频 #248](https://github.com/m5agent/m5stack-esp-emulator/issues/248) · [Speaker 原素材 #271](https://github.com/m5agent/m5stack-esp-emulator/issues/271) · [完整构建与来宾证据](https://github.com/m5agent/agent-work-logs/tree/2f4820958b4ee35a6fd8790566b33fcb00f87d48/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-browser-audio)
 
+Cardputer-Adv 在锁定 WASM `3110d285…798f` 中从 ST7789 方向读回有符号角度。原 IR NEC
+以 +90° 正向显示，实际 USB 收到地址 `0x1111` 和命令 `0x34`、`0x35`。原 Display、
+Keyboard 也通过。新建的同源四旋转固件复验 −90°、0°、+90°、0° 与实际键盘事件。
+四个来宾正常退出，各回收 6 个 Worker。此锁定运行未采集 NEC 波形，早前两档时序失败保留。
+[IR 时序 #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258) · [0049 来宾和清理证据](https://github.com/m5agent/agent-work-logs/tree/6a40219a3ef6aace200e4066db38546634ae59e0/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cardputer-adv-signed-portrait-locked-0049)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile

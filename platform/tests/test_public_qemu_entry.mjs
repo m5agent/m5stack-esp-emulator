@@ -634,6 +634,14 @@ assert.deepEqual(Array.from(painted.data),[rgba[3],rgba[0],rgba[4],rgba[1],rgba[
 canvas.listeners.get('pointerdown')({clientX:1.5,clientY:2.5,pointerId:1});
 assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[2,0,true],
   'portrait pointer mapping must invert the displayed rotation');
+controller.display={orientation:'portrait',deviceRotationDeg:90};
+raster.applyBrowserPresentation({display:controller.display});
+assert.deepEqual([canvas.width,canvas.height],[2,3]);
+assert.deepEqual(Array.from(painted.data),[rgba[2],rgba[5],rgba[1],rgba[4],rgba[0],rgba[3]].flat(),
+  'opposite portrait presentation must repaint retained pixels counterclockwise without mirroring');
+canvas.listeners.get('pointerdown')({clientX:1.5,clientY:2.5,pointerId:1});
+assert.deepEqual([input.at(-1).x,input.at(-1).y,input.at(-1).down],[0,1,true],
+  'opposite portrait pointer mapping must invert the displayed rotation');
 controller.display={orientation:'landscape',deviceRotationDeg:0};
 raster.applyBrowserPresentation({display:controller.display});
 assert.deepEqual([canvas.width,canvas.height],[3,2]);assert.deepEqual(Array.from(painted.data),rgba.flat());

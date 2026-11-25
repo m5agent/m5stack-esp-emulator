@@ -623,3 +623,10 @@ Export an audio preview with `build_public_site.py --qemu-cores3-audio`.
 The firmware and microSD binding remain hash-checked. The preview requires the
 two layers in the runtime manifest and is marked ineligible for the default
 Pages deployment. The user enables audio before clicking Start.
+
+## Cardputer-ADV portrait direction (`0049`)
+
+The panel derives a signed portrait presentation angle from MADCTL and the
+physical glass mount. The 3D workbench and flat screen use that direction
+for both portrait quarter turns. The underlying framebuffer and landscape
+presentation retain their existing physical-glass coordinates.

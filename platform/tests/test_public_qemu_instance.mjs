@@ -382,10 +382,13 @@ try {
   const advSHA256='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
   const adv=resolveQemuFirmwareProfile(getQemuBrowserProfile('cardputer-adv',registry),advSHA256);
   const cap=resolveQemuCapExample(adv,'cc1101-rf-rx',advSHA256,true);
+  const lock=JSON.parse(await readFile(new URL('../../scripts/qemu-wasm-build/sources.lock.json',import.meta.url),'utf8'));
+  const signed=lock.patches.find(row=>row.path.endsWith('/0049-cardputer-adv-portrait-direction.patch'));
+  assert.ok(signed);
   await racePort.onmessage({data:{id:300,op:'start',value:{javascript:new TextEncoder().encode(fakeFactory),
     javascriptURL:origin+'/showcase/runtime/qemu.js',worker:new Uint8Array(),profile:cap,frameTransport:'qmp-screendump',
     runtimePatches:[cap.requiredInputPatch,cap.requiredRuntimePatch,QEMU_CARDPUTER_ADV_USB_SERIAL_PATCH,QEMU_CARDPUTER_CC1101_RUNTIME_PATCH,
-      QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH],
+      QEMU_CARDPUTER_CC1101_PEER_RUNTIME_PATCH,signed],
     roms:cap.roms.map(rom=>({name:rom.name,sha256:rom.sha256,bytes:new ArrayBuffer(rom.bytes)})),firmware:new ArrayBuffer(0)}}});
   assert.equal(racePort.messages.at(-1).id,300);assert.equal(racePort.messages.at(-1).error,undefined);
   assert.equal(vm.runInContext('module.ENV.M5SW_CARDPUTER_ADV_CAP_CC1101',raceContext),'1');
@@ -423,6 +426,19 @@ try {
   assert.equal(peerSet.execute,'qom-set');
   assert.deepEqual(peerSet.arguments,{path:'/machine/cc1101-peer',property:'rx-frame-hex',value:'0162'});
   raceRespond(peerSet,{});await peerSend;
+  for(const [index,rotation] of [-90,90,0,180].entries()){
+    const display=racePort.onmessage({data:{id:305+index,op:'display'}});
+    if(index===0){
+      const [list]=raceCommands();assert.equal(list.execute,'qom-list');
+      raceRespond(list,[{name:'device[0]',type:'child<m5.spi-panel>'}]);await tick();
+    }
+    const [query]=raceCommands();assert.equal(query.execute,'qom-get');
+    assert.deepEqual(query.arguments,{path:'/machine/unattached/device[0]',property:'logical-portrait-rotation-deg'});
+    raceRespond(query,rotation);await display;
+    const reply=racePort.messages.at(-1);
+    if(index===3)assert.match(reply.error,/invalid portrait rotation/);
+    else assert.deepEqual(JSON.parse(JSON.stringify(reply.value)),{orientation:rotation?'portrait':'landscape',deviceRotationDeg:rotation});
+  }
   vm.runInContext(`output(${JSON.stringify(JSON.stringify({QMP:{version:{},capabilities:[]}})+'\n')})`,raceContext);
   const raceCapability=raceCommands();assert.equal(raceCapability.length,1);assert.equal(raceCapability[0].execute,'qmp_capabilities');
   raceRespond(raceCapability[0],{});await tick();

@@ -17,6 +17,8 @@ const sha=value=>createHash('sha256').update(value).digest('hex'),imageSHA=sha(a
 assert.equal(imageSHA,process.env.M5_CARDPUTER_IMAGE_SHA256,'Explicit image identity required');
 assert.match(process.env.M5_CARDPUTER_WASM_SHA256||'',/^[a-f0-9]{64}$/,'Explicit WASM identity required');
 const provenance=await capturePublicQemuProvenance({repo,site,testScript:'platform/tests/test_public_qemu_cardputer_input_display.mjs'});
+const runtime=JSON.parse(await readFile(resolve(site,'platform/runtime/qemu/runtime.json'),'utf8'));
+const signedPortrait=runtime.source.patches.some(row=>row.path.endsWith('/0049-cardputer-adv-portrait-direction.patch'));
 const basePath=provenance.base_path,requests=[],blocked=[];
 const report={kind:'cardputer-adv-arduino-keyboard-display-guest',status:'FAIL',started_at:new Date().toISOString(),firmware_sha256:imageSHA,
   wasm_sha256:process.env.M5_CARDPUTER_WASM_SHA256,provenance,checks:[],keys:[],hardware_validation:'NOT RUN'};
@@ -79,8 +81,12 @@ try{
     check('rotation-'+rotation+'-physical-four-corners',[full,partial].every(f=>JSON.stringify(f.native_corners)===JSON.stringify(expected)),{expected,observed:[full.native_corners,partial.native_corners]});
     let partialMatches=true;for(let y=50;y<58;y++)for(let x=40;x<48;x++){const [px,py]=rotation===0?[y,134-x]:rotation===1?[x,y]:rotation===2?[239-y,x]:[239-x,134-y],i=(py*240+px)*2;partialMatches&&=(partial.pixels[i]|partial.pixels[i+1]<<8)===0xf81f;}
     check('rotation-'+rotation+'-partial-64-pixels',partialMatches);
-    const upright=[[255,0,0],[0,255,0],[0,0,255],[255,255,0]],inverted=[upright[3],upright[2],upright[1],upright[0]],expectedPlanar=rotation>=2?inverted:upright;
+    const upright=[[255,0,0],[0,255,0],[0,0,255],[255,255,0]],inverted=[upright[3],upright[2],upright[1],upright[0]];
+    const expectedPlanar=rotation===3||rotation===2&&!signedPortrait?inverted:upright;
     check('rotation-'+rotation+'-planar-presentation-corners',JSON.stringify(partial.planar_corners)===JSON.stringify(expectedPlanar),{expected:expectedPlanar,actual:partial.planar_corners});
+    const expectedAngle=([-90,0,signedPortrait?90:-90,0])[rotation];
+    check('rotation-'+rotation+'-3d-and-panel-sign',[full,partial].every(f=>f.freshDisplay.deviceRotationDeg===expectedAngle
+      &&f.presentation===(expectedAngle+360)%360));
     report.rotation_snapshots.push({rotation,fullEvent,partialEvent,full,partial});
     await page.screenshot({path:resolve(out,'rotation-'+rotation+'.png'),fullPage:true});
     if(rotation<3)await advance('rotation-full',rotation+1);else await advance('ready',1);

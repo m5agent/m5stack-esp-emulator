@@ -278,7 +278,8 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 - 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 正式托管需回归相同的原显示、键盘和参考镜像。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245)
 
 - 按例程加入可控网络及其他 Unit。固件固定、真实帧、控制器和资源生命周期一起验收。CoreS3 UIFlow2 Speaker 仍需明确原始 WAV 的授权来源和工作台装配路径，再验证真实播放。[例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255) · [Speaker 素材 #271](https://github.com/m5agent/m5stack-esp-emulator/issues/271)
-- 排查 Cardputer-Adv 原版 Button 偶发的启动栈观察点，以及 IR NEC 的工作台竖屏方向和实际 GPIO44 LEDC 波形。[启动 #268](https://github.com/m5agent/m5stack-esp-emulator/issues/268) · [IR #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258)
+- 排查 Cardputer-Adv 原版 Button 偶发启动异常和 GPIO44 LEDC 的 NEC 脉宽误差。[启动 #268](https://github.com/m5agent/m5stack-esp-emulator/issues/268) · [IR 时序 #258](https://github.com/m5agent/m5stack-esp-emulator/issues/258)
+- CoreS3 旧 SDK 旋转时需使目标画面与真实触点使用同一坐标；已验证 v2.5.5 显式预览支持原 Switch。ModuleLLM 原语音助手还需要可控 UART2 对端及原回调验收。[M5UI 坐标 #273](https://github.com/m5agent/m5stack-esp-emulator/issues/273) · [ModuleLLM #274](https://github.com/m5agent/m5stack-esp-emulator/issues/274)
 
 ### UNIT-DEFER-01：Unit 剩余 planned/DEFER（收口后仅 2 项）
 
