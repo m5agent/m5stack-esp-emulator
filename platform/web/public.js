@@ -41,6 +41,7 @@ const state = {
   busy: false,
   serial: '',
   serialBytes: 0,
+  browserUnavailableReason: '',
   deviceFilter: 'all',
   unitFilter: 'all',
   selectedUnit: null,
@@ -67,7 +68,7 @@ function error(error) {
   if (error?.name !== 'AbortError') message('errorBanner', error?.message || String(error));
 }
 function browserProfile(id) {
-  if (state.config.browser_board_execution !== true || state.browserUnavailable) return null;
+  if (state.config.browser_board_execution !== true || state.browserUnavailableReason) return null;
   if (state.config.browser_runtime_engine === 'qemu-wasm') return state.qemuProfiles ? getQemuBrowserProfile(id,state.qemuProfiles,{allowCandidateProfiles:state.config.publication_eligible===false}) : null;
   return getBrowserProfile(id);
 }
@@ -231,7 +232,7 @@ function pythonUnavailableReason() {
   if(device?.uiflow2?.supported===false)return '此型号不支持 UIFlow2，当前网页编程不可用';
   if(device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!browserProfile(device.id)))
     return '当前浏览器仅提供此型号的模型预览，不能运行网页代码';
-  if(state.browserUnavailable||state.config.browser_board_execution!==true)return '本站浏览器运行暂不可用，可浏览模型或连接仿真服务';
+  if(state.browserUnavailableReason||state.config.browser_board_execution!==true)return '本站浏览器运行暂不可用，可浏览模型或连接仿真服务';
   if(!browserProfile(device?.id))return '此型号尚未取得浏览器运行准入，网页编程不可用';
   if(state.config.browser_runtime_engine!=='qemu-wasm')return '当前运行内核不提供网页 MicroPython 编程';
   return '启动浏览器中的本地 MicroPython 编程环境后即可运行';
@@ -296,6 +297,7 @@ async function runPython() {
 }
 function updateCapability() {
   const device = state.selected,
+    mode = $('runtimeMode').value,
     selectedLane = lane(),
     supported = !!browserProfile(device?.id),
     modelOnly = device?.visual_only || (state.config.browser_runtime_engine==='qemu-wasm'&&device?.browser_only&&!supported);
@@ -332,6 +334,10 @@ function updateCapability() {
     $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor>1?`虚拟时间与看门狗按 1/${p.clockDivisor} 慢放。`:'采用正常虚拟时钟。'}刷新不保存 Flash。`;
     if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
+  if (!selectedLane && (mode === 'auto' || mode === 'browser') && state.browserUnavailableReason) {
+    $('capabilityTitle').textContent = '浏览器运行不可用';
+    $('capabilityText').textContent = state.browserUnavailableReason;
+  }
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud') {
     $('capabilityTitle').textContent=selectedLane==='service'?'官方 UIFlow2 · 原生服务运行':'云端配对需要原生设备服务';
     $('capabilityText').textContent=selectedLane==='service'
@@ -347,7 +353,7 @@ function updateCapability() {
     $('capabilityTitle').textContent='请调整 Unit 连线';
     $('capabilityText').textContent=assembly.issues?.[0]?.message||'当前装配草稿与设备接口不兼容。';
   }
-  $('openServiceBtn').hidden = !!selectedLane || !!modelOnly || $('runtimeMode').value === 'browser';
+  $('openServiceBtn').hidden = !!selectedLane || !!modelOnly || mode === 'browser';
   $('startBtn').disabled = state.busy || state.stopUnconfirmed || invalidAssembly || !device || !state.shell || !selectedLane;
   $('startBtn').textContent =
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
@@ -1321,8 +1327,9 @@ async function init() {
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
-      state.browserUnavailable = true;
-      error(new Error(`${cause.message} 仍可浏览模型或连接 HTTPS 仿真服务。`));
+      state.browserUnavailableReason = cause.code === 'coi_isolation_failed' && window.parent !== window
+        ? '嵌入页面未能启用固件所需的共享内存。请在新标签页直接打开模拟器。'
+        : `${cause.message} 仍可浏览模型或连接 HTTPS 仿真服务。`;
     }
     renderBrowserHistory();
   }
