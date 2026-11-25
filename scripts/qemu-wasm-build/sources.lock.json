@@ -197,7 +197,7 @@
     "hw/m5stopwatch/m5cardputer.c": "015d452cdbab8687dcb479fbc96beda5b2e6285faa03140f1bc53c9fdde658f6",
     "hw/m5stopwatch/m5cardputeradv.c": "c4a4072dc25854d9c4e0017c95c829b5d66b0bd850e9865b98928e7bccbfadff",
     "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
-    "hw/m5stopwatch/m5cores3.c": "22119b525d82f00e9becfd210ba895262514cb7549d3c284fe2779e6c238fcea",
+    "hw/m5stopwatch/m5cores3.c": "ae90adb4d6f308284c877aa629702e8218f881234e0c4cd13391dde5a0b90cd9",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
     "hw/m5stopwatch/m5paper_et047.c": "88d4b30712372c88cabf375cf16e569a3d533f2731014dd6e918a49a3cb7cdf8",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
@@ -207,8 +207,8 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9a05306ea7fec3a847c54e030c91b14d6481bbf5d7cd8b60eebe9ce4fb110ecd",
-    "hw/m5stopwatch/m5stopwatch.h": "ac9b10c69cd212a49bcfa31ec9a974bcc8501341661161576075af4e5bd7fbf0",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "96d85651f66778e7c2abb95cebb2dbc3eb985eefcfe9ece6f71fba2b01f01ca7",
+    "hw/m5stopwatch/m5stopwatch.h": "1339014943f6f3e8a4785081228df91068a32afa9bdb26af9501799713f25a92",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "a4c9cc62f63205b76ab2eaa1f0ad3bb21e32a29e646f3a86f25322643010dbda",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
@@ -644,6 +644,10 @@
     {
       "path": "patches/qemu-wasm-probe/0041-cores3-gpspi-host-routes.patch",
       "sha256": "c2b0404f419117d2456db06f69239440c3953c73ec7b8cbe03afa4882320b59c"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0042-cores3-rtc-pmic-wakeup.patch",
+      "sha256": "75611938089cdcf21ecb4991b7ccb179f3bfd7c6e610321857194abba455313d"
     }
   ],
   "qemu": {

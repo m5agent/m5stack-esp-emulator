@@ -546,3 +546,15 @@ disable, polarity and GPIO output enable determine whether the panel sees
 the transfer. Software GPIO chip select uses the established GPIO listener.
 This keeps the ESP-IDF SPI3 path and the CoreS3 M5GFX SPI2 path on the same
 panel model with independent controller transactions.
+
+## CoreS3 BM8563 timer and AXP2101 wake (`0042`)
+
+The BM8563 countdown uses the host clock while the SoC is suspended. Its
+active-low level interrupt is wired to the AXP2101 IRQ input on CoreS3.
+When firmware requests power off with a countdown wake armed, the board
+suspends the existing VM and applies a power-on reset after the IRQ arrives.
+The browser keeps the same console and Flash for the wake. A power-off
+request with no timer wake armed ends the session as before.
+
+This path covers the level interrupt used by the Arduino Wakeup example.
+Calendar alarms and periodic interrupt pulses remain outside this patch.

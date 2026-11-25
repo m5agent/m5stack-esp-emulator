@@ -279,7 +279,9 @@ export class PublicQemuRuntime {
   async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state(this.guestReady()?'running':'booting');return this.observe();}
   reset(){check(['running','paused','sleeping'].includes(this.status),'设备未运行。');return this.input({type:'reset',down:true});}
   async input(event){
-    check(this.status==='running'||this.status==='sleeping'&&['button','reset'].includes(event?.type)
+    // QMP accepts input while suspended, so the UI can release a held touch.
+    const touchRelease=event?.type==='touch'&&event.down===false;
+    check(this.status==='running'||this.status==='sleeping'&&(['button','reset'].includes(event?.type)||touchRelease)
       ||this.status==='paused'&&(event?.down===false||event?.type==='reset'),'请先启动或继续设备。');
     qemuInputCommand(this.profile,event); // Validate before crossing the iframe boundary.
     const result=await this.ask('input',event);

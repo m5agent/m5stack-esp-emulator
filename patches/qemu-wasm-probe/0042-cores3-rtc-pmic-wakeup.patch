@@ -1,0 +1,349 @@
+diff --git a/hw/m5stopwatch/m5cores3.c b/hw/m5stopwatch/m5cores3.c
+index 363c066..fdb7bf0 100644
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -67,13 +67,22 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         { "rx8130", 0x32 },
+         { "es8311", 0x18 },
+     };
++    DeviceState *rtc = NULL;
++    DeviceState *pmic = NULL;
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+         qdev_prop_set_string(d, "model", devs[i].model);
+         qdev_prop_set_uint8(d, "address", devs[i].addr);
+         object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
++        if (devs[i].addr == 0x34) {
++            pmic = d;
++        } else if (devs[i].addr == 0x51) {
++            rtc = d;
++        }
+     }
++    /* BM8563 INT and AXP2101 IRQ share the board's AXP_WAKEUP net. */
++    m5sw_connect_rtc_pmic_wakeup(rtc, pmic);
+     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
+ 
+     DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 06dfec7..a7363a7 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -164,6 +164,7 @@ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
+ void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_scs_servo_attach(DeviceState *uart);
++void m5sw_connect_rtc_pmic_wakeup(DeviceState *rtc, DeviceState *pmic);
+ bool m5sw_stackchan_servo_power_enabled(void);
+ void m5_scs_servo_power_changed(bool enabled);
+ void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index fba2aa5..12b8714 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -7,10 +7,12 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "qemu/notify.h"
+ #include "qemu/timer.h"
+ #include "sysemu/runstate.h"
+ #include "qapi/error.h"
+ #include "hw/i2c/i2c.h"
++#include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/visitor.h"
+ #include <math.h>
+@@ -50,6 +52,16 @@ enum {
+     M_GC0308,
+ };
+ 
++#define RTC_CONTROL2       0x01
++#define RTC_TIMER_CONTROL  0x0e
++#define RTC_TIMER_COUNT    0x0f
++#define RTC_TIMER_ENABLE   BIT(7)
++#define RTC_TIMER_PULSE    BIT(4)
++#define RTC_ALARM_FLAG     BIT(3)
++#define RTC_TIMER_FLAG     BIT(2)
++#define RTC_ALARM_IRQ_EN   BIT(1)
++#define RTC_TIMER_IRQ_EN   BIT(0)
++
+ typedef struct M5swI2CDev {
+     I2CSlave parent_obj;
+     char *model_name;
+@@ -61,6 +73,13 @@ typedef struct M5swI2CDev {
+     bool ptr_set;          /* first byte of a write = register address */
+     int64_t rtc_base_seconds; /* host epoch captured at device realize */
+     int64_t rtc_offset;    /* seconds added to virtual-clock time */
++    QEMUTimer *rtc_countdown;
++    int64_t rtc_countdown_start;
++    qemu_irq rtc_irq;
++    struct M5swI2CDev *power_rtc;
++    QEMUTimer *power_rtc_debounce;
++    Notifier power_rtc_resume;
++    bool rtc_irq_low, rtc_power_off;
+     bool trace;
+     /* live, QOM-settable sensor state (qom-set /machine/bmi270 accel-x 0.5 ...) */
+     double accel[3];       /* g   (BMI270 sensor frame) */
+@@ -337,6 +356,68 @@ static void pm1_release_gpio(M5swI2CDev *s, uint8_t keep)
+     }
+ }
+ 
++static bool pcf8563_countdown_enabled(M5swI2CDev *s)
++{
++    return (s->regs[RTC_TIMER_CONTROL] & RTC_TIMER_ENABLE) &&
++           s->regs[RTC_TIMER_COUNT] != 0;
++}
++
++static bool pcf8563_level_irq_enabled(M5swI2CDev *s)
++{
++    return (s->regs[RTC_CONTROL2] & (RTC_TIMER_PULSE | RTC_TIMER_IRQ_EN)) ==
++           RTC_TIMER_IRQ_EN;
++}
++
++static void pmic_rtc_wake_request(void *opaque)
++{
++    M5swI2CDev *s = opaque;
++
++    if (s->rtc_power_off && s->rtc_irq_low &&
++        runstate_check(RUN_STATE_SUSPENDED)) {
++        qemu_system_wakeup_request(QEMU_WAKEUP_REASON_RTC, NULL);
++    }
++}
++
++static void pmic_rtc_irq(void *opaque, int n, int level)
++{
++    M5swI2CDev *s = opaque;
++
++    if (s->rtc_irq_low == !level) {
++        return;
++    }
++    s->rtc_irq_low = !level;
++    if (s->rtc_power_off && s->rtc_irq_low) {
++        timer_mod_ns(s->power_rtc_debounce,
++                     qemu_clock_get_ns(QEMU_CLOCK_HOST) + 16 * SCALE_MS);
++    } else {
++        timer_del(s->power_rtc_debounce);
++    }
++}
++
++static void pmic_rtc_power_on(M5swI2CDev *s)
++{
++    s->rtc_power_off = false;
++    s->power_enabled = true;
++    timer_del(s->power_rtc_debounce);
++}
++
++static void pmic_rtc_resumed(Notifier *notifier, void *opaque)
++{
++    M5swI2CDev *s = container_of(notifier, M5swI2CDev, power_rtc_resume);
++    WakeupReason reason = *(WakeupReason *)opaque;
++
++    if (!s->rtc_power_off) {
++        return;
++    }
++    pmic_rtc_power_on(s);
++    if (reason == QEMU_WAKEUP_REASON_RTC) {
++        s->regs[0x20] = BIT(1); /* AXP2101 power-on cause: IRQ held low. */
++        fprintf(stderr, "[m5-power] model=axp2101 action=on source=rtc-irq\n");
++    }
++    /* The AXP power-good signal restarts the SoC after its rails return. */
++    qemu_system_reset(SHUTDOWN_CAUSE_GUEST_RESET);
++}
++
+ static void pmic_power_off(M5swI2CDev *s, const char *source)
+ {
+     if (!s->power_enabled) {
+@@ -359,6 +440,19 @@ static void pmic_power_off(M5swI2CDev *s, const char *source)
+     }
+     fprintf(stderr, "[m5-power] model=%s action=off source=%s virtual_ns=%" PRId64 "\n",
+             s->model_name, source, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    if (s->power_rtc && pcf8563_countdown_enabled(s->power_rtc) &&
++        pcf8563_level_irq_enabled(s->power_rtc)) {
++        if (!strcmp(source, "reg10-bit0")) {
++            s->regs[0x21] = BIT(1); /* AXP2101 power-off cause: software. */
++        }
++        s->rtc_power_off = true;
++        qemu_system_suspend_request();
++        if (s->rtc_irq_low) {
++            timer_mod_ns(s->power_rtc_debounce,
++                         qemu_clock_get_ns(QEMU_CLOCK_HOST) + 16 * SCALE_MS);
++        }
++        return;
++    }
+     qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
+ }
+ 
+@@ -551,6 +645,9 @@ static void pmic_key_event(M5swI2CDev *s, bool down)
+  */
+ static bool pmic_write_power_register(M5swI2CDev *s, uint8_t r, uint8_t data)
+ {
++    if (s->power_rtc && (r == 0x20 || r == 0x21)) {
++        return true; /* The AXP2101 power-on/off cause fields are read-only. */
++    }
+     if (s->model == M_PM1 && r == 0x06) {
+         s->regs[r] = data & 0x1f;
+         if (!(data & BIT(1))) {
+@@ -825,6 +922,105 @@ static void pcf8563_time_written(M5swI2CDev *s)
+     s->rtc_offset = (int64_t)t - rtc_virtual_now(s);
+ }
+ 
++static int64_t pcf8563_tick_ns(M5swI2CDev *s)
++{
++    static const int64_t ticks[] = {
++        NANOSECONDS_PER_SECOND / 4096, NANOSECONDS_PER_SECOND / 64,
++        NANOSECONDS_PER_SECOND, INT64_C(60) * NANOSECONDS_PER_SECOND,
++    };
++    return ticks[s->regs[RTC_TIMER_CONTROL] & 3];
++}
++
++static int64_t pcf8563_next_expiry(M5swI2CDev *s, int64_t now)
++{
++    int64_t period = pcf8563_tick_ns(s) * s->regs[RTC_TIMER_COUNT];
++    int64_t elapsed = MAX(0, now - s->rtc_countdown_start);
++    return MAX(now, s->rtc_countdown_start) + period - elapsed % period;
++}
++
++static uint8_t pcf8563_countdown_read(M5swI2CDev *s)
++{
++    if (!pcf8563_countdown_enabled(s)) {
++        return s->regs[RTC_TIMER_COUNT];
++    }
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_HOST);
++    int64_t remaining = pcf8563_next_expiry(s, now) - now;
++    return MIN(s->regs[RTC_TIMER_COUNT],
++               DIV_ROUND_UP(remaining, pcf8563_tick_ns(s)));
++}
++
++static void pcf8563_update_irq(M5swI2CDev *s)
++{
++    uint8_t ctrl = s->regs[RTC_CONTROL2];
++    bool timer_irq = pcf8563_level_irq_enabled(s) && (ctrl & RTC_TIMER_FLAG);
++    bool alarm_irq = (ctrl & RTC_ALARM_IRQ_EN) && (ctrl & RTC_ALARM_FLAG);
++
++    /* INT is open-drain with a board pull-up. */
++    qemu_set_irq(s->rtc_irq, !(timer_irq || alarm_irq));
++}
++
++static void pcf8563_schedule_countdown(M5swI2CDev *s)
++{
++    if (pcf8563_countdown_enabled(s) &&
++        !(s->regs[RTC_CONTROL2] & RTC_TIMER_FLAG)) {
++        int64_t now = qemu_clock_get_ns(QEMU_CLOCK_HOST);
++        timer_mod_ns(s->rtc_countdown, pcf8563_next_expiry(s, now));
++    } else {
++        timer_del(s->rtc_countdown);
++    }
++}
++
++static void pcf8563_countdown_expired(void *opaque)
++{
++    M5swI2CDev *s = opaque;
++
++    s->regs[RTC_CONTROL2] |= RTC_TIMER_FLAG;
++    fprintf(stderr, "[m5-rtc] model=pcf8563 action=timer-expired ctrl2=0x%02x\n",
++            s->regs[RTC_CONTROL2]);
++    pcf8563_update_irq(s);
++}
++
++static void pcf8563_write_timer(M5swI2CDev *s, uint8_t reg, uint8_t value)
++{
++    if (reg == RTC_CONTROL2) {
++        const uint8_t flags = RTC_ALARM_FLAG | RTC_TIMER_FLAG;
++        const uint8_t controls = RTC_TIMER_PULSE | RTC_ALARM_IRQ_EN | RTC_TIMER_IRQ_EN;
++        /* An asserted flag remains set only if written as one. */
++        s->regs[reg] = (value & controls) | (s->regs[reg] & value & flags);
++        pcf8563_update_irq(s);
++    } else {
++        if (reg == RTC_TIMER_CONTROL) {
++            value &= RTC_TIMER_ENABLE | 3;
++        }
++        if (s->regs[reg] != value || reg == RTC_TIMER_COUNT) {
++            s->rtc_countdown_start = qemu_clock_get_ns(QEMU_CLOCK_HOST);
++            s->regs[reg] = value;
++        }
++    }
++    pcf8563_schedule_countdown(s);
++}
++
++void m5sw_connect_rtc_pmic_wakeup(DeviceState *rtc_dev, DeviceState *pmic_dev)
++{
++    M5swI2CDev *rtc = M5SW_I2C_DEV(rtc_dev);
++    M5swI2CDev *pmic = M5SW_I2C_DEV(pmic_dev);
++
++    assert(rtc->model == M_PCF8563 && pmic->model == M_AXP2101);
++    rtc->rtc_countdown = timer_new_ns(QEMU_CLOCK_HOST,
++                                      pcf8563_countdown_expired, rtc);
++    pmic->power_rtc_debounce = timer_new_ns(QEMU_CLOCK_HOST,
++                                           pmic_rtc_wake_request, pmic);
++    pmic->power_rtc = rtc;
++    pmic->power_rtc_resume.notify = pmic_rtc_resumed;
++    qemu_register_wakeup_notifier(&pmic->power_rtc_resume);
++    qemu_register_wakeup_support();
++    qdev_init_gpio_out_named(rtc_dev, &rtc->rtc_irq, "rtc-int", 1);
++    qdev_init_gpio_in_named(pmic_dev, pmic_rtc_irq, "rtc-wake", 1);
++    qdev_connect_gpio_out_named(rtc_dev, "rtc-int", 0,
++                                qdev_get_gpio_in_named(pmic_dev, "rtc-wake", 0));
++    pcf8563_update_irq(rtc);
++}
++
+ static void st25_set_fifo(M5swI2CDev *s, const uint8_t *data, uint32_t size)
+ {
+     size = MIN(size, sizeof(s->st25_fifo));
+@@ -927,6 +1123,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+         return gc0308_read_reg(s, r);
+     }
+     switch (s->model) {
++    case M_PCF8563:
++        if (s->rtc_countdown && r == RTC_TIMER_COUNT) {
++            return pcf8563_countdown_read(s);
++        }
++        break;
+     case M_LP5562:
+         if (r == 0x04) {
+             return s->lp5562_r_pwm;
+@@ -1713,9 +1914,14 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+         s->ptr++;
+         return 0;
+     case M_PCF8563:
+-        s->regs[r] = data;
+-        if (r == 0x08) {
+-            pcf8563_time_written(s);
++        if (s->rtc_countdown && (r == RTC_CONTROL2 || r == RTC_TIMER_CONTROL ||
++                                 r == RTC_TIMER_COUNT)) {
++            pcf8563_write_timer(s, r, data);
++        } else {
++            s->regs[r] = data;
++            if (r == 0x08) {
++                pcf8563_time_written(s);
++            }
+         }
+         s->ptr++;
+         return 0;
+@@ -2436,6 +2642,9 @@ static void dev_reset(DeviceState *dev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(dev);
+ 
++    if (s->rtc_power_off) {
++        pmic_rtc_power_on(s);
++    }
+     if (s->model == M_TCA8418) {
+         g_key_event_head = 0;
+         g_key_event_count = 0;
+@@ -2447,6 +2656,16 @@ static void dev_unrealize(DeviceState *dev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(dev);
+ 
++    if (s->rtc_countdown) {
++        timer_free(s->rtc_countdown);
++        s->rtc_countdown = NULL;
++    }
++    if (s->power_rtc_debounce) {
++        notifier_remove(&s->power_rtc_resume);
++        timer_free(s->power_rtc_debounce);
++        s->power_rtc_debounce = NULL;
++        s->power_rtc = NULL;
++    }
+     if (s->power_key_timer) {
+         timer_free(s->power_key_timer);
+         s->power_key_timer = NULL;
