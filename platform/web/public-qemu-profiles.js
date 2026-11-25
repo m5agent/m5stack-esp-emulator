@@ -1,5 +1,6 @@
 import {validateQemuServoOutputProfile,validateQemuServoState} from './public-qemu-servo.js';
 import {qemuUnitExampleDistanceCommand,validateQemuUnitExampleProfile} from './public-qemu-unit-examples.js';
+import {validateQemuGnssExample} from './public-qemu-gnss-example.js';
 import {assetUrl, siteRoot} from './public-config.js';
 
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
@@ -254,6 +255,7 @@ export function validateQemuProfile(profile) {
         && unit.visual_port === 'grove' && unit.initial?.motion === false, 'Unreviewed QEMU PIR wiring');
     }
   }
+  if (Object.hasOwn(profile, 'gnssExample')) validateQemuGnssExample(profile);
   const reference = profile.reference;
   const url = new URL(reference?.url);
   check(reference?.kind === 'official-base' && url.protocol === 'https:' && url.hostname === 'm5burner-cdn.m5stack.com' && !url.username && !url.password && !url.search && !url.hash
@@ -302,6 +304,7 @@ export function validateQemuBrowserProfiles(registry) {
   for (const profile of registry.profiles) {
     validateQemuProfile(profile);
     check(!Object.hasOwn(profile, 'unitExample'), 'QEMU Unit examples must bind to a verified runtime upload');
+    check(!Object.hasOwn(profile, 'gnssExample'), 'QEMU GNSS examples must bind to a verified run');
     check(!seen.has(profile.deviceId), 'Duplicate QEMU browser profile'); seen.add(profile.deviceId);
   }
   return registry;
@@ -388,7 +391,8 @@ export function buildQemuArguments(profile) {
   // Keep ROM UART diagnostics and the stock MicroPython USB input distinct.
   const serials = profile.target === 'riscv32-softmmu'
     ? ['file:/bridge/uart.out','file:/bridge/serial1','null','pipe:/bridge/usb']
-    : [profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out','file:/bridge/serial1'];
+    : [profile.inputs.uart?'pipe:/bridge/uart':'file:/bridge/uart.out','file:/bridge/serial1',
+      ...(profile.gnssExample?['pipe:/bridge/gnss']:[])];
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
     ...serials.flatMap(device=>['-serial',device]), '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);

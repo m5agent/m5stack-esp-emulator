@@ -4,6 +4,7 @@ import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware, sha256Buffer} from './public-firmware.js';
 import {loadQemuSdExample} from './public-qemu-sd-media.js';
 import {resolveQemuUnitExample,validateQemuUnitExampleState} from './public-qemu-unit-examples.js';
+import {bindQemuGnssExample} from './public-qemu-gnss-example.js';
 import {createVerifiedAssetLoader, loadVerifiedRuntimeAsset, createVerifiedModuleCompiler, compileVerifiedRuntimeModule} from './public-verified-assets.js';
 import {sha256Bytes} from './sha256.js';
 import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, clearQemuFirmwareExecutionBinding, validateQemuFirmware, validateQemuProfile, validateQemuRuntimeRequirements, qemuInputCommand, validateQemuOnboardState, qemuRuntimeIdentity} from './public-qemu-profiles.js';
@@ -108,7 +109,7 @@ export class PublicQemuRuntime {
     }
   }
   async start(options={}) {
-    const {device,firmware,signal,clockDivisor}=options;
+    const {device,firmware,signal,clockDivisor,gnssExample}=options;
     await this.stop();
     const generation=++this.generation;this.uartOwner=null;this.consoleEpoch=0;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
@@ -122,7 +123,7 @@ export class PublicQemuRuntime {
     this.state('loading');
     try {
       active();
-      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor'].includes(key)),'Unsupported QEMU execution option');
+      check(Object.keys(options).every(key=>['device','firmware','signal','clockDivisor','gnssExample'].includes(key)),'Unsupported QEMU execution option');
       const deviceId=typeof device==='string'?device:device?.id;
       const registry=this.profiles||await loadQemuBrowserProfiles({root:this.root,fetchImpl:this.fetchImpl,signal:bootAbort.signal});
       active();
@@ -155,6 +156,7 @@ export class PublicQemuRuntime {
         profile.admission='candidate';profile.clockDivisor=clockDivisor;profile.profile=`${deviceId}-wasm-${clockDivisor===1?'wallclock-candidate':'vm-div8'}`;
       }
       profile=resolveQemuUnitExample(profile,inputSHA256);
+      profile=bindQemuGnssExample(profile,gnssExample,inputSHA256);
       validateQemuProfile(profile);
       this.profile=profile;
       active();this.saved={device:deviceId,firmware:flash.slice(),clockDivisor};
@@ -198,6 +200,7 @@ export class PublicQemuRuntime {
         normalization:{kind:inputBytes===runtimeBytes?'none':'pad-ff',inputBytes,runtimeBytes},
         ...(sdExample ? {sdCard:sdExample.identity} : {}),
         ...(profile.unitExample ? {unitExample:profile.unitExample} : {}),
+        ...(profile.gnssExample ? {gnssExample:profile.gnssExample,gnssTransport:'esp-uart2'} : {}),
         firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
         outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
@@ -314,6 +317,16 @@ export class PublicQemuRuntime {
     if(event.type==='example-distance'&&(generation!==this.generation||consoleEpoch!==this.consoleEpoch||this.stopping))
       throw new DOMException('Unit 示例所属设备或程序已改变。','AbortError');
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};
+  }
+  async applyGnssFix(fix) {
+    check(this.profile?.gnssExample&&this.status==='running'&&!this.stopping,'请先启动定位例程的浏览器设备。');
+    const {generation,consoleEpoch}=this;
+    const result=await this.ask('gnss-fixture',{fix});
+    if(generation!==this.generation||consoleEpoch!==this.consoleEpoch||this.stopping)
+      throw new DOMException('定位例程的设备或程序已改变。','AbortError');
+    this.inputs.push({at:new Date().toISOString(),type:'gnss-fix',fix,result});
+    if(this.inputs.length>200)this.inputs.shift();
+    return result;
   }
   subscribeUart(listener){this.uartListeners.add(listener);return ()=>this.uartListeners.delete(listener);}
   acquireUart(){

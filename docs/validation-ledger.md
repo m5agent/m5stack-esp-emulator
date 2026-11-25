@@ -85,6 +85,12 @@ CoreS3 原版 UIFlow2 Camera 在旧 WASM 的 MMIO 跟踪复现 28 次 QVGA 短�
 Display 对照未挂接 Unit，四次运行均正常回收 Worker。真机、原生及正式托管未执行。
 [CoreS3 Unit #246](https://github.com/m5agent/m5stack-esp-emulator/issues/246) · [控制器、帧、输入与回收证据](https://github.com/m5agent/agent-work-logs/tree/759a4d98fe9a4514e7226acceda987ac7359144e/records/m5stack-esp-emulator/2026-11-25-docs-wasm-embed/followups/2026-11-25-cores3-unit-examples)
 
+Cardputer-Adv 的 LoRa1262 和 LoRa868 GPS 原例程在本地浏览器 WASM
+`e350ed7b…5f4b` 的 UIFlow2 v2.5.3 工作台运行。每个地点经 ESP32-S3
+UART2 读取 423 字节 NMEA，原屏显示两组预期经纬度及时间。普通工作台同固件保留
+键盘控制和原串口，未启用定位。虚拟定位通过，LoRa 无线收发仍待验证。
+[Cardputer-Adv LoRa Cap #244](https://github.com/m5agent/m5stack-esp-emulator/issues/244)
+
 ## 2026-11-24 便携 review-sta 网络审查控制固件
 
 [#238](https://github.com/m5agent/m5stack-esp-emulator/issues/238) 的 `review-sta` profile

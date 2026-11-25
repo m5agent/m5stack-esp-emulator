@@ -127,6 +127,12 @@
             </div>
             <output id="browserExampleUnitState" aria-live="polite"></output>
           </div>
+          <div id="browserGnssPanel" class="console-content" hidden>
+            <span>模拟 GNSS 定位</span>
+            <button class="secondary-button" id="browserGnssPositionA" type="button" disabled>地点 A</button>
+            <button class="secondary-button" id="browserGnssPositionB" type="button" disabled>地点 B</button>
+            <output id="browserGnssState" aria-live="polite"></output>
+          </div>
           <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
           <p id="browserEvidenceStatus" class="field-help" role="status" data-testid="browser-evidence-status" data-evidence-state="unavailable" hidden></p>
           <section class="python-workbench" aria-labelledby="pythonHeading">
@@ -182,6 +188,7 @@ print("Hello, UIFlow!")
               <select class="public-field" id="referenceExample">
                 <option value="uiflow" selected>本地 MicroPython 编程</option>
                 <option value="cores3-display" hidden>CoreS3 绘图 · UIFlow2 v2.5.5</option>
+                <option value="cardputer-adv-cap-gnss" hidden>LoRa Cap 定位 · UIFlow2 v2.5.3</option>
                 <option value="uiflow-cloud" hidden>官方 UIFlow2 · 云端配对</option>
                 <option value="probe">屏幕与按键示例</option>
                 <option value="wallclock-candidate">正常速度（LVGL 调度候选修复）</option>

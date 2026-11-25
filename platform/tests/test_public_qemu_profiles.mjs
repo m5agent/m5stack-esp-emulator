@@ -6,6 +6,7 @@ import {validateQemuBrowserProfiles, validateQemuProfile, getQemuBrowserProfile,
   qemuOnboardOutputQueries, validateQemuOnboardState, qemuRuntimeIdentity, CORE_MATRIX_STOCK_FLASH_SHA256} from '../web/public-qemu-profiles.js';
 import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 import {resolveQemuUnitExample, qemuUnitExampleQueries, validateQemuUnitExampleState} from '../web/public-qemu-unit-examples.js';
+import {GNSS_EXAMPLE_ID,bindQemuGnssExample,qemuGnssFixBytes} from '../web/public-qemu-gnss-example.js';
 
 const s3AdcFields = [
   [2,128,2,1], [2,149,8,0], [2,157,6,0], [2,163,6,0], [2,169,6,0],
@@ -318,6 +319,30 @@ const relay = resolveQemuUnitExample(s3, relayHash);
 assert.strictEqual(resolveQemuUnitExample(s3, '0'.repeat(64)), s3);
 const otherBoard = pick('cardputer-adv');
 assert.strictEqual(resolveQemuUnitExample(otherBoard, sonicHash), otherBoard);
+const advFirmware='b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd';
+const advWorkbench=resolveQemuFirmwareProfile(otherBoard,advFirmware);
+const gnssWorkbench=bindQemuGnssExample(advWorkbench,GNSS_EXAMPLE_ID,advFirmware);
+assert.strictEqual(bindQemuGnssExample(advWorkbench,undefined,advFirmware),advWorkbench);
+assert.ok(!buildQemuArguments(advWorkbench).includes('pipe:/bridge/gnss'));
+const gnssArguments=buildQemuArguments(gnssWorkbench);
+assert.deepEqual(gnssArguments.filter((_,index)=>gnssArguments[index-1]==='-serial'),
+  ['pipe:/bridge/uart','file:/bridge/serial1','pipe:/bridge/gnss']);
+assert.throws(()=>validateQemuBrowserProfiles({...registry,profiles:[gnssWorkbench]}),/verified run/);
+assert.throws(()=>bindQemuGnssExample(otherBoard,GNSS_EXAMPLE_ID,advFirmware),/GNSS example profile/);
+assert.throws(()=>bindQemuGnssExample(advWorkbench,GNSS_EXAMPLE_ID,sonicHash),/verified UIFlow2 firmware/);
+assert.throws(()=>qemuGnssFixBytes(advWorkbench,'position-a'),/GNSS example profile/);
+assert.throws(()=>qemuGnssFixBytes(gnssWorkbench,'nmea from caller'),/Unknown GNSS/);
+for(const [fix,time] of [['position-a','123519'],['position-b','163347']]){
+  const fixture=qemuGnssFixBytes(gnssWorkbench,fix);
+  assert.equal(fixture.length,423);
+  const lines=new TextDecoder().decode(fixture).trimEnd().split('\r\n');
+  assert.equal(lines.length,6);
+  for(const line of lines){
+    const [,sentence,checksum]=line.match(/^\$(GN(?:GGA|RMC),[^*]+)\*([A-F0-9]{2})$/);
+    assert.equal([...sentence].reduce((sum,char)=>sum^char.charCodeAt(0),0),parseInt(checksum,16));
+    assert.equal(sentence.split(',')[1],time+'.00');
+  }
+}
 assert.deepEqual(qemuUnitExampleQueries(s3), {});
 assert.equal(s3.units.attachments[0].unit_id, 'pir');
 assert.equal(s3.inputs.pir.property, 'motion');

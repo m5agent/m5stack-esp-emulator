@@ -15,6 +15,7 @@ import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
 import * as qemuServo from '../web/public-qemu-servo.js';
 import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime.js';
+import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from '../web/public-qemu-gnss-example.js';
 
 const pageRoot='https://example.test/showcase/';
 const fixtureSha='78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f';
@@ -84,7 +85,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   Object.assign(dependencies,config,firmware,demoFirmware,uiflowFirmware,cloudStatus,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageUrl),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
-    PublicMicroPythonRunner,deviceIdentityCapability,
+    PublicMicroPythonRunner,deviceIdentityCapability,GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench,
     PublicSessionController:class {
       constructor(options){this.options=options;this.frameReady=false;}
       async start(request){nativeStarts.push(request);this.current={session_id:'cloud-host-contract',device_id:request.deviceId,state:'running',uiflow_startup:request.uiflowStartup};this.options.onState({status:'running',session:this.current,frameReady:false});return this.current;}
@@ -198,6 +199,17 @@ const staticBrowser=await entry({pageUrl:'http://127.0.0.1:8000/platform/web/',s
 assert.equal(staticBrowser.element('serviceUrl').value,'');
 assert.equal(staticBrowser.events.includes('connect-service'),false,'a static loopback export must not probe or connect a Device Service');
 assert.equal(staticBrowser.lane(),'browser');
+assert.equal(staticBrowser.element('browserGnssPanel').hidden,true,'Ordinary browser boot keeps the GNSS panel hidden');
+staticBrowser.element('referenceExample').value=GNSS_EXAMPLE_ID;
+assert.equal(staticBrowser.reference().gnssExample,GNSS_EXAMPLE_ID);
+assert.equal(staticBrowser.reference().sha256,workbenchRegistry.profiles.find(row=>row.deviceId==='cardputer-adv').firmwareSHA256);
+assert.equal(staticBrowser.lane(),'browser','Explicit Cap GNSS resolves the browser lane without reference recursion');
+staticBrowser.element('runtimeMode').value='service';
+assert.equal(staticBrowser.lane(),null);
+staticBrowser.element('runtimeMode').value='auto';
+await staticBrowser.share();
+assert.equal(new URL(staticBrowser.clipboard.at(-1)).searchParams.get('autostart'),'0');
+assert.match(staticBrowser.element('shareStatus').textContent,/打开后选择/);
 const disabledBrowser=await entry({browserEnabled:false,search:'?device=stopwatch&autostart=0'});
 assert.equal(disabledBrowser.browserProfile('stopwatch'),null);assert.equal(disabledBrowser.lane(),null);
 const legacy={deviceId:'stopwatch',board:'stopwatch',display:{width:468,height:466}};

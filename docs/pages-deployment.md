@@ -310,6 +310,14 @@ CoreS3 和 Cardputer-Adv。
 1000 mm 开始。继电器通过客体屏幕切换，工作台同步显示 Port B 的虚拟 GPIO 电平。
 支持的固件摘要随工作台的 `public-qemu-unit-examples.js` 提供。
 
+### Cardputer-Adv LoRa Cap 定位例程
+
+在浏览器工作台选择 Cardputer-Adv，将启动环境设为「LoRa Cap 定位 · UIFlow2
+v2.5.3」。启动后导入并运行 LoRa1262 或 LoRa868 的官方 GPS Python 例程。
+「地点 A」和「地点 B」通过 ESP32-S3 UART2 提供校验和正确的 NMEA 数据，
+来宾原程序在屏幕上显示各自的经纬度和 GPS 时间。运行记录包括 UART2 读取字节数。
+此预设覆盖模拟定位，LoRa 收发验收见 [#244](https://github.com/m5agent/m5stack-esp-emulator/issues/244)。
+
 ### CoreS3 绘图例程
 
 在浏览器工作台选择 CoreS3，将启动环境设为「CoreS3 绘图 · UIFlow2 v2.5.5」。

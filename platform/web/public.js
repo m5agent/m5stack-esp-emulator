@@ -1,6 +1,7 @@
 import {renderSerialChannelSelect} from './serial-channel-state.js';
 import {renderUIFlowCloudStatus} from './uiflow-cloud-status.js';
 import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles,getUIFlowWorkbenchExample,getUIFlowWorkbenchFirmware} from './public-uiflow-firmware.js';
+import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from './public-qemu-gnss-example.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
 import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
@@ -86,9 +87,12 @@ function reference(device = state.selected) {
     const startup=serviceCloudStartup(device?.id);
     return startup ? {name:`${device.name} · 官方 UIFlow2 · 云端配对`,nativeCloud:true,sha256:startup.reference_sha256} : null;
   }
+  const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
+  if ($('referenceExample').value===GNSS_EXAMPLE_ID)
+    return profile&&supportsQemuGnssWorkbench(workbench) ? {name:'LoRa Cap 定位 · UIFlow2 v2.5.3',
+      composedWorkbench:true,gnssExample:GNSS_EXAMPLE_ID,sha256:workbench.firmwareSHA256} : null;
   if (lane(device)==='service' && serviceProgrammingDevice(device?.id) && $('referenceExample').value==='uiflow')
     return {name:`${device.name} · 本地 MicroPython 编程`,nativeWorkbench:true};
-  const workbench=state.workbenchProfiles?.profiles.find(row=>row.deviceId===device?.id);
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · 本地 MicroPython 编程`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1','riscv-board-display-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
@@ -132,6 +136,8 @@ function lane(device = state.selected) {
   const drawing = source()==='reference'&&$('referenceExample').value===drawingExampleId;
   if(drawing&&mode!=='model')return mode!=='service'&&drawingExample(device?.id)
     &&browserProfile(device?.id)&&!selectedAttachments().length?'browser':null;
+  if(source()==='reference'&&$('referenceExample').value===GNSS_EXAMPLE_ID&&mode!=='model')
+    return mode!=='service'&&reference(device)?.gnssExample&&!selectedAttachments().length?'browser':null;
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud' && mode!=='model')
     return mode!=='browser'&&serviceCloudStartup(device?.id)?'service':null;
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
@@ -225,6 +231,15 @@ function updateBrowserUnitExample(run) {
     : live?'等待虚拟 Unit 状态':'';
   if(output.textContent!==text)output.textContent=text;
 }
+function updateBrowserGnssExample(run) {
+  const controller=active(run)&&run.controller instanceof PublicQemuRuntime?run.controller:null;
+  const live=controller?.profile?.gnssExample&&['booting','running','paused'].includes(controller.status);
+  const locked=!live||controller.status!=='running'||Boolean(run.gnssPending);
+  $('browserGnssPanel').hidden=!live;
+  $('browserGnssPositionA').disabled=locked;
+  $('browserGnssPositionB').disabled=locked;
+  $('browserGnssState').textContent=live&&run.gnssEpoch===controller.consoleEpoch ? run.gnssMessage : '';
+}
 function status(status, detail, session = state.run?.controller?.current) {
   const labels = {
     loading: '正在加载固件',
@@ -251,6 +266,7 @@ function status(status, detail, session = state.run?.controller?.current) {
   $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
   updateBrowserUnitExample(state.run);
+  updateBrowserGnssExample(state.run);
   updateBrowserEvidence();
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : state.run?.owned===false ? '停止查看' : '停止';
@@ -412,6 +428,10 @@ function updateCapability() {
     $('capabilityTitle').textContent='绘图例程需要浏览器运行';
     $('capabilityText').textContent='请选择浏览器运行，或切换到支持仿真服务的启动环境。';
   }
+  if(source()==='reference'&&$('referenceExample').value===GNSS_EXAMPLE_ID&&mode==='service'){
+    $('capabilityTitle').textContent='LoRa Cap 定位例程需要浏览器运行';
+    $('capabilityText').textContent='请选择浏览器运行，再载入官方 GPS 例程。';
+  }
   if (selectedAttachments().length && !['service','model'].includes(selectedLane)) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
@@ -493,7 +513,8 @@ function renderDetails() {
   $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
   for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
     ? !serviceCloudStartup() : option.value===drawingExampleId
-      ? !profile||!drawingExample(device?.id) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
+      ? !profile||!drawingExample(device?.id) : option.value===GNSS_EXAMPLE_ID
+        ? !profile||!supportsQemuGnssWorkbench(workbench) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
   $('referenceDescription').textContent = ref?.nativeCloud
     ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
@@ -501,6 +522,8 @@ function renderDetails() {
     ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
     : ref?.exampleId
     ? '启动后载入官方绘图例程，运行代码查看图形与二维码。'
+    : ref?.gnssExample
+    ? '载入并运行官方 LoRa1262 或 LoRa868 GPS 例程后，点击地点 A 或 B 模拟定位。'
     : ref?.composedWorkbench
     ? '官方 UIFlow2 运行时配网页编程启动脚本，就绪后可在下方运行 MicroPython；不运行官方云端配对界面。'
     : ref?.wallclockCandidate
@@ -1036,7 +1059,8 @@ async function startRun() {
       }
       state.run = run;
       state.shell?.focusInput?.();
-      await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
+      const gnssOptions=source()==='reference'&&ref?.gnssExample?{gnssExample:ref.gnssExample}:{};
+      await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal,...gnssOptions});
     } else {
       const imported = nativeWorkbench||nativeCloud ? null : await state.service.importFirmware(
         new File([loaded.bytes], loaded.name, {type: 'application/octet-stream'}),
@@ -1357,8 +1381,8 @@ async function share() {
         firmware: firmwareUrl,
         sha256: $('firmwareSha').value.trim() || (selectedSource === 'reference'&&!ref?.nativeCloud ? ref?.sha256 : null),
         serviceUrl: $('serviceUrl').value.trim(),
-        mode: selectedSource==='reference'&&ref?.exampleId&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
-        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&ref?.nativeCloud),
+        mode: selectedSource==='reference'&&(ref?.exampleId||ref?.gnssExample)&&$('runtimeMode').value==='auto'?'browser':$('runtimeMode').value,
+        autostart: $('runtimeMode').value !== 'model'&&!(selectedSource==='reference'&&(ref?.nativeCloud||ref?.gnssExample)),
       },
       new URL(root),
     );
@@ -1367,6 +1391,8 @@ async function share() {
       $('shareStatus').textContent =
         selectedSource === 'reference'&&ref?.nativeCloud
           ? '已复制设备链接。连接支持云端配对的服务后，可启动官方 UIFlow2。'
+          : selectedSource === 'reference'&&ref?.gnssExample
+          ? '已复制设备和固件链接。打开后选择「LoRa Cap 定位」。'
           : selectedSource === 'local'
           ? '已复制设备链接。本地文件需由对方重新选择。'
           : '已复制链接，打开即可加载对应设备与固件。';
@@ -1646,6 +1672,26 @@ $('nativeScreenBtn').addEventListener('click',()=>{
   $('rawFramePanel').hidden=!$('rawFramePanel').hidden;
   $('nativeScreenBtn').textContent=$('rawFramePanel').hidden?'平面触屏':'收起平面触屏';
 });
+for (const [id,fix,label] of [['browserGnssPositionA','position-a','地点 A'],['browserGnssPositionB','position-b','地点 B']]) {
+  $(id).addEventListener('click',async()=>{
+    const run=state.run;
+    if(!active(run)||!run.controller.profile?.gnssExample||run.gnssPending)return;
+    run.gnssPending=true;
+    run.gnssEpoch=run.controller.consoleEpoch;
+    run.gnssMessage=`正在发送${label}…`;
+    updateBrowserGnssExample(run);
+    try {
+      const result=await run.controller.applyGnssFix(fix);
+      run.gnssMessage=`${label} · UART2 已读取 ${result.bytesConsumed} 字节`;
+    } catch(cause) {
+      run.gnssMessage='';
+      if(active(run))error(cause);
+    } finally {
+      run.gnssPending=false;
+      if(active(run))updateBrowserGnssExample(run);
+    }
+  });
+}
 $('browserEvidenceBtn').addEventListener('click', () => {
   const controller = state.lastBrowserController;
   if (!controller?.receipt) return;
