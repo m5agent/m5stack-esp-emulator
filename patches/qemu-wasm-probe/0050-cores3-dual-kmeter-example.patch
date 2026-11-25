@@ -1,0 +1,117 @@
+diff --git a/hw/m5stopwatch/m5cores3.c b/hw/m5stopwatch/m5cores3.c
+index fdb7bf03d233cb2fccaa94cee95aa20311bbc668..0456e65a93213b59c0b05e3d9a60560b7795b6e7 100644
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -81,6 +81,17 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+             rtc = d;
+         }
+     }
++#ifdef __EMSCRIPTEN__
++    if (g_strcmp0(getenv("M5_WASM_CORES3_DUAL_KMETER_EXAMPLE"), "1") == 0) {
++        DeviceState *meter = qdev_new(TYPE_M5SW_I2C_DEV);
++
++        qdev_prop_set_string(meter, "model", "dual-kmeter");
++        qdev_prop_set_uint8(meter, "address", 0x11);
++        object_property_add_child(qdev_get_machine(), "dual-kmeter",
++                                  OBJECT(meter));
++        qdev_realize_and_unref(meter, BUS(bus), &error_fatal);
++    }
++#endif
+     /* BM8563 INT and AXP2101 IRQ share the board's AXP_WAKEUP net. */
+     m5sw_connect_rtc_pmic_wakeup(rtc, pmic);
+     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 12b8714911d698ac359cdd2c1d0acda2786c2557..ff9e7a16470d44ac32c4717e7ab03e54703cc582 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -50,6 +50,7 @@ enum {
+     M_ES8389,
+     M_IP2315,
+     M_GC0308,
++    M_DUAL_KMETER,
+ };
+ 
+ #define RTC_CONTROL2       0x01
+@@ -88,6 +89,8 @@ typedef struct M5swI2CDev {
+     int64_t vbat_mv, vin_mv, vinout_mv; /* M5PM1 */
+     int64_t battery_level;
+     double temperature_c;
++    int64_t dual_kmeter_centi_c;
++    uint32_t dual_kmeter_snapshot;
+     double humidity_pct;
+     double bus_voltage_mv;
+     double current_ma;
+@@ -1123,6 +1126,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+         return gc0308_read_reg(s, r);
+     }
+     switch (s->model) {
++    case M_DUAL_KMETER:
++        if (r < 4) {
++            return (uint8_t)(s->dual_kmeter_snapshot >> (r * 8));
++        }
++        return r == 0x30 ? 0 : 0xff;
+     case M_PCF8563:
+         if (s->rtc_countdown && r == RTC_TIMER_COUNT) {
+             return pcf8563_countdown_read(s);
+@@ -1645,6 +1653,9 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+             rx8130_fill_time(s);
+         } else if (s->model == M_PCF8563) {
+             pcf8563_fill_time(s);
++        } else if (s->model == M_DUAL_KMETER) {
++            /* Latch all four Celsius bytes for the guest's repeated START. */
++            s->dual_kmeter_snapshot = (uint32_t)s->dual_kmeter_centi_c;
+         }
+     } else if (ev == I2C_FINISH) {
+         if (s->model == M_RX8130 && s->ptr_set) {
+@@ -1750,6 +1761,9 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+         return 0;
+     }
+     switch (s->model) {
++    case M_DUAL_KMETER:
++        /* This example only writes the register pointer. */
++        return -1;
+     case M_GC0308:
+         gc0308_write_reg(s, r, data);
+         s->ptr++;
+@@ -2015,6 +2029,22 @@ static void prop_set_i64(Object *o, Visitor *v, const char *name, void *op, Erro
+         *(int64_t *)op = d;
+     }
+ }
++static void prop_set_dual_kmeter_centi_c(Object *o, Visitor *v,
++                                        const char *name, void *op,
++                                        Error **errp)
++{
++    int64_t value;
++
++    if (!visit_type_int64(v, name, &value, errp)) {
++        return;
++    }
++    if (value < -20000 || value > 135000) {
++        error_setg(errp, "%s is outside the DualKmeter demo range", name);
++        return;
++    }
++    *(int64_t *)op = value;
++}
++
+ static void prop_get_rtc_time(Object *o, Visitor *v, const char *name,
+                               void *op, Error **errp)
+ {
+@@ -2411,6 +2441,18 @@ static void dev_realize(DeviceState *dev, Error **errp)
+                             prop_get_i64, NULL, NULL, &s->written_bytes);
+         object_property_add(OBJECT(s), "tag-uid", "str",
+                             prop_get_st25_uid, NULL, NULL, s);
++    } else if (!strcmp(m, "dual-kmeter")) {
++        s->model = M_DUAL_KMETER;
++        s->dual_kmeter_centi_c = 2350;
++        object_property_add(OBJECT(s), "temperature-centi-c", "int",
++                            prop_get_i64, prop_set_dual_kmeter_centi_c,
++                            NULL, &s->dual_kmeter_centi_c);
++        object_property_add(OBJECT(s), "transactions", "int",
++                            prop_get_i64, NULL, NULL, &s->transactions);
++        object_property_add(OBJECT(s), "read-bytes", "int",
++                            prop_get_i64, NULL, NULL, &s->read_bytes);
++        object_property_add(OBJECT(s), "written-bytes", "int",
++                            prop_get_i64, NULL, NULL, &s->written_bytes);
+     } else if (!strcmp(m, "sht40")) {
+         s->model = M_SHT40;
+         s->temperature_c = 25.0;

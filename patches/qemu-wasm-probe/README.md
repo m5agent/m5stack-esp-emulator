@@ -630,3 +630,16 @@ The panel derives a signed portrait presentation angle from MADCTL and the
 physical glass mount. The 3D workbench and flat screen use that direction
 for both portrait quarter turns. The underlying framebuffer and landscape
 presentation retain their existing physical-glass coordinates.
+
+## CoreS3 Dual Kmeter example (0050)
+
+The explicitly selected browser example attaches one M127 slave at address
+0x11 on the existing CoreS3 I²C bus used by the M-Bus I²C1 route. Register
+0x30 reports ready and 0x00–0x03 return one latched little-endian signed Celsius
+value in hundredths of a degree. The browser exposes a bounded virtual
+temperature and observes the same I²C device's transaction counters.
+
+The default CoreS3 workbench does not request the attachment. Only the official
+example's readiness and thermocouple Celsius path are modeled. Channel control,
+other readouts, alternate addresses and physical temperature behavior are
+outside this layer.
