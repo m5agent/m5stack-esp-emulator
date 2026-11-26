@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-24`
+日期：`2026-11-26`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,44 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-26：esp32sim 浏览器工作台
+
+`virtual-device validation`，browser-WASM。本地静态导出使用 esp32sim
+`25c3948c8311f5afe95d6058add3d2c298e75c4b`，Rust 1.99.1，WASM SHA-256
+`ecbf5810ec8ecef331e02b5128e0a1e7bae8ebe9c94dbd36330c7f75d3f22e0c`，
+ESP32-S3 ROM ELF SHA-256
+`c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd`。
+用 Playwright 驱动 Chrome 运行
+[跨源工作台测试](../platform/tests/test_public_esp32sim_guest.mjs)。
+
+| 板与固件 | 输入 BIN SHA-256 |
+| --- | --- |
+| CoreS3 Display | `a88182dc789c1dfe7525ad7ff9a284fd201b6c55375502c895b689cd56af13d6` |
+| CoreS3 Touch | `3cec5642f681dc0525c7e6cdbada7189f0ee52f9a95b68b19055571664222606` |
+| CoreS3 UIFlow2 v2.5.3 | `1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264` |
+| Cardputer-ADV Display | `cc1b3e5868feb075e2ec8a5e7211897e8ae1c9635f5d072442ef007273c2a968` |
+| Cardputer-ADV Keyboard | `f7edb36bb3662506853773399467841a55bef3d3e16cc3469bc821b4ad7638bf` |
+| CoreS3 Button | `3dfbaaaa1ea168074d284b40b14fc489821162fb211f568a6a52181e54dab69c` |
+| Cardputer-ADV Button | `07ebcecd82c9a64aad457f5e30eac140bfd24db8006506ea6f04489a860dc0e7` |
+
+Chrome 158.0.8127.37 的独立父子源均未发送 COOP/COEP，iframe 中
+`crossOriginIsolated=false` 且无 SharedArrayBuffer。CoreS3 两次模型触点
+`(157,120)` 和 `(113,95)` 进入来宾，后一次在 LCD 绘制 `X:113 / Y:95`。
+UIFlow2 v2.5.3 从主界面点击 `(34,47)` 进入设置，并观测到 Worker 输出 PCM
+和浏览器创建 AudioBufferSource。ADV 真实键盘例程显示 `ab`，收到 Fn 与
+分号的按下/释放组合。ADV 的独立 Button 固件经 F12/GPIO0 输出
+`Button A Pressed` 和 `Button A Released`。两个详情页另行验证，
+CoreS3 的 AXP2101 短按使 Button 固件绘制 `Btn PWR`。通过的来宾会话在
+停止前由 CDP 看到一个 DedicatedWorker，Stop 后 iframe 仍在时归零。
+首次部分用例录图超时，保留失败回执。后续重复运行验证实际画面与清理。
+双内核导出在浏览器切换到 QEMU-WASM 后进入其隔离工作台，
+本轮未重跑 QEMU-WASM 来宾矩阵。
+
+PaperS3/StopWatch 使用独立旧版
+`3cd3db3b7202e9fc559328c7247c11134c0437f9`，重建 WASM SHA-256
+`05f020796d2611865eb570f027bd6d905a5dc19b39f827421cfcae13524bbe45`。
+原生 15/15 与 11/11 记录属于独立执行路径。本次未部署正式文档或 Pages。
 
 ## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
 

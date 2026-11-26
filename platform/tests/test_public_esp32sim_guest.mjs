@@ -124,7 +124,11 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         assert.equal(row.workersBefore,1);
         const screenshot = async suffix => {
           const shot = path.join(out,`${jit?'jit':'interp'}-${label}-${suffix}.png`);
-          await frame.locator('#deviceMount').screenshot({path:shot,timeout:45000});
+          const mount = frame.locator('#deviceMount');
+          await mount.evaluate(element=>element.scrollIntoView({block:'center'}));
+          const clip = await mount.boundingBox();
+          assert(clip,'visible device mount');
+          await page.screenshot({path:shot,clip,timeout:30000});
           return path.basename(shot);
         };
         const settle = async () => page.waitForTimeout(example==='uiflow'?2600:550);
@@ -132,7 +136,7 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         if (example === 'display') {
           await frame.locator('#pauseBtn').click();
           await frame.waitForFunction(() => document.querySelector('#runtimeStatus').dataset.status==='paused');
-        } else if (example !== 'button') row.before = await screenshot('before');
+        } else if (example === 'touch' || example === 'keyboard' || example === 'uiflow') row.before = await screenshot('before');
         const frameToken = () => frame.locator('#rawFrameCanvas').evaluate(c=>c.toDataURL());
         if (example === 'touch') {
           const before = await frameToken();
