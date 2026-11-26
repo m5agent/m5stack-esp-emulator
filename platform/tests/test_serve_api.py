@@ -189,6 +189,74 @@ class ServeBrowserSiteTests(unittest.TestCase):
             urlopen(origin + "/" + self.wasm, timeout=5)
         self.assertEqual(error.exception.code, 404)
 
+    def esp32sim_export(self, *, mixed=False, legacy=False):
+        manifest_path = self.export / "public-site-manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        files = {row["path"]: (self.export / row["path"]).read_bytes() for row in manifest["assets"]
+                 if mixed or not row["path"].startswith("platform/runtime/")}
+        config_path = "platform/web/site-config.json"
+        config = json.loads(files[config_path])
+        profiles = ["m5stack-cores3", "m5stack-cardputer-adv"]
+        bundles = {"esp32sim": profiles}
+        if legacy:
+            bundles["esp32sim-legacy"] = ["papers3", "stopwatch"]
+        config.update(browser_runtime_engine="esp32sim", browser_qemu_available=mixed,
+                      browser_esp32sim_profiles=[profile for items in bundles.values() for profile in items])
+        files[config_path] = json.dumps(config).encode()
+        for directory, items in bundles.items():
+            prefix = f"platform/runtime/{directory}/"
+            files[prefix + "runtime.json"] = json.dumps({"profiles": items}).encode()
+            for name in ("esp32sim.wasm", "esp32s3_rev0_rom.elf", "LICENSE", "ROM_LICENSE", "NOTICE"):
+                files[prefix + name] = name.encode()
+        manifest["assets"] = []
+        for name, content in files.items():
+            path = self.export / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+            manifest["assets"].append({"path": name, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()})
+        raw = json.dumps(manifest).encode()
+        manifest_path.write_bytes(raw)
+        return hashlib.sha256(raw).hexdigest()
+
+    def test_admits_mixed_browser_export_with_legacy_profiles(self):
+        site = BrowserSite(self.export, self.esp32sim_export(mixed=True, legacy=True))
+        self.assertIn(self.wasm, site.assets)
+        self.assertIn("platform/runtime/esp32sim/esp32sim.wasm", site.assets)
+        self.assertIn("platform/runtime/esp32sim-legacy/esp32sim.wasm", site.assets)
+
+    def test_mixed_export_requires_c61_only_when_declared(self):
+        self.esp32sim_export(mixed=True)
+        path = self.export / "public-site-manifest.json"
+        manifest = json.loads(path.read_text())
+        manifest["assets"] = [row for row in manifest["assets"]
+                              if not row["path"].startswith("platform/runtime/qemu-c61/")]
+        registry_name = "platform/web/qemu-browser-profiles.json"
+        for target in ("xtensa-softmmu", "riscv32-softmmu"):
+            registry = json.dumps({"profiles": [{"target": target}]}).encode()
+            (self.export / registry_name).write_bytes(registry)
+            row = next(row for row in manifest["assets"] if row["path"] == registry_name)
+            row.update(bytes=len(registry), sha256=hashlib.sha256(registry).hexdigest())
+            raw = json.dumps(manifest).encode()
+            path.write_bytes(raw)
+            digest = hashlib.sha256(raw).hexdigest()
+            if target == "xtensa-softmmu":
+                BrowserSite(self.export, digest)
+            else:
+                with self.assertRaisesRegex(ValueError, "missing.*qemu-c61"):
+                    BrowserSite(self.export, digest)
+
+    def test_admits_esp32sim_only_without_qemu_assets(self):
+        site = BrowserSite(self.export, self.esp32sim_export())
+        self.assertIn("platform/runtime/esp32sim/esp32sim.wasm", site.assets)
+        self.assertNotIn(self.wasm, site.assets)
+
+    def test_rejects_tampered_esp32sim_asset(self):
+        digest = self.esp32sim_export()
+        wasm = self.export / "platform/runtime/esp32sim/esp32sim.wasm"
+        wasm.write_bytes(b"x" * wasm.stat().st_size)
+        with self.assertRaisesRegex(ValueError, "asset SHA-256 mismatch"):
+            BrowserSite(self.export, digest)
+
     def test_activation_rejects_a_changed_or_missing_browser_asset(self):
         asset = self.export / self.wasm
         asset.write_bytes(b"x" * asset.stat().st_size)
