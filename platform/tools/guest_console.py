@@ -110,21 +110,7 @@ class GuestConsole:
                 try:
                     sock.settimeout(min(POLL_INTERVAL, remaining))
                     sock.connect(str(self.path))
-                    sock.setblocking(False)
-                    self._check_cancelled(cancelled)
-                    with self._condition:
-                        self._check_cancelled()
-                        self._socket = sock
-                        self._reader = threading.Thread(
-                            target=self._read_loop, args=(sock,),
-                            name="guest-console-reader", daemon=True,
-                        )
-                        try:
-                            self._reader.start()
-                        except BaseException:
-                            self._socket = None
-                            self._reader = None
-                            raise
+                    self.attach_socket(sock, cancelled=cancelled)
                     return self
                 except OSError as error:
                     if error.errno not in {
@@ -141,6 +127,25 @@ class GuestConsole:
                 self._closed.wait(min(POLL_INTERVAL, max(0, deadline - time.monotonic())))
         finally:
             self._connect_lock.release()
+
+    def attach_socket(self, sock: socket.socket, *, cancelled=None) -> None:
+        """Attach an already-connected, exclusive console byte stream."""
+        sock.setblocking(False)
+        with self._condition:
+            self._check_cancelled(cancelled)
+            if self._socket is not None:
+                raise GuestConsoleError("console_already_connected", "console already connected")
+            self._socket = sock
+            self._reader = threading.Thread(
+                target=self._read_loop, args=(sock,),
+                name="guest-console-reader", daemon=True,
+            )
+            try:
+                self._reader.start()
+            except BaseException:
+                self._socket = None
+                self._reader = None
+                raise
 
     def _read_loop(self, sock: socket.socket) -> None:
         terminal = None

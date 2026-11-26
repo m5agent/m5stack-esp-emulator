@@ -14,6 +14,19 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-26：Device Service 原生 esp32sim
+
+Virtual-device validation 使用 esp32sim `e374bdff519450cb3202b02cd5f40868a6961a38`，
+运行二进制 SHA-256 `4a44b6760f1451ea7fffa4b8c30938ba689c8495f0972cbcc121ac6558d9ea6c`。
+CoreS3 上通过原文档示例观察触摸、电源键、IMU、电池、ALS 和 GC0308 画面，
+Cardputer-ADV 观察到 GPIO0 按下释放串口标记、键盘和 IMU 画面变化及 SD
+文件读写。两板取得非零扬声器 PCM，并运行了含麦克风 WAV 夹具的文档示例。
+CoreS3 UIFlow2 v2.5.3 在 UART0 完成同会话 Python 源码和文件包执行，另观察到
+虚拟 AP 关联及经宿主 NAT 的 HTTP 响应。停止前取证，停止时保留历史并释放租约。
+CoreS3 显式 QEMU 触摸和 StopWatch 冻结 QEMU UART 程序路径另行验收。
+原版 StopWatch 空白画面尝试仍保留。详见
+[Device Service API](device-service-api.md#native-esp32sim-sessions) 的运行边界。
+
 ## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
 
 正式文档页嵌入公开模拟器后，Chrome 158 的父子页都没有共享内存。隔离同源

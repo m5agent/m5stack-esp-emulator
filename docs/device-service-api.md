@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-19`.
+Last reviewed: `2026-11-26`.
 
 Status: local MVP with unified-device runtime contract `1.102.0` and bounded
 storage retention implemented on `2026-10-24`.
@@ -32,6 +32,65 @@ option leaves the guest UART route to the caller. The Live sessions page offers
 an explicit programming checkbox and a per-session editor with execution
 identity checks. A late response never replaces the local source draft.
 
+
+### Native esp32sim sessions
+
+CoreS3 and Cardputer-ADV default to `runtime="esp32sim"`. Choose
+`runtime="qemu"` to run the frozen native QEMU path for either board.
+Other devices retain their existing runtime selection. The device list reports
+`runtime`, `backend_ready`, `creatable` and per-runtime readiness for the
+migrated boards. Provision the pin with
+`python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir <esp32s3-rom-directory>`.
+The service uses `.work/esp32sim-runtime` by default.
+`M5_ESP32SIM_RUNTIME_DIR` and `ESP32SIM_ROM_DIR` select operator-owned
+installation and ROM directories.
+
+The loader checks ESP32-S3 boot and app images, Flash bounds, partitions and
+declared PSRAM requirements. CoreS3 has 16 MiB Flash and 8 MiB PSRAM.
+Cardputer-ADV has 8 MiB Flash and no PSRAM. The emulator owns volatile Flash
+for the lease. Flash read, export and snapshots return
+`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI
+copy of `storage.sd_image_artifact_id`, with stopped-session storage export.
+SD hot-plug, QOM, QEMU Unit attachments and QEMU runtime-environment overrides
+require their respective legacy runtime paths.
+
+`GET /sessions/{id}/frame.png?max_age_ms=0` samples the panel at a guest
+scheduler boundary. Input is sent to the same guest and acknowledged when
+accepted. Timed releases happen in guest time. The input kinds are:
+
+| Board | Inputs |
+| --- | --- |
+| CoreS3 | `touch` with panel coordinates and `tap`, `hold`, `down`, or `up`; `button` with `control="power"`; `battery` with integer `mv`, integer `percent`, boolean `charging` and optional boolean `vbus`; `als` with integer `ch0`, `ch1`, `proximity` |
+| Cardputer-ADV | `button` with `control="boot"` or `"g0"`; `keyboard` with a physical key name including `fn`, `del`, `enter`, `space` |
+| Both | `imu` with three-axis `accel` in g and `gyro` in degrees/s; optional `mag` in µT on CoreS3; `adc` with `gpio` and `volts` |
+
+Use `action="hold"` and `seconds` for timed button or keyboard holds. CoreS3
+accepts a P6 PPM or BMP camera fixture through `camera_image_artifact_id`.
+Either board accepts a 16 kHz mono signed 16-bit
+`microphone_wav_artifact_id` at creation. `speaker_capture=true` retains
+bounded mono s16le output through `GET /sessions/{id}/audio.pcm`; use
+`format=metrics` to read the captured sample rate and signal metrics.
+
+Omit `network` for an offline guest. `network={"profile":"esp32sim-sta",
+"ssid":"example","psk":"","policy":{"isolation":"trusted-host"}}` enables
+the virtual AP, host NAT and Ethernet PCAP. Namespace, restricted egress, and
+QEMU-specific network fixtures fail closed for this runtime. Use trusted
+firmware when enabling NAT. A configured access point alone does not establish
+guest association or application connectivity.
+
+CoreS3 `program_mode="uiflow-live"` uses the existing UART0 bootstrap and
+same-guest source/package routes. The runtime sends and receives bytes through
+the guest UART model. Cloud startup and managed Preview continue to select
+their QEMU lanes. Binary `main.mpy` admission still requires a session-local
+guest loader proof.
+
+Fetch the evidence ZIP before stopping with `purge=0`. It records serial,
+fresh framebuffer, the input timeline and `runtime/identity.json`, including
+the source commit, binary and ROM SHA-256, and board name. Request `audio` and
+`network` in `include` to collect the corresponding captures when enabled.
+The service owns one private control socket per guest; closing that socket on
+service exit revokes the guest. Restart restores history without reattaching
+to an esp32sim process.
 
 ### Official UIFlow2 cloud startup
 

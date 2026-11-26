@@ -10,6 +10,7 @@ import stat
 import subprocess
 from typing import Any
 
+from device_service_esp32sim import BACKEND as ESP32SIM_BACKEND, Installation, RUNTIME as ESP32SIM_RUNTIME
 from device_service_errors import ServiceError
 from device_service_native_hid import STICKS3_NATIVE_HID_PROFILE
 from device_service_parsing import parse_size
@@ -229,6 +230,12 @@ class DeviceSpec:
     require_machine_probe: bool = False
     qemu_console_index: int = 0
 
+    default_runtime: str = "qemu"
+
+    @property
+    def esp32sim_installation(self) -> Installation:
+        return Installation.discover()
+
     @property
     def has_display(self) -> bool:
         display = self.display or {}
@@ -294,6 +301,7 @@ class DeviceSpec:
             and (
                 self.flash_emulator is None
                 or self.flash_emulator.is_file()
+                or os.environ.get("M5_SERVICE_FLASH_MODE") == "host-image"
             )
             and self.missing_backend_machine is None
         )
@@ -331,6 +339,7 @@ class DeviceSpec:
         if (
             self.flash_emulator is not None
             and not self.flash_emulator.is_file()
+            and os.environ.get("M5_SERVICE_FLASH_MODE") != "host-image"
         ):
             missing.append(self.flash_emulator)
         return missing
@@ -537,6 +546,11 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else {}
             ),
             reason=reason,
+            default_runtime=(
+                ESP32SIM_RUNTIME
+                if source_by_id.get(device_id, {}).get("runtime", {}).get("backend") == ESP32SIM_BACKEND
+                else "qemu"
+            ),
             require_machine_probe=profile.get("require_machine_probe") is True,
         )
     return specs
