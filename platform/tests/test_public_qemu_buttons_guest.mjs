@@ -8,6 +8,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash,randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance,QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {docsEmbedEnabled,serveDocsEmbed,openDocsEmbed,docsEmbedIdentity} from './public_docs_embed.mjs';
 import {PUBLIC_QEMU_BUTTON_CASES,PUBLIC_QEMU_BUTTON_LIMITS,PM1_BUTTON_OBSERVER_SETUP} from './public_qemu_button_cases.mjs';
 import {findPublicButtonPointerTarget} from './public_qemu_button_pointer.mjs';
 
@@ -25,6 +26,8 @@ assert.ok(Number.isSafeInteger(timeout)&&timeout>=30000&&timeout<=600000);
 const holdMs=Number(process.env.M5_QEMU_BUTTON_HOLD_MS||250);
 assert.ok(Number.isSafeInteger(holdMs)&&holdMs>=50&&holdMs<=1000);
 const basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+// Opt-in M5_PUBLIC_DOCS_EMBED=1: run inside a cross-site docs iframe.
+const docsEmbed=docsEmbedEnabled();
 const modules=process.env.M5_WASM_NODE_MODULES||resolve(repo,'platform/tests/node_modules');
 const {chromium}=await import(pathToFileURL(resolve(modules,'playwright/index.mjs')));
 const observerPath='tests/browser-qemu/uiflow_workbench/button_observer.py';
@@ -45,10 +48,10 @@ const report={kind:'browser-qemu-uiflow-buttons',device,status:'FAIL',started_at
     sha256:digest(await readFile(resolve(repo,'platform/tests/public_qemu_button_pointer.mjs')))},
   limits:PUBLIC_QEMU_BUTTON_LIMITS[device]?[PUBLIC_QEMU_BUTTON_LIMITS[device]]:[]};
 const check=(name,ok,details)=>{checks.push({name,ok,details});assert.ok(ok,name);console.log(name);};
-let server,browser,page,workers;
+let server,browser,page,workers,ui;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json',
   '.wasm':'application/wasm','.css':'text/css','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml'};
-const events=async()=>page.evaluate(nonce=>{
+const events=async()=>ui.evaluate(nonce=>{
   const output=globalThis.buttonRun?.output||'';
   return output.split('\n').filter(line=>line.startsWith('M5_BUTTON_OBSERVER ')).flatMap(line=>{
     try{const item=JSON.parse(line.slice(19));return item.nonce===nonce?[item]:[];}catch{return [];}
@@ -57,7 +60,7 @@ const events=async()=>page.evaluate(nonce=>{
 async function observe(predicate,description,waitMs=30000){
   const deadline=Date.now()+waitMs;
   for(;;){
-    const state=await page.evaluate(()=>({error:globalThis.buttonRun?.error,output:globalThis.buttonRun?.output||''}));
+    const state=await ui.evaluate(()=>({error:globalThis.buttonRun?.error,output:globalThis.buttonRun?.output||''}));
     if(state.error)throw new Error(state.error);
     if(/Traceback \(most recent call last\):|Guru Meditation Error|Interrupt wdt timeout/.test(state.output))throw new Error('Guest traceback or panic');
     const rows=await events(),result=rows.find(predicate);
@@ -105,6 +108,7 @@ try{
   server=createServer(async(request,response)=>{
     try{
       const path=new URL(request.url,'http://localhost').pathname;
+      if(docsEmbed&&serveDocsEmbed(request.url,response,report.url))return;
       if(!path.startsWith(basePath)){response.writeHead(404).end();return;}
       const file=resolve(site,decodeURIComponent(path.slice(basePath.length))||'index.html');
       if(!file.startsWith(site+'/')){response.writeHead(403).end();return;}
@@ -120,10 +124,15 @@ try{
   report.browser=browser.version();
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>crossOriginIsolated,{}, {timeout:45000});
-  await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
-  await page.evaluate(async({device,origin})=>{
+  if(docsEmbed){
+    const embed=await openDocsEmbed(page,{port:server.address().port,workbenchUrl:origin});
+    ui=embed.frame;report.docs_embed={parent_url:embed.parentUrl};
+  }else{ui=page;await page.goto(origin,{waitUntil:'domcontentloaded'});}
+  await ui.waitForFunction(()=>crossOriginIsolated,{}, {timeout:45000});
+  if(docsEmbed){Object.assign(report.docs_embed,await docsEmbedIdentity(page,ui));
+    check('docs-parent-unisolated-and-cross-site',report.docs_embed.ok,report.docs_embed);}
+  await ui.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
+  await ui.evaluate(async({device,origin})=>{
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin));
     const create=ModelDeviceShell.create;
     ModelDeviceShell.create=async function(...args){
@@ -143,19 +152,19 @@ try{
     };
   },{device,origin});
   if(device==='cores3'){
-    await page.locator('button[data-device-id="atom-matrix"]').click();
-    await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='atom-matrix');
+    await ui.locator('button[data-device-id="atom-matrix"]').click();
+    await ui.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='atom-matrix');
   }
-  await page.locator(`button[data-device-id="${device}"]`).click();
-  await page.waitForFunction(device=>globalThis.buttonShell?.device.id===device,device,{timeout:45000});
-  if(!await page.locator('#runtimeMode').isVisible())await page.locator('.advanced-options > summary').click();
-  await page.locator('#runtimeMode').selectOption('browser');
-  await page.locator('input[name="firmwareSource"][value="reference"]').check();
-  await page.locator('#startBtn').click();
+  await ui.locator(`button[data-device-id="${device}"]`).click();
+  await ui.waitForFunction(device=>globalThis.buttonShell?.device.id===device,device,{timeout:45000});
+  if(!await ui.locator('#runtimeMode').isVisible())await ui.locator('.advanced-options > summary').click();
+  await ui.locator('#runtimeMode').selectOption('browser');
+  await ui.locator('input[name="firmwareSource"][value="reference"]').check();
+  await ui.locator('#startBtn').click();
   const readyDeadline=Date.now()+timeout;
   let nextProgress=0;
   for(;;){
-    const state=await page.evaluate(()=>{
+    const state=await ui.evaluate(()=>{
       const runtime=globalThis.buttonRuntime,banner=document.querySelector('#errorBanner');
       return {status:runtime?.status,serial:runtime?.serial??'',error:banner?.hidden?'':banner?.textContent};
     });
@@ -169,8 +178,8 @@ try{
     if(Date.now()>=readyDeadline)throw new Error('Guest input observer startup timed out');
     await page.waitForTimeout(100);
   }
-  check('public-ui-started-browser-session',true,await page.evaluate(()=>buttonRuntime.evidence().receipt));
-  await page.evaluate(async({source,origin})=>{
+  check('public-ui-started-browser-session',true,await ui.evaluate(()=>buttonRuntime.evidence().receipt));
+  await ui.evaluate(async({source,origin})=>{
     const {PublicMicroPythonRunner}=await import(new URL('platform/web/public-micropython.js',origin));
     const runner=new PublicMicroPythonRunner(buttonRuntime);
     const run={runner,output:'',phases:[],result:null,error:null};globalThis.buttonRun=run;
@@ -189,12 +198,12 @@ try{
     &&ready.pmic_setup.cfg4a_before===ready.pmic_setup.cfg4a_after,ready.pmic_setup);
   for(const item of cases)for(const method of item.mode==='touch-edges'?['pointer']:['keyboard','pointer']){
     let afterSeq=(await events()).at(-1)?.seq||0;
-    const controlsBefore=await page.evaluate(()=>buttonControlEvents.length);
+    const controlsBefore=await ui.evaluate(()=>buttonControlEvents.length);
     let key=null,domKey=null,pointer=null,downAt,upAt;
-    const canvas=page.locator('#deviceMount .three-device-stage canvas');
+    const canvas=ui.locator('#deviceMount .three-device-stage canvas');
     await canvas.scrollIntoViewIfNeeded();
     if(method==='keyboard'){
-      key=await page.evaluate(component=>Object.entries(buttonShell.model.keymap).find(([,path])=>path===component)?.[0],item.component);
+      key=await ui.evaluate(component=>Object.entries(buttonShell.model.keymap).find(([,path])=>path===component)?.[0],item.component);
       assert.ok(key,`${device}/${item.component} has no focused public keyboard alias`);
       domKey=/^Key[A-Z]$/.test(key)?key.slice(3).toLowerCase():key==='Space'?'Space':key;
       await canvas.focus();
@@ -206,7 +215,7 @@ try{
       downAt=performance.now();await page.keyboard.down(domKey);
       try{await page.waitForTimeout(holdMs);}finally{await page.keyboard.up(domKey);}upAt=performance.now();
     }else if(item.mode==='touch-edges'){
-      pointer=await page.evaluate(async({point,origin})=>{
+      pointer=await ui.evaluate(async({point,origin})=>{
         const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
         const {display,viewer}=buttonShell;
         const projected=display.panel.localToWorld(new Vector3(
@@ -226,9 +235,9 @@ try{
       downAt=performance.now();await page.mouse.down();
       try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
     }else{
-      pointer=await page.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin});
+      pointer=await ui.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin});
       await page.mouse.move(pointer.clientX,pointer.clientY);
-      const verified=await page.evaluate(({clientX,clientY,component})=>{
+      const verified=await ui.evaluate(({clientX,clientY,component})=>{
         const canvas=buttonShell.viewer.renderer.domElement;
         return document.elementFromPoint(clientX,clientY)===canvas
           &&buttonShell.viewer.pick({clientX,clientY})?.component.path===component;
@@ -239,7 +248,7 @@ try{
     }
     let modelEvents;
     if(device==='paperdiy'){
-      modelEvents=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
+      modelEvents=await ui.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
       // Retain both host edges even if the original GPIO observer times out.
       report.pending_input={id:item.id,method,keyboard:key,dom_key:domKey,pointer,after_seq:afterSeq,
         requested_hold_ms:holdMs,observed_hold_ms:upAt-downAt,model_events:modelEvents};
@@ -252,7 +261,7 @@ try{
       &&['wasPressed','wasClicked','wasHold'].includes(row.method),`${item.id} PMIC event`);
     const heartbeat=await observe(row=>row.kind==='heartbeat'&&row.seq>(released?.seq||event?.seq||0)
       &&row.states[item.id]===false,`${item.id} released heartbeat`);
-    modelEvents??=await page.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
+    modelEvents??=await ui.evaluate(start=>buttonControlEvents.slice(start),controlsBefore);
     check(`${method}-${item.id}-actual-model-down-and-up`,modelEvents.length===2&&modelEvents[0].down===true
       &&modelEvents[1].down===false&&modelEvents[0].id===item.id&&modelEvents[1].id===item.id,modelEvents);
     if(item.mode==='touch-edges')check('gt911-original-logical-coordinates',
@@ -265,15 +274,15 @@ try{
     report.input_cases.push(input);check(`guest-${method}-${item.id}-${item.mode}`,true,input);
     delete report.pending_input;
   }
-  await page.evaluate(()=>buttonRun.runner.interrupt());
-  await page.waitForFunction(()=>!buttonRun.runner.busy,{}, {timeout:30000});
-  report.execution=await page.evaluate(()=>({output:buttonRun.output,phases:buttonRun.phases,result:buttonRun.result,error:buttonRun.error}));
+  await ui.evaluate(()=>buttonRun.runner.interrupt());
+  await ui.waitForFunction(()=>!buttonRun.runner.busy,{}, {timeout:30000});
+  report.execution=await ui.evaluate(()=>({output:buttonRun.output,phases:buttonRun.phases,result:buttonRun.result,error:buttonRun.error}));
   check('probe-interrupt-returned-through-raw-repl',!report.execution.error&&report.execution.result?.interrupted===true,report.execution.phases);
-  report.running=await page.evaluate(()=>buttonRuntime.evidence());
+  report.running=await ui.evaluate(()=>buttonRuntime.evidence());
   await page.screenshot({path:resolve(out,'buttons.png'),fullPage:true});
-  await page.locator('#stopBtn').click();
-  await page.waitForFunction(()=>buttonRuntime.status==='stopped',{}, {timeout:30000});
-  report.stopped=await page.evaluate(()=>buttonRuntime.evidence());
+  await ui.locator('#stopBtn').click();
+  await ui.waitForFunction(()=>buttonRuntime.status==='stopped',{}, {timeout:30000});
+  report.stopped=await ui.evaluate(()=>buttonRuntime.evidence());
   const cleanup=report.stopped.cleanup;
   check('normal-browser-worker-cleanup',cleanup?.gracefulExit&&cleanup.exitCode===0&&cleanup.workersAtExit===0
     &&cleanup.disposal?.workersTerminatedByDispose===0&&cleanup.engineOwnership?.engineFinalizationAcknowledged===true&&cleanup.engineOwnership.engineNormalTerminations===1
@@ -284,10 +293,10 @@ try{
   report.status='PASS';
 }catch(error){
   report.failure=String(error?.stack||error);
-  if(page&&!page.isClosed()){
-    report.failure_state=await page.evaluate(()=>({output:globalThis.buttonRun?.output,error:globalThis.buttonRun?.error,
+  if(page&&ui&&!page.isClosed()){
+    report.failure_state=await ui.evaluate(()=>({output:globalThis.buttonRun?.output,error:globalThis.buttonRun?.error,
       evidence:globalThis.buttonRuntime?.evidence(),banner:document.querySelector('#errorBanner')?.textContent})).catch(()=>null);
-    report.failure_stopped_evidence=await page.evaluate(async()=>{
+    report.failure_stopped_evidence=await ui.evaluate(async()=>{
       const runtime=globalThis.buttonRuntime;if(!runtime)return null;
       await runtime.stop();
       const evidence=runtime.evidence(),frame=evidence.last_frame;

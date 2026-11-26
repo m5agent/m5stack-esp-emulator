@@ -9,6 +9,7 @@ import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
+import {docsEmbedEnabled,serveDocsEmbed,openDocsEmbed,docsEmbedIdentity} from './public_docs_embed.mjs';
 import {isMatchingCanvasObservation,waitForCanvasPixels} from './public_qemu_pixel_observer.mjs';
 import {DEMO_FIRMWARE,WALLCLOCK_DEMO_FIRMWARE} from '../web/public-demo-firmware.js';
 const {chromium}=createRequire(import.meta.url)('playwright');
@@ -16,6 +17,9 @@ const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const site=resolve(process.env.M5_PUBLIC_SITE||resolve(repo,'.work/qemu-public-site-test'));
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qemu-guest'));
 const base=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+// Opt-in M5_PUBLIC_DOCS_EMBED=1: run inside a cross-site docs iframe (local export only).
+const docsEmbed=docsEmbedEnabled();
+assert.ok(!docsEmbed||!process.env.M5_PUBLIC_URL,'docs embed uses the local static export');
 const requestedExample=process.env.M5_QEMU_EXAMPLE||'stock-reference';
 const hardwareGPU=process.env.M5_WASM_GPU==='hardware';
 const chromeExecutable=process.env.M5_WASM_CHROME||process.env.M5_CHROME;
@@ -31,14 +35,14 @@ const stockRuntimePatch={path:'patches/qemu-wasm-probe/0027-gpio-bounded-transac
   sha256:'43685da86d9b959b2e769cd9cda5785a5c4039b5076f73f3b9d6033d1d161bdf'};
 await mkdir(out,{recursive:true});
 const requests=[],errors=[],checks=[],workers=[];
-let server,browser,context,page,workerTargetObserver;
+let server,browser,context,page,ui,workerTargetObserver;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2'};
 const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),example,requested_example:requestedExample,ui_example:uiExample,checks,requests,errors};
 report.pixel_observer_sha256=createHash('sha256').update(await readFile(new URL('./public_qemu_pixel_observer.mjs',import.meta.url))).digest('hex');
 report.pixel_observer_wait_strategy='awaited-evaluate-poll';
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
 async function deferIframeRemoval() {
-  await page.evaluate(() => {
+  await ui.evaluate(() => {
     const frame=document.querySelector('iframe[src*="public-qemu-instance.html"]'),remove=frame.remove;
     globalThis.qemuDeferredRemoval={frame,remove,requests:0};
     frame.remove=()=>{qemuDeferredRemoval.requests++;};
@@ -50,12 +54,12 @@ async function closeWorkersBeforeRemovingIframe(name,total) {
   // any remaining dedicated-Worker target even after owner finalization.
   const pthreadClose=await workerTargetObserver.waitUntilOnly({minimumObserved:total,
     allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
-  const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
+  const held=await ui.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
     removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
   (report.iframe_removal_controls||=[]).push({...held,removal_deferred_by_harness:true});
   check(`${name}-pthreads-before-iframe-finalization`,pthreadClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1,
     {worker_targets:pthreadClose,playwright_worker_events:workers});
-  await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
+  await ui.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
   const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total});
   (report.worker_target_lifecycles||=[]).push({name,nested_before_removal:pthreadClose,all_after_removal:targetClose,playwright_worker_events:workers});
   check(`${name}-all-targets-after-iframe-finalization`,targetClose.ok,targetClose);
@@ -84,14 +88,14 @@ function exactReceipt(receipt){
 }
 function guestEvents(text){return text.split('\n').filter(line=>line.startsWith('CORES3_WASM ')).flatMap(line=>{try{return[JSON.parse(line.slice(12))];}catch{return[];}});}
 async function waitGuest(kind,predicate=()=>true,timeout=180000){
-  await page.waitForFunction(({kind})=>document.querySelector('#serialOutput').textContent.includes(`"kind": "${kind}"`) || !document.querySelector('#errorBanner').hidden,{kind},{timeout});
-  const failure=await page.locator('#errorBanner').textContent();if(failure)throw new Error(failure);
+  await ui.waitForFunction(({kind})=>document.querySelector('#serialOutput').textContent.includes(`"kind": "${kind}"`) || !document.querySelector('#errorBanner').hidden,{kind},{timeout});
+  const failure=await ui.locator('#errorBanner').textContent();if(failure)throw new Error(failure);
   const until=Date.now()+timeout;
-  while(Date.now()<until){const found=guestEvents(await page.locator('#serialOutput').textContent()).find(event=>event.kind===kind&&predicate(event));if(found)return found;await page.waitForTimeout(200);}
+  while(Date.now()<until){const found=guestEvents(await ui.locator('#serialOutput').textContent()).find(event=>event.kind===kind&&predicate(event));if(found)return found;await page.waitForTimeout(200);}
   throw new Error(`Guest ${kind} condition timed out`);
 }
 async function evidence(name){
-  const download=page.waitForEvent('download');await page.locator('#browserEvidenceBtn').click();const item=await download;
+  const download=page.waitForEvent('download');await ui.locator('#browserEvidenceBtn').click();const item=await download;
   const path=resolve(out,name+'.json');await item.saveAs(path);return JSON.parse(await readFile(path,'utf8'));
 }
 // Real RGB565 frames from the same stock full Flash789612/main767239.
@@ -107,21 +111,21 @@ const STOCK_CLICK_PIXELS={
 };
 let lastStockTap=null;
 async function tap(x,y){
-  const canvas=page.locator('#rawFrameCanvas');await canvas.waitFor({state:'visible'});await canvas.scrollIntoViewIfNeeded();
+  const canvas=ui.locator('#rawFrameCanvas');await canvas.waitFor({state:'visible'});await canvas.scrollIntoViewIfNeeded();
   const box=await canvas.boundingBox();assert.ok(box,'Actual raw canvas must be visible');
   const px=box.x+x/320*box.width,py=box.y+y/240*box.height;
-  const hit=await page.evaluate(({x,y})=>({id:document.elementFromPoint(x,y)?.id??null,x,y,at_ms:performance.now(),
+  const hit=await ui.evaluate(({x,y})=>({id:document.elementFromPoint(x,y)?.id??null,x,y,at_ms:performance.now(),
     frame_sequence:Number(document.querySelector('#deviceMount')?.dataset.frameSequence||0),viewport:{width:innerWidth,height:innerHeight}}),{x:px,y:py});
   check('actual-raw-canvas-input-target-visible',hit.id==='rawFrameCanvas'&&px>=0&&py>=0&&px<hit.viewport.width&&py<hit.viewport.height,hit);
   lastStockTap=hit;
-  await page.evaluate(()=>{
+  await ui.evaluate(()=>{
     const events=[],record=event=>events.push({type:event.type,isTrusted:event.isTrusted,at_ms:performance.now(),target:event.target?.id??null,x:event.clientX,y:event.clientY});
     window.__m5StockTouchTrace={events,stop:()=>{for(const type of ['pointerdown','pointerup'])window.removeEventListener(type,record,true);}};
     for(const type of ['pointerdown','pointerup'])window.addEventListener(type,record,{capture:true,passive:true});
   });
   try{await page.mouse.move(px,py);await page.mouse.down();await page.waitForTimeout(650);await page.mouse.up();}
   finally{
-    lastStockTap.dom_events=await page.evaluate(()=>{const trace=window.__m5StockTouchTrace;trace.stop();delete window.__m5StockTouchTrace;return trace.events;});
+    lastStockTap.dom_events=await ui.evaluate(()=>{const trace=window.__m5StockTouchTrace;trace.stop();delete window.__m5StockTouchTrace;return trace.events;});
   }
   check('actual-trusted-native-pointer-down-up',lastStockTap.dom_events.length===2
     &&lastStockTap.dom_events.every(event=>event.isTrusted&&event.target==='rawFrameCanvas')
@@ -133,7 +137,7 @@ async function waitStockClickPixels(name,one){
   const regions=STOCK_CLICK_PIXELS.regions.map(row=>({...row,expected:one?row.one:row.zero}));
   if(one)assert.ok(lastStockTap&&Number.isFinite(lastStockTap.callback_observed_ms));
   const boundary={minimumSequence:one?lastStockTap.frame_sequence:-1,notBeforeMs:one?lastStockTap.callback_observed_ms:0};
-  const actual=await waitForCanvasPixels(page,{regions,boundary,timeoutMs:15000,pollingMs:100});
+  const actual=await waitForCanvasPixels(ui,{regions,boundary,timeoutMs:15000,pollingMs:100});
   assert.ok(isMatchingCanvasObservation(actual,{regions,boundary}),'Returned canvas observation must pass the full measured predicate');
   check(name+'-actual-clicks-and-count-pixels',isMatchingCanvasObservation(actual,{regions,boundary}),{state:one?1:0,firmware:STOCK_CLICK_PIXELS.firmware,source:STOCK_CLICK_PIXELS.source,boundary,actual});
   (report.stock_visual_samples||=[]).push({name,state:one?1:0,boundary,actual,
@@ -144,15 +148,15 @@ async function stockSteadyWindow(name){
   const started=performance.now();
   for(let n=0;n<40;n++){
     await page.waitForTimeout(500);
-    assert.equal(await page.locator('#runtimeStatus').getAttribute('data-status'),'running');
-    assert.equal(await page.locator('#errorBanner').isHidden(),true);
-    assert.doesNotMatch(await page.locator('#serialOutput').textContent(),/Guru Meditation Error|wdt timeout|Task watchdog|abort\(\) was called|assert failed:/);
+    assert.equal(await ui.locator('#runtimeStatus').getAttribute('data-status'),'running');
+    assert.equal(await ui.locator('#errorBanner').isHidden(),true);
+    assert.doesNotMatch(await ui.locator('#serialOutput').textContent(),/Guru Meditation Error|wdt timeout|Task watchdog|abort\(\) was called|assert failed:/);
     assert.equal(errors.length,0);
   }
   (report.stock_steady_windows||=[]).push({name,duration_ms:performance.now()-started});
 }
 async function verifyStockClickReceipts(name){
-  assert.ok(lastStockTap);lastStockTap.callback_observed_ms=await page.evaluate(()=>performance.now());
+  assert.ok(lastStockTap);lastStockTap.callback_observed_ms=await ui.evaluate(()=>performance.now());
   const state=await evidence(name+'-controller');
   check(name+'-same-fixture-receipt',exactReceipt(state.receipt),state.receipt);
   const receipts=state.inputs.filter(row=>row.type==='touch'&&Math.abs(row.x-160)<=1&&Math.abs(row.y-184)<=1);
@@ -170,6 +174,7 @@ try{
     server=createServer(async(req,res)=>{
       try{
         const path=new URL(req.url,'http://localhost').pathname;
+        if(docsEmbed&&serveDocsEmbed(req.url,res,report.url))return;
         if(!path.startsWith(base)){res.writeHead(404).end();return;}
         const file=resolve(site,decodeURIComponent(path.slice(base.length))||'index.html');
         if(!file.startsWith(site+'/')){res.writeHead(403).end();return;}
@@ -192,9 +197,12 @@ try{
   page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
   context.on('page',child=>child.on('pageerror',error=>errors.push(String(error))));
   page.on('worker',worker=>{const row={url:worker.url(),kind:worker.url().includes('/public-qemu-engine.js')?'engine':'pthread',created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
-  await page.goto(url,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
-  report.webgl_renderer=await page.evaluate(()=>{
+  if(docsEmbed){
+    const embed=await openDocsEmbed(page,{port:server.address().port,workbenchUrl:url});
+    ui=embed.frame;report.docs_embed={parent_url:embed.parentUrl};
+  }else{ui=page;await page.goto(url,{waitUntil:'domcontentloaded'});}
+  await ui.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
+  report.webgl_renderer=await ui.evaluate(()=>{
     const gl=document.querySelector('#deviceMount .three-device-stage canvas')?.getContext('webgl2')
       ||document.querySelector('#deviceMount .three-device-stage canvas')?.getContext('webgl');
     const info=gl?.getExtension('WEBGL_debug_renderer_info');
@@ -202,70 +210,74 @@ try{
   });
   if(hardwareGPU)assert.doesNotMatch(report.webgl_renderer||'',/swiftshader|software/i,
     'hardware WebGL was required but the browser selected software rendering');
-  check('pages-service-worker-shared-memory',await page.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
-  await page.locator('#referenceExample').selectOption(uiExample);
-  check('explicit-public-reference-example',await page.locator('#referenceExample').inputValue()===uiExample,{example,ui_example:uiExample});
-  await page.locator('#startBtn').click();
+  check('pages-service-worker-shared-memory',await ui.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
+  if(docsEmbed){Object.assign(report.docs_embed,await docsEmbedIdentity(page,ui));
+    check('docs-parent-unisolated-and-cross-site',report.docs_embed.ok,report.docs_embed);}
+  await ui.locator('#referenceExample').selectOption(uiExample);
+  check('explicit-public-reference-example',await ui.locator('#referenceExample').inputValue()===uiExample,{example,ui_example:uiExample});
+  await ui.locator('#startBtn').click();
   const ready=await waitGuest('ready');check('actual-cores3-lvgl-ready',ready.width===320&&ready.height===240,ready);
-  await page.waitForFunction(()=>Number(document.querySelector('#deviceMount').dataset.frameSequence)>0);
-  await page.waitForFunction(()=>{
+  await ui.waitForFunction(()=>Number(document.querySelector('#deviceMount').dataset.frameSequence)>0);
+  await ui.waitForFunction(()=>{
     const canvas=document.querySelector('#rawFrameCanvas');
     if(!canvas.width||!canvas.height)return false;
     const rgba=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
     return new Set(rgba).size>16;
   },{},{timeout:30000});
-  await page.locator('#nativeScreenBtn').click();
+  await ui.locator('#nativeScreenBtn').click();
   const boot=await evidence('running-boot');
   check('c-qemu-runtime-and-exact-fixture',exactReceipt(boot.receipt),boot.receipt);
   check('real-frame-pixels',boot.last_frame.width===320&&boot.last_frame.pixels.length===153600&&new Set(boot.last_frame.pixels).size>8);
   if(!candidate){await stockSteadyWindow('cold-stock');await waitStockClickPixels('cold-before-input',false);}
   await tap(310,235);await page.waitForTimeout(1200);
-  check('negative-touch-does-not-click',!guestEvents(await page.locator('#serialOutput').textContent()).some(event=>event.kind==='touch_clicked'));
+  check('negative-touch-does-not-click',!guestEvents(await ui.locator('#serialOutput').textContent()).some(event=>event.kind==='touch_clicked'));
   await tap(160,184);const click=await waitGuest('touch_clicked',event=>event.clicks===1,15000);check('actual-dom-touch-lvgl-callback',click.clicks===1);
   if(!candidate){await verifyStockClickReceipts('cold-stock');await waitStockClickPixels('cold-clicks1',true);}
-  await page.locator('#browserPir').check();await waitGuest('pir',event=>event.value===1,20000);
-  check('pir-qom-readback',await page.locator('#browserPirState').textContent()==='QOM: MOTION');
-  await page.locator('#browserPir').uncheck();await waitGuest('pir',event=>event.value===0&&event.clicks===1,20000);
+  await ui.locator('#browserPir').check();await waitGuest('pir',event=>event.value===1,20000);
+  check('pir-qom-readback',await ui.locator('#browserPirState').textContent()==='QOM: MOTION');
+  await ui.locator('#browserPir').uncheck();await waitGuest('pir',event=>event.value===0&&event.clicks===1,20000);
   check('pir-guest-both-transitions',true);
-  await page.locator('#pauseBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='paused');
-  const paused=await page.locator('#serialOutput').textContent();await page.waitForTimeout(1800);
-  check('qmp-pause-stops-guest-progress',await page.locator('#serialOutput').textContent()===paused);
-  await page.locator('#pauseBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='running');
+  await ui.locator('#pauseBtn').click();await ui.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='paused');
+  const paused=await ui.locator('#serialOutput').textContent();await page.waitForTimeout(1800);
+  check('qmp-pause-stops-guest-progress',await ui.locator('#serialOutput').textContent()===paused);
+  await ui.locator('#pauseBtn').click();await ui.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='running');
   check('qmp-resume',true);
   for(const width of [1440,1024,768,390]){
     await page.setViewportSize({width,height:1000});await page.waitForTimeout(250);
-    check(`layout-${width}`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    check(`layout-${width}`,await ui.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     await page.screenshot({path:resolve(out,`layout-${width}.png`),fullPage:true});
   }
   await page.setViewportSize({width:1440,height:1000});
   await deferIframeRemoval();
-  await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
+  await ui.locator('#stopBtn').click();await ui.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const stopped=await evidence('stopped-first');
   check('quit-and-container-cleanup',stopped.cleanup.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.iframeRemoved,stopped.cleanup);
   await closeWorkersBeforeRemovingIframe('first-engine-and-five-pthreads-close-before-iframe-removal',6);
-  check('no-instance-frame-after-stop',await page.locator('iframe[src*="public-qemu-instance.html"]').count()===0);
+  check('no-instance-frame-after-stop',await ui.locator('iframe[src*="public-qemu-instance.html"]').count()===0);
   check('dedicated-engine-closing-notification-without-owner-fallback',stopped.cleanup.engineOwnership?.engineCloseNotificationReceived===true
     && stopped.cleanup.disposal?.ownerTerminatesAfterAcknowledgement===true&&stopped.cleanup.disposal.engineSelfClosesAfterAcknowledgement===false
     && stopped.cleanup.engineOwnership?.engineCloseNotifications===1
     && stopped.cleanup.engineOwnership?.engineNormalTerminations===1
     && stopped.cleanup.engineOwnership?.engineFinalizationAcknowledged===true && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup.engineOwnership);
-  check('local-history-retains-hash',await page.locator('#browserHistoryText').textContent().then(text=>text.includes(fixture.firmwareSHA256.slice(0,12))));
+  check('local-history-retains-hash',await ui.locator('#browserHistoryText').textContent().then(text=>text.includes(fixture.firmwareSHA256.slice(0,12))));
   const firstId=stopped.session_id;
   const shared=new URL(url);shared.searchParams.set('device','cores3');shared.searchParams.set('mode','browser');
   shared.searchParams.set('sha256',fixture.firmwareSHA256);
-  await page.goto(shared.href,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='running',{},{timeout:180000});
+  // A docs page reopens a shared example by loading a fresh iframe.
+  if(docsEmbed)ui=(await openDocsEmbed(page,{port:server.address().port,workbenchUrl:url,src:shared.href})).frame;
+  else await page.goto(shared.href,{waitUntil:'domcontentloaded'});
+  await ui.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='running',{},{timeout:180000});
   await waitGuest('ready');
-  check('shared-reference-restores-example',await page.locator('#referenceExample').inputValue()===uiExample);
+  check('shared-reference-restores-example',await ui.locator('#referenceExample').inputValue()===uiExample);
   const reopened=await evidence('reopened-running');check('fresh-guest-reopen-from-shared-reference',reopened.session_id!==firstId&&!guestEvents(reopened.serial).some(event=>event.kind==='touch_clicked'));
   check('shared-reference-exact-runtime-variant',exactReceipt(reopened.receipt),reopened.receipt);
   if(!candidate){
-    await page.locator('#nativeScreenBtn').click();await stockSteadyWindow('reopened-stock');await waitStockClickPixels('reopened-before-input',false);
+    await ui.locator('#nativeScreenBtn').click();await stockSteadyWindow('reopened-stock');await waitStockClickPixels('reopened-before-input',false);
     await tap(160,184);const click=await waitGuest('touch_clicked',event=>event.clicks===1,15000);check('reopened-real-touch-clicks1',click.clicks===1);
     await verifyStockClickReceipts('reopened-stock');await waitStockClickPixels('reopened-clicks1',true);
   }
   await deferIframeRemoval();
-  await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
+  await ui.locator('#stopBtn').click();await ui.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const final=await evidence('stopped-reopened');check('reopen-cleanup',final.cleanup.gracefulExit&&final.cleanup.explicitWorkerDisposal,final.cleanup);
   await closeWorkersBeforeRemovingIframe('both-engines-and-ten-pthreads-close-before-iframe-removal',12);
   check('reopened-engine-notification-without-owner-fallback',final.cleanup.engineOwnership?.engineCloseNotificationReceived===true
@@ -276,12 +288,12 @@ try{
   check('no-service-or-local-emulator-requests',!requests.some(row=>/\/api\/v1|:8787\b|:8830\b/.test(row.url)));
   check('no-javascript-errors',errors.length===0,errors);
   report.result='PASS';report.final_receipt=final.receipt;report.workers=workers;
-}catch(error){report.result='FAIL';report.failure=String(error.stack||error);console.error(error);if(page){await page.screenshot({path:resolve(out,'failure.png'),fullPage:true}).catch(()=>{});await writeFile(resolve(out,'failure-serial.txt'),await page.locator('#serialOutput').textContent().catch(()=>''));if(await page.locator('#browserEvidenceBtn').isVisible().catch(()=>false))await evidence('failure-evidence').catch(()=>{});}process.exitCode=1;}
+}catch(error){report.result='FAIL';report.failure=String(error.stack||error);console.error(error);if(page&&ui){await page.screenshot({path:resolve(out,'failure.png'),fullPage:true}).catch(()=>{});await writeFile(resolve(out,'failure-serial.txt'),await ui.locator('#serialOutput').textContent().catch(()=>''));if(await ui.locator('#browserEvidenceBtn').isVisible().catch(()=>false))await evidence('failure-evidence').catch(()=>{});}process.exitCode=1;}
 finally{
-  if(report.result==='FAIL'&&page){
-    await page.locator('#stopBtn').click({timeout:2000}).catch(()=>{});
-    await page.waitForFunction(()=>document.querySelector('#runtimeStatus')?.dataset.status==='stopped',{}, {timeout:30000}).catch(()=>{});
-    await page.evaluate(()=>{const held=globalThis.qemuDeferredRemoval;if(held){held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;}}).catch(()=>{});
+  if(report.result==='FAIL'&&page&&ui){
+    await ui.locator('#stopBtn').click({timeout:2000}).catch(()=>{});
+    await ui.waitForFunction(()=>document.querySelector('#runtimeStatus')?.dataset.status==='stopped',{}, {timeout:30000}).catch(()=>{});
+    await ui.evaluate(()=>{const held=globalThis.qemuDeferredRemoval;if(held){held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;}}).catch(()=>{});
     if(workerTargetObserver)report.failure_worker_targets=await workerTargetObserver.waitUntilClosed({minimumObserved:workers.length,timeoutMs:30000}).catch(error=>({ok:false,error:String(error.message)}));
     else report.failure_worker_targets={ok:false,status:'NOT CAPTURED',error:'Worker observer was not initialized; original failure retained'};
   }

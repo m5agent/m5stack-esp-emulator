@@ -1,0 +1,267 @@
+{
+ "schema_version": 1,
+ "date": "2026-11-26",
+ "issue": "https://github.com/m5agent/m5stack-esp-emulator/issues/242",
+ "evidence_level": "virtual-device validation (browser WASM)",
+ "hardware_validation": "NOT RUN",
+ "hosted_docs_deployment": "NOT RUN",
+ "base_commit": "54bf88b7aa65b60d9cc98cb8ab6beecd70d18150",
+ "browser": "Google Chrome 158.0.8127.37, macOS arm64, headless",
+ "mechanism": "Project Service Worker adds Document-Isolation-Policy: isolate-and-require-corp alongside COOP/COEP; Chromium 137+ isolates the workbench document inside a cross-site iframe whose parent sends no isolation headers.",
+ "parent_fixture": "http://localhost:<port>/docs-embed/ with <iframe allow=\"cross-origin-isolated\">; workbench at http://127.0.0.1:<port>/showcase/ (cross-site; no COOP/COEP/DIP on any HTTP response)",
+ "site": {
+  "public_site_manifest_sha256": "8864e12ebe1f099b3d2a0ab0b1d8457a94ccae243fcfbbfcbe801e5e0b781e41",
+  "project_root_service_worker_sha256": "c1b5539ae298b35d795ffb2d134ee2624293150de1964e71c8c6b1362356a552",
+  "xtensa_wasm_sha256": "8067a6b8d599f81bfe454da0318377fcb783c8ee4198fc69d3a042c1311d2c1e",
+  "runtime_manifest_sha256": "c606f20d4df8fe66286b66a780afcff1252ef622d5f3537195be87d1ee1a8f11",
+  "runtime_note": "Locked 0050 Xtensa runtime from the DualKmeter release build; its QEMU source equals main at the base commit."
+ },
+ "runs": [
+  {
+   "case": "editor-cores3",
+   "device": "cores3",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_QEMU_DEVICE=cores3 node platform/tests/test_public_uiflow_guest.mjs",
+   "status": "PASS",
+   "checks": 65,
+   "firmware_sha256": "b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49",
+   "profile": "cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site",
+    "actual-programming-startup-marker",
+    "utf8-print-stdout",
+    "guest-acknowledged-interruption",
+    "source-drew-actual-guest-framebuffer",
+    "normal-guest-exit-no-forced-termination",
+    "all-cdp-workers-closed-before-context",
+    "actual-top-page-engine-and-pthread-siblings",
+    "no-page-errors"
+   ],
+   "click_to_ready_ms": 10746,
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   }
+  },
+  {
+   "case": "editor-cardputer-adv",
+   "device": "cardputer-adv",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_QEMU_DEVICE=cardputer-adv node platform/tests/test_public_uiflow_guest.mjs",
+   "status": "PASS",
+   "checks": 65,
+   "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+   "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site",
+    "actual-programming-startup-marker",
+    "utf8-print-stdout",
+    "guest-acknowledged-interruption",
+    "source-drew-actual-guest-framebuffer",
+    "normal-guest-exit-no-forced-termination",
+    "all-cdp-workers-closed-before-context",
+    "actual-top-page-engine-and-pthread-siblings",
+    "no-page-errors"
+   ],
+   "click_to_ready_ms": 4958,
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   }
+  },
+  {
+   "case": "touch-cores3",
+   "device": "cores3",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_WASM_GPU=hardware node platform/tests/test_public_qemu_guest.mjs",
+   "status": "PASS",
+   "checks": 50,
+   "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+   "profile": "cores3-wasm-stock-wallclock",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site",
+    "negative-touch-does-not-click",
+    "cold-stock-guest-clicks1",
+    "cold-clicks1-actual-clicks-and-count-pixels",
+    "pir-guest-both-transitions",
+    "reopened-real-touch-clicks1",
+    "both-engines-and-ten-pthreads-close-before-iframe-removal-all-targets-after-iframe-finalization",
+    "no-javascript-errors"
+   ],
+   "reopen": "fresh docs iframe with the shared ?device=cores3&mode=browser&sha256= link"
+  },
+  {
+   "case": "kbd-adv",
+   "device": "cardputer-adv",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_CARDPUTER_KEYBOARD_IRQ=1 node platform/tests/test_public_uiflow_cardputer_keyboard_guest.mjs",
+   "status": "PASS",
+   "checks": 518,
+   "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+   "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site",
+    "normal-qmp-quit-and-worker-cleanup",
+    "actual-workers-closed-before-browser-context",
+    "actual-top-page-engine-and-pthread-siblings"
+   ],
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   },
+   "keys": {
+    "cases": 112,
+    "pass": 112
+   }
+  },
+  {
+   "case": "buttons-cores3",
+   "device": "cores3",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_QEMU_DEVICE=cores3 M5_WASM_GPU=hardware node platform/tests/test_public_qemu_buttons_guest.mjs",
+   "status": "PASS",
+   "checks": 11,
+   "firmware_sha256": "b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49",
+   "profile": "cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site"
+   ],
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   },
+   "buttons": [
+    "power",
+    "power"
+   ]
+  },
+  {
+   "case": "buttons-cardputer-adv",
+   "device": "cardputer-adv",
+   "command": "M5_PUBLIC_DOCS_EMBED=1 M5_QEMU_DEVICE=cardputer-adv M5_WASM_GPU=hardware node platform/tests/test_public_qemu_buttons_guest.mjs",
+   "status": "PASS",
+   "checks": 11,
+   "firmware_sha256": "b6255f6af5ad10236380eae09a76b44ca174b5c4de391aef16413bdc590952bd",
+   "profile": "cardputer-adv-wasm-uiflow-workbench-wallclock-oneinsn-candidate",
+   "docs_parent": {
+    "isolated": false,
+    "shared_array_buffer": "undefined"
+   },
+   "workbench_frame": {
+    "isolated": true,
+    "shared_array_buffer": "function",
+    "cross_site": true
+   },
+   "key_checks": [
+    "docs-parent-unisolated-and-cross-site"
+   ],
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   },
+   "buttons": [
+    "boot",
+    "boot"
+   ]
+  },
+  {
+   "case": "top-editor-cores3",
+   "device": "cores3",
+   "command": "M5_QEMU_DEVICE=cores3 node platform/tests/test_public_uiflow_guest.mjs",
+   "status": "PASS",
+   "checks": 64,
+   "firmware_sha256": "b9fe8334023c1b1f95e7c51b3a63724e621a6789812083848ed3ea7eaa332d49",
+   "profile": "cores3-wasm-uiflow-workbench-lvgl-wallclock-candidate",
+   "docs_parent": null,
+   "workbench_frame": null,
+   "key_checks": [
+    "actual-programming-startup-marker",
+    "utf8-print-stdout",
+    "guest-acknowledged-interruption",
+    "source-drew-actual-guest-framebuffer",
+    "normal-guest-exit-no-forced-termination",
+    "all-cdp-workers-closed-before-context",
+    "actual-top-page-engine-and-pthread-siblings",
+    "no-page-errors"
+   ],
+   "click_to_ready_ms": 9793,
+   "cleanup": {
+    "graceful_exit": true,
+    "exit_code": 0,
+    "pthreads": 5,
+    "engine_fallback_terminations": 0
+   }
+  }
+ ],
+ "fixture_controls": [
+  {
+   "command": "node platform/tests/test_public_coi_browser.mjs --out-dir <new .work dir>",
+   "status": "PASS",
+   "scope": "Fixture HTML/Worker only; cross-site embed parent unisolated, frame isolated with real shared WebAssembly.Memory across a Worker."
+  },
+  {
+   "command": "node platform/tests/test_public_coi_worker_browser.mjs",
+   "status": "PASS"
+  },
+  {
+   "command": "negative control: same export, SW without Document-Isolation-Policy, cross-site embed",
+   "status": "EXPECTED FAIL",
+   "observed": "frame crossOriginIsolated=false, start disabled, standalone-tab link shown with the same project URL"
+  }
+ ],
+ "not_covered": [
+  "Production docs.m5stack.com deployment and its CSP/other cross-origin resources",
+  "Firefox, Safari, Android Chrome (Document-Isolation-Policy is Chromium desktop only as of Chrome 137)",
+  "Physical devices"
+ ]
+}

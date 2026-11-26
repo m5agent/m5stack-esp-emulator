@@ -6,6 +6,7 @@
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [文档跨站 iframe 隔离证据](evidence/2026-11-26-docs-embed-isolation/README.md) | 证据摘要 | `2026-11-26` | Document-Isolation-Policy 使跨站 iframe 获得共享内存；两款来宾编辑器、触摸、键盘与回收；不含正式文档站、非 Chromium 与真机 |
 | [review-sta 驱动初始化与条件步骤证据](evidence/2026-11-25-review-sta-activity/README.md) | 证据摘要 | `2026-11-25` | `wifi_initialized` 判定 NOT_USED、0.0.0.0 非出站、`until=joined` 条件步骤；Bruce CN 与 CardOS 入网，Monster DHCP 未请求仍开放；不含物理 RF |
 | [便携 review-sta 控制固件证据](evidence/2026-11-24-review-sta-portable/README.md) | 证据摘要 | `2026-11-24` | 8 款板卡 review-sta 正负控、setup 输入、离线与 pcap 隔离；不含原版应用与物理 RF |
 | [S3-watch 原版 WPA2 对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) | 实现设计 | `2026-11-23` | StickS3 原生 Wi-Fi 控制器、隔离对端、正负控与只读 HTTP |

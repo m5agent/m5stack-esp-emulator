@@ -14,6 +14,16 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-26：文档跨站 iframe 隔离
+
+项目 Service Worker 增加 `Document-Isolation-Policy: isolate-and-require-corp`。
+Chrome 158 本机导出 `8864e12e…1e41`、WASM `8067a6b8…2c1e` 中，未带隔离头的
+`localhost` 父页嵌入 `127.0.0.1` 工作台后，父页仍未隔离，iframe 获得共享内存。
+CoreS3 `b9fe8334…2d49` 与 Cardputer-Adv `b6255f6a…52bd` 完整编辑器、CoreS3
+原始 `78961297…bd3f` 触摸/PIR/共享链接重开、ADV 112 键 IRQ 和两款公开按键均
+PASS，正常退出并回收 Worker。无该策略的负对照保持未隔离并给出新标签页入口。
+正式文档站与非 Chromium 浏览器为 `NOT RUN`。[证据](evidence/2026-11-26-docs-embed-isolation/README.md)
+
 ## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
 
 正式文档页嵌入公开模拟器后，Chrome 158 的父子页都没有共享内存。隔离同源

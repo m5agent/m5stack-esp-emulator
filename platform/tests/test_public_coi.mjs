@@ -83,6 +83,7 @@ for (const status of [204,205,304]) {
   assert.equal(response.headers.get('Cross-Origin-Embedder-Policy'),'require-corp');
   assert.equal(response.headers.get('Cross-Origin-Resource-Policy'),'cross-origin');
   assert.equal(response.headers.get('Cross-Origin-Opener-Policy'),'same-origin');
+  assert.equal(response.headers.get('Document-Isolation-Policy'),'isolate-and-require-corp');
 }
 nextResponse=()=>new Response('actual bytes',{status:200,headers:{'Content-Type':'image/png','X-Frame-SHA256':'fixture'}});
 const ordinary=await dispatch(request);assert.equal(await ordinary.text(),'actual bytes');assert.equal(ordinary.headers.get('X-Frame-SHA256'),'fixture');
@@ -92,7 +93,7 @@ handlers.message({data:{type:'coepCredentialless',value:true}});
 nextResponse=()=>new Response('credentialless');
 const credentialless=await dispatch(new Request('https://example.test/image',{mode:'no-cors',credentials:'include'}));
 assert.equal(requests.at(-1).credentials,'omit');assert.equal(credentialless.headers.get('Cross-Origin-Embedder-Policy'),'credentialless');
-assert.equal(credentialless.headers.get('Cross-Origin-Resource-Policy'),null);assert.equal(credentialless.headers.get('Cross-Origin-Opener-Policy'),'same-origin');
+assert.equal(credentialless.headers.get('Cross-Origin-Resource-Policy'),null);assert.equal(credentialless.headers.get('Document-Isolation-Policy'),'isolate-and-credentialless');assert.equal(credentialless.headers.get('Cross-Origin-Opener-Policy'),'same-origin');
 handlers.message({data:{type:'coepCredentialless',value:false}});
 nextResponse=()=>{throw new TypeError('fixture network rejection');};await assert.rejects(dispatch(request),/fixture network rejection/);
 handlers.message({data:{type:'deregister'}});await new Promise(resolve=>setImmediate(resolve));

@@ -141,6 +141,10 @@ python3 platform/tools/build_public_site.py --output .work/public-site \
 服务端密钥。
 
 推荐桌面 Chromium，使用 HTTPS、允许本站 Service Worker 和共享内存。
+文档站可用 `<iframe allow="cross-origin-isolated" src="…">` 嵌入工作台，父页不需要
+COOP/COEP。Service Worker 返回的 `Document-Isolation-Policy` 让桌面 Chromium 137+
+隔离 iframe 内的工作台；其他浏览器在 iframe 内显示新标签页打开入口。
+[本机跨站嵌入验证](evidence/2026-11-26-docs-embed-isolation/README.md)不包含正式文档站。
 浏览器至少需要约 256 MiB 共享 WASM 初始内存，允许增长；最大配置为 2 GiB。
 停止会请求客体退出并回收 Worker；页面刷新或关闭后的浏览器资源生命周期
 不能替代正常 Stop 验收。历史 StackChan 的 engine target 延迟消失保留为

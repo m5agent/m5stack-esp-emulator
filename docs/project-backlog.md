@@ -274,7 +274,7 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 
 ### UI-02/03 文档例程 WASM 试点
 
-- 在文档预览单独验证能开启跨源隔离的托管方式，再接入 CoreS3 和 Cardputer-Adv 的已验例程。验收包括同页运行、首个可操作画面、实际交互输出、跳转或停止后回收及其他文档资源加载。[正式文档嵌入阻塞](https://github.com/m5agent/m5stack-esp-emulator/issues/242)
+- 工作台 Service Worker 已加 `Document-Isolation-Policy`，桌面 Chromium 在未隔离父页的跨站 iframe 内运行两款来宾、编辑器、触摸和键盘。剩余：正式文档页的 iframe 权限、CSP 与其他跨源资源，Pages 发布后的同版回归，以及非 Chromium 浏览器的新标签页路径。[#242](https://github.com/m5agent/m5stack-esp-emulator/issues/242) · [本机跨站嵌入证据](evidence/2026-11-26-docs-embed-isolation/README.md)
 - 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 正式托管需回归相同的原显示、键盘和参考镜像。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245)
 
 - 按例程加入可控网络及其他 Unit。固件固定、真实帧、控制器和资源生命周期一起验收。CoreS3 UIFlow2 Speaker 仍需明确原始 WAV 的授权来源和工作台装配路径，再验证真实播放。[例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255) · [Speaker 素材 #271](https://github.com/m5agent/m5stack-esp-emulator/issues/271)

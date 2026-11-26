@@ -49,7 +49,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
   exampleSourceLoader,cc1101Examples,sx1262Examples,dualKmeterExample,peerFactory,
-  isolation={isolated:true,reloading:false}}={}){
+  isolation={isolated:true,reloading:false},embedded=false}={}){
   const elements=new Map(),events=[],clipboard=[],downloads=[],nativeStarts=[],windowListeners=new Map();
   let evidenceBlob;
   class TestURL extends URL {
@@ -100,7 +100,9 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   });
   if(exampleSourceLoader)dependencies.loadVerifiedRuntimeAsset=exampleSourceLoader;
   if(peerFactory)dependencies.openQemuPeerPair=peerFactory;
-  const context=vm.createContext({...dependencies,document,window:{addEventListener(type,listener){windowListeners.set(type,listener);}},
+  const windowFixture={addEventListener(type,listener){windowListeners.set(type,listener);}};
+  windowFixture.parent=embedded?{}:windowFixture;
+  const context=vm.createContext({...dependencies,document,window:windowFixture,
     navigator:{clipboard:{writeText:async url=>clipboard.push(url)}},location:{href:new URL(search,pageUrl).href,search},
     URL:TestURL,URLSearchParams,Map,TextEncoder,TextDecoder,AbortController,DOMException,Blob,console,setTimeout,BroadcastChannel,
     fetch:fetchFixture,events,serviceRows,
@@ -131,6 +133,18 @@ for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavail
   app.updateCapability();
   assert.match(app.element('capabilityText').textContent,/仍可浏览模型或连接 HTTPS 仿真服务/);
 }
+// A docs iframe whose browser cannot isolate it links to the same project page.
+const embeddedFailure=await entry({search:'?device=cardputer-adv&autostart=0',embedded:true,
+  isolationError:Object.assign(new Error('coi_isolation_failed'),{code:'coi_isolation_failed'})});
+assert.equal(embeddedFailure.browserProfile('cardputer-adv'),null);
+embeddedFailure.element('runtimeMode').value='browser';embeddedFailure.updateCapability();
+assert.match(embeddedFailure.element('capabilityText').textContent,/新标签页/);
+assert.equal(embeddedFailure.element('openStandaloneLink').hidden,false);
+assert.equal(embeddedFailure.element('openStandaloneLink').href,new URL('?device=cardputer-adv&autostart=0',pageRoot).href);
+const topFailure=await entry({search:'?device=cardputer-adv&autostart=0',
+  isolationError:Object.assign(new Error('coi_isolation_failed'),{code:'coi_isolation_failed'})});
+topFailure.element('runtimeMode').value='browser';topFailure.updateCapability();
+assert.equal(topFailure.element('openStandaloneLink').hidden,true,'a top-level page has no other tab to offer');
 const navigation=await entry({isolation:{isolated:false,reloading:true}});
 assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolation navigation must not accept firmware or start execution');
 
