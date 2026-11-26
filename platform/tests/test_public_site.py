@@ -16,6 +16,43 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_esp32sim_worker_pins_match_bootstrap(self):
+        from bootstrap_browser_runtime import SOURCE_COMMIT, LEGACY_SOURCE_COMMIT
+
+        vendor = public.ROOT / "platform/web/vendor/esp32sim"
+        for folder, commit in ((vendor, SOURCE_COMMIT), (vendor / "legacy", LEGACY_SOURCE_COMMIT)):
+            manifest = json.loads((folder / "source.json").read_bytes())
+            self.assertEqual(manifest["commit"], commit)
+            for name, identity in manifest["files"].items():
+                data = (folder / name).read_bytes()
+                self.assertEqual(len(data), identity["bytes"])
+                self.assertEqual(hashlib.sha256(data).hexdigest(), identity["sha256"])
+
+    def test_esp32sim_export_can_coexist_with_legacy_and_qemu(self):
+        from bootstrap_browser_runtime import SOURCE_COMMIT, LEGACY_SOURCE_COMMIT, SOURCE_PROFILES, LEGACY_PROFILES
+
+        current = {"source": {"commit": SOURCE_COMMIT}, "profiles": SOURCE_PROFILES, "build": {"kind": "source-build"}}
+        legacy = {"source": {"commit": LEGACY_SOURCE_COMMIT}, "profiles": LEGACY_PROFILES, "build": {"kind": "source-build"}}
+        qemu = {"engine": "qemu-wasm", "build": {"kind": "source-build"}}
+        with tempfile.TemporaryDirectory() as directory:
+            temp = Path(directory)
+            with (
+                patch.object(public, "export_sources", return_value={"platform/web/index.html": public.ROOT / "platform/web/index.html"}),
+                patch.object(public, "browser_runtime_files", side_effect=[
+                    (current, {"runtime.json": b"current"}), (legacy, {"runtime.json": b"legacy"})]),
+                patch.object(public, "qemu_runtime_files", return_value=(qemu, {"runtime.json": b"qemu"})),
+                patch.object(public, "qemu_site_profiles", return_value=({"profiles": []}, {"devices": []})),
+            ):
+                public.build_site(public.ROOT, temp / "site", browser_runtime=temp / "current",
+                                  legacy_browser_runtime=temp / "legacy", qemu_runtime=temp / "qemu")
+            exported = temp / "site"
+            config = json.loads((exported / "platform/web/site-config.json").read_bytes())
+            self.assertEqual(config["browser_runtime_engine"], "esp32sim")
+            self.assertTrue(config["browser_qemu_available"])
+            self.assertEqual(config["browser_esp32sim_profiles"], SOURCE_PROFILES + LEGACY_PROFILES)
+            for engine, label in (("esp32sim", b"current"), ("esp32sim-legacy", b"legacy"), ("qemu", b"qemu")):
+                self.assertEqual((exported / f"platform/runtime/{engine}/runtime.json").read_bytes(), label)
+
     def test_dual_kmeter_source_requires_locked_patch_and_pinned_core_s3_workbench(self):
         workbench = json.loads((public.ROOT / "platform/web/uiflow-workbench-profiles.json").read_text())
         pending = {"path": "patches/qemu-wasm-probe/0050-cores3-dual-kmeter-example.patch",

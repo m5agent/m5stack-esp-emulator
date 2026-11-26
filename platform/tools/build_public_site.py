@@ -99,21 +99,25 @@ def export_sources(root: Path) -> dict[str, Path]:
 
 
 def browser_runtime_files(directory: Path, *, allow_diagnostic: bool = False) -> tuple[dict, dict[str, bytes]]:
-    from bootstrap_browser_runtime import SOURCE_COMMIT, ROM_SHA256
+    from bootstrap_browser_runtime import (SOURCE_COMMIT, SOURCE_PROFILES, LEGACY_SOURCE_COMMIT,
+                                           LEGACY_PROFILES, ROM_SHA256, DIAGNOSTIC_WASM_SHA256)
     directory = directory.resolve()
     manifest = json.loads((directory / "runtime.json").read_text())
-    if manifest.get("schema_version") != 1 or manifest.get("source", {}).get("commit") != SOURCE_COMMIT:
+    commit = manifest.get("source", {}).get("commit")
+    profiles = {SOURCE_COMMIT: SOURCE_PROFILES, LEGACY_SOURCE_COMMIT: LEGACY_PROFILES}.get(commit)
+    if manifest.get("schema_version") != 1 or profiles is None:
         raise ValueError("browser runtime source does not match the reviewed commit")
     kind = manifest.get("build", {}).get("kind")
-    if kind != "source-build" and not (allow_diagnostic and kind == "downloaded-diagnostic"):
+    diagnostic = (allow_diagnostic and commit == LEGACY_SOURCE_COMMIT and kind == "downloaded-diagnostic"
+                  and manifest.get("wasm", {}).get("sha256") == DIAGNOSTIC_WASM_SHA256)
+    if kind != "source-build" and not diagnostic:
         raise ValueError("public export requires a source build; diagnostic export needs explicit opt-in")
-    if manifest.get("profiles") != ["papers3", "stopwatch"] or manifest.get("rom", {}).get("sha256") != ROM_SHA256:
+    if manifest.get("profiles") != profiles or manifest.get("rom", {}).get("sha256") != ROM_SHA256:
         raise ValueError("browser runtime board profiles or S3 ROM do not match")
     files = {"runtime.json": encode_json(manifest)}
-    for key in ("wasm", "rom"):
+    for key, name in (("wasm", "esp32sim.wasm"), ("rom", "esp32s3_rev0_rom.elf")):
         row = manifest[key]
-        name = row.get("path")
-        if name not in {"esp32sim.wasm", "esp32s3_rev0_rom.elf"} or (directory / name).is_symlink():
+        if row.get("path") != name or (directory / name).is_symlink():
             raise ValueError("browser runtime path is invalid")
         data = (directory / name).read_bytes()
         if len(data) != row.get("bytes") or hashlib.sha256(data).hexdigest() != row.get("sha256"):
@@ -398,12 +402,10 @@ def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False
     return files
 
 
-def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = (), qemu_sd_media: Path | None = None, qemu_cores3_audio: bool = False) -> dict:
+def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: str = "", browser_runtime: Path | None = None, legacy_browser_runtime: Path | None = None, qemu_runtime: Path | None = None, qemu_c61_runtime: Path | None = None, littlefs_runtime: Path | None = None, allow_diagnostic_runtime: bool = False, qemu_candidate_profiles: tuple[str, ...] = (), qemu_sd_media: Path | None = None, qemu_cores3_audio: bool = False) -> dict:
     root, output = root.resolve(), output.resolve()
     base_path = normalize_base_path(base_path)
     service_url = normalize_service_url(service_url)
-    if browser_runtime and qemu_runtime:
-        raise ValueError("select one browser engine per exported site")
     if (qemu_candidate_profiles or qemu_c61_runtime) and not qemu_runtime:
         raise ValueError("QEMU candidate profiles and the C61 runtime require the primary QEMU runtime")
     if qemu_cores3_audio and not qemu_runtime:
@@ -438,16 +440,28 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
         if isolation_worker.is_file():
             (temporary / "coi-serviceworker.js").write_bytes(isolation_worker.read_bytes())
         runtime_manifest = None
+        esp32sim_profiles = {}
+        esp32sim_diagnostic = False
+        from bootstrap_browser_runtime import SOURCE_COMMIT
         sd_examples = None
         cc1101_examples = {}
         sx1262_examples = {}
         dual_kmeter_example = {}
-        if browser_runtime:
-            runtime_manifest, runtime_files = browser_runtime_files(browser_runtime, allow_diagnostic=allow_diagnostic_runtime)
-            runtime_directory = temporary / "platform/runtime/esp32sim"
+        for bundle in filter(None, (browser_runtime, legacy_browser_runtime)):
+            runtime_manifest, runtime_files = browser_runtime_files(bundle, allow_diagnostic=allow_diagnostic_runtime)
+            current = runtime_manifest["source"]["commit"] == SOURCE_COMMIT
+            name = "esp32sim" if current else "esp32sim-legacy"
+            if name in esp32sim_profiles:
+                raise ValueError("duplicate esp32sim runtime bundle")
+            esp32sim_profiles[name] = runtime_manifest["profiles"]
+            esp32sim_diagnostic |= runtime_manifest["build"]["kind"] != "source-build"
+            runtime_directory = temporary / f"platform/runtime/{name}"
             runtime_directory.mkdir(parents=True, exist_ok=True)
-            for name, content in runtime_files.items():
-                (runtime_directory / name).write_bytes(content)
+            for filename, content in runtime_files.items():
+                (runtime_directory / filename).write_bytes(content)
+        esp32sim_present = bool(esp32sim_profiles)
+        if esp32sim_present:
+            esp32sim_build = runtime_manifest["build"]["kind"]
         if qemu_runtime:
             runtime_manifest, runtime_files = qemu_runtime_files(qemu_runtime, allow_diagnostic=allow_diagnostic_runtime)
             if qemu_cores3_audio:
@@ -475,6 +489,14 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             if c61_manifest and not any(row["target"] == "riscv32-softmmu" for row in registry["profiles"]):
                 raise ValueError("the C61 runtime has no selected browser profile")
             (temporary / "platform/web/qemu-browser-profiles.json").write_bytes(encode_json(registry))
+            if "esp32sim-legacy" in esp32sim_profiles:
+                old = json.loads((root / "platform/web/browser-profiles.json").read_text())
+                old_by_id = {row["id"]: row for row in old["devices"]}
+                for row in browser_profiles["devices"]:
+                    if row["id"] in old_by_id:
+                        row["browser"] = old_by_id[row["id"]]["browser"]
+                included = {row["id"] for row in browser_profiles["devices"]}
+                browser_profiles["devices"].extend(row for device, row in old_by_id.items() if device not in included)
             (temporary / "platform/web/browser-profiles.json").write_bytes(encode_json(browser_profiles))
             workbench_path = Path("platform/web/uiflow-workbench-profiles.json")
             workbench = json.loads((root / workbench_path).read_text(encoding="utf-8"))
@@ -540,10 +562,12 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             "schema_version": 1, "service_url": service_url,
             "max_firmware_bytes": 64 * 1024 * 1024,
             "browser_board_execution": runtime_manifest is not None,
-            "browser_runtime_engine": runtime_manifest.get("engine", "esp32sim") if runtime_manifest else None,
-            "browser_runtime_build": runtime_manifest["build"]["kind"] if runtime_manifest else None,
+            "browser_runtime_engine": "esp32sim" if esp32sim_present else "qemu-wasm" if qemu_runtime else None,
+            "browser_esp32sim_profiles": [profile for profiles in esp32sim_profiles.values() for profile in profiles],
+            "browser_qemu_available": bool(qemu_runtime),
+            "browser_runtime_build": esp32sim_build if esp32sim_present else runtime_manifest["build"]["kind"] if runtime_manifest else None,
             "browser_candidate_profiles": list(qemu_candidate_profiles),
-            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio),
+            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio or esp32sim_diagnostic),
             "browser_wallclock_example": bool(qemu_runtime and wallclock_example),
         }
         if sd_examples is not None:
@@ -578,15 +602,17 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                          + "; explicit preview candidates (not publicly admitted): " + (", ".join(previews) or "none")
                          + "; per-board and exact-firmware execution clocks are defined by the exported qemu-browser-profiles.json")
         else:
-            execution = ("browser esp32sim for papers3/stopwatch; other native boards require Device Service"
+            execution = ("browser esp32sim for the exported board profiles; other native boards require Device Service"
                          if runtime_manifest else "native board firmware requires a separately configured Device Service")
+        if qemu_runtime and esp32sim_present:
+            execution = "esp32sim by default; " + execution + " selectable"
         manifest = {
             "schema_version": 1, "kind": MANIFEST_KIND, "base_path": base_path,
             "entry": "index.html", "service_url": service_url,
             "execution": execution,
             "firmware_bundled": False, "assets": asset_rows,
             "candidate_profiles": list(qemu_candidate_profiles),
-            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio),
+            "publication_eligible": not bool(qemu_candidate_profiles or qemu_cores3_audio or esp32sim_diagnostic),
         }
         (temporary / MANIFEST_NAME).write_bytes(encode_json(manifest))
         if output.exists():
@@ -604,6 +630,7 @@ def main() -> None:
     parser.add_argument("--base-path", default="/", help="/ for user Pages; /repository/ for project Pages")
     parser.add_argument("--service-url", default="", help="optional public HTTPS Device Service, without token")
     parser.add_argument("--browser-runtime", type=Path, help="directory from bootstrap_browser_runtime.py")
+    parser.add_argument("--legacy-browser-runtime", type=Path, help="optional PaperS3/StopWatch bundle from bootstrap --legacy")
     parser.add_argument("--qemu-runtime", type=Path, help="directory from bootstrap_qemu_browser_runtime.py")
     parser.add_argument("--qemu-c61-runtime", type=Path, help="directory from the RISC-V C61 source build")
     parser.add_argument("--qemu-sd-media", type=Path, metavar="DIRECTORY",
@@ -615,7 +642,7 @@ def main() -> None:
     parser.add_argument("--qemu-candidate-profile", action="append", default=[], help="preview-only board candidate; never supplied by the Pages publication workflow")
     args = parser.parse_args()
     try:
-        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile), qemu_sd_media=args.qemu_sd_media, qemu_cores3_audio=args.qemu_cores3_audio)
+        manifest = build_site(ROOT, args.output, base_path=args.base_path, service_url=args.service_url, browser_runtime=args.browser_runtime, legacy_browser_runtime=args.legacy_browser_runtime, qemu_runtime=args.qemu_runtime, qemu_c61_runtime=args.qemu_c61_runtime, littlefs_runtime=args.littlefs_runtime, allow_diagnostic_runtime=args.allow_diagnostic_runtime, qemu_candidate_profiles=tuple(args.qemu_candidate_profile), qemu_sd_media=args.qemu_sd_media, qemu_cores3_audio=args.qemu_cores3_audio)
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"public site export failed: {error}\n")
     print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "bytes": sum(row["bytes"] for row in manifest["assets"]), "base_path": manifest["base_path"], "published": False}))

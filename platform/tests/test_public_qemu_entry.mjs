@@ -80,7 +80,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples,browser_dual_kmeter_example:dualKmeterExample}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,browser_esp32sim_profiles:legacyProfile?[legacyProfile.board||legacyProfile.deviceId]:[],publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples,browser_dual_kmeter_example:dualKmeterExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
@@ -95,7 +95,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     },
     createPublicUnitAssembly:async()=>({attachments:()=>[]}),
     loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
-    getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
+    getBrowserProfile:id=>legacyProfile?.deviceId===id?{board:id,...legacyProfile}:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
   if(exampleSourceLoader)dependencies.loadVerifiedRuntimeAsset=exampleSourceLoader;

@@ -35,7 +35,7 @@ const server = createServer(async (request, response) => {
     if (path === '/__guest__') {response.setHeader('Content-Type', 'text/html'); response.end(harness); return;}
     if (path === '/firmware.bin') {response.setHeader('Content-Type', 'application/octet-stream'); response.end(firmware); return;}
     if (path === '/favicon.ico') {response.writeHead(204); response.end(); return;}
-    const runtimePrefix = '/platform/runtime/esp32sim/';
+    const runtimePrefix = '/platform/runtime/esp32sim-legacy/';
     const file = path.startsWith(runtimePrefix) ? resolve(runtimeDirectory, path.slice(runtimePrefix.length)) : resolve(root, '.' + decodeURIComponent(path));
     const allowed = path.startsWith(runtimePrefix) ? file.startsWith(runtimeDirectory + '/') : file.startsWith(root + '/platform/web/');
     if (!allowed) {response.writeHead(403); response.end(); return;}

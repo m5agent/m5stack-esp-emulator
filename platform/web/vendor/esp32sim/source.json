@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "repository": "https://github.com/zhuzhe1983/esp-online-tester",
+  "repository": "https://github.com/m5agent/esp32sim",
   "upstream": "https://github.com/mikroverk/esp32sim",
-  "commit": "3cd3db3b7202e9fc559328c7247c11134c0437f9",
+  "commit": "25c3948c8311f5afe95d6058add3d2c298e75c4b",
   "license": "MIT",
   "scope": "WASM worker, pacing and block JIT glue only; no firmware or ROM",
   "files": {
     "worker.js": {
       "source_path": "web/wasm/worker.js",
-      "sha256": "eb26ea86778dfcb7edb15f75787643c9b9796c43905d57968c80cdea27b49dc9",
-      "bytes": 20284
+      "sha256": "a1e7a1d84751cde8635f9bdb55bc1399d9c5c015044ffec2b553d9355b71a3ce",
+      "bytes": 13772
     },
     "jit.mjs": {
       "source_path": "web/wasm/jit.mjs",

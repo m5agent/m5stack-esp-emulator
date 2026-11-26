@@ -1,4 +1,7 @@
 import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
+import { PublicBrowserRuntime, getBrowserProfile, getBrowserReference } from './public-browser-runtime.js';
+import { assetUrl } from './public-config.js';
+import { downloadFirmware } from './public-firmware.js';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -8,6 +11,8 @@ const state = {
   device: null,
   shell: null,
   worker: null,
+  browser: null,
+  browserProfile: null,
   firmware: null,
   firmwareName: null,
   peripheral: null,
@@ -65,9 +70,13 @@ async function loadDevice() {
     if (!response.ok) throw new Error(`device: ${response.status}`);
     return response.json();
   });
-  const peripheral = await fetch(`/api/peripherals/${encodeURIComponent(device.id)}`, { cache: 'no-store' }).then(response => {
-    if (!response.ok) throw new Error(`peripherals: ${response.status}`);
-    return response.json();
+  const config = await fetch(assetUrl('platform/web/site-config.json')).then(response => response.json());
+  const profile = getBrowserProfile(device.id);
+  if (profile?.referenceSha256 && config.browser_esp32sim_profiles?.includes(profile.board)) state.browserProfile = profile;
+  const peripheral = await fetch(`/api/peripherals/${encodeURIComponent(device.id)}`, {cache:'no-store'}).then(response => {
+    if (response.ok) return response.json();
+    if (state.browserProfile && response.status === 404) return null;
+    throw new Error(`peripherals: ${response.status}`);
   });
   state.device = device;
   state.peripheral = peripheral;
@@ -86,15 +95,16 @@ async function render(device) {
   chip.className = `status-chip ${device.runtime.status}`;
   chip.textContent = device.runtime.status;
 
-  state.shell = await createDeviceShell($('deviceMount'), device);
+  state.shell = await createDeviceShell($('deviceMount'), device, {live:!!state.browserProfile});
   for (const button of $('viewToggle').querySelectorAll('button')) {
     button.addEventListener('click', () => {
       for (const item of $('viewToggle').querySelectorAll('button')) item.classList.toggle('active', item === button);
       state.shell.setViewMode(button.dataset.view);
     });
   }
-  state.shell.on('touch', ({ x, y, down }) => sendUart(`@tp ${x} ${y} ${down ? 1 : 0}\n`));
-  state.shell.on('control', ({ id, gpio, down }) => {
+  state.shell.on('touch', ({ x, y, down }) => browserInput({type:'touch',x,y,down}) || sendUart(`@tp ${x} ${y} ${down ? 1 : 0}\n`));
+  state.shell.on('control', ({ id, key, gpio, down }) => {
+    if (browserInput({type:'button',id:key || id,down})) return;
     const control = (device.hardware.controls || []).find(item => item.id === id);
     if (gpio != null && state.worker) {
       state.worker.postMessage({ type: 'gpio', pin: gpio, high: !down });
@@ -122,7 +132,14 @@ async function render(device) {
   }
   let runtimeText;
   let runtimeClass = '';
-  if (isNativeQemu(device)) {
+  if (state.browserProfile) {
+    runtimeText = 'esp32sim 在浏览器内运行本板型的合并固件。';
+    $('referenceBtn').hidden = false;
+    const workbench = new URL(assetUrl('platform/web/index.html'));
+    workbench.search = new URLSearchParams({device:device.id,mode:'browser'});
+    $('referenceBtn').href = workbench.href;
+    $('referenceBtn').textContent = '打开浏览器工作台';
+  } else if (isNativeQemu(device)) {
     if (runtime.status === 'reference-ready') {
       runtimeClass = 'ok';
       runtimeText = 'QEMU 虚拟主机已验证：参考固件可启动，目标尺寸首帧与输入重绘通过。本页面展示设备档案；执行与实时画面由本地矩阵或设备中心接入。';
@@ -146,7 +163,7 @@ async function render(device) {
     state.shell.showOverlay('Backend required', runtime.reason || '需要独立模拟后端');
   }
   const validation = runtime.validation;
-  if (validation && validation.status !== 'not-run') {
+  if (!state.browserProfile && validation && validation.status !== 'not-run') {
     runtimeText += ` 验证：${validation.status}。${validation.detail}`;
     if (validation.status === 'bootloader-panic') runtimeClass = 'danger';
   }
@@ -165,12 +182,16 @@ async function render(device) {
     ['固件', device.uiflow2?.firmware ? `${device.uiflow2.firmware.version} / ${device.uiflow2.firmware.firmware_id}` : '无']
   ].map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`).join('');
 
-  renderSensors(device);
+  if (state.browserProfile) $('sensorControls').textContent = '此浏览器运行方式提供机身输入。';
+  else renderSensors(device);
   renderPeripherals(state.peripheral);
   $('firmwareFile').addEventListener('change', onFirmwareFile);
   $('fetchBtn').addEventListener('click', fetchUIFlow2);
   $('resetBtn').addEventListener('click', () => state.firmware && startFirmware(state.firmware, state.firmwareName));
   $('pauseBtn').addEventListener('click', togglePause);
+  $('stopBtn').addEventListener('click', () => state.browser?.stop());
+  state.shell.on('reset', () => state.browser && browserInput({type:'reset'}));
+  window.addEventListener('pagehide', () => state.browser?.stop());
   installAutomationApi();
   window.parent?.postMessage({ type: 'm5emu:ready', deviceId: device.id, status: runtime.status }, location.origin);
 }
@@ -264,6 +285,15 @@ function pushSensors() {
   }
 }
 
+function browserInput(event) {
+  if (!state.browser || !['running','paused'].includes(state.browser.status)) return false;
+  if (event.type === 'touch' && !state.browserProfile.inputs.touch) return false;
+  void state.browser.input(event).catch(error => {
+    if (error.name !== 'AbortError') appendLog(`\n[input] ${error.message}\n`);
+  });
+  return true;
+}
+
 function sendUart(text) {
   if (!state.worker) return false;
   state.worker.postMessage({ type: 'uart_text', data: text });
@@ -300,6 +330,13 @@ async function fetchUIFlow2() {
   $('firmwareNotice').className = 'notice';
   $('firmwareNotice').textContent = `正在获取 ${firmware.version}…`;
   try {
+    if (state.browserProfile) {
+      const reference = getBrowserReference(state.device,state.browserProfile);
+      if (!reference) throw new Error("请载入本板型的参考固件文件。");
+      const downloaded = await downloadFirmware(reference.url, {expectedSha256:reference.sha256});
+      await startFirmware(downloaded.bytes, `UIFlow2-${state.device.id}-${firmware.version}.bin`);
+      return;
+    }
     const response = await fetch(firmware.download_url, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     startFirmware(await response.arrayBuffer(), `UIFlow2-${state.device.id}-${firmware.version}.bin`);
@@ -314,6 +351,7 @@ async function fetchUIFlow2() {
 function startFirmware(buffer, name = 'firmware.bin') {
   const device = state.device;
   if (!device || device.runtime.status === 'backend-required') return;
+  if (state.browserProfile) return startBrowserFirmware(buffer, name);
   if (isNativeQemu(device) && !device.runtime.page) {
     state.shell.showOverlay('Local QEMU host', '该型号由本地 QEMU 执行，当前浏览器页面不承载固件 worker。');
     $('firmwareNotice').className = 'notice';
@@ -378,7 +416,58 @@ function startFirmware(buffer, name = 'firmware.bin') {
   postState();
 }
 
+async function startBrowserFirmware(firmware, name) {
+  state.browser?.stop();
+  state.firmware = firmware;
+  state.firmwareName = name;
+  state.log = '';
+  $('log').textContent = '';
+  const runtime = new PublicBrowserRuntime({
+    onSerial: appendLog,
+    onFrame: ({pixels,width,height,sequence}) => {
+      if (state.shell.setFrameLE) state.shell.setFrameLE(pixels,width,height,sequence);
+      else {
+        for (let i = 0; i < pixels.length; i += 2) [pixels[i],pixels[i+1]] = [pixels[i+1],pixels[i]];
+        state.shell.setFrame(pixels,width,height,sequence);
+      }
+      postState();
+    },
+    onState: value => {
+      state.lastState = value;
+      state.shell.setDeviceRotation?.(value.display?.deviceRotationDeg || 0);
+      state.running = value.status === 'running';
+      $('pauseBtn').disabled = !['running','paused'].includes(value.status);
+      $('pauseBtn').textContent = value.status === 'paused' ? '继续' : '暂停';
+      $('stopBtn').hidden = ['stopped','error'].includes(value.status);
+      postState();
+    },
+    onError: error => appendLog(`\n[esp32sim] ${error.message}\n`),
+  });
+  state.browser = runtime;
+  $('firmwareNotice').className = 'notice';
+  $('firmwareNotice').textContent = `${name} · esp32sim 加载中…`;
+  state.shell.showOverlay('Booting…', name);
+  state.shell.focusInput?.();
+  try {
+    await runtime.start({device:state.device.id,firmware});
+    if (runtime !== state.browser) return;
+    $('firmwareNotice').className = 'notice ok';
+    $('firmwareNotice').textContent = `${name} · esp32sim 已启动`;
+    $('resetBtn').disabled = false;
+  } catch (error) {
+    if (runtime !== state.browser || error.name === 'AbortError') return;
+    $('firmwareNotice').className = 'notice danger';
+    $('firmwareNotice').textContent = error.message;
+    state.shell.showOverlay('Firmware error', error.message);
+  }
+}
+
 function togglePause() {
+  if (state.browser) {
+    const result = state.browser.status === 'paused' ? state.browser.resume() : state.browser.pause();
+    void result.catch(error => appendLog(`\n[esp32sim] ${error.message}\n`));
+    return;
+  }
   if (!state.worker) return;
   state.running = !state.running;
   state.worker.postMessage({ type: state.running ? 'resume' : 'pause' });
@@ -404,10 +493,11 @@ function installAutomationApi() {
       startFirmware(await response.arrayBuffer(), url.split('/').pop());
     },
     reset: () => state.firmware && startFirmware(state.firmware, state.firmwareName),
-    pause: () => state.worker?.postMessage({ type: 'pause' }),
-    resume: () => state.worker?.postMessage({ type: 'resume' }),
-    press,
-    touch: (x, y, down) => sendUart(`@tp ${x} ${y} ${down ? 1 : 0}\n`),
+    pause: () => state.browser ? state.browser.pause() : state.worker?.postMessage({ type: 'pause' }),
+    resume: () => state.browser ? state.browser.resume() : state.worker?.postMessage({ type: 'resume' }),
+    stop: () => state.browser?.stop(),
+    press: (id, down) => browserInput({type:'button',id,down}) || press(id,down),
+    touch: (x, y, down) => browserInput({type:'touch',x,y,down}) || sendUart(`@tp ${x} ${y} ${down ? 1 : 0}\n`),
     setImu: (ax, ay, az, gx = 0, gy = 0, gz = 0) => sendUart(`@imu ${ax} ${ay} ${az} ${gx} ${gy} ${gz}\n`),
     setBattery: (pct, mv, charging = false, vbus = true) => sendUart(`@bat ${pct} ${mv} ${charging ? 1 : 0} ${vbus ? 1 : 0}\n`),
     setRtc: epoch => sendUart(`@rtc ${epoch}\n`),
