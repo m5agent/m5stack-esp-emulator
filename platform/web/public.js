@@ -48,6 +48,7 @@ const state = {
   serial: '',
   serialBytes: 0,
   browserUnavailableReason: '',
+  embeddedIsolationFailed: false,
   deviceFilter: 'all',
   unitFilter: 'all',
   selectedUnit: null,
@@ -574,10 +575,14 @@ function updateCapability() {
     $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor>1?`虚拟时间与看门狗按 1/${p.clockDivisor} 慢放。`:'采用正常虚拟时钟。'}刷新不保存 Flash。`;
     if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
-  if (!selectedLane && (mode === 'auto' || mode === 'browser') && state.browserUnavailableReason) {
+  const standalone = !selectedLane && (mode === 'auto' || mode === 'browser') && state.browserUnavailableReason;
+  if (standalone) {
     $('capabilityTitle').textContent = '浏览器运行不可用';
     $('capabilityText').textContent = state.browserUnavailableReason;
   }
+  // Same project URL in a top-level tab, where the Service Worker can isolate.
+  $('openStandaloneLink').hidden = !(standalone && state.embeddedIsolationFailed);
+  if (!$('openStandaloneLink').hidden) $('openStandaloneLink').href = location.href;
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud') {
     $('capabilityTitle').textContent=selectedLane==='service'?'官方 UIFlow2 · 原生服务运行':'云端配对需要原生设备服务';
     $('capabilityText').textContent=selectedLane==='service'
@@ -1639,8 +1644,9 @@ async function init() {
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
-      state.browserUnavailableReason = cause.code === 'coi_isolation_failed' && window.parent !== window
-        ? '嵌入页面未能启用固件所需的共享内存。请在新标签页直接打开模拟器。'
+      state.embeddedIsolationFailed = cause.code === 'coi_isolation_failed' && window.parent !== window;
+      state.browserUnavailableReason = state.embeddedIsolationFailed
+        ? '此嵌入页面未能启用固件所需的共享内存，可能是浏览器不支持嵌入隔离。请在新标签页直接打开模拟器。'
         : `${cause.message} 仍可浏览模型或连接 HTTPS 仿真服务。`;
     }
     renderBrowserHistory();

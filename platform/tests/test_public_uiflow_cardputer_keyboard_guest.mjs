@@ -9,6 +9,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash,randomUUID} from 'node:crypto';
 import {capturePublicQemuProvenance,QEMU_EXECUTED_WEB_PATHS} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets,closedQemuPthreadBroker} from './public_qemu_worker_targets.mjs';
+import {docsEmbedEnabled,serveDocsEmbed,openDocsEmbed,docsEmbedIdentity} from './public_docs_embed.mjs';
 import {findPublicButtonPointerTarget} from './public_qemu_button_pointer.mjs';
 import {CARDPUTER_KEYBOARD_CASES,CARDPUTER_KEYBOARD_CODES,CARDPUTER_KEYBOARD_SOURCE,
   requireCardputerKeyboardObservation} from './public_qemu_cardputer_keyboard_cases.mjs';
@@ -21,6 +22,8 @@ if(!site||process.env.M5_CARDPUTER_KEYBOARD_IRQ!=='1'){
 assert.ok(!process.env.M5_QEMU_DEVICE||process.env.M5_QEMU_DEVICE==='cardputer-adv','Cardputer-ADV exact default image only');
 assert.ok(!process.env.M5_QEMU_BUTTON_HOLD_MS||process.env.M5_QEMU_BUTTON_HOLD_MS==='250','formal keyboard pulse is fixed at 250 ms');
 const device='cardputer-adv',holdMs=250,basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+// Opt-in M5_PUBLIC_DOCS_EMBED=1: run inside a cross-site docs iframe.
+const docsEmbed=docsEmbedEnabled();
 const out=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-uiflow-cardputer-keyboard-irq'));
 assert.ok(out.startsWith(resolve(repo,'.work')+'/'),'raw evidence belongs in ignored .work');
 await mkdir(out,{recursive:false});
@@ -48,9 +51,9 @@ const check=(name,ok,details)=>{checks.push({name,ok,details});assert.ok(ok,name
 const save=()=>writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2)+'\n');
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json',
   '.wasm':'application/wasm','.css':'text/css','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.woff2':'font/woff2'};
-let server,browser,page,workers,cdp;
+let server,browser,page,workers,cdp,ui;
 let lastProgress=0;
-async function events(){return page.evaluate(nonce=>{
+async function events(){return ui.evaluate(nonce=>{
   const prefix='M5_CARDPUTER_KEYBOARD ';
   return (globalThis.keyboardRun?.output||'').split('\n').filter(line=>line.startsWith(prefix)).flatMap(line=>{
     try{const row=JSON.parse(line.slice(prefix.length));return row.nonce===nonce?[row]:[];}catch{return [];}
@@ -59,7 +62,7 @@ async function events(){return page.evaluate(nonce=>{
 async function observe(predicate,description,timeout=30000){
   const deadline=Math.min(overallDeadline,Date.now()+timeout);
   for(;;){
-    const state=await page.evaluate(()=>({error:globalThis.keyboardRun?.error,output:globalThis.keyboardRun?.output||'',
+    const state=await ui.evaluate(()=>({error:globalThis.keyboardRun?.error,output:globalThis.keyboardRun?.output||'',
       banner:document.querySelector('#errorBanner')?.hidden?'':document.querySelector('#errorBanner')?.textContent}));
     if(state.error||state.banner)throw new Error(state.error||state.banner);
     if(/Traceback \(most recent call last\):|Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(state.output))
@@ -78,11 +81,11 @@ async function nativeKey(code,down){
   else if(down)await page.keyboard.down(code);else await page.keyboard.up(code);
 }
 async function stopAndObserve(){
-  if(!page||page.isClosed()||!await page.evaluate(()=>!!globalThis.keyboardRuntime))return;
-  report.before_stop=await page.evaluate(()=>keyboardRuntime.evidence());
-  report.worker_topology=await workers.snapshotQemuTopology();
-  await page.evaluate(()=>keyboardRuntime.stop());
-  report.stopped=await page.evaluate(()=>keyboardRuntime.evidence());
+  if(!page||!ui||page.isClosed()||!await ui.evaluate(()=>!!globalThis.keyboardRuntime))return;
+  report.before_stop=await ui.evaluate(()=>keyboardRuntime.evidence());
+  report.worker_topology=await workers.snapshotQemuTopology({ownerTargetTypes:docsEmbed?['iframe']:['page']});
+  await ui.evaluate(()=>keyboardRuntime.stop());
+  report.stopped=await ui.evaluate(()=>keyboardRuntime.evidence());
   const cleanup=report.stopped.cleanup;
   check('normal-qmp-quit-and-worker-cleanup',cleanup?.gracefulExit&&cleanup.exitCode===0&&cleanup.workersAtExit===0
     &&cleanup.disposal?.workersRemaining===0&&cleanup.disposal.workersTerminatedByDispose===0
@@ -106,6 +109,7 @@ try{
   server=createServer(async(request,response)=>{
     try{
       const path=new URL(request.url,'http://localhost').pathname;
+      if(docsEmbed&&serveDocsEmbed(request.url,response,report.url))return;
       if(!path.startsWith(basePath)){response.writeHead(404).end();return;}
       const file=resolve(site,decodeURIComponent(path.slice(basePath.length))||'index.html');
       if(!file.startsWith(site+'/')){response.writeHead(403).end();return;}
@@ -122,9 +126,14 @@ try{
   page=await browser.newPage({viewport:{width:1440,height:1100}});cdp=await page.context().newCDPSession(page);
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
-  await page.evaluate(async({origin,device})=>{
+  if(docsEmbed){
+    const embed=await openDocsEmbed(page,{port:server.address().port,workbenchUrl:origin});
+    ui=embed.frame;report.docs_embed={parent_url:embed.parentUrl};
+  }else{ui=page;await page.goto(origin,{waitUntil:'domcontentloaded'});}
+  await ui.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
+  if(docsEmbed){Object.assign(report.docs_embed,await docsEmbedIdentity(page,ui));
+    check('docs-parent-unisolated-and-cross-site',report.docs_embed.ok,report.docs_embed);}
+  await ui.evaluate(async({origin,device})=>{
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin));
     const create=ModelDeviceShell.create;
     ModelDeviceShell.create=async function(...args){
@@ -160,42 +169,42 @@ try{
       }catch(error){row.error=String(error?.message||error);throw error;}finally{row.finished=true;}
     };
   },{origin,device});
-  await page.locator(`button[data-device-id="${device}"]`).click();
-  await page.waitForFunction(()=>globalThis.keyboardShell?.device.id==='cardputer-adv',{}, {timeout:45000});
-  if(!await page.locator('#runtimeMode').isVisible())await page.locator('.advanced-options > summary').click();
-  await page.locator('#runtimeMode').selectOption('browser');
-  await page.locator('input[name="firmwareSource"][value="reference"]').check();
-  check('public-workbench-default-selected',await page.locator('#referenceExample').inputValue()==='uiflow');
-  await page.locator('#startBtn').click();
-  await page.waitForFunction(()=>globalThis.keyboardRuntime?.status==='running'&&keyboardRuntime.guestReady(),{}, {timeout:readyTimeout});
-  report.initial=await page.evaluate(()=>({evidence:keyboardRuntime.evidence(),generation:keyboardRuntime.generation,
+  await ui.locator(`button[data-device-id="${device}"]`).click();
+  await ui.waitForFunction(()=>globalThis.keyboardShell?.device.id==='cardputer-adv',{}, {timeout:45000});
+  if(!await ui.locator('#runtimeMode').isVisible())await ui.locator('.advanced-options > summary').click();
+  await ui.locator('#runtimeMode').selectOption('browser');
+  await ui.locator('input[name="firmwareSource"][value="reference"]').check();
+  check('public-workbench-default-selected',await ui.locator('#referenceExample').inputValue()==='uiflow');
+  await ui.locator('#startBtn').click();
+  await ui.waitForFunction(()=>globalThis.keyboardRuntime?.status==='running'&&keyboardRuntime.guestReady(),{}, {timeout:readyTimeout});
+  report.initial=await ui.evaluate(()=>({evidence:keyboardRuntime.evidence(),generation:keyboardRuntime.generation,
     ready_firmware:keyboardRuntime.profile.readyFirmwareSHA256}));
   const receipt=report.initial.evidence.receipt;
   check('exact-cardputer-default-flash-and-runtime',receipt.deviceId===device&&receipt.firmwareSha256===expected.firmwareSHA256
     &&receipt.uiflowWorkbench?.baseSha256===expected.baseSHA256&&report.initial.ready_firmware===expected.firmwareSHA256
     &&receipt.wasmSha256===report.provenance.runtime_assets['qemu-system-xtensa.wasm']?.sha256,receipt);
-  check('all-56-public-model-components-mounted',await page.evaluate(cases=>cases.length===56
+  check('all-56-public-model-components-mounted',await ui.evaluate(cases=>cases.length===56
     &&cases.every(item=>keyboardShell.model.find(item.component,'button')?.interactive)
     &&keyboardShell.model.keymap.Fn==='key-Fn',CARDPUTER_KEYBOARD_CASES));
-  report.renderer=await page.evaluate(()=>{const gl=keyboardShell.viewer.renderer.getContext(),debug=gl.getExtension('WEBGL_debug_renderer_info');
+  report.renderer=await ui.evaluate(()=>{const gl=keyboardShell.viewer.renderer.getContext(),debug=gl.getExtension('WEBGL_debug_renderer_info');
     return {renderer:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):null,version:gl.getParameter(gl.VERSION)};});
-  await page.locator('#pythonSource').fill(source);await page.locator('#pythonRunBtn').click();
+  await ui.locator('#pythonSource').fill(source);await ui.locator('#pythonRunBtn').click();
   const readyRows=await observe(rows=>rows.some(row=>row.kind==='ready'),'original public IRQ observer ready',readyTimeout);
   const ready=readyRows.find(row=>row.kind==='ready');
-  check('editor-source-reached-original-public-runner',await page.evaluate(source=>keyboardRun.source===source,source));
+  check('editor-source-reached-original-public-runner',await ui.evaluate(source=>keyboardRun.source===source,source));
   check('original-cardputer-public-irq-api-ready',ready.api==='MatrixKeyboard.set_callback'&&!ready.pending
     &&Object.keys(ready.states).length===CARDPUTER_KEYBOARD_CODES.length&&Object.values(ready.states).every(value=>value===false),ready);
   for(const item of CARDPUTER_KEYBOARD_CASES)for(const method of ['keyboard','pointer']){
     const afterSeq=(await events()).at(-1)?.seq||0;
-    const before=await page.evaluate(()=>({model:keyboardModelEvents.length,controls:keyboardControls.length,input:keyboardInputs.length,dom:keyboardDom.length}));
+    const before=await ui.evaluate(()=>({model:keyboardModelEvents.length,controls:keyboardControls.length,input:keyboardInputs.length,dom:keyboardDom.length}));
     const trial={physical:item.physical,component:item.component,row:item.row,col:item.col,qcode:item.qcode,
       expected_codes:item.expectedCodes,method,after_seq:afterSeq,requested_hold_ms:holdMs,companion:item.companion};
     report.input_cases.push(trial);
-    const canvas=page.locator('#deviceMount .three-device-stage canvas');await canvas.scrollIntoViewIfNeeded();
+    const canvas=ui.locator('#deviceMount .three-device-stage canvas');await canvas.scrollIntoViewIfNeeded();
     if(method==='pointer'){
-      trial.pointer=await page.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin,shellGlobal:'keyboardShell'});
+      trial.pointer=await ui.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin,shellGlobal:'keyboardShell'});
       await page.mouse.move(trial.pointer.clientX,trial.pointer.clientY);
-      check(`raycast-${item.physical}`,await page.evaluate(({clientX,clientY,component})=>
+      check(`raycast-${item.physical}`,await ui.evaluate(({clientX,clientY,component})=>
         document.elementFromPoint(clientX,clientY)===keyboardShell.viewer.renderer.domElement
         &&keyboardShell.viewer.pick({clientX,clientY})?.component.path===component,trial.pointer),trial.pointer);
     }
@@ -214,7 +223,7 @@ try{
       if(method==='keyboard')await nativeKey(code,false);else await page.mouse.up();
       trial.up_at_ms=performance.now();trial.observed_hold_ms=trial.up_at_ms-trial.down_at_ms;
     }
-    trial.host=await page.evaluate(before=>({model:keyboardModelEvents.slice(before.model),controls:keyboardControls.slice(before.controls),
+    trial.host=await ui.evaluate(before=>({model:keyboardModelEvents.slice(before.model),controls:keyboardControls.slice(before.controls),
       inputs:keyboardInputs.slice(before.input),dom:keyboardDom.slice(before.dom)}),before);
     const expectedQcodes=item.companion?[item.qcode,'grave_accent']: [item.qcode];
     check(`${method}-${item.physical}-actual-model-edges`,trial.host.model.length===expectedQcodes.length*2
@@ -225,9 +234,9 @@ try{
       &&trial.host.dom.every(row=>row.trusted)&&trial.host.dom.filter(row=>row.type===(method==='keyboard'?'keydown':'pointerdown')).length>=1,trial.host.dom);
     // Runtime input acknowledgements can arrive after the DOM handler. Wait
     // for those real commands, without retaining or extending the input pulse.
-    await page.waitForFunction(({start,count})=>keyboardInputs.length===start+count
+    await ui.waitForFunction(({start,count})=>keyboardInputs.length===start+count
       &&keyboardInputs.slice(start).every(row=>row.response?.accepted),{start:before.input,count:expectedQcodes.length*2},{timeout:10000});
-    trial.host.inputs=await page.evaluate(start=>keyboardInputs.slice(start),before.input);
+    trial.host.inputs=await ui.evaluate(start=>keyboardInputs.slice(start),before.input);
     check(`${method}-${item.physical}-original-controller-inputs`,trial.host.inputs.length===expectedQcodes.length*2
       &&expectedQcodes.every(code=>{const rows=trial.host.inputs.filter(row=>(row.event.id||row.event.key)===code);
         return rows.length===2&&rows[0].event.down===true&&rows[1].event.down===false&&rows.every(row=>row.response?.accepted&&!row.error);}),trial.host.inputs);
@@ -240,14 +249,14 @@ try{
     trial.status='PASS';check(`guest-${method}-${item.physical}-irq-press-release`,true,trial.observations);await save();
   }
   check('all-56-keys-both-public-input-paths',report.input_cases.length===112&&report.input_cases.every(row=>row.status==='PASS'));
-  await page.locator('#pythonInterruptBtn').click();
-  await page.waitForFunction(()=>globalThis.keyboardRun?.finished,{}, {timeout:15000});
-  report.execution=await page.evaluate(()=>keyboardRun);
+  await ui.locator('#pythonInterruptBtn').click();
+  await ui.waitForFunction(()=>globalThis.keyboardRun?.finished,{}, {timeout:15000});
+  report.execution=await ui.evaluate(()=>keyboardRun);
   const deinit=(await events()).find(row=>row.kind==='deinit');
   check('public-driver-deinit-and-raw-repl-interrupt',!!deinit&&!report.execution.error&&report.execution.source===source&&report.execution.result?.interrupted
     &&report.execution.result.sessionId===report.initial.evidence.session_id
     &&report.execution.result.consoleEpoch===report.initial.evidence.console_epoch,report.execution.phases);
-  check('same-runtime-and-console-through-all-inputs',await page.evaluate(({session,generation,epoch})=>
+  check('same-runtime-and-console-through-all-inputs',await ui.evaluate(({session,generation,epoch})=>
     keyboardRuntime.sessionId===session&&keyboardRuntime.generation===generation&&keyboardRuntime.consoleEpoch===epoch
     &&!keyboardRuntime.machineEvents.some(row=>row.event==='RESET'),{session:report.initial.evidence.session_id,
       generation:report.initial.generation,epoch:report.initial.evidence.console_epoch}));
@@ -257,8 +266,8 @@ try{
   check('no-page-errors',errors.length===0,errors);report.status='PASS';
 }catch(error){
   report.failure=String(error?.stack||error);process.exitCode=1;
-  if(page&&!page.isClosed()){
-    report.failure_state=await page.evaluate(()=>({run:globalThis.keyboardRun,evidence:globalThis.keyboardRuntime?.evidence(),
+  if(page&&ui&&!page.isClosed()){
+    report.failure_state=await ui.evaluate(()=>({run:globalThis.keyboardRun,evidence:globalThis.keyboardRuntime?.evidence(),
       model_events:globalThis.keyboardModelEvents,controls:globalThis.keyboardControls,inputs:globalThis.keyboardInputs,dom:globalThis.keyboardDom})).catch(()=>null);
     if(!report.stopped)try{await stopAndObserve();}catch(cleanupError){report.cleanup_failure=String(cleanupError?.stack||cleanupError);}
   }

@@ -22,6 +22,10 @@ async function isolatedResponse(request) {
   headers.set('Cross-Origin-Embedder-Policy', coepCredentialless ? 'credentialless' : 'require-corp');
   if (!coepCredentialless) headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
   headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  // COOP/COEP isolate only a top-level page. Document-Isolation-Policy lets
+  // Chromium 137+ isolate this document inside a cross-origin docs iframe
+  // whose parent sends no isolation headers. It applies only to our frames.
+  headers.set('Document-Isolation-Policy', coepCredentialless ? 'isolate-and-credentialless' : 'isolate-and-require-corp');
   // Chromium can expose an empty ReadableStream on a network 304. Supplying
   // that stream to Response is forbidden for null-body statuses and rejects
   // respondWith, turning a valid conditional frame into net::ERR_FAILED.

@@ -38,6 +38,10 @@ const server=createServer(async(request,response)=>{
       const path=resolve(repo,url.pathname.slice(prefix.length));assert.ok(path.startsWith(resolve(repo,'platform/web')+sep));
       data=await readFile(path);type=extname(path)==='.json'?'application/json':'text/javascript';
     } else if(url.pathname==='/neighbor/'){data='<!doctype html><title>outside project</title>';type='text/html';}
+    else if(url.pathname==='/docs-embed/'){
+      // A cross-site documentation page with no isolation headers embeds the project page.
+      data=`<!doctype html><meta charset="utf-8"><title>docs embed</title><iframe allow="cross-origin-isolated" src="${url.searchParams.get('src')}"></iframe>`;type='text/html';
+    }
     else{response.writeHead(404).end();return;}
     // Deliberately no COOP/COEP/CORP or Service-Worker-Allowed headers.
     response.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store'}).end(data);
@@ -55,7 +59,7 @@ try {
   const workerClosures=[];
   page.on('pageerror',error=>report.errors.push(error.message));
   page.on('worker',worker=>{const row={url:worker.url(),closed:false};report.workers.push(row);workerClosures.push(worker.waitForEvent('close',{timeout:25000}).then(()=>{row.closed=true;}));});
-  page.on('response',async value=>{if(value.request().isNavigationRequest()){const headers=await value.allHeaders();report.navigation_responses.push({url:value.url(),from_service_worker:value.fromServiceWorker(),COOP:headers['cross-origin-opener-policy']||null,COEP:headers['cross-origin-embedder-policy']||null});}});
+  page.on('response',async value=>{if(value.request().isNavigationRequest()){const headers=await value.allHeaders();report.navigation_responses.push({url:value.url(),from_service_worker:value.fromServiceWorker(),COOP:headers['cross-origin-opener-policy']||null,COEP:headers['cross-origin-embedder-policy']||null,DIP:headers['document-isolation-policy']||null});}});
   const target=origin+prefix+'?device=cores3&autostart=0#screen';await page.goto(target,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>globalThis.probe?.frame||globalThis.probe?.errors.length);
   const initial=await page.evaluate(()=>probe);report.initial=initial;assert.deepEqual(initial.errors,[]);
@@ -67,6 +71,23 @@ try {
   await page.goto(origin+prefix+'platform/web/index.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>globalThis.probe?.frame);assert.equal(await page.evaluate(()=>crossOriginIsolated),true);report.checks.nested_entry_keeps_project_scope=true;
   await Promise.all(workerClosures);assert.ok(report.workers.length>=3&&report.workers.every(w=>w.closed));report.checks.owned_test_workers_closed_before_browser_cleanup=true;
   await page.goto(origin+'/neighbor/',{waitUntil:'domcontentloaded'});assert.deepEqual(await page.evaluate(()=>({isolated:crossOriginIsolated,controlled:!!navigator.serviceWorker.controller})),{isolated:false,controlled:false});report.checks.neighboring_project_not_controlled=true;
+  // Cross-site docs embed: the parent stays unisolated; the project frame is
+  // isolated by the SW's Document-Isolation-Policy and runs real shared memory.
+  const docsContext=await browser.newContext();docsContext.on('response',async value=>{if(value.request().isNavigationRequest()){const headers=await value.allHeaders();report.navigation_responses.push({url:value.url(),from_service_worker:value.fromServiceWorker(),COOP:headers['cross-origin-opener-policy']||null,COEP:headers['cross-origin-embedder-policy']||null,DIP:headers['document-isolation-policy']||null});}});
+  const docsPage=await docsContext.newPage();docsPage.setDefaultTimeout(25000);docsPage.on('pageerror',error=>report.errors.push('docs:'+error.message));
+  const embedded=origin+prefix+'?device=cardputer-adv&autostart=0';
+  await docsPage.goto(`http://localhost:${port}/docs-embed/?src=${encodeURIComponent(embedded)}`,{waitUntil:'domcontentloaded'});
+  const projectFrame=()=>docsPage.frames().find(frame=>frame.url().startsWith(origin+prefix)&&frame.parentFrame()===docsPage.mainFrame());
+  const deadline=Date.now()+25000;let embedProbe;
+  while(Date.now()<deadline){embedProbe=await projectFrame()?.evaluate(()=>globalThis.probe&&(probe.frame||probe.errors.length)?probe:null).catch(()=>null);if(embedProbe)break;await docsPage.waitForTimeout(100);}
+  report.cross_site_embed={parent_isolated:await docsPage.evaluate(()=>crossOriginIsolated),parent_shared:await docsPage.evaluate(()=>typeof SharedArrayBuffer),
+    frame_isolated:await projectFrame()?.evaluate(()=>crossOriginIsolated),probe:embedProbe};
+  assert.equal(report.cross_site_embed.parent_isolated,false);assert.equal(report.cross_site_embed.parent_shared,'undefined');
+  assert.deepEqual(embedProbe?.errors,[]);assert.equal(embedProbe.loads.at(-1).isolated,true);assert.equal(embedProbe.loads[0].isolated,false,'a fresh embed starts unregistered and unisolated');assert.equal(embedProbe.loads.length,2,'one SW reload inside the frame');assert.equal(projectFrame().url(),embedded);
+  assert.deepEqual(embedProbe.frame,{isolated:true,shared:true,value:72,worker:{isolated:true,shared:true,value:72}});
+  report.checks.cross_site_docs_iframe_isolated_with_real_shared_memory_worker=true;
+  await docsContext.close();
+  assert.ok(report.navigation_responses.some(r=>r.from_service_worker&&r.DIP==='isolate-and-require-corp'));
   assert.ok(report.navigation_responses.some(r=>!r.from_service_worker&&r.COOP===null&&r.COEP===null));assert.ok(report.navigation_responses.some(r=>r.from_service_worker&&r.COOP==='same-origin'&&r.COEP==='require-corp'));report.checks.actual_SW_navigation_headers=true;
   assert.deepEqual(report.errors,[]);report.status='PASS';
 }catch(error){report.failure=error.stack;process.exitCode=1;}

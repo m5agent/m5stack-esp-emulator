@@ -33,19 +33,19 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
   cdp.on('Target.targetDestroyed', onDestroyed);
   await cdp.send('Target.setDiscoverTargets', {discover:true});
   return {
-    async snapshotQemuTopology() {
+    async snapshotQemuTopology({ownerTargetTypes = ['page']} = {}) {
       const {targetInfos}=await cdp.send('Target.getTargets');
       const all=targetInfos.filter(target=>target.type==='worker');
       const engines=all.filter(target=>target.url.includes('/public-qemu-engine.js'));
       const engine=engines[0];
       const pthreads=all.filter(target=>target!==engine);
-      const pageParent=targetInfos.some(target=>target.type==='page'&&target.targetId===engine?.parentId);
+      const pageParent=targetInfos.some(target=>ownerTargetTypes.includes(target.type)&&target.targetId===engine?.parentId);
       const ok=engines.length===1&&pthreads.length>0&&pageParent
         &&new Set(all.map(target=>target.targetId)).size===all.length
         &&pthreads.every(target=>target.url.startsWith('blob:')
           &&target.parentId===engine.parentId&&target.parentFrameId===engine.parentFrameId
           &&target.parentId!==engine.targetId);
-      return {ok,engine_count:engines.length,pthread_count:pthreads.length,targets:all,
+      return {ok,engine_count:engines.length,pthread_count:pthreads.length,targets:all,owner_target_types:ownerTargetTypes,
         source:'Chrome DevTools Target.getTargets'};
     },
     async waitUntilOnly({minimumObserved, allowedUrlPart, timeoutMs = 30000}) {
