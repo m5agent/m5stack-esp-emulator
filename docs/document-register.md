@@ -6,6 +6,8 @@
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [QEMU 后端封存记录](qemu-backend-freeze.md) | 运行时封存 | `2026-11-26` | 封存提交与标签、rollout 与二进制哈希、保留内容、重启步骤；不改变既有验证结论 |
+| [esp32sim 后端迁移计划](plans/2026-11-26-esp32sim-migration.md) | 迁移计划 | `2026-11-26` | 阶段、参考来源取舍、CoreS3 判定门槛、风险；草案，未进入 Backlog |
 | [review-sta 驱动初始化与条件步骤证据](evidence/2026-11-25-review-sta-activity/README.md) | 证据摘要 | `2026-11-25` | `wifi_initialized` 判定 NOT_USED、0.0.0.0 非出站、`until=joined` 条件步骤；Bruce CN 与 CardOS 入网，Monster DHCP 未请求仍开放；不含物理 RF |
 | [便携 review-sta 控制固件证据](evidence/2026-11-24-review-sta-portable/README.md) | 证据摘要 | `2026-11-24` | 8 款板卡 review-sta 正负控、setup 输入、离线与 pcap 隔离；不含原版应用与物理 RF |
 | [S3-watch 原版 WPA2 对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) | 实现设计 | `2026-11-23` | StickS3 原生 Wi-Fi 控制器、隔离对端、正负控与只读 HTTP |
