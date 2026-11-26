@@ -44,12 +44,18 @@ UIFlow2 v2.5.3 从主界面点击 `(34,47)` 进入设置，并观测到 Worker �
 CoreS3 的 AXP2101 短按使 Button 固件绘制 `Btn PWR`。通过的来宾会话在
 停止前由 CDP 看到一个 DedicatedWorker，Stop 后 iframe 仍在时归零。
 首次部分用例录图超时，保留失败回执。后续重复运行验证实际画面与清理。
+CoreS3 Touch 与 ADV Keyboard 在同一最终 WASM 上禁用 JIT 后也通过输入和清理。
+同一工作台的瞬时虚拟秒/墙钟秒回执为 CoreS3 约 1.04/0.36、ADV 约 0.96/0.32
+（JIT/解释器），保留 JIT 默认值。这些是各自运行窗口的诊断值。
 双内核导出在浏览器切换到 QEMU-WASM 后进入其隔离工作台，
 本轮未重跑 QEMU-WASM 来宾矩阵。
 
 PaperS3/StopWatch 使用独立旧版
 `3cd3db3b7202e9fc559328c7247c11134c0437f9`，重建 WASM SHA-256
 `05f020796d2611865eb570f027bd6d905a5dc19b39f827421cfcae13524bbe45`。
+PaperS3 Factory V0.5 `d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624`
+和 StopWatch User Demo V0.5 `6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe`
+均完成首帧、暂停/恢复与 Worker 回收。
 原生 15/15 与 11/11 记录属于独立执行路径。本次未部署正式文档或 Pages。
 
 ## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
