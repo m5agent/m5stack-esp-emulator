@@ -7,6 +7,7 @@ export const ESP32SIM_SOURCE_COMMIT = '25c3948c8311f5afe95d6058add3d2c298e75c4b'
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
 const LEGACY_PROFILES = new Set(['papers3', 'stopwatch']);
 const ESP32S3_CHIP_ID = 9;
+const ADV_REFERENCE_LIMIT = 'ADV 的 UIFlow2 v2.5.3 在此内核启动后屏幕保持黑色。可载入文档中的兼容 Arduino 示例。';
 const PROFILES = {
   cores3: {deviceId:'cores3',board:'m5stack-cores3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,
     display:{width:320,height:240}, inputs:{touch:true}, execution:'browser-wasm',
@@ -15,6 +16,7 @@ const PROFILES = {
   'cardputer-adv': {deviceId:'cardputer-adv',board:'m5stack-cardputer-adv',chip:'esp32s3',flashMb:8,psramMb:0,jit:true,
     display:{width:240,height:135}, inputs:{touch:false}, execution:'browser-wasm',
     referenceUrl:'https://m5burner-cdn.m5stack.com/community/1/1897200000000000936/2113079532912463874/bin/2113079532912463875.bin',
+    referenceLimit:ADV_REFERENCE_LIMIT,
     referenceSha256:'38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631',
     limitations:['点击模型后使用电脑键盘，方向键通过 Fn 层映射；F12 对应 G0。']},
 
@@ -36,7 +38,7 @@ export function getBrowserReference(device, profile = getBrowserProfile(device?.
   const firmware = device?.uiflow2?.firmware;
   if (!profile?.referenceSha256 || firmware?.version !== 'v2.5.3') return null;
   const url = profile.referenceUrl || firmware.download_url;
-  return url ? {url, name:`UIFlow2 ${firmware.version}`, sha256:profile.referenceSha256} : null;
+  return url ? {url, name:`UIFlow2 ${firmware.version}`, sha256:profile.referenceSha256, limit:profile.referenceLimit} : null;
 }
 
 export class BrowserRuntimeError extends Error {

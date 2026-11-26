@@ -134,6 +134,7 @@ async function render(device) {
   let runtimeClass = '';
   if (state.browserProfile) {
     runtimeText = 'esp32sim 在浏览器内运行本板型的合并固件。';
+    if (state.browserProfile.referenceLimit) runtimeText += state.browserProfile.referenceLimit;
     $('referenceBtn').hidden = false;
     const workbench = new URL(assetUrl('platform/web/index.html'));
     workbench.search = new URLSearchParams({device:device.id,mode:'browser'});

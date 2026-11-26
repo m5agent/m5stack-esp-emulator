@@ -697,7 +697,7 @@ function renderDetails() {
           ? !cc1101Available(profile,workbench,cc1101Roles.get(option.value)) : sx1262Examples.has(option.value)
             ? !sx1262Available(profile,workbench,option.value) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.nativeCloud
+  $('referenceDescription').textContent = ref?.limit || (ref?.nativeCloud
     ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
     : ref?.nativeWorkbench
     ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
@@ -731,7 +731,7 @@ function renderDetails() {
       || '点击模型上的按键或触摸屏，观察设备屏幕中的计数变化。')
     : ref
     ? '已为当前设备选择对应固件。也可以使用自己的链接或本地文件。'
-    : '请选择固件链接或本地 .bin 文件。';
+    : '请选择固件链接或本地 .bin 文件。');
 }
 function sourceChanged() {
   for (const [name, value] of [

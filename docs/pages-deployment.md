@@ -67,7 +67,8 @@ StopWatch 的独立版本。源码、固定工具链与旧板保留策略见
 [esp32sim 来源](../platform/web/vendor/esp32sim/UPSTREAM.md)。
 
 参考固件绑定 UIFlow2 v2.5.3 的原版 SHA-256。ADV 使用原浏览器配置记录的官方
-CDN 镜像，设备目录中的旧 URL 返回 404。文档 Arduino 示例接受本地合并
+CDN 镜像，设备目录中的旧 URL 返回 404。CoreS3 原版参考界面已验证。ADV 原版
+参考镜像可载入，但当前 esp32sim 未显示界面。文档 Arduino 示例接受本地合并
 `.bin` 或指定 HTTPS 固件 URL。镜像需通过 ESP32-S3、Flash 和分区表准入。
 启用此内核的页面运行原版 UIFlow2，网页 MicroPython 编程环境仍由 QEMU-WASM
 提供。浏览器 Unit 装配、联网和持久 Flash 不在本次接入范围。

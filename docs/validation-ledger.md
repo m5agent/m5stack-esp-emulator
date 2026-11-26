@@ -30,6 +30,7 @@ ESP32-S3 ROM ELF SHA-256
 | CoreS3 Touch | `3cec5642f681dc0525c7e6cdbada7189f0ee52f9a95b68b19055571664222606` |
 | CoreS3 UIFlow2 v2.5.3 | `1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264` |
 | Cardputer-ADV Display | `cc1b3e5868feb075e2ec8a5e7211897e8ae1c9635f5d072442ef007273c2a968` |
+| Cardputer-ADV UIFlow2 v2.5.3 | `38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631` |
 | Cardputer-ADV Keyboard | `f7edb36bb3662506853773399467841a55bef3d3e16cc3469bc821b4ad7638bf` |
 | CoreS3 Button | `3dfbaaaa1ea168074d284b40b14fc489821162fb211f568a6a52181e54dab69c` |
 | Cardputer-ADV Button | `07ebcecd82c9a64aad457f5e30eac140bfd24db8006506ea6f04489a860dc0e7` |
@@ -49,6 +50,12 @@ CoreS3 Touch 与 ADV Keyboard 在同一最终 WASM 上禁用 JIT 后也通过输
 （JIT/解释器），保留 JIT 默认值。这些是各自运行窗口的诊断值。
 双内核导出在浏览器切换到 QEMU-WASM 后进入其隔离工作台，
 本轮未重跑 QEMU-WASM 来宾矩阵。
+
+后续直接从工作台下载固定的官方参考镜像。CoreS3 显示 UIFlow2 界面。
+ADV 下载哈希与预期一致，返回来宾帧但未观测到非黑内容（`FAIL`）。
+独立的原生 esp32sim 诊断用同一输入运行 6 虚拟秒，串口报
+`i2c.master: this port has not been initialized`，板模型记录 0 次 SPI3
+显示写入。这条诊断单独记录，ADV 浏览器 Arduino 示例仍由浏览器结果验收。
 
 PaperS3/StopWatch 使用独立旧版
 `3cd3db3b7202e9fc559328c7247c11134c0437f9`，重建 WASM SHA-256
