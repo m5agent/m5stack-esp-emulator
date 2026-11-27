@@ -58,6 +58,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
   }
   const makeElement=id=>({id,value:'',textContent:'',hidden:true,dataset:{},files:[],options:[],children:[],
     listeners:new Map(),addEventListener(type,callback){this.listeners.set(type,callback);},setAttribute(){},
+    querySelector(selector){return this.options.find(option=>selector===`[value="${option.value}"]`)||null;},
     replaceChildren(...children){this.children=children;},append(...children){this.children.push(...children);},focus(){},scrollIntoView(){},
     click(){if(id==='a')downloads.push({href:this.href,filename:this.download,blob:evidenceBlob});},
     classList:{add(){},remove(){},toggle(){}}});
@@ -66,6 +67,8 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     return elements.get(id);
   };
   element('referenceExample').value=defaultExample;
+  element('referenceExample').options=[...html.matchAll(/<option value="([^"]+)"/g)]
+    .map(([,value])=>({value,hidden:false,textContent:''}));
   const radios=new Map(['reference','url','local'].map(value=>[value,{value,checked:value==='reference'}]));
   const document={getElementById:element,querySelectorAll:()=>[],
     querySelector(selector){if(selector.includes(':checked'))return [...radios.values()].find(item=>item.checked);
@@ -565,8 +568,8 @@ const meterApp=await entry({search:'?device=cores3&mode=browser&autostart=0',dua
     return {bytes:meterSourceBytes};
   }});
 assert.equal(meterApp.reference().dualKmeterSource,undefined);
-const meterOption={value:DUAL_KMETER_EXAMPLE_ID,hidden:true};
-meterApp.element('referenceExample').options=[meterOption];
+const meterSelector=`[value="${DUAL_KMETER_EXAMPLE_ID}"]`;
+const meterOption=meterApp.element('referenceExample').querySelector(meterSelector);
 meterApp.renderDetails();
 assert.equal(meterOption.hidden,false);
 meterApp.element('referenceExample').value=DUAL_KMETER_EXAMPLE_ID;
@@ -580,9 +583,9 @@ await meterApp.share();
 assert.equal(new URL(meterApp.clipboard[0]).searchParams.get('autostart'),'0');
 assert.match(meterApp.element('shareStatus').textContent,/Dual Kmeter/);
 const wrongMeter=await entry({search:'?device=cardputer-adv&mode=browser&autostart=0',dualKmeterExample:meterSource});
-wrongMeter.element('referenceExample').options=[meterOption];
+const wrongMeterOption=wrongMeter.element('referenceExample').querySelector(meterSelector);
 wrongMeter.renderDetails();
-assert.equal(meterOption.hidden,true);
+assert.equal(wrongMeterOption.hidden,true);
 wrongMeter.element('referenceExample').value=DUAL_KMETER_EXAMPLE_ID;
 assert.equal(wrongMeter.reference(),null);
 assert.equal(wrongMeter.lane(),null);
