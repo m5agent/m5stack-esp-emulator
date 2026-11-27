@@ -73,6 +73,20 @@ QEMU-WASM 用例在不同位置失败，归档为 hosted-runner flakes。CI 运�
 两份导出的 esp32sim ROM ELF 和来源、许可记录逐字节相同。应急包按
 [Pages 部署规范](pages-deployment.md)在发布后从 HTTPS 独立核验。
 
+该包由[应急部署 45944993636](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45944993636)
+从主线 `0251abb0d2586e4ca61825cc6eb65f4cb5902828` 发布，标签为
+[pages-20261127-0251abb0](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261127-0251abb0)。
+上传后下载的压缩包 SHA-256 为
+`f982d16e4d726f6383d1c4d7facf6326a391ec68f3f18deb77e0b26cae79567e`。
+公开 HTTPS 清单及工作台、运行时关键资产与该包一致。ESP32-S3 ELF 为
+Espressif esp-rom-elfs `20260528`、`Apache-2.0`，SHA-256
+`c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd`。
+
+补充[托管复验 45942728417](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45942728417)：
+Atom Matrix 编辑器及新版按键用例均 PASS。冻结 QEMU-WASM 的 Cardputer-ADV
+键盘测试等待原版 Q 键 IRQ 回调及按下、释放时超时。该轮 6 PASS、1 FAIL、
+65 NOT RUN，标准托管全量门禁仍待修复。
+
 ## 2026-11-26：esp32sim 浏览器工作台
 
 `virtual-device validation`，browser-WASM。本地静态导出使用 esp32sim
