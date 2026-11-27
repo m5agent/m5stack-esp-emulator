@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-11-26`.
+Last reviewed: `2026-11-27`.
 
 Status: local MVP with unified-device runtime contract `1.102.0` and bounded
 storage retention implemented on `2026-10-24`.
@@ -37,19 +37,26 @@ identity checks. A late response never replaces the local source draft.
 
 CoreS3 and Cardputer-ADV default to `runtime="esp32sim"`. Choose
 `runtime="qemu"` to run the frozen native QEMU path for either board.
-Other devices retain their existing runtime selection. The device list reports
-`runtime`, `backend_ready`, `creatable` and per-runtime readiness for the
-migrated boards. Provision the pin with
-`python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir <esp32s3-rom-directory>`.
+Tab5 accepts `runtime="esp32sim"` for GT911/ILI9881C and ST7123.
+Its qualified firmware and panel pairs default to esp32sim when pinned assets
+are ready and the request uses the basic app session path. Other Tab5 sessions
+use the legacy path. Explicit `"esp-emu"` aliases `"qemu"` on Tab5. Read
+`runtimes.esp32sim.default_firmware_sha256s` on the Tab5 device row for
+the operator's eligible normalized Flash digests.
+The device list reports `runtime`, `backend_ready`, `creatable` and
+per-runtime readiness. See the [migration guide](esp32sim-migration.md) and
+[native installation](deployment.md#部署-esp32sim-设备服务).
 The service uses `.work/esp32sim-runtime` by default.
 `M5_ESP32SIM_RUNTIME_DIR` and `ESP32SIM_ROM_DIR` select operator-owned
 installation and ROM directories.
 
-The loader checks ESP32-S3 boot and app images, Flash bounds, partitions and
+The loader checks boot and app chip IDs, Flash bounds, partitions and
 declared PSRAM requirements. CoreS3 has 16 MiB Flash and 8 MiB PSRAM.
-Cardputer-ADV has 8 MiB Flash and no PSRAM. The emulator owns volatile Flash
+Cardputer-ADV has 8 MiB Flash and no PSRAM. Tab5 has 16 MiB Flash and
+32 MiB PSRAM. The operator panel is chosen by `M5_TAB5_DSI_BOARD_OVERRIDES`
+for the exact normalized Flash SHA, then `M5_TAB5_DSI_BOARD`, then GT911. The emulator owns volatile Flash
 for the lease. Flash read, export and snapshots return
-`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI
+`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI (CoreS3/ADV) or SDMMC (Tab5)
 copy of `storage.sd_image_artifact_id`, with stopped-session storage export.
 SD hot-plug, QOM, QEMU Unit attachments and QEMU runtime-environment overrides
 require their respective legacy runtime paths.
@@ -62,11 +69,12 @@ accepted. Timed releases happen in guest time. The input kinds are:
 | --- | --- |
 | CoreS3 | `touch` with panel coordinates and `tap`, `hold`, `down`, or `up`; `button` with `control="power"`; `battery` with integer `mv`, integer `percent`, boolean `charging` and optional boolean `vbus`; `als` with integer `ch0`, `ch1`, `proximity` |
 | Cardputer-ADV | `button` with `control="boot"` or `"g0"`; `keyboard` with a physical key name including `fn`, `del`, `enter`, `space` |
-| Both | `imu` with three-axis `accel` in g and `gyro` in degrees/s; optional `mag` in µT on CoreS3; `adc` with `gpio` and `volts` |
+| Tab5 | `touch` in raw 720 × 1280 panel space, `touch-contact` down/up with `contact_id` 0–4, `usb-hid` attach/report/detach, and `battery` with integer `mv`, signed integer `ma` and boolean `charging` |
+| All | `imu` with three-axis `accel` in g and `gyro` in degrees/s; optional `mag` in µT on CoreS3, and `adc` with `gpio` and `volts` on S3 |
 
 Use `action="hold"` and `seconds` for timed button or keyboard holds. CoreS3
 accepts a P6 PPM or BMP camera fixture through `camera_image_artifact_id`.
-Either board accepts a 16 kHz mono signed 16-bit
+Each board accepts a 16 kHz mono signed 16-bit
 `microphone_wav_artifact_id` at creation. `speaker_capture=true` retains
 bounded mono s16le output through `GET /sessions/{id}/audio.pcm`; use
 `format=metrics` to read the captured sample rate and signal metrics.

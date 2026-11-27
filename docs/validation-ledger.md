@@ -14,6 +14,38 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim 三板原生与浏览器回归
+
+**Native Device Service，virtual-device validation。** 固定 esp32sim
+`3e90d09bd31b5658d8dd2b6fc5d820da5f293489`。S3 二进制 SHA-256
+`97656bcf202e92af78623abf553fb92a8af8bc5547e44e1af39590e0283eba82`，
+P4 二进制 `fca8f10c4f82a717c36fc435667b716552fa37fc60167d103298bccf564271a7`。
+通过 `/api/v1` 上传、创建会话、发送设备输入、取帧和证据 ZIP 后以
+`purge=0` 停止。ROM 和 C6 资产见[运行资产锁](../scripts/esp32sim-runtime.lock.json)。
+
+| 固件路径 | 归一化 Flash SHA-256 | 观察 |
+| --- | --- | --- |
+| CoreS3 Touch | `a3b1a46231ade128d44c0f1394febcadcb236d86d68ab67008fc19ab4be48c27` | 点 `(113,95)` 后帧变化，随后释放 |
+| Cardputer-ADV Keyboard | `c10160184212e0c834ae88a44468c9cd022c1496fd27f731a8007c50e4a6ef63` | 键盘 `a`、`b` 后屏幕变化 |
+| Tab5 UIFlow2 v2.5.4 | `507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7` | ST7123 上两个后端都显示离线首页，触点 `(83,755)` 打开 ADC |
+| Tab5 Maker Fighter 1.4 | `4da826b590d879ccb7728b20257c1847a8093868eb2752600994f1242438bdeb` | GT911 esp32sim 接入 gamepad，发送 Start 和中性 HID 报告后见 ARCADE、TRAINING。esp-emu 对照超时，无可用来宾帧 |
+| Tab5 Touch Arduino | `febee8f025c1af01f80142af7632850a8eb15b583b2ce3121ad31f594e54fe82` | GT911 esp32sim 按住 `(360,640)` 后帧变化。现有 esp-emu 参考路径对照未取得来宾帧 |
+| Tab5 Wi-Fi STA | `3d73773427725f3b0f69f730e317b98c650ed5879bf5ccd59ab972ea28b0fdf1` | ESP-Hosted 2.0.13 的 C6 经 SDIO 将关联与 DHCP 地址送至 P4 例程屏幕，ZIP 含 Ethernet PCAP |
+
+省略 runtime 的 UIFlow2 ST7123 和 Maker Fighter GT911 各独立复跑一次并通过。
+Tab5 文档例程的全量 HTTP 跨后端对照为 NOT RUN，esp-emu 现有 DSI
+准入依赖逐固件证据及配置。其他 Tab5 固件继续沿用原默认。CLI 文档矩阵与
+既有黄金测试不作为 HTTP 对照。
+
+**Browser-WASM，virtual-device validation。** 混合导出绑定同 fork commit，
+WASM SHA-256 `37e1e340219b84365d037f08aaeda6f48f2e0f1bad0a19bb2fba829894d65d4d`。
+Chrome 的无隔离跨源 iframe 在 CoreS3 Display、Touch、UIFlow2
+和 ADV Display、Keyboard、Button 上通过。ADV 原版 UIFlow2 v2.5.3
+`38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631`
+另有离线首页画面。每个通过的工作台场景停止前有一个 DedicatedWorker，
+停止后为零。Tab5 WASM NOT RUN，公共导出与 Worker 尚未接入 P4 ROM
+及 C6 启动资产。物理硬件 NOT RUN。
+
 ## 2026-11-26：esp32sim 浏览器工作台
 
 `virtual-device validation`，browser-WASM。本地静态导出使用 esp32sim

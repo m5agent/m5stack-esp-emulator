@@ -3,7 +3,7 @@ import { downloadFirmware } from './public-firmware.js';
 import { sha256Bytes } from './sha256.js';
 import { cardputerAdvBoardKey } from './cardputer-adv-keymap.js';
 
-export const ESP32SIM_SOURCE_COMMIT = '25c3948c8311f5afe95d6058add3d2c298e75c4b';
+export const ESP32SIM_SOURCE_COMMIT = '3e90d09bd31b5658d8dd2b6fc5d820da5f293489';
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
 const LEGACY_PROFILES = new Set(['papers3', 'stopwatch']);
 const ESP32S3_CHIP_ID = 9;

@@ -6,7 +6,7 @@
 
 Run M5Stack firmware in a browser or a local service. Inspect the display and serial output, operate buttons and touch, and exercise modeled peripherals. The platform uses C/QEMU and independent device backends. UIFlow2 has the broadest validated coverage. Compatible Arduino, ESP-IDF, and MicroPython images can also run.
 
-**[Try online](https://m5agent.github.io/m5stack-esp-emulator/)** · [Documentation](docs/README.md) · [Device Service API](docs/device-service-api.md) · [Report an issue](https://github.com/m5agent/m5stack-esp-emulator/issues)
+**[Try online](https://m5agent.github.io/m5stack-esp-emulator/)** · [Documentation](docs/README.md) · [Device Service API](docs/device-service-api.md) · [Backend migration](docs/esp32sim-migration.md) · [Report an issue](https://github.com/m5agent/m5stack-esp-emulator/issues)
 
 ![CoreS3 firmware running in the browser workbench](docs/images/browser-workbench.png)
 

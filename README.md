@@ -6,7 +6,7 @@
 
 在浏览器或本地服务中运行 M5Stack 固件，查看屏幕和串口，操作按键、触摸与已建模外设。平台使用 C/QEMU 和独立设备后端。UIFlow2 验证覆盖最完整，兼容的 Arduino、ESP-IDF 和 MicroPython 镜像也可运行。
 
-**[在线体验](https://m5agent.github.io/m5stack-esp-emulator/)** · [文档](docs/README.md) · [Device Service API](docs/device-service-api.md) · [反馈问题](https://github.com/m5agent/m5stack-esp-emulator/issues)
+**[在线体验](https://m5agent.github.io/m5stack-esp-emulator/)** · [文档](docs/README.md) · [Device Service API](docs/device-service-api.md) · [后端迁移](docs/esp32sim-migration.md) · [反馈问题](https://github.com/m5agent/m5stack-esp-emulator/issues)
 
 ![浏览器工作台中的 CoreS3 固件运行画面](docs/images/browser-workbench.png)
 

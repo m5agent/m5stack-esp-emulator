@@ -1,12 +1,14 @@
 # 项目当前状态
 
-日期：`2026-11-25`
+日期：`2026-11-27`
 
-2026-11-26，CoreS3 与 Cardputer-ADV 的 Device Service 默认运行时切换到原生
-`esp32sim`。两款设备保留显式 `runtime=qemu`，其他设备继续使用现有路径。
-安装、输入、媒体、可信宿主网络和证据边界见
-[Device Service API](device-service-api.md#native-esp32sim-sessions)；
-QEMU 的源码与重启依赖见[封存记录](qemu-backend-freeze.md)。
+CoreS3 与 Cardputer-ADV 的 Device Service 默认使用原生 `esp32sim`，
+`runtime=qemu` 可选择冻结路径。Tab5 支持原生 esp32sim 的 GT911/ILI9881C
+与 ST7123，在经同固件对照验收的 UIFlow2 v2.5.4 和 Maker Fighter 1.4
+面板组合上选择新默认。其他 Tab5 固件及需要旧版音频等能力的请求沿用 esp-emu。
+工作台的 CoreS3 与 ADV 提供独立 esp32sim WASM，Tab5 浏览器保持未准入。
+安装、输入、媒体、网络和证据边界见[后端迁移指南](esp32sim-migration.md)及
+[验证台账](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归)。
 
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，
 [验证台账](validation-ledger.md)保存原版固件、运行时、操作和结果的精确身份。
@@ -20,7 +22,7 @@ QEMU 的源码与重启依赖见[封存记录](qemu-backend-freeze.md)。
 | PaperDIY 原生 STA 板级准入 | 精确 `m5paperdiy` 模型在隔离 Linux 会话通过受控关联与 DHCP，开放最小 `generic-observe` STA 声明。未获得双向 TCP/UDP payload，原版 CrossPoint 应用尚未复测。 [限定证据](evidence/2026-11-23-paperdiy-native-sta/summary.json) |
 | StopWatch 原版首次配网与重启 | Demo Plus V0.6-OPT 从原始空 NVS 经真实设置、AP 门户 JSON 提交和退出配网取得 STA 地址，原应用保存凭据后同会话重启自动回连。独立 `stopwatch-open-softap-provisioning` 为零主机 IP backend 的固定开放实验网络；WPA2、外网、浏览器及物理 RF 未验证。 [原版冷启动证据](evidence/2026-11-23-stopwatch-factory-provisioning/summary.json) |
 | 已知原版边界 | M5TabOS 在 ST7123 通过连续触摸，98TAB5 无卡冷启仍复位。Core2 2048 真机对照、UIFlow2 云端控制帧 Pong 和 NC1020 原版完整画面仍需验证。 [待办与关闭条件](runtime-model-gap-register.md) |
-| esp32sim 浏览器预览 | 2026-11-26 本地导出用 esp32sim 运行 CoreS3 与 Cardputer-ADV，可在跨源无隔离 iframe 启动。双内核导出仍提供 QEMU-WASM 选项。 [浏览器实测与边界](validation-ledger.md#2026-11-26esp32sim-浏览器工作台) |
+| esp32sim 浏览器工作台 | CoreS3 和 Cardputer-ADV 在跨源无隔离 iframe 中完成例程输入、原版 UIFlow2 画面与 Worker 清理。双内核导出提供 QEMU-WASM 选项。 [浏览器实测与边界](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归) |
 | 线上浏览器 | GitHub Pages 使用独立发布的 WASM 产物。已验证的板型、正式站点版本与适用边界见 [Pages 指南](pages-deployment.md)。 |
 | 设备与 Unit | [设备目录](../devices/README.md)和[自动项目快照](project-snapshot.md)提供可用项。[视觉与 Unit 接入汇总](evidence/2026-11-03-visual-campaign-summary/README.md)保存历史里程碑。 |
 

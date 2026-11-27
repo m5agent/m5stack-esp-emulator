@@ -3046,6 +3046,10 @@ paths:
         endpoints and reports guest duration after one contact, five moves,
         and release are consumed by the guest. The same timeout code covers
         missing drag readback.
+        esp32sim uses the framebuffer's panel coordinates and acknowledges
+        controller submission. Tab5 adds touch-contact and virtual USB HID.
+        Raw QOM, encoder, legacy drag and unsupported controls return
+        409 not_supported_on_runtime.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -3076,6 +3080,8 @@ paths:
             Native Tab5 gestures return coordinate_space=panel-native,
             controller=gt911 or controller=st7123, and controller_reports
             counts after the guest consumes the final release.
+            esp32sim returns the input kind, board operation, argument list,
+            and settle_seconds. A timed release uses guest time.
           content:
             application/json:
               schema:
@@ -4010,6 +4016,10 @@ components:
             required: [backend_ready]
             properties:
               backend_ready: {type: boolean}
+              default_firmware_sha256s:
+                type: array
+                description: Normalized Tab5 Flash digests selected for esp32sim on this operator panel configuration.
+                items: {type: string, pattern: "^[0-9a-f]{64}$"}
         missing_runtime_files:
           type: array
           items:
@@ -4116,9 +4126,11 @@ components:
           additionalProperties: true
     RuntimeName:
       type: string
-      enum: [esp32sim, qemu, network, qemu-wifi, qemu-ble, qemu-unified]
+      enum: [esp32sim, qemu, esp-emu, network, qemu-wifi, qemu-ble, qemu-unified]
       description: >
         CoreS3 and Cardputer-ADV default to esp32sim, with explicit qemu selection.
+        Tab5 accepts esp32sim for GT911/ILI9881C and ST7123. Tab5's esp-emu
+        alias selects the legacy native lane and is returned as qemu.
         Execution envelope for a session. qemu-unified is the canonical
         one-guest board + radio runtime for *-unified profiles. qemu-ble is a
         compatibility alias used by existing unified clients and by
@@ -5552,7 +5564,7 @@ components:
           description: >-
             Enable I2S1 TX recording for the exact admitted native Tab5 UserDemo.
             With that Tab5 recording enabled the lease is fixed and at most 180 seconds.
-            CoreS3 and Cardputer-ADV esp32sim record bounded mono s16le speaker PCM.
+            esp32sim records bounded mono s16le speaker PCM, including on Tab5.
         microphone_wav_artifact_id:
           type: string
           pattern: '^[0-9a-f]{64}$'
@@ -5561,7 +5573,7 @@ components:
             to I2S1 RX for the exact admitted native Tab5 UserDemo session.
             Requires audio.inject when a runtime ACL is configured. The source
             is fixed for this session and retained across guest resets.
-            CoreS3 and Cardputer-ADV esp32sim accept a 16 kHz mono signed
+            esp32sim accepts a 16 kHz mono signed
             16-bit PCM WAV of up to 10 seconds.
         ttl_seconds:
           type: integer
@@ -5671,7 +5683,11 @@ components:
         runtime:
           allOf:
             - $ref: "#/components/schemas/RuntimeName"
-          description: Defaults to esp32sim on CoreS3 and Cardputer-ADV and qemu elsewhere.
+          description: >-
+            Defaults to esp32sim on CoreS3 and Cardputer-ADV. Tab5 defaults to qemu
+            except for qualified firmware and panel pairs with pinned assets
+            ready and no legacy feature fields. Explicit Tab5 esp-emu and qemu
+            select the same legacy lane.
         wifi_monitor_fixture:
           type: string
           enum: [beacon, no-beacon, raw]
@@ -6520,6 +6536,15 @@ components:
             control_protocol: {const: 1}
             flash_bytes: {type: integer}
             psram_bytes: {type: integer}
+            rom: {type: string, description: ESP32-P4 ROM filename selected from the bootloader revision.}
+            coprocessor:
+              type: object
+              properties:
+                esp_hosted_version: {const: "2.0.13"}
+                rom_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+                images_sha256:
+                  type: object
+                  additionalProperties: {type: string, pattern: "^[0-9a-f]{64}$"}
         efuse_identity:
           $ref: "#/components/schemas/EfuseIdentity"
         runtime_memory:
@@ -7118,6 +7143,7 @@ components:
             settle_seconds: {type: number, minimum: 0, maximum: 5}
         - type: object
           required: [kind, mv, percent, charging]
+          additionalProperties: false
           properties:
             kind: {const: battery}
             mv: {type: integer, minimum: 0, maximum: 16383}
@@ -7125,6 +7151,42 @@ components:
             charging: {type: boolean}
             vbus: {type: boolean}
             settle_seconds: {type: number, minimum: 0, maximum: 5}
+        - type: object
+          required: [kind, mv, ma, charging]
+          additionalProperties: false
+          properties:
+            kind: {const: battery}
+            mv: {type: integer, minimum: 0, maximum: 16000}
+            ma: {type: integer, minimum: -32768, maximum: 32767}
+            charging: {type: boolean}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+        - type: object
+          required: [kind, action, contact_id, x, y]
+          properties:
+            kind: {const: touch-contact}
+            action: {enum: [down, up]}
+            contact_id: {type: integer, minimum: 0, maximum: 4}
+            x: {type: integer, minimum: 0, maximum: 719}
+            y: {type: integer, minimum: 0, maximum: 1279}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+        - type: object
+          required: [kind, action]
+          properties:
+            kind: {const: usb-hid}
+            action: {enum: [attach, report, detach]}
+            device: {enum: [gamepad, keyboard]}
+            report:
+              type: array
+              items: {type: integer, minimum: 0, maximum: 255}
+              oneOf:
+                - {minItems: 3, maxItems: 3}
+                - {minItems: 8, maxItems: 8}
+            settle_seconds: {type: number, minimum: 0, maximum: 5}
+          allOf:
+            - if: {properties: {action: {const: attach}}}
+              then: {required: [device]}
+            - if: {properties: {action: {const: report}}}
+              then: {required: [report]}
         - type: object
           required: [kind, ch0, ch1, proximity]
           properties:
@@ -7149,7 +7211,7 @@ components:
               type: string
             action:
               type: string
-              enum: [tap, down, up]
+              enum: [tap, click, hold, down, up]
               default: tap
               description: >
                 Omit or use tap to queue a virtual-clock press/release in an
@@ -7165,6 +7227,7 @@ components:
                 Tap duration in guest virtual seconds, rounded up to milliseconds.
                 Invalid with down/up (400); unsupported for managed Preview or
                 NanoC6 GPIO taps (409). QMP acceptance is not completion.
+            seconds: {type: number, minimum: 0.001, maximum: 5, description: esp32sim hold duration.}
             settle_seconds:
               type: number
               minimum: 0
@@ -7184,7 +7247,7 @@ components:
           properties:
             kind: {const: button}
             control: {type: string}
-            action: {type: string, enum: [click, hold, double_click], default: click}
+            action: {type: string, enum: [click, tap, hold, double_click, down, up], default: click}
             seconds: {type: number, minimum: 0.001, maximum: 10, description: "Hold only; defaults to 1."}
             settle_seconds: {type: number, minimum: 0, maximum: 5}
           allOf:
@@ -7200,7 +7263,7 @@ components:
           properties:
             kind: {const: keyboard}
             key: {type: string, description: "Physical key name, such as fn or semicolon, or a board QEMU qcode."}
-            action: {type: string, enum: [click, hold, double_click], default: click}
+            action: {type: string, enum: [click, tap, hold, double_click, down, up], default: click}
             seconds: {type: number, minimum: 0.001, maximum: 5, description: "Hold only; defaults to 1."}
             settle_seconds: {type: number, minimum: 0, maximum: 5}
           allOf:
@@ -7251,7 +7314,7 @@ components:
               const: touch
             action:
               type: string
-              enum: [tap, click, hold, double_click]
+              enum: [tap, click, hold, double_click, down, up]
               default: tap
             seconds:
               type: number

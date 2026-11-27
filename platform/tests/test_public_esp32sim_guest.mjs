@@ -19,6 +19,8 @@ const cases = [
   ['cores3','display'], ['cardputer-adv','display'], ['cores3','touch'],
   ['cardputer-adv','keyboard'], ['cores3','uiflow'], ['cardputer-adv','button'],
 ];
+const advUiflow = process.env.M5_ADV_UIFLOW_FIRMWARE;
+if (advUiflow) cases.push(['cardputer-adv','stock-uiflow']);
 if (process.env.M5_LEGACY_FIRMWARE_DIR) cases.push(['papers3','legacy'],['stopwatch','legacy']);
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const runtimeUrl = new URL('platform/runtime/esp32sim/runtime.json',site);
@@ -105,7 +107,7 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         assert(frame);
         row.context = await frame.evaluate(() => ({isolated:crossOriginIsolated,sab:typeof SharedArrayBuffer,embedded:parent!==window}));
         assert.deepEqual(row.context,{isolated:false,sab:'undefined',embedded:true});
-        const file = example === 'uiflow' ? uiflow : example === 'legacy'
+        const file = example === 'uiflow' ? uiflow : example === 'stock-uiflow' ? advUiflow : example === 'legacy'
           ? path.join(process.env.M5_LEGACY_FIRMWARE_DIR,`${device}.bin`) : path.join(firmware,device,example,`${example}.ino.merged.bin`);
         row.firmwareSha256 = sha(fs.readFileSync(file));
         await frame.locator('#startBtn').waitFor();

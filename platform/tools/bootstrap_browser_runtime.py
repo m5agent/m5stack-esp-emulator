@@ -21,7 +21,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_URL = "https://github.com/m5agent/esp32sim.git"
-SOURCE_COMMIT = "25c3948c8311f5afe95d6058add3d2c298e75c4b"
+SOURCE_COMMIT = "3e90d09bd31b5658d8dd2b6fc5d820da5f293489"
 SOURCE_PROFILES = ["m5stack-cores3", "m5stack-cardputer-adv"]
 LEGACY_SOURCE_URL = "https://github.com/zhuzhe1983/esp-online-tester.git"
 LEGACY_SOURCE_COMMIT = "3cd3db3b7202e9fc559328c7247c11134c0437f9"

@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 
 import device_service_esp32sim as runtime
+from device_service import DeviceService
 from device_service_errors import ServiceError
 from device_service_specs import load_device_specs
 
@@ -16,7 +17,8 @@ from device_service_specs import load_device_specs
 class Esp32SimTests(unittest.TestCase):
     def test_catalog_selects_native_runtime_only_for_the_migrated_boards(self):
         selected = {name: spec.default_runtime for name, spec in load_device_specs().items()}
-        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, set(runtime.BOARDS))
+        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, {"cores3", "cardputer-adv"})
+        self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")
 
     def test_spawn_command_uses_owned_files_and_private_descriptor(self):
@@ -57,6 +59,13 @@ class Esp32SimTests(unittest.TestCase):
             ("cardputer-adv", {"kind": "imu", "accel": [1, 2, 3], "gyro": [-1, 0, 1]},
              ("imu", (1, 2, 3, -1, 0, 1), .3)),
             ("cardputer-adv", {"kind": "adc", "gpio": 10, "volts": 2.5}, ("adc", (10, 2.5), .3)),
+            ("cardputer-adv", {"kind": "keyboard", "key": "fn", "action": "down"}, ("key-edge", ("fn", 1), .3)),
+            ("tab5", {"kind": "touch-contact", "action": "down", "contact_id": 1, "x": 719, "y": 1279},
+             ("contact", (1, 719, 1279, 1), .3)),
+            ("tab5", {"kind": "battery", "mv": 7980, "ma": -410, "charging": True},
+             ("battery", (7980, -410, 1), .3)),
+            ("tab5", {"kind": "usb-hid", "action": "report", "report": [0, 127, 1]},
+             ("usb-report", ("00", "7f", "01"), .3)),
         ]
         for key in ("fn", "del", "enter", "space"):
             cases.append(("cardputer-adv", {"kind": "keyboard", "key": key}, ("key", (key, 120), .3)))
@@ -92,15 +101,46 @@ class Esp32SimTests(unittest.TestCase):
             installation.rom.write_bytes(b"test ROM")
             pin = json.loads(runtime.LOCK.read_text())
             binary_sha = hashlib.sha256(b"test binary").hexdigest()
+            rom_sha = hashlib.sha256(b"test ROM").hexdigest()
+            pin["roms"][runtime.ROM_NAME] = rom_sha
+            lock = root / "lock.json"
+            lock.write_text(json.dumps(pin))
             installation.manifest.write_text(json.dumps({**pin, "binary_sha256": binary_sha}))
             board = runtime.BOARDS["cores3"]
-            self.assertEqual(installation.identity(board), {
-                "runtime": "esp32sim", "commit": pin["commit"], "board": "m5stack-cores3",
-                "binary_sha256": binary_sha, "rom_sha256": hashlib.sha256(b"test ROM").hexdigest(),
-                "control_protocol": 1, "flash_bytes": 16 << 20, "psram_bytes": 8 << 20,
-            })
-            installation.binary.write_bytes(b"changed binary")
-            self.assertFalse(installation.ready(board))
+            with patch.object(runtime, "LOCK", lock):
+                self.assertEqual(installation.identity(board), {
+                    "runtime": "esp32sim", "commit": pin["commit"], "board": "m5stack-cores3",
+                    "binary_sha256": binary_sha, "rom_sha256": rom_sha,
+                    "control_protocol": 1, "flash_bytes": 16 << 20, "psram_bytes": 8 << 20,
+                })
+                installation.rom.write_bytes(b"changed ROM")
+                self.assertFalse(installation.ready(board))
+
+    def test_tab5_chooses_revision_rom_from_p4_bootloader(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "flash.bin"
+            header = bytearray(24)
+            header[0], header[12] = 0xe9, 0x12
+            for rev, expected in [(299, runtime.P4_ROM_NAME), (300, runtime.P4_REV3_ROM_NAME)]:
+                header[15:17] = rev.to_bytes(2, "little")
+                path.write_bytes(bytes(0x2000) + header)
+                self.assertEqual(runtime.p4_rom_name(path), expected)
+
+    def test_tab5_default_requires_same_firmware_panel_assets_and_request(self):
+        service = DeviceService.__new__(DeviceService)
+        service.specs = load_device_specs()
+        service.tab5_dsi_board = "gt911-ili9881c"
+        service.tab5_dsi_board_overrides = {}
+        digest = next(sha for sha, panel in runtime.TAB5_DEFAULT_FIRMWARE.items() if panel == "st7123")
+        with patch.object(runtime.Installation, "ready", return_value=True):
+            self.assertEqual(service._esp32sim_board("tab5", digest).name, "m5stack-tab5")
+            self.assertEqual(service._default_tab5_runtime(digest, {}), "qemu")
+            service.tab5_dsi_board_overrides[digest] = "st7123"
+            self.assertEqual(service._esp32sim_board("tab5", digest).name, "m5stack-tab5-st7123")
+            self.assertEqual(service._default_tab5_runtime(digest, {}), "esp32sim")
+            self.assertEqual(service._default_tab5_runtime(digest, {"speaker_capture": True}), "qemu")
+        with patch.object(runtime.Installation, "ready", return_value=False):
+            self.assertEqual(service._default_tab5_runtime(digest, {}), "qemu")
 
     def test_requested_frame_is_bound_to_its_reply_id(self):
         parent, peer = socket.socketpair()

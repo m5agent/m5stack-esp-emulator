@@ -11272,7 +11272,7 @@ class Esp32SimDeviceSession(DeviceSession):
         self._audio_rate = None
         self._audio_finished = False
         super().__init__(*args, **kwargs)
-        self.board = esp32sim.BOARDS[self.spec.id]
+        self.board = self.service._esp32sim_board(self.spec.id, self.firmware_sha)
         self._audio_metadata = self.dir / "esp32sim-audio.json"
 
     def _receive_text(self, message):
@@ -11314,7 +11314,7 @@ class Esp32SimDeviceSession(DeviceSession):
 
     def _launch(self):
         installation = self.spec.esp32sim_installation
-        identity = installation.identity(self.board)
+        identity = installation.identity(self.board, self.virtual_flash)
         self.flash_info["runtime_identity"] = identity
         self.flash_info["live_flash"] = "volatile"
         self.flash_info["media"] = {
@@ -11452,6 +11452,8 @@ class Esp32SimDeviceSession(DeviceSession):
 
     qom_get = qom_set = qom_list = qom_snapshot = qom_diff = _unsupported
     device_state = flash_get = flash_snapshot = flash_diff = _unsupported
+    audio_inject = network_fault = _unsupported
+    sd_write_stamp = sd_read_stats = _unsupported
 
     def reset(self):
         self._require_runtime_permission("guest.reset")
@@ -12159,6 +12161,26 @@ class DeviceService:
     def _tab5_sd_board(self, firmware_sha: str) -> str:
         return self.tab5_dsi_board_overrides.get(firmware_sha, self.tab5_dsi_board)
 
+    def _esp32sim_board(self, device_id: str, firmware_sha: str):
+        if device_id == "tab5":
+            panel = self._tab5_sd_board(firmware_sha) or "gt911-ili9881c"
+            if panel not in esp32sim.TAB5_PANELS:
+                raise ServiceError("unsupported_tab5_panel", "Invalid operator Tab5 panel selection", 409)
+            return esp32sim.TAB5_PANELS[panel]
+        return esp32sim.BOARDS[device_id]
+
+    def _default_tab5_runtime(self, firmware_sha: str, payload: dict) -> str:
+        panel = self._tab5_sd_board(firmware_sha) or "gt911-ili9881c"
+        if (esp32sim.TAB5_DEFAULT_FIRMWARE.get(firmware_sha) == panel
+                and not any(payload.get(field) for field in (
+                    "audio_capture", "speaker_capture", "microphone_wav_artifact_id",
+                    "runtime_env", "storage", "units", "program_mode", "program_transport",
+                    "device_identity", "network",
+                ))
+                and self.specs["tab5"].esp32sim_installation.ready(esp32sim.BOARDS["tab5"])):
+            return esp32sim.RUNTIME
+        return "qemu"
+
     def _tab5_sd_path_supported(self) -> bool:
         # The CLI uses commas to delimit options in --sd FILE,slot=0.
         try:
@@ -12199,8 +12221,10 @@ class DeviceService:
         backend_ready = spec.backend_ready
         default_runtime = spec.default_runtime
         native_runtime = default_runtime == esp32sim.RUNTIME
-        readiness = (spec.esp32sim_installation.ready(esp32sim.BOARDS[spec.id]) if native_runtime else backend_ready)
-        missing = spec.esp32sim_installation.missing() if native_runtime else spec.missing_backend_files
+        board = esp32sim.BOARDS.get(spec.id)
+        native_ready = spec.esp32sim_installation.ready(board) if board else False
+        readiness = native_ready if native_runtime else backend_ready
+        missing = spec.esp32sim_installation.missing(board) if native_runtime else spec.missing_backend_files
         machine = spec.missing_backend_machine if not backend_ready and not native_runtime else None
         native_network = native_sta_capability(spec, backend_ready=backend_ready)
         review_network = review_sta_capability(spec, backend_ready=backend_ready)
@@ -12217,8 +12241,16 @@ class DeviceService:
             "creatable": spec.supported and readiness,
             "backend_ready": readiness,
             **({"runtime": default_runtime, "legacy_backend": spec.backend,
-                "runtimes": {esp32sim.RUNTIME: {"backend_ready": readiness},
-                             "qemu": {"backend_ready": backend_ready}}} if native_runtime else {}),
+                "runtimes": {esp32sim.RUNTIME: {
+                                 "backend_ready": native_ready,
+                                 **({"default_firmware_sha256s": [
+                                     digest for digest, panel in esp32sim.TAB5_DEFAULT_FIRMWARE.items()
+                                     if (self._tab5_sd_board(digest) or "gt911-ili9881c") == panel
+                                 ] if native_ready else []} if board.is_tab5 else {}),
+                             },
+                             "qemu": {"backend_ready": backend_ready},
+                             **({"esp-emu": {"backend_ready": backend_ready}} if board.is_tab5 else {})}}
+               if board else {}),
             "missing_runtime_files": [
                 Path(os.path.relpath(path, ROOT)).as_posix()
                 for path in missing
@@ -12284,7 +12316,9 @@ class DeviceService:
                 spec.network_status == "validated" and spec.network_profiles
                 for spec in self.specs.values()
             ),
-            "tab5_enabled": False,
+            "tab5_enabled": any(row["device_id"] == "tab5" and
+                                row.get("runtimes", {}).get(esp32sim.RUNTIME, {}).get("backend_ready")
+                                for row in devices),
             "devices": devices,
         }
 
@@ -12900,11 +12934,17 @@ class DeviceService:
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
         runtime = payload.get("runtime", QEMU_WIFI_RUNTIME if uiflow_startup else spec.default_runtime)
+        if "runtime" not in payload and device_id == "tab5" and isinstance(payload.get("firmware_id"), str):
+            firmware = self.firmware.get(payload["firmware_id"])
+            if firmware["device_id"] == device_id:
+                runtime = self._default_tab5_runtime(firmware["sha256"], payload)
+        if runtime == "esp-emu" and device_id == "tab5":
+            runtime = "qemu"
         if not isinstance(runtime, str) or runtime not in SESSION_RUNTIMES:
-            raise ServiceError("unsupported_runtime", "runtime must be esp32sim, qemu, network, qemu-wifi, qemu-ble or qemu-unified", 400)
+            raise ServiceError("unsupported_runtime", "runtime must be esp32sim, qemu, esp-emu (Tab5), network, qemu-wifi, qemu-ble or qemu-unified", 400)
         use_esp32sim = runtime == esp32sim.RUNTIME
         if use_esp32sim and device_id not in esp32sim.BOARDS:
-            raise ServiceError("not_supported_on_runtime", "esp32sim is available for CoreS3 and Cardputer-ADV", 409)
+            raise ServiceError("not_supported_on_runtime", "esp32sim is available for CoreS3, Cardputer-ADV and Tab5", 409)
         identity_request = parse_device_identity(payload, device_id=device_id, cloud=bool(uiflow_startup))
         monitor_config = parse_sticks3_wifi_monitor(payload)
         if program_mode:
@@ -12915,6 +12955,8 @@ class DeviceService:
             if payload.get("ready_marker", LIVE_READY_MARKER) != LIVE_READY_MARKER or payload.get("ready"):
                 raise ServiceError("program_mode_ready_conflict", "uiflow-live waits for its UART REPL bootstrap; application readiness belongs to each program", 400)
         if use_esp32sim:
+            if identity_request is not None:
+                raise ServiceError("not_supported_on_runtime", "Device identity provisioning requires QEMU", 409)
             # Validate the installed pin before any firmware preparation.
             spec.esp32sim_installation.identity(esp32sim.BOARDS[device_id])
         elif not spec.backend_ready or (
@@ -13228,7 +13270,7 @@ class DeviceService:
         if storage_config:
             if storage_config.get("sd_initially_ejected") and runtime != "qemu":
                 raise ServiceError("sd_hotplug_not_supported", "SD hot-plug requires the plain native QEMU runtime", 409)
-            if tab5_storage:
+            if tab5_storage and not use_esp32sim:
                 self._admit_tab5_sd(spec, source, firmware_path, firmware_sha, runtime)
             elif not use_esp32sim and (spec.service_kind != "qemu" or runtime not in QEMU_QMP_RUNTIMES):
                 raise ServiceError(
@@ -13237,7 +13279,7 @@ class DeviceService:
                     409,
                 )
             if use_esp32sim:
-                storage_config["interface"] = "spi"
+                storage_config["interface"] = "sdmmc" if tab5_storage else "spi"
             storage_artifact = self.artifacts.get(
                 storage_config["sd_image_artifact_id"]
             )
@@ -13354,7 +13396,7 @@ class DeviceService:
                 source_artifacts.append(artifact_id)
         if use_esp32sim:
             image_bytes = firmware_path.read_bytes()
-            esp32sim.validate_memory(esp32sim.BOARDS[device_id], image_bytes, manifest_psram)
+            esp32sim.validate_memory(self._esp32sim_board(device_id, firmware_sha), image_bytes, manifest_psram)
             if hashlib.sha256(image_bytes).hexdigest() != firmware_sha:
                 raise ServiceError("firmware_hash_mismatch", "esp32sim source firmware digest changed", 409)
             padded = _padded(image_bytes, spec.flash_size)
