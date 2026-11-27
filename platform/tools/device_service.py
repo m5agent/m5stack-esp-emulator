@@ -12314,6 +12314,7 @@ class DeviceService:
         review_catalog = getattr(self, "_legacy_review_catalog", False)
         default_runtime = "qemu" if review_catalog else spec.default_runtime
         native_runtime = default_runtime == esp32sim.RUNTIME
+        native_only = native_runtime and not spec.supported
         board = esp32sim.BOARDS.get(spec.id)
         native_ready = spec.esp32sim_installation.ready(board) if board else False
         readiness = native_ready if native_runtime else backend_ready
@@ -12377,10 +12378,10 @@ class DeviceService:
                 "complete": spec.peripheral_status == "simulated",
             },
             "features": {
-                "flash": spec.supported,
-                "serial": spec.supported,
-                "screenshot": spec.supported and spec.has_display,
-                "input": spec.supported,
+                "flash": spec.supported or native_only,
+                "serial": spec.supported or native_only,
+                "screenshot": (spec.supported or native_only) and spec.has_display,
+                "input": spec.supported or native_only,
                 "qom": spec.supported and spec.service_kind == "qemu" and not native_runtime,
                 "device_state": bool(spec.state_probes) and not native_runtime,
                 "storage": spec.supported and (native_runtime or (spec.has_sd_card if spec.service_kind != "tab5"
@@ -12399,7 +12400,9 @@ class DeviceService:
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
             "network_status": spec.network_status,
-            "reason": spec.reason or (f"QEMU does not provide machine {machine}" if machine else None),
+            "reason": None if native_only else (
+                spec.reason or (f"QEMU does not provide machine {machine}" if machine else None)
+            ),
         }
 
     def list_devices(self, include_unsupported: bool = True) -> dict:
@@ -12485,7 +12488,12 @@ class DeviceService:
 
     def get_device_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
-        if not spec.supported:
+        native_only = (not spec.supported and spec.default_runtime == esp32sim.RUNTIME
+                       and not getattr(self, "_legacy_review_catalog", False))
+        if native_only:
+            board = esp32sim.BOARDS[device_id]
+            local_status = "ready" if spec.esp32sim_installation.ready(board) else "files_missing"
+        elif not spec.supported:
             local_status = "not_applicable"
         elif spec.backend_ready:
             local_status = "ready"
@@ -12531,11 +12539,12 @@ class DeviceService:
             "schema_version": 1,
             "device_id": spec.id,
             "soc": spec.soc,
-            "model_status": "supported" if spec.supported else "unsupported",
-            "model_reason": None if spec.supported else spec.reason,
+            "model_status": "supported" if spec.supported or native_only else "unsupported",
+            "model_reason": None if spec.supported or native_only else spec.reason,
             "runtime": {
-                "default_mode": "qemu" if spec.supported else None,
-                "backend": spec.backend, "machine": spec.machine or None,
+                "default_mode": esp32sim.RUNTIME if native_only else ("qemu" if spec.supported else None),
+                "backend": esp32sim.BACKEND if native_only else spec.backend,
+                "machine": board.name if native_only else spec.machine or None,
                 "local_status": local_status,
                 "reference_available": spec.reference_available,
             },

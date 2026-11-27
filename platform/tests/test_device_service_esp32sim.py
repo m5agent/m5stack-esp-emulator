@@ -25,6 +25,26 @@ class Esp32SimTests(unittest.TestCase):
         self.assertEqual(runtime.BOARD_VARIANTS["basic-v27"]["flash-4mb"].flash, 4 << 20)
         self.assertEqual(runtime.BOARD_VARIANTS["core2"]["axp192"].name, "m5stack-core2-axp192")
 
+    def test_native_only_defaults_advertise_their_session_capabilities(self):
+        service = DeviceService.__new__(DeviceService)
+        service.specs = load_device_specs()
+        for dev in ("m5stick", "stickt2"):
+            with self.subTest(device=dev), patch.object(runtime.Installation, "ready", return_value=True):
+                service._legacy_review_catalog = False
+                row = service.get_device(dev)
+                self.assertTrue(row["creatable"])
+                self.assertIsNone(row["reason"])
+                for feature in ("flash", "serial", "screenshot", "input"):
+                    self.assertTrue(row["features"][feature], feature)
+                caps = service.get_device_capabilities(dev)
+                self.assertEqual(caps["model_status"], "supported")
+                self.assertEqual(caps["runtime"]["default_mode"], "esp32sim")
+                service._legacy_review_catalog = True
+                row = service.get_device(dev)
+                self.assertFalse(row["creatable"])
+                self.assertFalse(row["features"]["flash"])
+                self.assertEqual(service.get_device_capabilities(dev)["model_status"], "unsupported")
+
     def test_spawn_command_uses_owned_files_and_private_descriptor(self):
         installation = runtime.Installation(Path("/asset/esp32sim"), Path("/asset/rom"), Path("/asset/manifest"))
         board = runtime.BOARDS["cores3"]
