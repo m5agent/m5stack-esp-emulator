@@ -382,8 +382,9 @@ try {
   assert.equal(resetting.runtime.serial.includes('READY_AFTER_RESET'),false);
   assert.equal(resetting.runtime.evidence().boot.applicationReady,'confirmed');
   await resetting.runtime.reset();
-  assert.deepEqual(resetFrame.calls.at(-1).value,{type:'reset',down:true});
-  assert.equal(resetFrame.calls.at(-1).op,'input');
+  // The frame poll can enqueue a capture before the reset response resolves.
+  const resetCall=resetFrame.calls.findLast(call=>call.op==='input');
+  assert.deepEqual(resetCall?.value,{type:'reset',down:true});
   resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false,reason:'host-qmp-system-reset'}},resetGeneration);
   assert.equal(resetting.runtime.consoleEpoch,1,'hardware reset has its own UART execution fence');
   assert.equal(resetting.runtime.status,'booting');assert.equal(resetting.runtime.guestReady(),false,'old serial marker cannot admit a restarted guest');
