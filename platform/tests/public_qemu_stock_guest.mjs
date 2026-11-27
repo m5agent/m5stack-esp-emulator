@@ -66,7 +66,7 @@ export async function runPublicStockGuest({device, board, firmware, testScript, 
     await page.route(url=>[8787,8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname),
       async route=>{serviceCalls.push(route.request().method());await route.abort('blockedbyclient');});
     page.on('pageerror',error=>report.errors.push(error.message));
-    await page.goto(origin,{waitUntil:'domcontentloaded'});
+    await page.goto(new URL('?engine=qemu-wasm',origin).href,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>crossOriginIsolated && typeof SharedArrayBuffer==='function',null,{timeout:45000});
     await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',null,{timeout:45000});
     await page.evaluate(async ({origin,device})=>{
