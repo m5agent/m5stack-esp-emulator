@@ -14,6 +14,57 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim WASM 逐板验收
+
+Browser-WASM virtual-device validation。esp32sim 源码
+`4e257b6be8ee0ed706c2e509d8f31ef7472a424b`，源构建 WASM
+`4c61df24a2028d4d56f66c6aea599848eb5be6ad15c70a181130f6dcc257cce8`。
+固定 UIFlow2 场景的 Flash SHA 由
+[QEMU 共用示例](../platform/web/qemu-browser-profiles.json)和
+[esp32sim 登记](../platform/web/esp32sim-browser-boards.json)共同绑定。
+下表通过项在工作台启动，Stop 前观察到 1 个实际 DedicatedWorker，
+Stop 后在关闭浏览器上下文前观察到 0 个。
+
+| 设备 | esp32sim WASM 来宾观察 | 双内核默认 |
+| --- | --- | --- |
+| AtomS3 | 固定例程 A 键 pressed / count=1 / released，128 × 128 帧变化 | esp32sim |
+| AtomS3 Lite | 固定例程 A 键两端及 RGB `204060 → 40a020 → 204060` | esp32sim |
+| StickS3 | 固定例程 A 键计数，135 × 240 帧变化。PM1 电源未对照 | QEMU-WASM |
+| Dial | Arduino Touch，240 × 240 画面画出输入点。编码器未验证 | esp32sim |
+| StopWatch | 固定触摸例程及 468 × 466 平面帧。QEMU 帧几何和更多控制已验 | QEMU-WASM |
+| StackChan | 固定触摸和 320 × 240 帧变化。同一例程报告 servo-error | QEMU-WASM |
+| PaperDIY | 固定 A 键及 540 × 960 电子纸变化。刷新时序未对照 | QEMU-WASM |
+| PaperMono | 固定原始坐标触摸及 480 × 800 变化。灰阶与刷新过程未全面对照 | QEMU-WASM |
+| PaperS3 | 固定 GT911 触摸及 540 × 960 变化。刷新时序未对照 | QEMU-WASM |
+| Cardputer K132 | 固定 GPIO0 / F12 计数，240 × 135 帧变化。完整同固件键盘比较未执行 | QEMU-WASM |
+| Atom Lite | 固定 A 键及 RGB 状态序列 | esp32sim |
+| StickC | 固定 A 键及 80 × 160 帧变化 | esp32sim |
+| StickC Plus | 固定 A 键及 135 × 240 帧变化 | esp32sim |
+| StickC Plus SE | 固定 A 键及 135 × 240 帧变化 | esp32sim |
+| NanoC6 | Arduino 按键串口明确报告 press / release。另用 stock UIFlow2 读回 RGB 与 REPL | esp32sim |
+
+Dial Touch 合并镜像 SHA-256
+`8a7136d47e9f569684ccd85e190f031535008cb990b33cd6baa2825ef07a9022`。
+NanoC6 Button 合并镜像 SHA-256
+`d1246ce3912d47bcb92ffc525aac853eea44754fd281ae5eac51893f70f4d8d5`。
+NanoC6 v2.5.3 原版输入 SHA-256
+`f6efc24d96f7b9a97684e63f764ef44b4357556d9b07dec4c1c67eb3d9153ecf`。
+
+AtomS3R 的 ST7735S 与 GC9107 组合例程均报告按键输入但无按键后帧变化。
+PaperColor 固定例程发出 begin，观察窗口未到 ready。
+Nesso N1 的原版和固定触摸镜像未得到可用屏幕帧。
+以上结果均保留为 FAIL / PARTIAL，未准入。AtomS3U 文档按键串口通过，
+同固件 RGB 变化未验收。Atom VoiceS3R、CAM、M12 的板型无 LCD，
+浏览器音频或相机的同来宾输出门禁未执行。StamPLC 的三键经扩展器，
+当前浏览器协议缺少对应的 `plc-key` 输入。Tab5 的 P4 rev 3 板型选择和
+C6 副处理器资产接入待完成。其余经典板型没有本轮逐板来宾准入证据。
+
+托管 UI-04 保持开放。上一轮托管 ADV 键盘失败的证据确认浏览器收到可信
+Q 键按下/释放、QMP 两端接受、来宾观察到按下却持续保留键码 113，
+正常清理仍通过。该导出已包含 TCA8418 CFG0 FIFO/W1C 修正。
+失败报告没有捕获能定位剩余 IRQ / 来宾调度问题的控制器轨迹，
+因此本轮不修改冻结 QEMU-WASM 的按键时序或放宽验收。
+
 ## 2026-11-27：esp32sim 目录板型接入
 
 - 原生 virtual-device validation。esp32sim 源码

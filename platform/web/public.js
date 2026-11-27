@@ -111,8 +111,16 @@ function error(error) {
 function browserProfile(id) {
   if (state.config.browser_board_execution !== true || state.browserUnavailableReason) return null;
   if (state.config.browser_runtime_engine === 'qemu-wasm') return state.qemuProfiles ? getQemuBrowserProfile(id,state.qemuProfiles,{allowCandidateProfiles:state.config.publication_eligible===false}) : null;
-  const profile = getBrowserProfile(id);
-  return state.config.browser_esp32sim_profiles?.includes(profile?.board) ? profile : null;
+  return getBrowserProfile(id,state.config.browser_esp32sim_profiles || []);
+}
+function esp32simProbeProfile(id, profile = browserProfile(id)) {
+  const fixture = state.qemuProfiles?.profiles.find(row => row.deviceId === id);
+  return profile?.probeSha256 && fixture?.fixture?.firmwareSHA256 === profile.probeSha256 ? fixture : null;
+}
+function defaultBrowserEngine(id, config = state.config, registry = state.qemuProfiles) {
+  const profile = getBrowserProfile(id,config.browser_esp32sim_profiles || []);
+  return (!profile || profile.preferQemu) && registry && getQemuBrowserProfile(id,registry)
+    ? 'qemu-wasm' : 'esp32sim';
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
@@ -143,6 +151,9 @@ function reference(device = state.selected) {
   if (lane(device)==='service' && serviceProgrammingDevice(device?.id) && $('referenceExample').value==='uiflow')
     return {name:`${device.name} · 本地 MicroPython 编程`,nativeWorkbench:true};
   if(profile&&workbench&&$('referenceExample').value==='uiflow')return {name:`${device.name} · 本地 MicroPython 编程`,composedWorkbench:true,sha256:workbench.firmwareSHA256};
+  const espProbe = $('referenceExample').value === 'probe' && esp32simProbeProfile(device?.id,profile);
+  if (espProbe) return {name:`${device.name} · ${profile.display ? '屏幕与输入' : 'RGB 与按键'}示例`,
+    composedProbe:true,probeProfile:espProbe,sha256:profile.probeSha256};
   if (['xtensa-board-display-v1','xtensa-board-led-v1','riscv-board-display-v1'].includes(profile?.fixture?.id)) return {
     name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
@@ -170,7 +181,8 @@ function serviceCloudIdentity(id=state.selected?.id) {
 function updateReferenceDefault() {
   if (!state.referenceExplicit && source()==='reference' && !$('firmwareSha').value.trim())
     $('referenceExample').value=serviceCloudStartup()&&!['browser','model'].includes($('runtimeMode').value)
-      && !($('runtimeMode').value==='auto' && browserProfile(state.selected?.id)?.referenceSha256)?'uiflow-cloud':'uiflow';
+      && !($('runtimeMode').value==='auto' && browserProfile(state.selected?.id)?.referenceSha256)?'uiflow-cloud'
+      : esp32simProbeProfile(state.selected?.id) ? 'probe' : 'uiflow';
 }
 function selectedAttachments() {
   try {
@@ -651,7 +663,14 @@ function renderDevices() {
         `${device.sku || device.group_label || 'M5Stack'} · ${runtimeLabel}`,
       ),
     );
-    item.addEventListener('click', () => void selectDevice(device.id).catch(error));
+    item.addEventListener('click', () => {
+      if (state.followBrowserDefaults && defaultBrowserEngine(device.id) !== state.config.browser_runtime_engine) {
+        const url = new URL(location.href);
+        url.searchParams.set('device',device.id);
+        for (const key of ['firmware','sha256','autostart']) url.searchParams.delete(key);
+        location.assign(url);
+      } else void selectDevice(device.id).catch(error);
+    });
     $('deviceNav').append(item);
   }
   if (!filtered.length) $('deviceNav').append(node('p', 'empty-list', '没有匹配设备。试试产品名或 SKU。'));
@@ -688,7 +707,10 @@ function renderDetails() {
   for (const text of limits)
     $('deviceDetails').append(node('p', '', text));
   const ref = reference();
-  $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice() && (!profile || !qemu || !workbench);
+  $('referenceExampleFields').hidden = !serviceCloudStartup() && !serviceProgrammingDevice()
+    && !esp32simProbeProfile(device.id,profile) && (!profile || !qemu || !workbench);
+  $('referenceExample').querySelector('[value="uiflow"]').textContent =
+    qemu || lane(device) === 'service' ? '本地 MicroPython 编程' : '原版 UIFlow2';
   for(const option of $('referenceExample').options)option.hidden=option.value==='uiflow-cloud'
     ? !serviceCloudStartup() : option.value===DUAL_KMETER_EXAMPLE_ID
       ? !dualKmeterExampleSource(profile,workbench,state.config.browser_dual_kmeter_example) : option.value===drawingExampleId
@@ -912,9 +934,17 @@ async function deliverInput(command, original = {}) {
 }
 async function deliverEncoderInput(event) {
   const run = state.run;
-  if (!active(run) || state.busy || run.kind !== 'browser' || !(run.controller instanceof PublicQemuRuntime)
+  if (!active(run) || state.busy || run.kind !== 'browser'
     || !run.controller.profile?.inputs.encoder) return;
   try {
+    if (run.controller instanceof PublicBrowserRuntime) {
+      const angle = (run.encoderRemainder || 0) + event.deltaDegrees;
+      const degreesPerPosition = 360 / 16;
+      const delta = Math.trunc(angle / degreesPerPosition);
+      run.encoderRemainder = angle - delta * degreesPerPosition;
+      if (delta) await run.controller.input({type:'encoder',delta});
+      return;
+    }
     const next = advanceQemuEncoderTarget(run.controller.profile,
       run.encoderGesture || {target:0, remainderDegrees:0}, event.deltaDegrees);
     // This is pointer intent only. Observed guest counts remain serial/frame
@@ -993,7 +1023,7 @@ async function firmware(signal, runGeneration) {
     return {bytes:result.bytes,sha256:result.sha256,name:result.fileName,size:result.bytes.byteLength,provenance:result.provenance};
   }
   if (selectedSource === 'reference' && ref?.composedProbe) {
-    const result=await composeQemuProbeFirmware({profile:browserProfile(state.selected.id),root,signal,onProgress:()=>message('runProgress','正在本地组合设备示例')});
+    const result=await composeQemuProbeFirmware({profile:ref.probeProfile || browserProfile(state.selected.id),root,signal,onProgress:()=>message('runProgress','正在本地组合设备示例')});
     if(expected&&expected!==result.sha256)throw new Error('设备示例 SHA-256 与预期不一致。');
     return {...result,name:result.fileName||`${state.selected.id}-probe.bin`,size:result.bytes.byteLength};
   }
@@ -1235,9 +1265,17 @@ async function startRun(audio) {
       const BrowserRuntime = state.config.browser_runtime_engine==='qemu-wasm' ? PublicQemuRuntime : PublicBrowserRuntime;
       run.controller = new BrowserRuntime({
         ...callbacks,
-        root,profiles:state.qemuProfiles,workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
+        root,profiles:state.qemuProfiles,availableProfiles:state.config.browser_esp32sim_profiles,
+        workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         sdExamples:state.config.browser_sd_examples,
         onFrame: (frame) => applyBrowserFrame(frame, run),
+        onLeds: command => {
+          if (!active(run)) return;
+          state.shell?.applyVisualState?.(command);
+          state.shell?.viewer?.requestRender();
+          const hex = command.color.toString(16).padStart(6,'0').toUpperCase();
+          $('frameStatus').textContent = `RGB #${hex}`;
+        },
         onDeviceState: (value) => applyBrowserDeviceState(value, run),
         onUnitExampleState: () => {if(active(run))updateBrowserUnitExample(run);},
         onState: (value) => {
@@ -1641,24 +1679,16 @@ async function init() {
   const params = new URLSearchParams(location.search);
   const mixed = config.browser_qemu_available && config.browser_esp32sim_profiles?.length;
   if (mixed) {
+    state.followBrowserDefaults = !['qemu-wasm','esp32sim'].includes(params.get('engine'));
+    try { state.qemuProfiles = await loadQemuBrowserProfiles({root}); }
+    catch { /* A missing secondary runtime must not block esp32sim or model browsing. */ }
     let engine = params.get('engine');
-    if (!['qemu-wasm', 'esp32sim'].includes(engine)) {
-      engine = 'esp32sim';
-      // Existing links to QEMU-only boards keep their browser engine.
+    if (state.followBrowserDefaults) {
       const requested = params.get('device');
       let row;
       try { if (requested) row = resolveDevice(requested, catalog); }
       catch { /* The launch parser reports an unknown device below. */ }
-      const profile = row && getBrowserProfile(row.id);
-      if (row && (profile?.preferQemu || !config.browser_esp32sim_profiles.includes(profile?.board))) {
-        try {
-          const registry = await loadQemuBrowserProfiles({root});
-          if (getQemuBrowserProfile(row.id, registry)) {
-            state.qemuProfiles = registry;
-            engine = 'qemu-wasm';
-          }
-        } catch { /* The model and service lanes still work without QEMU. */ }
-      }
+      engine = defaultBrowserEngine(row?.id || 'cores3',config);
     }
     config.browser_runtime_engine = engine;
     $('browserEngineFields').hidden = false;

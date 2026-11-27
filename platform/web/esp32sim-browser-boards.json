@@ -1,0 +1,382 @@
+[
+  {
+    "deviceId": "atoms3",
+    "board": "m5stack-atoms3",
+    "chip": "esp32s3",
+    "flashMb": 8,
+    "psramMb": 0,
+    "jit": true,
+    "display": {
+      "width": 128,
+      "height": 128
+    },
+    "panel": "st7735s",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "button": 41,
+        "a": 41
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "fb294c9780cfc3766fd489e164a1a04dddf54cb989adb113d098fe10cbc52075",
+    "probeSha256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319"
+  },
+  {
+    "deviceId": "atoms3-lite",
+    "board": "m5stack-atoms3-lite",
+    "chip": "esp32s3",
+    "flashMb": 8,
+    "psramMb": 0,
+    "jit": true,
+    "display": null,
+    "panel": "ws2812",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "button": 41,
+        "a": 41
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c",
+    "ledTargets": [
+      "rgb"
+    ],
+    "probeSha256": "ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36"
+  },
+  {
+    "deviceId": "dial",
+    "board": "m5stack-dial",
+    "chip": "esp32s3",
+    "flashMb": 8,
+    "psramMb": 0,
+    "jit": true,
+    "display": {
+      "width": 240,
+      "height": 240
+    },
+    "panel": "gc9a01",
+    "inputs": {
+      "touch": true,
+      "buttons": {
+        "button": 42,
+        "a": 42,
+        "wake": 42
+      },
+      "encoder": true
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "6a0187dad13c491129e9228ca36b9e04adb46ebf9d8d51fca8eca5f9b7332a53",
+    "limitations": [
+      "\u5df2\u9a8c\u8bc1 Arduino Touch \u793a\u4f8b\u3002\u539f\u7248 UIFlow2 \u7684\u89e6\u6478\u573a\u666f\u53ca\u65cb\u94ae\u65b9\u5411\u9a8c\u6536\u5f85\u8865\u3002"
+    ]
+  },
+  {
+    "deviceId": "sticks3",
+    "board": "m5stack-sticks3",
+    "chip": "esp32s3",
+    "flashMb": 8,
+    "psramMb": 8,
+    "jit": true,
+    "display": {
+      "width": 135,
+      "height": 240
+    },
+    "panel": "st7789",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "a": 11,
+        "b": 12,
+        "button-a": 11,
+        "button-b": 12
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+    "probeSha256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+    "limitations": [
+      "\u5df2\u9a8c\u8bc1 A \u952e\u548c\u5c4f\u5e55\u8ba1\u6570\u3002PM1 \u7535\u6e90\u64cd\u4f5c\u4e0e\u5176\u4ed6\u677f\u8f7d\u5916\u8bbe\u5f85\u9a8c\u8bc1\u3002"
+    ]
+  },
+  {
+    "deviceId": "stopwatch",
+    "board": "m5stack-stopwatch",
+    "chip": "esp32s3",
+    "flashMb": 16,
+    "psramMb": 8,
+    "jit": false,
+    "display": {
+      "width": 468,
+      "height": 466
+    },
+    "panel": "sh8601",
+    "inputs": {
+      "touch": true,
+      "buttons": {
+        "a": 2,
+        "b": 1,
+        "button-a": 2,
+        "button-b": 1,
+        "btnA": 2,
+        "btnB": 1
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+    "probeSha256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc",
+    "limitations": [
+      "\u5e73\u9762\u5c4f\u5e55\u8f93\u51fa\u4e3a 468 \u00d7 466\u3002\u4ec5\u9a8c\u8bc1\u56fa\u5b9a\u89e6\u6478\u793a\u4f8b\u3002"
+    ]
+  },
+  {
+    "deviceId": "stackchan",
+    "board": "m5stack-stackchan",
+    "chip": "esp32s3",
+    "flashMb": 16,
+    "psramMb": 8,
+    "jit": true,
+    "display": {
+      "width": 320,
+      "height": 240
+    },
+    "panel": "ili9342c",
+    "inputs": {
+      "touch": true,
+      "buttons": {}
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+    "probeSha256": "407f6260400da1b0d10d2374917c7eabd43e6b3bed614afcb97a8d09a7f4af18",
+    "limitations": [
+      "\u89e6\u6478\u548c\u5c4f\u5e55\u901a\u8fc7\u3002\u56fa\u5b9a\u793a\u4f8b\u62a5\u544a\u8235\u673a\u9519\u8bef\uff0c\u4e09\u533a\u8eab\u4f53\u89e6\u6478\u5c1a\u672a\u63a5\u5165\u3002"
+    ]
+  },
+  {
+    "deviceId": "paperdiy",
+    "board": "m5stack-paperdiy",
+    "chip": "esp32s3",
+    "flashMb": 16,
+    "psramMb": 8,
+    "jit": true,
+    "display": {
+      "width": 540,
+      "height": 960
+    },
+    "panel": "et047tc1",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "key1": 4,
+        "key2": 3,
+        "a": 4,
+        "b": 3
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.4",
+    "referenceSha256": "35a4f99833d334c93986806b9403f81172e9068e3b63ef5a8ef2d20cf281eb18",
+    "probeSha256": "c89a5d10aa2e7250f42edf264237119d8d5befef5036901313a91c7c53bf1b9e",
+    "limitations": [
+      "\u5df2\u9a8c\u8bc1\u7535\u5b50\u7eb8\u56fa\u5b9a\u6309\u952e\u573a\u666f\u3002\u7535\u6e90\u64cd\u4f5c\u548c\u5b9e\u7269\u5237\u65b0\u65f6\u5e8f\u5f85\u9a8c\u8bc1\u3002"
+    ]
+  },
+  {
+    "deviceId": "papermono",
+    "board": "m5stack-papermono",
+    "chip": "esp32s3",
+    "flashMb": 16,
+    "psramMb": 8,
+    "jit": true,
+    "display": {
+      "width": 480,
+      "height": 800
+    },
+    "panel": "ssd1677",
+    "inputs": {
+      "touch": true,
+      "buttons": {
+        "key1": 2,
+        "key2": 3,
+        "a": 2,
+        "b": 3
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+    "probeSha256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+    "limitations": [
+      "\u89e6\u6478\u56fa\u5b9a\u793a\u4f8b\u4f7f\u7528\u5b98\u65b9\u539f\u59cb\u5750\u6807\u3002\u7535\u5b50\u7eb8\u5237\u65b0\u8fc7\u7a0b\u4e0e\u7070\u9636\u5c1a\u672a\u5168\u9762\u5bf9\u7167\u3002"
+    ]
+  },
+  {
+    "deviceId": "papers3",
+    "board": "m5stack-papers3",
+    "chip": "esp32s3",
+    "flashMb": 16,
+    "psramMb": 8,
+    "jit": true,
+    "display": {
+      "width": 540,
+      "height": 960
+    },
+    "panel": "et047tc1",
+    "inputs": {
+      "touch": true,
+      "buttons": {}
+    },
+    "execution": "browser-wasm",
+    "preferQemu": true,
+    "referenceVersion": "v2.5.4",
+    "referenceSha256": "87567896973fa61c281fdf3f0e2031f280de1df8d59ac0942302de288096a1fb",
+    "probeSha256": "9b72f589d99ecc7289eecb45d79d6bf2743e3a1517e6c6bda30dd0f3e3d34234",
+    "limitations": [
+      "\u5df2\u9a8c\u8bc1\u7535\u5b50\u7eb8\u56fa\u5b9a\u89e6\u6478\u573a\u666f\u3002\u5b9e\u7269\u5237\u65b0\u65f6\u5e8f\u4e0e\u7535\u6e90\u64cd\u4f5c\u5f85\u9a8c\u8bc1\u3002"
+    ]
+  },
+  {
+    "deviceId": "atom-lite",
+    "board": "m5stack-atom-lite",
+    "chip": "esp32",
+    "flashMb": 4,
+    "psramMb": 0,
+    "jit": true,
+    "display": null,
+    "panel": "ws2812",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "button": 39,
+        "a": 39
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
+    "ledTargets": [
+      "rgb"
+    ],
+    "probeSha256": "d97f454582aa88b81c04deb1bbcabdcc4ed30fe6e30cd6aef4a219ce68a80ce4"
+  },
+  {
+    "deviceId": "stickc",
+    "board": "m5stack-stickc",
+    "chip": "esp32",
+    "flashMb": 4,
+    "psramMb": 0,
+    "jit": true,
+    "display": {
+      "width": 80,
+      "height": 160
+    },
+    "panel": "st7735s",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "a": 37,
+        "b": 39
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "2463fc362f6acfacccb678a2c40aeb733e470ca793ec4a100d2e077baa641f03",
+    "probeSha256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15"
+  },
+  {
+    "deviceId": "stickc-plus",
+    "board": "m5stack-stickc-plus",
+    "chip": "esp32",
+    "flashMb": 4,
+    "psramMb": 0,
+    "jit": true,
+    "display": {
+      "width": 135,
+      "height": 240
+    },
+    "panel": "st7789",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "a": 37,
+        "b": 39
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.2",
+    "referenceSha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+    "probeSha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a"
+  },
+  {
+    "deviceId": "stickc-plus-se",
+    "board": "m5stack-stickc-plus-se",
+    "chip": "esp32",
+    "flashMb": 4,
+    "psramMb": 0,
+    "jit": true,
+    "display": {
+      "width": 135,
+      "height": 240
+    },
+    "panel": "st7789",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "a": 37,
+        "b": 39
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "0c7055bb8e64afe1d8fa4fd4bdc0961ca0d6366351aca5d6c83eaaf72155ee88",
+    "probeSha256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc"
+  },
+  {
+    "deviceId": "nanoc6",
+    "board": "m5stack-nanoc6",
+    "chip": "esp32c6",
+    "flashMb": 4,
+    "psramMb": 0,
+    "jit": false,
+    "display": null,
+    "panel": "ws2812",
+    "inputs": {
+      "touch": false,
+      "buttons": {
+        "button": 9,
+        "a": 9,
+        "boot": 9
+      }
+    },
+    "execution": "browser-wasm",
+    "preferQemu": false,
+    "referenceVersion": "v2.5.3",
+    "referenceSha256": "f6efc24d96f7b9a97684e63f764ef44b4357556d9b07dec4c1c67eb3d9153ecf",
+    "ledTargets": [
+      "rgb",
+      null
+    ],
+    "limitations": [
+      "\u5df2\u9a8c\u8bc1 GPIO9 \u6309\u952e\u548c RGB \u6307\u793a\u706f\u3002\u6d4f\u89c8\u5668 Thread \u548c Zigbee \u5f85\u9a8c\u8bc1\u3002"
+    ]
+  }
+]

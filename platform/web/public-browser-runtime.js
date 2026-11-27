@@ -2,11 +2,16 @@ import { assetUrl, siteRoot } from './public-config.js';
 import { downloadFirmware } from './public-firmware.js';
 import { sha256Bytes } from './sha256.js';
 import { cardputerAdvBoardKey } from './cardputer-adv-keymap.js';
+import admittedBoards from './esp32sim-browser-boards.json' with {type:'json'};
 
 export const ESP32SIM_SOURCE_COMMIT = '4e257b6be8ee0ed706c2e509d8f31ef7472a424b';
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
-const LEGACY_PROFILES = new Set(['papers3', 'stopwatch']);
-const ESP32S3_CHIP_ID = 9;
+const CURRENT_PROFILES = new Map(admittedBoards.map(profile => [profile.deviceId,profile]));
+const CHIP_LAYOUT = {
+  esp32: {id:0,bootloader:0x1000,rom:'esp32_rev300_rom.elf',sha256:'920b70635440517866aab2230964a570d2cf2b676658d93c52fbac108c1cca31'},
+  esp32s3: {id:9,bootloader:0,rom:'esp32s3_rev0_rom.elf',sha256:'c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd'},
+  esp32c6: {id:13,bootloader:0,rom:'esp32c6_rev0_rom.elf',sha256:'788e1d38724aeb8fd974fa10c4a7b089c02627d35342ce84b9e0b12b239f3551'},
+};
 const ADV_REFERENCE_LIMIT = 'ADV 的 UIFlow2 v2.5.3 支持离线首页。浏览器运行尚未开放联网与云端绑定。';
 const PROFILES = {
   cores3: {deviceId:'cores3',board:'m5stack-cores3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,
@@ -21,25 +26,30 @@ const PROFILES = {
     limitations:['点击模型后使用电脑键盘，方向键通过 Fn 层映射；F12 对应 G0。']},
   cardputer: {deviceId:'cardputer',board:'m5stack-cardputer',chip:'esp32s3',flashMb:8,psramMb:0,jit:true,
     display:{width:240,height:135}, inputs:{touch:false}, execution:'browser-wasm', preferQemu:true,
+    referenceVersion:'v2.5.4', referenceSha256:'d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309',
+    probeSha256:'2a086148973b22f6c7f289536c977e1e7968e17f7f02717c552088269ed3ac55',
     limitations:['支持 GPIO0 和物理键盘矩阵。']},
 
-  papers3: {deviceId:'papers3',board:'papers3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,
+  papers3: {deviceId:'papers3',board:'papers3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,legacy:true,
     display:{width:540,height:960}, execution:'browser-wasm',
     limitations:['黑白电子纸与单点触摸子集；灰阶光学、RTC、TF、音频、电源键及网络未验证。']},
-  stopwatch: {deviceId:'stopwatch',board:'stopwatch',chip:'esp32s3',flashMb:16,psramMb:8,jit:false,
+  stopwatch: {deviceId:'stopwatch',board:'stopwatch',chip:'esp32s3',flashMb:16,psramMb:8,jit:false,legacy:true,
     display:{width:468,height:466}, execution:'browser-wasm',
     limitations:['使用解释器避开官方 V0.5 IMU 页面的已知 JIT 卡住；速度可能低于实时。','RTC、音频、实体电源与全部固件兼容性未验证。']},
 };
 
-export function getBrowserProfile(deviceId) {
+export function getBrowserProfile(deviceId, availableProfiles) {
   const id = String(deviceId || '').toLowerCase();
   const canonical = ['papers3','m5papers3','paper-s3','m5stack-c139'].includes(id) ? 'papers3' : id;
-  return Object.hasOwn(PROFILES, canonical) ? structuredClone(PROFILES[canonical]) : null;
+  const current = CURRENT_PROFILES.get(canonical);
+  if (current && (!availableProfiles || availableProfiles.includes(current.board))) return structuredClone(current);
+  const previous = Object.hasOwn(PROFILES, canonical) && PROFILES[canonical];
+  return previous && (!availableProfiles || availableProfiles.includes(previous.board)) ? structuredClone(previous) : null;
 }
 
 export function getBrowserReference(device, profile = getBrowserProfile(device?.id)) {
   const firmware = device?.uiflow2?.firmware;
-  if (!profile?.referenceSha256 || firmware?.version !== 'v2.5.3') return null;
+  if (!profile?.referenceSha256 || firmware?.version !== (profile.referenceVersion || 'v2.5.3')) return null;
   const url = profile.referenceUrl || firmware.download_url;
   return url ? {url, name:`UIFlow2 ${firmware.version}`, sha256:profile.referenceSha256, limit:profile.referenceLimit} : null;
 }
@@ -56,13 +66,16 @@ export function validateBrowserFirmware(firmware, profile) {
   const bytes = firmware instanceof ArrayBuffer ? new Uint8Array(firmware) : firmware;
   requireValue(bytes instanceof Uint8Array, 'invalid_firmware', '固件必须是二进制数据。');
   const flashBytes = profile.flashMb * 1024 * 1024, table = 0x8000;
+  requireValue(Object.hasOwn(CHIP_LAYOUT,profile.chip), 'firmware_chip_mismatch', '所选芯片尚未配置浏览器 Flash 布局。');
+  const layout = CHIP_LAYOUT[profile.chip];
+  const bootloader = layout.bootloader;
   requireValue(bytes.length <= flashBytes, 'flash_overflow', '固件超过该设备的 Flash 容量。');
-  requireValue(bytes.length > table + 32 && bytes[0] === 0xe9 && bytes[table] === 0xaa && bytes[table + 1] === 0x50,
-    'merged_firmware_required', '浏览器运行需要从偏移 0 开始、包含引导程序与 0x8000 分区表的完整合并固件。');
+  requireValue(bytes.length > table + 32 && bytes[bootloader] === 0xe9 && bytes[table] === 0xaa && bytes[table + 1] === 0x50,
+    'merged_firmware_required', `浏览器运行需要完整合并固件，引导程序须位于 0x${bootloader.toString(16)}，分区表须位于 0x8000。`);
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const image = (at, end) => {
     requireValue(at + 24 <= end && bytes[at] === 0xe9 && bytes[at + 1] > 0 && bytes[at + 1] <= 16, 'truncated_firmware', '固件镜像头无效或不完整。');
-    requireValue(profile.chip === 'esp32s3' && view.getUint16(at + 12, true) === ESP32S3_CHIP_ID, 'firmware_chip_mismatch', '固件芯片与所选 ESP32-S3 设备不匹配。');
+    requireValue(view.getUint16(at + 12, true) === layout.id, 'firmware_chip_mismatch', '固件芯片与所选设备不匹配。');
     let offset = at + 24;
     for (let i = 0; i < bytes[at + 1]; i++) {
       requireValue(offset + 8 <= end, 'truncated_firmware', '固件段头不完整。');
@@ -70,8 +83,8 @@ export function validateBrowserFirmware(firmware, profile) {
       requireValue(offset <= end, 'truncated_firmware', '固件数据段不完整。');
     }
   };
-  image(0, table);
-  const flashSizeCode = bytes[3] >> 4;
+  image(bootloader, table);
+  const flashSizeCode = bytes[bootloader + 3] >> 4;
   requireValue(flashSizeCode <= 7 && 2 ** flashSizeCode <= profile.flashMb, 'flash_size_mismatch', '引导程序声明的 Flash 容量超过板型容量。');
   const partitions = [];
   let apps = 0;
@@ -101,10 +114,10 @@ export function decodeBrowserFrame(buffer, sequence) {
 }
 
 export class PublicBrowserRuntime {
-  constructor({onSerial = () => {}, onFrame = () => {}, onState = () => {}, onError = () => {},
+  constructor({onSerial = () => {}, onFrame = () => {}, onLeds = () => {}, onState = () => {}, onError = () => {}, availableProfiles,
     root = siteRoot(), fetchImpl = globalThis.fetch,
     workerFactory = url => new Worker(url, {type:'module'}), requestTimeout = 30000, downloadImpl = downloadFirmware} = {}) {
-    Object.assign(this, {onSerial,onFrame,onState,onError,root:new URL(root),fetchImpl,workerFactory,requestTimeout,downloadImpl});
+    Object.assign(this, {onSerial,onFrame,onLeds,onState,onError,availableProfiles,root:new URL(root),fetchImpl,workerFactory,requestTimeout,downloadImpl});
     this.fetchImpl = (...args) => fetchImpl(...args);
     this.status = 'stopped'; this.worker = null; this.pending = new Map();
     this.generation = 0; this.sequence = 0; this.inputSequence = 0; this.profile = null;
@@ -138,6 +151,19 @@ export class PublicBrowserRuntime {
         try { data = JSON.parse(message.text); } catch { this.onSerial(String(message.text)); }
         if (data?.t === 'serial') this.onSerial(data.data || '');
         else if (data?.t === 'emu') this.onSerial(`[emulator] ${data.msg}\n`);
+        else if (data?.t === 'ring' && this.profile.ledTargets) {
+          const targets = this.profile.ledTargets;
+          requireValue(Array.isArray(data.leds) && data.leds.length === targets.length
+            && data.leds.every(rgb => Array.isArray(rgb) && rgb.length === 3
+              && rgb.every(value => Number.isInteger(value) && value >= 0 && value <= 255)),
+            'invalid_led', '运行时返回了无效的 RGB LED 状态。');
+          targets.forEach((target,index) => {
+            if (!target) return;
+            const [red,green,blue] = data.leds[index];
+            const color = (red << 16) | (green << 8) | blue;
+            this.onLeds({type:'led',target,color,brightness:1,on:color !== 0});
+          });
+        }
         else if (data?.t === 'stat') {
           this.stats = {...this.stats,...data};
           const rotation = data.display_rotation;
@@ -149,9 +175,9 @@ export class PublicBrowserRuntime {
       if (message.log !== undefined) this.onSerial(`[emulator] ${message.log}\n`);
       if (message.bin !== undefined) {
         try {
-          if (new Uint8Array(message.bin)[0] === 1) {
+          if (new Uint8Array(message.bin)[0] === 1 && this.profile.display) {
             const frame = decodeBrowserFrame(message.bin, ++this.sequence);
-            requireValue(frame.width === this.profile.display.width && frame.height === this.profile.display.height, 'frame_profile_mismatch', '显示帧与所选浏览器板型不匹配。');
+            requireValue(frame.width === this.profile.display?.width && frame.height === this.profile.display?.height, 'frame_profile_mismatch', '显示帧与所选浏览器板型不匹配。');
             this.lastFrame = frame;
             this.onFrame(frame);
           } else if (new Uint8Array(message.bin)[0] === 2) {
@@ -175,7 +201,7 @@ export class PublicBrowserRuntime {
   async start({device, firmware, signal, audio} = {}) {
     this.stop();
     const generation = this.generation;
-    const profile = getBrowserProfile(typeof device === 'string' ? device : device?.id);
+    const profile = getBrowserProfile(typeof device === 'string' ? device : device?.id, this.availableProfiles);
     requireValue(profile, 'browser_board_unsupported', '该设备尚未接入浏览器内核，请连接 Device Service。');
     validateBrowserFirmware(firmware, profile);
     this.profile = profile; this.sequence = 0; this.receipt = null; this.stats = {};
@@ -193,7 +219,7 @@ export class PublicBrowserRuntime {
     try {
       active();
       this.audioPlayer = audio?.player;
-      const legacy = LEGACY_PROFILES.has(profile.deviceId);
+      const legacy = profile.legacy;
       const runtimeName = legacy ? 'esp32sim-legacy' : 'esp32sim';
       const sourceCommit = legacy ? ESP32SIM_LEGACY_COMMIT : ESP32SIM_SOURCE_COMMIT;
       const manifestUrl = assetUrl(`platform/runtime/${runtimeName}/runtime.json`, this.root);
@@ -206,8 +232,11 @@ export class PublicBrowserRuntime {
         return this.downloadImpl(new URL(entry.path, manifestUrl).href, {signal:this.controller.signal,expectedSha256:entry.sha256,maxBytes,fetchImpl:this.fetchImpl});
       };
       const wasm = await resource(manifest.wasm, 16 * 1024 * 1024); active();
-      const rom = await resource(manifest.rom, 2 * 1024 * 1024); active();
-      requireValue(rom.sha256 === 'c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd', 'rom_mismatch', 'ESP32-S3 ROM 与已审阅版本不匹配。');
+      const layout = CHIP_LAYOUT[profile.chip];
+      const romEntry = profile.chip === 'esp32s3' ? manifest.rom : manifest.extra_roms?.[profile.chip];
+      requireValue(romEntry?.path === layout.rom && romEntry.sha256 === layout.sha256, 'rom_mismatch', '芯片 ROM 与已审阅版本不匹配。');
+      const rom = await resource(romEntry, 2 * 1024 * 1024); active();
+      requireValue(rom.sha256 === layout.sha256, 'rom_mismatch', '芯片 ROM 与已审阅版本不匹配。');
       const input = new Uint8Array(firmware);
       const flash = new Uint8Array(profile.flashMb * 1024 * 1024);
       flash.fill(0xff);
@@ -277,7 +306,7 @@ export class PublicBrowserRuntime {
       const pins = {'button-a':2,'btnA':2,'a':2,'button-b':1,'btnB':1,'b':1};
       const down = event.down ?? event.pressed;
       requireValue(typeof down === 'boolean', 'invalid_input', '按键需要明确的按下或释放状态。');
-      if (this.profile.deviceId === 'cores3' && ['power','p'].includes(event.id)) {
+      if (['cores3','stackchan'].includes(this.profile.deviceId) && ['power','p'].includes(event.id)) {
         if (!down) return {accepted:true,delivery:'timed'};
         message = {t:'power-key'};
       } else if (['cardputer', 'cardputer-adv'].includes(this.profile.deviceId)) {
@@ -306,9 +335,14 @@ export class PublicBrowserRuntime {
           return {accepted:true,delivery:'queued'};
         }
       } else {
-        requireValue(this.profile.deviceId === 'stopwatch' && Object.hasOwn(pins,event.id), 'unsupported_control', '该浏览器板型不支持此按键。');
-        message = {t:'btn',pin:pins[event.id],v:down ? 1 : 0};
+        const buttons = this.profile.inputs?.buttons || (this.profile.legacy && this.profile.deviceId === 'stopwatch' ? pins : {});
+        requireValue(Object.hasOwn(buttons,event.id), 'unsupported_control', '该浏览器板型不支持此按键。');
+        message = {t:'btn',pin:buttons[event.id],v:down ? 1 : 0};
       }
+    } else if (event?.type === 'encoder') {
+      requireValue(this.profile.inputs?.encoder, 'unsupported_control', '该设备没有旋转编码器。');
+      requireValue(Number.isInteger(event.delta) && Math.abs(event.delta) >= 1 && Math.abs(event.delta) <= 64, 'invalid_input', '编码器步数无效。');
+      message = {t:'knob',d:event.delta};
     } else if (event?.type === 'uart') {
       requireValue(typeof event.text === 'string' && new TextEncoder().encode(event.text).length <= 128, 'invalid_input', '串口输入每次最多 128 字节。');
       message = {t:'key',src:event.channel === 'usb' ? 'usb' : 'uart0',data:event.text};

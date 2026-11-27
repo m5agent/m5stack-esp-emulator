@@ -100,7 +100,8 @@ def export_sources(root: Path) -> dict[str, Path]:
 
 def browser_runtime_files(directory: Path, *, allow_diagnostic: bool = False) -> tuple[dict, dict[str, bytes]]:
     from bootstrap_browser_runtime import (SOURCE_COMMIT, SOURCE_PROFILES, LEGACY_SOURCE_COMMIT,
-                                           LEGACY_PROFILES, ROM_SHA256, DIAGNOSTIC_WASM_SHA256)
+                                           LEGACY_PROFILES, ROM_SHA256, DIAGNOSTIC_WASM_SHA256,
+                                           EXTRA_ROMS, ROM_LOCK, S3_ROM)
     directory = directory.resolve()
     manifest = json.loads((directory / "runtime.json").read_text())
     commit = manifest.get("source", {}).get("commit")
@@ -114,9 +115,14 @@ def browser_runtime_files(directory: Path, *, allow_diagnostic: bool = False) ->
         raise ValueError("public export requires a source build; diagnostic export needs explicit opt-in")
     if manifest.get("profiles") != profiles or manifest.get("rom", {}).get("sha256") != ROM_SHA256:
         raise ValueError("browser runtime board profiles or S3 ROM do not match")
+    extra = manifest.get("extra_roms", {})
+    expected = EXTRA_ROMS if commit == SOURCE_COMMIT else {}
+    if extra.keys() != expected.keys() or any(extra[chip].get("sha256") != ROM_LOCK[name] for chip, name in expected.items()):
+        raise ValueError("browser runtime additional ROMs do not match")
     files = {"runtime.json": encode_json(manifest)}
-    for key, name in (("wasm", "esp32sim.wasm"), ("rom", "esp32s3_rev0_rom.elf")):
-        row = manifest[key]
+    assets = [(manifest["wasm"], "esp32sim.wasm"), (manifest["rom"], S3_ROM),
+              *((extra[chip], name) for chip, name in expected.items())]
+    for row, name in assets:
         if row.get("path") != name or (directory / name).is_symlink():
             raise ValueError("browser runtime path is invalid")
         data = (directory / name).read_bytes()

@@ -48,10 +48,13 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
 也不用宿主输入猜测 LED。经典 ESP32 使用固定 icount；启动可能需要数分钟，
 已有通过不代表实时性能或稳定启动保证。
 
-## CoreS3 与 Cardputer-ADV 的 esp32sim 浏览器运行
+## esp32sim 浏览器运行
 
-含 `--browser-runtime` 的工作台默认以 esp32sim 运行 CoreS3（16 MiB Flash、
-8 MiB PSRAM）和 Cardputer-ADV（8 MiB Flash），设备详情页使用同一浏览器适配器。
+含 `--browser-runtime` 的工作台提供 CoreS3、Cardputer-ADV、Cardputer K132
+及[逐板登记的 esp32sim 配置](../platform/web/esp32sim-browser-boards.json)。
+双内核导出按设备选择默认内核，运行选项中仍可手动选内核。可用的
+「屏幕与按键示例」由官方 UIFlow2 基底及固定源码在浏览器本地组合。
+该组合与 QEMU-WASM 的同型号固定示例使用同一 Flash SHA-256。
 普通 module Worker 即可运行，文档预览可从不同源的无隔离页面嵌入。
 两款板使用其模型输出的 320 × 240 和 240 × 135 RGB565；ADV 竖屏应用会根据
 面板 MADCTL 状态旋转展示。CoreS3 的触点由模型屏幕投影转换到来宾坐标，
@@ -70,9 +73,13 @@ python3 platform/tools/build_public_site.py --output .work/browser-site \
 StopWatch 的独立版本。源码、固定工具链与旧板保留策略见
 [esp32sim 来源](../platform/web/vendor/esp32sim/UPSTREAM.md)。
 
-参考固件绑定 UIFlow2 v2.5.3 的原版 SHA-256。ADV 使用原浏览器配置记录的官方
+参考固件绑定各板原版 UIFlow2 的版本和 SHA-256。ADV 使用原浏览器配置记录的官方
 CDN 镜像，设备目录中的旧 URL 返回 404。CoreS3 与 ADV 的原版参考界面已在当前 pin 验证。较早 pin 的 ADV 黑屏保留于台账。文档 Arduino 示例接受本地合并
-`.bin` 或指定 HTTPS 固件 URL。镜像需通过 ESP32-S3、Flash 和分区表准入。
+`.bin` 或指定 HTTPS 固件 URL。完整合并镜像的分区表位于 `0x8000`。
+经典 ESP32 引导程序位于 `0x1000`，ESP32-S3 与 ESP32-C6 位于 `0x0`。
+工作台按芯片校验镜像头、Flash 容量和应用分区。esp32sim 导出只从
+[Espressif 固定发布](https://github.com/espressif/esp-rom-elfs/releases/tag/20260528)
+装入已登记芯片的 ROM ELF，逐个校验 SHA-256，并附 Apache-2.0 许可及来源。
 启用此内核的页面运行原版 UIFlow2，网页 MicroPython 编程环境仍由 QEMU-WASM
 提供。浏览器 Unit 装配、联网和持久 Flash 不在本次接入范围。
 
@@ -85,6 +92,17 @@ M5_DOCS_FIRMWARE="$DOCS_FIRMWARE_DIR" \
 M5_UIFLOW_FIRMWARE="$CORES3_UIFLOW253_BIN" \
 node platform/tests/test_public_esp32sim_guest.mjs
 ```
+
+混合导出的逐板复验使用 `platform/tests/test_public_esp32sim_board_guest.mjs`。
+默认运行已准入的固定 UIFlow2 组合场景。单独指定 `dial` 或 `nanoc6`
+时，分别为 `M5_DIAL_TOUCH_FIRMWARE` 或 `M5_NANOC6_BUTTON_FIRMWARE`
+提供该测试锁定的 Arduino 合并镜像。测试保留同一页面的来宾输出和 Stop 前后
+的实际 DedicatedWorker 观察。[逐板记录](validation-ledger.md#2026-11-27esp32sim-wasm-逐板验收)
+
+Tab5 的 P4 rev 0、rev 3 和 C6 rev 0 ELF 同样在该发布中。现用 WASM
+构造函数对 Tab5 板型固定使用 rev < 3，`esp32p4-rev3` 入口没有 Tab5 面板配置。
+WASM 支持 C6 副处理器装载原语。公开工作台尚无校验和装载 ESP-Hosted 2.0.13
+固件及对应许可的路径，Tab5 浏览器运行未准入。
 
 ## 本机 Device Service 的浏览器运行
 
