@@ -214,7 +214,6 @@
   - [tests/uiflow2/README.md](../tests/uiflow2/README.md) `2026-11-05`
   - [patches/qemu-esp32c6-uiflow2-adapters/README.md](../patches/qemu-esp32c6-uiflow2-adapters/README.md) `2026-11-13`
   - [tests/firmware/README.md](../tests/firmware/README.md) `2026-11-13`
-  - [docs/README.md](README.md) `2026-11-25`
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
 ## 维护入口
