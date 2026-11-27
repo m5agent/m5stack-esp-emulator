@@ -21,9 +21,10 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_URL = "https://github.com/m5agent/esp32sim.git"
-SOURCE_COMMIT = "4e257b6be8ee0ed706c2e509d8f31ef7472a424b"
+SOURCE_COMMIT = "d2f4af9ede499fbfb0f56ed3b425c09d451709c5"
 BOARD_PROFILES = json.loads((ROOT / "platform/web/esp32sim-browser-boards.json").read_text())
 SOURCE_PROFILES = ["m5stack-cores3", "m5stack-cardputer-adv", "m5stack-cardputer", *(row["board"] for row in BOARD_PROFILES)]
+SOURCE_PROFILES.extend(row["rev3Board"] for row in BOARD_PROFILES if "rev3Board" in row)
 LEGACY_SOURCE_URL = "https://github.com/zhuzhe1983/esp-online-tester.git"
 LEGACY_SOURCE_COMMIT = "3cd3db3b7202e9fc559328c7247c11134c0437f9"
 LEGACY_PROFILES = ["papers3", "stopwatch"]
@@ -37,6 +38,9 @@ ROM_ARCHIVE_SHA256 = "caa463d3cbef2430a5a35847c1d9f2f152403b17a802050927ff60c8da
 S3_ROM = "esp32s3_rev0_rom.elf"
 ROM_NAMES = {"esp32": "esp32_rev300_rom.elf", "esp32c6": "esp32c6_rev0_rom.elf"}
 EXTRA_ROMS = {chip: ROM_NAMES[chip] for chip in ROM_NAMES if any(row["chip"] == chip for row in BOARD_PROFILES)}
+if any(row["chip"] == "esp32p4" for row in BOARD_PROFILES):
+    EXTRA_ROMS.update(esp32c6=ROM_NAMES["esp32c6"], esp32p4="esp32p4_rev0_rom.elf",
+                      **{"esp32p4-rev3": "esp32p4_rev300_rom.elf"})
 ROM_LOCK = json.loads((ROOT / "scripts/esp32sim-runtime.lock.json").read_text())["roms"]
 DIAGNOSTIC_WASM_SHA256 = "8ef640bf8d525c5fec9d071bf12fba43765a5de549c1fcc8f4b4772d3a1fc72a"
 CRATES = ["emu-core", "esp-periph", "esp-soc", "xtensa-lx7", "esp32s3", "cli", "wasm", "wasm-jit", "riscv-rv32", "esp32c3", "esp32c6", "esp32", "esp32p4", "esp32s31"]

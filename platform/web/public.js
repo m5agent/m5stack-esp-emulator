@@ -13,6 +13,7 @@ import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {DUAL_KMETER_EXAMPLE_ID,dualKmeterExampleSource} from './public-qemu-unit-examples.js';
 import {CORES3_MIC_FIRMWARE_SHA,CORES3_WAV_SHA,CORES3_WAV_SD_SHA} from './public-qemu-audio.js';
 import {createBrowserAudioPlayer} from './public-browser-audio.js';
+import {TAB5_SIDECAR_URL} from './public-tab5-sidecar.js';
 import {createQemuAudioPlayer} from './public-qemu-audio-player.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
 import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget,supportsQemuCc1101Workbench,validCc1101PeerFrame,supportsQemuSx1262Workbench,validSx1262PeerPacket,qemuSx1262ReceiveArmed} from './public-qemu-profiles.js';
@@ -543,7 +544,8 @@ async function runPython() {
   }
 }
 function browserAudioExample() {
-  if (browserProfile(state.selected?.id)?.referenceSha256 && lane() === 'browser') return 'speaker';
+  const profile = browserProfile(state.selected?.id);
+  if ((profile?.referenceSha256 || profile?.speaker) && lane() === 'browser') return 'speaker';
   if (state.config.browser_cores3_audio !== true || state.selected?.id !== 'cores3' || lane() !== 'browser') return null;
   if (source() === 'reference' && $('referenceExample').value === 'uiflow' && reference()?.sha256 === CORES3_MIC_FIRMWARE_SHA) return 'mic';
   if (source() === 'local' && state.config.browser_sd_examples?.some(row =>
@@ -631,6 +633,12 @@ function updateCapability() {
   $('cancelLoadBtn').hidden = !state.busy;
   const audioExample = browserAudioExample();
   $('browserAudioSetting').hidden = !audioExample;
+  const micEnabled = state.config.browser_runtime_engine === 'esp32sim' && state.run?.kind === 'browser'
+    && state.run.controller.status === 'running' && state.run.controller.profile?.inputs?.microphone;
+  $('browserMicSetting').hidden = !micEnabled;
+  $('browserSidecarSetting').hidden = selectedLane !== 'browser' || browserProfile(device?.id)?.chip !== 'esp32p4'
+    || state.config.browser_runtime_engine !== 'esp32sim';
+  $('browserSidecarFile').disabled = state.busy;
   $('browserAudioOptIn').disabled = state.busy;
   if (!audioExample) $('browserAudioOptIn').checked = false;
   $('browserAudioHelp').textContent = audioExample === 'speaker' ? '播放虚拟设备扬声器的 PCM 输出。' : audioExample === 'mic'
@@ -872,11 +880,12 @@ async function selectDevice(id, {openGeneration} = {}) {
   );
   shell.on?.(
     'touch',
-    (event) =>
-      void deliverInput(
-        {type: 'touch', x: event.x, y: event.y, down: event.down ?? !['end', 'cancel'].includes(event.action)},
-        event,
-      ),
+    event => {
+      const profile = state.run?.kind === 'browser' ? state.run.controller.profile : null;
+      const [x,y] = profile?.nativeRasterRotation === 90
+        ? [event.y,profile.display.height - 1 - event.x] : [event.x,event.y];
+      void deliverInput({type:'touch',x,y,down:event.down ?? !['end','cancel'].includes(event.action)},event);
+    },
   );
   shell.on?.('encoder', event => void deliverEncoderInput(event));
   shell.on?.('reset', event => void deliverInput({type:'reset', down:true}, event));
@@ -1059,7 +1068,12 @@ async function firmware(signal, runGeneration) {
 }
 function clearBrowserOutputs(profile) {
   message('actuatorStatus');
+  $('browserCameraPanel').hidden = true;
   $('deviceMount').dataset.outputKnown='false';
+  if (profile?.deviceId === 'stackchan' && !profile.outputs) {
+    state.shell?.applyVisualState?.(['yaw','pitch'].map(target=>({type:'joint',target,known:false})));
+    return;
+  }
   if (!profile?.outputs) return;
   const commands=profile.outputs.kind==='stackchan-scs-qom-v1'
     ? ['yaw','pitch'].map(target=>({type:'joint',target,known:false}))
@@ -1180,7 +1194,8 @@ function applyBrowserFrame(frame, run) {
     canvas.dataset.frameSequence = frame.sequence;
   }
   let applied;
-  if (state.shell.setFrameLE) applied = state.shell.setFrameLE(frame.pixels, frame.width, frame.height, frame.sequence);
+  if (state.shell.setFrameLE) applied = state.shell.setFrameLE(frame.pixels, frame.width, frame.height, frame.sequence,
+    {nativeRasterRotation:run.controller.profile?.nativeRasterRotation});
   else {
     const be = frame.pixels.slice();
     for (let i = 0; i < be.length; i += 2) [be[i], be[i + 1]] = [be[i + 1], be[i]];
@@ -1269,6 +1284,34 @@ async function startRun(audio) {
         workbenchProfiles:state.workbenchProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         sdExamples:state.config.browser_sd_examples,
         onFrame: (frame) => applyBrowserFrame(frame, run),
+        onCamera: ({width,height,rgb}) => {
+          if (!active(run)) return;
+          const canvas = $('browserCameraCanvas');
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+          const context = canvas.getContext('2d');
+          const pixels = context.createImageData(width,height);
+          for (let i=0,p=0;i<rgb.length;i+=3,p+=4) {
+            pixels.data.set(rgb.subarray(i,i+3),p);
+            pixels.data[p+3] = 255;
+          }
+          context.putImageData(pixels,0,0);
+          $('browserCameraPanel').hidden = false;
+        },
+        onServo: ({yaw,pitch,packets}) => {
+          if (!active(run)) return;
+          state.shell?.applyVisualState?.([
+            {type:'joint',target:'yaw',angleDeg:yaw},
+            {type:'joint',target:'pitch',angleDeg:pitch},
+          ]);
+          state.shell?.viewer?.requestRender();
+          $('deviceMount').dataset.outputKnown = 'true';
+          $('deviceMount').dataset.outputSource = 'browser-esp32sim-serial-servo';
+          $('deviceMount').dataset.servoPackets = String(packets);
+          message('actuatorStatus',`舵机 · 左右 ${yaw.toFixed(1)}° · 抬头 ${pitch.toFixed(1)}°`);
+        },
         onLeds: command => {
           if (!active(run)) return;
           state.shell?.applyVisualState?.(command);
@@ -1303,7 +1346,12 @@ async function startRun(audio) {
       const gnssOptions=source()==='reference'&&ref?.gnssExample?{gnssExample:ref.gnssExample}:{};
       const radioOptions=run.cc1101Role?{capExample:`cc1101-rf-${run.cc1101Role}`,capPeer:true}:
         run.sx1262Example?{sx1262Example:run.sx1262Example}:{};
+      const sidecarFile = browserProfile(state.selected.id)?.chip === 'esp32p4' && $('browserSidecarFile').files[0];
+      if (sidecarFile && sidecarFile.size > 1024 * 1024) throw new Error('Tab5 C6 ZIP 文件超过 1 MiB。');
+      const sidecarArchive = sidecarFile ? await sidecarFile.arrayBuffer() : undefined;
+      if (!active(run) || abort.signal.aborted) return;
       await run.controller.start({device: state.selected.id,firmware:loaded.bytes,signal:abort.signal,...gnssOptions,...radioOptions,
+        ...(sidecarArchive ? {sidecarArchive} : {}),
         ...(run.dualKmeterSource ? {unitExample:DUAL_KMETER_EXAMPLE_ID} : {}),
         ...(audio ? {audio} : {})});
       if (audio && active(run) && run.controller instanceof PublicQemuRuntime && !run.controller.receipt?.audio) {
@@ -1848,6 +1896,19 @@ $('startBtn').addEventListener('click', () => {
   });
 });
 $('stopBtn').addEventListener('click', () => void stopRun().catch(error));
+$('browserSidecarDownload').href = TAB5_SIDECAR_URL;
+$('browserMicFile').addEventListener('change', async event => {
+  const file = event.currentTarget.files[0], run = state.run;
+  event.currentTarget.value = '';
+  if (!file || !active(run) || !(run.controller instanceof PublicBrowserRuntime)) return;
+  try {
+    if (file.size > 2 * 1024 * 1024) throw new Error('请选择不超过 2 MiB 的 PCM16 WAV 文件。');
+    const bytes = await file.arrayBuffer();
+    if (!active(run)) return;
+    await run.controller.input({type:'mic-wav',bytes});
+    if (active(run)) message('browserAudioStatus','已将 WAV 送入虚拟麦克风。');
+  } catch (cause) { if (active(run)) error(cause); }
+});
 $('cancelLoadBtn').addEventListener('click', () => void stopRun().catch(error));
 $('runtimeMode').addEventListener('change', ()=>{updateReferenceDefault();renderDetails();updateCapability();updatePythonControls();});
 $('refreshSessionsBtn').addEventListener('click',()=>void refreshServiceSessions());

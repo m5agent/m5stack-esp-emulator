@@ -77,7 +77,7 @@ Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值；host 接入战役不重开 | 逐设备视觉回归；仅视觉/组合件不继承独立 host 或硬件结果 |
 | `UI-02` | 进行中 | 更多固定固件、浏览器性能/长期稳定性及逐固件 CPU、输入、存储与复位缺口 | 同 Flash/runtime/profile/input/frame 绑定；native 或 compiled_profiles 不授浏览器 PASS |
 | `UI-03` | 进行中 | 正式托管同版本完整串行门禁、独立 HTTPS 编辑器/输入与偶发启动/复位故障 | 保留真实输入、输出、清场和历次失败；局部 HTTPS 例不覆盖全设备 |
-| `UI-04` | 待做 | 稳定托管 QEMU-WASM 门禁的 PaperDIY 复位、Atom Matrix 编辑器与按键，以及 ADV 键盘 | 保留失败输入、来宾和 Worker 证据，恢复同版本全部 72 项 hosted PASS |
+| `UI-04` | 进行中 | 托管门禁验证 esp32sim ADV 的 11 键；保留 QEMU-WASM ADV IRQ 键盘诊断，继续定位 QMP 已确认后来宾键码残留 | 保留两条来宾路径、输入和 Worker 证据，执行同一导出的完整 hosted 门禁 |
 | `UNIT-01` | 已完成（virtual-device） | 接入战役已完成；仅保留 `UNIT-DEFER-01` 和下文预览/原驱动覆盖的独立余量 | 不把视觉模型、主机通过或已选组合结果转授未验 Unit/主机 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动、USB/网络竞态及摄像头/音频/电源/键盘长期回归 | 独立 Linux 后端的功能与长期边界明确，不继承 ESP32 结果 |
 

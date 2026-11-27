@@ -54,6 +54,42 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   QEMU 为 fixture 要求的 466×466。目录的完整应用行为和重复性仍待补齐。
 
 
+## 2026-11-27：esp32sim WASM 第二轮
+
+Browser-WASM virtual-device validation。fork 源码
+`d2f4af9ede499fbfb0f56ed3b425c09d451709c5`，源构建 WASM
+`22d0c282620a176ac87bb026919a4c28551b1a3034db269bef95b8fa61aca1aa`。
+本轮使用固定 Chrome、WorkBench UI 和 Stop 前后的实际 DedicatedWorker 目标。
+
+- AtomS3R 的 eFuse package 与原生一致后，ST7735S 路径的 A 键使来宾计数
+  和 128 × 128 帧同时变化。Nesso N1 使用 QFN40 外部 Flash eFuse，来宾
+  记录触摸 `66 169 1`，135 × 240 帧变化。
+- PaperColor 原功能例程通过。首轮到 ready 约 56 s 墙钟，来宾报告
+  QUALITY 刷新 16,995 ms，按键计数和新的面板帧均有观察。其更慢的
+  墙钟反馈仍保留为默认后端选择条件。
+- Core2 与 StickC Plus2 在确切 PSRAM 容量下分别通过触摸及 A 键的画面计数。
+  Matrix 两版输出 25 灯的同色序列。StopWatch 修正为 466 × 466 面板帧。
+- StamPLC 的三键通过 I²C 扩展器接线，固定 A 键场景独立验证。
+  AtomS3R-CAM 与 M12 各取得五个不同的来宾采集哈希及页面预览。
+  VoiceS3R 的同来宾输出包含非零 PCM。AtomS3U 按键驱动 RGB 变化。
+- Basic v2.7 的 4 MiB 固定例程验证 A、B、C 三键。M5Stick OLED 的
+  诊断固件验证 SH1107 真实 SPI 帧和按键。StickT2 诊断固件走真实
+  ST7789 SPI、I²C 按压与有符号旋转。这两款仍需原厂固件冷启动复验。
+- Tab5 的 GT911/ILI9881C 原版 v2.5.3 来宾通过校验后的 C6 固件完成
+  ESP-Hosted 启动。触摸 `(83,755)` 后 ADC 选择标记变更，平面和 3D
+  均收到完整帧并完成停止。原版实测使用 rev 0，rev 3 原版待测。
+- Dial Arduino Encoder 场景在三步旋转后出现新的来宾画面。StackChan
+  的原驱动逐个确认三个体感区的按下及释放。Core2 的 I²S
+  收到 PCM16 WAV 后从原 `M5.Mic` 读到非零样本。
+- ADV 固定 KeyboardI2C 例程 11 键均确认按下、释放、键码与相应的像素。
+  QEMU-WASM UIFlow IRQ 场景保留为诊断，QMP 后的残留键码根因仍开放。
+- AtomU 和 Echo 的修正版 v2.5.4 诊断镜像分别到达约 0.50 和 0.52
+  来宾秒，随后未继续发出定时状态，关闭前的输入未验收。
+  StackChan 在同固件中曾正常读取多组舵机位置，后续有
+  `servo Y write failed`，持续运动未验收。
+
+[逐批证据和复现](https://github.com/m5agent/agent-work-logs/tree/45cbea8fb33a3a75aefe758191bfdd3540eb5780/records/m5stack-esp-emulator/2026-11-27-esp32sim-browser-round2)
+
 ## 2026-11-27：esp32sim WASM 逐板验收
 
 Browser-WASM virtual-device validation。esp32sim 源码

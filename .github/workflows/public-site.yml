@@ -274,6 +274,7 @@ jobs:
           M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
           M5_QEMU_READY_TIMEOUT_MS: "600000"
           M5_QEMU_GATE_REQUIRE_ALL: "1"
+          M5_ESP32SIM_ADV_KEYBOARD_EVIDENCE: .work/public-esp32sim-board-guests/report.json
           # Local opt-in 2 is functional-only; CI stays serial and explicit.
           M5_QEMU_GATE_WORKERS: "1"
           M5_QEMU_GATE_PHASE: all
