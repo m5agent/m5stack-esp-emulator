@@ -105,6 +105,14 @@ Q 键按下/释放、QMP 两端接受、来宾观察到按下却持续保留键�
 失败报告没有捕获能定位剩余 IRQ / 来宾调度问题的控制器轨迹，
 因此本轮不修改冻结 QEMU-WASM 的按键时序或放宽验收。
 
+合入后的[正式门禁](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45983748433)
+在 ADV 数字键 9 收到可信按下/释放，QMP 接受两个事件，客体 callback 读到 57，
+但公开键状态未报告按下。Worker 正常清理，托管 QEMU 结果为 6 PASS、1 FAIL、
+65 NOT RUN，部署跳过。对应本机导出首次在 StopWatch 编辑器就绪前
+出现 Core 1 `LoadStorePIFAddrError`。独立 StopWatch 复验通过；同一导出随后
+串行完成 72/72 QEMU-WASM 用例，另验原版 CoreMatrix 来宾及 Canvas 对照。
+导出清单 SHA-256 为 `38cf12dcfdb8d9cdc3ecab92d7fa3cc568cf75a652a9048033031d738cadf1dd`。
+
 ## 2026-11-27：esp32sim 目录板型接入
 
 - 原生 virtual-device validation。esp32sim 源码

@@ -183,14 +183,14 @@ Core2 另按仓库已有的稳定路径使用
 上传后下载压缩包核对摘要，再部署并从实际 HTTPS 地址回读资产清单、校验站点
 资产并独立验证来宾。记录中分别列出本机和托管 runner 的结果。
 
-应急包保留对应源码和许可。与标准混合导出一致时，允许随发布资产附带这一个
-ROM 文件：`platform/runtime/esp32sim/esp32s3_rev0_rom.elf`，949,552 字节，
-SHA-256 `c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd`。
-来源是 [Espressif esp-rom-elfs 20260528](https://github.com/espressif/esp-rom-elfs/releases/tag/20260528)，
+应急包与标准混合导出使用同一 ROM 白名单和校验。esp32sim 的 S3 rev0、
+ESP32 rev300 及 C6 rev0 ELF 均来自
+[Espressif esp-rom-elfs 20260528](https://github.com/espressif/esp-rom-elfs/releases/tag/20260528)，
 许可为 `Apache-2.0`。发布前按[标准引导器](../platform/tools/bootstrap_browser_runtime.py)
-核对 ELF、`runtime.json` 来源记录、`ROM_LICENSE` 与 `NOTICE`，在发布记录写明比对
-结果。ROM ELF 仅随静态发布资产交付，禁止提交 Git。发布包禁止包含来宾固件、
-其他 ROM 或本机路径。生产端须执行构建路径映射，保留原始 WASM 字节。
+核对运行时目录内每个 ELF 的字节数、SHA-256 和 `runtime.json` 来源记录，同时
+检查 `ROM_LICENSE` 与 `NOTICE`，在发布记录写明比对结果。ROM ELF 随静态发布资产
+交付，禁止提交 Git。发布包禁止包含来宾固件、未登记 ROM 或本机路径。对应源码和许可
+随包保留，构建执行路径映射并保留原始 WASM 字节。
 
 CoreMatrix C158 的 ESP32-C61 使用单独固定的 RISC-V QEMU 来源、WASM、Worker
 和对应源码包。导出器的 `--qemu-c61-runtime` 在主 Xtensa 导出旁添加这个运行时。
@@ -320,8 +320,8 @@ StackChan 的 SCS `present_position` 来自稀疏 QOM 快照。页面会按相�
 - QEMU WASM 及链接依赖保留各自 GPL/LGPL/宽松许可。站点随执行文件提供
   `platform/runtime/qemu/NOTICE` 和 `corresponding-source.tar.xz`，包含修改后的
   QEMU、完整补丁/构建配方、依赖来源及许可；重新分发时必须保留这些材料。
-- 仓库和 Pages artifact 不打包 ROM、官方固件或派生 Flash。公开下载地址不被
-  当作再分发授权；它们只在访问者浏览器取得、校验并使用。
+- QEMU-WASM 的产物与仓库不打包板级 ROM、官方固件或派生 Flash。原版固件由访问者
+  浏览器取得并校验。混合导出的 esp32sim ROM 遵循上文的来源、许可和哈希校验。
 
 ## 本地重建与验收
 
