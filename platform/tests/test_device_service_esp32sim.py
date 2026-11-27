@@ -17,12 +17,33 @@ from device_service_specs import load_device_specs
 class Esp32SimTests(unittest.TestCase):
     def test_catalog_selects_native_runtime_only_for_the_migrated_boards(self):
         selected = {name: spec.default_runtime for name, spec in load_device_specs().items()}
-        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, {"cores3", "cardputer-adv"})
+        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"},
+                         {"cores3", "cardputer-adv", "m5stick", "stickt2"})
         self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")
         self.assertEqual(set(runtime.BOARDS), set(selected) - {"cardputer-zero"})
         self.assertEqual(runtime.BOARD_VARIANTS["basic-v27"]["flash-4mb"].flash, 4 << 20)
         self.assertEqual(runtime.BOARD_VARIANTS["core2"]["axp192"].name, "m5stack-core2-axp192")
+
+    def test_native_only_defaults_advertise_their_session_capabilities(self):
+        service = DeviceService.__new__(DeviceService)
+        service.specs = load_device_specs()
+        for dev in ("m5stick", "stickt2"):
+            with self.subTest(device=dev), patch.object(runtime.Installation, "ready", return_value=True):
+                service._legacy_review_catalog = False
+                row = service.get_device(dev)
+                self.assertTrue(row["creatable"])
+                self.assertIsNone(row["reason"])
+                for feature in ("flash", "serial", "screenshot", "input"):
+                    self.assertTrue(row["features"][feature], feature)
+                caps = service.get_device_capabilities(dev)
+                self.assertEqual(caps["model_status"], "supported")
+                self.assertEqual(caps["runtime"]["default_mode"], "esp32sim")
+                service._legacy_review_catalog = True
+                row = service.get_device(dev)
+                self.assertFalse(row["creatable"])
+                self.assertFalse(row["features"]["flash"])
+                self.assertEqual(service.get_device_capabilities(dev)["model_status"], "unsupported")
 
     def test_spawn_command_uses_owned_files_and_private_descriptor(self):
         installation = runtime.Installation(Path("/asset/esp32sim"), Path("/asset/rom"), Path("/asset/manifest"))
@@ -173,3 +194,15 @@ class Esp32SimTests(unittest.TestCase):
         data = consumer.request("frame")
         server.join(timeout=2)
         self.assertEqual(runtime.decode_frame(data, board), (240, 135, pixels))
+
+    def test_poweroff_record_survives_control_eof(self):
+        owner, guest = socket.socketpair()
+        self.addCleanup(guest.close)
+        consumer = runtime.Control(owner, lambda _: None, lambda *_: None)
+        self.addCleanup(consumer.close)
+        body = b"\x07\x01" + struct.pack("<HH", 80, 160) + b"\x00\x00" * (80 * 160)
+        guest.sendall(b"\x82\x7e" + struct.pack(">H", len(body)) + body)
+        guest.shutdown(socket.SHUT_WR)
+        consumer.reader.join(timeout=2)
+        self.assertTrue(consumer.closed)
+        self.assertEqual(consumer.poweroff_frame, body[1:])

@@ -489,6 +489,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                     f"backend mode {row.get('mode')} is not enabled "
                     "for this service"
                 )
+        catalog_runtime = source.get("runtime", {})
         specs[device_id] = DeviceSpec(
             id=device_id,
             name=profile.get("name", device_id),
@@ -549,7 +550,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             reason=reason,
             default_runtime=(
                 ESP32SIM_RUNTIME
-                if source_by_id.get(device_id, {}).get("runtime", {}).get("backend") == ESP32SIM_BACKEND
+                if (catalog_runtime.get("backend") == ESP32SIM_BACKEND
+                    or catalog_runtime.get(ESP32SIM_RUNTIME, {}).get("default") is True)
                 else "qemu"
             ),
             require_machine_probe=profile.get("require_machine_probe") is True,

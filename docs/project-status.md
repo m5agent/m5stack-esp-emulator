@@ -2,12 +2,14 @@
 
 日期：`2026-11-27`
 
-CoreS3 与 Cardputer-ADV 的 Device Service 默认使用原生 `esp32sim`，
-`runtime=qemu` 可选择冻结路径。Tab5 支持原生 esp32sim 的 GT911/ILI9881C
+CoreS3、Cardputer-ADV、M5Stick 与 StickT2 的 Device Service 默认使用原生
+`esp32sim`。CoreS3 与 Cardputer-ADV 可用 `runtime=qemu` 选择冻结路径。
+Tab5 支持原生 esp32sim 的 GT911/ILI9881C
 与 ST7123，在经同固件对照验收的 UIFlow2 v2.5.4 和 Maker Fighter 1.4
 面板组合上选择新默认。其他 Tab5 固件及需要旧版音频等能力的请求沿用 esp-emu。
-35 款 ESP32 目录设备提供显式原生 `runtime=esp32sim` 板型。新增设备保留
-原生默认选择。浏览器工作台在 CoreS3、Cardputer-ADV 和 Cardputer K132
+35 款 ESP32 目录设备提供原生 `runtime=esp32sim` 板型。其余双后端设备保留
+原生默认选择。原生服务提供[双租约无线配对](device-service-api.md#paired-esp32sim-radios)，
+受支持的来宾断电会结束租约并保留最终帧。浏览器工作台在 CoreS3、Cardputer-ADV 和 Cardputer K132
 之外增加 S3、经典 ESP32 和 NanoC6 的逐板 esp32sim WASM 配置。
 浏览器默认及其限制见[逐板来宾验证](validation-ledger.md#2026-11-27esp32sim-wasm-逐板验收)。
 Cardputer 的浏览器默认保留 QEMU-WASM。

@@ -55,6 +55,7 @@ from device_service_create_recovery import (  # noqa: E402
     PROTOCOL as REVIEW_CREATE_PROTOCOL, SessionCreateRecovery, parse_reconcile, review_expiration,
 )
 import device_service_esp32sim as esp32sim
+import device_service_radio_pair as radio_pair
 from device_service_errors import ServiceError  # noqa: E402
 from device_service_fs_fixture import (  # noqa: E402
     MAX_FS_FIXTURE_BYTES,
@@ -228,6 +229,7 @@ from device_service_specs import (  # noqa: E402, F401
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu, padded_image  # noqa: E402
 from evidence_store import (  # noqa: E402
     DEFAULT_EVIDENCE_RETENTION_SECONDS,
+    MAX_EVIDENCE_BYTES,
     EvidenceStore,
     EvidenceStoreError,
 )
@@ -11272,8 +11274,9 @@ class Esp32SimDeviceSession(DeviceSession):
     """Device Service lease backed by the private esp32sim control stream."""
 
     def __init__(self, *args, board=None, speaker_capture=False, microphone_wav_artifact_id=None,
-                 camera_image_artifact_id=None, **kwargs):
+                 camera_image_artifact_id=None, radio_slot=None, **kwargs):
         self.control = None
+        self._radio_slot = radio_slot
         self._console_peer = None
         self._capture_speaker = speaker_capture
         self._mic = microphone_wav_artifact_id
@@ -11352,14 +11355,22 @@ class Esp32SimDeviceSession(DeviceSession):
                 network=self.network_config,
                 pcap=self.network_pcap if self.network_config else None,
             )
+            medium = self._radio_slot.medium if self._radio_slot else None
+            if self._radio_slot:
+                command += self._radio_slot.arguments()
             with self.stdout_path.open("wb") as stdout, self.stderr_path.open("wb") as stderr:
                 self._check_cancelled()
-                self._proc = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL,
-                                              stdout=stdout, stderr=stderr, pass_fds=(child.fileno(),))
+                self._proc = subprocess.Popen(
+                    command, cwd=ROOT, stderr=stderr, pass_fds=(child.fileno(),),
+                    stdin=subprocess.PIPE if medium else subprocess.DEVNULL,
+                    stdout=subprocess.PIPE if medium else stdout,
+                )
             child.close()
             self.pid = self._proc.pid
             self.process_start_token = inspect_process(self.pid)["start_token"]
             self.control = esp32sim.Control(controller, self._receive_text, self._receive_audio)
+            if medium:
+                medium.attach(self._radio_slot.index, self._proc, self._receive_radio_log, self._request_failure)
             hello = self.control.request("hello")
             if hello.get("protocol") != identity["control_protocol"] or hello.get("board") != self.board.name:
                 raise ServiceError("runtime_identity_mismatch", "esp32sim control board or protocol differs from the pinned runtime", 503)
@@ -11376,8 +11387,19 @@ class Esp32SimDeviceSession(DeviceSession):
             if self.control is None:
                 controller.close()
 
+    def _receive_radio_log(self, data):
+        with self.serial0.open("ab") as stream:
+            stream.write(data)
+
     def _terminate_runtime(self):
+        medium = self._radio_slot.medium if self._radio_slot else None
+        process = self._proc
+        if medium:
+            medium.close()
         super()._terminate_runtime()
+        if medium and process is not None:
+            for pipe in (process.stdin, process.stdout):
+                pipe.close()
         if self._console_peer is not None:
             try:
                 self._console_peer.shutdown(socket.SHUT_RDWR)
@@ -11412,33 +11434,65 @@ class Esp32SimDeviceSession(DeviceSession):
             "pcap_available": self.network_pcap.is_file(),
         }
 
+    def _observe_guest_poweroff(self) -> bool:
+        with self._lock:
+            if (self.state not in {"booting", "running"} or self._stop_event.is_set()
+                    or self.control is None or self.control.poweroff_frame is None):
+                return False
+        self.stop(purge=False, retain_flash=False)
+        return True
+
+    def _handle_process_exit(self, returncode, *, reason=None):
+        with self._lock:
+            # A process exit can race the private control reader. Let it drain
+            # before classifying the exit, and let the janitor own a power-off.
+            if self.control is not None and (
+                    not self.control.closed or self.control.poweroff_frame is not None):
+                return
+            super()._handle_process_exit(returncode, reason=reason)
+
+    def _finish_stop(self, purge=False, *, retain_flash=None):
+        with self._lock:
+            receipt = self.control.poweroff_frame if self.control is not None else None
+            if receipt is not None and self.stop_reason is None:
+                if receipt:
+                    self._persist_frame(self._decode_frame_metrics(receipt, analyze=True))
+                self.stop_reason = "guest_poweroff"
+                self._record_event("guest_poweroff", source="esp32sim-board-power")
+        return super()._finish_stop(purge=purge, retain_flash=retain_flash)
+
     def frame_metrics(self, *, analyze=True, force_persist=False):
         with self._lock:
-            if self.state not in {"booting", "running"} or self.control is None:
+            if (self.state not in {"booting", "running"} or self.control is None
+                    or self.stop_reason == "guest_poweroff"):
                 persisted = self.persisted_frame_metrics()
                 if persisted:
                     return persisted
                 raise ServiceError("frame_unavailable", "esp32sim framebuffer is unavailable", 409)
-            width, height, raw = esp32sim.decode_frame(self.control.request("frame"), self.board)
-            captured_at, captured_monotonic = iso_now(), time.monotonic()
-            pixels = rgb565_to_rgb(raw)
-            path = self.dir / f"frame-{uuid.uuid4().hex}.png"
-            try:
-                write_rgb_png(path, width, height, pixels)
-                png = path.read_bytes()
-            finally:
-                path.unlink(missing_ok=True)
-            result = {
-                "png": png, "width": width, "height": height, "png_bytes": len(png),
-                "captured_at": captured_at, "captured_monotonic": captured_monotonic,
-                "source": "live", "coordinate_space": "panel",
-                "presentation": FramePresentation().as_dict(), **self._frame_program_context(),
-            }
-            if analyze:
-                result["nonblack_pixels"], result["unique_colors"] = rgb_metrics(pixels)
-            if force_persist or captured_monotonic - self._last_frame_persisted_at >= 1:
+            result = self._decode_frame_metrics(self.control.request("frame"), analyze=analyze)
+            if force_persist or result["captured_monotonic"] - self._last_frame_persisted_at >= 1:
                 self._persist_frame(result)
             return result
+
+    def _decode_frame_metrics(self, data, *, analyze):
+        width, height, raw = esp32sim.decode_frame(data, self.board)
+        captured_at, captured_monotonic = iso_now(), time.monotonic()
+        pixels = rgb565_to_rgb(raw)
+        path = self.dir / f"frame-{uuid.uuid4().hex}.png"
+        try:
+            write_rgb_png(path, width, height, pixels)
+            png = path.read_bytes()
+        finally:
+            path.unlink(missing_ok=True)
+        result = {
+            "png": png, "width": width, "height": height, "png_bytes": len(png),
+            "captured_at": captured_at, "captured_monotonic": captured_monotonic,
+            "source": "live", "coordinate_space": "panel",
+            "presentation": FramePresentation().as_dict(), **self._frame_program_context(),
+        }
+        if analyze:
+            result["nonblack_pixels"], result["unique_colors"] = rgb_metrics(pixels)
+        return result
 
     def validate_input(self, payload):
         op, args, settle = esp32sim.input_command(self.spec.id, payload, board=self.board)
@@ -11601,6 +11655,7 @@ class DeviceService:
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
+        self._legacy_review_catalog = os.environ.get("M5_SERVICE_LEGACY_REVIEW_CATALOG") == "1"
         self.api_token = api_token
         self.previous_api_token = previous_api_token
         self.api_tokens = tuple(
@@ -12254,8 +12309,12 @@ class DeviceService:
     def _public_device(self, spec: DeviceSpec) -> dict:
         reference_available = spec.reference_available
         backend_ready = spec.supported and spec.backend_ready
-        default_runtime = spec.default_runtime
+        # The pinned reviewer plans explicit QEMU and network sessions using
+        # the top-level legacy catalog fields.
+        review_catalog = getattr(self, "_legacy_review_catalog", False)
+        default_runtime = "qemu" if review_catalog else spec.default_runtime
         native_runtime = default_runtime == esp32sim.RUNTIME
+        native_only = native_runtime and not spec.supported
         board = esp32sim.BOARDS.get(spec.id)
         native_ready = spec.esp32sim_installation.ready(board) if board else False
         readiness = native_ready if native_runtime else backend_ready
@@ -12272,8 +12331,8 @@ class DeviceService:
             "soc": spec.soc,
             "sku": spec.sku,
             "device_codes": spec.device_codes,
-            "supported": spec.supported or board is not None,
-            "creatable": spec.supported and readiness,
+            "supported": spec.supported or (not review_catalog and board is not None),
+            "creatable": readiness,
             "backend_ready": readiness,
             **({"runtime": default_runtime, "legacy_backend": spec.backend,
                 "runtimes": {esp32sim.RUNTIME: {
@@ -12282,6 +12341,8 @@ class DeviceService:
                                  "frame_size": list(board.size) if board.size else None,
                                  "variants": list(esp32sim.TAB5_PANELS if board.is_tab5 else
                                                   esp32sim.BOARD_VARIANTS.get(spec.id, {})),
+                                 "radio_pair_modes": [mode for mode, device in radio_pair.PAIR_MODES.items()
+                                                      if device == spec.id],
                                  **({"default_firmware_sha256s": [
                                      digest for digest, panel in esp32sim.TAB5_DEFAULT_FIRMWARE.items()
                                      if (self._tab5_sd_board(digest) or "gt911-ili9881c") == panel
@@ -12317,10 +12378,10 @@ class DeviceService:
                 "complete": spec.peripheral_status == "simulated",
             },
             "features": {
-                "flash": spec.supported,
-                "serial": spec.supported,
-                "screenshot": spec.supported and spec.has_display,
-                "input": spec.supported,
+                "flash": spec.supported or native_only,
+                "serial": spec.supported or native_only,
+                "screenshot": (spec.supported or native_only) and spec.has_display,
+                "input": spec.supported or native_only,
                 "qom": spec.supported and spec.service_kind == "qemu" and not native_runtime,
                 "device_state": bool(spec.state_probes) and not native_runtime,
                 "storage": spec.supported and (native_runtime or (spec.has_sd_card if spec.service_kind != "tab5"
@@ -12339,7 +12400,9 @@ class DeviceService:
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
             "network_status": spec.network_status,
-            "reason": spec.reason or (f"QEMU does not provide machine {machine}" if machine else None),
+            "reason": None if native_only else (
+                spec.reason or (f"QEMU does not provide machine {machine}" if machine else None)
+            ),
         }
 
     def list_devices(self, include_unsupported: bool = True) -> dict:
@@ -12425,7 +12488,12 @@ class DeviceService:
 
     def get_device_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
-        if not spec.supported:
+        native_only = (not spec.supported and spec.default_runtime == esp32sim.RUNTIME
+                       and not getattr(self, "_legacy_review_catalog", False))
+        if native_only:
+            board = esp32sim.BOARDS[device_id]
+            local_status = "ready" if spec.esp32sim_installation.ready(board) else "files_missing"
+        elif not spec.supported:
             local_status = "not_applicable"
         elif spec.backend_ready:
             local_status = "ready"
@@ -12471,11 +12539,12 @@ class DeviceService:
             "schema_version": 1,
             "device_id": spec.id,
             "soc": spec.soc,
-            "model_status": "supported" if spec.supported else "unsupported",
-            "model_reason": None if spec.supported else spec.reason,
+            "model_status": "supported" if spec.supported or native_only else "unsupported",
+            "model_reason": None if spec.supported or native_only else spec.reason,
             "runtime": {
-                "default_mode": "qemu" if spec.supported else None,
-                "backend": spec.backend, "machine": spec.machine or None,
+                "default_mode": esp32sim.RUNTIME if native_only else ("qemu" if spec.supported else None),
+                "backend": esp32sim.BACKEND if native_only else spec.backend,
+                "machine": board.name if native_only else spec.machine or None,
                 "local_status": local_status,
                 "reference_available": spec.reference_available,
             },
@@ -12933,7 +13002,85 @@ class DeviceService:
         if getattr(session, "management_binding", None) != binding:
             raise ServiceError("session_managed_by_preview", "idempotent session binding differs", 409)
 
-    def create_session(self, payload: dict, *, _management_binding: dict | None = None) -> dict:
+    def create_radio_pair(self, payload: dict) -> dict:
+        mode, firmware_ids = radio_pair.parse_pair(payload)
+        device = radio_pair.PAIR_MODES[mode]
+        medium = radio_pair.CoojaPair() if mode in radio_pair.COOJA_MODES else None
+        ports = None if medium else radio_pair.allocate_loopback_ports()
+        sessions = []
+        try:
+            # Allocate both ordinary lease slots before starting either radio.
+            with self._lock:
+                for index, firmware_id in enumerate(firmware_ids):
+                    member = {
+                        "device_id": device, "firmware_id": firmware_id, "runtime": esp32sim.RUNTIME,
+                        **({"ttl_seconds": payload["ttl_seconds"]} if "ttl_seconds" in payload else {}),
+                    }
+                    row = self.create_session(member, _radio_slot=radio_pair.RadioSlot(mode, index, ports, medium))
+                    sessions.append(self._sessions[row["session_id"]])
+                owner = sessions[0]
+                record = {"pair_id": owner.id, "mode": mode, "session_ids": [session.id for session in sessions]}
+                atomic_write_json(owner.dir / "radio-pair.json", record)
+                if medium:
+                    medium.trace_path = owner.dir / "radio-pair.ndjson"
+            for session in sessions:
+                session._record_event("radio_pair_linked", pair_id=owner.id, mode=mode)
+                session.start()
+        except Exception:
+            self._stop_radio_members(sessions)
+            raise
+        return {**record, "sessions": [session.snapshot() for session in sessions]}
+
+    def _get_radio_pair(self, pair_id: str):
+        if not re.fullmatch(r"[0-9a-f]{32}", pair_id):
+            raise ServiceError("unknown_radio_pair", "Radio pair was not found", 404)
+        try:
+            path = self.get_session(pair_id).dir
+            record = json.loads((path / "radio-pair.json").read_text())
+            sessions = [self.get_session(session_id) for session_id in record["session_ids"]]
+        except (FileNotFoundError, ServiceError) as error:
+            raise ServiceError("unknown_radio_pair", "Radio pair was not found", 404) from error
+        return path, record, sessions
+
+    def get_radio_pair(self, pair_id: str) -> dict:
+        _, record, sessions = self._get_radio_pair(pair_id)
+        return {**record, "sessions": [session.snapshot() for session in sessions]}
+
+    def stop_radio_pair(self, pair_id: str) -> dict:
+        _, record, sessions = self._get_radio_pair(pair_id)
+        return {**record, "sessions": self._stop_radio_members(sessions)}
+
+    @staticmethod
+    def _stop_radio_members(sessions):
+        results = []
+        failure = None
+        for session in sessions:
+            try:
+                results.append(session.stop(purge=False, retain_flash=False))
+            except Exception as error:
+                # Pursue cleanup for both leases even if one is pending.
+                failure = failure or error
+        if failure is not None:
+            raise failure
+        return results
+
+    def radio_pair_evidence(self, pair_id: str) -> bytes:
+        path, record, sessions = self._get_radio_pair(pair_id)
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w") as archive:
+            archive.writestr("pair.json", json.dumps(record, indent=2))
+            for index, session in enumerate(sessions):
+                bundle = session.evidence_bundle()
+                if output.tell() + len(bundle) > MAX_EVIDENCE_BYTES - radio_pair.MAX_TRACE_BYTES - 4096:
+                    raise ServiceError("radio_pair_evidence_too_large", "Pair evidence exceeds the service archive limit", 413)
+                archive.writestr(f"member-{index + 1}.zip", bundle)
+            trace = path / "radio-pair.ndjson"
+            if trace.is_file() and all(session._runtime_permission_allowed("serial.read") for session in sessions):
+                archive.write(trace, "radio.ndjson")
+        return output.getvalue()
+
+    def create_session(self, payload: dict, *, _management_binding: dict | None = None,
+                       _radio_slot: radio_pair.RadioSlot | None = None) -> dict:
         if any(key in payload for key in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256", "program_capabilities", "runtime_capabilities", "loader_capabilities", "main_mpy", "mpy_entrypoint", "program_bootstrap")):
             raise ServiceError("invalid_request", "Preview management fields are internal and cannot be supplied in a session body", 400)
         if _management_binding is not None:
@@ -12968,13 +13115,11 @@ class DeviceService:
         spec = self.specs.get(device_id)
         if spec is None:
             raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
-        if not spec.supported and not (
-            payload.get("runtime") == esp32sim.RUNTIME and device_id in esp32sim.BOARDS
-        ):
+        runtime = payload.get("runtime", QEMU_WIFI_RUNTIME if uiflow_startup else spec.default_runtime)
+        if not spec.supported and not (runtime == esp32sim.RUNTIME and device_id in esp32sim.BOARDS):
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
-        runtime = payload.get("runtime", QEMU_WIFI_RUNTIME if uiflow_startup else spec.default_runtime)
         if "runtime" not in payload and device_id == "tab5" and isinstance(payload.get("firmware_id"), str):
             firmware = self.firmware.get(payload["firmware_id"])
             if firmware["device_id"] == device_id:
@@ -13901,7 +14046,8 @@ class DeviceService:
                         "speaker_capture": speaker_capture,
                         "microphone_wav_artifact_id": microphone_artifact_id,
                     } if session_class in {Tab5DeviceSession, Esp32SimDeviceSession} else {}),
-                    **({"camera_image_artifact_id": camera_artifact_id, "board": native_board} if use_esp32sim else {}),
+                    **({"camera_image_artifact_id": camera_artifact_id, "board": native_board,
+                        "radio_slot": _radio_slot} if use_esp32sim else {}),
                 )
             except Exception:
                 self.worker.release_lease(
@@ -13944,7 +14090,8 @@ class DeviceService:
         session._observation_registered = True
         self._observe_session(session)
         try:
-            session.start()
+            if _radio_slot is None:
+                session.start()
         except Exception:
             session.stop(purge=False)
             raise

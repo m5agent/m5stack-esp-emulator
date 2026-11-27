@@ -99,6 +99,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_input.py` | 原生语义化按键、键盘、组合键和触摸的校验与 QMP 提交 | Device Service session input |
 | `platform/tools/device_service_esp32sim.py` | 目录板型变体、原生运行时 pin、ROM/C6 资产、启动命令、私有控制协议与板级输入 | `Esp32SimDeviceSession`、`scripts/bootstrap-esp32sim-runtime.py` 与 `scripts/esp32sim-service-control.patch` |
+| `platform/tools/device_service_radio_pair.py` | 原生 esp32sim 双租约无线配对、LoRa/CC1101 同步参数、NanoC6 Cooja 调度与控制器证据 | `DeviceService.create_radio_pair`、`/api/v1/radio-pairs` 与配对证据 ZIP |
 | `platform/tools/device_service_encoder.py` | Dial 正交控制器目标与物理边沿读回 | Device Service session input、`test_device_service_encoder.py` |
 | `platform/tools/device_service_fs_fixture.py` | 绑定镜像身份和可写数据分区的 LittleFS/SPIFFS 夹具校验 | Device Service session storage、`test_device_service_fs_fixture.py` |
 | `platform/tools/device_service_identity.py` | 持久虚拟设备身份、显式 MAC 解析和私有原子存储；不修改固件或替云端注册 | `test_device_service_identity.py`；Device Service admission / eFuse / NIC |

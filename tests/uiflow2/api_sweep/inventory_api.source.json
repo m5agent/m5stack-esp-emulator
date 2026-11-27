@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.102.0",
-  "contract_sha256": "1728a32a6dec85bdab1d79568ccc7fa69e549f64089b8635b81239afebde2950",
+  "contract_sha256": "5c3534d2c9e26674c684b40a781e85a9bcd841843902ec594745d0ef2ada4a48",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -1344,6 +1344,58 @@
         "POST /sessions/{session_id}/audio.inject missing-resource"
       ],
       "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /radio-pairs",
+      "method": "POST",
+      "path": "/radio-pairs",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-radio-pair"
+      ],
+      "case_ids": [
+        "POST /radio-pairs invalid-mode"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /radio-pairs/{pair_id}",
+      "method": "GET",
+      "path": "/radio-pairs/{pair_id}",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-radio-pair"
+      ],
+      "case_ids": [
+        "GET /radio-pairs/{pair_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "DELETE /radio-pairs/{pair_id}",
+      "method": "DELETE",
+      "path": "/radio-pairs/{pair_id}",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-radio-pair"
+      ],
+      "case_ids": [
+        "DELETE /radio-pairs/{pair_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /radio-pairs/{pair_id}/evidence",
+      "method": "GET",
+      "path": "/radio-pairs/{pair_id}/evidence",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-radio-pair"
+      ],
+      "case_ids": [
+        "GET /radio-pairs/{pair_id}/evidence missing-resource"
+      ],
+      "positive_status": "NOT RUN"
     }
   ],
   "safe_cases": [
@@ -2635,6 +2687,50 @@
       "operation_id": "POST /sessions/{session_id}/audio.inject",
       "method": "POST",
       "path": "/sessions/ffffffffffffffffffffffffffffffff/audio.inject",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /radio-pairs invalid-mode",
+      "operation_id": "POST /radio-pairs",
+      "method": "POST",
+      "path": "/radio-pairs",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "payload": {
+        "mode": "none",
+        "firmware_ids": []
+      }
+    },
+    {
+      "case_id": "GET /radio-pairs/{pair_id} missing-resource",
+      "operation_id": "GET /radio-pairs/{pair_id}",
+      "method": "GET",
+      "path": "/radio-pairs/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "DELETE /radio-pairs/{pair_id} missing-resource",
+      "operation_id": "DELETE /radio-pairs/{pair_id}",
+      "method": "DELETE",
+      "path": "/radio-pairs/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /radio-pairs/{pair_id}/evidence missing-resource",
+      "operation_id": "GET /radio-pairs/{pair_id}/evidence",
+      "method": "GET",
+      "path": "/radio-pairs/ffffffffffffffffffffffffffffffff/evidence",
       "coverage": "rejection-only",
       "expected_status": [
         404

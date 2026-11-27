@@ -47,12 +47,18 @@ The device list reports `runtime`, `backend_ready`, `creatable` and
 per-runtime readiness. The other ESP32 catalog models accept explicit
 `runtime="esp32sim"` where the runtime is provisioned. The esp32sim entry
 exposes the board, native frame size and allowed `runtime_variant` values.
-M5Stick and StickT2 require explicit esp32sim because their QEMU matrix modes
-do not offer service sessions. See the [migration guide](esp32sim-migration.md) and
+M5Stick and StickT2 default to esp32sim. Their QEMU firmware and kernel
+regressions run outside the service. See the [migration guide](esp32sim-migration.md) and
 [native installation](deployment.md#部署-esp32sim-设备服务).
 The service uses `.work/esp32sim-runtime` by default.
 `M5_ESP32SIM_RUNTIME_DIR` and `ESP32SIM_ROM_DIR` select operator-owned
 installation and ROM directories.
+
+Operators serving a QEMU-pinned firmware reviewer can set
+`M5_SERVICE_LEGACY_REVIEW_CATALOG=1` on its dedicated worker. The top-level
+device fields then describe QEMU admission and capabilities. The `runtimes`
+map still reports runtime-specific readiness. Session creation and explicit
+runtime selection use their normal contract.
 
 The loader checks boot and app chip IDs, Flash bounds, partitions and
 declared PSRAM requirements. CoreS3 has 16 MiB Flash and 8 MiB PSRAM.
@@ -105,6 +111,42 @@ the source commit, binary and ROM SHA-256, and board name. Request `audio` and
 The service owns one private control socket per guest; closing that socket on
 service exit revokes the guest. Restart restores history without reattaching
 to an esp32sim process.
+
+When the board model reports a guest power-off, the lease ends in `stopped`
+with `stop_reason="guest_poweroff"`. The evidence keeps the terminal panel
+frame and serial output.
+
+#### Paired esp32sim radios
+
+`POST /api/v1/radio-pairs` creates two esp32sim leases on the same virtual
+radio link. Upload and register each board-matched firmware first. The
+request order sets the member order in the response and in the evidence ZIP.
+
+```json
+{"mode":"papermono-lora","firmware_ids":["<sender firmware ID>","<receiver firmware ID>"],"ttl_seconds":120}
+```
+
+The mode selects the board and radio. The device row advertises its modes in
+`runtimes.esp32sim.radio_pair_modes`.
+
+| Modes | Board and link |
+| --- | --- |
+| `cap-lora1262`, `cap-lora868`, `cap-cc1101` | Cardputer-ADV and the selected CAP on the fork's guest-time TCP link |
+| `papermono-lora`, `nesso-lora` | PaperMono or Nesso N1 using the built-in SX1262 on the guest-time TCP link |
+| `nanoc6-thread`, `nanoc6-zigbee` | Two NanoC6 controllers on the same virtual 802.15.4 channel via Cooja |
+
+The request consumes two normal lease slots on one Device Service worker.
+The `202` response contains `pair_id`, `mode`, `session_ids` and `sessions`.
+Poll `GET /api/v1/radio-pairs/{pair_id}` and use the normal session input,
+serial and framebuffer routes on each member. Application delivery requires
+a receiver-side marker or frame assertion.
+
+Download `GET /api/v1/radio-pairs/{pair_id}/evidence` before stopping. The
+ZIP contains `pair.json` and the two member evidence ZIPs. Cooja pairs add a
+bounded controller timing trace when both leases allow serial reads.
+`DELETE /api/v1/radio-pairs/{pair_id}` stops both leases and keeps their history.
+The link runs in one service process. After a restart, retained members are
+available through the same pair routes.
 
 ### Official UIFlow2 cloud startup
 

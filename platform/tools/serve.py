@@ -1269,6 +1269,17 @@ class Handler(SimpleHTTPRequestHandler):
                         "unknown remote worker action",
                         404,
                     )
+            elif method == "POST" and parts == ["radio-pairs"]:
+                response = service.create_radio_pair(self._read_json(max_bytes=4096, reject_duplicate_keys=True))
+                status = 202
+            elif len(parts) == 2 and parts[0] == "radio-pairs" and method in {"GET", "DELETE"}:
+                response = service.get_radio_pair(parts[1]) if method == "GET" else service.stop_radio_pair(parts[1])
+            elif method == "GET" and len(parts) == 3 and parts[0] == "radio-pairs" and parts[2] == "evidence":
+                self._send_bytes(
+                    service.radio_pair_evidence(parts[1]), "application/zip",
+                    extra_headers={**headers, "Content-Disposition": f'attachment; filename="radio-pair-{parts[1]}.zip"'},
+                )
+                return
             elif method == "POST" and parts == ["sessions", "reconcile-create"]:
                 if not (self.api_token or self.previous_api_token):
                     raise ServiceError("session_create_recovery_auth_required",
