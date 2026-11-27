@@ -2,6 +2,12 @@
 
 日期：`2026-11-25`
 
+2026-11-26，CoreS3 与 Cardputer-ADV 的 Device Service 默认运行时切换到原生
+`esp32sim`。两款设备保留显式 `runtime=qemu`，其他设备继续使用现有路径。
+安装、输入、媒体、可信宿主网络和证据边界见
+[Device Service API](device-service-api.md#native-esp32sim-sessions)；
+QEMU 的源码与重启依赖见[封存记录](qemu-backend-freeze.md)。
+
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，
 [验证台账](validation-ledger.md)保存原版固件、运行时、操作和结果的精确身份。
 [工作流总台账](workstreams.md)提供领域分工及相关 Task ID。

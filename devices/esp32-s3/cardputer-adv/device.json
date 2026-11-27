@@ -56,11 +56,12 @@
     "cutout": true
   },
   "runtime": {
-    "backend": "qemu-esp32s3",
+    "backend": "esp32sim-esp32s3",
+    "legacy_backend": "qemu-esp32s3",
     "chip": "esp32s3",
     "status": "reference-ready",
     "display_protocol": "spi-st7789v2",
-    "execution": "native-qemu",
+    "execution": "native-esp32sim",
     "validation": {
       "date": "2026-10-23",
       "status": "display-keyboard-peripherals-wifi-ble-pass",
