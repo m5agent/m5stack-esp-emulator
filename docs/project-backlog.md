@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-11-25`
+日期：`2026-11-27`
 
 本文是未完成工作、依赖和验收条件的唯一队列。当前能力见
 [项目当前状态](project-status.md)，运行历史和精确身份见
@@ -30,7 +30,7 @@
 恢复执行后先按下列 P0 的最小交付推进，再处理 P1、P2；依赖未满足时保持阻塞，不宣称已开始。
 `NET-04`、`SVC-01/02` 的跨主机验收需要可独立失联和 drain 的节点；
 `RUNTIME-02`、`TAB5-01` 需要相应后端或权威固件资料；`FW-02` 的 live eFuse/生产 key 需要明确授权。
-浏览器继续采用定制 C/QEMU 单一架构，Rust 演示与独立 JIT 仅研究；Pages 不自动跟随 main。
+浏览器保留已准入的 C/QEMU 路径，CoreS3 与 Cardputer-ADV 另有 esp32sim；Pages 不自动跟随 main。
 
 PaperDIY 的原版 CrossPoint 仍需按原 BIN、实际配置输入和同会话应用输出验证网络。
 已具备的原生 STA 板级准入仅关闭关联/DHCP 资格前置，不能替代其 TCP/UDP、
@@ -74,6 +74,7 @@ Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值；host 接入战役不重开 | 逐设备视觉回归；仅视觉/组合件不继承独立 host 或硬件结果 |
 | `UI-02` | 进行中 | 更多固定固件、浏览器性能/长期稳定性及逐固件 CPU、输入、存储与复位缺口 | 同 Flash/runtime/profile/input/frame 绑定；native 或 compiled_profiles 不授浏览器 PASS |
 | `UI-03` | 进行中 | 正式托管同版本完整串行门禁、独立 HTTPS 编辑器/输入与偶发启动/复位故障 | 保留真实输入、输出、清场和历次失败；局部 HTTPS 例不覆盖全设备 |
+| `UI-04` | 待做 | 稳定托管 QEMU-WASM 门禁的 PaperDIY 复位和 Atom Matrix 编辑器、按键场景 | 保留失败输入、来宾和 Worker 证据，恢复同版本全部 72 项 hosted PASS |
 | `UNIT-01` | 已完成（virtual-device） | 接入战役已完成；仅保留 `UNIT-DEFER-01` 和下文预览/原驱动覆盖的独立余量 | 不把视觉模型、主机通过或已选组合结果转授未验 Unit/主机 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动、USB/网络竞态及摄像头/音频/电源/键盘长期回归 | 独立 Linux 后端的功能与长期边界明确，不继承 ESP32 结果 |
 
@@ -270,6 +271,11 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 - **UI-02**：补更多固定固件和长期稳定性，定位 StackChan 原舞蹈固件 Core1 ROM 字面量启动异常与独立触摸，官方 Factory WDT/异常，其它应用 CPU/触摸延迟、stock SDK C Timer coalescing 与 Flash 持久化。
 - 分别验 C6 RISC-V、P4 controller 数据面和 Linux ARM64 浏览器执行；保留 PaperMono 逻辑校准、StopWatch 触摸偏差、Cardputer CFG1 时序、Plus2 USB sleep/EXT0/RTC CRC、StackChan 其它固件/运动模式边界。
 - **UI-03**：完成正式托管同版本完整串行门禁及独立 HTTPS 编辑器/输入；处理 ADV 原厂键盘释放、初代 Cardputer 冷启 PIF 与其它偶发启动/复位，逐板性能和长期稳定性另验。
+- **UI-04**：在托管硬件 ANGLE runner 定位 PaperDIY 编辑器硬复位后 Worker 异常退出、
+  Atom Matrix 短按未被来宾采样、Atom Matrix 编辑器 `QMP qom-get timed out`。
+  保留 QMP/串口、Worker 异常和资源证据，先复验三条具体路径，再对同一发布基础
+  重跑完整托管门禁。Atom Matrix 按键需要验证来宾感知后释放的测试修复。
+  [失败运行与对照](validation-ledger.md#2026-11-27pages-托管门禁不稳定)。
 - 更多固件、短按负载、未取得的用户镜像与自然 PWR 回收仍独立开放。保留真实输入/输出/清场断言、失败对照和同层 Worker 生命周期；原生、编译板型或局部 HTTPS 例不授全板浏览器结果。[本地与托管边界](evidence/2026-11-14-pages-local-qualification/README.md)
 
 ### UI-02/03 文档例程 WASM 试点

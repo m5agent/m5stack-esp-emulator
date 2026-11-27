@@ -155,12 +155,20 @@ Core2 另按仓库已有的稳定路径使用
 不要只复制 `index.html`：模型、字体、WASM、Worker、固件组合器和对应源码包
 都必须按 artifact 中的目录结构保留。
 
-仓库另有 `public-site-prepared-preview.yml` 应急预构建流程：只接受已有 release
-中的 `public-site-preview-live.tar.gz`，不重建运行时。使用前须对同一导出执行完整
-逐板浏览器门禁，记录源码、运行时、站点及压缩包 SHA；上传后读回校验，再部署并
-从实际 HTTPS 地址独立验证客体。该流程不替代 regular publication，不能把
-本机通过写成托管 runner 全板型 PASS。发布包须保留对应源码与许可，且不得含
-固件、ROM 或本机路径；构建配方的路径映射在生产者端执行，不能事后修改 WASM。
+仓库另有 `public-site-prepared-preview.yml` 应急预构建流程。它使用已有 release
+中的 `public-site-preview-live.tar.gz`，直接部署其中的静态站点。使用前须在同一
+完整导出上通过全部 72 个逐板浏览器用例，记录源码、运行时、站点及压缩包摘要。
+上传后下载压缩包核对摘要，再部署并从实际 HTTPS 地址回读资产清单、校验站点
+资产并独立验证来宾。记录中分别列出本机和托管 runner 的结果。
+
+应急包保留对应源码和许可。与标准混合导出一致时，允许随发布资产附带这一个
+ROM 文件：`platform/runtime/esp32sim/esp32s3_rev0_rom.elf`，949,552 字节，
+SHA-256 `c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd`。
+来源是 [Espressif esp-rom-elfs 20260528](https://github.com/espressif/esp-rom-elfs/releases/tag/20260528)，
+许可为 `Apache-2.0`。发布前按[标准引导器](../platform/tools/bootstrap_browser_runtime.py)
+核对 ELF、`runtime.json` 来源记录、`ROM_LICENSE` 与 `NOTICE`，在发布记录写明比对
+结果。ROM ELF 仅随静态发布资产交付，禁止提交 Git。发布包禁止包含来宾固件、
+其他 ROM 或本机路径。生产端须执行构建路径映射，保留原始 WASM 字节。
 
 CoreMatrix C158 的 ESP32-C61 使用单独固定的 RISC-V QEMU 来源、WASM、Worker
 和对应源码包。导出器的 `--qemu-c61-runtime` 在主 Xtensa 导出旁添加这个运行时。
