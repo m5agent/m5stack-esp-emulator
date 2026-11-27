@@ -127,8 +127,11 @@ try {
           row.before = await frame();
           row.firstFrameMs = await page.evaluate(()=>backendProbe.firstFrameMs);
         } else {
-          row.beforeLeds = await page.evaluate(() => backendProbe.qemuLeds || Object.values(backendProbe.leds || {}));
-          assert.equal(row.beforeLeds.length,25);
+          const initial = await page.waitForFunction(() => {
+            const colors = backendProbe.qemuLeds || Object.values(backendProbe.leds || {});
+            return colors.length===25 && colors.every(color=>color===0x204060) ? colors : null;
+          },null,{timeout:45000});
+          row.beforeLeds = await initial.jsonValue();
         }
         await press(true);
         try {

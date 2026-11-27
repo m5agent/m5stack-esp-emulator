@@ -29,7 +29,7 @@ const PROFILES = {
     probeSha256:'9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b',
     limitations:['点击模型后使用电脑键盘，方向键通过 Fn 层映射；F12 对应 G0。']},
   cardputer: {deviceId:'cardputer',board:'m5stack-cardputer',chip:'esp32s3',flashMb:8,psramMb:0,jit:true,
-    display:{width:240,height:135}, inputs:{touch:false}, execution:'browser-wasm', preferQemu:true,
+    display:{width:240,height:135}, inputs:{touch:false}, execution:'browser-wasm',
     referenceVersion:'v2.5.4', referenceSha256:'d9e1287eccb641863e7b1cc7cf057733592403d65aeec2d4b1fa4cb3e8b1b309',
     probeSha256:'2a086148973b22f6c7f289536c977e1e7968e17f7f02717c552088269ed3ac55',
     limitations:['支持 GPIO0 和物理键盘矩阵。']},

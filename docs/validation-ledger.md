@@ -68,11 +68,14 @@ Browser-WASM virtual-device validation。fork 源码
   QUALITY 刷新 16,995 ms，按键计数和新的面板帧均有观察。其更慢的
   墙钟反馈仍保留为默认后端选择条件。
 - Core2 与 StickC Plus2 在确切 PSRAM 容量下分别通过触摸及 A 键的画面计数。
-  Matrix 两版输出 25 灯的同色序列。StopWatch 修正为 466 × 466 面板帧。
+  ESP-IDF 来宾读回 2,097,152 与 8,388,608 字节，完成 2 MiB 分配边界和
+  HIMEM 页 127、128、255 的独立读写。Matrix 两版输出 25 灯同色序列。
+  StopWatch 修正为 466 × 466 面板帧。
 - StamPLC 的三键通过 I²C 扩展器接线，固定 A 键场景独立验证。
   AtomS3R-CAM 与 M12 各取得五个不同的来宾采集哈希及页面预览。
-  VoiceS3R 的同来宾输出包含非零 PCM。AtomS3U 按键驱动 RGB 变化。
-- Basic v2.7 的 4 MiB 固定例程验证 A、B、C 三键。M5Stick OLED 的
+  VoiceS3R 来宾输出包含非零 PCM，独立麦克风例程从同一型号收到 WAV
+  注入后的 3158 个非零字节。AtomS3U 按键驱动 RGB 变化。
+- Basic v2.7 的 4 MiB 和 16 MiB 固定例程均验证 A、B、C 三键。M5Stick OLED 的
   诊断固件验证 SH1107 真实 SPI 帧和按键。StickT2 诊断固件走真实
   ST7789 SPI、I²C 按压与有符号旋转。这两款仍需原厂固件冷启动复验。
 - Tab5 的 GT911/ILI9881C 原版 v2.5.3 来宾通过校验后的 C6 固件完成
@@ -85,10 +88,32 @@ Browser-WASM virtual-device validation。fork 源码
   QEMU-WASM UIFlow IRQ 场景保留为诊断，QMP 后的残留键码根因仍开放。
 - AtomU 和 Echo 的修正版 v2.5.4 诊断镜像分别到达约 0.50 和 0.52
   来宾秒，随后未继续发出定时状态，关闭前的输入未验收。
+  另一个 Arduino 固件在 AtomU 和 Echo 分别报告板型 130 和 142，
+  后续心跳停在约 0.12 和 0.14 来宾秒。两板仍未准入。
   StackChan 在同固件中曾正常读取多组舵机位置，后续有
   `servo Y write failed`，持续运动未验收。
 
-[逐批证据和复现](https://github.com/m5agent/agent-work-logs/tree/45cbea8fb33a3a75aefe758191bfdd3540eb5780/records/m5stack-esp-emulator/2026-11-27-esp32sim-browser-round2)
+同一工作台在 Chrome 中逐个运行完全相同的固定固件，采集 ready、输入计数
+延迟和首次输入前后的 RGB565 帧或 25 灯像素值。以下是一次墙钟样本，每个
+通过的运行均在 Stop 后确认实际 Worker 全部消失。
+
+| 板型 | 启动秒数（esp32sim / QEMU-WASM） | 输入毫秒（同顺序） | 输出一致 | 浏览器默认 |
+| --- | --- | --- | --- | --- |
+| Cardputer K132 | 1.12 / 15.46 | 35 / 86 | 是 | esp32sim |
+| StickS3 | 1.59 / 16.02 | 48 / 117 | 是 | esp32sim |
+| Core2 | 7.99 / 81.16 | 84 / 436 | 是 | esp32sim |
+| StopWatch | 1.93 / 19.49 | 17 / 59 | 帧有差异 | QEMU-WASM |
+| StackChan | 4.47 / 29.73 | 38 / 85 | 帧有差异，舵机持续运行待验 | QEMU-WASM |
+| PaperDIY | 7.73 / 76.31 | 303 / 10300 | 帧有差异 | QEMU-WASM |
+| PaperMono | 5.71 / 15.84 | 1130 / 682 | 帧有差异 | QEMU-WASM |
+| PaperColor | 52.09 / 23.09 | 17027 / 2921 | 是 | QEMU-WASM |
+| PaperS3 | 7.27 / 71.63 | 240 / 11537 | 帧有差异 | QEMU-WASM |
+| AtomS3R | 1.81 / 14.57 | 25 / 93 | 帧有差异 | QEMU-WASM |
+| Atom Matrix | 1.08 / 62.23 | 31 / 72 | 25 灯一致 | esp32sim |
+| Atom Matrix v1.1 | 1.08 / 60.27 | 39 / 68 | 25 灯一致 | esp32sim |
+| StickC Plus2 | 1.53 / 65.40 | 13 / 45 | 帧有差异 | QEMU-WASM |
+
+[逐批证据和复现](https://github.com/m5agent/agent-work-logs/tree/c963e244bb8dd9eff53d4a186673b1aee34616b3/records/m5stack-esp-emulator/2026-11-27-esp32sim-browser-round2)
 
 ## 2026-11-27：esp32sim WASM 逐板验收
 

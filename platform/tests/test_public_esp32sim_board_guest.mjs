@@ -24,10 +24,14 @@ const matrix = {
   atomu: {sha256:'e7660eb6cb96440bfb9b76019332b5182c8e5cc9814a856d280dac79af469dbf',ready:'ATOMU_PROBE_READY'},
   'atom-echo': {sha256:'49cb74acfcce9526adf62aa08facb96a082bedeae53ad363010271a6a2629713',ready:'ATOMECHO_PROBE_READY'},
   'basic-v27': {sha256:'fc6592f250ca3f31717eb6c3aa00d811dedf8069163131f48efea044de1014b6',ready:'BASIC27_PROBE_READY'},
+  'basic-v27-16mb': {sha256:'f3ed246d70eab8dba118285bece0357ec18360d3395a012c6de487205303d749',ready:'BASIC27_PROBE_READY'},
+  'classic-psram-2mb': {sha256:'9c51a6e3fc3594566b4b2d4547a4b6931ff3d7b7a4dafa2c195956b3ddbc7be3',ready:'LX6 memory PASS'},
+  'classic-psram-8mb': {sha256:'dd43cdbbdf059aa674202cbdf759e2c158790605b513bf3988b0205ff1d9c866',ready:'LX6 memory PASS'},
   m5stick: {sha256:'13aee21306a73621365a89d2107cd7bcea6d647bb5bb096a6ef6abcf4b3b55f9',ready:'M5STICK_OLED_READY'},
   stickt2: {sha256:'822cc3d86f8d037fbc444ca579d05aab9d9b57c4598628ebc695e700f63c2dce',ready:'STICKT2_BROWSER_READY'},
   'stackchan-body': {sha256:'a09bad10cb0b6f07990cfe42495aec978a3404e881eb6545aafba0ab5dccd3b2',ready:'M5_STACKCHAN_TOUCH.*"kind": "ready"'},
   'core2-mic': {sha256:'006ffc0b5d56f03077f2cc5e90f3b7d0edc45f1dcfa2f27ca872e85029cd974b',ready:'CORE2_BROWSER_MIC_READY'},
+  'voices3r-mic': {sha256:'e0dab52e82697fd75089140349f1a879e75c155e93fd56b8c0ec22f5acc2494a',ready:'VOICES3R_BROWSER_MIC_READY'},
 };
 for (const [id,fixture] of Object.entries(matrix)) {
   if (process.env.M5_BROWSER_MATRIX_FIRMWARE) fixture.file = join(process.env.M5_BROWSER_MATRIX_FIRMWARE,id,'matrix.bin');
@@ -61,7 +65,8 @@ const targets = async () => (await cdp.send('Target.getTargets')).targetInfos
 const report = {kind:'browser virtual-device validation',browser:browser.version(),manifestSha256,runtime,cases:[]};
 try {
   for (const id of cases) {
-    const deviceId = {'stackchan-body':'stackchan','core2-mic':'core2','dial-encoder':'dial'}[id] || id;
+    const deviceId = {'stackchan-body':'stackchan','core2-mic':'core2','voices3r-mic':'atom-echos3r','dial-encoder':'dial',
+      'basic-v27-16mb':'basic-v27','classic-psram-2mb':'stickc-plus2','classic-psram-8mb':'core2'}[id] || id;
     const profile = getBrowserProfile(deviceId,runtime.profiles);
     assert(profile, `${id} is outside this export`);
     const page = await browser.newPage({viewport:{width:1380,height:1000}});
@@ -136,7 +141,8 @@ try {
     };
     try {
       const url = new URL(site);
-      url.search = new URLSearchParams({device:deviceId,engine:'esp32sim',mode:'browser',autostart:'0'});
+      url.search = new URLSearchParams({device:deviceId,mode:'browser',autostart:'0'});
+      if (process.env.M5_BROWSER_USE_DEFAULT !== '1') url.searchParams.set('engine','esp32sim');
       await page.goto(url.href);
       let rotate;
       if (id === 'dial-encoder' || id === 'stickt2') {
@@ -173,7 +179,8 @@ try {
       const starting = Date.now();
       await page.locator('#startBtn').click({timeout:90000});
       await status('running');
-      await page.waitForFunction(() => observedGuest.guestTime >= 2,null,{timeout:45000});
+      const memoryProbe = id.startsWith('classic-psram-');
+      if (!memoryProbe) await page.waitForFunction(() => observedGuest.guestTime >= 2,null,{timeout:45000});
       row.workersBefore = await targets();
       assert.equal(row.workersBefore.length,1);
       assert.equal(await page.locator('#firmwareInputSha256').textContent(),row.inputSha256);
@@ -183,7 +190,7 @@ try {
       if (matrix[id]) await uart(matrix[id].ready);
       else if (!docs[id]) await uart('M5_BROWSER_PROBE .+"kind": "ready"');
       row.readyMs = Date.now() - starting;
-      const observeDisplay = profile.display && !['stackchan-body','core2-mic'].includes(id);
+      const observeDisplay = profile.display && !memoryProbe && !['stackchan-body','core2-mic'].includes(id);
       if (observeDisplay) {
         await page.waitForFunction(() => observedGuest.frames > 0);
         assert.deepEqual(await page.evaluate(() => observedGuest.dimensions),[profile.display.width,profile.display.height]);
@@ -194,7 +201,11 @@ try {
         });
         row.before = await canvasImage();
       }
-      if (id === 'stackchan-body') {
+      if (memoryProbe) {
+        assert.equal(await page.evaluate(() => observedGuest.create.psram_mb),profile.psramMb);
+        await uart(`LX6 PSRAM physical=${profile.psramMb * 1048576} heap=`);
+        if (profile.psramMb === 8) await uart('LX6 HIMEM capacity=4227072 pages=127,128,255 OK');
+      } else if (id === 'stackchan-body') {
         for (const [index,key] of ['z','x','c'].entries()) {
           const levels = [0,0,0]; levels[index]=3;
           const previous = await page.evaluate(() => observedGuest.serial.length);
@@ -208,10 +219,14 @@ try {
           await press(key,() => state(levels));
           await state([0,0,0]);
         }
-      } else if (id === 'core2-mic') {
+      } else if (id === 'core2-mic' || id === 'voices3r-mic') {
         await page.locator('#browserMicFile').setInputFiles(join(process.env.M5_BROWSER_MATRIX_FIRMWARE,'tone.wav'));
         await page.getByText('已将 WAV 送入虚拟麦克风。').waitFor({state:'visible'});
-        await clickTouch(160,183,() => uart('CORE2_BROWSER_MIC_SAMPLES [1-9][0-9]+ [1-9][0-9]+'));
+        if (id === 'core2-mic') {
+          await clickTouch(160,183,() => uart('CORE2_BROWSER_MIC_SAMPLES [1-9][0-9]+ [1-9][0-9]+'));
+        } else {
+          await press('Space',() => uart('VOICES3R_BROWSER_MIC_SAMPLES [1-9][0-9]+ [1-9][0-9]+'));
+        }
       } else if (id === 'tab5') {
         const adcIndicator = () => page.locator('#rawFrameCanvas').evaluate(canvas =>
           canvas.getContext('2d').getImageData(140,750,1,1).data[0]);
@@ -246,7 +261,8 @@ try {
         await uart(`${marker} 0 1`);
         await page.waitForFunction(() => observedGuest.leds.some(([rgb])=>String(rgb)==='64,160,32'),null,{timeout:8000});
         if (id === 'atom-echo') assert(await page.evaluate(() => observedGuest.nonzeroAudio));
-      } else if (id === 'basic-v27') {
+      } else if (deviceId === 'basic-v27') {
+        assert.equal(await page.evaluate(() => observedGuest.create.flash_mb),id === 'basic-v27-16mb' ? 16 : 4);
         for (const [key,pattern] of [['a','1 0 0'],['b','0 1 0'],['c','0 0 1']]) {
           await press(key,() => uart(`BASIC27_BUTTON_STATE ${pattern}`));
           await page.waitForTimeout(250);
