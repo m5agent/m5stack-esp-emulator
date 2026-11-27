@@ -413,6 +413,19 @@ const sequential=[];
 const single=await schedulePublicQemuGate(plan.cases,{runCase:async item=>{sequential.push(caseKey(item));return {status:'PASS'};}});
 assert.equal(single.workers,1);assert.equal(single.max_active_children,1);assert.equal(single.all_passed,true);
 assert.equal(single.first_failure,null);assert.deepEqual(sequential,plan.cases.map(caseKey),'default1 retains the existing complete order');
+const keyboardDiagnostic=await schedulePublicQemuGate([
+  {device:'cardputer-adv',lane:'cardputer-keyboard',diagnostic:true},
+  {device:'cardputer-adv',lane:'fixed'},
+],{runCase:async (item,{noteFailure})=>{
+  if (item.diagnostic) {
+    noteFailure(new Error('Guest release diagnostic failed'));
+    return {status:'FAIL'};
+  }
+  return {status:'PASS'};
+}});
+assert.equal(keyboardDiagnostic.all_passed,true);
+assert.equal(keyboardDiagnostic.first_failure,null);
+assert.deepEqual(keyboardDiagnostic.cases.map(row=>row.status),['FAIL','PASS']);
 const liveDevices=new Set(),parallelOrder=[],uiCount=plan.cases.filter(item=>item.lane!=='fixed').length;
 let live=0,maxLive=0,uiComplete=0;
 const dual=await schedulePublicQemuGate(plan.cases,{workers:2,runCase:async item=>{
