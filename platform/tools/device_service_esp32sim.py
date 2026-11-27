@@ -89,6 +89,53 @@ CAMERA_SEQUENCE_DEVICES = frozenset({"atoms3r-cam", "atoms3r-m12"})
 GROVE_TMP105_DEVICES = frozenset({"atom-echo", "basic-v27"})
 ATOM_IO_DEVICES = frozenset({"atom-echo", "atomu", "atom-lite", "atom-matrix", "atom-matrix-v11"})
 UART_REPL_DEVICES = ATOM_IO_DEVICES | {"cores3", "core2"}
+S3_ATOM_IO_PINS = {
+    "atoms3-lite": 41, "atoms3u": 41, "atom-echos3r": 41,
+    "atoms3r-cam": 41, "atoms3r-m12": 41,
+}
+# Paths are scoped by the catalog's per-device probes. For example, /board/imu
+# is an MPU6886 on StickC and a BMI270 on StickS3.
+LEGACY_STATE_PATHS = {
+    "/machine/aw9523": "aw9523",
+    "/machine/aw9523-59": "aw9523",
+    "/machine/axp2101": "pmic",
+    "/machine/bmi270": "imu",
+    "/machine/bmm150": "magnetometer",
+    "/machine/es8311": "es8311",
+    "/machine/et047tc1": "panel/controller",
+    "/machine/gc0308": "gc0308",
+    "/machine/ina226": "ina226",
+    "/machine/ina226-40": "ina226",
+    "/machine/ip2315": "charger",
+    "/machine/ip5306": "ip5306",
+    "/machine/lm75-48": "lm75",
+    "/machine/lp5562": "lp5562",
+    "/machine/ltr553": "ltr553",
+    "/machine/m5-lcd-cam": "camera",
+    "/machine/m5ioe1": "ioe1",
+    "/machine/m5pm1": "pmic",
+    "/machine/mpu6886": "imu",
+    "/machine/ov3660": "ov3660",
+    "/machine/pcf8563": "rtc",
+    "/machine/pi4ioe-43": "pi4ioe",
+    "/machine/rx8130": "rtc",
+    "/machine/rx8130-32": "rtc",
+    "/machine/si12t": "si12t",
+    "/machine/sht40": "sht40",
+}
+BOARD_STATE_DEVICES = frozenset({
+    *S3_ATOM_IO_PINS, "atoms3", "atoms3r", "basic-v27", "papercolor", "paperdiy",
+    "papermono", "papers3", "stackchan", "stamplc", "stickc", "stickc-plus",
+    "stickc-plus2", "sticks3", "stopwatch",
+})
+
+
+def supports_device_state(device, features):
+    return (device == "stackchan"
+            or device == "dial" and "dial-encoder-state" in features
+            or device in ATOM_IO_DEVICES and "state-snapshot" in features
+            or device in BOARD_STATE_DEVICES and "board-device-state" in features)
+
 # Normalized Flash digests with same-firmware HTTP session comparison.
 # Keep unspecified images and legacy-only feature requests on esp-emu.
 TAB5_DEFAULT_FIRMWARE = {
@@ -580,20 +627,43 @@ def state_properties(tree, path):
     return fields, direct
 
 
-def atom_io_state(tree):
+def atom_io_state(tree, pin=39, *, with_leds=True):
+    high = tree.get(f"/machine/soc/gpio/{pin}", {}).get("level")
+    if type(high) is not bool:
+        return None
+    values = {"pressed": not high, "input-level": high}
+    if not with_leds:
+        return values
     leds = tree.get("/machine/board/leds", {})
     rgb, updates = leds.get("rgb"), leds.get("updates")
-    high = tree.get("/machine/soc/gpio/39", {}).get("level")
     if (not isinstance(rgb, list) or len(rgb) not in {1, 25}
-            or type(updates) is not int or updates < 0 or type(high) is not bool):
+            or type(updates) is not int or updates < 0):
         return None
     if any(not isinstance(pixel, list) or len(pixel) != 3
            or any(type(value) is not int or not 0 <= value <= 255 for value in pixel)
            for pixel in rgb):
         return None
     packed = [int.from_bytes(bytes(pixel), "big") for pixel in rgb]
-    return {"led-rgb": packed[0] if len(packed) == 1 else packed, "led-frames": updates,
-            "pressed": not high, "input-level": high}
+    return {**values, "led-rgb": packed[0] if len(packed) == 1 else packed, "led-frames": updates}
+
+
+def legacy_device_state(tree, probes):
+    components, errors = {}, {}
+    for name, probe in probes.items():
+        path = probe["path"]
+        node = LEGACY_STATE_PATHS.get(path)
+        if path == "/machine/rmt0":
+            fields = tree.get("/machine/soc/rmt/0", {})
+        else:
+            fields = tree.get(f"/machine/board/{node}" if node else path, {})
+        expected = probe["properties"]
+        properties = {key: fields[key] for key in expected if key in fields}
+        if properties:
+            components[name] = {"path": path, "properties": properties}
+        missing = {key: "No modeled esp32sim property" for key in expected if key not in fields}
+        if missing:
+            errors[name] = missing
+    return components, errors
 
 
 def state_type(value):

@@ -14,6 +14,22 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：板载状态兼容候选
+
+Virtual-device validation。候选 fork 为
+`e929d5b2ca7a1f2475d60ee0626b30ab6ed986d7`。
+Device Service 的 19 款板载状态探针各重复两次。38 次会话均返回 HTTP 200、
+完整登记字段并完成清场。BMI270 和 MPU6886 的轴值通过 QOM 写入后可读回。
+此项覆盖状态接口与字段，来宾驱动的逐用例验收另外判定。
+StackChan 保留舵机字段，并读回其 8 个已登记的旧版组件。
+
+两款 C6 的显式旧 profile 请求在省略 runtime 时选中预期的 QEMU
+诊断后端。此次尝试使用的参考镜像不具备诊断 lane 要求的完整 Flash，
+结果为 PARTIAL。两款设备各两次建立 esp32sim restricted STA 租约。
+Tab5 原版 UserDemo 的 frame 审核在 esp-emu 为 `SIM_VERIFIED`，
+强制 esp32sim 后为 `SIM_PARTIAL`。Tab5 扬声器的录音 cursor 和
+stereo 证据窗口仍属 esp-emu 契约。默认路由的验收保持开放。
+
 ## 2026-11-27：esp32sim Device Service 控制候选验证
 
 Virtual-device validation。独立 Device Service 使用同一 Flash 输入逐次创建租约。

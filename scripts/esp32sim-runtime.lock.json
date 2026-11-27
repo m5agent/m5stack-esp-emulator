@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/m5agent/esp32sim.git",
-  "ref": "refs/tags/m5-milestone-runtime-gaps-20261127",
-  "commit": "9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee",
+  "ref": "refs/heads/m5/fix-device-state",
+  "commit": "e929d5b2ca7a1f2475d60ee0626b30ab6ed986d7",
   "roms": {
     "esp32s3_rev0_rom.elf": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
     "esp32p4_rev0_rom.elf": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
@@ -48,6 +48,7 @@
     "grove-tmp105",
     "network-fault",
     "dial-encoder-state",
-    "touch-drag"
+    "touch-drag",
+    "board-device-state"
   ]
 }

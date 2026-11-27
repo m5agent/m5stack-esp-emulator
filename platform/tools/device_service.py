@@ -11670,8 +11670,19 @@ class Esp32SimDeviceSession(DeviceSession):
         state = esp32sim.read_state(self.control)
         if self.spec.id in esp32sim.ATOM_IO_DEVICES:
             onboard = esp32sim.atom_io_state(state)
-            if onboard is not None:
-                state["/machine/onboard_io"] = onboard
+        elif self.spec.id in esp32sim.S3_ATOM_IO_PINS:
+            onboard = esp32sim.atom_io_state(
+                state, esp32sim.S3_ATOM_IO_PINS[self.spec.id],
+                with_leds=self.spec.id in {"atoms3-lite", "atoms3u"},
+            )
+        else:
+            onboard = None
+        if onboard is not None:
+            state["/machine/onboard_io"] = onboard
+        if self._supports_service_feature("board-device-state"):
+            components, _ = esp32sim.legacy_device_state(state, self.spec.state_probes)
+            for component in components.values():
+                state.setdefault(component["path"], {}).update(component["properties"])
         return state
 
     def controller_report(self):
@@ -11771,9 +11782,16 @@ class Esp32SimDeviceSession(DeviceSession):
             if value is not None and type(value) is not bool:
                 raise ServiceError("invalid_qom", "input_drive must be a boolean or null", 400)
             return self._set_state_property(path, prop, value, path.removeprefix("/machine"))
-        if (self.spec.id, payload.get("path"), payload.get("property")) != (
-            "stamplc", "/machine/lm75-48", "temperature-c"
-        ):
+        state_path = esp32sim.LEGACY_STATE_PATHS.get(path) if isinstance(path, str) else None
+        if (state_path and self._supports_service_feature("board-device-state")
+                and type(value) in (int, float, bool)
+                and (any(probe["path"] == path and prop in probe["properties"]
+                         for probe in self.spec.state_probes.values())
+                     or (self.spec.id in {"sticks3", "stopwatch"} and state_path == "pmic"
+                         and prop in {"adc1-mv", "adc2-mv", "wake-source"}))
+                and state_path != "lm75"):
+            return self._set_state_property(path, prop, value, f"/board/{state_path}")
+        if (self.spec.id, path, prop) != ("stamplc", "/machine/lm75-48", "temperature-c"):
             return self._unsupported()
         self.inject({"kind": "plc-temperature", "temperature_c": value, "settle_seconds": 0})
         return {"session_id": self.id, "qom_set": {"return": {}}}
@@ -11903,18 +11921,31 @@ class Esp32SimDeviceSession(DeviceSession):
             self._lifecycle_lock.release()
 
     def supports_device_state(self):
-        return self.spec.id == "stackchan" or (
-            self.spec.id == "dial" and self._supports_service_feature("dial-encoder-state")) or (
-            self.spec.id in esp32sim.ATOM_IO_DEVICES and self._supports_service_feature("state-snapshot"))
+        return esp32sim.supports_device_state(
+            self.spec.id, (self.flash_info or {}).get("runtime_identity", {}).get("service_features", ()),
+        )
 
     def device_state(self):
+        if self.spec.id in {"nanoc6", "nesso-n1", "tab5"} and not self.spec.state_probes:
+            return super().device_state()
         if not self.supports_device_state():
             return self._unsupported()
         with self._lock:
+            self._require_runtime_permission("serial.read")
             if self.control is None or self.state != "running":
+                if self._supports_service_feature("board-device-state") and self.spec.state_probes:
+                    try:
+                        persisted = json.loads(self.device_state_path.read_text())
+                    except (OSError, ValueError):
+                        return {
+                            "session_id": self.id, "device_id": self.spec.id, "state": self.state,
+                            "supported": True, "available": False, "reason": "session_not_running",
+                            "components": {}, "errors": {},
+                        }
+                    return {**persisted, "state": self.state, "source": "persisted"}
                 raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            errors = {}
             if self.spec.id == "dial":
-                self._require_runtime_permission("serial.read")
                 components = {"encoder": {"path": "/machine/encoder", "properties": self._encoder_state()}}
             elif self.spec.id in esp32sim.ATOM_IO_DEVICES:
                 properties = self._model_state().get("/machine/onboard_io")
@@ -11922,15 +11953,23 @@ class Esp32SimDeviceSession(DeviceSession):
                     raise ServiceError("invalid_runtime_state", "Invalid esp32sim onboard I/O state", 502)
                 components = {"onboard-io": {"path": "/machine/onboard_io", "properties": properties}}
             else:
-                angles = self.control.request("servo-state")
-                components = {f"servo-{axis}": {"properties": {"angle-deg": angles[axis]}}
-                              for axis in ("yaw", "pitch")}
-            return {
+                components = {}
+                if self._supports_service_feature("board-device-state"):
+                    components, errors = esp32sim.legacy_device_state(
+                        self._model_state(), self.spec.state_probes,
+                    )
+                if self.spec.id == "stackchan":
+                    angles = self.control.request("servo-state")
+                    components.update({f"servo-{axis}": {"properties": {"angle-deg": angles[axis]}}
+                                       for axis in ("yaw", "pitch")})
+            response = {
                 "session_id": self.id, "device_id": self.spec.id, "state": self.state,
-                "supported": True, "available": True, "source": "live", "captured_at": iso_now(),
-                "components": components,
-                "errors": {},
+                "supported": True, "available": bool(components), "source": "live", "captured_at": iso_now(),
+                "components": components, "errors": errors,
             }
+            if components and self._supports_service_feature("board-device-state"):
+                atomic_write_json(self.device_state_path, response)
+            return response
 
     def _encoder_state(self):
         reply = self.control.request("state-get", ("/board/encoder",))
@@ -12786,10 +12825,8 @@ class DeviceService:
                 "input": spec.supported or native_only,
                 "qom": ("state-snapshot" in native_features if native_runtime
                         else spec.supported and spec.service_kind == "qemu"),
-                "device_state": (spec.id == "stackchan" or
-                                 (spec.id == "dial" and "dial-encoder-state" in native_features) or
-                                 (spec.id in esp32sim.ATOM_IO_DEVICES and "state-snapshot" in native_features))
-                                 if native_runtime else bool(spec.state_probes),
+                "device_state": (esp32sim.supports_device_state(spec.id, native_features)
+                                 if native_runtime else bool(spec.state_probes)),
                 "storage": (spec.id in esp32sim.SD_DEVICES if native_runtime else spec.supported and
                             (spec.has_sd_card if spec.service_kind != "tab5"
                              else backend_ready and self._tab5_sd_worker_ready())),
@@ -13527,8 +13564,16 @@ class DeviceService:
                 and spec.supported and "runtime_variant" not in payload):
             storage = payload.get("storage")
             if (any(payload.get(field) for field in ("runtime_env", "device_identity", "units", "nvs"))
-                    or isinstance(storage, dict) and "filesystem" in storage):
+                    or isinstance(storage, dict) and "filesystem" in storage
+                    or program_mode == "uiflow-live" and device_id not in esp32sim.UART_REPL_DEVICES):
                 runtime = "qemu"
+        if ("runtime" not in payload and "runtime_variant" not in payload and not uiflow_startup
+                and isinstance(payload.get("network"), dict)):
+            profile = payload["network"].get("profile")
+            if (device_id, profile) == ("nanoc6", NANOC6_HCI_BLE_PROFILE):
+                runtime = QEMU_BLE_RUNTIME
+            elif (device_id, profile) == ("nesso-n1", NESSO_UNIFIED_PROFILE):
+                runtime = QEMU_UNIFIED_RUNTIME
         if not spec.supported and not (runtime == esp32sim.RUNTIME and device_id in esp32sim.BOARDS):
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409

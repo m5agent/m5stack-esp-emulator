@@ -16,6 +16,10 @@ Cardputer K132、StickS3、Core2、StamPLC 和两版 Atom Matrix 的[双内核�
 [Device Service 候选取证](validation-ledger.md#2026-11-27esp32sim-device-service-控制候选验证)记录来宾 Flash、状态快照、SD 热插拔与 restricted STA。安装、输入、媒体、网络和证据边界见[后端迁移指南](esp32sim-migration.md)及
 [验证台账](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归)。
 
+板载状态兼容候选将旧版组件名和属性映射到 esp32sim 的来宾外设模型。
+19 款设备完成两次状态接口读回，逐用例和审核兼容性仍在验收。
+阅读[候选验证记录](validation-ledger.md#2026-11-27板载状态兼容候选)。
+
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，
 [验证台账](validation-ledger.md)保存原版固件、运行时、操作和结果的精确身份。
 [工作流总台账](workstreams.md)提供领域分工及相关 Task ID。

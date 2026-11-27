@@ -141,6 +141,66 @@ class Esp32SimTests(unittest.TestCase):
         with self.assertRaisesRegex(ServiceError, "Operation is unavailable"):
             session.qom_set(payload | {"value": True})
 
+    def test_device_state_projects_legacy_fields_and_retains_the_sample(self):
+        session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
+        session._lock = threading.RLock()
+        session.state = "running"
+        session.id = "atoms3-board-state"
+        session.spec = load_device_specs()["atoms3"]
+        session.flash_info = {"runtime_identity": {
+            "service_features": ["state-snapshot", "board-device-state"],
+        }}
+        session.control = Mock()
+        session._require_runtime_permission = Mock()
+        session.control.request.return_value = {"value": {
+            "/soc": {}, "/board": {},
+            "/board/imu": {
+                "accel-x": -0.5, "accel-y": 0.125, "accel-z": 0.975,
+                "gyro-x": 0.0, "gyro-y": 0.0, "gyro-z": 0.0, "initialized": True,
+            },
+        }}
+        with tempfile.TemporaryDirectory() as directory:
+            session.device_state_path = Path(directory) / "device-state.json"
+            state = session.device_state()
+            session.control.request.assert_called_once_with("state-snapshot")
+            imu = state["components"]["imu"]
+            self.assertEqual(imu["path"], "/machine/mpu6886")
+            self.assertEqual(set(imu["properties"]), set(session.spec.state_probes["imu"]["properties"]))
+            self.assertEqual(imu["properties"]["accel-x"], -0.5)
+            self.assertEqual(state["errors"], {})
+            session.state = "stopped"
+            session.control = None
+            stored = session.device_state()
+            self.assertEqual(stored, state | {"source": "persisted", "state": "stopped"})
+
+    def test_partial_state_reports_missing_properties_without_guessing(self):
+        probes = load_device_specs()["stopwatch"].state_probes
+        components, errors = runtime.legacy_device_state(
+            {"/machine/board/pmic": {"vbat-mv": 3912}}, probes,
+        )
+        self.assertEqual(components, {
+            "power": {"path": "/machine/m5pm1", "properties": {"vbat-mv": 3912}},
+        })
+        self.assertEqual(set(errors), {"power", "expander", "imu"})
+        self.assertIn("vinout-mv", errors["power"])
+
+    def test_legacy_imu_axis_write_preserves_existing_qom_receipt(self):
+        session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
+        session._lock = threading.RLock()
+        session.state = "running"
+        session.id = "imu-fixture"
+        session.spec = load_device_specs()["sticks3"]
+        session.flash_info = {"runtime_identity": {"service_features": ["board-device-state"]}}
+        session.control = Mock()
+        session._check_cancelled = Mock()
+        session._record_event = Mock()
+        session._require_runtime_permission = Mock()
+        response = session.qom_set({
+            "path": "/machine/bmi270", "property": "gyro-y", "value": -50,
+        })
+        self.assertEqual(response, {"session_id": "imu-fixture", "qom_set": {"return": {}}})
+        session.control.request.assert_called_once_with("state-set", ("/board/imu", "gyro-y", "-50"))
+
     def test_live_flash_snapshot_binds_digest_to_exported_bytes(self):
         session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
         session._lock = threading.RLock()

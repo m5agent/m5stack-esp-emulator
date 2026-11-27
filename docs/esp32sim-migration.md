@@ -28,9 +28,19 @@ specific to that backend.
 | `nvs` | Injection into a named NVS partition before boot. |
 | `storage.filesystem` | Session-local filesystem partition injection before boot. |
 
+A runtime advertising `board-device-state` can read the legacy board
+state schema from the live guest, retain it at stop and apply the modeled
+writable fixtures through `POST /sessions/{id}/qom`.
+The [validation ledger](validation-ledger.md) records the same-image
+checks that govern an ordinary default change.
+When a request explicitly names `nanoc6-hci-ble` or `nesso-unified`
+and omits its runtime and variant, it uses the existing QEMU diagnostic
+backend for that profile. The diagnostic firmware carries a UART HCI
+transport.
+
 ## Devices with QEMU defaults
 
-The paired service checks found these consumer gaps. `GET /device-state`
+The paired service checks on the `9c0447e8` runtime found these consumer gaps. `GET /device-state`
 refers to the session endpoint. Unless the row describes a partial response,
 esp32sim returned `409 not_supported_on_runtime` for that request on the
 running fixture. The reviewer uses the registered component names when it

@@ -155,6 +155,27 @@ When the board model reports a guest power-off, the lease ends in `stopped`
 with `stop_reason="guest_poweroff"`. The evidence keeps the terminal panel
 frame and serial output.
 
+#### Board device state
+
+A runtime advertising `board-device-state` returns registered board
+components through `GET /sessions/{id}/device-state`. The response uses
+the component, path and property names used by QEMU. The values come from
+one esp32sim scheduler sample. An unavailable property appears under
+`errors`. A stopped lease can return its retained sample with
+`source: "persisted"`. StackChan also returns its existing servo observations.
+
+Use `POST /sessions/{id}/qom` with `path`, `property` and `value` to change
+a supported fixture. The runtime applies it to the emulated peripheral.
+Use the guest's subsequent I²C, GPIO or other bus response to verify that
+the firmware consumed the input.
+
+When a request omits `runtime` and `runtime_variant`, NanoC6
+`network.profile=nanoc6-hci-ble` selects `qemu-ble`, and Nesso N1
+`network.profile=nesso-unified` selects `qemu-unified`. These profiles
+use their HCI UART diagnostic firmware and existing admission checks.
+An ordinary or restricted STA session on esp32sim uses its own
+`esp32sim-sta` profile.
+
 #### Paired esp32sim radios
 
 `POST /api/v1/radio-pairs` creates two esp32sim leases on the same virtual
