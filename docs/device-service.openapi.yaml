@@ -5693,9 +5693,10 @@ components:
           type: boolean
           default: false
           description: >-
-            Enable I2S1 TX recording for the exact admitted native Tab5 UserDemo.
+            Enable stereo I2S1 TX recording for the admitted Tab5 UserDemo on
+            esp-emu or on an esp32sim runtime advertising tab5-stereo-capture.
             With that Tab5 recording enabled the lease is fixed and at most 180 seconds.
-            esp32sim records bounded mono s16le speaker PCM, including on Tab5.
+            Other esp32sim speaker fixtures record bounded mono s16le PCM.
         microphone_wav_artifact_id:
           type: string
           pattern: '^[0-9a-f]{64}$'

@@ -2380,6 +2380,7 @@ CASES = [
         "inputs": ["key:a", "keytap:p,0.1"],
         "pre_input_marker": "STOPWATCH_M5PM1_READY",
         "post_input_marker": "STOPWATCH_M5PM1_DONE",
+        "qom_set_boot": [("/machine/m5pm1", "gpio-input-bits", "31")],
         "serial_expect": [
             "STOPWATCH_M5PM1_BUTTON_CFG",
             "STOPWATCH_M5PM1_FIELDS",

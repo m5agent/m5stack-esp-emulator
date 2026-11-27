@@ -23,6 +23,7 @@ UNIT_AUDIO_MAX_TRACKS = 16
 UNIT_AUDIO_MAX_CAPTURE_BYTES = 16 * 1024 * 1024
 UNIT_AUDIO_SOURCE = "native_n9301_unit"
 TAB5_AUDIO_SOURCE = "esp_emu_i2s1_tx"
+TAB5_ESP32SIM_AUDIO_SOURCE = "esp32sim_i2s1_tx"
 TAB5_MICROPHONE_SOURCE = "esp_emu_i2s1_rx"
 TAB5_MICROPHONE_RATE = 48_000
 TAB5_MICROPHONE_CHANNELS = 4
@@ -168,7 +169,7 @@ def read_tab5_speaker_cursor(path: Path, recording_seed: str) -> dict:
 
 def read_tab5_speaker_pcm(
     path: Path, offset: int, limit: int, *, recording_seed: str | None = None,
-    expected_recording_id: str | None = None,
+    expected_recording_id: str | None = None, source: str = TAB5_AUDIO_SOURCE,
 ) -> tuple[bytes, dict]:
     """Read interleaved frames from the finalized native esp-emu recording."""
     try:
@@ -188,10 +189,23 @@ def read_tab5_speaker_pcm(
         samples.byteswap()
         data = samples.tobytes()
     return data, {
-        "source": TAB5_AUDIO_SOURCE, "sample_format": "s16le",
+        "source": source, "sample_format": "s16le",
         "sample_rate_hz": sample_rate, "channels": channels, "observed_bytes": observed,
         **({"recording_id": recording_id} if recording_id else {}),
     }
+
+
+def finalize_tab5_stereo_wav(path: Path, sample_rate: int) -> None:
+    with path.open("r+b") as stream:
+        data_size = os.fstat(stream.fileno()).st_size - TAB5_WAV_HEADER_BYTES
+        if data_size <= 0 or data_size % TAB5_PCM_FRAME_BYTES:
+            raise ValueError("Incomplete Tab5 stereo PCM frames")
+        stream.write(struct.pack(
+            "<4sI4s4sIHHIIHH4sI",
+            b"RIFF", data_size + 36, b"WAVE", b"fmt ", 16, 1, 2,
+            sample_rate, sample_rate * TAB5_PCM_FRAME_BYTES, TAB5_PCM_FRAME_BYTES, 16,
+            b"data", data_size,
+        ))
 
 
 def _read_tab5_wav_window(

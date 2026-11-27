@@ -273,10 +273,12 @@ from esp32_freertos_task_details import annotate_task_metadata  # noqa: E402
 from device_service_audio import (  # noqa: E402
     CARDPUTER_AUDIO_DEVICES, MICROPHONE_RATE, PCM_MAX_READ_BYTES,
     TAB5_AUDIO_EVIDENCE_BYTES, TAB5_AUDIO_MAX_LEASE_SECONDS, TAB5_AUDIO_SOURCE,
+    TAB5_ESP32SIM_AUDIO_SOURCE, TAB5_PCM_FRAME_BYTES, TAB5_WAV_HEADER_BYTES, TAB5_WAV_PLACEHOLDER,
     TAB5_AUDIO_WINDOW_EVIDENCE_BYTES, TAB5_MICROPHONE_CHANNELS, TAB5_MICROPHONE_RATE,
     TAB5_MICROPHONE_SECONDS, TAB5_MICROPHONE_SOURCE, read_tab5_microphone_artifact,
     UNIT_AUDIO_MAX_CAPTURE_BYTES, UNIT_AUDIO_MAX_TRACKS, UNIT_AUDIO_SOURCE,
-    pcm_metrics, read_tab5_speaker_cursor, read_tab5_speaker_pcm, read_wave_artifact, tab5_stereo_pcm_metrics,
+    finalize_tab5_stereo_wav, pcm_metrics, read_tab5_speaker_cursor, read_tab5_speaker_pcm,
+    read_wave_artifact, tab5_stereo_pcm_metrics,
 )
 from esp32_uart_coredump import ESP32C6_CHIP_ID, ESP32S3_CHIP_ID, ESP32_CHIP_ID  # noqa: E402
 from device_service_crash import (  # noqa: E402
@@ -8836,9 +8838,12 @@ class DeviceSession:
         return data, receipt
 
     def _tab5_speaker_enabled(self) -> bool:
-        return self.spec.id == "tab5" and (
-            (self.flash_info or {}).get("tab5", {}).get("speaker_capture") == TAB5_AUDIO_SOURCE
-        )
+        return self.spec.id == "tab5" and self._tab5_speaker_source() in {
+            TAB5_AUDIO_SOURCE, TAB5_ESP32SIM_AUDIO_SOURCE,
+        }
+
+    def _tab5_speaker_source(self) -> str | None:
+        return (self.flash_info or {}).get("tab5", {}).get("speaker_capture")
 
     def _tab5_speaker_seed(self) -> str | None:
         generation = self._speaker_recording_generation
@@ -8853,6 +8858,7 @@ class DeviceSession:
             return read_tab5_speaker_pcm(
                 self.dir / "tab5-speaker.wav", offset, limit,
                 recording_seed=self._tab5_speaker_seed(), expected_recording_id=expected_recording_id,
+                source=self._tab5_speaker_source(),
             )
 
     def _tab5_speaker_capture(
@@ -8868,7 +8874,8 @@ class DeviceSession:
                     raise ServiceError("audio_capture_unavailable", "Tab5 cursor requires an active recording", 409)
                 cursor = read_tab5_speaker_cursor(self.dir / "tab5-speaker.wav", seed)
             return None, {
-                "session_id": self.id, "firmware_sha256": self.firmware_sha, "source": TAB5_AUDIO_SOURCE,
+                "session_id": self.id, "firmware_sha256": self.firmware_sha,
+                "source": self._tab5_speaker_source(),
                 **cursor,
             }
         if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
@@ -11298,12 +11305,14 @@ class Tab5DeviceSession(DeviceSession):
 class Esp32SimDeviceSession(DeviceSession):
     """Device Service lease backed by the private esp32sim control stream."""
 
-    def __init__(self, *args, board=None, speaker_capture=False, microphone_wav_artifact_id=None,
+    def __init__(self, *args, board=None, speaker_capture=False, speaker_recording_generation=None,
+                 microphone_wav_artifact_id=None,
                  camera_image_artifact_id=None, radio_slot=None, **kwargs):
         self.control = None
         self._radio_slot = radio_slot
         self._console_peer = None
         self._capture_speaker = speaker_capture
+        self._speaker_recording_generation = speaker_recording_generation
         self._mic = microphone_wav_artifact_id
         self._camera = camera_image_artifact_id
         self._audio_rate = None
@@ -11313,11 +11322,23 @@ class Esp32SimDeviceSession(DeviceSession):
         self._audio_metadata = self.dir / "esp32sim-audio.json"
         self._flash_readback = self.dir / "esp32sim-flash-readback.bin"
 
+    def _session_record(self):
+        record = super()._session_record()
+        if self._speaker_recording_generation:
+            record["speaker_recording_generation"] = self._speaker_recording_generation
+        return record
+
     def _supports_service_feature(self, name):
         identity = (self.flash_info or {}).get("runtime_identity") or {}
         return name in identity.get("service_features", ())
 
     def _receive_text(self, message):
+        if message.get("t") == "stereo-reset":
+            self._speaker_recording_generation = uuid.uuid4().hex
+            (self.dir / "tab5-speaker.wav").unlink(missing_ok=True)
+            self._audio_rate = None
+            self._audio_finished = False
+            return
         if message.get("t") != "serial" or message.get("src") not in {"uart0", "usb"}:
             return
         data = bytes.fromhex(message["hex"]) if "hex" in message else message["data"].encode()
@@ -11354,6 +11375,24 @@ class Esp32SimDeviceSession(DeviceSession):
             stream.write(data[:remaining])
             self._audio_finished = len(data) >= remaining
 
+    def _receive_stereo(self, rate, data):
+        if self._audio_finished or not data or len(data) % TAB5_PCM_FRAME_BYTES:
+            return
+        path = self.dir / "tab5-speaker.wav"
+        if self._audio_rate is None:
+            if not 8000 <= rate <= 192000:
+                return
+            with path.open("xb") as stream:
+                stream.write(TAB5_WAV_PLACEHOLDER)
+            self._audio_rate = rate
+        if rate != self._audio_rate:
+            self._audio_finished = True
+            return
+        with path.open("ab") as stream:
+            remaining = esp32sim.MAX_PCM_BYTES - (stream.tell() - TAB5_WAV_HEADER_BYTES)
+            stream.write(data[:remaining])
+            self._audio_finished = len(data) >= remaining
+
     def _launch(self):
         installation = self.spec.esp32sim_installation
         identity = installation.identity(self.board, self.virtual_flash)
@@ -11367,6 +11406,15 @@ class Esp32SimDeviceSession(DeviceSession):
             **({"grove": "tmp105"} if grove_tmp105 else {}),
             "speaker_capture": self._capture_speaker,
         }
+        stereo_capture = self.board.is_tab5 and self._capture_speaker
+        if self.board.is_tab5 and self._supports_service_feature("tab5-touch-receipt"):
+            self.flash_info["tab5"] = {
+                "frame_capture": "esp32sim-dsi", "touch_coordinate_space": "panel-native",
+            }
+        if stereo_capture:
+            self._speaker_recording_generation = uuid.uuid4().hex
+            (self.dir / "tab5-speaker.wav").unlink(missing_ok=True)
+            self.flash_info.setdefault("tab5", {})["speaker_capture"] = TAB5_ESP32SIM_AUDIO_SOURCE
         self._persist_session()
         controller, child = socket.socketpair()
         try:
@@ -11390,6 +11438,7 @@ class Esp32SimDeviceSession(DeviceSession):
                 flash_readback=self._flash_readback if live_flash else None,
                 sd_initially_ejected=self.storage_config.get("sd_initially_ejected", False),
                 grove_tmp105=grove_tmp105,
+                stereo_capture=stereo_capture,
             )
             medium = self._radio_slot.medium if self._radio_slot else None
             if self._radio_slot:
@@ -11404,7 +11453,10 @@ class Esp32SimDeviceSession(DeviceSession):
             child.close()
             self.pid = self._proc.pid
             self.process_start_token = inspect_process(self.pid)["start_token"]
-            self.control = esp32sim.Control(controller, self._receive_text, self._receive_audio)
+            self.control = esp32sim.Control(
+                controller, self._receive_text, self._receive_audio,
+                on_stereo=self._receive_stereo if stereo_capture else None,
+            )
             if medium:
                 medium.attach(self._radio_slot.index, self._proc, self._receive_radio_log, self._request_failure)
             hello = self.control.request("hello")
@@ -11446,6 +11498,11 @@ class Esp32SimDeviceSession(DeviceSession):
         if self.control is not None:
             self.control.close()
             self.control = None
+        if self._tab5_speaker_enabled() and self._audio_rate is not None:
+            try:
+                finalize_tab5_stereo_wav(self.dir / "tab5-speaker.wav", self._audio_rate)
+            except (OSError, ValueError) as error:
+                self._record_event("audio_finalization_failed", error=type(error).__name__)
         self._flash_readback.unlink(missing_ok=True)
 
     def snapshot(self):
@@ -11624,13 +11681,39 @@ class Esp32SimDeviceSession(DeviceSession):
                     "completion": "queued",
                 }
             self.control.request(command["op"], command["args"])
+            if (self.board.is_tab5 and command["op"] == "touch" and payload.get("action", "tap") == "tap"
+                    and self._supports_service_feature("tab5-touch-receipt")):
+                x, y, _, _ = command["args"]
+                controller = self._tab5_tap_receipt(x, y)
             self._record_event("input", **command, runtime_acl_policy_id=acl,
                                **({"controller": controller} if controller is not None else {}))
         self._stop_event.wait(command["settle_seconds"])
-        if controller is not None:
+        if command["op"] == "encoder" and controller is not None:
             return {**self.snapshot(), "input": f"encoder:{controller['delta']}", "command": command,
                     "action": "rotate", "accepted": True, "controller": controller}
+        if controller is not None:
+            return {**self.snapshot(), "input": command, "accepted": True, **controller}
         return {**self.snapshot(), "input": command, "accepted": True}
+
+    def _tab5_tap_receipt(self, x, y):
+        deadline = time.monotonic() + 3
+        acknowledged = 0
+        controller = None
+        while time.monotonic() < deadline:
+            self._check_cancelled()
+            state = self.control.request("state-get", ("/board/touch",)).get("value")
+            if not isinstance(state, dict) or state.get("controller") not in {"gt911", "st7123"}:
+                raise ServiceError("invalid_runtime_state", "Invalid Tab5 touch readback", 502)
+            controller = state["controller"]
+            if [state.get("x"), state.get("y")] == [x, y]:
+                acknowledged = int(state.get("press_seen") is True) + int(state.get("release_seen") is True)
+                if acknowledged == 2:
+                    break
+            self._stop_event.wait(.025)
+        return {
+            "controller": controller, "coordinate_space": "panel-native", "raw": [x, y], "logical": [x, y],
+            "controller_reports": {"reports": 2, "acknowledged": acknowledged},
+        }
 
     def _unsupported(self, *args, **kwargs):
         raise ServiceError("not_supported_on_runtime", "Operation is unavailable on esp32sim", 409)
@@ -11782,6 +11865,16 @@ class Esp32SimDeviceSession(DeviceSession):
             if value is not None and type(value) is not bool:
                 raise ServiceError("invalid_qom", "input_drive must be a boolean or null", 400)
             return self._set_state_property(path, prop, value, path.removeprefix("/machine"))
+        if self._supports_service_feature("expanded-board-state") and type(value) in (int, float):
+            board = self.spec.id
+            if (board in {"nesso-n1", "tab5"} and path == "/machine/board/imu"
+                    and prop in {"accel-x", "accel-y", "accel-z", "gyro-x", "gyro-y", "gyro-z"}):
+                return self._set_state_property(path, prop, value, "/board/imu")
+            if board == "tab5" and (
+                path == "/machine/board/ina226" and prop in {"bus-voltage-mv", "current-ma"}
+                or (path, prop) == ("/machine/board/rtc", "unix-time")
+            ):
+                return self._set_state_property(path, prop, value, path.removeprefix("/machine"))
         state_path = esp32sim.LEGACY_STATE_PATHS.get(path) if isinstance(path, str) else None
         if (state_path and self._supports_service_feature("board-device-state")
                 and type(value) in (int, float, bool)
@@ -11926,14 +12019,16 @@ class Esp32SimDeviceSession(DeviceSession):
         )
 
     def device_state(self):
-        if self.spec.id in {"nanoc6", "nesso-n1", "tab5"} and not self.spec.state_probes:
+        native_paths = esp32sim.NATIVE_BOARD_STATE_PATHS.get(self.spec.id, {})
+        native_schema = bool(native_paths) and self._supports_service_feature("expanded-board-state")
+        if native_paths and not native_schema and not self.spec.state_probes:
             return super().device_state()
         if not self.supports_device_state():
             return self._unsupported()
         with self._lock:
             self._require_runtime_permission("serial.read")
             if self.control is None or self.state != "running":
-                if self._supports_service_feature("board-device-state") and self.spec.state_probes:
+                if native_schema or self._supports_service_feature("board-device-state") and self.spec.state_probes:
                     try:
                         persisted = json.loads(self.device_state_path.read_text())
                     except (OSError, ValueError):
@@ -11952,6 +12047,12 @@ class Esp32SimDeviceSession(DeviceSession):
                 if properties is None:
                     raise ServiceError("invalid_runtime_state", "Invalid esp32sim onboard I/O state", 502)
                 components = {"onboard-io": {"path": "/machine/onboard_io", "properties": properties}}
+            elif native_schema:
+                model = self._model_state()
+                components = {name: {"path": path, "properties": model[path]}
+                              for name, path in native_paths.items() if model.get(path)}
+                errors = {name: {"component": "No modeled esp32sim component"}
+                          for name in native_paths if name not in components}
             else:
                 components = {}
                 if self._supports_service_feature("board-device-state"):
@@ -11967,7 +12068,7 @@ class Esp32SimDeviceSession(DeviceSession):
                 "supported": True, "available": bool(components), "source": "live", "captured_at": iso_now(),
                 "components": components, "errors": errors,
             }
-            if components and self._supports_service_feature("board-device-state"):
+            if components and (native_schema or self._supports_service_feature("board-device-state")):
                 atomic_write_json(self.device_state_path, response)
             return response
 
@@ -11993,9 +12094,19 @@ class Esp32SimDeviceSession(DeviceSession):
             self._record_event("reset")
             return self.snapshot()
 
+    def renew(self, ttl_seconds):
+        if self._tab5_speaker_enabled():
+            raise ServiceError("audio_capture_lease_fixed", "Tab5 speaker capture leases cannot be renewed", 409)
+        return super().renew(ttl_seconds)
+
     def audio_capture(self, output_format, offset, limit, sample_rate_hz, *,
                       source="speaker", expected_recording_id=None):
         self._require_runtime_permission("audio.read")
+        if self._tab5_speaker_enabled():
+            return super().audio_capture(
+                output_format, offset, limit, sample_rate_hz,
+                source=source, expected_recording_id=expected_recording_id,
+            )
         if source != "speaker" or expected_recording_id is not None:
             return self._unsupported()
         if output_format not in {"pcm", "metrics"} or offset < 0 or not 1 <= limit <= PCM_MAX_READ_BYTES:
@@ -12625,7 +12736,7 @@ class DeviceService:
                 ),
                 persist=False,
                 **({"speaker_recording_generation": record.get("speaker_recording_generation")}
-                   if session_class is Tab5DeviceSession else {}),
+                   if session_class in {Tab5DeviceSession, Esp32SimDeviceSession} else {}),
             )
             virtual_flash = record_path.parent / "virtual-flash.bin"
             session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
@@ -12927,6 +13038,11 @@ class DeviceService:
 
     def get_network_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
+        native_tab5_audio = (
+            spec.id == "tab5"
+            and "tab5-stereo-capture" in json.loads(esp32sim.LOCK.read_text()).get("service_features", ())
+            and spec.esp32sim_installation.ready(esp32sim.BOARDS["tab5"])
+        )
         return {"device_id": spec.id,
                 **review_sta_capability(spec, backend_ready=spec.backend_ready)}
 
@@ -13024,6 +13140,11 @@ class DeviceService:
                         "max_seconds": TAB5_MICROPHONE_SECONDS, "applies_on": "session_start",
                     },
                 }} if ready and spec.id == "tab5" and self.tab5_userdemo_codec_part else {}),
+                **({"esp32sim_audio": {
+                    "runtime": esp32sim.RUNTIME, "capture": TAB5_ESP32SIM_AUDIO_SOURCE,
+                    "firmware_sha256": TAB5_USERDEMO_FLASH_SHA256,
+                    "cursor": True, "scoped_evidence": True,
+                }} if native_tab5_audio else {}),
             },
             "components": components,
         }
@@ -14177,11 +14298,17 @@ class DeviceService:
                 or not self.tab5_userdemo_codec_part
             ):
                 raise ServiceError("audio_unsupported", "speaker_capture requires the admitted native Tab5 UserDemo", 409)
-            default_ttl = min(self.default_ttl, TAB5_AUDIO_MAX_LEASE_SECONDS) if speaker_capture and not use_esp32sim else self.default_ttl
+            if speaker_capture and use_esp32sim and device_id == "tab5" and (
+                firmware_sha != TAB5_USERDEMO_FLASH_SHA256
+                or "tab5-stereo-capture" not in native_identity.get("service_features", ())
+            ):
+                raise ServiceError("audio_unsupported", "speaker_capture requires the admitted Tab5 UserDemo and stereo runtime", 409)
+            tab5_speaker = speaker_capture and device_id == "tab5"
+            default_ttl = min(self.default_ttl, TAB5_AUDIO_MAX_LEASE_SECONDS) if tab5_speaker else self.default_ttl
             ttl = int(payload.get("ttl_seconds", default_ttl))
             if ttl < 30:
                 raise ServiceError("invalid_ttl", "ttl_seconds must be >= 30", 400)
-            if speaker_capture and not use_esp32sim and ttl > TAB5_AUDIO_MAX_LEASE_SECONDS:
+            if tab5_speaker and ttl > TAB5_AUDIO_MAX_LEASE_SECONDS:
                 raise ServiceError("invalid_ttl", "Tab5 speaker capture requires ttl_seconds <= 180", 400)
             ready_marker = payload.get("ready_marker")
             if ready_marker is not None and not isinstance(ready_marker, str):

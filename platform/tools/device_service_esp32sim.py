@@ -128,12 +128,25 @@ BOARD_STATE_DEVICES = frozenset({
     "papermono", "papers3", "stackchan", "stamplc", "stickc", "stickc-plus",
     "stickc-plus2", "sticks3", "stopwatch",
 })
+NATIVE_BOARD_STATE_PATHS = {
+    "nanoc6": {"rgb": "/machine/board/rgb", "ir": "/machine/board/ir",
+               "button": "/machine/soc/gpio/9"},
+    "nesso-n1": {name: f"/machine/board/{path}" for name, path in (
+        ("pi4ioe-43", "pi4ioe-43"), ("pi4ioe-44", "pi4ioe-44"),
+        ("bq27220", "bq27220"), ("aw32001", "aw32001"), ("bmi270", "imu"),
+    )},
+    "tab5": {name: f"/machine/board/{path}" for name, path in (
+        ("pi4ioe-43", "pi4ioe-43"), ("pi4ioe-44", "pi4ioe-44"),
+        ("ina226", "ina226"), ("rx8130", "rtc"), ("bmi270", "imu"), ("panel", "panel/controller"),
+    )},
+}
 
 
 def supports_device_state(device, features):
     return (device == "stackchan"
             or device == "dial" and "dial-encoder-state" in features
             or device in ATOM_IO_DEVICES and "state-snapshot" in features
+            or device in NATIVE_BOARD_STATE_PATHS and "expanded-board-state" in features
             or device in BOARD_STATE_DEVICES and "board-device-state" in features)
 
 # Normalized Flash digests with same-firmware HTTP session comparison.
@@ -291,7 +304,8 @@ def parse_network(value, *, restricted_supported=False, softap_supported=False):
 
 
 def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None, network=None,
-                  pcap=None, flash_readback=None, sd_initially_ejected=False, grove_tmp105=False):
+                  pcap=None, flash_readback=None, sd_initially_ejected=False, grove_tmp105=False,
+                  stereo_capture=False):
     rom = installation.rom.with_name(p4_rom_name(flash)) if board.is_tab5 else installation.board_rom(board)
     command = [
         str(installation.binary_for(board)), "--board", board.name, "--rom", str(rom),
@@ -318,6 +332,8 @@ def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None
             command += [flag, str(path)]
     if flash_readback is not None:
         command += ["--service-flash-out", str(flash_readback)]
+    if stereo_capture:
+        command += ["--service-stereo"]
     if sd_initially_ejected:
         command += ["--sd-ejected"]
     if grove_tmp105:
@@ -403,6 +419,8 @@ def input_command(device, payload, *, board=None):
     if kind in {"key", "keyboard", "button"}:
         field = "control" if kind == "button" else "key"
         name = control_name(payload.get(field), field)
+        if kind == "key" and name in {"p", "3"} and device in {"cores3", "stackchan", "sticks3", "stopwatch"}:
+            name = "power"
         core2_button_x = {"a": 63, "b": 160, "c": 258}.get(name) if device == "core2" else None
         if core2_button_x is not None and kind != "keyboard":
             # The FT6336 touch strip extends past the 240-row framebuffer.
@@ -522,6 +540,8 @@ def input_command(device, payload, *, board=None):
 
 
 def gpio_button(device, name):
+    if device == "stackchan":
+        return {"a": "a", "left": "a", "1": "a", "b": "b", "right": "b", "2": "b"}.get(name)
     if device in {"atom-lite", "atom-matrix", "atom-matrix-v11", "atomu", "atom-echo"}:
         return "a" if name in {"a", "user", "button", "btn", "btn1"} else None
     if device.startswith("atoms3") or device == "atom-echos3r":
@@ -681,11 +701,12 @@ def state_type(value):
 class Control:
     """Single socket reader, bounded waits, and a reply ID for each scheduler sample."""
 
-    def __init__(self, sock, on_text, on_audio):
+    def __init__(self, sock, on_text, on_audio, on_stereo=None):
         self.socket = sock
         self.socket.settimeout(5)
         self.on_text = on_text
         self.on_audio = on_audio
+        self.on_stereo = on_stereo
         self.condition = threading.Condition()
         self.write_lock = threading.Lock()
         self.pending = {}
@@ -719,6 +740,8 @@ class Control:
                         self._reply(struct.unpack_from("<I", data, 1)[0], data[5:])
                     elif opcode == 0x82 and data[0] == 2:
                         self.on_audio(struct.unpack_from("<I", data, 1)[0], data[5:])
+                    elif opcode == 0x82 and data[0] == 8 and self.on_stereo is not None:
+                        self.on_stereo(struct.unpack_from("<I", data, 1)[0], data[5:])
                     elif opcode == 0x82 and data[0] == 7:
                         with self.condition:
                             self.poweroff_frame = data[1:]
@@ -768,7 +791,7 @@ class Control:
                 raise ServiceError("runtime_control_unavailable", f"esp32sim gave no {op} reply", 503)
             if isinstance(reply, dict) and not reply.get("ok"):
                 if op == "frame":
-                    raise ServiceError("frame_unavailable", "esp32sim has not produced a framebuffer", 409)
+                    raise ServiceError("frame_unavailable", "esp32sim has not produced a framebuffer", 404)
                 raise ServiceError("runtime_input_rejected", f"esp32sim refused {op}", 409)
             return reply
         finally:

@@ -3857,8 +3857,14 @@ then reports `flash.tab5.speaker_capture=esp_emu_i2s1_tx`. A recording lease
 has a maximum TTL of 180 seconds and cannot renew. An ordinary session can
 use the codec Part without creating a recording.
 
+An explicit `runtime: esp32sim` lease of the same UserDemo also supports
+stereo recording when the pinned runtime advertises `tab5-stereo-capture`.
+The service advertises the native route under `fixtures.esp32sim_audio` and
+reports `flash.tab5.speaker_capture=esp32sim_i2s1_tx`. Both runtimes use
+the same cursor, stereo alignment, exact retained range and reset contract.
+
 Collect the live input, serial and frame evidence first. Stop with `purge=0`
-to let esp-emu finalize its session-owned WAV. Then request `audio.pcm`
+to finalize the session-owned WAV. Then request `audio.pcm`
 or an evidence ZIP with `include=manifest,audio`. The live PCM endpoint
 returns `409 audio_capture_pending`. Stereo s16le offsets and lengths align
 to four-byte frames. Tab5 metrics derive the sample rate from the WAV and
