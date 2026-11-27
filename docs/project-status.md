@@ -2,7 +2,7 @@
 
 日期：`2026-11-27`
 
-CoreS3、Cardputer、Cardputer-ADV、Dial、Atom Lite、Atom Matrix、Atom Matrix v1.1、AtomU、Atom Echo、M5Stick 与 StickT2 的普通 Device Service 会话在源码中默认使用原生 `esp32sim`。
+Core2、CoreS3、Cardputer、Cardputer-ADV、Dial、Atom Lite、Atom Matrix、Atom Matrix v1.1、AtomU、Atom Echo、M5Stick 与 StickT2 的普通 Device Service 会话在源码中默认使用原生 `esp32sim`。
 显式 `runtime=qemu` 和旧版身份、Unit、运行时环境、NVS 与文件系统夹具使用 QEMU 路径。
 Tab5 支持原生 esp32sim 的 GT911/ILI9881C
 与 ST7123，在经同固件对照验收的 UIFlow2 v2.5.4 和 Maker Fighter 1.4

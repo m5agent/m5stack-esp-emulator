@@ -68,6 +68,22 @@ AtomU 的 M5Burner 目录镜像包含该模块，同版两轮从请求到 MicroP
 PaperColor 的两后端各两次在来宾完成绘图后按 A 键，`(270,160)` 由白转黑。
 [固定固件、后端哈希和逐轮证据](https://github.com/m5agent/agent-work-logs/blob/399ada2d86222d3d4220c2cb5f78096cdee43dd1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/classic-defaults-and-panel-readiness.md)。
 
+## 2026-11-27：扩展的默认设备与运行时补齐
+
+Virtual-device validation。最终 fork 固定为 `9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee`。
+Atom Lite、Atom Matrix 与 Atom Matrix v1.1 的按键、IMU、RGB、串口
+文档用例在两个后端共 48 轮通过，另各两轮验证 stock REPL 与通用 HTTP。
+Cardputer K132 等待原版离线页绘制完成后通过 F12/GPIO0 进入菜单，
+两后端各两次成功。Dial 原版旋钮改变来宾画面，两后端各两次观察到响应。
+两板的已验审查任务仍可通过逐任务配置选择后端。
+
+Core2 采用完整菜单与 QR 区域作为 Home 条件，替换会误认启动图的颜色计数。
+两次 esp32sim 为 4.178、4.184 秒，两次 QEMU 为 43.196、48.839 秒。
+两后端在原版界面触摸后均观察到菜单变化；通过同基底 UART REPL 各两次
+观测到 A/B/C 独立按下和释放。Tab5 单租约观察到前 pin 9.101、9.260 秒，
+合并 pin 9.554、9.968 秒；同两种 RGB 哈希均出现，主机负载另记录。
+[逐轮证据与范围](https://github.com/m5agent/agent-work-logs/blob/d7292c937fe24d283b6343fc3c05670b3d44f737/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/expanded-paired-qualifications.md)。
+
 ## 2026-11-27：esp32sim 与封存后端同固件基准
 
 - Native Device Service virtual-device validation。基线源码
