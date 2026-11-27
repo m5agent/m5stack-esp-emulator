@@ -4,7 +4,7 @@ import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles,getUIFlowWork
 import {openQemuPeerPair,newQemuPeerCode} from './public-qemu-peer-pair.js';
 import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from './public-qemu-gnss-example.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
-import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
+import {assetUrl, siteRoot, resolveDevice, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
 import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
@@ -1641,13 +1641,30 @@ async function init() {
   const params = new URLSearchParams(location.search);
   const mixed = config.browser_qemu_available && config.browser_esp32sim_profiles?.length;
   if (mixed) {
-    config.browser_runtime_engine = params.get('engine') === 'qemu-wasm' ? 'qemu-wasm' : 'esp32sim';
+    let engine = params.get('engine');
+    if (!['qemu-wasm', 'esp32sim'].includes(engine)) {
+      engine = 'esp32sim';
+      // Existing links to QEMU-only boards keep their browser engine.
+      const requested = params.get('device');
+      let row;
+      try { if (requested) row = resolveDevice(requested, catalog); }
+      catch { /* The launch parser reports an unknown device below. */ }
+      if (row && !config.browser_esp32sim_profiles.includes(getBrowserProfile(row.id)?.board)) {
+        try {
+          const registry = await loadQemuBrowserProfiles({root});
+          if (getQemuBrowserProfile(row.id, registry)) {
+            state.qemuProfiles = registry;
+            engine = 'qemu-wasm';
+          }
+        } catch { /* The model and service lanes still work without QEMU. */ }
+      }
+    }
+    config.browser_runtime_engine = engine;
     $('browserEngineFields').hidden = false;
     engines.value = config.browser_runtime_engine;
     engines.addEventListener('change', () => {
       const url = new URL(location.href);
-      if (engines.value === 'qemu-wasm') url.searchParams.set('engine','qemu-wasm');
-      else url.searchParams.delete('engine');
+      url.searchParams.set('engine',engines.value);
       if (state.selected) url.searchParams.set('device',state.selected.id);
       url.searchParams.set('autostart','0');
       location.assign(url);
@@ -1656,7 +1673,7 @@ async function init() {
   state.config = config;
   if (config.browser_runtime_engine === 'qemu-wasm') {
     try {
-      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
+      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([state.qemuProfiles || loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {

@@ -91,7 +91,7 @@ try {
   });
   report.observed_dedicated_workers = workerObservations;
   page.on('pageerror', error => errors.push(error.message)); page.on('request', request => requests.push({url:request.url(),method:request.method()}));
-  await page.goto(origin, {waitUntil:'domcontentloaded'});
+  await page.goto(new URL('?engine=qemu-wasm',origin).href, {waitUntil:'domcontentloaded'});
   await page.waitForFunction(() => crossOriginIsolated, {}, {timeout:45000});
   check('pages-service-worker-isolation', await page.evaluate(() => crossOriginIsolated && typeof SharedArrayBuffer === 'function'));
   report.admission = await page.evaluate(async ({device, origin, clockDivisor, publicUI}) => {

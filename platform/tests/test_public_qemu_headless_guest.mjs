@@ -96,7 +96,7 @@ try{
     const item={kind:worker.url().includes('/public-qemu-engine.js')?'engine':'pthread',closed:false};workers.push(item);
     worker.on('close',()=>{item.closed=true;});
   });
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  await page.goto(new URL('?engine=qemu-wasm',origin).href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated,{}, {timeout:45000});
   check('pages-service-worker-isolation',await page.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
   report.admission=await page.evaluate(async({origin,device})=>{
