@@ -28,7 +28,9 @@ The runner covers selected display and quick-start cases for CoreS3,
 Cardputer, Dial, StickS3, StopWatch, Basic, Core2, PaperColor, PaperDIY,
 PaperMono, AtomS3, AtomS3R, StackChan, StamPLC and the StickC family.
 It also checks the CoreS3 power button, battery readback, IMU vectors and
-ambient light/proximity examples and the Dial encoder example. It ports predicates
+ambient light/proximity examples and the Dial encoder example. Classic Atom
+cases use guest UART for button/IMU and log output and routed RGB readback for
+all three primary colors. It ports predicates
 from the [CoreS3 checker](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check_cores3.py)
 and [S3-B checker](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check-s3b-docs.py),
 plus the fork's [classic](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check-lx6-cores.py)

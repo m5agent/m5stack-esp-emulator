@@ -184,10 +184,13 @@ PAPER = {
     ("paperdiy", "display-1"): (540, 960),
     ("papermono", "display-1"): (480, 800),
 }
+CLASSIC_ATOMS = {"atom-lite", "atom-matrix", "atom-matrix-v11"}
+CLASSIC_ATOM_CASES = {(device, case) for device in CLASSIC_ATOMS
+                      for case in ("button", "imu", "rgb", "quickstart-logoutput")}
 CASES = ANIMATION.keys() | STATIC.keys() | PAPER.keys() | {
     ("cores3", "button"), ("cores3", "power"), ("cores3", "imu"), ("cores3", "ltr553"),
     ("dial", "encoder"),
-}
+} | CLASSIC_ATOM_CASES
 
 
 def frames(service, route, out, deadline, size, label="frame"):
@@ -398,6 +401,83 @@ def observe_cores3_sensor(service, route, out, deadline, case, runtime):
     return {"frame_predicates_pass": all(step["matched"] for step in steps), "steps": steps}
 
 
+def console(service, route):
+    return service.json(route + "/serial?channel=console&limit=65536")["data"]
+
+
+def serial_until(service, route, deadline, predicate):
+    while time.monotonic() < deadline:
+        data = console(service, route)
+        if predicate(data):
+            return data
+        time.sleep(0.2)
+    return console(service, route)
+
+
+def observe_classic_atom_button(service, route, deadline):
+    serial_until(service, route, deadline, lambda text: "entry " in text)
+    time.sleep(2.5)
+    idle = "BtnA was pressed" not in console(service, route)
+    for count, hold in enumerate((0.15, 1.25), start=1):
+        service.json(route + "/input", method="POST", payload={
+            "kind": "key", "key": "a", "hold_seconds": hold, "settle_seconds": 0.1,
+        })
+        data = serial_until(service, route, min(deadline, time.monotonic() + 7),
+                            lambda data: data.count("BtnA was released") >= count)
+    observations = {event: data.count(f"BtnA was {event}") for event in ("pressed", "released", "held")}
+    return {"service_predicates_pass": idle and observations == {"pressed": 2, "released": 2, "held": 1},
+            "idle_control": idle, "guest_events": observations}
+
+
+def observe_classic_atom_rgb(service, route, deadline, device):
+    leds = 1 if device == "atom-lite" else 25
+    expected = {0xff0000, 0x00ff00, 0x0000ff}
+    seen = set()
+    while time.monotonic() < deadline and seen != expected:
+        io = service.json(route + "/device-state")["components"]["onboard-io"]["properties"]
+        values = io["led-rgb"] if isinstance(io["led-rgb"], list) else [io["led-rgb"]]
+        if len(values) == leds and io["led-frames"] > 0 and len(set(values)) == 1:
+            seen.update(expected.intersection(values))
+        time.sleep(0.08)
+    return {"service_predicates_pass": seen == expected, "uniform_colors": sorted(seen), "leds": leds}
+
+
+def atom_vectors(text):
+    values = [float(value) for value in re.findall(r"(?:Acc|Gyr) [XYZ] =\s+(-?\d+\.\d+)", text)]
+    return [values[index:index + 6] for index in range(0, len(values) - 5, 6)]
+
+
+def observe_classic_atom_imu(service, route, deadline, device, runtime):
+    idle_text = serial_until(service, route, deadline, atom_vectors)
+    idle = atom_vectors(idle_text)
+    if device == "atom-lite":
+        return {"service_predicates_pass": bool(idle) and all(not any(vector) for vector in idle),
+                "no_imu_control": idle[:3]}
+    steps = []
+    for vector in ((0.5, -0.25, 1.0, 125, -50, 25), (-0.75, 0.375, 0.25, -100, 80, -30)):
+        if runtime == "esp32sim":
+            service.json(route + "/input", method="POST", payload={
+                "kind": "imu", "accel": vector[:3], "gyro": vector[3:],
+            })
+        else:
+            path = "/machine/mpu6886" if device == "atom-matrix" else "/machine/bmi270"
+            properties = dict(zip(("accel-x", "accel-y", "accel-z", "gyro-x", "gyro-y", "gyro-z"), vector))
+            set_properties(service, route, path, properties)
+
+        def matches(observed):
+            return all(abs(a - b) < 0.25 for a, b in zip(observed, vector))
+
+        text = serial_until(service, route, min(deadline, time.monotonic() + 9),
+                            lambda text: any(matches(sample) for sample in atom_vectors(text)))
+        samples = atom_vectors(text)
+        observed = next((sample for sample in samples if matches(sample)), samples[-1] if samples else [])
+        steps.append({"injected": vector, "observed": observed,
+                      "matched": bool(observed) and matches(observed),
+                      "idle_matches": any(matches(sample) for sample in idle)})
+    return {"service_predicates_pass": bool(idle) and all(step["matched"] and not step["idle_matches"] for step in steps),
+            "steps": steps}
+
+
 def observe_case(service, route, out, deadline, case, runtime):
     if case in ANIMATION:
         return observe_animation(service, route, out, deadline, ANIMATION[case])
@@ -412,6 +492,16 @@ def observe_case(service, route, out, deadline, case, runtime):
         return observe_cores3_power(service, route, out, deadline, runtime)
     if case in {("cores3", "imu"), ("cores3", "ltr553")}:
         return observe_cores3_sensor(service, route, out, deadline, case[1], runtime)
+    if case in CLASSIC_ATOM_CASES:
+        device, name = case
+        if name == "button":
+            return observe_classic_atom_button(service, route, deadline)
+        if name == "imu":
+            return observe_classic_atom_imu(service, route, deadline, device, runtime)
+        if name == "rgb":
+            return observe_classic_atom_rgb(service, route, deadline, device)
+        data = serial_until(service, route, deadline, lambda text: "count:2" in text)
+        return {"service_predicates_pass": "count:1" in data and "count:2" in data}
     return observe_cores3_button(service, route, out, deadline)
 
 
@@ -478,14 +568,16 @@ def run_trial(service, out, device, case, firmware_id, digest, runtime, trial, t
             service, route, out, time.monotonic() + timeout, (device, case), runtime,
         )
         result["no_fatal_marker"] = collect_serial(service, route, out)
-        if result["no_fatal_marker"] and result["observations"]["frame_predicates_pass"]:
+        observations = result["observations"]
+        matched = observations.get("service_predicates_pass", observations.get("frame_predicates_pass", False))
+        if result["no_fatal_marker"] and matched:
             result["status"] = "PASS"
             result["scope"] = "Service oracle, including recorded observations. Standalone fork checks are separate."
         else:
             result["status"] = "FAIL"
     except OracleFailure as error:
         result.update(status="FAIL", reason=str(error))
-    except (MatrixError, OSError, ValueError) as error:
+    except (MatrixError, OSError, ValueError, KeyError) as error:
         result.update(status="ERROR", error=str(error))
     finally:
         result["elapsed_seconds"] = time.monotonic() - started

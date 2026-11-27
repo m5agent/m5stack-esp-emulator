@@ -87,8 +87,8 @@ SD_DEVICES = frozenset({
 CAMERA_DEVICES = frozenset({"cores3", "stackchan", "atoms3r-cam", "atoms3r-m12"})
 CAMERA_SEQUENCE_DEVICES = frozenset({"atoms3r-cam", "atoms3r-m12"})
 GROVE_TMP105_DEVICES = frozenset({"atom-echo", "basic-v27"})
-UART_REPL_DEVICES = frozenset({"cores3", "core2", "atom-echo", "atomu"})
-ATOM_IO_DEVICES = frozenset({"atom-echo", "atomu"})
+ATOM_IO_DEVICES = frozenset({"atom-echo", "atomu", "atom-lite", "atom-matrix", "atom-matrix-v11"})
+UART_REPL_DEVICES = ATOM_IO_DEVICES | {"cores3", "core2"}
 # Normalized Flash digests with same-firmware HTTP session comparison.
 # Keep unspecified images and legacy-only feature requests on esp-emu.
 TAB5_DEFAULT_FIRMWARE = {
@@ -584,11 +584,15 @@ def atom_io_state(tree):
     leds = tree.get("/machine/board/leds", {})
     rgb, updates = leds.get("rgb"), leds.get("updates")
     high = tree.get("/machine/soc/gpio/39", {}).get("level")
-    if (not isinstance(rgb, list) or len(rgb) != 1 or not isinstance(rgb[0], list) or len(rgb[0]) != 3
-            or any(type(value) is not int or not 0 <= value <= 255 for value in rgb[0])
+    if (not isinstance(rgb, list) or len(rgb) not in {1, 25}
             or type(updates) is not int or updates < 0 or type(high) is not bool):
         return None
-    return {"led-rgb": int.from_bytes(bytes(rgb[0]), "big"), "led-frames": updates,
+    if any(not isinstance(pixel, list) or len(pixel) != 3
+           or any(type(value) is not int or not 0 <= value <= 255 for value in pixel)
+           for pixel in rgb):
+        return None
+    packed = [int.from_bytes(bytes(pixel), "big") for pixel in rgb]
+    return {"led-rgb": packed[0] if len(packed) == 1 else packed, "led-frames": updates,
             "pressed": not high, "input-level": high}
 
 

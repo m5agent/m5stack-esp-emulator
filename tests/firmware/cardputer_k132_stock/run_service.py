@@ -99,8 +99,9 @@ def run(args: argparse.Namespace) -> dict:
 
     def offline(frame: Image.Image) -> bool:
         r, g, b = frame.getpixel((16, 26))
-        # The offline page has an orange status banner below the title.
-        return r > 220 and 100 < g < 195 and b < 85
+        # The banner is drawn before the guest finishes the left column.
+        nickname = frame.crop((12, 100, 84, 120))
+        return r > 220 and 100 < g < 195 and b < 85 and nickname.getcolors(1) is None
 
     def app_menu(frame: Image.Image) -> bool:
         r, g, b = frame.getpixel((95, 51))
@@ -120,7 +121,9 @@ def run(args: argparse.Namespace) -> dict:
         serial = call(path + "/serial?offset=0&limit=65536")["data"]
         if marker and (marker in serial or "Launcher onCreate" not in serial):
             raise RuntimeError("Factory guest did not start at its pre-input launcher")
-        post(path + "/input", {"kind": "key", "key": key, "settle_seconds": 0.5})
+        post(path + "/input", {
+            "kind": "key", "key": key, "hold_seconds": 0.45, "settle_seconds": 0.5,
+        })
         if marker:
             post(path + "/wait", {
                 "timeout_seconds": 12, "ready": {"serial_markers": [marker]},
