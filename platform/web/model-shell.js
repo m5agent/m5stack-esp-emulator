@@ -30,6 +30,10 @@ const CONTROL_MAPS = {
   nanoc6: { button: 'button' },
   atoms3: { button: 'button' },
   'atoms3-lite': { button: 'button' },
+  atoms3u: { button: 'button' },
+  atomu: { button: 'button' },
+  'atom-echo': { button: 'button' },
+  'atom-echos3r': { button: 'button' },
   'atom-lite': {button:'button'},
   'atom-matrix': {button:'button'},
   'atom-matrix-v11': {button:'button'},
@@ -37,6 +41,9 @@ const CONTROL_MAPS = {
   'stickc-plus2': { a: 'a', b: 'b', power: 'power' },
   stickc: { a: 'a', b: 'b', power: 'power' },
   'stickc-plus-se': { a: 'a', b: 'b', power: 'power' },
+  'basic-v27': { a:'a',b:'b',c:'c' },
+  m5stick: { a:'a' },
+  stickt2: { a:'a',b:'b',press:'press' },
   dial: { wake: 'a' },
   atoms3r: { button: 'button' },
   stamplc: { a: 'key1', b: 'key2', c: 'key3' },
@@ -266,9 +273,9 @@ export class ModelDeviceShell {
       this.emit('touch', { ...event, x: event.x, y: event.y, down: event.action !== 'end' });
       return;
     }
-    if (this.device.id === 'dial' && event.kind === 'joint' && event.id === 'rotation' && event.action === 'rotate') {
+    if (['dial','stickt2'].includes(this.device.id) && event.kind === 'joint' && event.id === 'rotation' && event.action === 'rotate') {
       const ring = this.model.find(event.id, 'joint');
-      if (ring?.meta?.role === 'visual-rotary-input' && ring.meta.detentsPerTurn === 16
+      if (ring?.meta?.role === 'visual-rotary-input'
         && Number.isFinite(event.deltaDeg) && Math.abs(event.deltaDeg) <= 180)
         this.emit('encoder', {deltaDegrees:event.deltaDeg, source:event.source});
       return;
@@ -457,10 +464,11 @@ export class ModelDeviceShell {
     }
   }
 
-  setFrame(pixels, width, height, sequence = this.frameSeq + 1, {byteOrder = 'big'} = {}) {
+  setFrame(pixels, width, height, sequence = this.frameSeq + 1, {byteOrder = 'big',nativeRasterRotation} = {}) {
     if (!this.display || this.disposed) return false;
     if (!['big', 'little'].includes(byteOrder)) throw new TypeError('Unknown RGB565 byte order');
-    const rotated = this.display.meta.nativeRasterRotation === 90 && width === this.display.height && height === this.display.width;
+    const rotated = (nativeRasterRotation ?? this.display.meta.nativeRasterRotation) === 90
+      && width === this.display.height && height === this.display.width;
     if (!rotated && (width !== this.display.width || height !== this.display.height)) {
       this.showOverlay('Framebuffer mismatch', `收到 ${width}×${height}，面板为 ${this.display.width}×${this.display.height}`);
       return false;
@@ -482,8 +490,8 @@ export class ModelDeviceShell {
     return true;
   }
 
-  setFrameLE(pixels, width, height, sequence = this.frameSeq + 1) {
-    return this.setFrame(pixels, width, height, sequence, {byteOrder: 'little'});
+  setFrameLE(pixels, width, height, sequence = this.frameSeq + 1, options) {
+    return this.setFrame(pixels, width, height, sequence, {...options,byteOrder:'little'});
   }
 
   async setImage(image, sequence = this.frameSeq + 1, commitGuard = () => true) {

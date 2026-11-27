@@ -64,7 +64,7 @@
 
 源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。
 
-- [esp32sim 新增登记](../platform/web/esp32sim-browser-boards.json)共 `14` 款。设备 ID：`atom-lite`，`atoms3`，`atoms3-lite`，`dial`，`nanoc6`，`paperdiy`，`papermono`，`papers3`，`stackchan`，`stickc`，`stickc-plus`，`stickc-plus-se`，`sticks3`，`stopwatch`。
+- [esp32sim 新增登记](../platform/web/esp32sim-browser-boards.json)共 `30` 款。设备 ID：`atom-echos3r`，`atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atoms3`，`atoms3-lite`，`atoms3r`，`atoms3r-cam`，`atoms3r-m12`，`atoms3u`，`basic-v27`，`core2`，`dial`，`m5stick`，`nanoc6`，`nesso-n1`，`papercolor`，`paperdiy`，`papermono`，`papers3`，`stackchan`，`stamplc`，`stickc`，`stickc-plus`，`stickc-plus-se`，`stickc-plus2`，`sticks3`，`stickt2`，`stopwatch`，`tab5`。
 
 ## 外接 Unit 库存与准入
 
@@ -147,13 +147,13 @@
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值；host 接入战役不重开 |
 | `UI-02` | 进行中 | 更多固定固件、浏览器性能/长期稳定性及逐固件 CPU、输入、存储与复位缺口 |
 | `UI-03` | 进行中 | 正式托管同版本完整串行门禁、独立 HTTPS 编辑器/输入与偶发启动/复位故障 |
-| `UI-04` | 待做 | 稳定托管 QEMU-WASM 门禁的 PaperDIY 复位、Atom Matrix 编辑器与按键，以及 ADV 键盘 |
+| `UI-04` | 进行中 | 托管门禁验证 esp32sim ADV 的 11 键；保留 QEMU-WASM ADV IRQ 键盘诊断，继续定位 QMP 已确认后来宾键码残留 |
 | `UNIT-01` | 已完成（virtual-device） | 接入战役已完成；仅保留 `UNIT-DEFER-01` 和下文预览/原驱动覆盖的独立余量 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动、USB/网络竞态及摄像头/音频/电源/键盘长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`104` 个 Python 模块，`61734` 行；规模最大的模块如下。
+- `platform/tools`：`104` 个 Python 模块，`61738` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -166,7 +166,7 @@
 
 - `tests/`：`183` 个可执行 Python 测试文件，分布在 `84` 个目录；`253` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`386` 个 patch 文件。
-- 文档：`758` 个 Markdown 页面；除本生成页外共 `82975` 行。
+- 文档：`758` 个 Markdown 页面；除本生成页外共 `83067` 行。
 
 ## 文档与测试
 

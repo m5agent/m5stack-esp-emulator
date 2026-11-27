@@ -1,9 +1,10 @@
 # esp32sim browser execution glue
 
 The four ES modules and MIT license in this directory are exact copies from the
-[M5Stack esp32sim fork](https://github.com/m5agent/esp32sim/tree/4e257b6be8ee0ed706c2e509d8f31ef7472a424b).
-The `m5-device-service-20261127` tag integrates the browser API and the native
-board models. The browser API descends from the CoreS3 and Cardputer-ADV milestone
+[M5Stack esp32sim fork](https://github.com/m5agent/esp32sim/tree/c2329ebeb1f0a258eedecbab0dac7390aa31987f).
+The browser pin extends `m5-milestone-service-parity-20261127` with classic
+ESP32 PSRAM sizes, board eFuse parity, Tab5 revision selection, and board
+input and media transport. The browser API descends from the CoreS3 and Cardputer-ADV milestone
 `76e8b35710d1879e073f73c4a03bd11b216fb95f`. It adds Web protocol commands for
 physical keyboard edges and PMIC power presses, queue acknowledgements, resume,
 and ADV presentation rotation. The existing `esp32sim_in_text` WASM export

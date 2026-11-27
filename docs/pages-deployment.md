@@ -99,10 +99,21 @@ node platform/tests/test_public_esp32sim_guest.mjs
 提供该测试锁定的 Arduino 合并镜像。测试保留同一页面的来宾输出和 Stop 前后
 的实际 DedicatedWorker 观察。[逐板记录](validation-ledger.md#2026-11-27esp32sim-wasm-逐板验收)
 
-Tab5 的 P4 rev 0、rev 3 和 C6 rev 0 ELF 同样在该发布中。现用 WASM
-构造函数对 Tab5 板型固定使用 rev < 3，`esp32p4-rev3` 入口没有 Tab5 面板配置。
-WASM 支持 C6 副处理器装载原语。公开工作台尚无校验和装载 ESP-Hosted 2.0.13
-固件及对应许可的路径，Tab5 浏览器运行未准入。
+Tab5 的浏览器配置使用 GT911/ILI9881C。工作台根据 P4 引导程序头选择
+rev 0 或 rev 3 构造函数和匹配的 ROM。下载运行选项中的 ESP-Hosted
+2.0.13 C6 ZIP 后，在同一面板选取该 ZIP。工作台验证 ZIP 和四个固件段的
+SHA-256，按副处理器分区写入该会话的 Flash 并装入 C6 ROM。C6 固件和用户
+应用均留在会话内存。720 × 1280 的原始面板保留在平面触屏，3D 使用
+1280 × 720 纹理并逆变换触控坐标。
+
+经典 ESP32 浏览器内核运行 Core2 的 8 MiB PSRAM 与 StickC Plus2 的
+2 MiB PSRAM，沿用原生串行内存和 HIMEM 映射。Basic v2.7 由引导程序
+Flash 容量选择 4 MiB 或 16 MiB。图像、板型与具体操作的实测边界见
+[逐板台账](validation-ledger.md#2026-11-27esp32sim-wasm-第二轮)。
+
+摄像头板展示来宾实际采集的虚拟测试图案。支持麦克风输入的板型可在
+客体运行后上传不超过 2 MiB 的单声道或双声道 PCM16 WAV，由板级 I²S
+接收端取样。扬声器播放由单独的音频选项控制。
 
 ## 本机 Device Service 的浏览器运行
 
@@ -148,13 +159,19 @@ python3 platform/tools/serve.py --browser-site .work/browser-site \
    分别绑定正常时钟配置，未知固件保留基础慢放配置。
 
 公开混合导出使用固定 Rust 1.99.1 构建 esp32sim，保留 QEMU 和 LittleFS。
-工作流用固定 Arduino 与 UIFlow2 镜像验证 CoreS3、Cardputer-ADV 和 Cardputer 的 esp32sim 工作台。Cardputer 保留 QEMU-WASM 默认，可用 `engine=esp32sim` 切换。
+工作流用固定 Arduino 与 UIFlow2 镜像验证 CoreS3、Cardputer-ADV 和
+Cardputer 的 esp32sim 工作台。Cardputer K132、StickS3、Core2、StamPLC 与两版
+Atom Matrix 默认选择 esp32sim。需要网页 MicroPython 编程时，在运行选项
+选择 QEMU-WASM。
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
 公开板型的真实客体验收成功。当前[聚合门禁](../platform/tests/test_public_qemu_admitted_boards.mjs)
 依次规划各准入板的完整编辑器和普通输入用例、Cardputer-ADV 完整键盘、StackChan
 三区体感触摸，以及旧固定示例（包括 CoreS3 两种示例）；精确用例由源码规划器
 与[工作台验收说明](../tests/browser-qemu/uiflow_workbench/README.md)维护。
+同一次导出的 esp32sim ADV 来宾必须通过 11 键的按下、释放、状态像素与实际
+Worker 消失。CI 核对这份报告的站点清单、内核和 Flash SHA 后，将 QEMU-WASM 的
+ADV UIFlow IRQ 键盘用例作为诊断保留，报告中照常记录其结果。
 CI 显式设 `M5_QEMU_GATE_WORKERS=1` 串行执行，不能以本地并发功能检查的耗时
 作为启动性能样本。候选预览导出明确标为
 `publication_eligible=false`，聚合发布门禁拒绝它。构建 job 只有仓库读取权限，

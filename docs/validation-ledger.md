@@ -54,6 +54,80 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   QEMU 为 fixture 要求的 466×466。目录的完整应用行为和重复性仍待补齐。
 
 
+## 2026-11-27：浏览器合入 esp32sim runtime-gaps
+
+Browser-WASM virtual-device validation。发布用 fork
+`c2329ebeb1f0a258eedecbab0dac7390aa31987f` 包含 runtime-gaps 里程碑
+`9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee` 和浏览器板级变更。
+Rust 1.99.1 源构建 WASM 为
+`e9c99a3addf8f57a9c62ed59a89fba932061e1a272ac267c5bebf62101b6991d`。
+Chrome 同路径复验通过 Core2 触摸与 8 MiB/HIMEM、Tab5 GT911 原版启动与
+ADC 选择、Nesso N1 SPI 显示与触摸，以及 Cardputer-ADV 11 键回读。
+这些来宾在 Stop 后均观察到实际 Worker 消失。上一轮的帧及延时对照
+使用独立的精确 WASM 版本。
+
+## 2026-11-27：esp32sim WASM 第二轮
+
+Browser-WASM virtual-device validation。fork 源码
+`d2f4af9ede499fbfb0f56ed3b425c09d451709c5`，源构建 WASM
+`22d0c282620a176ac87bb026919a4c28551b1a3034db269bef95b8fa61aca1aa`。
+本轮使用固定 Chrome、WorkBench UI 和 Stop 前后的实际 DedicatedWorker 目标。
+
+- AtomS3R 的 eFuse package 与原生一致后，ST7735S 路径的 A 键使来宾计数
+  和 128 × 128 帧同时变化。Nesso N1 使用 QFN40 外部 Flash eFuse，来宾
+  记录触摸 `66 169 1`，135 × 240 帧变化。
+- PaperColor 原功能例程通过。首轮到 ready 约 56 s 墙钟，来宾报告
+  QUALITY 刷新 16,995 ms，按键计数和新的面板帧均有观察。其更慢的
+  墙钟反馈仍保留为默认后端选择条件。
+- Core2 与 StickC Plus2 在确切 PSRAM 容量下分别通过触摸及 A 键的画面计数。
+  ESP-IDF 来宾读回 2,097,152 与 8,388,608 字节，完成 2 MiB 分配边界和
+  HIMEM 页 127、128、255 的独立读写。Matrix 两版输出 25 灯同色序列。
+  StopWatch 修正为 466 × 466 面板帧。
+- StamPLC 的三键通过 I²C 扩展器接线，固定 A 键场景独立验证。
+  AtomS3R-CAM 与 M12 各取得五个不同的来宾采集哈希及页面预览。
+  VoiceS3R 来宾输出包含非零 PCM，独立麦克风例程从同一型号收到 WAV
+  注入后的 3158 个非零字节。AtomS3U 按键驱动 RGB 变化。
+- Basic v2.7 的 4 MiB 和 16 MiB 固定例程均验证 A、B、C 三键。M5Stick OLED 的
+  诊断固件验证 SH1107 真实 SPI 帧和按键。StickT2 诊断固件走真实
+  ST7789 SPI、I²C 按压与有符号旋转。这两款仍需原厂固件冷启动复验。
+- Tab5 的 GT911/ILI9881C 原版 v2.5.3 来宾通过校验后的 C6 固件完成
+  ESP-Hosted 启动。触摸 `(83,755)` 后 ADC 选择标记变更，平面和 3D
+  均收到完整帧并完成停止。原版实测使用 rev 0，rev 3 原版待测。
+- Dial Arduino Encoder 场景在三步旋转后出现新的来宾画面。StackChan
+  的原驱动逐个确认三个体感区的按下及释放。Core2 的 I²S
+  收到 PCM16 WAV 后从原 `M5.Mic` 读到非零样本。
+- ADV 固定 KeyboardI2C 例程 11 键均确认按下、释放、键码与相应的像素。
+  QEMU-WASM UIFlow IRQ 场景保留为诊断，QMP 后的残留键码根因仍开放。
+- AtomU 和 Echo 的修正版 v2.5.4 诊断镜像分别到达约 0.50 和 0.52
+  来宾秒，随后未继续发出定时状态，关闭前的输入未验收。
+  另一个 Arduino 固件在 AtomU 和 Echo 分别报告板型 130 和 142，
+  后续心跳停在约 0.12 和 0.14 来宾秒。两板仍未准入。
+  StackChan 在同固件中曾正常读取多组舵机位置，后续有
+  `servo Y write failed`，持续运动未验收。
+
+同一工作台在 Chrome 中逐个运行完全相同的固定固件，采集 ready、输入计数
+延迟和首次输入前后的 RGB565 帧或 25 灯像素值。以下是一次墙钟样本，每个
+通过的运行均在 Stop 后确认实际 Worker 全部消失。
+
+| 板型 | 启动秒数（esp32sim / QEMU-WASM） | 输入毫秒（同顺序） | 输出一致 | 浏览器默认 |
+| --- | --- | --- | --- | --- |
+| Cardputer K132 | 1.12 / 15.46 | 35 / 86 | 是 | esp32sim |
+| StickS3 | 1.59 / 16.02 | 48 / 117 | 是 | esp32sim |
+| Core2 | 7.99 / 81.16 | 84 / 436 | 是 | esp32sim |
+| StopWatch | 1.93 / 19.49 | 17 / 59 | 帧有差异 | QEMU-WASM |
+| StackChan | 4.47 / 29.73 | 38 / 85 | 帧有差异，舵机持续运行待验 | QEMU-WASM |
+| PaperDIY | 7.73 / 76.31 | 303 / 10300 | 帧有差异 | QEMU-WASM |
+| PaperMono | 5.71 / 15.84 | 1130 / 682 | 帧有差异 | QEMU-WASM |
+| PaperColor | 52.09 / 23.09 | 17027 / 2921 | 是 | QEMU-WASM |
+| PaperS3 | 7.27 / 71.63 | 240 / 11537 | 帧有差异 | QEMU-WASM |
+| AtomS3R | 1.81 / 14.57 | 25 / 93 | 帧有差异 | QEMU-WASM |
+| Atom Matrix | 1.08 / 62.23 | 31 / 72 | 25 灯一致 | esp32sim |
+| Atom Matrix v1.1 | 1.08 / 60.27 | 39 / 68 | 25 灯一致 | esp32sim |
+| StickC Plus2 | 1.53 / 65.40 | 13 / 45 | 帧有差异 | QEMU-WASM |
+| StamPLC | 2.92 / 15.42 | 64 / 102 | 是 | esp32sim |
+
+[逐批证据和复现](https://github.com/m5agent/agent-work-logs/tree/c963e244bb8dd9eff53d4a186673b1aee34616b3/records/m5stack-esp-emulator/2026-11-27-esp32sim-browser-round2)
+
 ## 2026-11-27：esp32sim WASM 逐板验收
 
 Browser-WASM virtual-device validation。esp32sim 源码

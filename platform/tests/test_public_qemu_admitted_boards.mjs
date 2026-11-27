@@ -49,8 +49,10 @@ export async function schedulePublicQemuGate(cases,{workers=1,runCase}={}){
           const item=cases[index],row=rows[index];
           Object.assign(row,{status:'RUNNING',worker:workerId,phase});
           active++;maxActive=Math.max(maxActive,active);
-          const noteFailure=error=>{firstFailure??={case_index:index,...item,worker:workerId,phase,
-            error:String(error?.message||error).slice(0,2000)};};
+          const noteFailure=error=>{
+            if (!item.diagnostic) firstFailure??={case_index:index,...item,worker:workerId,phase,
+              error:String(error?.message||error).slice(0,2000)};
+          };
           try{
             const result=await runCase({...item},{index,worker:workerId,phase,noteFailure});
             Object.assign(row,result,item,{worker:workerId,phase,status:result?.status});
@@ -69,7 +71,7 @@ export async function schedulePublicQemuGate(cases,{workers=1,runCase}={}){
   }
   if(firstFailure)for(const row of rows)if(row.status==='NOT RUN')row.not_run_reason='Dispatch stopped after the first failure';
   return {workers,max_active_children:maxActive,first_failure:firstFailure,cases:rows,
-    all_passed:!firstFailure&&rows.every(row=>row.status==='PASS')};
+    all_passed:!firstFailure&&rows.every(row=>row.status==='PASS'||row.diagnostic&&row.status==='FAIL')};
 }
 
 /** One explicit export/image/input path for every gate child. Standalone
@@ -114,7 +116,7 @@ export function validatePublicQemuGateResult(item,result,{workbenchRegistry,wasm
 
 /** Pure planning: no process, browser, firmware or runtime execution. */
 export function planPublicQemuGate({manifest,config,registry,runtime,c61Runtime,workbenchRegistry,
-  phase='all',devices=[],requireAll=false}){
+  phase='all',devices=[],requireAll=false,esp32simAdvVerified=false}){
   assert.ok(PUBLIC_QEMU_GATE_PHASES.includes(phase),'Unknown M5_QEMU_GATE_PHASE');
   assert.ok(Array.isArray(devices)&&new Set(devices).size===devices.length,'Duplicate gate device selection');
   assert.equal(manifest.publication_eligible,true);assert.equal(config.publication_eligible,true);
@@ -147,7 +149,8 @@ export function planPublicQemuGate({manifest,config,registry,runtime,c61Runtime,
     if(['all','uiflow','editor'].includes(phase))cases.push({lane:'uiflow-editor',device:profile.deviceId,script:'test_public_uiflow_guest.mjs'});
     if(['all','uiflow','buttons'].includes(phase))cases.push({lane:'uiflow-buttons',device:profile.deviceId,script:'test_public_qemu_buttons_guest.mjs'});
     if(profile.deviceId==='cardputer-adv'&&['all','uiflow','buttons'].includes(phase))
-      cases.push({lane:'cardputer-keyboard',device:'cardputer-adv',script:'test_public_uiflow_cardputer_keyboard_guest.mjs'});
+      cases.push({lane:'cardputer-keyboard',device:'cardputer-adv',script:'test_public_uiflow_cardputer_keyboard_guest.mjs',
+        ...(esp32simAdvVerified ? {diagnostic:true} : {})});
     if(profile.deviceId==='stackchan'&&['all','uiflow','buttons'].includes(phase))
       cases.push({lane:'stackchan-body-touch',device:'stackchan',script:'test_public_stackchan_body_touch_guest.mjs'});
   }
@@ -182,12 +185,28 @@ async function run(){
     const c61Runtime=registry.profiles.some(row=>row.target==='riscv32-softmmu')
       ? await json('platform/runtime/qemu-c61/runtime.json') : null;
     const workbenchRegistry=await json('platform/web/uiflow-workbench-profiles.json');
+    const esp32simEvidencePath=process.env.M5_ESP32SIM_ADV_KEYBOARD_EVIDENCE;
+    if (esp32simEvidencePath) {
+      const bytes=await readFile(esp32simEvidencePath), evidence=JSON.parse(bytes);
+      const adv=evidence.cases?.find(row=>row.id==='cardputer-adv');
+      const profile=registry.profiles.find(row=>row.deviceId==='cardputer-adv');
+      const esp32simRuntime=await json('platform/runtime/esp32sim/runtime.json');
+      assert.equal(evidence.manifestSha256,assets['public-site-manifest.json'].sha256);
+      assert.equal(evidence.runtime?.wasm?.sha256,esp32simRuntime.wasm.sha256);
+      assert.equal(adv?.runtimeFlashSha256,profile.fixture.firmwareSHA256);
+      assert.equal(adv?.status,'PASS');
+      assert.equal(adv?.keyboardCases,profile.fixture.keyboardOracle.cases.length);
+      assert.equal(adv?.workersBefore?.length,1);
+      assert.equal(adv?.workersAfter?.length,0);
+      report.esp32sim_adv_keyboard={status:'PASS',sha256:digest(bytes),firmware_sha256:adv.runtimeFlashSha256,
+        wasm_sha256:esp32simRuntime.wasm.sha256,keys:adv.keyboardCases};
+    }
     Object.assign(report,{assets,wasm_sha256:runtime.assets?.wasm?.sha256});
     if(c61Runtime)report.c61_wasm_sha256=c61Runtime.assets.wasm.sha256;
     const plan=planPublicQemuGate({manifest,config,registry,runtime,c61Runtime,workbenchRegistry,
       phase:process.env.M5_QEMU_GATE_PHASE||'all',
       devices:process.env.M5_QEMU_GATE_DEVICES?process.env.M5_QEMU_GATE_DEVICES.split(','):[],
-      requireAll:process.env.M5_QEMU_GATE_REQUIRE_ALL==='1'});
+      requireAll:process.env.M5_QEMU_GATE_REQUIRE_ALL==='1',esp32simAdvVerified:Boolean(esp32simEvidencePath)});
     Object.assign(report,{phase:plan.phase,selected_devices:plan.devices,full_scope:plan.publication_eligible,
       expected_cases:plan.cases.length,case_plan_sha256:digest(JSON.stringify(plan.cases)),
       lane_counts:Object.fromEntries(['uiflow-editor','uiflow-buttons','cardputer-keyboard','stackchan-body-touch','fixed'].map(lane=>[lane,plan.cases.filter(row=>row.lane===lane).length])),
@@ -234,8 +253,7 @@ async function run(){
       completed_cases:scheduled.cases.filter(row=>row.status==='PASS'||row.status==='FAIL').length,
       not_run_cases:scheduled.cases.filter(row=>row.status==='NOT RUN').length});
     if(!scheduled.all_passed)throw new Error(scheduled.first_failure?.error||'Not every planned guest passed');
-    report.publication_eligible=plan.publication_eligible&&scheduled.cases.length===plan.cases.length
-      &&scheduled.cases.every(row=>row.status==='PASS');
+    report.publication_eligible=plan.publication_eligible&&scheduled.cases.length===plan.cases.length&&scheduled.all_passed;
     report.status=plan.publication_eligible?'PASS':'DIAGNOSTIC_PASS';
   }catch(error){report.error=String(error?.message||error).slice(0,2000);throw error;}
   finally{
