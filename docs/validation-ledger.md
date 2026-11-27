@@ -46,6 +46,33 @@ Chrome 的无隔离跨源 iframe 在 CoreS3 Display、Touch、UIFlow2
 停止后为零。Tab5 WASM NOT RUN，公共导出与 Worker 尚未接入 P4 ROM
 及 C6 启动资产。物理硬件 NOT RUN。
 
+## 2026-11-27：Pages 托管门禁不稳定
+
+**Browser-WASM，virtual-device validation。** 标准 Pages 工作流中三次冻结
+QEMU-WASM 用例在不同位置失败，归档为 hosted-runner flakes。CI 运行显示
+七个独立 esp32sim 用例及原版 CoreMatrix 检查成功。托管全量仍为 FAIL。
+
+| 托管预览 | 失败路径 | 实测现象与未运行项 |
+| --- | --- | --- |
+| [45930498931](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45930498931) | PaperDIY 编辑器 | QMP 复位事件和下一次 ROM 启动已出现，UIFlow ready 前 engine Worker 中止。报告未捕获底层异常。44 PASS、1 FAIL、27 NOT RUN。 |
+| [45939599561](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45939599561) | Atom Matrix 按键 | QEMU 收到 down/up，来宾持续报告释放态，短按未被采样。1 PASS、1 FAIL、70 NOT RUN。 |
+| [45941756439](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45941756439) | Atom Matrix 编辑器 | 长 UTF-8 源码输入期间 `QMP qom-get timed out`，编辑器终止。本轮在新版按键测试前退出。1 FAIL、71 NOT RUN。 |
+
+本机同 PaperDIY WASM、ROM 和固件对照两次通过。Atom Matrix 按键已在
+[PR #282](https://github.com/m5agent/m5stack-esp-emulator/pull/282)改为等待
+来宾采样后释放，键盘及鼠标本机通过，托管复验开放。
+[工作记录](https://github.com/m5agent/agent-work-logs/tree/bde73fdb3d26730421010baa13fe6e9bbf845fcf/records/m5stack-esp-emulator/2026-11-27-esp32sim-release)
+保留首次失败。[Backlog UI-04](project-backlog.md#ui-02-浏览器范围与-ui-03-正式托管)跟踪底层原因及全量 hosted 复验。
+
+应急发布选择已有完整串行验证的本机导出。资产清单 SHA-256
+`f55e7c996e0ca2707c72d2b9b7478e6961563a198b61f031e1913d8a19cac914`，
+72 PASS、0 NOT RUN，另有原版 CoreMatrix 通过。CoreMatrix C61 WASM
+`83ed57e0ac517ba2c83d40c640995050df33217138c59366c089962b399ba163`。
+另一份使用 CI C61 WASM `b127e369…` 的本机导出在 CoreS3 编程启动期间报告
+`A fatal error occurred`，7 PASS、1 FAIL、64 NOT RUN，未作为应急发布包。
+两份导出的 esp32sim ROM ELF 和来源、许可记录逐字节相同。应急包按
+[Pages 部署规范](pages-deployment.md)在发布后从 HTTPS 独立核验。
+
 ## 2026-11-26：esp32sim 浏览器工作台
 
 `virtual-device validation`，browser-WASM。本地静态导出使用 esp32sim

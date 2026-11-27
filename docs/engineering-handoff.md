@@ -286,6 +286,7 @@ canonical QEMU 链 **41 层**（0120–0161，41/41 replay），PR #80–#161。
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `UI-02` | 扩展已准入板型的固件/Unit、输入延迟、长期稳定性与资源回收；C6/P4/Linux 浏览器路径分别立证 | 当前工作台、C/QEMU 浏览器执行与分享入口已有固定示例结果；registry、原生设备和视觉目录不互授准入，正式站点与 fork 预览按[Pages 指南](pages-deployment.md)分别取证 |
 | `UI-03` | 逐设备启动性能、cold/warm、长期稳定性和正式HTTPS；原策略缺口独立定位 | [V6本地全19验收](evidence/2026-11-04-browser-uiflow-all19-acceptance/README.md)已完成默认UIFlow网页代码/声明输入/正常清场，虚拟设备功能不授物理行为、逐板提速或新部署；07/08/09仍OPEN |
+| `UI-04` | 复现冻结 QEMU-WASM 的托管复位、按键和 QMP 超时，再跑完整 hosted 门禁 | [托管失败记录](validation-ledger.md#2026-11-27pages-托管门禁不稳定) |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、
