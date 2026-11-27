@@ -23,7 +23,9 @@ The public model maps focused **Z / X / C** to Front / Middle / Back, retaining
 **P** for the separate PMIC key. The runner checks these actual aliases and
 visible help; it never installs a test keymap or calls `component.press()`.
 For each of the three areas it sends a real Playwright keydown/up and a real
-mouse down/up, each with a fixed requested 250 ms hold. Mouse coordinates come
+mouse down/up, each with a fixed 250 ms hold starting at the controller's
+readback of the down edge. Each report measures the time between controller
+acknowledgements. Mouse coordinates come
 from actual mounted geometry and must pass both the normal viewer raycast and
 the topmost canvas check. Missing edges fail; no retry or longer fallback pulse
 can turn that attempt into PASS.

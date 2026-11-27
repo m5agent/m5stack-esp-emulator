@@ -25,6 +25,7 @@ const source=`RUN_NONCE = ${JSON.stringify(nonce)}\n`+observer;
 const cases=[{zone:1,component:'touch-1',key:'KeyZ',domKey:'z',mask:48,levels:[3,0,0]},
   {zone:2,component:'touch-2',key:'KeyX',domKey:'x',mask:12,levels:[0,3,0]},
   {zone:3,component:'touch-3',key:'KeyC',domKey:'c',mask:3,levels:[0,0,3]}];
+const holdMs=250;
 const report={kind:'browser-stackchan-three-body-touch',status:'FAIL',started_at:new Date().toISOString(),
   evidence_level:'virtual-device validation',hardware_validation:'NOT RUN',nonce,checks:[],inputs:[],errors:[],
   scope:'Default UIFlow workbench; real keyboard/mouse components, Si12T QMP readback and original StackChan.get_touch() I2C reads.',
@@ -116,17 +117,31 @@ try{
     const before=(await rows()).at(-1)?.seq||0;
     const start=await page.evaluate(()=>({inputs:bodyTouchRuntime.inputs.length,events:bodyTouchEvents.length}));
     const canvas=page.locator('#deviceMount .three-device-stage canvas');await canvas.scrollIntoViewIfNeeded();
-    let pointer=null,downAt,upAt;
+    let pointer=null;
+    const send=method==='keyboard' ? edge=>page.keyboard[edge](item.domKey) : edge=>page.mouse[edge]();
     if(method==='keyboard'){
-      await canvas.focus();downAt=performance.now();await page.keyboard.down(item.domKey);
-      try{await page.waitForTimeout(250);}finally{await page.keyboard.up(item.domKey);}upAt=performance.now();
+      await canvas.focus();
     }else{
       pointer=await page.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin,shellGlobal:'bodyTouchShell'});
       check(`pointer-${item.zone}-real-surface-hit`,await page.evaluate(p=>document.elementFromPoint(p.clientX,p.clientY)===bodyTouchShell.viewer.renderer.domElement
         &&bodyTouchShell.viewer.pick(p)?.component.path===p.component,pointer),pointer);
-      await page.mouse.move(pointer.clientX,pointer.clientY);downAt=performance.now();await page.mouse.down();
-      try{await page.waitForTimeout(250);}finally{await page.mouse.up();}upAt=performance.now();
+      await page.mouse.move(pointer.clientX,pointer.clientY);
     }
+    const downAt=performance.now();
+    await send('down');
+    try{
+      // Browser input dispatch can finish before the asynchronous QMP write.
+      // Start the fixed hold only after QOM confirms the intended zone mask.
+      await page.waitForFunction(({index,zone,mask})=>{
+        const edge=bodyTouchRuntime.inputs[index];
+        return edge?.type==='capacitive-touch'&&edge.zone===zone&&edge.down===true
+          &&edge.result?.source==='qemu-qom-readback'&&edge.result.touch_bits===mask;
+      },{index:start.inputs,zone:item.zone,mask:item.mask},{timeout:15000});
+      await page.waitForTimeout(holdMs);
+    }finally{
+      await send('up');
+    }
+    const upAt=performance.now();
     const pressed=await observe(row=>row.kind==='state'&&row.seq>before&&JSON.stringify(row.levels)===JSON.stringify(item.levels),`${method} zone ${item.zone} down`);
     const released=await observe(row=>row.kind==='state'&&row.seq>pressed.seq&&row.levels.every(value=>value===0),`${method} zone ${item.zone} up`);
     await page.waitForFunction(start=>bodyTouchRuntime.inputs.length>=start+2,start.inputs,{timeout:15000});
@@ -140,7 +155,10 @@ try{
       &&actual.inputs.every(row=>row.result?.source==='qemu-qom-readback'),actual.inputs);
     check(`${method}-${item.zone}-original-i2c-driver-levels`,JSON.stringify(pressed.driver_levels)===JSON.stringify([...item.levels].reverse())
       &&released.driver_levels.every(value=>value===0),{pressed,released});
-    report.inputs.push({...item,method,requested_hold_ms:250,observed_hold_ms:upAt-downAt,pointer,pressed,released,...actual});
+    const controllerHold=Date.parse(actual.inputs[1].at)-Date.parse(actual.inputs[0].at);
+    check(`${method}-${item.zone}-controller-hold`,controllerHold>=holdMs,controllerHold);
+    report.inputs.push({...item,method,requested_hold_ms:holdMs,observed_hold_ms:upAt-downAt,
+      controller_hold_ms:controllerHold,pointer,pressed,released,...actual});
   }
   await page.evaluate(()=>bodyTouchRun.runner.interrupt());await page.waitForFunction(()=>!bodyTouchRun.runner.busy,{}, {timeout:30000});
   report.execution=await page.evaluate(()=>({result:bodyTouchRun.result,error:bodyTouchRun.error,output:bodyTouchRun.output}));
@@ -175,7 +193,7 @@ try{
     raw_report:{bytes:Buffer.byteLength(bytes),sha256:hash(bytes)},observer:report.observer,source_test_sha256:report.provenance?.test_script.sha256,
     site_manifest_sha256:report.provenance?.site_manifest_sha256,firmware_sha256:report.initial?.receipt.firmwareSha256,
     wasm_sha256:report.initial?.receipt.wasmSha256,controller:report.controller,checks:report.checks.map(({name,ok})=>({name,ok})),
-    inputs:report.inputs.map(({zone,method,requested_hold_ms,observed_hold_ms,mask,pressed,released})=>({zone,method,requested_hold_ms,observed_hold_ms,mask,
+    inputs:report.inputs.map(({zone,method,requested_hold_ms,observed_hold_ms,controller_hold_ms,mask,pressed,released})=>({zone,method,requested_hold_ms,observed_hold_ms,controller_hold_ms,mask,
       down_levels:pressed.levels,up_levels:released.levels,down_driver_levels:pressed.driver_levels,up_driver_levels:released.driver_levels})),
     cleanup:report.stopped?.cleanup,worker_targets:report.worker_targets?{ok:report.worker_targets.ok,observed:report.worker_targets.observed.length,live:report.worker_targets.live.length}:null,
     error:report.error?{recorded_in_raw_report:true}:null,
