@@ -21,6 +21,7 @@ class Esp32SimTests(unittest.TestCase):
         self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, {
             "core2", "cores3", "cardputer", "cardputer-adv", "dial", "m5stick", "stickt2",
             "atomu", "atom-echo", "atom-lite", "atom-matrix", "atom-matrix-v11",
+            "stickc-plus-se",
         })
         self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")

@@ -10,7 +10,7 @@
 
 - 设备登记：`36` 台；Device Service 可创建：`35` 台（后端类型登记）。
 - Device Service 可创建计数只表示源码后端登记，不查询当前主机的 `backend_ready`/`creatable`；实际可创建性以设备 API 返回为准。
-- 普通 Device Service 请求在源码中选择 `esp32sim` 的设备：`atom-echo`，`atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atomu`，`cardputer`，`cardputer-adv`，`core2`，`cores3`，`dial`，`m5stick`，`stickt2`。Tab5 根据固件与面板组合选择。
+- 普通 Device Service 请求在源码中选择 `esp32sim` 的设备：`atom-echo`，`atom-lite`，`atom-matrix`，`atom-matrix-v11`，`atomu`，`cardputer`，`cardputer-adv`，`core2`，`cores3`，`dial`，`m5stick`，`stickc-plus-se`，`stickt2`。Tab5 根据固件与面板组合选择。
 - 设备分组：`esp32-c6` 2，`esp32-lx6` 13，`esp32-p4` 1，`esp32-s3` 19，`linux-arm64` 1。
 - 外设状态：`partial` 23，`simulated` 13。
 
@@ -167,7 +167,7 @@
 
 - `tests/`：`184` 个可执行 Python 测试文件，分布在 `85` 个目录；`253` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`386` 个 patch 文件。
-- 文档：`759` 个 Markdown 页面；除本生成页外共 `83249` 行。
+- 文档：`759` 个 Markdown 页面；除本生成页外共 `83288` 行。
 
 ## 文档与测试
 

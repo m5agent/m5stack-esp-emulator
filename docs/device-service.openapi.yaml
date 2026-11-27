@@ -4255,8 +4255,9 @@ components:
       type: string
       enum: [esp32sim, qemu, esp-emu, network, qemu-wifi, qemu-ble, qemu-unified]
       description: >
-        Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, Atom Lite, Atom Matrix, Atom Matrix
-        v1.1, AtomU and Atom Echo default to esp32sim with explicit qemu selection.
+        Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, StickC Plus SE, Atom Lite,
+        Atom Matrix, Atom Matrix v1.1, AtomU and Atom Echo default to esp32sim
+        with explicit qemu selection.
         Tab5 accepts esp32sim for GT911/ILI9881C and ST7123. Tab5's esp-emu
         alias selects the legacy native lane and is returned as qemu.
         Execution envelope for a session. qemu-unified is the canonical
@@ -5813,7 +5814,7 @@ components:
             - $ref: "#/components/schemas/RuntimeName"
           description: >-
             Defaults to esp32sim on Core2, CoreS3, Cardputer, Cardputer-ADV, Dial,
-            Atom Lite, Atom Matrix, Atom Matrix v1.1, AtomU and Atom Echo.
+            StickC Plus SE, Atom Lite, Atom Matrix, Atom Matrix v1.1, AtomU and Atom Echo.
             If runtime and runtime_variant are omitted, a QEMU-backed device
             uses QEMU for legacy runtime_env, device_identity, units, nvs and
             storage.filesystem fixtures. Tab5 defaults to qemu except for

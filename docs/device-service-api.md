@@ -35,8 +35,8 @@ identity checks. A late response never replaces the local source draft.
 
 ### Native esp32sim sessions
 
-Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, Atom Lite, Atom Matrix, Atom Matrix
-v1.1, AtomU and Atom Echo default to `runtime="esp32sim"`.
+Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, StickC Plus SE, Atom Lite, Atom
+Matrix, Atom Matrix v1.1, AtomU and Atom Echo default to `runtime="esp32sim"`.
 Choose `runtime="qemu"` to run the corresponding native QEMU path.
 When the request omits both `runtime` and `runtime_variant`, a QEMU-backed
 device uses QEMU for legacy `runtime_env`, persistent `device_identity`, Unit,

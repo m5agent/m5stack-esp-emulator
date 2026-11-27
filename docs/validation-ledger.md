@@ -84,6 +84,12 @@ Core2 采用完整菜单与 QR 区域作为 Home 条件，替换会误认启动�
 合并 pin 9.554、9.968 秒；同两种 RGB 哈希均出现，主机负载另记录。
 [逐轮证据与范围](https://github.com/m5agent/agent-work-logs/blob/d7292c937fe24d283b6343fc3c05670b3d44f737/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/expanded-paired-qualifications.md)。
 
+同日补验 StickC Plus SE。两个选定文档用例在 esp32sim 各两次通过；固定 UIFlow2
+夹具的按键、帧像素及 watcher 接口在两后端各两次通过。19 个旧状态探针设备另验
+`GET /device-state`，18 个 esp32sim 会话返回 409，StackChan 仅返回两项伺服状态。
+NanoC6 与 Nesso N1 的旧网络 profile 在 esp32sim 新租约被拒绝。
+[具体组件、端点与逐轮证据](https://github.com/m5agent/agent-work-logs/blob/d0bdcacd99355d81c6e30779f64e39c649321b83/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/default-routing-follow-up.md)。
+
 ## 2026-11-27：esp32sim 与封存后端同固件基准
 
 - Native Device Service virtual-device validation。基线源码
