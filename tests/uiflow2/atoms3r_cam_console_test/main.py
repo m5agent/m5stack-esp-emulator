@@ -32,6 +32,10 @@ display.print("AtomS3R-CAM probe")
 status = "blocked"
 try:
     from machine import I2C, Pin
+
+    # GPIO18 is the active-low camera power enable.
+    Pin(18, Pin.OUT, value=0)
+    time.sleep_ms(10)
     bus = I2C(0, scl=Pin(9), sda=Pin(12), freq=100000)
     print("CAM_I2C_SCAN", [hex(a) for a in bus.scan()])
     bus.writeto_mem(0x21, 0xfe, b"\x00")

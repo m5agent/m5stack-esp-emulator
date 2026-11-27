@@ -34,6 +34,12 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+## Arduino documentation runtime comparison
+
+The [paired Device Service runner](arduino_docs/README.md) replays identical
+merged Arduino examples in QEMU and esp32sim and retains the frame predicates
+and evidence from both trials.
+
 ## ESP32-C6 Flash QIO readback
 
 [C6 GPIO IRQ 回归](esp32c6_gpio_irq/README.md)以固定实际 C 源前后控制和独立

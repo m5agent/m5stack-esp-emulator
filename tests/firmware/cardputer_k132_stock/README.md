@@ -21,11 +21,12 @@ python3 tests/firmware/cardputer_k132_stock/run_service.py \
 ```
 
 The runner checks the pinned input hash, starts a private flash lease, captures
-the original guest frame, sends the QMP-backed input through the service, and
+the original guest frame, sends the modeled input through the service, and
 checks the guest frame and applicable serial marker. The factory cases enter
 the launcher through the real GPIO scan. V0.9 also records the Fn indicator
 while held and after release. The UIFlow2 stock case observes the G0 transition
-from the offline page to the application menu.
+from the offline page to the application menu. Use `--runtime esp32sim` to
+replay the same oracle against the native board model.
 
 Inspect the screenshots for the expected views. Downloaded firmware, PNGs,
 session logs and ZIPs stay outside Git. The runner requests the evidence ZIP

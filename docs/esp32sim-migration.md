@@ -1,6 +1,8 @@
 # Migrating Device Service sessions to esp32sim
 
-CoreS3 and Cardputer-ADV select `esp32sim` when you omit `runtime`.
+Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, StickC Plus SE, Atom Lite, Atom
+Matrix, Atom Matrix v1.1, AtomU and Atom Echo select `esp32sim` when you omit
+`runtime` from an ordinary lease.
 Use `"runtime":"qemu"` to select the frozen native QEMU path. Tab5 also
 accepts `"runtime":"esp32sim"`. Its qualified firmware and panel pairs select
 it automatically when the runtime assets are ready and the request uses the
@@ -11,6 +13,53 @@ Default changes for paired backends require two stock, docs and regression
 runs with the same firmware and variant. M5Stick and StickT2 default to esp32sim.
 Their existing QEMU firmware/kernel modes run outside Device Service.
 CardputerZero uses a separate Linux backend.
+
+## Legacy request fields
+
+For devices with a QEMU path, these fields route a lease to QEMU when the
+request omits both `runtime` and `runtime_variant`. Each depends on support
+specific to that backend.
+
+| Field | Capability |
+| --- | --- |
+| `runtime_env` | Session-specific QEMU environment overrides. |
+| `device_identity` | Persistent eFuse identity provisioning. |
+| `units` | Legacy attached Unit fixtures. |
+| `nvs` | Injection into a named NVS partition before boot. |
+| `storage.filesystem` | Session-local filesystem partition injection before boot. |
+
+## Devices with QEMU defaults
+
+The paired service checks found these consumer gaps. `GET /device-state`
+refers to the session endpoint. Unless the row describes a partial response,
+esp32sim returned `409 not_supported_on_runtime` for that request on the
+running fixture. The reviewer uses the registered component names when it
+collects state evidence.
+
+| Device | Missing or incomplete esp32sim request |
+| --- | --- |
+| Atom VoiceS3R (`atom-echos3r`) | `GET /device-state` is unavailable. The legacy endpoint accepts the request and registers `onboard-io` and `es8311`. The paired QEMU fixture returned an empty component map. |
+| AtomS3 | `GET /device-state` lacks `imu`. The native lease also lacks `program_mode=uiflow-live`. |
+| AtomS3 Lite | `GET /device-state` lacks `onboard-io`. |
+| AtomS3R | `GET /device-state` lacks `imu`, `led` and `magnetometer`. The native lease also lacks `program_mode=uiflow-live`. |
+| AtomS3R-CAM | `GET /device-state` lacks the `gc0308` component. |
+| AtomS3R-M12 | `GET /device-state` lacks `ov3660` and `m5-lcd-cam`. The separate camera QOM property is supported. |
+| AtomS3U | `GET /device-state` lacks `onboard-io` and `rmt0`. |
+| Basic v2.7 | `GET /device-state` lacks `ip5306`. |
+| NanoC6 | `POST /sessions` with `network.profile=nanoc6-hci-ble` is unavailable on esp32sim. |
+| Nesso N1 | `POST /sessions` with `network.profile=nesso-unified` is unavailable on esp32sim. |
+| PaperColor | `GET /device-state` lacks `power` and `sensor`. |
+| PaperDIY | `GET /device-state` lacks `panel`. |
+| PaperMono | `GET /device-state` lacks `charger`, `imu`, `power` and `rtc`. |
+| PaperS3 | `GET /device-state` lacks `panel`. |
+| StackChan | `GET /device-state` returns servo state. The legacy `body-touch`, `imu`, `io-expander`, `light-proximity`, `magnetometer`, `power`, `power-monitor` and `rtc` components are missing. |
+| StamPLC | `GET /device-state` lacks `front-panel`, `io-expander`, `power-monitor`, `rtc` and `temperature`. |
+| StickC | `GET /device-state` lacks `imu`. |
+| StickC Plus | `GET /device-state` lacks `imu`. |
+| StickC Plus2 | `GET /device-state` lacks `imu` and `rtc`. The native lease also lacks `program_mode=uiflow-live`. |
+| StickS3 | `GET /device-state` lacks `imu` and `power`. The native lease also lacks `program_mode=uiflow-live`. |
+| StopWatch | `GET /device-state` lacks `expander`, `imu` and `power`. The native lease also lacks `program_mode=uiflow-live`. |
+| Tab5 legacy requests | The UserDemo stereo recording uses `GET /audio.pcm?format=cursor` and retained `expected_recording_id` ranges. Those parameters remain on the legacy esp-emu route. Ordinary qualified firmware and panel pairs still select esp32sim. |
 
 Select `runtime_variant` using the values in `runtimes.esp32sim.variants`.
 AtomS3 and AtomS3R offer `st7735s` and `gc9107`. Core2 selects the modeled PMIC
@@ -44,12 +93,13 @@ images. Follow the [deployment guide](deployment.md#部署-esp32sim-设备服务
 | Power and PLC | StickS3/StopWatch `battery` use `mv/charging` and `pm1-gpio` uses `channel/high`. PaperColor/PaperMono add optional `vbus_mv`. Basic v2.7 uses `bars/charging/full`. Core2 AXP2101 uses `mv/percent/charging` and AXP192 uses `mv/ma`. Nesso N1 uses `mv/ma/percent/vbus`. M5Stick, StickC, StickC Plus and StickC Plus SE accept battery `mv`. StamPLC `plc-input` uses `channel/high` and `plc-temperature` uses `temperature_c`. |
 | Controller and peripheral injection | Use `kind="imu"` with `accel` in g and `gyro` in degrees/s, plus optional CoreS3 `mag` in µT. Use CoreS3 `battery` with `mv/percent/charging/vbus` and `als` with `ch0/ch1/proximity`. Tab5 `battery` uses `mv/ma/charging`. `adc` uses `gpio/volts` on S3. These are whole controller samples. |
 | Tab5 USB and multi-touch | Send `{"kind":"usb-hid","action":"attach","device":"gamepad"}`, then `action="report"` with a 3-byte gamepad or 8-byte keyboard report. Send a neutral report to release and `action="detach"` to disconnect. For multi-touch use `kind="touch-contact"`, `contact_id` 0–4, panel `x/y`, and `action="down"` or `"up"`. |
-| QOM and raw state | StamPLC maps the write to `/machine/lm75-48` `temperature-c` onto its LM75 model. StackChan `/device-state` returns modeled yaw and pitch in degrees. Generic QOM trees and snapshots, legacy drag, double-click, legacy Unit attachments and QEMU-specific runtime overrides require the appropriate legacy lane. Use the controller inputs above in place of property writes. Unsupported operations return `409 not_supported_on_runtime` or the endpoint's documented capability code. |
-| Media | Attach a session-local SD image before boot. Modeled SPI slots include CoreS3, StackChan, both Cardputers, Basic v2.7, Core2, PaperDIY, PaperS3, PaperColor and StamPLC. Tab5 uses SDMMC. Stop with `purge=0` to export the card. SD eject/reinsert returns the existing capability error because the pinned CLI only attaches media at startup. QEMU SD counters and write-stamp probes require legacy support. Live Flash, Flash snapshots and stopped Flash export are unavailable. |
+| QOM and raw state | When `service_features` contains `state-snapshot`, use QOM read, list, snapshot and diff with modeled paths below `/machine/board` and `/machine/soc`. Existing QEMU property names have device-specific mappings. StamPLC retains its LM75 write and StackChan retains its yaw and pitch reads. Model-aware drag uses `touch-drag`. Double-click and Unit attachments use their advertised runtime. |
+| Media | Attach a session-local SD image before boot. Modeled SPI slots include CoreS3, StackChan, both Cardputers, Basic v2.7, Core2, PaperDIY, PaperS3, PaperColor and StamPLC. Tab5 uses SDMMC. Stop with `purge=0` to export the card. `sd-media` enables eject/reinsert and write stamps. `spi-sd-read-stats` enables the Cardputer and Cardputer-ADV controller counters. Check `flash-snapshot` for live Flash export and final retained readback. |
 | Audio and camera | Provision a mono 16 kHz PCM16 microphone WAV at creation. `speaker_capture=true` retains bounded mono PCM with a sample-rate receipt. The legacy Tab5 UserDemo four-channel recording contract and ADV live audio staging require the legacy runtime. CoreS3, StackChan, AtomS3R-CAM and AtomS3R-M12 accept a camera artifact before boot. Use P6 PPM or BMP for CoreS3/StackChan and a supported board-matched JPEG or uncompressed image for the AtomS3R cameras. |
-| Network | Omit `network` for offline mode. `profile="esp32sim-sta"` supports a virtual AP with explicit `policy.isolation="trusted-host"` and native NAT. This mode is for trusted firmware. Restricted policies, namespaces, device identity provisioning, BLE, network fault injection and legacy network profiles need a runtime that implements them. |
-| Programming and reset | CoreS3 supports `uiflow-live` over UART0. Managed Preview, ADV live programming and official UIFlow2 cloud startup continue to use their existing QEMU lanes. Reset is a guest hardware-reset request for ordinary esp32sim sessions. |
-| Evidence and stop | Request the ZIP before stopping. It contains the requested serial, frames, logs, input timeline and `runtime/identity.json`. Include `audio` and `network` for available captures. Stop retains session history with `purge=0` and releases the lease. A modeled guest power-off ends the lease with `stop_reason="guest_poweroff"` and retains the final panel frame. Service restart restores history. |
+| Network | Omit `network` for offline mode. `profile="esp32sim-sta"` supports a virtual AP with explicit `policy.isolation="trusted-host"` and native NAT for trusted firmware. When the runtime reports `net-restricted`, use `mode="restricted"` to keep traffic in the emulator's virtual network. Namespaces, device identity provisioning, BLE and the legacy review network profiles require their advertised runtime. |
+| Programming and reset | CoreS3 and Core2 support `uiflow-live` over UART0. Managed Preview, ADV live programming and official UIFlow2 cloud startup continue to use their existing QEMU lanes. Reset is a guest hardware-reset request for ordinary esp32sim sessions. |
+| Dial encoder | `dial-encoder-state` exposes target and delivered detents and actual GPIO transitions. Submit a new rotation once the prior one finishes. |
+| Evidence and stop | Request the ZIP before stopping. It contains the requested serial, frames, logs, input timeline and `runtime/identity.json`. Include `audio` and `network` for available captures. Add `qom`, `flash` or `telemetry` when their runtime features are available. Stop retains session history with `purge=0` and releases the lease. A modeled guest power-off ends the lease with `stop_reason="guest_poweroff"` and retains the final panel frame. Service restart restores history. |
 
 An input receipt confirms the controller command was accepted. Check the guest
 screen or protocol for application completion. Invalid input syntax returns
@@ -57,13 +107,11 @@ screen or protocol for application completion. Invalid input syntax returns
 `409 runtime_input_rejected`, and a closed control stream returns
 `503 runtime_control_unavailable`.
 
-The browser workbench uses a separate WASM runtime. On CoreS3 and ADV choose
-the browser engine picker or `engine=qemu-wasm` for the frozen alternative.
-Cardputer K132 can select `engine=esp32sim` and load a compatible merged image.
-Its legacy QEMU-WASM entry remains the default.
-Tab5 browser execution is NOT RUN. The export and Worker currently admit S3
-profiles and deliver only the S3 ROM. Tab5 requires P4 revision-specific ROM
-loading, C6 Flash/ROM admission, and P4 input and Worker cleanup verification.
+The browser workbench has its own WASM defaults. Cardputer K132, StickS3,
+Core2, StamPLC and both Atom Matrix models select esp32sim in the mixed export.
+Use `engine=qemu-wasm` on an admitted board for the frozen alternative and
+browser MicroPython programming. The Tab5 browser profile uses GT911/ILI9881C,
+a boot-header-selected P4 ROM and the hash-checked C6 firmware ZIP.
 See [Pages deployment](pages-deployment.md) and the [HTTP API](device-service-api.md#native-esp32sim-sessions).
 
 Use [paired radio leases](device-service-api.md#paired-esp32sim-radios) for

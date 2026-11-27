@@ -5,11 +5,12 @@ import socket
 import struct
 import tempfile
 import threading
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import device_service_esp32sim as runtime
-from device_service import DeviceService
+from device_service import DeviceService, Esp32SimDeviceSession
 from device_service_errors import ServiceError
 from device_service_specs import load_device_specs
 
@@ -17,13 +18,17 @@ from device_service_specs import load_device_specs
 class Esp32SimTests(unittest.TestCase):
     def test_catalog_selects_native_runtime_only_for_the_migrated_boards(self):
         selected = {name: spec.default_runtime for name, spec in load_device_specs().items()}
-        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"},
-                         {"cores3", "cardputer-adv", "m5stick", "stickt2"})
+        self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, {
+            "core2", "cores3", "cardputer", "cardputer-adv", "dial", "m5stick", "stickt2",
+            "atomu", "atom-echo", "atom-lite", "atom-matrix", "atom-matrix-v11",
+            "stickc-plus-se",
+        })
         self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")
         self.assertEqual(set(runtime.BOARDS), set(selected) - {"cardputer-zero"})
         self.assertEqual(runtime.BOARD_VARIANTS["basic-v27"]["flash-4mb"].flash, 4 << 20)
         self.assertEqual(runtime.BOARD_VARIANTS["core2"]["axp192"].name, "m5stack-core2-axp192")
+        self.assertEqual(runtime.BOARDS["stopwatch"].size, (466, 466))
 
     def test_native_only_defaults_advertise_their_session_capabilities(self):
         service = DeviceService.__new__(DeviceService)
@@ -69,13 +74,120 @@ class Esp32SimTests(unittest.TestCase):
                                        "policy": {"isolation": "trusted-host"}})
         self.assertEqual(valid["profile"], "esp32sim-sta")
 
+    def test_restricted_mode_cannot_fall_back_to_nat_or_claim_a_namespace(self):
+        request = {"mode": "restricted", "ssid": "fixture"}
+        with self.assertRaises(ServiceError):
+            runtime.parse_network(request)
+        with self.assertRaises(ServiceError):
+            runtime.parse_network(request | {
+                "policy": {"isolation": "namespace", "egress": "deny-all", "dns": "deny"},
+            }, restricted_supported=True)
+        network = runtime.parse_network(request, restricted_supported=True)
+        installation = runtime.Installation(Path("/asset/esp32sim"), Path("/asset/rom"), Path("/asset/manifest"))
+        command = runtime.spawn_command(installation, runtime.BOARDS["cores3"], 12,
+                                        Path("/session/flash"), network=network)
+        self.assertEqual(command[command.index("--net") + 1], "restricted")
+        self.assertEqual(network["policy"]["isolation"], "emulator")
+
+    def test_qom_snapshot_is_bounded_and_uses_one_sample(self):
+        session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
+        session._lock = threading.RLock()
+        session.state = "running"
+        session.spec = SimpleNamespace(id="cores3")
+        session.flash_info = {"runtime_identity": {"service_features": ["state-snapshot"]}}
+        session.control = Mock()
+        session.control.request.return_value = {"value": {
+            "/soc": {"cycle": 42}, "/board": {"name": "fixture"},
+            "/soc/gpio/3": {"level": False},
+        }}
+        session._store_qom_snapshot = lambda snapshot: snapshot
+        result = session.qom_snapshot(depth=3, max_nodes=100)
+        session.control.request.assert_called_once_with("state-snapshot")
+        gpio = result["nodes"]["soc"]["children"]["gpio"]["children"]["3"]["children"]
+        self.assertEqual(gpio["level"], {"type": "bool", "value": False})
+        self.assertEqual(session.qom_snapshot(max_nodes=1)["nodes"]["__truncated__"], True)
+        with self.assertRaisesRegex(ServiceError, "No modeled esp32sim component"):
+            session.qom_snapshot(path="/machine/missing")
+
+    def test_legacy_camera_sequence_writes_the_pinned_runtime_control(self):
+        session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
+        session._lock = threading.RLock()
+        session.state = "running"
+        session.id = "camera-fixture"
+        session.spec = SimpleNamespace(id="atoms3r-cam")
+        session.flash_info = {"runtime_identity": {
+            "service_features": ["state-snapshot", "camera-sequence"]
+        }}
+        session.control = Mock()
+        session._check_cancelled = Mock()
+        session._record_event = Mock()
+        session._require_runtime_permission = Mock()
+        payload = {"path": "/machine/m5-lcd-cam", "property": "auto-increment"}
+        with self.assertRaisesRegex(ServiceError, "auto-increment must be a boolean"):
+            session.qom_set(payload | {"value": "true"})
+        session.qom_set(payload | {"value": True})
+        session._require_runtime_permission.assert_called_once_with("input.write")
+        session.control.request.assert_called_once_with(
+            "state-set", ("/machine/m5-lcd-cam", "auto-increment", "true"))
+        session.control.request.return_value = {
+            "value": {"/soc": {}, "/board": {}, "/board/camera": {"auto-increment": True, "frames": 5}}
+        }
+        self.assertIs(session.qom_get(payload["path"], payload["property"])["value"], True)
+        self.assertEqual(session.qom_list(payload["path"])["properties"], [
+            {"name": "auto-increment", "type": "bool"},
+            {"name": "frames", "type": "int"},
+        ])
+        session.spec = SimpleNamespace(id="cores3")
+        with self.assertRaisesRegex(ServiceError, "Operation is unavailable"):
+            session.qom_set(payload | {"value": True})
+
+    def test_live_flash_snapshot_binds_digest_to_exported_bytes(self):
+        session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
+        session._lock = threading.RLock()
+        session._stop_event = threading.Event()
+        session.state = "running"
+        session.id = "fixture"
+        session.board = SimpleNamespace(flash=4)
+        session.flash_info = {"runtime_identity": {"service_features": ["flash-snapshot"]}}
+        session._record_event = Mock()
+        session.control = Mock()
+        with tempfile.TemporaryDirectory() as directory:
+            session.dir = Path(directory)
+            session._flash_readback = session.dir / "runtime-readback.bin"
+
+            def export(operation):
+                self.assertEqual(operation, "flash-snapshot")
+                session._flash_readback.write_bytes(b"abcd")
+                return {"value": {"bytes": 4, "cycle": 120}}
+
+            session.control.request.side_effect = export
+            try:
+                result = session.flash_snapshot()
+                stored = session.dir / f"flash-{result['snapshot_id']}.bin"
+                self.assertEqual(stored.read_bytes(), b"abcd")
+                self.assertEqual(result["sha256"], hashlib.sha256(b"abcd").hexdigest())
+                self.assertFalse(session._flash_readback.exists())
+            finally:
+                session.control.request.side_effect = None
+            session.control.request.return_value = {"value": {"bytes": 4, "cycle": 123}}
+            with self.assertRaisesRegex(ServiceError, "export is unavailable"):
+                session.flash_snapshot()
+            self.assertEqual(list(session.dir.glob("flash-*.bin")), [stored])
+
     def test_inputs_translate_to_board_commands(self):
         cases = [
             ("cores3", {"kind": "touch", "x": 319, "y": 239, "action": "hold", "seconds": .4},
              ("touch", (319, 239, 1, 400), .3)),
+            ("cores3", {"kind": "drag", "x1": 15, "y1": 20, "x2": 300, "y2": 30},
+             ("drag", (15, 20, 300, 30), .3)),
             ("cores3", {"kind": "button", "control": "power"}, ("pwrkey", (120,), .3)),
+            ("core2", {"kind": "button", "control": "b", "action": "hold", "seconds": .45},
+             ("touch", (160, 260, 1, 450), .3)),
+            ("core2", {"kind": "key", "key": "c", "action": "up"}, ("touch", (258, 260, 0, 0), .3)),
             ("cardputer-adv", {"kind": "button", "control": "G0"}, ("press", (120,), .3)),
             ("cardputer-adv", {"kind": "button", "control": "boot", "action": "up"}, ("gpio", (1,), .3)),
+            ("cardputer", {"kind": "key", "key": "f12"}, ("button", ("g0", 0, 120), .3)),
+            ("cardputer", {"kind": "key", "key": "f12", "action": "up"}, ("button", ("g0", 1, 0), .3)),
             ("cores3", {"kind": "battery", "mv": 3900, "percent": 70, "charging": False},
              ("battery", (3900, 70, 0), .3)),
             ("cores3", {"kind": "als", "ch0": 1500, "ch1": 300, "proximity": 250},
@@ -88,6 +200,7 @@ class Esp32SimTests(unittest.TestCase):
             ("dial", {"kind": "encoder", "delta": -3, "edge_period_ms": 7}, ("encoder", (-3, 7), .3)),
             ("dial", {"kind": "rfid", "uid": "AABBCCDD"}, ("rfid", ("aabbccdd",), .3)),
             ("papermono", {"kind": "nfc-tag", "uid": None}, ("paper-tag", ("none",), .3)),
+            ("papercolor", {"kind": "key", "key": "a"}, ("button", ("a", 0, 120), .3)),
             ("tab5", {"kind": "touch-contact", "action": "down", "contact_id": 1, "x": 719, "y": 1279},
              ("contact", (1, 719, 1279, 1), .3)),
             ("tab5", {"kind": "battery", "mv": 7980, "ma": -410, "charging": True},
@@ -141,6 +254,7 @@ class Esp32SimTests(unittest.TestCase):
                     "binary_sha256": binary_sha, "rom_sha256": rom_sha,
                     "service_patch_sha256": pin["service_patch_sha256"],
                     "control_protocol": 1, "flash_bytes": 16 << 20, "psram_bytes": 8 << 20,
+                    **({"service_features": pin["service_features"]} if pin.get("service_features") else {}),
                 })
                 installation.rom.write_bytes(b"changed ROM")
                 self.assertFalse(installation.ready(board))

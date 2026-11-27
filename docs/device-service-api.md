@@ -35,8 +35,12 @@ identity checks. A late response never replaces the local source draft.
 
 ### Native esp32sim sessions
 
-CoreS3 and Cardputer-ADV default to `runtime="esp32sim"`. Choose
-`runtime="qemu"` to run the frozen native QEMU path for either board.
+Core2, CoreS3, Cardputer, Cardputer-ADV, Dial, StickC Plus SE, Atom Lite, Atom
+Matrix, Atom Matrix v1.1, AtomU and Atom Echo default to `runtime="esp32sim"`.
+Choose `runtime="qemu"` to run the corresponding native QEMU path.
+When the request omits both `runtime` and `runtime_variant`, a QEMU-backed
+device uses QEMU for legacy `runtime_env`, persistent `device_identity`, Unit,
+NVS or filesystem fixtures.
 Tab5 accepts `runtime="esp32sim"` for GT911/ILI9881C and ST7123.
 Its qualified firmware and panel pairs default to esp32sim when pinned assets
 are ready and the request uses the basic app session path. Other Tab5 sessions
@@ -64,12 +68,45 @@ The loader checks boot and app chip IDs, Flash bounds, partitions and
 declared PSRAM requirements. CoreS3 has 16 MiB Flash and 8 MiB PSRAM.
 Cardputer-ADV has 8 MiB Flash and no PSRAM. Tab5 has 16 MiB Flash and
 32 MiB PSRAM. The operator panel is chosen by `M5_TAB5_DSI_BOARD_OVERRIDES`
-for the exact normalized Flash SHA, then `M5_TAB5_DSI_BOARD`, then GT911. An explicit `runtime_variant` selects the panel for that session. The emulator owns volatile Flash
-for the lease. Flash read, export and snapshots return
-`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI or Tab5 SDMMC
-copy of `storage.sd_image_artifact_id`, with stopped-session storage export.
-SD hot-plug, generic QOM, QEMU Unit attachments and QEMU runtime-environment overrides
-require their respective legacy runtime paths.
+for the exact normalized Flash SHA, then `M5_TAB5_DSI_BOARD`, then GT911.
+An explicit `runtime_variant` selects the panel for that session. SD media uses
+a writable, session-local SPI or Tab5 SDMMC copy of `storage.sd_image_artifact_id`.
+Stop the session before requesting storage export.
+
+The device's `runtimes.esp32sim.service_features` and the session's
+`runtime_identity.service_features` describe the controls present in the
+pinned executable. With `flash-snapshot`, live Flash digest, binary readback,
+snapshot and diff use Flash bytes exported at a guest scheduler boundary.
+Stopping with `purge=0&retain_flash=1` requests a final export and checks it
+against the modeled Flash size before retaining it. Check `flash_retained`
+in the stop receipt. Export errors appear under `flash.retention_error`.
+
+With `state-snapshot`, the QOM read, list, snapshot and diff endpoints expose
+the modeled state under `/machine/board` and `/machine/soc`. Each snapshot
+uses one scheduler sample. The property names and subtrees reflect the
+runtime's device model. The writable GPIO property is `input_drive`. Supply
+a boolean to drive the pin or null to release it. `include=telemetry` adds
+`runtime/controller-report.json` when the runtime reports `controller-report`.
+With `camera-sequence`, AtomS3R-CAM and AtomS3R-M12 expose the boolean
+`auto-increment` property at `/machine/m5-lcd-cam` and `/machine/board/camera`.
+`grove-tmp105` supplies the legacy Grove test fixture on Atom Echo and Basic v2.7.
+Core2 A/B/C button inputs drive the FT6336 strip below the visible panel.
+With `touch-drag`, `kind=drag` schedules a contact, six moves and a release
+on the guest clock. The acceptance receipt confirms queuing. Observe the
+guest frame or controller to verify delivery.
+With `dial-encoder-state`, Dial exposes queued detents, delivered detents and
+GPIO edges in `GET /device-state`. Encoder inputs return the queued-controller
+receipt and keep the dispatched command in the `command` field.
+QEMU Unit attachments and QEMU runtime-environment overrides use QEMU.
+
+With `sd-media`, set the boolean `sd-card-present` property at
+`/machine/board/sd` to eject or reinsert prepared session media. Read the
+`present` property at that path to observe the controller state. PaperDIY
+also accepts the existing `/machine/et047tc1` property. The write-stamp
+path returns a new attachment identity after a presence command.
+`sd-initially-ejected` enables PaperDIY preboot ejection through
+`storage.sd_initially_ejected`. The `spi-sd-read-stats` feature enables
+the Cardputer and Cardputer-ADV SPI read-counter endpoint.
 
 `GET /sessions/{id}/frame.png?max_age_ms=0` samples the panel at a guest
 scheduler boundary. Input is sent to the same guest and acknowledged when
@@ -93,10 +130,12 @@ bounded mono s16le output through `GET /sessions/{id}/audio.pcm`; use
 
 Omit `network` for an offline guest. `network={"profile":"esp32sim-sta",
 "ssid":"example","psk":"","policy":{"isolation":"trusted-host"}}` enables
-the virtual AP, host NAT and Ethernet PCAP. Namespace, restricted egress, and
-QEMU-specific network fixtures fail closed for this runtime. Use trusted
-firmware when enabling NAT. A configured access point alone does not establish
-guest association or application connectivity.
+the virtual AP, host NAT and Ethernet PCAP. Runtimes advertising
+`net-restricted` also accept `network={"profile":"esp32sim-sta","mode":"restricted",
+"ssid":"example"}` for the virtual AP and its guest-local DHCP, DNS and SNTP.
+Restricted mode disables host NAT and accepts no host policy. Namespace and
+QEMU-specific network fixtures require their advertised runtime. Use trusted
+firmware when enabling NAT. Verify association and traffic through the guest.
 
 CoreS3 `program_mode="uiflow-live"` uses the existing UART0 bootstrap and
 same-guest source/package routes. The runtime sends and receives bytes through
@@ -2968,7 +3007,8 @@ writes. To attribute a write to an action, check guest output and, where
 applicable, the stopped image's FAT inventory. Read counters are separate.
 
 `GET /sessions/{id}/storage/sd/read-stats` samples the native SPI SD controller
-on Cardputer and Cardputer ADV with the plain `qemu` runtime. It requires
+on Cardputer and Cardputer ADV with plain `qemu` or an esp32sim runtime
+advertising `spi-sd-read-stats`. It requires
 `storage.read` under a runtime ACL. One controller snapshot reports
 `schema_version: 1`, `media_present`, `reset_generation`, `accepted_cmd17`,
 `accepted_cmd18` and `completed_blocks`. The command counters count accepted

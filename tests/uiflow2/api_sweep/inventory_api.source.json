@@ -3,7 +3,7 @@
   "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
   "contract": "docs/device-service.openapi.yaml",
   "contract_version": "1.102.0",
-  "contract_sha256": "5c3534d2c9e26674c684b40a781e85a9bcd841843902ec594745d0ef2ada4a48",
+  "contract_sha256": "aa3ea104252004c3b2bb70650bbf25caadb35ab5e1924f2f8c1979f5e49bd085",
   "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
   "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
   "operations": [
@@ -990,6 +990,7 @@
       "case_ids": [
         "GET /sessions/{session_id}/evidence missing-resource"
       ],
+      "esp32sim_validation": "Verify hashes for the live Flash, QOM snapshot, controller telemetry and retained network capture where requested and supported.",
       "positive_status": "NOT RUN"
     },
     {
@@ -1016,6 +1017,7 @@
       "case_ids": [
         "POST /sessions/{session_id}/qom-snapshot missing-resource"
       ],
+      "esp32sim_validation": "Compare two samples of the running guest clock from /machine/soc, including depth and node bounds, and verify readback and diff.",
       "positive_status": "NOT RUN"
     },
     {
@@ -1057,6 +1059,7 @@
       "case_ids": [
         "POST /sessions/{session_id}/flash-snapshot missing-resource"
       ],
+      "esp32sim_validation": "Write a known guest file between two snapshots, verify the stored bytes and digest, then request retain_flash and confirm final readback.",
       "positive_status": "NOT RUN"
     },
     {
@@ -1246,6 +1249,7 @@
       "case_ids": [
         "GET /sessions/{session_id}/storage/sd/write-stamp missing-resource"
       ],
+      "esp32sim_validation": "Also verify the runtime-advertised esp32sim write stamp and the ejected control with the same owned SD artifact.",
       "positive_status": "NOT RUN"
     },
     {
@@ -1262,6 +1266,7 @@
       "case_ids": [
         "GET /sessions/{session_id}/storage/sd/read-stats missing-resource"
       ],
+      "esp32sim_validation": "Also run on esp32sim with spi-sd-read-stats and verify a complete guest SD read, the ejected negative control and attachment generation after reinsertion.",
       "positive_status": "NOT RUN"
     },
     {

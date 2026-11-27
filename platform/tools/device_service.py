@@ -5251,7 +5251,7 @@ class DeviceSession:
                     "session-isolated SD image checksum changed"
                 )
             image_info = self.sd_card_image.stat()
-            if (self.runtime == "qemu" and self.spec.id in SPI_SD_READ_STATS_DEVICES
+            if (self.runtime in {"qemu", esp32sim.RUNTIME} and self.spec.id in SPI_SD_READ_STATS_DEVICES
                     and self.storage_config.get("interface") == "spi"):
                 self._sd_read_media_inode = (image_info.st_dev, image_info.st_ino)
             self.storage_info = {
@@ -8691,12 +8691,15 @@ class DeviceSession:
             "created_at": iso_now(),
             "nodes": walk(path, 0),
         }
+        return self._store_qom_snapshot(snapshot)
+
+    def _store_qom_snapshot(self, snapshot):
         snapshot_id = uuid.uuid4().hex
         snapshot_path = self.dir / f"qom-{snapshot_id}.json"
         snapshot_path.write_text(
             json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n"
         )
-        self._record_event("qom_snapshot", snapshot_id=snapshot_id, path=path)
+        self._record_event("qom_snapshot", snapshot_id=snapshot_id, path=snapshot["path"])
         return {
             "session_id": self.id,
             "snapshot_id": snapshot_id,
@@ -9208,8 +9211,7 @@ class DeviceSession:
             self.service.upload_artifact(data, name="filesystem-" + metadata["format"] + ".bin")
         return {**metadata, "artifact_id": digest}
 
-    def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
-        DeviceSession._require_runtime_permission(self, "flash.read")
+    def _read_flash_bytes(self) -> bytes:
         if self.virtual_flash is None or not self.virtual_flash.is_file():
             raise ServiceError(
                 "flash_not_available",
@@ -9217,7 +9219,11 @@ class DeviceSession:
                 "when the full image is required",
                 409,
             )
-        data = self.virtual_flash.read_bytes()
+        return self.virtual_flash.read_bytes()
+
+    def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
+        DeviceSession._require_runtime_permission(self, "flash.read")
+        data = self._read_flash_bytes()
         digest = hashlib.sha256(data).hexdigest()
         metadata = {
             "session_id": self.id,
@@ -9234,11 +9240,16 @@ class DeviceSession:
         return None, metadata
 
     def flash_snapshot(self) -> dict:
-        _, metadata = self.flash_get("sha256")
-        assert self.virtual_flash is not None
+        data, metadata = self.flash_get("bin")
         snapshot_id = uuid.uuid4().hex
         target = self.dir / f"flash-{snapshot_id}.bin"
-        shutil.copyfile(self.virtual_flash, target)
+        pending = target.with_suffix(".tmp")
+        try:
+            with pending.open("xb") as stream:
+                stream.write(data)
+            pending.replace(target)
+        finally:
+            pending.unlink(missing_ok=True)
         self._record_event(
             "flash_snapshot", snapshot_id=snapshot_id, sha256=metadata["sha256"]
         )
@@ -9449,13 +9460,18 @@ class DeviceSession:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         audio_read_allowed = DeviceSession._runtime_permission_allowed(self, "audio.read")
         if self.runtime == esp32sim.RUNTIME:
-            if "qom" in include:
-                manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": "not_supported_on_runtime"}
             identity = (self.flash_info or {}).get("runtime_identity")
             if identity:
                 files["runtime/identity.json"] = json.dumps(identity, indent=2).encode()
+            if "telemetry" in include and serial_read_allowed:
+                try:
+                    report = self.controller_report()
+                    files["runtime/controller-report.json"] = json.dumps(report, indent=2).encode()
+                except ServiceError as error:
+                    manifest["telemetry"] = {"status": "NOT_AVAILABLE", "reason": error.code}
             if "network" in include and self.network_pcap.is_file() and serial_read_allowed:
                 files["network/capture.pcap"] = self.network_pcap.read_bytes()
+                manifest["network"] = self.network_evidence()
             if "audio" in include and audio_read_allowed and self.speaker_pcm.is_file():
                 files["audio/speaker.pcm"] = self.speaker_pcm.read_bytes()
                 manifest["audio"] = json.loads(self._audio_metadata.read_text())
@@ -9580,8 +9596,9 @@ class DeviceSession:
                 }
         if (
             "qom" in include
-            and self.spec.service_kind == "qemu"
-            and self.runtime in QEMU_QMP_RUNTIMES
+            and (self.runtime == esp32sim.RUNTIME or (
+                self.spec.service_kind == "qemu" and self.runtime in QEMU_QMP_RUNTIMES
+            ))
         ):
             try:
                 snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
@@ -9692,7 +9709,15 @@ class DeviceSession:
                     "policy_id": DeviceSession.runtime_acl_summary(self).get("policy_id"),
                 }
         elif self.flash_info and self.runtime == esp32sim.RUNTIME:
-            manifest["flash"] = {"retained": False, "reason": "esp32sim live flash is volatile"}
+            if "flash" in include:
+                try:
+                    flash_data, metadata = self.flash_get("bin")
+                    files["flash/virtual-flash.bin"] = flash_data
+                    manifest["flash"] = {"size": metadata["size"], "sha256": metadata["sha256"], "retained": False}
+                except ServiceError as error:
+                    manifest["flash"] = {"retained": False, "status": "NOT_AVAILABLE", "reason": error.code}
+            else:
+                manifest["flash"] = {"retained": False, "reason": "esp32sim live flash is volatile"}
         elif self.flash_info:
             manifest["flash"] = {
                 "size": self.spec.flash_size,
@@ -11286,6 +11311,11 @@ class Esp32SimDeviceSession(DeviceSession):
         super().__init__(*args, **kwargs)
         self.board = board or self.service._esp32sim_board(self.spec.id, self.firmware_sha)
         self._audio_metadata = self.dir / "esp32sim-audio.json"
+        self._flash_readback = self.dir / "esp32sim-flash-readback.bin"
+
+    def _supports_service_feature(self, name):
+        identity = (self.flash_info or {}).get("runtime_identity") or {}
+        return name in identity.get("service_features", ())
 
     def _receive_text(self, message):
         if message.get("t") != "serial" or message.get("src") not in {"uart0", "usb"}:
@@ -11328,10 +11358,13 @@ class Esp32SimDeviceSession(DeviceSession):
         installation = self.spec.esp32sim_installation
         identity = installation.identity(self.board, self.virtual_flash)
         self.flash_info["runtime_identity"] = identity
-        self.flash_info["live_flash"] = "volatile"
+        live_flash = self._supports_service_feature("flash-snapshot")
+        grove_tmp105 = self.spec.id in esp32sim.GROVE_TMP105_DEVICES and self._supports_service_feature("grove-tmp105")
+        self.flash_info["live_flash"] = "snapshot" if live_flash else "volatile"
         self.flash_info["media"] = {
             **({"camera_image_artifact_id": self._camera} if self._camera else {}),
             **({"microphone_wav_artifact_id": self._mic} if self._mic else {}),
+            **({"grove": "tmp105"} if grove_tmp105 else {}),
             "speaker_capture": self._capture_speaker,
         }
         self._persist_session()
@@ -11354,6 +11387,9 @@ class Esp32SimDeviceSession(DeviceSession):
                 mic=self.service.artifacts.path(self._mic) if self._mic else None,
                 network=self.network_config,
                 pcap=self.network_pcap if self.network_config else None,
+                flash_readback=self._flash_readback if live_flash else None,
+                sd_initially_ejected=self.storage_config.get("sd_initially_ejected", False),
+                grove_tmp105=grove_tmp105,
             )
             medium = self._radio_slot.medium if self._radio_slot else None
             if self._radio_slot:
@@ -11410,6 +11446,7 @@ class Esp32SimDeviceSession(DeviceSession):
         if self.control is not None:
             self.control.close()
             self.control = None
+        self._flash_readback.unlink(missing_ok=True)
 
     def snapshot(self):
         result = super().snapshot()
@@ -11431,6 +11468,7 @@ class Esp32SimDeviceSession(DeviceSession):
         return {
             "status": "CONFIGURED", "runtime": esp32sim.RUNTIME,
             "profile": "esp32sim-sta", "policy": self.network_config["policy"],
+            "mode": self.network_config.get("mode", "nat"),
             "pcap_available": self.network_pcap.is_file(),
         }
 
@@ -11459,7 +11497,70 @@ class Esp32SimDeviceSession(DeviceSession):
                     self._persist_frame(self._decode_frame_metrics(receipt, analyze=True))
                 self.stop_reason = "guest_poweroff"
                 self._record_event("guest_poweroff", source="esp32sim-board-power")
-        return super()._finish_stop(purge=purge, retain_flash=retain_flash)
+            if (not purge and retain_flash and self.state == "running"
+                    and self.virtual_flash is None and self._supports_service_feature("flash-snapshot")):
+                try:
+                    if self.control is None or self._proc is None:
+                        raise ServiceError("flash_not_available", "esp32sim Flash is unavailable", 409)
+                    if self.spec.has_display:
+                        try:
+                            self.frame_metrics(force_persist=True)
+                        except ServiceError:
+                            pass
+                    self._flash_readback.unlink(missing_ok=True)
+                    self.control.request("flash-stop", allow_disconnect=True)
+                    if self._proc.wait(timeout=3) != 0:
+                        raise ServiceError("flash_export_failed", "esp32sim did not exit cleanly after Flash export", 502)
+                    if self._flash_readback.stat().st_size != self.board.flash:
+                        raise ServiceError("invalid_flash_readback", "esp32sim Flash export size does not match the board", 502)
+                    retained = self.dir / "virtual-flash.bin"
+                    self._flash_readback.replace(retained)
+                except (OSError, ServiceError, subprocess.TimeoutExpired) as error:
+                    self.flash_info["retention_error"] = getattr(error, "code", "flash_export_failed")
+                    self._record_event("flash_retention_failed", error=self.flash_info["retention_error"])
+                else:
+                    self.virtual_flash = retained
+                    self._record_event("flash_retained", source="esp32sim-final-checkpoint")
+            return super()._finish_stop(purge=purge, retain_flash=retain_flash)
+
+    def _export_live_flash(self):
+        if self.state != "running" or self.control is None:
+            raise ServiceError("flash_not_available", "esp32sim Flash is unavailable", 409)
+        reply = self.control.request("flash-snapshot")
+        receipt = reply.get("value") if isinstance(reply, dict) else None
+        if (not isinstance(receipt, dict) or type(receipt.get("bytes")) is not int
+                or receipt["bytes"] != self.board.flash or type(receipt.get("cycle")) is not int
+                or receipt["cycle"] < 0):
+            raise ServiceError("invalid_flash_readback", "Invalid esp32sim Flash export receipt", 502)
+        try:
+            with self._flash_readback.open("rb") as stream:
+                data = stream.read(self.board.flash + 1)
+        except OSError as error:
+            raise ServiceError("flash_not_available", "esp32sim Flash export is unavailable", 409) from error
+        if len(data) != self.board.flash:
+            raise ServiceError("invalid_flash_readback", "esp32sim Flash export size does not match the board", 502)
+        return data, receipt["cycle"]
+
+    def _read_flash_bytes(self):
+        with self._lock:
+            if self.state == "running":
+                self._check_cancelled()
+                try:
+                    data, _ = self._export_live_flash()
+                    return data
+                finally:
+                    self._flash_readback.unlink(missing_ok=True)
+            return super()._read_flash_bytes()
+
+    def flash_get(self, output_format="sha256"):
+        if not self._supports_service_feature("flash-snapshot"):
+            return self._unsupported()
+        return super().flash_get(output_format)
+
+    def flash_diff(self, before, after):
+        if not self._supports_service_feature("flash-snapshot"):
+            return self._unsupported()
+        return super().flash_diff(before, after)
 
     def frame_metrics(self, *, analyze=True, force_persist=False):
         with self._lock:
@@ -11501,48 +11602,345 @@ class Esp32SimDeviceSession(DeviceSession):
     def inject(self, payload):
         acl = self._require_runtime_permission("input.write")
         command = self.validate_input(payload)
+        controller = None
         with self._lock:
             self._check_cancelled()
             if self.state != "running" or self.control is None:
                 raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            if command["op"] == "drag" and not self._supports_service_feature("touch-drag"):
+                return self._unsupported()
+            if command["op"] == "encoder" and self._supports_service_feature("dial-encoder-state"):
+                before = self._encoder_state()
+                current, delivered = before["detents"], before["delivered-detents"]
+                if before["busy"] or current != delivered or before["gpio-edges"] % 4:
+                    raise ServiceError("input_busy", "Dial encoder has pending physical movement", 409)
+                delta, period = command["args"]
+                target = current + delta
+                if not -4096 <= target <= 4096:
+                    raise ServiceError("invalid_input", "Dial encoder target must stay within -4096..4096", 400)
+                controller = {
+                    "delta": delta, "target_detents": target, "previous_detents": delivered,
+                    "previous_gpio_edges": before["gpio-edges"], "edge_period_ms": period,
+                    "completion": "queued",
+                }
             self.control.request(command["op"], command["args"])
-            self._record_event("input", **command, runtime_acl_policy_id=acl)
+            self._record_event("input", **command, runtime_acl_policy_id=acl,
+                               **({"controller": controller} if controller is not None else {}))
         self._stop_event.wait(command["settle_seconds"])
-        return {**self.snapshot(), "input": command}
+        if controller is not None:
+            return {**self.snapshot(), "input": f"encoder:{controller['delta']}", "command": command,
+                    "action": "rotate", "accepted": True, "controller": controller}
+        return {**self.snapshot(), "input": command, "accepted": True}
 
     def _unsupported(self, *args, **kwargs):
         raise ServiceError("not_supported_on_runtime", "Operation is unavailable on esp32sim", 409)
 
-    qom_get = qom_list = qom_snapshot = qom_diff = _unsupported
-    flash_get = flash_snapshot = flash_diff = _unsupported
-    audio_inject = network_fault = _unsupported
-    sd_write_stamp = sd_read_stats = _unsupported
+    audio_inject = _unsupported
+
+    def network_fault(self, payload):
+        if not self._supports_service_feature("network-fault"):
+            return self._unsupported()
+        permission = self._require_runtime_permission("input.write")
+        action, target = payload.get("action"), payload.get("target", "link")
+        if action not in ("up", "down") or target not in ("link", "radio"):
+            raise ServiceError("invalid_network_fault", "Expected up or down and link or radio", 400)
+        if not self.network_config or self.board.is_tab5:
+            raise ServiceError("network_fault_not_supported", "Session has no modeled Wi-Fi fault control", 409)
+        with self._lock:
+            self._check_cancelled()
+            if self.state != "running" or self.control is None:
+                raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            reply = self.control.request("network-fault", (target, action))
+            state = reply.get("value") if isinstance(reply, dict) else None
+            up = action == "up"
+            if not isinstance(state, dict) or state.get(f"{target}_up") is not up:
+                raise ServiceError("invalid_runtime_state", "Wi-Fi model did not confirm the fault", 502)
+            self._record_event("network_fault", action=action, target=target, up=up,
+                               runtime_acl_policy_id=permission)
+        return {"session_id": self.id, "network_fault": {
+            "action": action, "target": target, "up": up, "controller": state,
+        }}
+
+    def _model_state(self):
+        if not self._supports_service_feature("state-snapshot"):
+            return self._unsupported()
+        self._require_runtime_permission("serial.read")
+        if self.state != "running" or self.control is None:
+            raise ServiceError("session_not_running", "esp32sim is not running", 409)
+        state = esp32sim.read_state(self.control)
+        if self.spec.id in esp32sim.ATOM_IO_DEVICES:
+            onboard = esp32sim.atom_io_state(state)
+            if onboard is not None:
+                state["/machine/onboard_io"] = onboard
+        return state
+
+    def controller_report(self):
+        if not self._supports_service_feature("controller-report"):
+            return self._unsupported()
+        self._require_runtime_permission("serial.read")
+        with self._lock:
+            if self.state != "running" or self.control is None:
+                raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            reply = self.control.request("controller-report")
+            report = reply.get("value") if isinstance(reply, dict) else None
+            if not isinstance(report, dict):
+                raise ServiceError("invalid_runtime_state", "Invalid esp32sim controller report", 502)
+            return report
+
+    def qom_get(self, path, prop):
+        if (self.spec.id == "paperdiy" and path == "/machine/et047tc1"
+                and prop == "sd-card-present" and self._supports_service_feature("sd-media")):
+            with self._lock:
+                value = self._sd_state()["present"]
+            return {"session_id": self.id, "path": path, "property": prop, "value": value}
+        with self._lock:
+            fields, _ = esp32sim.state_properties(self._model_state(), self._modeled_qom_path(path))
+        if prop not in fields:
+            raise ServiceError("unknown_state_property", "No modeled esp32sim property", 404)
+        return {"session_id": self.id, "path": path, "property": prop, "value": fields[prop]}
+
+    def qom_list(self, path="/machine"):
+        with self._lock:
+            fields, children = esp32sim.state_properties(self._model_state(), self._modeled_qom_path(path))
+        properties = {name: esp32sim.state_type(value) for name, value in fields.items()}
+        properties.update({name: "child<esp32sim>" for name in children})
+        return {"session_id": self.id, "path": path, "properties": [
+            {"name": name, "type": kind} for name, kind in sorted(properties.items())
+        ]}
+
+    def qom_snapshot(self, path="/machine", depth=2, max_nodes=500):
+        depth = max(0, min(int(depth), 8))
+        remaining = max(1, min(int(max_nodes), 5000))
+
+        def walk(tree, node, level):
+            nonlocal remaining
+            fields, children = esp32sim.state_properties(tree, node)
+            output = {}
+            for name in sorted(fields.keys() | set(children)):
+                if remaining <= 0:
+                    output["__truncated__"] = True
+                    break
+                remaining -= 1
+                if name in children:
+                    if level < depth:
+                        output[name] = {"__type__": "child<esp32sim>",
+                                        "children": walk(tree, f"{node}/{name}", level + 1)}
+                    else:
+                        output[name] = {"type": "child<esp32sim>", "value": f"{node}/{name}"}
+                else:
+                    value = fields[name]
+                    output[name] = {"type": esp32sim.state_type(value), "value": value}
+            return output
+
+        with self._lock:
+            tree = self._model_state()
+            return self._store_qom_snapshot({
+                "path": path, "depth": depth, "created_at": iso_now(),
+                "source": "esp32sim", "nodes": walk(tree, self._modeled_qom_path(path), 0),
+            })
+
+    def _modeled_qom_path(self, path):
+        if (path == "/machine/m5-lcd-cam" and self._supports_service_feature("camera-sequence")
+                and self.spec.id in esp32sim.CAMERA_SEQUENCE_DEVICES):
+            return "/machine/board/camera"
+        return path
+
+    def qom_diff(self, before, after):
+        if not self._supports_service_feature("state-snapshot"):
+            return self._unsupported()
+        self._require_runtime_permission("serial.read")
+        return super().qom_diff(before, after)
 
     def qom_set(self, payload):
+        path, prop = payload.get("path"), payload.get("property")
+        value = payload.get("value")
+        if (path in ("/machine/m5-lcd-cam", "/machine/board/camera") and prop == "auto-increment"
+                and self._supports_service_feature("camera-sequence")
+                and self.spec.id in esp32sim.CAMERA_SEQUENCE_DEVICES):
+            if type(value) is not bool:
+                raise ServiceError("invalid_qom", "auto-increment must be a boolean", 400)
+            runtime_path = path if path == "/machine/m5-lcd-cam" else "/board/camera"
+            return self._set_state_property(path, prop, value, runtime_path)
+        if (prop == "sd-card-present" and self._supports_service_feature("sd-media")
+                and (path == "/machine/board/sd" or (
+                    self.spec.id == "paperdiy" and path == "/machine/et047tc1"
+                ))):
+            return self._set_sd_media(path, prop, value)
+        if (self._supports_service_feature("state-snapshot") and prop == "input_drive"
+                and isinstance(path, str) and re.fullmatch(r"/machine/soc/gpio/[0-9]{1,2}", path)):
+            if value is not None and type(value) is not bool:
+                raise ServiceError("invalid_qom", "input_drive must be a boolean or null", 400)
+            return self._set_state_property(path, prop, value, path.removeprefix("/machine"))
         if (self.spec.id, payload.get("path"), payload.get("property")) != (
             "stamplc", "/machine/lm75-48", "temperature-c"
         ):
             return self._unsupported()
-        self.inject({"kind": "plc-temperature", "temperature_c": payload.get("value"), "settle_seconds": 0})
+        self.inject({"kind": "plc-temperature", "temperature_c": value, "settle_seconds": 0})
         return {"session_id": self.id, "qom_set": {"return": {}}}
 
+    def _set_state_property(self, path, prop, value, runtime_path):
+        permission = self._require_runtime_permission("input.write")
+        with self._lock:
+            self._check_cancelled()
+            if self.state != "running" or self.control is None:
+                raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            self.control.request("state-set", (runtime_path, prop, json.dumps(value)))
+            self._record_event("qom_set", path=path, property=prop, value=value,
+                               runtime_acl_policy_id=permission)
+        return {"session_id": self.id, "qom_set": {"return": {}}}
+
+    def _sd_state(self):
+        self._require_runtime_permission("storage.read")
+        if self.state != "running" or self.control is None:
+            raise ServiceError("sd_session_not_running", "A live guest is required for SD state", 409)
+        result = self.control.request("state-get", ("/board/sd",))
+        state = result.get("value") if isinstance(result, dict) else None
+        if not isinstance(state, dict) or type(state.get("present")) is not bool:
+            raise ServiceError("sd_media_unavailable", "The modeled SD state is unavailable", 409)
+        return state
+
+    def _set_sd_media(self, path, prop, value):
+        permission = self._require_runtime_permission("input.write")
+        if type(value) is not bool:
+            raise ServiceError("invalid_qom", "sd-card-present requires a boolean", 400)
+        if self.spec.id not in esp32sim.SD_DEVICES:
+            raise ServiceError("sd_hotplug_not_supported", "Session has no modeled hot-plug SD slot", 409)
+        if not self.storage_config:
+            raise ServiceError("sd_media_not_prepared", "Prepare the session SD image at creation", 409)
+        with self._lock:
+            self._check_cancelled()
+            if self.state != "running" or self.control is None:
+                raise ServiceError("sd_session_not_running", "A live guest is required for SD hot-plug", 409)
+            self._sd_attachment_generation += 1
+            result = self.control.request("sd-media", ("insert" if value else "eject",))
+            state = result.get("value") if isinstance(result, dict) else None
+            if not isinstance(state, dict) or state.get("present") is not value:
+                raise ServiceError("sd_media_unavailable", "The modeled SD did not confirm attachment state", 409)
+            self._record_event("qom_set", path=path, property=prop, value=value,
+                               runtime_acl_policy_id=permission)
+        return {"session_id": self.id, "qom_set": {"return": {}}}
+
+    def sd_write_stamp(self):
+        if not self._supports_service_feature("sd-media"):
+            return self._unsupported()
+        self._require_runtime_permission("storage.read")
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("sd_session_busy", "Session lifecycle operation is in progress", 409)
+        try:
+            with self._lock:
+                self._check_cancelled()
+                storage = self.storage_info or {}
+                if not storage.get("session_isolated_copy") or not storage.get("writable"):
+                    raise ServiceError("sd_write_stamp_unsupported", "A session-owned SD image is required", 409)
+                if not self._sd_state()["present"]:
+                    raise ServiceError("sd_media_ejected", "The session SD medium is ejected", 409)
+                try:
+                    info = self.sd_card_image.lstat()
+                except OSError as error:
+                    raise ServiceError("sd_media_unavailable", "The session SD medium is unavailable", 409) from error
+                if not stat.S_ISREG(info.st_mode) or info.st_size != storage["bytes"]:
+                    raise ServiceError("invalid_storage_image", "The session SD medium changed size or type", 409)
+                return {
+                    "session_id": self.id, "firmware_sha256": self.firmware_sha,
+                    "source_artifact_id": storage["artifact_id"],
+                    "media_id": self._sd_media_identity(info),
+                    "modified_ns": str(info.st_mtime_ns),
+                }
+        finally:
+            self._lifecycle_lock.release()
+
+    def _sd_media_identity(self, info):
+        identity = (self.id, self._sd_read_runtime_identity(), info.st_dev, info.st_ino,
+                    self._sd_attachment_generation)
+        return hashlib.sha256(repr(identity).encode()).hexdigest()
+
+    def _sd_read_runtime_identity(self):
+        process = self._proc
+        if (self.state != "running" or self._stop_event.is_set() or process is None
+                or process.pid != self.pid or process.poll() is not None or not self.process_start_token):
+            raise ServiceError("sd_read_stats_unavailable", "A live owned esp32sim process is required", 409)
+        return (self.id, self.worker_generation, self.pid, self.process_start_token)
+
+    def sd_read_stats(self):
+        self._require_runtime_permission("storage.read")
+        if self.spec.id not in SPI_SD_READ_STATS_DEVICES or not self._supports_service_feature("spi-sd-read-stats"):
+            raise ServiceError("sd_read_stats_unsupported", "The runtime has no admitted SPI SD read counters", 409)
+        if not self._lifecycle_lock.acquire(blocking=False):
+            raise ServiceError("sd_session_busy", "Session lifecycle operation is in progress", 409)
+        try:
+            with self._lock:
+                self._check_cancelled()
+                state = self._sd_state()
+                if any(type(state.get(key)) is not int or not 0 <= state[key] < 2**64
+                       for key in SPI_SD_READ_STATS_COUNTERS):
+                    raise ServiceError("sd_read_stats_invalid", "The runtime did not supply exact SPI SD counters", 409)
+                counters = {key: state[key] for key in SPI_SD_READ_STATS_COUNTERS}
+                present = state["present"]
+                source = media_id = None
+                if present:
+                    storage = self.storage_info or {}
+                    if storage.get("session_isolated_copy") is not True:
+                        raise ServiceError("sd_read_stats_unavailable", "The runtime medium has no owned fixture", 409)
+                    try:
+                        info = self.sd_card_image.lstat()
+                    except OSError as error:
+                        raise ServiceError("sd_read_stats_unavailable", "The session SD medium disappeared", 409) from error
+                    if (not stat.S_ISREG(info.st_mode) or info.st_size != storage["bytes"]
+                            or (info.st_dev, info.st_ino) != self._sd_read_media_inode):
+                        raise ServiceError("sd_read_stats_invalid", "The session SD medium changed", 409)
+                    source = storage["artifact_id"]
+                    media_id = self._sd_media_identity(info)
+                elif any(counters[key] for key in SPI_SD_READ_STATS_COUNTERS[1:]):
+                    raise ServiceError("sd_read_stats_invalid", "SPI SD counters persisted across media removal", 409)
+                return {
+                    "session_id": self.id, "device_id": self.spec.id, "firmware_sha256": self.firmware_sha,
+                    "runtime": self.runtime, "schema_version": 1, "media_present": present,
+                    "runtime_generation": hashlib.sha256(repr(self._sd_read_runtime_identity()).encode()).hexdigest(),
+                    "source_artifact_id": source, "media_id": media_id,
+                    "attachment_generation": self._sd_attachment_generation, **counters,
+                }
+        finally:
+            self._lifecycle_lock.release()
+
     def supports_device_state(self):
-        return self.spec.id == "stackchan"
+        return self.spec.id == "stackchan" or (
+            self.spec.id == "dial" and self._supports_service_feature("dial-encoder-state")) or (
+            self.spec.id in esp32sim.ATOM_IO_DEVICES and self._supports_service_feature("state-snapshot"))
 
     def device_state(self):
-        if self.spec.id != "stackchan":
+        if not self.supports_device_state():
             return self._unsupported()
         with self._lock:
             if self.control is None or self.state != "running":
                 raise ServiceError("session_not_running", "esp32sim is not running", 409)
-            angles = self.control.request("servo-state")
+            if self.spec.id == "dial":
+                self._require_runtime_permission("serial.read")
+                components = {"encoder": {"path": "/machine/encoder", "properties": self._encoder_state()}}
+            elif self.spec.id in esp32sim.ATOM_IO_DEVICES:
+                properties = self._model_state().get("/machine/onboard_io")
+                if properties is None:
+                    raise ServiceError("invalid_runtime_state", "Invalid esp32sim onboard I/O state", 502)
+                components = {"onboard-io": {"path": "/machine/onboard_io", "properties": properties}}
+            else:
+                angles = self.control.request("servo-state")
+                components = {f"servo-{axis}": {"properties": {"angle-deg": angles[axis]}}
+                              for axis in ("yaw", "pitch")}
             return {
                 "session_id": self.id, "device_id": self.spec.id, "state": self.state,
                 "supported": True, "available": True, "source": "live", "captured_at": iso_now(),
-                "components": {f"servo-{axis}": {"properties": {"angle-deg": angles[axis]}}
-                               for axis in ("yaw", "pitch")},
+                "components": components,
                 "errors": {},
             }
+
+    def _encoder_state(self):
+        reply = self.control.request("state-get", ("/board/encoder",))
+        state = reply.get("value") if isinstance(reply, dict) else None
+        if (not isinstance(state, dict) or type(state.get("busy")) is not bool
+                or any(type(state.get(key)) is not int
+                       for key in ("detents", "delivered-detents", "gpio-edges"))
+                or state["gpio-edges"] < 0):
+            raise ServiceError("invalid_runtime_state", "Invalid esp32sim encoder state", 502)
+        return state
 
     def reset(self):
         self._require_runtime_permission("guest.reset")
@@ -12317,6 +12715,7 @@ class DeviceService:
         native_only = native_runtime and not spec.supported
         board = esp32sim.BOARDS.get(spec.id)
         native_ready = spec.esp32sim_installation.ready(board) if board else False
+        native_features = json.loads(esp32sim.LOCK.read_text()).get("service_features", []) if native_ready else []
         readiness = native_ready if native_runtime else backend_ready
         missing = spec.esp32sim_installation.missing(board) if native_runtime else spec.missing_backend_files
         machine = spec.missing_backend_machine if not backend_ready and not native_runtime else None
@@ -12339,6 +12738,7 @@ class DeviceService:
                                  "backend_ready": native_ready,
                                  "board": board.name,
                                  "frame_size": list(board.size) if board.size else None,
+                                 **({"service_features": native_features} if native_features else {}),
                                  "variants": list(esp32sim.TAB5_PANELS if board.is_tab5 else
                                                   esp32sim.BOARD_VARIANTS.get(spec.id, {})),
                                  "radio_pair_modes": [mode for mode, device in radio_pair.PAIR_MODES.items()
@@ -12368,7 +12768,9 @@ class DeviceService:
             "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_features": {
-                "runtimes": ["qemu", esp32sim.RUNTIME] if native_runtime and spec.id == "cores3" else ["qemu"], "entrypoints": ["main.py"],
+                "runtimes": ["qemu", esp32sim.RUNTIME] if (native_ready and not review_catalog
+                    and spec.id in esp32sim.UART_REPL_DEVICES) else ["qemu"],
+                "entrypoints": ["main.py"],
                 "mpy_dependencies": "bytecode-only", "mpy_entrypoint": False,
                 "native_mpy": False, "main_namespace": "fresh-exec-globals",
                 "cleanup_mode": "interrupt-only",
@@ -12382,10 +12784,15 @@ class DeviceService:
                 "serial": spec.supported or native_only,
                 "screenshot": (spec.supported or native_only) and spec.has_display,
                 "input": spec.supported or native_only,
-                "qom": spec.supported and spec.service_kind == "qemu" and not native_runtime,
-                "device_state": bool(spec.state_probes) and not native_runtime,
-                "storage": spec.supported and (native_runtime or (spec.has_sd_card if spec.service_kind != "tab5"
-                                               else backend_ready and self._tab5_sd_worker_ready())),
+                "qom": ("state-snapshot" in native_features if native_runtime
+                        else spec.supported and spec.service_kind == "qemu"),
+                "device_state": (spec.id == "stackchan" or
+                                 (spec.id == "dial" and "dial-encoder-state" in native_features) or
+                                 (spec.id in esp32sim.ATOM_IO_DEVICES and "state-snapshot" in native_features))
+                                 if native_runtime else bool(spec.state_probes),
+                "storage": (spec.id in esp32sim.SD_DEVICES if native_runtime else spec.supported and
+                            (spec.has_sd_card if spec.service_kind != "tab5"
+                             else backend_ready and self._tab5_sd_worker_ready())),
                 "network": (
                     (spec.network_status == "validated" and bool(spec.network_profiles))
                     or review_network["network"] == "supported"
@@ -13116,6 +13523,12 @@ class DeviceService:
         if spec is None:
             raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
         runtime = payload.get("runtime", QEMU_WIFI_RUNTIME if uiflow_startup else spec.default_runtime)
+        if ("runtime" not in payload and runtime == esp32sim.RUNTIME
+                and spec.supported and "runtime_variant" not in payload):
+            storage = payload.get("storage")
+            if (any(payload.get(field) for field in ("runtime_env", "device_identity", "units", "nvs"))
+                    or isinstance(storage, dict) and "filesystem" in storage):
+                runtime = "qemu"
         if not spec.supported and not (runtime == esp32sim.RUNTIME and device_id in esp32sim.BOARDS):
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
@@ -13140,8 +13553,9 @@ class DeviceService:
             native_board = variants[variant]
         identity_request = parse_device_identity(payload, device_id=device_id, cloud=bool(uiflow_startup))
         monitor_config = parse_sticks3_wifi_monitor(payload)
+        repl_runtime = runtime == "qemu" or use_esp32sim and device_id in esp32sim.UART_REPL_DEVICES
         if program_mode:
-            if device_id not in LIVE_PROGRAM_DEVICES or not (runtime == "qemu" or use_esp32sim and device_id == "cores3"):
+            if device_id not in LIVE_PROGRAM_DEVICES or not repl_runtime:
                 raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted UIFlow2 runtime and device", 409)
             if "firmware_id" in payload or "uiflow_source_sha256" in payload:
                 raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares its UIFlow2 base; omit firmware_id and source pin", 409)
@@ -13151,7 +13565,7 @@ class DeviceService:
             if identity_request is not None:
                 raise ServiceError("not_supported_on_runtime", "Device identity provisioning requires QEMU", 409)
             # Validate the installed pin before any firmware preparation.
-            spec.esp32sim_installation.identity(native_board)
+            native_identity = spec.esp32sim_installation.identity(native_board)
         elif not spec.backend_ready or (
             runtime == "network" and spec.flash_emulator is not None and not spec.flash_emulator.is_file()
         ):
@@ -13320,7 +13734,7 @@ class DeviceService:
                 )
 
         if program_transport and (
-            not (runtime == "qemu" or use_esp32sim and device_id == "cores3")
+            not repl_runtime
             or device_id not in LIVE_PROGRAM_DEVICES
             or (source == "uploaded" and not is_uiflow_source)
         ):
@@ -13362,7 +13776,10 @@ class DeviceService:
                 and any(key in requested_network for key in STA_STREAM_PORTS)):
             raise ServiceError("invalid_network", "local STA stream fixtures require runtime=qemu-wifi", 400)
         if use_esp32sim:
-            network_config = esp32sim.parse_network(requested_network)
+            network_config = esp32sim.parse_network(
+                requested_network,
+                restricted_supported="net-restricted" in native_identity.get("service_features", ()),
+            )
         elif runtime == "network":
             network_config = parse_network_execution(
                 spec,
@@ -13472,7 +13889,8 @@ class DeviceService:
                                                 True if tab5_storage else None),
         )
         if storage_config:
-            if storage_config.get("sd_initially_ejected") and runtime != "qemu":
+            native_eject = use_esp32sim and "sd-initially-ejected" in native_identity.get("service_features", ())
+            if storage_config.get("sd_initially_ejected") and runtime != "qemu" and not native_eject:
                 raise ServiceError("sd_hotplug_not_supported", "SD hot-plug requires the plain native QEMU runtime", 409)
             if tab5_storage and not use_esp32sim:
                 self._admit_tab5_sd(spec, source, firmware_path, firmware_sha, runtime)

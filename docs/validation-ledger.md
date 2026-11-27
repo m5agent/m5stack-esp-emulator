@@ -14,6 +14,82 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim Device Service 控制候选验证
+
+Virtual-device validation。独立 Device Service 使用同一 Flash 输入逐次创建租约。
+候选 esp32sim 源码 `a6216b68abda3af76f6f491f940fbf0e4e8a42f7`，
+原生可执行文件 SHA-256
+`cb839f1baaf5d0165cbcf765db04499a051acc9dc032e408a19d747f308066d1`。
+CoreS3 在 UART REPL 中写入来宾文件，前后 Flash 快照出现可验证字节差异，
+停止回执保留 16 MiB。QOM 来宾周期递增，Flash、QOM 和控制器遥测 ZIP 成员
+与清单哈希相符。restricted STA 来宾连接成功，控制器记录 DHCP ACK，
+会话导出 Ethernet PCAP。
+
+Cardputer / ADV 的原版 SD 示例分别取得 6 / 41 个完整 SPI 响应块。
+拔卡后两板计数归零并增加复位代次，重新插入后媒体标识更新。
+PaperDIY 使用 `sd_initially_ejected` 启动，旧 API 属性可插拔同一张卡，
+拔出时写时间戳接口返回 `sd_media_ejected`。
+
+StopWatch 在首个 fork 候选上返回 466×466，触摸夹具两轮均在两后端将
+`(233,233)` 由蓝变绿。PaperMono 等待初始界面完成再按住 `(240,650)`
+1 秒，候选上两后端各两轮将 `(440,30)` 由白变黑。
+较早的 PaperMono 等待窗口不足和 CoreS3 文件系统自启动失败保留为独立记录。
+CoreS3 通过同一 UIFlow2 v2.5.3 的 UART REPL 执行原夹具，两个后端各两轮
+观察到触摸标记与绿色像素。
+
+这批结果限定于测试镜像和实际执行的接口。逐设备完整 Arduino、stock、
+审查任务兼容和常驻发布仍待验收。
+
+## 2026-11-27：esp32sim 合并控制版本和审查复核
+
+Virtual-device validation。固定 fork `1bde80f2472c4b4763a66fde63fad9fb4906a7ae`。
+AtomS3R-CAM 与 AtomS3R-M12 在 GPIO18 供电后读回传感器 ID，经旧 API 属性启用
+来宾采样变化，两后端在每板各两次得到五个不同帧。Atom Echo 的音频与 RGB 夹具和
+Basic v2.7 的 GPIO、Grove TMP105 与无电池读回在两后端各两次通过。
+Core2 原版 v2.5.3 Home / Settings 和同一基底的 UART-REPL A/B/C 逐键按下、
+释放各两次通过。StopWatch 原生目录几何改为 466×466。
+
+隔离审核中，Dial 旋钮与 Cardputer SPI SD 读任务在关闭选项时选择 QEMU，
+开启逐设备、逐任务映射时选择 esp32sim，同固件四次均为 `SIM_VERIFIED`。
+Dial 控制器记录三个完成的机械步进与十二条 GPIO 边沿。所有任务保留本地，
+其中 Dial 首次带额外原始键探针的 `SIM_PARTIAL` 结果保留。
+完整目录迁移、常驻发布及真机未在本轮取证。
+[固定证据和可复核的运行时哈希](https://github.com/m5agent/agent-work-logs/blob/9526ccddd4fc24aa0a8c44eb7bf197eee213c1d1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/follow-up-milestone.md)。
+
+## 2026-11-27：AtomU 与 Atom Echo 默认路由候选
+
+Virtual-device validation。原版镜像在两个后端各两次通过 UART REPL、
+GPIO39 按下/释放、RGB 0x204060、固定三种 PDM 捕获和标准 HTTP 证据路径。
+Atom Echo 两后端均回放 440.042 Hz PCM，原版 GitHub 镜像均缺少启动模块
+`M5Things`。其三个 Arduino 原示例的编译缺陷保持原分类。
+AtomU 的 M5Burner 目录镜像包含该模块，同版两轮从请求到 MicroPython 提示
+为 esp32sim 1.640–1.746 秒、QEMU 12.101–12.968 秒。
+候选 20 个租约验证省略 runtime、显式 QEMU 及旧版环境、身份、NVS 路由。
+PaperColor 的两后端各两次在来宾完成绘图后按 A 键，`(270,160)` 由白转黑。
+[固定固件、后端哈希和逐轮证据](https://github.com/m5agent/agent-work-logs/blob/399ada2d86222d3d4220c2cb5f78096cdee43dd1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/classic-defaults-and-panel-readiness.md)。
+
+## 2026-11-27：扩展的默认设备与运行时补齐
+
+Virtual-device validation。最终 fork 固定为 `9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee`。
+Atom Lite、Atom Matrix 与 Atom Matrix v1.1 的按键、IMU、RGB、串口
+文档用例在两个后端共 48 轮通过，另各两轮验证 stock REPL 与通用 HTTP。
+Cardputer K132 等待原版离线页绘制完成后通过 F12/GPIO0 进入菜单，
+两后端各两次成功。Dial 原版旋钮改变来宾画面，两后端各两次观察到响应。
+两板的已验审查任务仍可通过逐任务配置选择后端。
+
+Core2 采用完整菜单与 QR 区域作为 Home 条件，替换会误认启动图的颜色计数。
+两次 esp32sim 为 4.178、4.184 秒，两次 QEMU 为 43.196、48.839 秒。
+两后端在原版界面触摸后均观察到菜单变化；通过同基底 UART REPL 各两次
+观测到 A/B/C 独立按下和释放。Tab5 单租约观察到前 pin 9.101、9.260 秒，
+合并 pin 9.554、9.968 秒；同两种 RGB 哈希均出现，主机负载另记录。
+[逐轮证据与范围](https://github.com/m5agent/agent-work-logs/blob/d7292c937fe24d283b6343fc3c05670b3d44f737/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/expanded-paired-qualifications.md)。
+
+同日补验 StickC Plus SE。两个选定文档用例在 esp32sim 各两次通过；固定 UIFlow2
+夹具的按键、帧像素及 watcher 接口在两后端各两次通过。19 个旧状态探针设备另验
+`GET /device-state`，18 个 esp32sim 会话返回 409，StackChan 仅返回两项伺服状态。
+NanoC6 与 Nesso N1 的旧网络 profile 在 esp32sim 新租约被拒绝。
+[具体组件、端点与逐轮证据](https://github.com/m5agent/agent-work-logs/blob/d0bdcacd99355d81c6e30779f64e39c649321b83/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/default-routing-follow-up.md)。
+
 ## 2026-11-27：esp32sim 与封存后端同固件基准
 
 - Native Device Service virtual-device validation。基线源码

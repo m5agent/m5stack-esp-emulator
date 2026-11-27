@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/m5agent/esp32sim.git",
-  "ref": "refs/tags/m5-milestone-radio-sync-20261127",
-  "commit": "4e257b6be8ee0ed706c2e509d8f31ef7472a424b",
+  "ref": "refs/tags/m5-milestone-runtime-gaps-20261127",
+  "commit": "9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee",
   "roms": {
     "esp32s3_rev0_rom.elf": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
     "esp32p4_rev0_rom.elf": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
@@ -35,5 +35,19 @@
       "sha256": "73fba21169b8a518b7cc9f46681446f8a1e1b769a9084301d7501a2347b487c2"
     }
   },
-  "service_patch_sha256": "dc671ac82cbf1773f7c0590fb6637acc528b93dd8122ceb2a8dc19140b5d64bf"
+  "service_patch_sha256": "1da4af727c109e635ce56025d8e687fa30282c344be335e8ccf5c408dc2e376d",
+  "service_features": [
+    "state-snapshot",
+    "flash-snapshot",
+    "net-restricted",
+    "sd-media",
+    "controller-report",
+    "sd-initially-ejected",
+    "spi-sd-read-stats",
+    "camera-sequence",
+    "grove-tmp105",
+    "network-fault",
+    "dial-encoder-state",
+    "touch-drag"
+  ]
 }

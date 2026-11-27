@@ -85,6 +85,10 @@ SD_DEVICES = frozenset({
     "core2", "paperdiy", "papers3", "papercolor", "stamplc",
 })
 CAMERA_DEVICES = frozenset({"cores3", "stackchan", "atoms3r-cam", "atoms3r-m12"})
+CAMERA_SEQUENCE_DEVICES = frozenset({"atoms3r-cam", "atoms3r-m12"})
+GROVE_TMP105_DEVICES = frozenset({"atom-echo", "basic-v27"})
+ATOM_IO_DEVICES = frozenset({"atom-echo", "atomu", "atom-lite", "atom-matrix", "atom-matrix-v11"})
+UART_REPL_DEVICES = ATOM_IO_DEVICES | {"cores3", "core2"}
 # Normalized Flash digests with same-firmware HTTP session comparison.
 # Keep unspecified images and legacy-only feature requests on esp-emu.
 TAB5_DEFAULT_FIRMWARE = {
@@ -164,6 +168,7 @@ class Installation:
             "rom_sha256": observed[rom], "board": board.name, "control_protocol": 1,
             "service_patch_sha256": lock["service_patch_sha256"],
             "flash_bytes": board.flash, "psram_bytes": board.psram,
+            **({"service_features": lock["service_features"]} if "service_features" in lock else {}),
             **({"rom": rom, "coprocessor": {"esp_hosted_version": lock["tab5_c6"]["version"],
                  "rom_sha256": observed[C6_ROM_NAME],
                  "images_sha256": {k: row["sha256"] for k, row in lock["tab5_c6"]["files"].items()}}}
@@ -200,31 +205,41 @@ def validate_memory(board, data, psram):
         raise ServiceError("firmware_flash_mismatch", "Firmware flash layout exceeds the esp32sim board capacity", 422)
 
 
-def parse_network(value):
+def parse_network(value, *, restricted_supported=False):
     if value is None:
         return {}
-    if not isinstance(value, dict) or set(value) - {"profile", "ssid", "psk", "policy"}:
-        raise ServiceError("invalid_network", "esp32sim accepts profile, ssid, psk and policy", 400)
+    if not isinstance(value, dict) or set(value) - {"profile", "ssid", "psk", "policy", "mode"}:
+        raise ServiceError("invalid_network", "esp32sim accepts profile, ssid, psk, policy and mode", 400)
     if value.get("profile", "esp32sim-sta") != "esp32sim-sta":
         raise ServiceError("not_supported_on_runtime", "esp32sim supports the esp32sim-sta profile", 409)
     request_policy = value.get("policy")
-    policy = parse_network_policy(request_policy)
-    if (not isinstance(request_policy, dict)
-            or request_policy.keys() - {"isolation", "egress", "dns"}
-            or request_policy.get("isolation") != "trusted-host"
-            or policy.isolation != "trusted-host" or policy.egress != "native"
-            or policy.allowed_hosts or policy.allowed_domains or policy.allowed_endpoints):
-        raise ServiceError("not_supported_on_runtime", "esp32sim NAT requires explicit trusted-host native policy", 409)
+    mode = value.get("mode", "nat")
+    if mode == "restricted":
+        if not restricted_supported or "policy" in value:
+            raise ServiceError("not_supported_on_runtime", "Restricted esp32sim mode requires a pinned runtime and no host policy", 409)
+        policy_evidence = {"isolation": "emulator", "egress": "deny-all", "dns": "emulated"}
+    elif mode == "nat":
+        policy = parse_network_policy(request_policy)
+        if (not isinstance(request_policy, dict)
+                or request_policy.keys() - {"isolation", "egress", "dns"}
+                or request_policy.get("isolation") != "trusted-host"
+                or policy.isolation != "trusted-host" or policy.egress != "native"
+                or policy.allowed_hosts or policy.allowed_domains or policy.allowed_endpoints):
+            raise ServiceError("not_supported_on_runtime", "esp32sim NAT requires explicit trusted-host native policy", 409)
+        policy_evidence = policy.evidence()
+    else:
+        raise ServiceError("invalid_network", "esp32sim network mode must be nat or restricted", 400)
     ssid, psk = value.get("ssid", "esp32sim"), value.get("psk", "")
     for text, name, minimum, maximum in ((ssid, "ssid", 1, 32), (psk, "psk", 8, 63)):
         if (not isinstance(text, str) or not text.isascii() or "," in text
                 or (text and not text.isprintable())
                 or (name == "ssid" or text) and not minimum <= len(text) <= maximum):
             raise ServiceError("invalid_network", f"Invalid esp32sim Wi-Fi {name}", 400)
-    return {"profile": "esp32sim-sta", "ssid": ssid, "psk": psk, "policy": policy.evidence()}
+    return {"profile": "esp32sim-sta", "ssid": ssid, "psk": psk, "mode": mode, "policy": policy_evidence}
 
 
-def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None, network=None, pcap=None):
+def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None, network=None,
+                  pcap=None, flash_readback=None, sd_initially_ejected=False, grove_tmp105=False):
     rom = installation.rom.with_name(p4_rom_name(flash)) if board.is_tab5 else installation.board_rom(board)
     command = [
         str(installation.binary_for(board)), "--board", board.name, "--rom", str(rom),
@@ -249,11 +264,17 @@ def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None
     for flag, path in (("--sd-rw", sd), ("--cam-image", cam), ("--mic-wav", mic)):
         if path is not None:
             command += [flag, str(path)]
+    if flash_readback is not None:
+        command += ["--service-flash-out", str(flash_readback)]
+    if sd_initially_ejected:
+        command += ["--sd-ejected"]
+    if grove_tmp105:
+        command += ["--grove", "tmp105"]
     if network:
         settings = f"ssid={network['ssid']}"
         if network["psk"]:
             settings += f",psk={network['psk']}"
-        command += ["--wifi", settings, "--net", "nat"]
+        command += ["--wifi", settings, "--net", network.get("mode", "nat")]
         if pcap is not None:
             command += ["--pcap", str(pcap)]
     return command
@@ -292,6 +313,12 @@ def input_command(device, payload, *, board=None):
         seconds = action_seconds(payload, "seconds", 1) if action == "hold" else (
             action_seconds(payload, "hold_seconds", 0.5) if kind == "longpress" else 0.12)
         return "touch", (x, y, 1, math.ceil(seconds * 1000)), settle
+    if kind == "drag" and board.touch:
+        width, height = board.size
+        points = tuple(bounded_int(payload.get(field), field, limit)
+                       for field, limit in (("x1", width - 1), ("y1", height - 1),
+                                            ("x2", width - 1), ("y2", height - 1)))
+        return "drag", points, settle
     if kind == "encoder" and device in {"dial", "stickt2"}:
         delta = validate_encoder_delta(payload.get("delta"))
         if device == "stickt2":
@@ -321,6 +348,15 @@ def input_command(device, payload, *, board=None):
     if kind in {"key", "keyboard", "button"}:
         field = "control" if kind == "button" else "key"
         name = control_name(payload.get(field), field)
+        core2_button_x = {"a": 63, "b": 160, "c": 258}.get(name) if device == "core2" else None
+        if core2_button_x is not None and kind != "keyboard":
+            # The FT6336 touch strip extends past the 240-row framebuffer.
+            if action in ("down", "up"):
+                return "touch", (core2_button_x, 260, int(action == "down"), 0), settle
+            if action in ("tap", "click", "hold"):
+                seconds = action_seconds(payload, "seconds", 1, maximum=10) if action == "hold" else (
+                    action_seconds(payload, "hold_seconds", 0.45) if kind == "key" else 0.12)
+                return "touch", (core2_button_x, 260, 1, math.ceil(seconds * 1000)), settle
         if kind == "button" and device == "cardputer-adv" and name in {"boot", "g0", "btn", "gpio0"} and action in ("down", "up"):
             return "gpio", (int(action == "up"),), settle
         if device in {"cardputer", "cardputer-adv"} and kind in {"keyboard", "key"} and action in ("down", "up"):
@@ -440,7 +476,7 @@ def gpio_button(device, name):
     if device == "dial":
         return {"a": "a", "button": "a", "boot": "boot"}.get(name)
     if device == "cardputer":
-        return "g0" if name in {"g0", "boot", "btn", "gpio0"} else None
+        return "g0" if name in {"g0", "boot", "btn", "gpio0", "f12"} else None
     if device == "m5stick":
         return "a" if name == "a" else None
     if device == "stickc-plus2" and name in {"c", "pwr", "power"}:
@@ -448,7 +484,10 @@ def gpio_button(device, name):
     if device == "basic-v27":
         return name if name in {"a", "b", "c"} else None
     if device in {"papermono", "papercolor"}:
-        return {"key1": "a", "key2": "b", **({"key3": "c"} if device == "papercolor" else {})}.get(name)
+        return {
+            "a": "a", "b": "b", "key1": "a", "key2": "b",
+            **({"c": "c", "key3": "c"} if device == "papercolor" else {}),
+        }.get(name)
     if device in {"paperdiy", "stickc", "stickc-plus", "stickc-plus-se", "stickc-plus2", "stickt2",
                   "sticks3", "stopwatch"}:
         return name if name in {"a", "b"} else None
@@ -512,6 +551,53 @@ def decode_frame(data, board):
     if (width, height) != board.size or len(data) != 5 + width * height * 2:
         raise ServiceError("invalid_runtime_frame", "Unexpected esp32sim framebuffer geometry", 502)
     return width, height, data[5:]
+
+
+def read_state(control):
+    reply = control.request("state-snapshot")
+    nodes = reply.get("value") if isinstance(reply, dict) else None
+    if (not isinstance(nodes, dict) or "/soc" not in nodes or "/board" not in nodes
+            or any(not isinstance(fields, dict) or path.split("/", 2)[:2] not in (["", "soc"], ["", "board"])
+                   for path, fields in nodes.items())):
+        raise ServiceError("invalid_runtime_state", "Invalid esp32sim state snapshot", 502)
+    tree = {"/machine": {}}
+    for path, fields in nodes.items():
+        parent = "/machine"
+        for component in path[1:].split("/"):
+            parent += "/" + component
+            tree.setdefault(parent, {})
+        tree[parent].update(fields)
+    return tree
+
+
+def state_properties(tree, path):
+    if not isinstance(path, str) or path not in tree:
+        raise ServiceError("unknown_state_path", "No modeled esp32sim component at this path", 404)
+    fields = dict(tree[path])
+    prefix = path + "/"
+    direct = sorted(name[len(prefix):] for name in tree
+                    if name.startswith(prefix) and "/" not in name[len(prefix):])
+    return fields, direct
+
+
+def atom_io_state(tree):
+    leds = tree.get("/machine/board/leds", {})
+    rgb, updates = leds.get("rgb"), leds.get("updates")
+    high = tree.get("/machine/soc/gpio/39", {}).get("level")
+    if (not isinstance(rgb, list) or len(rgb) not in {1, 25}
+            or type(updates) is not int or updates < 0 or type(high) is not bool):
+        return None
+    if any(not isinstance(pixel, list) or len(pixel) != 3
+           or any(type(value) is not int or not 0 <= value <= 255 for value in pixel)
+           for pixel in rgb):
+        return None
+    packed = [int.from_bytes(bytes(pixel), "big") for pixel in rgb]
+    return {"led-rgb": packed[0] if len(packed) == 1 else packed, "led-frames": updates,
+            "pressed": not high, "input-level": high}
+
+
+def state_type(value):
+    return {int: "int", bool: "bool", str: "str", float: "number", list: "array", dict: "object"}.get(type(value), "null")
 
 
 class Control:
@@ -581,7 +667,7 @@ class Control:
             self._shutdown()
             raise ServiceError("runtime_control_unavailable", "esp32sim control socket closed", 503) from error
 
-    def request(self, op, args=()):
+    def request(self, op, args=(), *, allow_disconnect=False):
         deadline = time.monotonic() + 10
         with self.condition:
             if self.closed or len(self.pending) >= 32:
@@ -599,6 +685,8 @@ class Control:
                     self.condition.wait(remaining)
                 reply = self.pending[request_id]
             if reply is None:
+                if allow_disconnect and self.closed:
+                    return None
                 raise ServiceError("runtime_control_unavailable", f"esp32sim gave no {op} reply", 503)
             if isinstance(reply, dict) and not reply.get("ok"):
                 if op == "frame":

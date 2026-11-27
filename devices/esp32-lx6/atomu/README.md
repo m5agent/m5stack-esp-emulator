@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Device-local console evidence covers ROM boot, board id 130, RMT SK6812 output, QMP key-driven button and Grove I2C scan only. SPM1423 PDM microphone capture, IR G12, Grove Unit protocols and physical behavior remain unvalidated.
+- Device-local evidence covers boot, board id 130, RMT SK6812 output, GPIO39 button, Grove I2C scan and virtual PDM capture using silent and two tone inputs. IR G12, Grove Unit protocols and physical behavior remain unvalidated.
 
 ## 文件
 

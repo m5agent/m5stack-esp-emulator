@@ -55,7 +55,8 @@ def run(args: argparse.Namespace) -> dict:
         return call(path, method="POST", payload=payload)
 
     device = call("/devices/cardputer")
-    if not device["creatable"] or device["sku"] != "K132" or device["machine"] != "m5cardputer":
+    selected = device.get("runtimes", {}).get(args.runtime, {})
+    if not selected.get("backend_ready", device["creatable"]) or device["sku"] != "K132":
         raise RuntimeError("Exact K132 runtime is not available")
     artifact = request_json(
         prefix + "/artifacts", method="POST", body=binary, headers={
@@ -67,15 +68,15 @@ def run(args: argparse.Namespace) -> dict:
         "device_id": "cardputer", "kind": "merged", "artifact_id": artifact["artifact_id"],
     })
     session = post("/sessions", {
-        "device_id": "cardputer", "runtime": "qemu", "firmware_id": firmware["firmware_id"],
+        "device_id": "cardputer", "runtime": args.runtime, "firmware_id": firmware["firmware_id"],
         "ttl_seconds": 180,
     })
     sid = session["session_id"]
     path = f"/sessions/{sid}"
     result = {
         "case": args.case, "session_id": sid, "firmware_sha256": expected,
-        "firmware_id": firmware["firmware_id"], "machine": device["machine"],
-        "runtime": "qemu", "input_qcode": key, "status": "FAIL",
+        "firmware_id": firmware["firmware_id"], "machine": selected.get("board", "m5cardputer"),
+        "runtime": session["runtime"], "input_qcode": key, "status": "FAIL",
     }
 
     def read_frame() -> tuple[bytes, Image.Image]:
@@ -98,8 +99,9 @@ def run(args: argparse.Namespace) -> dict:
 
     def offline(frame: Image.Image) -> bool:
         r, g, b = frame.getpixel((16, 26))
-        # The offline page has an orange status banner below the title.
-        return r > 220 and 100 < g < 195 and b < 85
+        # The banner is drawn before the guest finishes the left column.
+        nickname = frame.crop((12, 100, 84, 120))
+        return r > 220 and 100 < g < 195 and b < 85 and nickname.getcolors(1) is None
 
     def app_menu(frame: Image.Image) -> bool:
         r, g, b = frame.getpixel((95, 51))
@@ -119,7 +121,9 @@ def run(args: argparse.Namespace) -> dict:
         serial = call(path + "/serial?offset=0&limit=65536")["data"]
         if marker and (marker in serial or "Launcher onCreate" not in serial):
             raise RuntimeError("Factory guest did not start at its pre-input launcher")
-        post(path + "/input", {"kind": "key", "key": key, "settle_seconds": 0.5})
+        post(path + "/input", {
+            "kind": "key", "key": key, "hold_seconds": 0.45, "settle_seconds": 0.5,
+        })
         if marker:
             post(path + "/wait", {
                 "timeout_seconds": 12, "ready": {"serial_markers": [marker]},
@@ -168,6 +172,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--service", required=True)
     parser.add_argument("--token-file", required=True, type=Path)
+    parser.add_argument("--runtime", choices=("qemu", "esp32sim"), default="qemu")
     parser.add_argument("--case", required=True, choices=CASES)
     parser.add_argument("--firmware", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)

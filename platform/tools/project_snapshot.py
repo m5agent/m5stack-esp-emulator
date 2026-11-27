@@ -10,6 +10,8 @@ import unittest
 from collections import Counter
 from pathlib import Path
 
+from device_service_specs import catalog_default_runtime
+
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs/project-snapshot.md"
 SOURCE_DEVICES = ROOT / "devices/catalog.source.json"
@@ -550,6 +552,10 @@ def collect() -> dict:
         "devices_by_group": dict(sorted(group_counts.items())),
         "backends": dict(sorted(backend_counts.items())),
         "service_devices": service_count,
+        "esp32sim_defaults": sorted(
+            item["id"] for item in source_devices
+            if catalog_default_runtime(item["runtime"]) == "esp32sim"
+        ),
         "peripheral_status": dict(sorted(peripheral_counts.items())),
         "devices": devices,
         "browser_profiles": summarize_browser_profiles(),
@@ -598,6 +604,9 @@ def render_markdown(snapshot: dict) -> str:
             f"Device Service 可创建：`{snapshot['service_devices']}` 台（后端类型登记）。"
         ),
         "- Device Service 可创建计数只表示源码后端登记，不查询当前主机的 `backend_ready`/`creatable`；实际可创建性以设备 API 返回为准。",
+        "- 普通 Device Service 请求在源码中选择 `esp32sim` 的设备："
+        + "，".join(f"`{device}`" for device in snapshot["esp32sim_defaults"])
+        + "。Tab5 根据固件与面板组合选择。",
         "- 设备分组："
         + "，".join(
             f"`{group}` {count}"

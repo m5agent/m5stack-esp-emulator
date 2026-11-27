@@ -345,6 +345,13 @@ class DeviceSpec:
         return missing
 
 
+def catalog_default_runtime(catalog_runtime: dict) -> str:
+    if (catalog_runtime.get("backend") == ESP32SIM_BACKEND
+            or catalog_runtime.get(ESP32SIM_RUNTIME, {}).get("default") is True):
+        return ESP32SIM_RUNTIME
+    return "qemu"
+
+
 def load_device_specs() -> dict[str, DeviceSpec]:
     matrix = json.loads(MATRIX.read_text())
     profiles = json.loads(PROFILES.read_text())
@@ -548,12 +555,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else {}
             ),
             reason=reason,
-            default_runtime=(
-                ESP32SIM_RUNTIME
-                if (catalog_runtime.get("backend") == ESP32SIM_BACKEND
-                    or catalog_runtime.get(ESP32SIM_RUNTIME, {}).get("default") is True)
-                else "qemu"
-            ),
+            default_runtime=catalog_default_runtime(catalog_runtime),
             require_machine_probe=profile.get("require_machine_probe") is True,
         )
     return specs

@@ -300,7 +300,7 @@
           "flash_bytes": 16777216,
           "psram_bytes": 8388608,
           "frame_size": [
-            468,
+            466,
             466
           ],
           "touch": true
@@ -402,6 +402,7 @@
         },
         "esp32sim": {
           "board": "m5stack-cardputer",
+          "default": true,
           "flash_bytes": 8388608,
           "psram_bytes": 0,
           "frame_size": [
@@ -875,6 +876,7 @@
         },
         "esp32sim": {
           "board": "m5stack-core2",
+          "default": true,
           "flash_bytes": 16777216,
           "psram_bytes": 8388608,
           "frame_size": [
@@ -2201,6 +2203,7 @@
         ],
         "esp32sim": {
           "board": "m5stack-dial",
+          "default": true,
           "flash_bytes": 8388608,
           "psram_bytes": 0,
           "frame_size": [
@@ -2500,6 +2503,7 @@
         ],
         "esp32sim": {
           "board": "m5stack-stickc-plus-se",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [
@@ -2573,6 +2577,7 @@
         ],
         "esp32sim": {
           "board": "m5stack-atom-lite",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [
@@ -2647,6 +2652,7 @@
         ],
         "esp32sim": {
           "board": "m5stack-atom-matrix",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [
@@ -2721,6 +2727,7 @@
         ],
         "esp32sim": {
           "board": "m5stack-atom-matrix-v11",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [
@@ -2790,7 +2797,7 @@
         "display_protocol": null,
         "execution": "native-qemu",
         "blockers": [
-          "Device-local console evidence covers ROM boot, board id 130, RMT SK6812 output, QMP key-driven button and Grove I2C scan only. SPM1423 PDM microphone capture, IR G12, Grove Unit protocols and physical behavior remain unvalidated."
+          "Device-local evidence covers boot, board id 130, RMT SK6812 output, GPIO39 button, Grove I2C scan and virtual PDM capture using silent and two tone inputs. IR G12, Grove Unit protocols and physical behavior remain unvalidated."
         ],
         "validation": {
           "date": "2026-11-02",
@@ -2801,6 +2808,7 @@
         },
         "esp32sim": {
           "board": "m5stack-atomu",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [
@@ -2883,6 +2891,7 @@
         },
         "esp32sim": {
           "board": "m5stack-atom-echo",
+          "default": true,
           "flash_bytes": 4194304,
           "psram_bytes": 0,
           "frame_size": [

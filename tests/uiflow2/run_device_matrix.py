@@ -80,9 +80,13 @@ def ui_command(
         command.extend(["--post-frame-color", device["post_frame_color"]])
     if "min_unique_colors" in device:
         command.extend(["--min-unique-colors", str(device["min_unique_colors"])])
+    if "before_frame_timeout" in device:
+        command.extend(["--before-frame-timeout", str(device["before_frame_timeout"])])
     for name in ("pre_input_marker", "post_input_marker"):
         if device.get(name):
             command.extend(["--" + name.replace("_", "-"), device[name]])
+    if "pre_input_timeout" in device:
+        command.extend(["--pre-input-timeout", str(device["pre_input_timeout"])])
     serial_expect = device.get("serial_expect", [])
     if isinstance(serial_expect, str):
         serial_expect = [serial_expect]

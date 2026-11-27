@@ -192,6 +192,8 @@ class InputStepTests(unittest.TestCase):
                 return {'return': {}}
             def close(self):
                 trace.append('qmp-close')
+        def record_marker(_serial, marker, _process, timeout=None):
+            trace.append((marker, timeout))
         out = Path(self.tmp.name)
         (out/'serial.log').write_text('QOM')
         (out/'serial1.log').write_text('')
@@ -200,7 +202,7 @@ class InputStepTests(unittest.TestCase):
                 '--vfs-size', '1', '--flash-size', '1', '--expected-size', '2x2',
                 '--out-dir', str(out), '--wait', '0', '--allow-static-frame',
                 '--qom-step', '0', '/machine', 'value', 'true', 'QOM',
-                '--pre-input-marker', 'PRE', '--post-input-marker', 'POST',
+                '--pre-input-marker', 'PRE', '--pre-input-timeout', '47', '--post-input-marker', 'POST',
                 '--input', 'keydown:b', '--input-step', '0', 'keyup:a', 'STEP',
                 '--capture-each-input', '--min-nonblack-pixels', '1']
         with contextlib.ExitStack() as stack:
@@ -209,15 +211,15 @@ class InputStepTests(unittest.TestCase):
             stack.enter_context(patch.object(RUNNER, 'efuse_image', return_value=b''))
             stack.enter_context(patch.object(RUNNER, 'wait_qmp', return_value=Qmp()))
             stack.enter_context(patch.object(RUNNER.time, 'sleep'))
-            stack.enter_context(patch.object(RUNNER, 'wait_serial_marker', side_effect=lambda p,m,proc: trace.append(m)))
+            stack.enter_context(patch.object(RUNNER, 'wait_serial_marker', side_effect=record_marker))
             stack.enter_context(patch.object(RUNNER, 'capture_before_frame', side_effect=lambda *a,**kw: trace.append('before') or (2,2)))
             stack.enter_context(patch.object(RUNNER, 'send_input', side_effect=lambda q,s,*a: trace.append(s)))
             stack.enter_context(patch.object(RUNNER, 'canonicalize_screendump', return_value=(2,2,b'pixels')))
             stack.enter_context(patch.object(RUNNER, 'frame_stats', return_value=(4,2)))
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
             RUNNER.main()
-        self.assertEqual(trace, ['qom-set', 'PRE', 'before', 'keydown:b', 'input-000.ppm',
-                                 'STEP', 'keyup:a', 'input-001.ppm', 'POST', 'after.ppm',
+        self.assertEqual(trace, ['qom-set', ('PRE', 47), 'before', 'keydown:b', 'input-000.ppm',
+                                 ('STEP', None), 'keyup:a', 'input-001.ppm', ('POST', None), 'after.ppm',
                                  'qmp-close', 'terminate', 'reaped'])
 
 
