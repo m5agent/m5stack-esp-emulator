@@ -1,9 +1,13 @@
 # GitHub Pages 虚拟设备部署
 
-最近核对 `2026-11-19`。[正式站点](https://m5agent.github.io/m5stack-esp-emulator/)
-当前使用发布包 [pages-20261114-70ef503f](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261114-70ef503f)，
-对应源码 `70ef503fc2fb8b2c787fa9065e2952f525c40099`。已回读 HTTPS 工作台和
-公开资产清单 `54fc8d8f…`。[发布工作流](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43511659965)
+[正式站点](https://m5agent.github.io/m5stack-esp-emulator/) ·
+[当前公开资产清单](https://m5agent.github.io/m5stack-esp-emulator/public-site-manifest.json) ·
+[发布包](https://github.com/m5agent/m5stack-esp-emulator/releases)
+
+2026-11-19 核对的历史发布包为
+[pages-20261114-70ef503f](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/pages-20261114-70ef503f)，
+对应源码 `70ef503fc2fb8b2c787fa9065e2952f525c40099`，HTTPS 资产清单 `54fc8d8f…`。
+[该次发布工作流](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/43511659965)
 
 Pages 提供独立的静态 WASM 交付。本机 Device Service 1.99.5 的 Tab5 原版双麦
 及 UIFlow2 云端诊断属于原生服务路径。[当前项目状态](project-status.md) ·
