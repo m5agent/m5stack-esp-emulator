@@ -1,7 +1,7 @@
 # Migrating Device Service sessions to esp32sim
 
-CoreS3, Cardputer-ADV, AtomU and Atom Echo select `esp32sim` when you omit
-`runtime` from an ordinary lease.
+CoreS3, Cardputer, Cardputer-ADV, Dial, AtomU and Atom Echo select `esp32sim`
+when you omit `runtime` from an ordinary lease.
 Use `"runtime":"qemu"` to select the frozen native QEMU path. Tab5 also
 accepts `"runtime":"esp32sim"`. Its qualified firmware and panel pairs select
 it automatically when the runtime assets are ready and the request uses the
