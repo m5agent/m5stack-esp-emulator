@@ -57,7 +57,12 @@
     },
     "blockers": [
       "Camera virtual-device path passed on the shared official UIFlow2 image (M5Burner entry declares AtomS3R-CAM and AtomS3R-M12 support): OV3660 detected at 0x3c, QQVGA/QVGA/VGA/HD frames match the reconstructed DVP waveform and five QQVGA streamed frames are distinct. There is no M12-specific UIFlow2 entry; the community MJPEG/UVC demo frame path, physical optics/electrics, IR GPIO47, Grove Units and USB CDC remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atoms3r-m12",
+      "flash_bytes": 8388608,
+      "psram_bytes": 8388608
+    }
   },
   "uiflow2": {
     "supported": true,

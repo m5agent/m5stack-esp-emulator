@@ -81,6 +81,15 @@
       "detail": "独立 K132 的官方 UserDemo V0.8/V0.9 通过 240×135 启动画面和 GPIO 矩阵按键到应用列表。V0.9 的 Fn 指示随按放更新。官方 UIFlow2 v2.5.4 原始镜像通过离线主页和 G0 到应用菜单，替换文件系统的候选镜像未越过 ROM bootloader entry。",
       "evidence": "docs/evidence/2026-11-09-cardputer-k132/summary.json",
       "category": "virtual-device"
+    },
+    "esp32sim": {
+      "board": "m5stack-cardputer",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0,
+      "frame_size": [
+        240,
+        135
+      ]
     }
   },
   "official_docs": "https://docs.m5stack.com/en/core/Cardputer",

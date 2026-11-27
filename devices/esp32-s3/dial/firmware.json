@@ -26,7 +26,17 @@
     },
     "blockers": [
       "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-dial",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0,
+      "frame_size": [
+        240,
+        240
+      ],
+      "touch": true
+    }
   },
   "cache_path": "platform/.cache/firmware/dial/uiflow2.bin"
 }

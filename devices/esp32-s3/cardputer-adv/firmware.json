@@ -21,6 +21,15 @@
       "date": "2026-10-23",
       "status": "display-keyboard-peripherals-wifi-ble-pass",
       "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 240x135 显示、TCA8418 键盘、BMI270、ES8311/NS4150B 音频、麦克风、SPI microSD、ST25R3916 NFC、CC1101、WiFi DHCP/HTTP 和 UART1 HCI BLE。"
+    },
+    "esp32sim": {
+      "board": "m5stack-cardputer-adv",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0,
+      "frame_size": [
+        240,
+        135
+      ]
     }
   },
   "cache_path": "platform/.cache/firmware/cardputer-adv/uiflow2.bin"

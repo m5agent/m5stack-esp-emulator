@@ -20,6 +20,9 @@ class Esp32SimTests(unittest.TestCase):
         self.assertEqual({name for name, value in selected.items() if value == "esp32sim"}, {"cores3", "cardputer-adv"})
         self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")
+        self.assertEqual(set(runtime.BOARDS), set(selected) - {"cardputer-zero"})
+        self.assertEqual(runtime.BOARD_VARIANTS["basic-v27"]["flash-4mb"].flash, 4 << 20)
+        self.assertEqual(runtime.BOARD_VARIANTS["core2"]["axp192"].name, "m5stack-core2-axp192")
 
     def test_spawn_command_uses_owned_files_and_private_descriptor(self):
         installation = runtime.Installation(Path("/asset/esp32sim"), Path("/asset/rom"), Path("/asset/manifest"))
@@ -60,6 +63,10 @@ class Esp32SimTests(unittest.TestCase):
              ("imu", (1, 2, 3, -1, 0, 1), .3)),
             ("cardputer-adv", {"kind": "adc", "gpio": 10, "volts": 2.5}, ("adc", (10, 2.5), .3)),
             ("cardputer-adv", {"kind": "keyboard", "key": "fn", "action": "down"}, ("key-edge", ("fn", 1), .3)),
+            ("cardputer", {"kind": "keyboard", "key": "fn", "action": "up"}, ("key-edge", ("fn", 0), .3)),
+            ("dial", {"kind": "encoder", "delta": -3, "edge_period_ms": 7}, ("encoder", (-3, 7), .3)),
+            ("dial", {"kind": "rfid", "uid": "AABBCCDD"}, ("rfid", ("aabbccdd",), .3)),
+            ("papermono", {"kind": "nfc-tag", "uid": None}, ("paper-tag", ("none",), .3)),
             ("tab5", {"kind": "touch-contact", "action": "down", "contact_id": 1, "x": 719, "y": 1279},
              ("contact", (1, 719, 1279, 1), .3)),
             ("tab5", {"kind": "battery", "mv": 7980, "ma": -410, "charging": True},
@@ -111,6 +118,7 @@ class Esp32SimTests(unittest.TestCase):
                 self.assertEqual(installation.identity(board), {
                     "runtime": "esp32sim", "commit": pin["commit"], "board": "m5stack-cores3",
                     "binary_sha256": binary_sha, "rom_sha256": rom_sha,
+                    "service_patch_sha256": pin["service_patch_sha256"],
                     "control_protocol": 1, "flash_bytes": 16 << 20, "psram_bytes": 8 << 20,
                 })
                 installation.rom.write_bytes(b"changed ROM")

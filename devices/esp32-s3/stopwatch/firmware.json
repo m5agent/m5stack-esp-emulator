@@ -21,6 +21,16 @@
       "date": "2026-10-23",
       "status": "display-touch-peripherals-wifi-ble-pass",
       "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 466x466 圆屏、CST820 触摸、BMI270、M5PM1、M5IOE1/AW8737A 音频、RX8130、振动马达、WiFi DHCP/HTTP 和 UART1 HCI BLE。"
+    },
+    "esp32sim": {
+      "board": "stopwatch",
+      "flash_bytes": 16777216,
+      "psram_bytes": 8388608,
+      "frame_size": [
+        468,
+        466
+      ],
+      "touch": true
     }
   },
   "cache_path": "platform/.cache/firmware/stopwatch/uiflow2.bin"

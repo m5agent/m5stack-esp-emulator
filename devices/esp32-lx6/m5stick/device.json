@@ -69,7 +69,16 @@
     },
     "blockers": [
       "工厂固件的 I2C 传输未在 classic I2C 控制器模型上完成（legacy ESP-IDF FIFO 数据写入路径未到达模型），因此原厂 MPU9250 探测输出 0xFF，工厂固件的按键/九轴数据面未通过；MPU9250 模型数据面只由 generic MicroPython fixture 取证。AK8963 磁力计、DMP、SH1107 最终 UI 帧、黑/灰修订区分、蜂鸣器/IR/LED、Grove Unit 与物理声学/光学/电气行为未验证。"
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-m5stick",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        64,
+        128
+      ]
+    }
   },
   "uiflow2": {
     "supported": false,

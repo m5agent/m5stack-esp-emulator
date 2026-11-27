@@ -27,6 +27,15 @@
       "detail": "官方 UIFlow2 v2.5.4 Atom Echo 4MB 镜像在同一 m5atomecho guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=142、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读、G26/G32 guest I2C 扫描（0x48 为 QEMU 机器自带 tmp105，0x18 ES8311 不存在）、NS4168 I2S 扬声器在 I2S1 DMA 边界的非静音 PCM 捕获，以及 SPM1423 PDM 麦克风在 I2S0 上消费宿主注入 PCM 的非零缓冲。无屏/无 PSRAM；模拟功放/声学、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
       "evidence": "docs/evidence/2026-11-02-atom-echo-host/summary.json",
       "category": "virtual-device"
+    },
+    "esp32sim": {
+      "board": "m5stack-atom-echo",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        1,
+        1
+      ]
     }
   },
   "cache_path": "platform/.cache/firmware/atom-echo/uiflow2.bin"

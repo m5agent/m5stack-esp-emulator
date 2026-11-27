@@ -72,7 +72,16 @@
     },
     "blockers": [
       "Device-local official-firmware display, GPIO37 BtnA/frame and one MPU6886 vector passed. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-stickc",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        80,
+        160
+      ]
+    }
   },
   "uiflow2": {
     "supported": true,

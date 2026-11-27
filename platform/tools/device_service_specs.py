@@ -507,7 +507,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             flash_size=(
                 16 << 20
                 if device_id == "tab5"
-                else int(row.get("flash_size", "0"), 0)
+                else int(row["flash_size"], 0) if row.get("flash_size")
+                else (source.get("runtime", {}).get("esp32sim") or {}).get("flash_bytes", 0)
             ),
             display=profile.get("display"),
             peripherals=list(profile.get("peripherals", [])),

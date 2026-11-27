@@ -1,12 +1,13 @@
 {
   "repository": "https://github.com/m5agent/esp32sim.git",
-  "ref": "refs/tags/m5-device-service-20261127",
-  "commit": "3e90d09bd31b5658d8dd2b6fc5d820da5f293489",
+  "ref": "refs/tags/m5-milestone-radio-sync-20261127",
+  "commit": "4e257b6be8ee0ed706c2e509d8f31ef7472a424b",
   "roms": {
     "esp32s3_rev0_rom.elf": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
     "esp32p4_rev0_rom.elf": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
     "esp32p4_rev300_rom.elf": "90e723f71fe4701adee7e40bfab6971d8ecf5e356f4d5a81e77743248abc3a97",
-    "esp32c6_rev0_rom.elf": "788e1d38724aeb8fd974fa10c4a7b089c02627d35342ce84b9e0b12b239f3551"
+    "esp32c6_rev0_rom.elf": "788e1d38724aeb8fd974fa10c4a7b089c02627d35342ce84b9e0b12b239f3551",
+    "esp32_rev300_rom.elf": "920b70635440517866aab2230964a570d2cf2b676658d93c52fbac108c1cca31"
   },
   "tab5_c6": {
     "version": "2.0.13",
@@ -33,5 +34,6 @@
       "url": "https://github.com/m5agent/esp32sim/releases/download/m5-device-service-20261127/tab5-esp-hosted-2.0.13-c6.zip",
       "sha256": "73fba21169b8a518b7cc9f46681446f8a1e1b769a9084301d7501a2347b487c2"
     }
-  }
+  },
+  "service_patch_sha256": "0d85265fde04f6e24d1eb61059b8132f7387f0f15f5ffb7bb233c75611042f78"
 }

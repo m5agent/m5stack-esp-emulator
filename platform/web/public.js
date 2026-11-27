@@ -1649,7 +1649,8 @@ async function init() {
       let row;
       try { if (requested) row = resolveDevice(requested, catalog); }
       catch { /* The launch parser reports an unknown device below. */ }
-      if (row && !config.browser_esp32sim_profiles.includes(getBrowserProfile(row.id)?.board)) {
+      const profile = row && getBrowserProfile(row.id);
+      if (row && (profile?.preferQemu || !config.browser_esp32sim_profiles.includes(profile?.board))) {
         try {
           const registry = await loadQemuBrowserProfiles({root});
           if (getQemuBrowserProfile(row.id, registry)) {

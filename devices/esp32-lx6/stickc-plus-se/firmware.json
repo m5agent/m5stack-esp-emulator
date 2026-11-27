@@ -26,7 +26,16 @@
     },
     "blockers": [
       "Device-local official-firmware display and GPIO37 BtnA/frame passed; this board has no IMU. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-stickc-plus-se",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        135,
+        240
+      ]
+    }
   },
   "cache_path": "platform/.cache/firmware/stickc-plus-se/uiflow2.bin"
 }

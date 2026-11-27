@@ -3048,7 +3048,8 @@ paths:
         missing drag readback.
         esp32sim uses the framebuffer's panel coordinates and acknowledges
         controller submission. Tab5 adds touch-contact and virtual USB HID.
-        Raw QOM, encoder, legacy drag and unsupported controls return
+        Dial accepts guest-time encoder deltas. StickT2 accepts I2C encoder
+        deltas. Legacy drag and unsupported controls return
         409 not_supported_on_runtime.
       parameters:
         - $ref: "#/components/parameters/SessionId"
@@ -4016,6 +4017,15 @@ components:
             required: [backend_ready]
             properties:
               backend_ready: {type: boolean}
+              board: {type: string}
+              frame_size:
+                type: [array, "null"]
+                minItems: 2
+                maxItems: 2
+                items: {type: integer, minimum: 1}
+              variants:
+                type: array
+                items: {type: string}
               default_firmware_sha256s:
                 type: array
                 description: Normalized Tab5 Flash digests selected for esp32sim on this operator panel configuration.
@@ -5557,7 +5567,7 @@ components:
         camera_image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
-          description: CoreS3 esp32sim camera fixture supplied as a P6 PPM or BMP artifact.
+          description: esp32sim camera fixture for CoreS3, StackChan, AtomS3R-CAM or AtomS3R-M12.
         speaker_capture:
           type: boolean
           default: false
@@ -5688,6 +5698,9 @@ components:
             except for qualified firmware and panel pairs with pinned assets
             ready and no legacy feature fields. Explicit Tab5 esp-emu and qemu
             select the same legacy lane.
+        runtime_variant:
+          type: string
+          description: Explicit esp32sim board or Flash variant from the device's runtimes.esp32sim.variants.
         wifi_monitor_fixture:
           type: string
           enum: [beacon, no-beacon, raw]
@@ -7142,24 +7155,64 @@ components:
             mag: *threeAxes
             settle_seconds: {type: number, minimum: 0, maximum: 5}
         - type: object
-          required: [kind, mv, percent, charging]
+          required: [kind]
           additionalProperties: false
+          description: Board-specific battery sample. Supply the fields used by the selected board or PMIC variant.
           properties:
             kind: {const: battery}
-            mv: {type: integer, minimum: 0, maximum: 16383}
+            mv: {type: integer, minimum: 0, maximum: 65535}
+            ma: {type: integer, minimum: -32768, maximum: 32767}
             percent: {type: integer, minimum: 0, maximum: 100}
             charging: {type: boolean}
             vbus: {type: boolean}
+            vbus_mv: {type: integer, minimum: 0, maximum: 5500}
+            bars: {type: integer, minimum: 0, maximum: 4}
+            full: {type: boolean}
             settle_seconds: {type: number, minimum: 0, maximum: 5}
+          anyOf:
+            - required: [mv]
+            - required: [bars, charging, full]
         - type: object
-          required: [kind, mv, ma, charging]
-          additionalProperties: false
+          required: [kind, mag]
           properties:
-            kind: {const: battery}
-            mv: {type: integer, minimum: 0, maximum: 16000}
-            ma: {type: integer, minimum: -32768, maximum: 32767}
-            charging: {type: boolean}
-            settle_seconds: {type: number, minimum: 0, maximum: 5}
+            kind: {const: mag}
+            mag: *threeAxes
+        - type: object
+          required: [kind, uid]
+          properties:
+            kind: {enum: [rfid, nfc-tag]}
+            uid:
+              type: [string, "null"]
+              pattern: '^(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{14})$'
+        - type: object
+          required: [kind, address, command]
+          properties:
+            kind: {const: ir-nec}
+            address: {type: integer, minimum: 0, maximum: 65535}
+            command: {type: integer, minimum: 0, maximum: 255}
+        - type: object
+          required: [kind, temperature_c, humidity_pct]
+          properties:
+            kind: {enum: [sht40, enviii]}
+            temperature_c: {type: number, minimum: -40, maximum: 125}
+            humidity_pct: {type: number, minimum: 0, maximum: 100}
+        - type: object
+          required: [kind, pad, strength]
+          properties:
+            kind: {const: head-touch}
+            pad: {type: integer, minimum: 0, maximum: 2}
+            strength: {type: integer, minimum: 0, maximum: 3}
+        - type: object
+          required: [kind, channel, high]
+          properties:
+            kind: {enum: [pm1-gpio, plc-input]}
+            channel: {type: integer, minimum: 0, maximum: 7}
+            high: {type: boolean}
+        - type: object
+          required: [kind, temperature_c]
+          properties:
+            kind: {const: plc-temperature}
+            temperature_c: {type: number, minimum: -55, maximum: 125}
         - type: object
           required: [kind, action, contact_id, x, y]
           properties:

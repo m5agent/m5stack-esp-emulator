@@ -19,7 +19,7 @@
 | --- | --- |
 | 浏览器体验与发布 | [Pages 部署](pages-deployment.md) · [浏览器运行范围](browser-runtime-feasibility.md) |
 | 本地服务安装 | [部署与运行时资产](deployment.md) · [macOS 托管 Linux 审核 Worker](macos-linux-review-worker.md) |
-| 创建会话、输入、取帧和取证 | [Device Service API](device-service-api.md) · [OpenAPI](device-service.openapi.yaml) · [后端迁移](esp32sim-migration.md) · [虚拟设备功能测试](device-functional-test-workflow.md) |
+| 创建会话、输入、取帧和取证 | [Device Service API](device-service-api.md) · [OpenAPI](device-service.openapi.yaml) · [后端迁移](esp32sim-migration.md) · [Arduino 文档和库缺陷](arduino-docs-defects-2026-11-27.md) · [虚拟设备功能测试](device-functional-test-workflow.md) |
 | 审核原版或应用分段 BIN | [固件审查工作流](firmware-review-and-simulation-workflow.md) · [FirmwareManifest](firmware-manifest.md) |
 | 确认模型、内存和控制器能力 | [设备适配矩阵](qemu-device-adaptation-matrix.md) · [运行时模型缺口](runtime-model-gap-register.md) · [统一设备运行时](unified-device-runtime.md) |
 | 查 PSRAM、Wi-Fi、BLE 与 Worker 边界 | [Core2 native HCI](core2-native-hci-backend.md) · [网络模拟方案](network-simulation-plan.md) · [网络诊断](network-lane.md) |

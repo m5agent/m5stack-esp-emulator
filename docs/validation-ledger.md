@@ -14,6 +14,28 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim 目录板型接入
+
+- 原生 virtual-device validation。esp32sim 源码
+  `4e257b6be8ee0ed706c2e509d8f31ef7472a424b` 加固定 service 控制补丁。
+  35 款板的 stock 镜像在独立 Device Service 会话进入 running 并留存串口、
+  适用的帧、输入回执和停止证据。M5Stick 和 StickT2 的 QEMU 固件/内核
+  模式不支持 Device Service 会话。Stock 采样与回归镜像启动结果记为
+  PARTIAL，默认值要求逐项完成同镜像应用行为与可重复性复核。AtomU 和
+  Atom Echo 的原厂启动异常见[固定版本缺陷](arduino-docs-defects-2026-11-27.md)。
+- 浏览器 virtual-device validation。同一源码版本的 WASM
+  `4c61df24a2028d4d56f66c6aea599848eb5be6ad15c70a181130f6dcc257cce8`
+  在本机导出的跨源 workbench iframe 中通过 CoreS3、Cardputer-ADV 和
+  Cardputer 的 9 个实际来宾用例，停止后各为零 Dedicated Worker。
+  Cardputer 的键盘例程和原版 UIFlow2 v2.5.4 均有板级输入和帧变化；
+  现有 QEMU-WASM 默认继续可用。其余新增板型的 esp32sim WASM 为
+  NOT RUN，未完成对应 workbench 的 ROM、板型、输入/输出和清理验收。
+- 独立 CLI radio virtual-device validation。Nesso N1、PaperMono 和
+  Cardputer-ADV CAP 的同步对端测试基于相同源码树，通过空闲和负载
+  两组有序载荷验证。Device Service 没有对端配对 API。
+  [Radio 试验和范围](https://github.com/m5agent/agent-work-logs/tree/c2f333ff576220a0a22c8460297f772c00037be4/records/esp32sim/2026-11-27-radio-peer-synchronization)
+- 硬件 NOT RUN。本轮测试使用虚拟板和浏览器，没有实物 RF、电气或面板光学采样。
+
 ## 2026-11-27：esp32sim 三板原生与浏览器回归
 
 **Native Device Service，virtual-device validation。** 固定 esp32sim

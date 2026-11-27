@@ -44,7 +44,11 @@ use the legacy path. Explicit `"esp-emu"` aliases `"qemu"` on Tab5. Read
 `runtimes.esp32sim.default_firmware_sha256s` on the Tab5 device row for
 the operator's eligible normalized Flash digests.
 The device list reports `runtime`, `backend_ready`, `creatable` and
-per-runtime readiness. See the [migration guide](esp32sim-migration.md) and
+per-runtime readiness. The other ESP32 catalog models accept explicit
+`runtime="esp32sim"` where the runtime is provisioned. The esp32sim entry
+exposes the board, native frame size and allowed `runtime_variant` values.
+M5Stick and StickT2 require explicit esp32sim because their QEMU matrix modes
+do not offer service sessions. See the [migration guide](esp32sim-migration.md) and
 [native installation](deployment.md#部署-esp32sim-设备服务).
 The service uses `.work/esp32sim-runtime` by default.
 `M5_ESP32SIM_RUNTIME_DIR` and `ESP32SIM_ROM_DIR` select operator-owned
@@ -54,11 +58,11 @@ The loader checks boot and app chip IDs, Flash bounds, partitions and
 declared PSRAM requirements. CoreS3 has 16 MiB Flash and 8 MiB PSRAM.
 Cardputer-ADV has 8 MiB Flash and no PSRAM. Tab5 has 16 MiB Flash and
 32 MiB PSRAM. The operator panel is chosen by `M5_TAB5_DSI_BOARD_OVERRIDES`
-for the exact normalized Flash SHA, then `M5_TAB5_DSI_BOARD`, then GT911. The emulator owns volatile Flash
+for the exact normalized Flash SHA, then `M5_TAB5_DSI_BOARD`, then GT911. An explicit `runtime_variant` selects the panel for that session. The emulator owns volatile Flash
 for the lease. Flash read, export and snapshots return
-`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI (CoreS3/ADV) or SDMMC (Tab5)
+`409 not_supported_on_runtime`. SD media uses a writable, session-local SPI or Tab5 SDMMC
 copy of `storage.sd_image_artifact_id`, with stopped-session storage export.
-SD hot-plug, QOM, QEMU Unit attachments and QEMU runtime-environment overrides
+SD hot-plug, generic QOM, QEMU Unit attachments and QEMU runtime-environment overrides
 require their respective legacy runtime paths.
 
 `GET /sessions/{id}/frame.png?max_age_ms=0` samples the panel at a guest
@@ -68,9 +72,11 @@ accepted. Timed releases happen in guest time. The input kinds are:
 | Board | Inputs |
 | --- | --- |
 | CoreS3 | `touch` with panel coordinates and `tap`, `hold`, `down`, or `up`; `button` with `control="power"`; `battery` with integer `mv`, integer `percent`, boolean `charging` and optional boolean `vbus`; `als` with integer `ch0`, `ch1`, `proximity` |
-| Cardputer-ADV | `button` with `control="boot"` or `"g0"`; `keyboard` with a physical key name including `fn`, `del`, `enter`, `space` |
+| Cardputer and Cardputer-ADV | `button` with `control="boot"` or `"g0"`; `keyboard` with a physical key name including `fn`, `del`, `enter`, `space` |
 | Tab5 | `touch` in raw 720 × 1280 panel space, `touch-contact` down/up with `contact_id` 0–4, `usb-hid` attach/report/detach, and `battery` with integer `mv`, signed integer `ma` and boolean `charging` |
-| All | `imu` with three-axis `accel` in g and `gyro` in degrees/s; optional `mag` in µT on CoreS3, and `adc` with `gpio` and `volts` on S3 |
+| Modeled IMU | `imu` with three-axis `accel` in g and `gyro` in degrees/s; optional `mag` in µT on CoreS3 and StackChan |
+| Dial / StickT2 | `encoder` with signed `delta`; Dial optionally accepts `edge_period_ms` |
+| Other board fixtures | See the [typed input table](esp32sim-migration.md) for tags, IR, sensors, power and PLC. |
 
 Use `action="hold"` and `seconds` for timed button or keyboard holds. CoreS3
 accepts a P6 PPM or BMP camera fixture through `camera_image_artifact_id`.
@@ -1656,7 +1662,9 @@ The response includes `firmware_id`, `sha256`, `device_id`, `flash_size`,
 
 `artifact_sha256` identifies the uploaded source artifact. `firmware_id` and
 `firmware.sha256` identify the composed, flash-sized image after padding and
-segment composition. They intentionally do not have to be equal.
+segment composition. A merged image registered for multiple compatible boards
+may have a distinct board-bound `firmware_id` per device. Compare bytes with
+`sha256` and create a session with the returned `firmware_id`.
 
 ### UIFlow2 Python source
 

@@ -26,7 +26,21 @@
     },
     "blockers": [
       "IP5306 只建模 I2C 寄存器/状态/充电电压电流请求/BOOST 控制；没有电池电芯、电压电流测量或升压电源路径，READ4 默认 0xff 且不伪造电量。microSD、IP5306 KEY 电源键、面板背光 PWM、Grove Unit 运行时协议与物理电气/声学行为未验证。"
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-basic-v27",
+      "flash_bytes": 16777216,
+      "psram_bytes": 0,
+      "frame_size": [
+        320,
+        240
+      ],
+      "variants": {
+        "flash-4mb": {
+          "flash_bytes": 4194304
+        }
+      }
+    }
   },
   "cache_path": "platform/.cache/firmware/basic-v27/uiflow2.bin"
 }

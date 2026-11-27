@@ -31,6 +31,7 @@ import uuid
 import zipfile
 from frame_presentation import FramePresentation, bind_presentation, presentation_from_controller
 from contextlib import contextmanager, nullcontext
+from dataclasses import replace
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -2325,7 +2326,7 @@ class FirmwareStore:
         if not isinstance(device_id, str) or device_id not in self.specs:
             raise ServiceError("unknown_device", "device_id is required", 400)
         spec = self.specs[device_id]
-        if not spec.supported:
+        if not spec.supported and device_id not in esp32sim.BOARDS:
             raise ServiceError(
                 "unsupported_device",
                 spec.reason or "device is not enabled for this service",
@@ -2571,6 +2572,14 @@ class FirmwareStore:
         }
         with self._lock:
             meta_path = self._meta(firmware_id)
+            if kind == "merged":
+                scoped_id = canonical_json_sha256({
+                    "kind": "merged-device-binding", "device_id": device_id, "sha256": record["sha256"],
+                })
+                scoped_path = self._meta(scoped_id)
+                if scoped_path.is_file() or meta_path.is_file() and self.get(firmware_id)["device_id"] != device_id:
+                    firmware_id, meta_path = scoped_id, scoped_path
+                    record["firmware_id"] = firmware_id
             if meta_path.exists() or meta_path.is_symlink():
                 try:
                     existing = json.loads(self._read_uiflow_base_file(meta_path, 8 * 1024 * 1024))
@@ -11262,7 +11271,7 @@ class Tab5DeviceSession(DeviceSession):
 class Esp32SimDeviceSession(DeviceSession):
     """Device Service lease backed by the private esp32sim control stream."""
 
-    def __init__(self, *args, speaker_capture=False, microphone_wav_artifact_id=None,
+    def __init__(self, *args, board=None, speaker_capture=False, microphone_wav_artifact_id=None,
                  camera_image_artifact_id=None, **kwargs):
         self.control = None
         self._console_peer = None
@@ -11272,7 +11281,7 @@ class Esp32SimDeviceSession(DeviceSession):
         self._audio_rate = None
         self._audio_finished = False
         super().__init__(*args, **kwargs)
-        self.board = self.service._esp32sim_board(self.spec.id, self.firmware_sha)
+        self.board = board or self.service._esp32sim_board(self.spec.id, self.firmware_sha)
         self._audio_metadata = self.dir / "esp32sim-audio.json"
 
     def _receive_text(self, message):
@@ -11382,7 +11391,7 @@ class Esp32SimDeviceSession(DeviceSession):
 
     def snapshot(self):
         result = super().snapshot()
-        result["display_available"] = self.spec.has_display
+        result["display_available"] = self.board.size is not None
         result["runtime_memory"] = {
             "effective_psram_mib": self.board.psram >> 20,
             "effective_source": "esp32sim-board",
@@ -11432,7 +11441,7 @@ class Esp32SimDeviceSession(DeviceSession):
             return result
 
     def validate_input(self, payload):
-        op, args, settle = esp32sim.input_command(self.spec.id, payload)
+        op, args, settle = esp32sim.input_command(self.spec.id, payload, board=self.board)
         return {"kind": payload["kind"], "op": op, "args": args, "settle_seconds": settle}
 
     def inject(self, payload):
@@ -11450,10 +11459,36 @@ class Esp32SimDeviceSession(DeviceSession):
     def _unsupported(self, *args, **kwargs):
         raise ServiceError("not_supported_on_runtime", "Operation is unavailable on esp32sim", 409)
 
-    qom_get = qom_set = qom_list = qom_snapshot = qom_diff = _unsupported
-    device_state = flash_get = flash_snapshot = flash_diff = _unsupported
+    qom_get = qom_list = qom_snapshot = qom_diff = _unsupported
+    flash_get = flash_snapshot = flash_diff = _unsupported
     audio_inject = network_fault = _unsupported
     sd_write_stamp = sd_read_stats = _unsupported
+
+    def qom_set(self, payload):
+        if (self.spec.id, payload.get("path"), payload.get("property")) != (
+            "stamplc", "/machine/lm75-48", "temperature-c"
+        ):
+            return self._unsupported()
+        self.inject({"kind": "plc-temperature", "temperature_c": payload.get("value"), "settle_seconds": 0})
+        return {"session_id": self.id, "qom_set": {"return": {}}}
+
+    def supports_device_state(self):
+        return self.spec.id == "stackchan"
+
+    def device_state(self):
+        if self.spec.id != "stackchan":
+            return self._unsupported()
+        with self._lock:
+            if self.control is None or self.state != "running":
+                raise ServiceError("session_not_running", "esp32sim is not running", 409)
+            angles = self.control.request("servo-state")
+            return {
+                "session_id": self.id, "device_id": self.spec.id, "state": self.state,
+                "supported": True, "available": True, "source": "live", "captured_at": iso_now(),
+                "components": {f"servo-{axis}": {"properties": {"angle-deg": angles[axis]}}
+                               for axis in ("yaw", "pitch")},
+                "errors": {},
+            }
 
     def reset(self):
         self._require_runtime_permission("guest.reset")
@@ -12218,7 +12253,7 @@ class DeviceService:
 
     def _public_device(self, spec: DeviceSpec) -> dict:
         reference_available = spec.reference_available
-        backend_ready = spec.backend_ready
+        backend_ready = spec.supported and spec.backend_ready
         default_runtime = spec.default_runtime
         native_runtime = default_runtime == esp32sim.RUNTIME
         board = esp32sim.BOARDS.get(spec.id)
@@ -12237,12 +12272,16 @@ class DeviceService:
             "soc": spec.soc,
             "sku": spec.sku,
             "device_codes": spec.device_codes,
-            "supported": spec.supported,
+            "supported": spec.supported or board is not None,
             "creatable": spec.supported and readiness,
             "backend_ready": readiness,
             **({"runtime": default_runtime, "legacy_backend": spec.backend,
                 "runtimes": {esp32sim.RUNTIME: {
                                  "backend_ready": native_ready,
+                                 "board": board.name,
+                                 "frame_size": list(board.size) if board.size else None,
+                                 "variants": list(esp32sim.TAB5_PANELS if board.is_tab5 else
+                                                  esp32sim.BOARD_VARIANTS.get(spec.id, {})),
                                  **({"default_firmware_sha256s": [
                                      digest for digest, panel in esp32sim.TAB5_DEFAULT_FIRMWARE.items()
                                      if (self._tab5_sd_board(digest) or "gt911-ili9881c") == panel
@@ -12307,7 +12346,7 @@ class DeviceService:
         devices = [
             self._public_device(spec)
             for spec in sorted(self.specs.values(), key=lambda row: row.id)
-            if include_unsupported or spec.supported
+            if include_unsupported or spec.supported or spec.id in esp32sim.BOARDS
         ]
         return {
             "service": "m5stack-device-service",
@@ -12929,7 +12968,9 @@ class DeviceService:
         spec = self.specs.get(device_id)
         if spec is None:
             raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
-        if not spec.supported:
+        if not spec.supported and not (
+            payload.get("runtime") == esp32sim.RUNTIME and device_id in esp32sim.BOARDS
+        ):
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
@@ -12944,7 +12985,14 @@ class DeviceService:
             raise ServiceError("unsupported_runtime", "runtime must be esp32sim, qemu, esp-emu (Tab5), network, qemu-wifi, qemu-ble or qemu-unified", 400)
         use_esp32sim = runtime == esp32sim.RUNTIME
         if use_esp32sim and device_id not in esp32sim.BOARDS:
-            raise ServiceError("not_supported_on_runtime", "esp32sim is available for CoreS3, Cardputer-ADV and Tab5", 409)
+            raise ServiceError("not_supported_on_runtime", "No esp32sim model for this device", 409)
+        native_board = esp32sim.BOARDS.get(device_id) if use_esp32sim else None
+        if "runtime_variant" in payload:
+            variant = payload["runtime_variant"]
+            variants = esp32sim.TAB5_PANELS if device_id == "tab5" else esp32sim.BOARD_VARIANTS.get(device_id, {})
+            if not use_esp32sim or not isinstance(variant, str) or variant not in variants:
+                raise ServiceError("invalid_runtime_variant", "Select a listed esp32sim board variant", 400)
+            native_board = variants[variant]
         identity_request = parse_device_identity(payload, device_id=device_id, cloud=bool(uiflow_startup))
         monitor_config = parse_sticks3_wifi_monitor(payload)
         if program_mode:
@@ -12958,7 +13006,7 @@ class DeviceService:
             if identity_request is not None:
                 raise ServiceError("not_supported_on_runtime", "Device identity provisioning requires QEMU", 409)
             # Validate the installed pin before any firmware preparation.
-            spec.esp32sim_installation.identity(esp32sim.BOARDS[device_id])
+            spec.esp32sim_installation.identity(native_board)
         elif not spec.backend_ready or (
             runtime == "network" and spec.flash_emulator is not None and not spec.flash_emulator.is_file()
         ):
@@ -13257,6 +13305,15 @@ class DeviceService:
                     source_artifacts.append(str(elf_artifact_id))
         if (network_config or {}).get("profile") == REVIEW_STA_PROFILE:
             payload = self._apply_review_sta_presets(spec, payload, network_config, firmware_path)
+        if use_esp32sim and device_id == "tab5" and "runtime_variant" not in payload:
+            native_board = self._esp32sim_board(device_id, firmware_sha)
+        if use_esp32sim and native_board.flash != spec.flash_size:
+            # Merged uploads are stored at the legacy Flash size. Use the
+            # immutable upload for a smaller board and validate it below.
+            if firmware and firmware.get("kind") == "merged" and firmware_source.get("artifact_id"):
+                firmware_sha = firmware_source["artifact_id"]
+                firmware_path = self.artifacts.path(firmware_sha)
+            spec = replace(spec, flash_size=native_board.flash)
         storage_payload = payload.get("storage")
         filesystem_request = {}
         if isinstance(storage_payload, dict) and "filesystem" in storage_payload:
@@ -13265,8 +13322,10 @@ class DeviceService:
             filesystem_request = parse_fs_fixture(storage_payload["filesystem"])
             storage_payload = {name: value for name, value in storage_payload.items() if name != "filesystem"} or None
         tab5_storage = spec.service_kind == "tab5"
-        storage_config = parse_storage_execution(spec, storage_payload,
-                                                 has_sd_card=True if tab5_storage or use_esp32sim else None)
+        storage_config = parse_storage_execution(
+            spec, storage_payload, has_sd_card=(device_id in esp32sim.SD_DEVICES if use_esp32sim else
+                                                True if tab5_storage else None),
+        )
         if storage_config:
             if storage_config.get("sd_initially_ejected") and runtime != "qemu":
                 raise ServiceError("sd_hotplug_not_supported", "SD hot-plug requires the plain native QEMU runtime", 409)
@@ -13396,7 +13455,7 @@ class DeviceService:
                 source_artifacts.append(artifact_id)
         if use_esp32sim:
             image_bytes = firmware_path.read_bytes()
-            esp32sim.validate_memory(self._esp32sim_board(device_id, firmware_sha), image_bytes, manifest_psram)
+            esp32sim.validate_memory(native_board, image_bytes, manifest_psram)
             if hashlib.sha256(image_bytes).hexdigest() != firmware_sha:
                 raise ServiceError("firmware_hash_mismatch", "esp32sim source firmware digest changed", 409)
             padded = _padded(image_bytes, spec.flash_size)
@@ -13435,8 +13494,8 @@ class DeviceService:
         if "camera_image_artifact_id" in payload:
             if not isinstance(camera_artifact_id, str) or not _is_sha256(camera_artifact_id):
                 raise ServiceError("invalid_camera_fixture", "Provide a SHA-256 camera_image_artifact_id", 400)
-            if not use_esp32sim or device_id != "cores3":
-                raise ServiceError("not_supported_on_runtime", "Camera image requires CoreS3 esp32sim", 409)
+            if not use_esp32sim or device_id not in esp32sim.CAMERA_DEVICES:
+                raise ServiceError("not_supported_on_runtime", "This runtime has no camera fixture input", 409)
             camera_size = self.artifacts.get(camera_artifact_id)["size"]
             if not 0 < camera_size <= 8 << 20:
                 raise ServiceError("invalid_camera_fixture", "Camera image must be at most 8 MiB", 400)
@@ -13842,7 +13901,7 @@ class DeviceService:
                         "speaker_capture": speaker_capture,
                         "microphone_wav_artifact_id": microphone_artifact_id,
                     } if session_class in {Tab5DeviceSession, Esp32SimDeviceSession} else {}),
-                    **({"camera_image_artifact_id": camera_artifact_id} if use_esp32sim else {}),
+                    **({"camera_image_artifact_id": camera_artifact_id, "board": native_board} if use_esp32sim else {}),
                 )
             except Exception:
                 self.worker.release_lease(

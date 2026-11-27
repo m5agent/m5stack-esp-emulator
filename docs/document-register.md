@@ -6,6 +6,7 @@
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [Arduino 文档和库缺陷](arduino-docs-defects-2026-11-27.md) | 日期化交接 | `2026-11-27` | 固定文档版本与行号、原版 UIFlow2 启动差异 |
 | [QEMU 后端封存记录](qemu-backend-freeze.md) | 运行时封存 | `2026-11-26` | 封存提交与标签、rollout 与二进制哈希、保留内容、重启步骤；不改变既有验证结论 |
 | [esp32sim 后端迁移计划](plans/2026-11-26-esp32sim-migration.md) | 迁移计划 | `2026-11-26` | 阶段、参考来源取舍、CoreS3 判定门槛、风险；草案，未进入 Backlog |
 | [review-sta 驱动初始化与条件步骤证据](evidence/2026-11-25-review-sta-activity/README.md) | 证据摘要 | `2026-11-25` | `wifi_initialized` 判定 NOT_USED、0.0.0.0 非出站、`until=joined` 条件步骤；Bruce CN 与 CardOS 入网，Monster DHCP 未请求仍开放；不含物理 RF |
