@@ -160,7 +160,7 @@ python3 platform/tools/serve.py --browser-site .work/browser-site \
 
 公开混合导出使用固定 Rust 1.99.1 构建 esp32sim，保留 QEMU 和 LittleFS。
 工作流用固定 Arduino 与 UIFlow2 镜像验证 CoreS3、Cardputer-ADV 和
-Cardputer 的 esp32sim 工作台。Cardputer K132、StickS3、Core2 与两版
+Cardputer 的 esp32sim 工作台。Cardputer K132、StickS3、Core2、StamPLC 与两版
 Atom Matrix 默认选择 esp32sim。需要网页 MicroPython 编程时，在运行选项
 选择 QEMU-WASM。
 

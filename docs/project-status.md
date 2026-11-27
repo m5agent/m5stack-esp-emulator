@@ -11,10 +11,8 @@ Tab5 支持原生 esp32sim 的 GT911/ILI9881C
 原生默认选择。原生服务提供[双租约无线配对](device-service-api.md#paired-esp32sim-radios)，
 受支持的来宾断电会结束租约并保留最终帧。浏览器工作台在 CoreS3、Cardputer-ADV 和 Cardputer K132
 之外提供 S3、经典 ESP32、C6 和 Tab5 的逐板 esp32sim WASM 配置。
-浏览器默认及其限制见[逐板来宾验证](validation-ledger.md#2026-11-27esp32sim-wasm-第二轮)。
-Cardputer K132、StickS3 和 Core2 的 RGB565 帧及两版 Atom Matrix 的 25 灯输出
-在双内核固定例程中一致，实测启动和响应更快，因此默认选择 esp32sim。
-网页 MicroPython 编程仍通过 QEMU-WASM 提供。
+Cardputer K132、StickS3、Core2、StamPLC 和两版 Atom Matrix 的[双内核来宾对照](validation-ledger.md#2026-11-27esp32sim-wasm-第二轮)
+输出一致且 esp32sim 更快，默认选择 esp32sim。网页 MicroPython 编程使用 QEMU-WASM。
 安装、输入、媒体、网络和证据边界见[后端迁移指南](esp32sim-migration.md)及
 [验证台账](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归)。
 

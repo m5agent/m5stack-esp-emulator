@@ -10,7 +10,7 @@ const out = process.env.M5_BROWSER_EVIDENCE || '.work/browser-backend-comparison
 const args = process.argv.slice(2);
 const ids = args.length ? args : [
   'cardputer','sticks3','stopwatch','stackchan','paperdiy','papermono','papercolor','papers3',
-  'atoms3r','atom-matrix','atom-matrix-v11','core2','stickc-plus2',
+  'atoms3r','atom-matrix','atom-matrix-v11','core2','stickc-plus2','stamplc',
 ];
 const fetchAsset = async path => {
   const response = await fetch(new URL(path,site));

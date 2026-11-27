@@ -112,6 +112,7 @@ Browser-WASM virtual-device validation。fork 源码
 | Atom Matrix | 1.08 / 62.23 | 31 / 72 | 25 灯一致 | esp32sim |
 | Atom Matrix v1.1 | 1.08 / 60.27 | 39 / 68 | 25 灯一致 | esp32sim |
 | StickC Plus2 | 1.53 / 65.40 | 13 / 45 | 帧有差异 | QEMU-WASM |
+| StamPLC | 2.92 / 15.42 | 64 / 102 | 是 | esp32sim |
 
 [逐批证据和复现](https://github.com/m5agent/agent-work-logs/tree/c963e244bb8dd9eff53d4a186673b1aee34616b3/records/m5stack-esp-emulator/2026-11-27-esp32sim-browser-round2)
 
