@@ -82,7 +82,7 @@ TAB5_PANELS = {
 }
 SD_DEVICES = frozenset({
     "cores3", "stackchan", "cardputer", "cardputer-adv", "tab5", "basic-v27",
-    "core2", "paperdiy", "papers3", "papercolor", "stamplc",
+    "core2", "paperdiy", "papermono", "papers3", "papercolor", "stamplc",
 })
 CAMERA_DEVICES = frozenset({"cores3", "stackchan", "atoms3r-cam", "atoms3r-m12"})
 CAMERA_SEQUENCE_DEVICES = frozenset({"atoms3r-cam", "atoms3r-m12"})
@@ -419,7 +419,9 @@ def input_command(device, payload, *, board=None):
     if kind in {"key", "keyboard", "button"}:
         field = "control" if kind == "button" else "key"
         name = control_name(payload.get(field), field)
-        if kind == "key" and name in {"p", "3"} and device in {"cores3", "stackchan", "sticks3", "stopwatch"}:
+        if kind == "key" and name in {"p", "3"} and device in {
+            "cores3", "papercolor", "papermono", "stackchan", "sticks3", "stopwatch",
+        }:
             name = "power"
         core2_button_x = {"a": 63, "b": 160, "c": 258}.get(name) if device == "core2" else None
         if core2_button_x is not None and kind != "keyboard":
@@ -453,7 +455,7 @@ def input_command(device, payload, *, board=None):
         if kind in {"button", "key"}:
             if device in {"cores3", "stackchan"} and name == "power":
                 return "pwrkey", (hold,), settle
-            if device in {"sticks3", "stopwatch"} and name in {"power", "pwr"}:
+            if device in {"papercolor", "papermono", "sticks3", "stopwatch"} and name in {"power", "pwr"}:
                 if action == "hold":
                     raise ServiceError("not_supported_on_runtime", "This PM1 model exposes a power-key pulse", 409)
                 return "pwrkey", (), settle

@@ -279,6 +279,8 @@ class Esp32SimTests(unittest.TestCase):
             ("dial", {"kind": "rfid", "uid": "AABBCCDD"}, ("rfid", ("aabbccdd",), .3)),
             ("papermono", {"kind": "nfc-tag", "uid": None}, ("paper-tag", ("none",), .3)),
             ("papercolor", {"kind": "key", "key": "a"}, ("button", ("a", 0, 120), .3)),
+            ("papercolor", {"kind": "key", "key": "p"}, ("pwrkey", (), .3)),
+            ("papermono", {"kind": "button", "control": "power"}, ("pwrkey", (), .3)),
             ("tab5", {"kind": "touch-contact", "action": "down", "contact_id": 1, "x": 719, "y": 1279},
              ("contact", (1, 719, 1279, 1), .3)),
             ("tab5", {"kind": "battery", "mv": 7980, "ma": -410, "charging": True},

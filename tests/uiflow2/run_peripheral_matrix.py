@@ -72,8 +72,10 @@ CASES = [
                 "detail": "UIFlow2 v2.5.5 / M5Unified 0.2.28 StickS3 BMI270 board axes",
             },
         },
-        "qom": [
+        "qom_set_boot": [
             ("/machine/m5pm1", "vbat-mv", "4000"),
+        ],
+        "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
             ("/machine/bmi270", "accel-z", "0.75"),
@@ -941,8 +943,10 @@ CASES = [
             "STOPWATCH_BTN_PWR 1",
             "STOPWATCH_ACCEL 0.25 -0.50 0.75",
         ],
-        "qom": [
+        "qom_set_boot": [
             ("/machine/m5pm1", "vbat-mv", "4000"),
+        ],
+        "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
             ("/machine/bmi270", "accel-z", "0.75"),
@@ -981,6 +985,8 @@ CASES = [
         "inputs": ["touch:240,650", "key:a", "keytap:p,0.1"],
         "pre_input_marker": "PAPERMONO_PM1_BUTTON_READY",
         "qom_set_boot": [
+            ("/machine/m5pm1", "vbat-mv", "4000"),
+            ("/machine/m5pm1", "vin-mv", "5000"),
             ("/machine/ip2315", "charging", "true"),
         ],
         "serial_expect": [
@@ -1135,7 +1141,7 @@ CASES = [
         "efuse_pkg_version": "0",
         "wait": "12",
         "inputs": ["key:a", "keytap:p,0.1", "key:a"],
-        "pre_input_marker": "PAPERCOLOR_PM1_BUTTON_READY",
+        "pre_input_marker": "PAPERCOLOR_POWER_DONE PASS",
         "qom": [],
         "qom_set_boot": [
             ("/machine/m5pm1", "vbat-mv", "4000"),
@@ -1143,12 +1149,13 @@ CASES = [
             ("/machine/m5pm1", "charging", "true"),
         ],
         "qom_steps": [
-            (0.8, "/machine/m5pm1", "vbat-mv", "3400"),
-            (1.5, "/machine/m5pm1", "vbat-mv", "4200"),
+            (0.8, "/machine/m5pm1", "vbat-mv", "3400", "PAPERCOLOR_POWER 87 4000"),
+            (1.5, "/machine/m5pm1", "vbat-mv", "4200", "PAPERCOLOR_POWER_STATE 3400"),
         ],
         "qom_sequence_settle": 5.0,
         "serial_expect": [
             "PAPERCOLOR_PM1_BUTTON_CFG",
+            "PAPERCOLOR_PM1_BUTTON_READY",
             "PAPERCOLOR_PERIPHERAL_MAIN",
             "PAPERCOLOR_POWER 87 4000 1",
             "PAPERCOLOR_POWER_STATE 3400 1",
