@@ -114,7 +114,8 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         await frame.locator('[name=firmwareSource][value=local]').evaluate(input=>input.click());
         await frame.locator('#firmwareFile').setInputFiles(file);
         if (example === 'uiflow') await frame.locator('#browserAudioOptIn').check();
-        await frame.locator('#startBtn').click({timeout:20000});
+        // Start stays disabled until the model has loaded on a cold HTTPS visit.
+        await frame.locator('#startBtn').click({timeout:90000});
         await frame.waitForFunction(serialOnly => (serialOnly ? probe.frames > 0 : probe.nonblack > 0) &&
           document.querySelector('#runtimeStatus').dataset.status==='running', example==='button',{timeout:90000});
         row.firstFrame = await frame.evaluate(()=>probe.last);
