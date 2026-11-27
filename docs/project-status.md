@@ -7,8 +7,8 @@ Core2、CoreS3、Cardputer、Cardputer-ADV、Dial、StickC Plus SE、Atom Lite�
 Tab5 支持原生 esp32sim 的 GT911/ILI9881C
 与 ST7123，在经同固件对照验收的 UIFlow2 v2.5.4 和 Maker Fighter 1.4
 面板组合上选择新默认。其他 Tab5 固件及需要旧版音频等能力的请求沿用 esp-emu。
-35 款 ESP32 目录设备提供原生 `runtime=esp32sim` 板型。其余双后端设备保留
-原生默认选择。原生服务提供[双租约无线配对](device-service-api.md#paired-esp32sim-radios)，
+35 款 ESP32 目录设备提供原生 `runtime=esp32sim` 板型。其余双后端设备的普通会话保留
+原有后端选择。原生服务提供[双租约无线配对](device-service-api.md#paired-esp32sim-radios)，
 受支持的来宾断电会结束租约并保留最终帧。浏览器工作台在 CoreS3、Cardputer-ADV 和 Cardputer K132
 之外提供 S3、经典 ESP32、C6 和 Tab5 的逐板 esp32sim WASM 配置。
 Cardputer K132、StickS3、Core2、StamPLC 和两版 Atom Matrix 的[双内核来宾对照](validation-ledger.md#2026-11-27esp32sim-wasm-第二轮)
@@ -17,7 +17,8 @@ Cardputer K132、StickS3、Core2、StamPLC 和两版 Atom Matrix 的[双内核�
 [验证台账](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归)。
 
 板载状态兼容候选将旧版组件名和属性映射到 esp32sim 的来宾外设模型。
-19 款设备完成两次状态接口读回，逐用例和审核兼容性仍在验收。
+19 款设备完成两次状态接口读回，两款 C6 的 restricted STA 和 SoftAP 固定例程各重复两次。
+板载写入、旧诊断和审核兼容性仍在验收。
 阅读[候选验证记录](validation-ledger.md#2026-11-27板载状态兼容候选)。
 
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，

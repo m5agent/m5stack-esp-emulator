@@ -25,7 +25,11 @@ StackChan 保留舵机字段，并读回其 8 个已登记的旧版组件。
 
 两款 C6 的显式旧 profile 请求在省略 runtime 时选中预期的 QEMU
 诊断后端。此次尝试使用的参考镜像不具备诊断 lane 要求的完整 Flash，
-结果为 PARTIAL。两款设备各两次建立 esp32sim restricted STA 租约。
+结果为 PARTIAL。使用 ESP-IDF 固定例程的 restricted STA 和 SoftAP 在两款 C6
+上各完成两次同路径运行。STA 获得 DHCP 地址且完成 5 次网关 ping。SoftAP
+的来宾 DHCP 为虚拟 station 分配地址。8 次会话均保留了 Ethernet PCAP 并清场。
+共享 Device Service oracle 每端运行 56 个用例两次。esp32sim 每次 56/56，
+QEMU 每次 46/56。板载写入、旧诊断和审核的逐场景资格仍开放。
 Tab5 原版 UserDemo 的 frame 审核在 esp-emu 为 `SIM_VERIFIED`，
 强制 esp32sim 后为 `SIM_PARTIAL`。Tab5 扬声器的录音 cursor 和
 stereo 证据窗口仍属 esp-emu 契约。默认路由的验收保持开放。

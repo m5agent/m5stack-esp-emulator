@@ -27,6 +27,7 @@ specific to that backend.
 | `units` | Legacy attached Unit fixtures. |
 | `nvs` | Injection into a named NVS partition before boot. |
 | `storage.filesystem` | Session-local filesystem partition injection before boot. |
+| `program_mode=uiflow-live` | Uses QEMU on devices without the native UART REPL transport. |
 
 A runtime advertising `board-device-state` can read the legacy board
 state schema from the live guest, retain it at stop and apply the modeled
@@ -40,36 +41,18 @@ transport.
 
 ## Devices with QEMU defaults
 
-The paired service checks on the `9c0447e8` runtime found these consumer gaps. `GET /device-state`
-refers to the session endpoint. Unless the row describes a partial response,
-esp32sim returned `409 not_supported_on_runtime` for that request on the
-running fixture. The reviewer uses the registered component names when it
-collects state evidence.
+The `board-device-state` candidate projects the registered components on 19
+boards, including the eight board components alongside StackChan's servo
+state. Each board returned all registered fields in two running native
+sessions. The new C6 Wi-Fi paths passed two guest association and DHCP trials
+per profile and board. The ordinary defaults continue to follow the release
+qualification in the [validation ledger](validation-ledger.md#2026-11-27板载状态兼容候选).
 
-| Device | Missing or incomplete esp32sim request |
+| Request | Remaining qualification or runtime requirement |
 | --- | --- |
-| Atom VoiceS3R (`atom-echos3r`) | `GET /device-state` is unavailable. The legacy endpoint accepts the request and registers `onboard-io` and `es8311`. The paired QEMU fixture returned an empty component map. |
-| AtomS3 | `GET /device-state` lacks `imu`. The native lease also lacks `program_mode=uiflow-live`. |
-| AtomS3 Lite | `GET /device-state` lacks `onboard-io`. |
-| AtomS3R | `GET /device-state` lacks `imu`, `led` and `magnetometer`. The native lease also lacks `program_mode=uiflow-live`. |
-| AtomS3R-CAM | `GET /device-state` lacks the `gc0308` component. |
-| AtomS3R-M12 | `GET /device-state` lacks `ov3660` and `m5-lcd-cam`. The separate camera QOM property is supported. |
-| AtomS3U | `GET /device-state` lacks `onboard-io` and `rmt0`. |
-| Basic v2.7 | `GET /device-state` lacks `ip5306`. |
-| NanoC6 | `POST /sessions` with `network.profile=nanoc6-hci-ble` is unavailable on esp32sim. |
-| Nesso N1 | `POST /sessions` with `network.profile=nesso-unified` is unavailable on esp32sim. |
-| PaperColor | `GET /device-state` lacks `power` and `sensor`. |
-| PaperDIY | `GET /device-state` lacks `panel`. |
-| PaperMono | `GET /device-state` lacks `charger`, `imu`, `power` and `rtc`. |
-| PaperS3 | `GET /device-state` lacks `panel`. |
-| StackChan | `GET /device-state` returns servo state. The legacy `body-touch`, `imu`, `io-expander`, `light-proximity`, `magnetometer`, `power`, `power-monitor` and `rtc` components are missing. |
-| StamPLC | `GET /device-state` lacks `front-panel`, `io-expander`, `power-monitor`, `rtc` and `temperature`. |
-| StickC | `GET /device-state` lacks `imu`. |
-| StickC Plus | `GET /device-state` lacks `imu`. |
-| StickC Plus2 | `GET /device-state` lacks `imu` and `rtc`. The native lease also lacks `program_mode=uiflow-live`. |
-| StickS3 | `GET /device-state` lacks `imu` and `power`. The native lease also lacks `program_mode=uiflow-live`. |
-| StopWatch | `GET /device-state` lacks `expander`, `imu` and `power`. The native lease also lacks `program_mode=uiflow-live`. |
-| Tab5 legacy requests | The UserDemo stereo recording uses `GET /audio.pcm?format=cursor` and retained `expected_recording_id` ranges. Those parameters remain on the legacy esp-emu route. Ordinary qualified firmware and panel pairs still select esp32sim. |
+| Board-state fixtures | Legacy QOM writes use the modeled peripherals. Read-only state coverage is complete for the sampled schemas. StopWatch PM1 guest markers and the QEMU key-to-body-touch input on StackChan still need parity. |
+| Native C6 Wi-Fi | `esp32sim-sta` and `esp32sim-softap` cover the restricted Wi-Fi fixtures. The UART HCI profiles `nanoc6-hci-ble` and `nesso-unified` select their QEMU diagnostic backends. |
+| Tab5 legacy requests | The UserDemo stereo recording uses `GET /audio.pcm?format=cursor` and retained `expected_recording_id` ranges on esp-emu. The UserDemo frame review also verified on esp-emu and remained partial when forced onto esp32sim. Qualified firmware and panel pairs continue to select esp32sim. |
 
 Select `runtime_variant` using the values in `runtimes.esp32sim.variants`.
 AtomS3 and AtomS3R offer `st7735s` and `gc9107`. Core2 selects the modeled PMIC
