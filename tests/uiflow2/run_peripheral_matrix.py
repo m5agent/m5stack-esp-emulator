@@ -73,6 +73,7 @@ CASES = [
             },
         },
         "qom": [
+            ("/machine/m5pm1", "vbat-mv", "4000"),
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
             ("/machine/bmi270", "accel-z", "0.75"),
@@ -941,6 +942,7 @@ CASES = [
             "STOPWATCH_ACCEL 0.25 -0.50 0.75",
         ],
         "qom": [
+            ("/machine/m5pm1", "vbat-mv", "4000"),
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
             ("/machine/bmi270", "accel-z", "0.75"),

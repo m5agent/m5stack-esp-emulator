@@ -401,6 +401,11 @@ class Tab5ServiceTests(unittest.TestCase):
         _, metrics = session.audio_capture("metrics", 0, len(payload), None)
         self.assertEqual((metrics["sample_rate_hz"], metrics["channels"], metrics["frames"]), (48000, 2, 512))
         self.assertEqual([channel["peak"] for channel in metrics["channel_metrics"]], [16, 0])
+        self.assertEqual(metrics["layout_source"], "esp_emu_wav")
+        session.flash_info["tab5"]["speaker_capture"] = "esp32sim_i2s1_tx"
+        _, metrics = session.audio_capture("metrics", 0, len(payload), None)
+        self.assertEqual(metrics["layout_source"], "esp32sim_i2s1_tx")
+        self.assertEqual(metrics["source"], "esp32sim_i2s1_tx")
         for offset, limit, error in ((2, 4, "invalid_audio_layout"), (4096, 4, "audio_range_unavailable")):
             with self.subTest(offset=offset), self.assertRaises(service_module.ServiceError) as raised:
                 session.audio_capture("pcm", offset, limit, None)

@@ -8893,7 +8893,10 @@ class DeviceSession:
         if output_format == "metrics":
             if not data:
                 raise ServiceError("audio_capture_unavailable", "no complete frame at the requested offset", 409)
-            return None, receipt | tab5_stereo_pcm_metrics(data, layout["sample_rate_hz"])
+            metrics = tab5_stereo_pcm_metrics(data, layout["sample_rate_hz"])
+            if layout["source"] == TAB5_ESP32SIM_AUDIO_SOURCE:
+                metrics["layout_source"] = TAB5_ESP32SIM_AUDIO_SOURCE
+            return None, receipt | metrics
         return data, receipt
 
     def audio_inject(self, payload: dict) -> dict:
@@ -13038,16 +13041,16 @@ class DeviceService:
 
     def get_network_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
-        native_tab5_audio = (
-            spec.id == "tab5"
-            and "tab5-stereo-capture" in json.loads(esp32sim.LOCK.read_text()).get("service_features", ())
-            and spec.esp32sim_installation.ready(esp32sim.BOARDS["tab5"])
-        )
         return {"device_id": spec.id,
                 **review_sta_capability(spec, backend_ready=spec.backend_ready)}
 
     def get_device_capabilities(self, device_id: str) -> dict:
         spec = self._device_spec(device_id)
+        native_tab5_audio = (
+            spec.id == "tab5"
+            and "tab5-stereo-capture" in json.loads(esp32sim.LOCK.read_text()).get("service_features", ())
+            and spec.esp32sim_installation.ready(esp32sim.BOARDS["tab5"])
+        )
         native_only = (not spec.supported and spec.default_runtime == esp32sim.RUNTIME
                        and not getattr(self, "_legacy_review_catalog", False))
         if native_only:
