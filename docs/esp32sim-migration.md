@@ -1,9 +1,7 @@
 # Migrating Device Service sessions to esp32sim
 
 CoreS3, Cardputer-ADV, AtomU and Atom Echo select `esp32sim` when you omit
-`runtime` from an ordinary lease. An omitted `runtime` and `runtime_variant`
-keeps legacy `runtime_env`, `device_identity`, Unit, NVS and filesystem fixture
-requests on QEMU for devices with a QEMU path.
+`runtime` from an ordinary lease.
 Use `"runtime":"qemu"` to select the frozen native QEMU path. Tab5 also
 accepts `"runtime":"esp32sim"`. Its qualified firmware and panel pairs select
 it automatically when the runtime assets are ready and the request uses the
@@ -14,6 +12,20 @@ Default changes for paired backends require two stock, docs and regression
 runs with the same firmware and variant. M5Stick and StickT2 default to esp32sim.
 Their existing QEMU firmware/kernel modes run outside Device Service.
 CardputerZero uses a separate Linux backend.
+
+## Legacy request fields
+
+For devices with a QEMU path, these fields route a lease to QEMU when the
+request omits both `runtime` and `runtime_variant`. Each depends on support
+specific to that backend.
+
+| Field | Capability |
+| --- | --- |
+| `runtime_env` | Session-specific QEMU environment overrides. |
+| `device_identity` | Persistent eFuse identity provisioning. |
+| `units` | Legacy attached Unit fixtures. |
+| `nvs` | Injection into a named NVS partition before boot. |
+| `storage.filesystem` | Session-local filesystem partition injection before boot. |
 
 Select `runtime_variant` using the values in `runtimes.esp32sim.variants`.
 AtomS3 and AtomS3R offer `st7735s` and `gc9107`. Core2 selects the modeled PMIC
