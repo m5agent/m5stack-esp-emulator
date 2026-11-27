@@ -64,6 +64,8 @@
 
 源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。
 
+- [esp32sim 新增登记](../platform/web/esp32sim-browser-boards.json)共 `14` 款。设备 ID：`atom-lite`，`atoms3`，`atoms3-lite`，`dial`，`nanoc6`，`paperdiy`，`papermono`，`papers3`，`stackchan`，`stickc`，`stickc-plus`，`stickc-plus-se`，`sticks3`，`stopwatch`。
+
 ## 外接 Unit 库存与准入
 
 - Unit 登记：`160` 款；主机接线登记：`24` 款。
@@ -151,7 +153,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`103` 个 Python 模块，`61347` 行；规模最大的模块如下。
+- `platform/tools`：`103` 个 Python 模块，`61398` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -164,7 +166,7 @@
 
 - `tests/`：`183` 个可执行 Python 测试文件，分布在 `84` 个目录；`253` 个 evidence JSON。
 - `patches/`：`17` 个补丁组，`386` 个 patch 文件。
-- 文档：`757` 个 Markdown 页面；除本生成页外共 `82580` 行。
+- 文档：`757` 个 Markdown 页面；除本生成页外共 `82650` 行。
 
 ## 文档与测试
 

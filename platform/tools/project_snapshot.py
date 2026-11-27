@@ -20,6 +20,7 @@ UNIT_PROFILES = ROOT / "platform/units/runtime-profiles.json"
 UNIT_HOSTS = ROOT / "platform/units/host-ports.json"
 VISUAL_VENDOR = ROOT / "platform/web/vendor/m5stack-models/vendor-manifest.json"
 BROWSER_PROFILES = ROOT / "platform/web/qemu-browser-profiles.json"
+ESP32SIM_BROWSER_PROFILES = ROOT / "platform/web/esp32sim-browser-boards.json"
 BACKLOG = ROOT / "docs/project-backlog.md"
 RUNTIME_GAPS = ROOT / "docs/runtime-model-gap-register.md"
 DOC_INDEX = ROOT / "docs/README.md"
@@ -367,6 +368,7 @@ def summarize_browser_profiles() -> dict:
     return {
         "source": BROWSER_PROFILES.relative_to(ROOT).as_posix(),
         "registered": len(registry["profiles"]),
+        "esp32sim_additions": sorted(row["deviceId"] for row in load_json(ESP32SIM_BROWSER_PROFILES)),
         "by_admission": {
             admission: sorted(identifiers)
             for admission, identifiers in sorted(by_admission.items())
@@ -645,6 +647,10 @@ def render_markdown(snapshot: dict) -> str:
     lines += [
         "",
         "源码配置登记不证明已部署、当前 WASM 的 `compiled_profiles` 或任意固件兼容；实际执行仍需匹配构建、固件与同 guest 验收。`candidate` 不进入默认公开入口，原生设备或视觉模型也不自动获得浏览器准入。",
+        "",
+        f"- [esp32sim 新增登记](../{ESP32SIM_BROWSER_PROFILES.relative_to(ROOT).as_posix()})"
+        f"共 `{len(browser['esp32sim_additions'])}` 款。设备 ID："
+        + "，".join(f"`{device_id}`" for device_id in browser["esp32sim_additions"]) + "。",
     ]
 
     units = snapshot["external_units"]

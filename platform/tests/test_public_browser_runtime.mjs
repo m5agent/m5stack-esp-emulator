@@ -3,19 +3,22 @@ import {PublicBrowserRuntime,getBrowserProfile,validateBrowserFirmware,decodeBro
 
 const romSha = 'c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd';
 const manifest = {schema_version:1,source:{commit:ESP32SIM_LEGACY_COMMIT},profiles:['papers3','stopwatch'],build:{kind:'source-build'},wasm:{path:'esp32sim.wasm',sha256:'0'.repeat(64)},rom:{path:'esp32s3_rev0_rom.elf',sha256:romSha}};
-function firmware() {
+function firmware(chip = 9, bootloader = 0) {
   const data = new Uint8Array(0x10100), view = new DataView(data.buffer);
-  for (const at of [0,0x10000]) { data[at]=0xe9; data[at+1]=1; view.setUint16(at+12,9,true); view.setUint32(at+28,4,true); }
+  for (const at of [bootloader,0x10000]) { data[at]=0xe9; data[at+1]=1; view.setUint16(at+12,chip,true); view.setUint32(at+28,4,true); }
   data.fill(0xff,0x8020,0x9000);
   view.setUint16(0x8000,0x50aa,true); view.setUint32(0x8004,0x10000,true); view.setUint32(0x8008,0x1000,true);
   return data.buffer;
 }
-const profile = getBrowserProfile('m5papers3');
+const profile = getBrowserProfile('m5papers3',manifest.profiles);
 assert.equal(profile.board,'papers3');
 assert.equal(getBrowserProfile('stopwatch').jit,false);
 assert.equal(getBrowserProfile('cores3').board,'m5stack-cores3');
 assert.equal(getBrowserProfile('cardputer-adv').flashMb,8);
 assert.equal(getBrowserProfile('cardputer-adv').psramMb,0);
+assert.equal(getBrowserProfile('papers3').board,'m5stack-papers3');
+assert.equal(getBrowserProfile('stopwatch').board,'m5stack-stopwatch');
+assert.equal(getBrowserProfile('stopwatch',manifest.profiles).board,'stopwatch');
 assert.equal(getBrowserProfile('constructor'),null);
 profile.display.width=1;
 assert.equal(getBrowserProfile('papers3').display.width,540);
@@ -30,6 +33,10 @@ new Uint8Array(overlap).copyWithin(0x8020,0x8000,0x8020);
 assert.throws(()=>validateBrowserFirmware(overlap,getBrowserProfile('cores3')),{code:'invalid_partition'});
 const corrupt = firmware(); new DataView(corrupt).setUint32(0x10000+28,0xfffffff,true);
 assert.throws(()=>validateBrowserFirmware(corrupt,getBrowserProfile('papers3')),{code:'truncated_firmware'});
+assert.equal(validateBrowserFirmware(firmware(0,0x1000),getBrowserProfile('stickc')),true);
+assert.equal(validateBrowserFirmware(firmware(13),getBrowserProfile('nanoc6')),true);
+assert.throws(()=>validateBrowserFirmware(firmware(0),getBrowserProfile('stickc')),{code:'merged_firmware_required'});
+assert.throws(()=>validateBrowserFirmware(firmware(9),getBrowserProfile('nanoc6')),{code:'firmware_chip_mismatch'});
 assert.throws(()=>decodeBrowserFrame(new Uint8Array([1,1,0,1,0,0]).buffer,1),{code:'invalid_frame'});
 assert.deepEqual(decodeBrowserFrame(new Uint8Array([1,1,0,1,0,0x34,0x12]).buffer,2).pixels,new Uint8Array([0x34,0x12]));
 
@@ -50,7 +57,7 @@ class WorkerFixture {
   terminate(){this.terminated=true;}
 }
 function options(overrides={}) {
-  return {root:'https://example.test/repo/', fetchImpl:async function(){assert.equal(this,undefined,'fetch must not receive the runtime as its native browser receiver');return new Response(JSON.stringify(manifest));},
+  return {root:'https://example.test/repo/', availableProfiles:manifest.profiles, fetchImpl:async function(){assert.equal(this,undefined,'fetch must not receive the runtime as its native browser receiver');return new Response(JSON.stringify(manifest));},
     downloadImpl:async(url,{expectedSha256})=>({bytes:new ArrayBuffer(8),sha256:expectedSha256}),...overrides};
 }
 const worker = new WorkerFixture(), states=[],serial=[],frames=[];
@@ -102,7 +109,7 @@ const missing = new PublicBrowserRuntime(options({fetchImpl:async()=>new Respons
 await assert.rejects(missing.start({device:'stopwatch',firmware:firmware()}),{code:'browser_runtime_missing'});
 assert.equal(missing.observe().status,'error');
 const currentManifest = {...manifest,source:{commit:ESP32SIM_SOURCE_COMMIT},profiles:['m5stack-cores3','m5stack-cardputer-adv']};
-const newLane = (worker) => options({workerFactory:()=>worker,fetchImpl:async url=>{
+const newLane = (worker) => options({availableProfiles:currentManifest.profiles,workerFactory:()=>worker,fetchImpl:async url=>{
   assert.match(url,/runtime\/esp32sim\/runtime.json$/);
   return new Response(JSON.stringify(currentManifest));
 }});
@@ -132,4 +139,28 @@ assert.deepEqual(advWorker.calls.filter(m=>m.op==='text').map(m=>JSON.parse(m.da
   {t:'btn',pin:0,v:1},{t:'btn',pin:0,v:0},
 ]);
 adv.stop();
+
+const c6Worker = new WorkerFixture(), led = [];
+const c6Rom = {path:'esp32c6_rev0_rom.elf',sha256:'788e1d38724aeb8fd974fa10c4a7b089c02627d35342ce84b9e0b12b239f3551'};
+const c6Manifest = {...currentManifest,profiles:['m5stack-nanoc6'],extra_roms:{esp32c6:c6Rom}};
+const fetched = [];
+const c6 = new PublicBrowserRuntime(options({
+  availableProfiles:c6Manifest.profiles,workerFactory:()=>c6Worker,
+  fetchImpl:async ()=>new Response(JSON.stringify(c6Manifest)),
+  downloadImpl:async (url,{expectedSha256})=>{fetched.push(url);return {bytes:new ArrayBuffer(8),sha256:expectedSha256};},
+  onLeds:commands=>led.push(commands),
+}));
+await c6.start({device:'nanoc6',firmware:firmware(13)});
+assert.match(fetched.at(-1),/esp32c6_rev0_rom\.elf$/);
+assert.equal(c6.receipt.romSha256,c6Rom.sha256);
+await c6.input({type:'button',id:'button',down:true});
+assert.deepEqual(JSON.parse(c6Worker.calls.at(-1).data),{t:'btn',pin:9,v:1});
+c6Worker.emit({text:'{"t":"ring","leds":[[64,160,32],[0,0,255]]}'});
+assert.deepEqual(led,[{type:'led',target:'rgb',color:0x40a020,brightness:1,on:true}]);
+c6.stop();
+const wrongRom = new PublicBrowserRuntime(options({
+  availableProfiles:c6Manifest.profiles,
+  fetchImpl:async ()=>new Response(JSON.stringify({...c6Manifest,extra_roms:{esp32c6:manifest.rom}})),
+}));
+await assert.rejects(wrongRom.start({device:'nanoc6',firmware:firmware(13)}),{code:'rom_mismatch'});
 console.log('browser adapter image admission, worker lifecycle, native-frame, input and cancellation contracts passed');

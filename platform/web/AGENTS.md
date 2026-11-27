@@ -7,9 +7,11 @@ contract and [the code map](../../docs/code-map.md) for service UI entry points.
 
 ## Keep execution lanes distinct
 
-- Browser admission comes from `qemu-browser-profiles.json` intersected with the
-  actual runtime's compiled profiles. A 3D shell, a compiled machine or native
-  PASS does not admit browser firmware execution.
+- QEMU-WASM admission comes from `qemu-browser-profiles.json` intersected with
+  the runtime's compiled profiles. esp32sim admits the original profiles and
+  the entries of `esp32sim-browser-boards.json` present in the exported runtime.
+  A 3D shell, a compiled machine or native PASS does not admit browser firmware
+  execution.
 - `public-qemu-runtime.js` manages validated assets and the run. The instance
   iframe admits and returns one private port. `public-qemu-engine-owner.js`
   transfers that port to the Worker and keeps its callbacks in the top document.

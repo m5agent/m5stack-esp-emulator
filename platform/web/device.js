@@ -71,8 +71,8 @@ async function loadDevice() {
     return response.json();
   });
   const config = await fetch(assetUrl('platform/web/site-config.json')).then(response => response.json());
-  const profile = getBrowserProfile(device.id);
-  if (profile?.referenceSha256 && config.browser_esp32sim_profiles?.includes(profile.board)) state.browserProfile = profile;
+  const profile = getBrowserProfile(device.id,config.browser_esp32sim_profiles || []);
+  if (profile?.referenceSha256) state.browserProfile = profile;
   const peripheral = await fetch(`/api/peripherals/${encodeURIComponent(device.id)}`, {cache:'no-store'}).then(response => {
     if (response.ok) return response.json();
     if (state.browserProfile && response.status === 404) return null;
@@ -424,7 +424,9 @@ async function startBrowserFirmware(firmware, name) {
   state.log = '';
   $('log').textContent = '';
   const runtime = new PublicBrowserRuntime({
+    availableProfiles: [state.browserProfile.board],
     onSerial: appendLog,
+    onLeds: command => state.shell?.applyVisualState?.(command),
     onFrame: ({pixels,width,height,sequence}) => {
       if (state.shell.setFrameLE) state.shell.setFrameLE(pixels,width,height,sequence);
       else {

@@ -248,6 +248,7 @@ jobs:
           export M5_BROWSER_SITE="http://127.0.0.1:4173$PUBLIC_BASE_PATH"
           curl -fsS --retry 5 --retry-connrefused "$M5_BROWSER_SITE" -o /dev/null
           node platform/tests/test_public_esp32sim_guest.mjs
+          M5_BROWSER_EVIDENCE=.work/public-esp32sim-board-guests node platform/tests/test_public_esp32sim_board_guest.mjs
       - name: Verify Canvas observation positive and negative controls
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
@@ -289,6 +290,7 @@ jobs:
             .work/wasm-typed-helper-control
             .work/public-qemu-pixel-observer-host-browser
             .work/public-esp32sim-acceptance
+            .work/public-esp32sim-board-guests
             .work/qemu-browser-runtime/reuse-provenance.json
             .work/qemu-c61-runtime/reuse-provenance.json
           if-no-files-found: ignore
