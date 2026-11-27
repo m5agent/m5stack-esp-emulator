@@ -1,7 +1,7 @@
 # esp32sim browser execution glue
 
 The four ES modules and MIT license in this directory are exact copies from the
-[M5Stack esp32sim fork](https://github.com/m5agent/esp32sim/tree/d2f4af9ede499fbfb0f56ed3b425c09d451709c5).
+[M5Stack esp32sim fork](https://github.com/m5agent/esp32sim/tree/c2329ebeb1f0a258eedecbab0dac7390aa31987f).
 The browser pin extends `m5-milestone-service-parity-20261127` with classic
 ESP32 PSRAM sizes, board eFuse parity, Tab5 revision selection, and board
 input and media transport. The browser API descends from the CoreS3 and Cardputer-ADV milestone

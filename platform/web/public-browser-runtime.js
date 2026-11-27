@@ -5,7 +5,7 @@ import { cardputerAdvBoardKey } from './cardputer-adv-keymap.js';
 import { readTab5Sidecar } from './public-tab5-sidecar.js';
 import admittedBoards from './esp32sim-browser-boards.json' with {type:'json'};
 
-export const ESP32SIM_SOURCE_COMMIT = 'd2f4af9ede499fbfb0f56ed3b425c09d451709c5';
+export const ESP32SIM_SOURCE_COMMIT = 'c2329ebeb1f0a258eedecbab0dac7390aa31987f';
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
 const CURRENT_PROFILES = new Map(admittedBoards.map(profile => [profile.deviceId,profile]));
 const CHIP_LAYOUT = {

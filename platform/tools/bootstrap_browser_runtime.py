@@ -21,7 +21,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_URL = "https://github.com/m5agent/esp32sim.git"
-SOURCE_COMMIT = "d2f4af9ede499fbfb0f56ed3b425c09d451709c5"
+SOURCE_COMMIT = "c2329ebeb1f0a258eedecbab0dac7390aa31987f"
 BOARD_PROFILES = json.loads((ROOT / "platform/web/esp32sim-browser-boards.json").read_text())
 SOURCE_PROFILES = ["m5stack-cores3", "m5stack-cardputer-adv", "m5stack-cardputer", *(row["board"] for row in BOARD_PROFILES)]
 SOURCE_PROFILES.extend(row["rev3Board"] for row in BOARD_PROFILES if "rev3Board" in row)

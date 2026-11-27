@@ -54,6 +54,18 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
   QEMU 为 fixture 要求的 466×466。目录的完整应用行为和重复性仍待补齐。
 
 
+## 2026-11-27：浏览器合入 esp32sim runtime-gaps
+
+Browser-WASM virtual-device validation。发布用 fork
+`c2329ebeb1f0a258eedecbab0dac7390aa31987f` 包含 runtime-gaps 里程碑
+`9c0447e8e38d0bafc2f124e6e8b8cc5994d30eee` 和浏览器板级变更。
+Rust 1.99.1 源构建 WASM 为
+`e9c99a3addf8f57a9c62ed59a89fba932061e1a272ac267c5bebf62101b6991d`。
+Chrome 同路径复验通过 Core2 触摸与 8 MiB/HIMEM、Tab5 GT911 原版启动与
+ADC 选择、Nesso N1 SPI 显示与触摸，以及 Cardputer-ADV 11 键回读。
+这些来宾在 Stop 后均观察到实际 Worker 消失。上一轮的帧及延时对照
+使用独立的精确 WASM 版本。
+
 ## 2026-11-27：esp32sim WASM 第二轮
 
 Browser-WASM virtual-device validation。fork 源码
