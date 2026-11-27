@@ -112,6 +112,9 @@ python3 platform/tools/serve.py --browser-site .work/browser-site \
    完整构建。`build` 只接收同一运行轮次的产物，校验并导出，再执行完整串行验收。
    源码构建、验收和 `deploy` 的单 job 预算分别为 90、240 和 10 分钟。
    若重跑工作流，请选择重跑全部 job 以生成本轮的两个构建产物。
+   如需重试，可显式使用 `reuse_verified_runtimes=true` 重用
+   [固定的全量源码构建](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/45925805446)。
+   导入核对对应 job、源码配方、ZIP 和 WASM 摘要，再执行同一完整客体验收。
 3. 确认后再次运行，设置 `publish=true`。项目站的 `base_path` 默认
    `/m5stack-esp-emulator/`；若更改仓库名，需要同步前缀。用户站或独立域名根路径用 `/`。
 4. `service_url` 默认留空。仅需其它原生设备时配置公开 HTTPS 服务地址；
