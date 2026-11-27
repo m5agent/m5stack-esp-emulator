@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-26`
+日期：`2026-11-27`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,27 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-27：esp32sim 与封存后端同固件基准
+
+- Native Device Service virtual-device validation。基线源码
+  `16faae71c3ee67f5158431dbe78c27e726e67d3d`，esp32sim 基点
+  `4e257b6be8ee0ed706c2e509d8f31ef7472a424b`。九板 19 个固件用例
+  每侧三次，另有修正后对照。CoreS3 Touch 输入到不同帧中位数
+  0.77 → 0.37 s，原版 ADV 首稳定帧 3.78 → 2.25 s。
+  固定 CPU 控制的 guest 秒/墙钟秒为 1.010 与 0.987。
+  Core2 原版 esp32sim 8 秒内无非黑帧，保留有限观察窗口和 JIT 诊断。
+- Browser-WASM virtual-device validation。单一混合导出、相同输入 Flash，
+  CoreS3 4.380 → 1.675 s，ADV 5.081 → 2.076 s。12 次均在关闭 context
+  前观察到 Worker 归零。CoreS3/ADV 另在无 COOP/COEP 或 SharedArrayBuffer
+  跨站 iframe 内操作通过。正式文档 CSP 以及 UI-04 hosted 门禁仍开放。
+- 旧条件复验。Tab5 原 UIFlow2 v2.5.4 GT911 冷启及 ADC 触摸通过，
+  DSI trace 为 513 scanout、0 read。Maker Fighter 原版经 4 份 HID 报告
+  进入菜单，空闲对照保持标题页。NanoC6 原版 Zigbee 完成 join 与
+  5 次 On/Off。ADV 与 AtomS3 Lite 重建 Worker 后执行新 UART 源码。
+  以上结果的老后端根因及未覆盖路径均列在
+  [基准与缺口报告](esp32sim-backend-benchmark-2026-11-27.md)。
+  物理硬件 NOT RUN。
 
 ## 2026-11-27：esp32sim 双租约、断电证据与默认后端对照
 

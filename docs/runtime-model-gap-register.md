@@ -158,6 +158,9 @@ side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因�
 
 ## 当前缺口
 
+2026-11-27 的[同固件对照](esp32sim-backend-benchmark-2026-11-27.md#旧问题复验)
+记录 esp32sim 的独立执行结果。旧 QEMU/esp-emu 的失败和原运行时关闭条件保留。
+
 ### PaperS3：原厂应用间歇延后读取 GT911
 
 PaperS3 Factory V0.5 原 BIN 在浏览器 QEMU WASM 中已出现完整坐标与松手读回，
@@ -205,6 +208,11 @@ Device Service 1.99 的原版只读追踪确认 DCS `0x00` 请求到达 DSI 发�
 需要上游提供可回填 DSI RX FIFO 的同步面板读应答。
 [当前原版对照](https://github.com/m5agent/agent-work-logs/blob/e1169639ca094b24e4addc6499802291f9cca1ee/records/esp-emulator/2026-11-14-p4-v1-originals/followups/2026-11-18-tab5-uiflow254-199-dsi-rx-fifo/README.md) ·
 [官方 DSI 接口](https://github.com/espressif/esp-emulator/blob/v1.1.0/proto/esp_cosim.proto#L1018-L1045)。
+
+2026-11-27 在 esp32sim 的 GT911/ILI9881C 上，同原版普通冷启动到离线主页，
+触摸 `(83,755)` 展示 ADC 管脚。独立同固件 CLI 记录 513 次 DSI scanout
+和 0 次 DSI read。原版显示/触摸通过，RX FIFO 读回条件继续开放。
+[测试身份与冻结后端对照](esp32sim-backend-benchmark-2026-11-27.md#旧问题复验)
 
 服务已独立修复完整 Flash/cache 检验、匹配 ELF 与 eFuse 的会话副本以及旧参考
 首次触摸发布顺序；后者只是现有 GDB mailbox 诊断路径，不能关闭 controller
@@ -356,6 +364,7 @@ StickS3 以同一固件会话的控制器与对端数据确认下列功能。矩
 | QEMU 现象 | `Zigbee_main` 阻塞并触发 task watchdog；当前 QEMU C6 profile 没有对应 radio/controller 数据面 |
 | esp-emu 可行性 | 0.50.0 的 `--thread-sim` 能转发双向 802.15.4 帧；源码构建的 C6 switch/light 对已完成组网与 steering 启动，但未完成 commissioning/join 或 On/Off 命令 |
 | 当前阻断 | 缺少可验证的 MAC ACK/commissioning 语义；公开 M5Burner Zigbee bin 的 ELF SHA 没有匹配文件，因此不能用 `--thread-sim` 直接验证该公开样本 |
+| esp32sim 复验 | 公开 M5Burner 原版经 Cooja 对端在 6.145 guest s 加入，收 5 次 On/Off，LED 蓝/灭交替。离网、共存及同原版服务 API 保持开放。[2026-11-27 同固件证据](esp32sim-backend-benchmark-2026-11-27.md#旧问题复验) |
 | 证据 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)、[`c6-zigbee-thread-sim-feasibility.json`](../tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json) |
 
 关闭条件：
