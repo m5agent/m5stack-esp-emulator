@@ -20,21 +20,21 @@ REPOSITORY = "m5agent/m5stack-esp-emulator"
 REPOSITORY_ID = 1427737977
 WORKFLOW_PATH = ".github/workflows/public-site.yml"
 WORKFLOW_ID = 399573281
-PRODUCER_RUN = 45925805446
+PRODUCER_RUN = 46011319479
 PRODUCER_ATTEMPT = 1
-PRODUCER_SHA = "df8050d7199382d9fa9bae70fa7f1851ca947ccc"
+PRODUCER_SHA = "f08414ded16e1a38c88f14eea59456256fe1c332"
 TARGETS = {
     "xtensa-softmmu": {
-        "artifact": 15167646113, "name": "qemu-staging-xtensa-1", "job": 140266710840,
+        "artifact": 15205411070, "name": "qemu-staging-xtensa-1", "job": 140547263864,
         "steps": {7, 9, 11, 13}, "directory": "qemu-browser-runtime", "prefix": "qemu-browser-runtime/",
-        "zip_sha256": "baa4b658df6e0f7bc5b989a0691f6a14990c5fe62e5a1ed07729f8bdb69e0430",
+        "zip_sha256": "6331f3267ede44d20888e4be8d11fabffb719a6598d2b537bed22affc7854c00",
         "wasm_sha256": "8067a6b8d599f81bfe454da0318377fcb783c8ee4198fc69d3a042c1311d2c1e",
     },
     "riscv32-softmmu": {
-        "artifact": 15167230821, "name": "qemu-staging-c61-1", "job": 140266710525,
+        "artifact": 15205715401, "name": "qemu-staging-c61-1", "job": 140547263581,
         "steps": {8, 14}, "directory": "qemu-c61-runtime", "prefix": "",
-        "zip_sha256": "a78a7f7fa22373575fa79f37b6451e1596bbddb7c8e9758c5449c0307d9a6b01",
-        "wasm_sha256": "b127e36933509325e0b76554d27836b7daf666313c3747cbd95d00c227916429",
+        "zip_sha256": "612532393cf93bb98ffb416a973a7dbbf63a954682c20372ac1be3fa76909933",
+        "wasm_sha256": "8c7eb25c5af623d90baaf202bd5b304ba40f6d8e868e1f4c5c9e04148af64e18",
     },
 }
 
