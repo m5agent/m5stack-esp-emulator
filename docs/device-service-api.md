@@ -35,8 +35,11 @@ identity checks. A late response never replaces the local source draft.
 
 ### Native esp32sim sessions
 
-CoreS3 and Cardputer-ADV default to `runtime="esp32sim"`. Choose
-`runtime="qemu"` to run the frozen native QEMU path for either board.
+CoreS3, Cardputer-ADV, AtomU and Atom Echo default to `runtime="esp32sim"`.
+Choose `runtime="qemu"` to run the corresponding native QEMU path.
+When the request omits both `runtime` and `runtime_variant`, a QEMU-backed
+device uses QEMU for legacy `runtime_env`, persistent `device_identity`, Unit,
+NVS or filesystem fixtures.
 Tab5 accepts `runtime="esp32sim"` for GT911/ILI9881C and ST7123.
 Its qualified firmware and panel pairs default to esp32sim when pinned assets
 are ready and the request uses the basic app session path. Other Tab5 sessions

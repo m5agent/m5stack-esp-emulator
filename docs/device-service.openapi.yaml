@@ -4255,7 +4255,8 @@ components:
       type: string
       enum: [esp32sim, qemu, esp-emu, network, qemu-wifi, qemu-ble, qemu-unified]
       description: >
-        CoreS3 and Cardputer-ADV default to esp32sim, with explicit qemu selection.
+        CoreS3, Cardputer-ADV, AtomU and Atom Echo default to esp32sim, with
+        explicit qemu selection.
         Tab5 accepts esp32sim for GT911/ILI9881C and ST7123. Tab5's esp-emu
         alias selects the legacy native lane and is returned as qemu.
         Execution envelope for a session. qemu-unified is the canonical
@@ -5811,10 +5812,13 @@ components:
           allOf:
             - $ref: "#/components/schemas/RuntimeName"
           description: >-
-            Defaults to esp32sim on CoreS3 and Cardputer-ADV. Tab5 defaults to qemu
-            except for qualified firmware and panel pairs with pinned assets
-            ready and no legacy feature fields. Explicit Tab5 esp-emu and qemu
-            select the same legacy lane.
+            Defaults to esp32sim on CoreS3, Cardputer-ADV, AtomU and Atom Echo.
+            If runtime and runtime_variant are omitted, a QEMU-backed device
+            uses QEMU for legacy runtime_env, device_identity, units, nvs and
+            storage.filesystem fixtures. Tab5 defaults to qemu except for
+            qualified firmware and panel pairs with pinned assets ready and no
+            legacy feature fields. Explicit Tab5 esp-emu and qemu select the
+            same legacy lane.
         runtime_variant:
           type: string
           description: Explicit esp32sim board or Flash variant from the device's runtimes.esp32sim.variants.

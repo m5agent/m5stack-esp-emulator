@@ -13523,6 +13523,12 @@ class DeviceService:
         if spec is None:
             raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
         runtime = payload.get("runtime", QEMU_WIFI_RUNTIME if uiflow_startup else spec.default_runtime)
+        if ("runtime" not in payload and runtime == esp32sim.RUNTIME
+                and spec.supported and "runtime_variant" not in payload):
+            storage = payload.get("storage")
+            if (any(payload.get(field) for field in ("runtime_env", "device_identity", "units", "nvs"))
+                    or isinstance(storage, dict) and "filesystem" in storage):
+                runtime = "qemu"
         if not spec.supported and not (runtime == esp32sim.RUNTIME and device_id in esp32sim.BOARDS):
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409

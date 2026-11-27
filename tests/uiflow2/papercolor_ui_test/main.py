@@ -49,6 +49,7 @@ print("PAPERCOLOR_BOARD", M5.getBoard())
 print("PAPERCOLOR_DISPLAY", M5.Display.width(), M5.Display.height())
 M5.Display.setRotation(0)
 draw_ui()
+print("PAPERCOLOR_PROBE_READY")
 
 was = False
 while True:

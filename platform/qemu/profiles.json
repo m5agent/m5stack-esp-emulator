@@ -1918,7 +1918,7 @@
         "Guest I2C controller scans the Grove G26/G32 bus (only the QEMU machine's built-in tmp105 0x48 is present)"
       ],
       "blockers": [
-        "Device-local console evidence covers boot, board id 130, RMT SK6812 output, QMP key-driven button and Grove I2C scan only. PDM microphone capture, IR and Grove Unit protocols remain open; hardware behavior is NOT RUN."
+        "Device-local evidence covers boot, board id 130, RMT SK6812 output, GPIO39 button, Grove I2C scan and virtual PDM capture using silent and two tone inputs. IR, Grove Unit protocols and hardware behavior remain open."
       ],
       "validation": {
         "date": "2026-11-02",

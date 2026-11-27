@@ -662,6 +662,8 @@ def main():
     )
     parser.add_argument("--post-input-wait", type=float, default=0.6)
     parser.add_argument("--pre-input-marker", help="guest readiness marker required before injecting inputs")
+    parser.add_argument("--pre-input-timeout", type=float, default=30.0,
+                        help="maximum seconds to wait for the pre-input marker")
     parser.add_argument("--post-input-marker", help="guest completion marker required before final capture")
     parser.add_argument(
         "--capture-frames",
@@ -768,6 +770,8 @@ def main():
         parser.error(str(error))
     if not math.isfinite(args.before_frame_timeout) or args.before_frame_timeout < 0:
         parser.error("--before-frame-timeout must be finite and nonnegative")
+    if not math.isfinite(args.pre_input_timeout) or args.pre_input_timeout <= 0:
+        parser.error("--pre-input-timeout must be finite and positive")
     if args.preserve_vfs and (args.format_vfs or args.mklittlefs):
         parser.error("--preserve-vfs cannot be combined with a formatting builder")
     efuse_driver = args.efuse_driver or "nvram.esp32s3.efuse"
@@ -896,7 +900,7 @@ def main():
         if args.qom_step:
             time.sleep(args.qom_sequence_settle)
         if args.pre_input_marker:
-            wait_serial_marker(serial, args.pre_input_marker, proc)
+            wait_serial_marker(serial, args.pre_input_marker, proc, args.pre_input_timeout)
         expected = tuple(map(int, args.expected_size.lower().split("x")))
         actual = capture_before_frame(
             qmp, proc, before, expected, timeout=args.before_frame_timeout,

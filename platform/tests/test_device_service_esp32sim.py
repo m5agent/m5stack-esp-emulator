@@ -19,7 +19,7 @@ class Esp32SimTests(unittest.TestCase):
     def test_catalog_selects_native_runtime_only_for_the_migrated_boards(self):
         selected = {name: spec.default_runtime for name, spec in load_device_specs().items()}
         self.assertEqual({name for name, value in selected.items() if value == "esp32sim"},
-                         {"cores3", "cardputer-adv", "m5stick", "stickt2"})
+                         {"cores3", "cardputer-adv", "atomu", "atom-echo", "m5stick", "stickt2"})
         self.assertEqual(selected["tab5"], "qemu")
         self.assertEqual(selected["stopwatch"], "qemu")
         self.assertEqual(set(runtime.BOARDS), set(selected) - {"cardputer-zero"})
