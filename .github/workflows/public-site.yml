@@ -12,7 +12,7 @@ on:
         required: true
         default: false
       reuse_verified_runtimes:
-        description: "Reuse only the pinned full source builds from run 42777985298 (main only)"
+        description: "Reuse only the pinned full source builds from run 45925805446 (main only)"
         type: boolean
         required: false
         default: false
@@ -206,16 +206,24 @@ jobs:
           M5_UIFLOW_FIRMWARE: .work/esp32sim-cores3-stock.bin
           M5_ADV_UIFLOW_FIRMWARE: .work/esp32sim-cardputer-adv-stock.bin
           PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-          FIRMWARE_ARCHIVE: https://raw.githubusercontent.com/m5agent/m5stack-firmware-archive/829cfe6bc14cbdff40b1f4980a5e1ea4f130f66c/devices
+          FIRMWARE_ARCHIVE: https://media.githubusercontent.com/media/m5agent/m5stack-firmware-archive/829cfe6bc14cbdff40b1f4980a5e1ea4f130f66c/devices
         run: |
           set -euo pipefail
-          for item in cores3/display cores3/touch cardputer-adv/display cardputer-adv/keyboard cardputer-adv/button; do
+          while read -r item digest; do
             device=${item%/*}
             example=${item#*/}
             mkdir -p "$M5_DOCS_FIRMWARE/$item"
+            destination="$M5_DOCS_FIRMWARE/$item/$example.ino.merged.bin"
             curl -fsSL --retry 3 "$FIRMWARE_ARCHIVE/$device/arduino-docs/$example/$example.ino.merged.bin" \
-              -o "$M5_DOCS_FIRMWARE/$item/$example.ino.merged.bin"
-          done
+              -o "$destination"
+            printf '%s  %s\n' "$digest" "$destination" | shasum -a 256 -c -
+          done <<'FIRMWARE_FIXTURES'
+          cores3/display 44c7912db911b32efb994e43bbb4ff7164265111e6c5efcfa8867bd86e2ff4c8
+          cores3/touch a3b1a46231ade128d44c0f1394febcadcb236d86d68ab67008fc19ab4be48c27
+          cardputer-adv/display 67bbe34e0e965f6d0491668d45b8007f153ba80be6ab3f8ec2e31e0223ee7972
+          cardputer-adv/keyboard ff5b8b152ba201852ded8684ca517bdf63ea155961ff99e9ff19fad11f4fcf78
+          cardputer-adv/button 00bd60f455a211d68b397e7008ff3c212acb420a0869e2deea5ee6d8ee601e2e
+          FIRMWARE_FIXTURES
           fetch_reference () {
             local device="$1" destination="$2" url digest
             url=$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(p=>p.deviceId===process.argv[1]).reference.url' "$device")
