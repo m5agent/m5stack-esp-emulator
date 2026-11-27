@@ -191,6 +191,15 @@ try{
     let afterSeq=(await events()).at(-1)?.seq||0;
     const controlsBefore=await page.evaluate(()=>buttonControlEvents.length);
     let key=null,domKey=null,pointer=null,downAt,upAt;
+    let pressed=null,released=null,event=null;
+    const waitForPress=()=>observe(row=>row.kind==='state'&&row.button===item.id
+      &&row.pressed===true&&row.seq>afterSeq,`${item.id} pressed`);
+    const holdButton=async()=>{
+      await page.waitForTimeout(holdMs);
+      // The original Atom Matrix guest can advance much more slowly on the
+      // hosted runner. Release its physical input after the guest samples it.
+      if(device==='atom-matrix')pressed=await waitForPress();
+    };
     const canvas=page.locator('#deviceMount .three-device-stage canvas');
     await canvas.scrollIntoViewIfNeeded();
     if(method==='keyboard'){
@@ -204,7 +213,7 @@ try{
         afterSeq=await waitForIdleInputPolling((await events()).at(-1)?.seq||afterSeq,'gpio');
       }
       downAt=performance.now();await page.keyboard.down(domKey);
-      try{await page.waitForTimeout(holdMs);}finally{await page.keyboard.up(domKey);}upAt=performance.now();
+      try{await holdButton();}finally{await page.keyboard.up(domKey);}upAt=performance.now();
     }else if(item.mode==='touch-edges'){
       pointer=await page.evaluate(async({point,origin})=>{
         const {Vector3}=await import(new URL('platform/web/vendor/three/three.module.js',origin));
@@ -224,7 +233,7 @@ try{
       // before input, without counting queued output from startup.
       afterSeq=await waitForIdleInputPolling((await events()).at(-1)?.seq||afterSeq,'touch');
       downAt=performance.now();await page.mouse.down();
-      try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
+      try{await holdButton();}finally{await page.mouse.up();}upAt=performance.now();
     }else{
       pointer=await page.evaluate(findPublicButtonPointerTarget,{componentId:item.component,origin});
       await page.mouse.move(pointer.clientX,pointer.clientY);
@@ -235,7 +244,7 @@ try{
       },pointer);
       assert.ok(verified,`${device}/${item.component} pointer target changed before the real mouse press`);
       downAt=performance.now();await page.mouse.down();
-      try{await page.waitForTimeout(holdMs);}finally{await page.mouse.up();}upAt=performance.now();
+      try{await holdButton();}finally{await page.mouse.up();}upAt=performance.now();
     }
     let modelEvents;
     if(device==='paperdiy'){
@@ -244,9 +253,8 @@ try{
       report.pending_input={id:item.id,method,keyboard:key,dom_key:domKey,pointer,after_seq:afterSeq,
         requested_hold_ms:holdMs,observed_hold_ms:upAt-downAt,model_events:modelEvents};
     }
-    let pressed=null,released=null,event=null;
     if(item.mode==='driver-edges'||item.mode==='touch-edges'){
-      pressed=await observe(row=>row.kind==='state'&&row.button===item.id&&row.pressed===true&&row.seq>afterSeq,`${item.id} pressed`);
+      pressed??=await waitForPress();
       released=await observe(row=>row.kind==='state'&&row.button===item.id&&row.pressed===false&&row.seq>pressed.seq,`${item.id} released`);
     }else event=await observe(row=>row.kind==='event'&&row.button===item.id&&row.seq>afterSeq
       &&['wasPressed','wasClicked','wasHold'].includes(row.method),`${item.id} PMIC event`);
