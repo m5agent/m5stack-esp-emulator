@@ -65,6 +65,44 @@ curl -fsS http://127.0.0.1:8787/api/v1/devices
 
 这个模式不执行固件，也不需要 `.work/`、ROM、eFuse 或参考固件。
 
+## 部署 esp32sim 设备服务
+
+准备 Python 3.12+、Git、稳定版 Rust 和锁定的
+[Espressif ROM ELF 20260528](https://github.com/espressif/esp-rom-elfs/releases/tag/20260528)。
+把需要的 ELF 放在同一目录，执行：
+
+```sh
+python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir "$ESP32SIM_ROM_DIR"
+```
+
+CoreS3 与 Cardputer-ADV 使用 ESP32-S3 ROM。Tab5 还需要
+`esp32p4_rev0_rom.elf`、`esp32p4_rev300_rom.elf` 和 `esp32c6_rev0_rom.elf`，
+以及 [ESP-Hosted 2.0.13 SDIO 从机](https://components.espressif.com/components/espressif/esp_hosted/versions/2.0.13)
+的固定构建。该构建使用 ESP-IDF 5.4.2 并禁用 C6 Bluetooth。使用
+`--with-tab5` 从 [esp32sim 固定运行时发布](https://github.com/m5agent/esp32sim/releases/tag/m5-device-service-20261127)
+下载已验收的从机资产：
+
+```sh
+python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir "$ESP32SIM_ROM_DIR" --with-tab5
+```
+
+离线安装可用 `--tab5-c6-build "$TAB5_C6_WLAN_BUILD"` 替代
+`--with-tab5`，指向精确匹配的 bootloader、partition table、OTA data 与 app
+构建目录。构建来源见 [Tab5 验证配方](https://github.com/m5agent/agent-work-logs/tree/main/records/esp32sim/2026-11-26-tab5-milestone-3/code)。
+
+[运行资产锁](../scripts/esp32sim-runtime.lock.json)校验此版本使用的精确 ELF 和
+C6 构建文件。ESP-IDF 构建时间会改变二进制摘要，因此资产目录必须匹配锁内
+SHA-256。脚本在本地构建并记录 Rust 可执行文件的 SHA-256。资源安装在
+`.work/esp32sim-runtime`，可通过 `--output-dir` 安装到独立目录并以
+`M5_ESP32SIM_RUNTIME_DIR` 指向它。启动前运行 `./start.sh` 的常规依赖检查，
+再查询 `/api/v1/devices/{device_id}` 的分运行时就绪状态。
+
+原生 QEMU 和 Tab5 esp-emu 资源可按下文一同部署。CoreS3/ADV 使用
+`runtime="qemu"` 切回冻结路径，Tab5 也可使用 `runtime="esp-emu"`。
+Tab5 面板沿用 `M5_TAB5_DSI_BOARD` 和 `M5_TAB5_DSI_BOARD_OVERRIDES`，
+未配置时 esp32sim 使用 GT911/ILI9881C。调用示例与能力差异见
+[迁移指南](esp32sim-migration.md)。
+
 ## 部署 QEMU 设备服务
 
 工作台与固件审核可以连接不同的 Device Service。更新后应从审核服务的配置确认它实际使用的后端，再分别核对：

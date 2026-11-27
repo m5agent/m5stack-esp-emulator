@@ -184,16 +184,60 @@ jobs:
         with:
           name: qemu-staging-c61-${{ github.run_attempt }}
           path: .work/qemu-c61-runtime
+      - name: Build the pinned esp32sim runtime
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --target wasm32-unknown-unknown
+          python3 platform/tools/bootstrap_browser_runtime.py --fetch-rom
       - name: Export reviewed browser assets
         env:
           PUBLIC_BASE_PATH: ${{ inputs.base_path }}
           PUBLIC_SERVICE_URL: ${{ inputs.service_url }}
-        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
+        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --browser-runtime .work/browser-runtime --qemu-runtime .work/qemu-browser-runtime --qemu-c61-runtime .work/qemu-c61-runtime --littlefs-runtime .work/browser-littlefs
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Install locked browser acceptance tools
         run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps chromium
+      - name: Verify esp32sim guests in the exported workbench
+        env:
+          PUBLIC_BASE_PATH: ${{ inputs.base_path }}
+          M5_BROWSER_EVIDENCE: .work/public-esp32sim-acceptance
+          M5_DOCS_FIRMWARE: .work/esp32sim-docs-firmware
+          M5_UIFLOW_FIRMWARE: .work/esp32sim-cores3-stock.bin
+          M5_ADV_UIFLOW_FIRMWARE: .work/esp32sim-cardputer-adv-stock.bin
+          PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+          FIRMWARE_ARCHIVE: https://raw.githubusercontent.com/m5agent/m5stack-firmware-archive/829cfe6bc14cbdff40b1f4980a5e1ea4f130f66c/devices
+        run: |
+          set -euo pipefail
+          for item in cores3/display cores3/touch cardputer-adv/display cardputer-adv/keyboard cardputer-adv/button; do
+            device=${item%/*}
+            example=${item#*/}
+            mkdir -p "$M5_DOCS_FIRMWARE/$item"
+            curl -fsSL --retry 3 "$FIRMWARE_ARCHIVE/$device/arduino-docs/$example/$example.ino.merged.bin" \
+              -o "$M5_DOCS_FIRMWARE/$item/$example.ino.merged.bin"
+          done
+          fetch_reference () {
+            local device="$1" destination="$2" url digest
+            url=$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(p=>p.deviceId===process.argv[1]).reference.url' "$device")
+            digest=$(node -p 'require("./platform/web/qemu-browser-profiles.json").profiles.find(p=>p.deviceId===process.argv[1]).reference.sha256' "$device")
+            curl -fsSL --retry 3 "$url" -o "$destination"
+            printf '%s  %s\n' "$digest" "$destination" | shasum -a 256 -c -
+          }
+          fetch_reference cores3 "$M5_UIFLOW_FIRMWARE"
+          fetch_reference cardputer-adv "$M5_ADV_UIFLOW_FIRMWARE"
+          web_root="$PWD/.work/public-site"
+          if [[ "$PUBLIC_BASE_PATH" != / ]]; then
+            mount="$PWD/.work/esp32sim-www${PUBLIC_BASE_PATH%/}"
+            mkdir -p "$(dirname "$mount")"
+            ln -s "$web_root" "$mount"
+            web_root="$PWD/.work/esp32sim-www"
+          fi
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory "$web_root" &
+          server=$!
+          trap 'kill "$server"' EXIT
+          export M5_BROWSER_SITE="http://127.0.0.1:4173$PUBLIC_BASE_PATH"
+          curl -fsS --retry 5 --retry-connrefused "$M5_BROWSER_SITE" -o /dev/null
+          node platform/tests/test_public_esp32sim_guest.mjs
       - name: Verify Canvas observation positive and negative controls
         env:
           M5_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
@@ -234,6 +278,7 @@ jobs:
             .work/public-qemu-corematrix-stock
             .work/wasm-typed-helper-control
             .work/public-qemu-pixel-observer-host-browser
+            .work/public-esp32sim-acceptance
             .work/qemu-browser-runtime/reuse-provenance.json
             .work/qemu-c61-runtime/reuse-provenance.json
           if-no-files-found: ignore

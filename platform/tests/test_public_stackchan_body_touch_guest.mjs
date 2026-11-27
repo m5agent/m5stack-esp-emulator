@@ -73,7 +73,7 @@ try{
   workers=await observeWorkerTargets(browser);page=await browser.newPage({viewport:{width:1200,height:1000}});
   page.on('pageerror',error=>report.errors.push(error.message));let privateRequests=0;
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>{privateRequests++;return route.abort('blockedbyclient');});
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  await page.goto(new URL('?engine=qemu-wasm',origin).href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   check('cross-origin-isolated',await page.evaluate(()=>crossOriginIsolated));
   await page.evaluate(async origin=>{

@@ -264,6 +264,13 @@ print("Hello, UIFlow!")
               <option value="service">连接仿真服务</option>
               <option value="model">仅浏览模型</option>
             </select>
+            <div id="browserEngineFields" hidden>
+              <label class="public-label" for="browserEngine">浏览器内核</label>
+              <select class="public-field" id="browserEngine">
+                <option value="esp32sim">esp32sim</option>
+                <option value="qemu-wasm">QEMU-WASM</option>
+              </select>
+            </div>
           </details>
           <div id="browserAudioSetting" hidden>
             <label><input id="browserAudioOptIn" type="checkbox" aria-describedby="browserAudioHelp" /> 播放本次模拟器音频</label>

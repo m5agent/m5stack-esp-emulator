@@ -6,6 +6,8 @@
 
 | 文档 | 职责 | 最近核对 | 范围 |
 | --- | --- | --- | --- |
+| [QEMU 后端封存记录](qemu-backend-freeze.md) | 运行时封存 | `2026-11-26` | 封存提交与标签、rollout 与二进制哈希、保留内容、重启步骤；不改变既有验证结论 |
+| [esp32sim 后端迁移计划](plans/2026-11-26-esp32sim-migration.md) | 迁移计划 | `2026-11-26` | 阶段、参考来源取舍、CoreS3 判定门槛、风险；草案，未进入 Backlog |
 | [review-sta 驱动初始化与条件步骤证据](evidence/2026-11-25-review-sta-activity/README.md) | 证据摘要 | `2026-11-25` | `wifi_initialized` 判定 NOT_USED、0.0.0.0 非出站、`until=joined` 条件步骤；Bruce CN 与 CardOS 入网，Monster DHCP 未请求仍开放；不含物理 RF |
 | [便携 review-sta 控制固件证据](evidence/2026-11-24-review-sta-portable/README.md) | 证据摘要 | `2026-11-24` | 8 款板卡 review-sta 正负控、setup 输入、离线与 pcap 隔离；不含原版应用与物理 RF |
 | [S3-watch 原版 WPA2 对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) | 实现设计 | `2026-11-23` | StickS3 原生 Wi-Fi 控制器、隔离对端、正负控与只读 HTTP |
@@ -254,6 +256,7 @@
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
 | [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [FlashLight cold-route四host](evidence/2026-10-29-flashlight-cold-route-four-host/README.md) | 当前 Unit 冷启动证据 | `2026-10-29` | `0047/e318` 在 CoreS3/AtomS3R/StickS3/StopWatch 用原厂constructor、100%/220ms Flash和Run替换，从`ready-low`到`flash-active`再回`ready-low`；actual QOM mounted replay PASS，实时Web、动态S1/PWM/光电/热/真机不继承 |
+| [esp32sim 迁移指南](esp32sim-migration.md) | 调用与部署指南 | `2026-11-27` | 三台设备的运行时选择、输入、API 差异与证据边界 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-11-24` | HTTP 与 OpenAPI，对应 Device Service 1.102.0 |
 | [Tab5 ST7123 单点拖动](evidence/2026-11-17-tab5-st7123-drag/README.md) | 原生来宾证据 | `2026-11-17` | 来宾正反向轨迹、释放以及原版回归 |
 | [Tab5 ST7123 关机锁存](evidence/2026-11-17-tab5-power-latch/README.md) | 原生来宾证据 | `2026-11-17` | 原版关机脉冲、EN、重启和 ZIP 取证 |

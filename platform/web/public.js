@@ -4,14 +4,15 @@ import {composeUIFlowWorkbenchFirmware,loadUIFlowWorkbenchProfiles,getUIFlowWork
 import {openQemuPeerPair,newQemuPeerCode} from './public-qemu-peer-pair.js';
 import {GNSS_EXAMPLE_ID,supportsQemuGnssWorkbench} from './public-qemu-gnss-example.js';
 import {PublicMicroPythonRunner} from './public-micropython.js';
-import {assetUrl, siteRoot, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
+import {assetUrl, siteRoot, resolveDevice, parseLaunchConfig, buildShareUrl, normalizeServiceUrl, selectExecutionLane} from './public-config.js';
 import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES, sha256Buffer} from './public-firmware.js';
 import {loadVerifiedRuntimeAsset} from './public-verified-assets.js';
 import {PublicDeviceService, deviceIdentityCapability} from './public-service.js';
-import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
+import {PublicBrowserRuntime, getBrowserProfile, getBrowserReference} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {DUAL_KMETER_EXAMPLE_ID,dualKmeterExampleSource} from './public-qemu-unit-examples.js';
 import {CORES3_MIC_FIRMWARE_SHA,CORES3_WAV_SHA,CORES3_WAV_SD_SHA} from './public-qemu-audio.js';
+import {createBrowserAudioPlayer} from './public-browser-audio.js';
 import {createQemuAudioPlayer} from './public-qemu-audio-player.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
 import {loadQemuBrowserProfiles,getQemuBrowserProfile,resolveQemuFirmwareProfile,advanceQemuEncoderTarget,supportsQemuCc1101Workbench,validCc1101PeerFrame,supportsQemuSx1262Workbench,validSx1262PeerPacket,qemuSx1262ReceiveArmed} from './public-qemu-profiles.js';
@@ -110,7 +111,8 @@ function error(error) {
 function browserProfile(id) {
   if (state.config.browser_board_execution !== true || state.browserUnavailableReason) return null;
   if (state.config.browser_runtime_engine === 'qemu-wasm') return state.qemuProfiles ? getQemuBrowserProfile(id,state.qemuProfiles,{allowCandidateProfiles:state.config.publication_eligible===false}) : null;
-  return getBrowserProfile(id);
+  const profile = getBrowserProfile(id);
+  return state.config.browser_esp32sim_profiles?.includes(profile?.board) ? profile : null;
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
@@ -149,12 +151,10 @@ function reference(device = state.selected) {
         sha256:WALLCLOCK_DEMO_FIRMWARE.firmwareSHA256};
     return {name:'CoreS3 LVGL + PIR（原始程序，正常时钟）',composed:true,sha256:DEMO_FIRMWARE.firmwareSHA256};
   }
-  return (
-    (state.config.browser_runtime_engine !== 'qemu-wasm' && device?.browser?.reference) ||
-    (device?.uiflow2?.firmware?.download_url
-      ? {url: device.uiflow2.firmware.download_url, name: `UIFlow2 ${device.uiflow2.firmware.version}`}
-      : null)
-  );
+  const firmware = device?.uiflow2?.firmware;
+  if (profile?.referenceSha256) return getBrowserReference(device,profile);
+  return (state.config.browser_runtime_engine !== 'qemu-wasm' && device?.browser?.reference)
+    || (firmware?.download_url ? {url:firmware.download_url, name:`UIFlow2 ${firmware.version}`} : null);
 }
 function serviceProgrammingDevice(id=state.selected?.id) {
   return state.serviceDevices.some(row=>row.device_id===id&&row.creatable&&row.program_modes?.includes('uiflow-live'));
@@ -169,7 +169,8 @@ function serviceCloudIdentity(id=state.selected?.id) {
 }
 function updateReferenceDefault() {
   if (!state.referenceExplicit && source()==='reference' && !$('firmwareSha').value.trim())
-    $('referenceExample').value=serviceCloudStartup()&&!['browser','model'].includes($('runtimeMode').value)?'uiflow-cloud':'uiflow';
+    $('referenceExample').value=serviceCloudStartup()&&!['browser','model'].includes($('runtimeMode').value)
+      && !($('runtimeMode').value==='auto' && browserProfile(state.selected?.id)?.referenceSha256)?'uiflow-cloud':'uiflow';
 }
 function selectedAttachments() {
   try {
@@ -193,6 +194,7 @@ function lane(device = state.selected) {
     return mode!=='service'&&reference(device)?.sx1262Example&&!selectedAttachments().length?'browser':null;
   if (source()==='reference' && $('referenceExample').value==='uiflow-cloud' && mode!=='model')
     return mode!=='browser'&&serviceCloudStartup(device?.id)?'service':null;
+  if (mode === 'auto' && browserProfile(device?.id)?.referenceSha256 && !selectedAttachments().length) return 'browser';
   const serviceReady = state.serviceDevices.some((item) => item.device_id === device?.id && item.creatable);
   return selectExecutionLane({mode,serviceReady,browserAvailable:!!browserProfile(device?.id),
     hasAttachments:selectedAttachments().length>0});
@@ -394,7 +396,7 @@ function status(status, detail, session = state.run?.controller?.current) {
   updatePythonControls(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
-  $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
+  $('nativeScreenBtn').hidden = !(state.run?.controller?.profile?.display && (state.run.controller instanceof PublicQemuRuntime || state.run.controller instanceof PublicBrowserRuntime));
   $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
   updateBrowserUnitExample(state.run);
@@ -529,6 +531,7 @@ async function runPython() {
   }
 }
 function browserAudioExample() {
+  if (browserProfile(state.selected?.id)?.referenceSha256 && lane() === 'browser') return 'speaker';
   if (state.config.browser_cores3_audio !== true || state.selected?.id !== 'cores3' || lane() !== 'browser') return null;
   if (source() === 'reference' && $('referenceExample').value === 'uiflow' && reference()?.sha256 === CORES3_MIC_FIRMWARE_SHA) return 'mic';
   if (source() === 'local' && state.config.browser_sd_examples?.some(row =>
@@ -618,7 +621,7 @@ function updateCapability() {
   $('browserAudioSetting').hidden = !audioExample;
   $('browserAudioOptIn').disabled = state.busy;
   if (!audioExample) $('browserAudioOptIn').checked = false;
-  $('browserAudioHelp').textContent = audioExample === 'mic'
+  $('browserAudioHelp').textContent = audioExample === 'speaker' ? '播放虚拟设备扬声器的 PCM 输出。' : audioExample === 'mic'
     ? '仅原始官方麦克风 Python 例程使用合成测试音。'
     : '需要原始 Arduino WAV 固件和匹配的示例 microSD 素材。';
   $('addSelectedUnitBtn').disabled=!state.selectedUnit||state.busy||!!state.run;
@@ -663,8 +666,8 @@ function renderDetails() {
   const range=qemu
     ? profile?(workbench?'浏览器本地运行 · MicroPython 编程':'浏览器候选预览 · 屏幕与按键示例')
       : device.visual_only||device.browser_only?'当前浏览器仅供模型预览':'浏览器尚未准入；需连接支持本型号的仿真服务'
-    : legacy?.description||device.runtime?.execution||'独立视觉模型';
-  const limits=[...(legacy?.limitations||[]),...(device.runtime?.blockers||[])];
+    : profile?.referenceSha256 ? 'esp32sim · 浏览器本地运行' : legacy?.description||device.runtime?.execution||'独立视觉模型';
+  const limits=[...(profile?.limitations||legacy?.limitations||[]),...(device.runtime?.blockers||[])];
   if(qemu&&device.browser_only&&!profile)limits.unshift('此型号的旧浏览器演示不属于当前运行内核，当前站点不提供其固件运行。');
   if(qemu&&profile)limits.unshift('完整 UIFlow2 API、任意固件及物理硬件行为未验证。');
   if(qemu&&profile&&['stopwatch','sticks3','papercolor','papermono'].includes(device.id))
@@ -694,7 +697,7 @@ function renderDetails() {
           ? !cc1101Available(profile,workbench,cc1101Roles.get(option.value)) : sx1262Examples.has(option.value)
             ? !sx1262Available(profile,workbench,option.value) : ['wallclock-candidate','stock-div8'].includes(option.value)&&device?.id!=='cores3';
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
-  $('referenceDescription').textContent = ref?.nativeCloud
+  $('referenceDescription').textContent = ref?.limit || (ref?.nativeCloud
     ? '保留官方 UIFlow2 开机流程，在原生服务中联网申请配对码。请在设备屏幕查看云端返回的配对码。'
     : ref?.nativeWorkbench
     ? '通过当前服务运行 MicroPython，Unit、屏幕和网页代码共用同一设备会话。此编程启动环境不运行官方云端配对界面。'
@@ -728,7 +731,7 @@ function renderDetails() {
       || '点击模型上的按键或触摸屏，观察设备屏幕中的计数变化。')
     : ref
     ? '已为当前设备选择对应固件。也可以使用自己的链接或本地文件。'
-    : '请选择固件链接或本地 .bin 文件。';
+    : '请选择固件链接或本地 .bin 文件。');
 }
 function sourceChanged() {
   for (const [name, value] of [
@@ -880,7 +883,7 @@ async function deliverInput(command, original = {}) {
   if (!active(run) || state.busy) return;
   try {
     if (run.kind === 'browser') {
-      if (command.type==='touch' && run.controller instanceof PublicQemuRuntime && !run.controller.profile?.inputs.touch) return;
+      if (command.type==='touch' && (run.controller.profile?.inputs?.touch === false || run.controller instanceof PublicQemuRuntime && !run.controller.profile?.inputs?.touch)) return;
       if (command.type === 'reset') {closeBrowserRadioPair(run);await releaseInputs(run);}
       if (command.type === 'capacitive-touch') {
         const key = `capacitive-touch-${command.zone}`;
@@ -1090,9 +1093,9 @@ function applyBrowserPresentation(value, run = state.run) {
     delete panel.dataset.orientation;
     delete panel.dataset.portraitRotationDeg;
   }
-  // Orientation arrives through QMP independently of shared-frame updates.
+  // Panel orientation can arrive independently of frame updates.
   // Repaint retained real pixels when static glass needs a new presentation.
-  const frame = run.controller instanceof PublicQemuRuntime ? run.controller.lastFrame : null;
+  const frame = run.controller.lastFrame;
   if (frame) {
     const canvas=$('rawFrameCanvas');
     if (rotationChanged||canvas.width!==(portrait?frame.height:frame.width)||canvas.height!==(portrait?frame.width:frame.height))
@@ -1101,9 +1104,9 @@ function applyBrowserPresentation(value, run = state.run) {
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
-  if (state.config.browser_runtime_engine==='qemu-wasm' || state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
+  if (state.config.browser_runtime_engine==='qemu-wasm' || run.controller instanceof PublicBrowserRuntime) {
     const canvas = $('rawFrameCanvas');
-    const portrait = run.controller instanceof PublicQemuRuntime && run.controller.display?.orientation === 'portrait';
+    const portrait = run.controller.display?.orientation === 'portrait';
     canvas.width = portrait ? frame.height : frame.width;
     canvas.height = portrait ? frame.width : frame.height;
     const context = canvas.getContext('2d'),
@@ -1128,7 +1131,7 @@ function applyBrowserFrame(frame, run) {
       }
       context.putImageData(rotated, 0, 0);
     }
-    const touch=!(run.controller instanceof PublicQemuRuntime)||run.controller.profile?.inputs.touch;
+    const touch=run.controller.profile?.inputs?.touch !== false;
     $('rawFrameDescription').textContent = portrait
       ? `竖屏应用 · ${frame.height} × ${frame.width} · 设备视图已同步旋转`
       : `完整 ${frame.width} × ${frame.height} 固件帧 · ${touch?'支持触摸':'请使用设备按键'}`;
@@ -1240,9 +1243,9 @@ async function startRun(audio) {
         onState: (value) => {
           if (active(run)) {
             applyBrowserPresentation(value);
+            if (value.boot || run.controller instanceof PublicBrowserRuntime && value.runtime) updateFirmwareIdentity(value.runtime);
             if(value.boot) {
               updateBrowserBoot(value);
-              updateFirmwareIdentity(value.runtime);
               const playback = value.runtime?.audio?.playback;
               if (playback === 'unavailable') message('browserAudioStatus','当前浏览器未能启动音频输出。');
             }
@@ -1264,8 +1267,8 @@ async function startRun(audio) {
         run.sx1262Example?{sx1262Example:run.sx1262Example}:{};
       await run.controller.start({device: state.selected.id,firmware:loaded.bytes,signal:abort.signal,...gnssOptions,...radioOptions,
         ...(run.dualKmeterSource ? {unitExample:DUAL_KMETER_EXAMPLE_ID} : {}),
-        ...(audio && run.controller instanceof PublicQemuRuntime ? {audio} : {})});
-      if (audio && active(run) && !run.controller.receipt?.audio) {
+        ...(audio ? {audio} : {})});
+      if (audio && active(run) && run.controller instanceof PublicQemuRuntime && !run.controller.receipt?.audio) {
         message('browserAudioStatus','本次固件和素材未匹配已验证的声音示例。');
       }
     } else {
@@ -1593,6 +1596,8 @@ async function share() {
       },
       new URL(root),
     );
+    if (state.config.browser_qemu_available && state.config.browser_esp32sim_profiles?.length &&
+        state.config.browser_runtime_engine === 'qemu-wasm') url.searchParams.set('engine','qemu-wasm');
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(url);
       $('shareStatus').textContent =
@@ -1632,10 +1637,43 @@ async function init() {
     json(assetUrl('platform/web/browser-profiles.json'), {devices: []}),
     json(assetUrl('platform/web/site-config.json'), {}),
   ]);
+  const engines = $('browserEngine');
+  const params = new URLSearchParams(location.search);
+  const mixed = config.browser_qemu_available && config.browser_esp32sim_profiles?.length;
+  if (mixed) {
+    let engine = params.get('engine');
+    if (!['qemu-wasm', 'esp32sim'].includes(engine)) {
+      engine = 'esp32sim';
+      // Existing links to QEMU-only boards keep their browser engine.
+      const requested = params.get('device');
+      let row;
+      try { if (requested) row = resolveDevice(requested, catalog); }
+      catch { /* The launch parser reports an unknown device below. */ }
+      if (row && !config.browser_esp32sim_profiles.includes(getBrowserProfile(row.id)?.board)) {
+        try {
+          const registry = await loadQemuBrowserProfiles({root});
+          if (getQemuBrowserProfile(row.id, registry)) {
+            state.qemuProfiles = registry;
+            engine = 'qemu-wasm';
+          }
+        } catch { /* The model and service lanes still work without QEMU. */ }
+      }
+    }
+    config.browser_runtime_engine = engine;
+    $('browserEngineFields').hidden = false;
+    engines.value = config.browser_runtime_engine;
+    engines.addEventListener('change', () => {
+      const url = new URL(location.href);
+      url.searchParams.set('engine',engines.value);
+      if (state.selected) url.searchParams.set('device',state.selected.id);
+      url.searchParams.set('autostart','0');
+      location.assign(url);
+    });
+  }
   state.config = config;
   if (config.browser_runtime_engine === 'qemu-wasm') {
     try {
-      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
+      [state.qemuProfiles,state.workbenchProfiles]=await Promise.all([state.qemuProfiles || loadQemuBrowserProfiles({root}),loadUIFlowWorkbenchProfiles({root})]);
       const isolation = await ensurePublicIsolation({root});
       if (isolation.reloading) return;
     } catch (cause) {
@@ -1684,8 +1722,7 @@ async function init() {
   $('unitCount').textContent = `${state.units.length} 个 Unit 模型`;
   $('catalogChip').textContent = `${state.devices.length} DEVICES / ${state.units.length} UNITS`;
   let launch;
-  const params = new URLSearchParams(location.search);
-  if (!params.has('device')) params.set('device', config.browser_runtime_engine === 'qemu-wasm' ? 'cores3' : config.browser_board_execution ? 'stopwatch' : 'cores3');
+  if (!params.has('device')) params.set('device', config.browser_esp32sim_profiles?.[0] === 'papers3' ? 'stopwatch' : 'cores3');
   try {
     launch = parseLaunchConfig(params.toString(), state.devices);
   } catch (cause) {
@@ -1771,7 +1808,7 @@ $('startBtn').addEventListener('click', () => {
   const request = $('browserAudioOptIn').checked ? browserAudioExample() : null;
   let player, unavailable = false;
   if (request) {
-    try { player = createQemuAudioPlayer(); } catch { unavailable = true; }
+    try { player = request === 'speaker' ? createBrowserAudioPlayer() : createQemuAudioPlayer(); } catch { unavailable = true; }
   }
   void startRun(player ? {request,player} : undefined).catch(error).finally(() => {
     if (player && state.run?.controller?.audioPlayer !== player) player.close();

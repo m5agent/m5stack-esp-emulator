@@ -116,24 +116,70 @@ class BrowserSite:
             "coi-serviceworker.js", "platform/web/index.html",
             "platform/web/site-config.json", "platform/web/browser-profiles.json",
             "platform/web/qemu-browser-profiles.json", "platform/web/uiflow-workbench-profiles.json",
-            "platform/runtime/littlefs/manifest.json", "platform/runtime/littlefs/littlefs.mjs",
-            "platform/runtime/littlefs/littlefs.wasm",
         }
-        for runtime_dir, target in (("qemu", "xtensa"), ("qemu-c61", "riscv32")):
-            prefix = f"platform/runtime/{runtime_dir}/"
-            required.add(prefix + "runtime.json")
-            required.update(prefix + f"qemu-system-{target}{suffix}" for suffix in (".js", ".worker.js", ".wasm"))
         if missing := required - assets:
             raise ValueError(f"browser site is missing {', '.join(sorted(missing))}")
         config = json.loads((self.root / "platform/web/site-config.json").read_bytes())
         if (
             not isinstance(config, dict)
             or config.get("browser_board_execution") is not True
-            or config.get("browser_runtime_engine") != "qemu-wasm"
+            or config.get("browser_runtime_engine") not in ("qemu-wasm", "esp32sim")
             or config.get("publication_eligible") is not True
             or config.get("service_url") != ""
         ):
-            raise ValueError("expected an exported QEMU browser site with an empty service URL")
+            raise ValueError("expected an exported browser site with an empty service URL")
+        engine = config["browser_runtime_engine"]
+        qemu = config.get("browser_qemu_available", engine == "qemu-wasm")
+        if type(qemu) is not bool or (engine == "qemu-wasm" and not qemu):
+            raise ValueError("invalid browser QEMU availability")
+        required = set()
+        if qemu:
+            required.update("platform/runtime/littlefs/" + name
+                            for name in ("manifest.json", "littlefs.mjs", "littlefs.wasm"))
+            qemu_targets = [("qemu", "xtensa")]
+            c61_prefix = "platform/runtime/qemu-c61/"
+            if engine == "qemu-wasm" or any(name.startswith(c61_prefix) for name in assets):
+                qemu_targets.append(("qemu-c61", "riscv32"))
+            else:
+                registry = json.loads((self.root / "platform/web/qemu-browser-profiles.json").read_bytes())
+                qemu_profiles = registry.get("profiles") if isinstance(registry, dict) else None
+                if not isinstance(qemu_profiles, list) or any(not isinstance(row, dict) for row in qemu_profiles):
+                    raise ValueError("invalid mixed export QEMU profiles")
+                if any(row.get("target") == "riscv32-softmmu" for row in qemu_profiles):
+                    qemu_targets.append(("qemu-c61", "riscv32"))
+            for runtime_dir, target in qemu_targets:
+                prefix = f"platform/runtime/{runtime_dir}/"
+                required.add(prefix + "runtime.json")
+                required.update(prefix + f"qemu-system-{target}{suffix}"
+                                for suffix in (".js", ".worker.js", ".wasm"))
+        profiles = config.get("browser_esp32sim_profiles", [])
+        if engine == "esp32sim":
+            if (not isinstance(profiles, list) or not profiles
+                    or any(not isinstance(name, str) or not name for name in profiles)):
+                raise ValueError("expected advertised esp32sim browser profiles")
+            found = []
+            for directory in ("esp32sim", "esp32sim-legacy"):
+                prefix = f"platform/runtime/{directory}/"
+                if not any(name.startswith(prefix) for name in assets):
+                    continue
+                runtime_path = prefix + "runtime.json"
+                if runtime_path not in assets:
+                    raise ValueError(f"browser site is missing {runtime_path}")
+                runtime = json.loads((self.root / runtime_path).read_bytes())
+                declared = runtime.get("profiles") if isinstance(runtime, dict) else None
+                if (not isinstance(declared, list) or not declared
+                        or any(not isinstance(name, str) or not name for name in declared)):
+                    raise ValueError(f"invalid {directory} runtime profiles")
+                found.extend(declared)
+                required.update(prefix + name for name in (
+                    "esp32sim.wasm", "esp32s3_rev0_rom.elf", "LICENSE", "ROM_LICENSE", "NOTICE",
+                ))
+            if sorted(found) != sorted(set(profiles)) or len(set(profiles)) != len(profiles):
+                raise ValueError("esp32sim browser profiles do not match its runtime manifests")
+        elif profiles:
+            raise ValueError("QEMU-only export advertises esp32sim profiles")
+        if missing := required - assets:
+            raise ValueError(f"browser site is missing {', '.join(sorted(missing))}")
         self.assets = frozenset(assets)
 
 

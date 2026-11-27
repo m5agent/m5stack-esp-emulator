@@ -120,7 +120,7 @@ try{
   report.browser=browser.version();
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  await page.goto(new URL('?engine=qemu-wasm',origin).href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated,{}, {timeout:45000});
   await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.evaluate(async({device,origin})=>{

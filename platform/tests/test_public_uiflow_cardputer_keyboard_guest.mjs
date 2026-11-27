@@ -122,7 +122,7 @@ try{
   page=await browser.newPage({viewport:{width:1440,height:1100}});cdp=await page.context().newCDPSession(page);
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
-  await page.goto(origin,{waitUntil:'domcontentloaded'});
+  await page.goto(new URL('?engine=qemu-wasm',origin).href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.evaluate(async({origin,device})=>{
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin));

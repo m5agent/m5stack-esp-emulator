@@ -1,43 +1,40 @@
-# Browser execution glue
+# esp32sim browser execution glue
 
-These four ES modules are copied without modification from
-[`zhuzhe1983/esp-online-tester`](https://github.com/zhuzhe1983/esp-online-tester/tree/3cd3db3b7202e9fc559328c7247c11134c0437f9),
-an MIT fork of [`mikroverk/esp32sim`](https://github.com/mikroverk/esp32sim).
-`source.json` pins the exact commit, source paths, byte counts and SHA-256 of
-every copied file. `LICENSE` preserves the upstream copyright and permission.
-This is a different emulator from the older `platform/runtime/wasm/esp_emu.js`.
+The four ES modules and MIT license in this directory are exact copies from the
+[M5Stack esp32sim fork](https://github.com/m5agent/esp32sim/tree/3e90d09bd31b5658d8dd2b6fc5d820da5f293489).
+The `m5-device-service-20261127` tag integrates the browser API and the native
+board models. The browser API descends from the CoreS3 and Cardputer-ADV milestone
+`76e8b35710d1879e073f73c4a03bd11b216fb95f`. It adds Web protocol commands for
+physical keyboard edges and PMIC power presses, queue acknowledgements, resume,
+and ADV presentation rotation. The existing `esp32sim_in_text` WASM export
+dispatches input through the board model. The Worker publishes panel RGB565,
+console bytes and speaker PCM.
 
-The glue runs the Rust emulator in a module Worker. `public-browser-runtime.js`
-admits only the PaperS3 and StopWatch board profiles. It supplies firmware bytes,
-loads the S3 ROM, and receives serial and RGB565 output from the emulated board
-controllers. StopWatch uses the interpreter because the upstream V0.5 IMU path
-has a known JIT non-response. These profiles are partial; native QEMU board,
-UIFlow2, Unit, networking and hardware results do not transfer to this backend.
-
-Build from the fixed source commit with the fixed compiler:
+`legacy/` preserves the exact previously reviewed sources from
+[esp-online-tester](https://github.com/zhuzhe1983/esp-online-tester/tree/3cd3db3b7202e9fc559328c7247c11134c0437f9)
+for PaperS3 and StopWatch. The milestone fork lacks the PaperS3 board. Keeping
+both legacy boards on their original pin also preserves StopWatch's interpreter
+configuration for the V0.5 IMU example. Each `source.json` records the source
+paths, byte counts and SHA-256 values of its modules and license.
 
 ```sh
 rustup toolchain install 1.99.1 --profile minimal --target wasm32-unknown-unknown
 python3 platform/tools/bootstrap_browser_runtime.py --fetch-rom
-python3 platform/tools/build_public_site.py \
-  --base-path /m5stack-esp-emulator/ \
-  --browser-runtime .work/browser-runtime
+python3 platform/tools/bootstrap_browser_runtime.py --legacy --fetch-rom
+python3 platform/tools/build_public_site.py --output .work/browser-site \
+  --browser-runtime .work/browser-runtime \
+  --legacy-browser-runtime .work/browser-runtime-legacy
 ```
 
-The bootstrap uses an exact Git archive in a clean temporary directory,
-`Cargo.lock`, offline Cargo resolution, and the upstream production flags. It
-writes the WASM, reviewed Espressif ROM and provenance into ignored `.work/`.
-No firmware is fetched. The site export verifies each runtime file against its
-manifest before copying it into the deployment artifact. ROM and WASM binaries
-must not be added to source Git. `--rom` can supply an existing matching S3 ROM
-ELF instead of downloading the pinned Espressif release archive.
+The bootstrap uses a clean Git archive, `Cargo.lock`, offline Cargo resolution
+and fixed production compiler flags. If Cargo's dependency cache is empty, run
+`cargo +1.99.1 fetch --locked --target wasm32-unknown-unknown` in the matching
+source checkout first. `--rom` accepts an existing ELF with the reviewed SHA-256.
+The build writes the runtime, reviewed ROM and their receipts to ignored storage.
+The optional `--diagnostic-wasm` path is limited to the old deployed WASM and
+requires explicit diagnostic export. Firmware stays outside the export.
 
-`--diagnostic-wasm` is a separate, explicitly labelled path for the reviewed
-deployed binary. It does not claim a source build; exporting it additionally
-requires `--allow-diagnostic-runtime`. Ordinary checkout tests use offline
-fixtures and do not require `.work` runtime caches.
-
-The adapter does not save mutable Flash or SD contents. Reset creates a fresh
-guest from the original input bytes. Application readiness requires observed
-serial/frame/input results; the Worker `started` response only proves that CPU
-execution was started. Neither category proves physical hardware behavior.
+The browser Worker uses ordinary WebAssembly memory. Input receipts confirm
+queueing. Serial and controller frames establish what the guest did. Reset
+reopens the original Flash bytes and stops the previous Worker. Session Flash
+contents do not persist across runs.

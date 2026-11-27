@@ -261,7 +261,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     ),
                     reference_path=qemu_reference,
                 )
-            specs[device_id] = spec
+            # This hermetic fixture substitutes the frozen QEMU executables.
+            specs[device_id] = replace(spec, default_runtime="qemu")
         self.service = DeviceService(
             state_dir=Path(self.tmp.name),
             max_sessions=2,
@@ -921,7 +922,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertFalse(spec.backend_ready)
         self.assertEqual(spec.missing_backend_files, [ROOT / configured])
         self.service.specs["cores3"] = spec
-        self.assertEqual(self.service.get_device("cores3")["missing_runtime_files"], [configured.as_posix()])
+        self.assertFalse(self.service.get_device("cores3")["runtimes"]["qemu"]["backend_ready"])
 
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)

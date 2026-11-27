@@ -46,7 +46,7 @@ const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(d
   .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
 async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,
-  browserEnabled=true,runtimeEngine='qemu-wasm',legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
+  browserEnabled=true,runtimeEngine='qemu-wasm',qemuAvailable=false,legacyProfile=null,browserDevices=[],visualProducts=visualCandidates,
   deviceCatalog=catalog,qemuRegistry=registry,serviceRows=null,
   exampleSourceLoader,cc1101Examples,sx1262Examples,dualKmeterExample,peerFactory,
   isolation={isolated:true,reloading:false}}={}){
@@ -80,7 +80,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(deviceCatalog));
     if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualProducts}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:browserDevices}));
-    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_board_execution:browserEnabled,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples,browser_dual_kmeter_example:dualKmeterExample}));
+    if(url.endsWith('site-config.json'))return new Response(JSON.stringify({service_url:siteServiceUrl,browser_runtime_engine:runtimeEngine,browser_qemu_available:qemuAvailable,browser_board_execution:browserEnabled,browser_esp32sim_profiles:legacyProfile?[legacyProfile.board||legacyProfile.deviceId]:[],publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample,browser_cc1101_examples:cc1101Examples,browser_sx1262_examples:sx1262Examples,browser_dual_kmeter_example:dualKmeterExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
@@ -95,7 +95,7 @@ async function entry({search='',pageUrl=pageRoot,siteServiceUrl='',isolationErro
     },
     createPublicUnitAssembly:async()=>({attachments:()=>[]}),
     loadUIFlowWorkbenchProfiles:options=>uiflowFirmware.loadUIFlowWorkbenchProfiles({...options,fetchImpl:fetchFixture}),
-    getBrowserProfile:id=>legacyProfile?.deviceId===id?legacyProfile:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
+    getBrowserProfile:id=>legacyProfile?.deviceId===id?{board:id,...legacyProfile}:null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
     loadQemuBrowserProfiles:options=>qemuProfiles.loadQemuBrowserProfiles({...options,fetchImpl:fetchFixture}),
   });
   if(exampleSourceLoader)dependencies.loadVerifiedRuntimeAsset=exampleSourceLoader;
@@ -133,6 +133,19 @@ for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavail
 }
 const navigation=await entry({isolation:{isolated:false,reloading:true}});
 assert.deepEqual(navigation.events,['registry','isolation'],'a first-load isolation navigation must not accept firmware or start execution');
+
+const mixedExport={runtimeEngine:'esp32sim',qemuAvailable:true,
+  legacyProfile:{deviceId:'cores3',board:'m5stack-cores3',display:{width:320,height:240}}};
+for (const [query, engine] of [
+  ['device=cores3','esp32sim'],
+  ['device=atom-matrix','qemu-wasm'],
+  ['device=cores3&engine=qemu-wasm','qemu-wasm'],
+  ['device=atom-matrix&engine=esp32sim','esp32sim'],
+]) {
+  const app=await entry({...mixedExport,search:`?${query}&mode=browser&autostart=0`});
+  assert.equal(app.state.config.browser_runtime_engine,engine);
+  assert.equal(app.events.includes('isolation'),engine==='qemu-wasm');
+}
 
 const localService=await entry({pageUrl:'http://127.0.0.1:8787/platform/web/',siteServiceUrl:'http://127.0.0.1:8787',search:'?device=cardputer-adv&autostart=0'});
 assert.equal(localService.element('serviceUrl').value,'http://127.0.0.1:8787');

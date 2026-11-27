@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-11-24`
+日期：`2026-11-26`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,102 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-11-27：esp32sim 三板原生与浏览器回归
+
+**Native Device Service，virtual-device validation。** 固定 esp32sim
+`3e90d09bd31b5658d8dd2b6fc5d820da5f293489`。S3 二进制 SHA-256
+`97656bcf202e92af78623abf553fb92a8af8bc5547e44e1af39590e0283eba82`，
+P4 二进制 `fca8f10c4f82a717c36fc435667b716552fa37fc60167d103298bccf564271a7`。
+通过 `/api/v1` 上传、创建会话、发送设备输入、取帧和证据 ZIP 后以
+`purge=0` 停止。ROM 和 C6 资产见[运行资产锁](../scripts/esp32sim-runtime.lock.json)。
+
+| 固件路径 | 归一化 Flash SHA-256 | 观察 |
+| --- | --- | --- |
+| CoreS3 Touch | `a3b1a46231ade128d44c0f1394febcadcb236d86d68ab67008fc19ab4be48c27` | 点 `(113,95)` 后帧变化，随后释放 |
+| Cardputer-ADV Keyboard | `c10160184212e0c834ae88a44468c9cd022c1496fd27f731a8007c50e4a6ef63` | 键盘 `a`、`b` 后屏幕变化 |
+| Tab5 UIFlow2 v2.5.4 | `507f2aeeddfdd71357c019122cc76785b710ba24a4dc3adeb840d61c9ee8b1a7` | ST7123 上两个后端都显示离线首页，触点 `(83,755)` 打开 ADC |
+| Tab5 Maker Fighter 1.4 | `4da826b590d879ccb7728b20257c1847a8093868eb2752600994f1242438bdeb` | GT911 esp32sim 接入 gamepad，发送 Start 和中性 HID 报告后见 ARCADE、TRAINING。esp-emu 对照超时，无可用来宾帧 |
+| Tab5 Touch Arduino | `febee8f025c1af01f80142af7632850a8eb15b583b2ce3121ad31f594e54fe82` | GT911 esp32sim 按住 `(360,640)` 后帧变化。现有 esp-emu 参考路径对照未取得来宾帧 |
+| Tab5 Wi-Fi STA | `3d73773427725f3b0f69f730e317b98c650ed5879bf5ccd59ab972ea28b0fdf1` | ESP-Hosted 2.0.13 的 C6 经 SDIO 将关联与 DHCP 地址送至 P4 例程屏幕，ZIP 含 Ethernet PCAP |
+
+省略 runtime 的 UIFlow2 ST7123 和 Maker Fighter GT911 各独立复跑一次并通过。
+Tab5 文档例程的全量 HTTP 跨后端对照为 NOT RUN，esp-emu 现有 DSI
+准入依赖逐固件证据及配置。其他 Tab5 固件继续沿用原默认。CLI 文档矩阵与
+既有黄金测试不作为 HTTP 对照。
+
+**Browser-WASM，virtual-device validation。** 混合导出绑定同 fork commit，
+WASM SHA-256 `37e1e340219b84365d037f08aaeda6f48f2e0f1bad0a19bb2fba829894d65d4d`。
+Chrome 的无隔离跨源 iframe 在 CoreS3 Display、Touch、UIFlow2
+和 ADV Display、Keyboard、Button 上通过。ADV 原版 UIFlow2 v2.5.3
+`38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631`
+另有离线首页画面。每个通过的工作台场景停止前有一个 DedicatedWorker，
+停止后为零。Tab5 WASM NOT RUN，公共导出与 Worker 尚未接入 P4 ROM
+及 C6 启动资产。物理硬件 NOT RUN。
+
+## 2026-11-26：esp32sim 浏览器工作台
+
+`virtual-device validation`，browser-WASM。本地静态导出使用 esp32sim
+`25c3948c8311f5afe95d6058add3d2c298e75c4b`，Rust 1.99.1，WASM SHA-256
+`ecbf5810ec8ecef331e02b5128e0a1e7bae8ebe9c94dbd36330c7f75d3f22e0c`，
+ESP32-S3 ROM ELF SHA-256
+`c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd`。
+用 Playwright 驱动 Chrome 运行
+[跨源工作台测试](../platform/tests/test_public_esp32sim_guest.mjs)。
+
+| 板与固件 | 输入 BIN SHA-256 |
+| --- | --- |
+| CoreS3 Display | `a88182dc789c1dfe7525ad7ff9a284fd201b6c55375502c895b689cd56af13d6` |
+| CoreS3 Touch | `3cec5642f681dc0525c7e6cdbada7189f0ee52f9a95b68b19055571664222606` |
+| CoreS3 UIFlow2 v2.5.3 | `1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264` |
+| Cardputer-ADV Display | `cc1b3e5868feb075e2ec8a5e7211897e8ae1c9635f5d072442ef007273c2a968` |
+| Cardputer-ADV UIFlow2 v2.5.3 | `38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631` |
+| Cardputer-ADV Keyboard | `f7edb36bb3662506853773399467841a55bef3d3e16cc3469bc821b4ad7638bf` |
+| CoreS3 Button | `3dfbaaaa1ea168074d284b40b14fc489821162fb211f568a6a52181e54dab69c` |
+| Cardputer-ADV Button | `07ebcecd82c9a64aad457f5e30eac140bfd24db8006506ea6f04489a860dc0e7` |
+
+Chrome 158.0.8127.37 的独立父子源均未发送 COOP/COEP，iframe 中
+`crossOriginIsolated=false` 且无 SharedArrayBuffer。CoreS3 两次模型触点
+`(157,120)` 和 `(113,95)` 进入来宾，后一次在 LCD 绘制 `X:113 / Y:95`。
+UIFlow2 v2.5.3 从主界面点击 `(34,47)` 进入设置，并观测到 Worker 输出 PCM
+和浏览器创建 AudioBufferSource。ADV 真实键盘例程显示 `ab`，收到 Fn 与
+分号的按下/释放组合。ADV 的独立 Button 固件经 F12/GPIO0 输出
+`Button A Pressed` 和 `Button A Released`。两个详情页另行验证，
+CoreS3 的 AXP2101 短按使 Button 固件绘制 `Btn PWR`。通过的来宾会话在
+停止前由 CDP 看到一个 DedicatedWorker，Stop 后 iframe 仍在时归零。
+首次部分用例录图超时，保留失败回执。后续重复运行验证实际画面与清理。
+CoreS3 Touch 与 ADV Keyboard 在同一最终 WASM 上禁用 JIT 后也通过输入和清理。
+同一工作台的瞬时虚拟秒/墙钟秒回执为 CoreS3 约 1.04/0.36、ADV 约 0.96/0.32
+（JIT/解释器），保留 JIT 默认值。这些是各自运行窗口的诊断值。
+双内核导出在浏览器切换到 QEMU-WASM 后进入其隔离工作台，
+本轮未重跑 QEMU-WASM 来宾矩阵。
+
+后续直接从工作台下载固定的官方参考镜像。CoreS3 显示 UIFlow2 界面。
+ADV 下载哈希与预期一致，返回来宾帧但未观测到非黑内容（`FAIL`）。
+独立的原生 esp32sim 诊断用同一输入运行 6 虚拟秒，串口报
+`i2c.master: this port has not been initialized`，板模型记录 0 次 SPI3
+显示写入。这条诊断单独记录，ADV 浏览器 Arduino 示例仍由浏览器结果验收。
+
+PaperS3/StopWatch 使用独立旧版
+`3cd3db3b7202e9fc559328c7247c11134c0437f9`，重建 WASM SHA-256
+`05f020796d2611865eb570f027bd6d905a5dc19b39f827421cfcae13524bbe45`。
+PaperS3 Factory V0.5 `d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624`
+和 StopWatch User Demo V0.5 `6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe`
+均完成首帧、暂停/恢复与 Worker 回收。
+原生 15/15 与 11/11 记录属于独立执行路径。本次未部署正式文档或 Pages。
+
+## 2026-11-26：Device Service 原生 esp32sim
+
+Virtual-device validation 使用 esp32sim `e374bdff519450cb3202b02cd5f40868a6961a38`，
+运行二进制 SHA-256 `4a44b6760f1451ea7fffa4b8c30938ba689c8495f0972cbcc121ac6558d9ea6c`。
+CoreS3 上通过原文档示例观察触摸、电源键、IMU、电池、ALS 和 GC0308 画面，
+Cardputer-ADV 观察到 GPIO0 按下释放串口标记、键盘和 IMU 画面变化及 SD
+文件读写。两板取得非零扬声器 PCM，并运行了含麦克风 WAV 夹具的文档示例。
+CoreS3 UIFlow2 v2.5.3 在 UART0 完成同会话 Python 源码和文件包执行，另观察到
+虚拟 AP 关联及经宿主 NAT 的 HTTP 响应。停止前取证，停止时保留历史并释放租约。
+CoreS3 显式 QEMU 触摸和 StopWatch 冻结 QEMU UART 程序路径另行验收。
+原版 StopWatch 空白画面尝试仍保留。详见
+[Device Service API](device-service-api.md#native-esp32sim-sessions) 的运行边界。
 
 ## 2026-11-25：CoreS3 / Cardputer-Adv 文档 WASM
 

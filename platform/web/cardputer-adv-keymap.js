@@ -106,3 +106,18 @@ export function cardputerAdvQcode(component, source) {
   if (!physical) return null;
   return CARDPUTER_PC_QCODE[source] ?? physical;
 }
+
+// Translate the shell's logical QKeyCodes to the labels used by esp32sim's
+// TCA8418 board model. Its firmware owns modifier interpretation.
+const ADV_BOARD_LABELS = new Map(CARDPUTER_ADV_KEYS.map(key => [key.qcode, key.label.toLowerCase()]));
+const ADV_BOARD_ALIASES = new Map(Object.entries({
+  esc:{name:'`',fn:true}, grave_accent:{name:'`'}, compose:{name:'fn'}, ret:{name:'enter'},
+  shift_r:{name:'shift'}, ctrl_r:{name:'ctrl'}, meta_r:{name:'opt'}, alt_r:{name:'alt'},
+  delete:{name:'backspace'}, up:{name:';',fn:true}, down:{name:'.',fn:true},
+  left:{name:',',fn:true}, right:{name:'/',fn:true}, backslash:{name:'\\'},
+}));
+
+export function cardputerAdvBoardKey(qcode) {
+  return ADV_BOARD_ALIASES.get(qcode) ??
+    (ADV_BOARD_LABELS.has(qcode) ? {name:ADV_BOARD_LABELS.get(qcode)} : null);
+}

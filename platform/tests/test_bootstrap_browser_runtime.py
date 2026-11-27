@@ -51,9 +51,11 @@ class BrowserBootstrapTests(unittest.TestCase):
     def test_diagnostic_lane_needs_explicit_export_and_asset_hashes_are_checked(self):
         wasm, rom = b"\0asm\x01\0\0\0", b"unit-test-rom-placeholder"
         digest = hashlib.sha256(rom).hexdigest()
-        with tempfile.TemporaryDirectory() as directory, mock.patch.object(bootstrap, "ROM_SHA256", digest):
+        with (tempfile.TemporaryDirectory() as directory,
+              mock.patch.object(bootstrap, "ROM_SHA256", digest),
+              mock.patch.object(bootstrap, "DIAGNOSTIC_WASM_SHA256", hashlib.sha256(wasm).hexdigest())):
             root = Path(directory)
-            bootstrap.prepare_runtime(root, wasm, rom, {"kind":"downloaded-diagnostic","rebuild_verified":False})
+            bootstrap.prepare_runtime(root, wasm, rom, {"kind":"downloaded-diagnostic","rebuild_verified":False}, legacy=True)
             with self.assertRaisesRegex(ValueError, "requires a source build"):
                 public.browser_runtime_files(root)
             manifest, files = public.browser_runtime_files(root, allow_diagnostic=True)

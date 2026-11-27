@@ -1,24 +1,33 @@
 import assert from 'node:assert/strict';
-import {PublicBrowserRuntime,getBrowserProfile,validateBrowserFirmware,decodeBrowserFrame,ESP32SIM_SOURCE_COMMIT} from '../web/public-browser-runtime.js';
+import {PublicBrowserRuntime,getBrowserProfile,validateBrowserFirmware,decodeBrowserFrame,ESP32SIM_SOURCE_COMMIT,ESP32SIM_LEGACY_COMMIT} from '../web/public-browser-runtime.js';
 
 const romSha = 'c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd';
-const manifest = {schema_version:1,source:{commit:ESP32SIM_SOURCE_COMMIT},profiles:['papers3','stopwatch'],build:{kind:'source-build'},wasm:{path:'esp32sim.wasm',sha256:'0'.repeat(64)},rom:{path:'esp32s3_rev0_rom.elf',sha256:romSha}};
+const manifest = {schema_version:1,source:{commit:ESP32SIM_LEGACY_COMMIT},profiles:['papers3','stopwatch'],build:{kind:'source-build'},wasm:{path:'esp32sim.wasm',sha256:'0'.repeat(64)},rom:{path:'esp32s3_rev0_rom.elf',sha256:romSha}};
 function firmware() {
   const data = new Uint8Array(0x10100), view = new DataView(data.buffer);
   for (const at of [0,0x10000]) { data[at]=0xe9; data[at+1]=1; view.setUint16(at+12,9,true); view.setUint32(at+28,4,true); }
+  data.fill(0xff,0x8020,0x9000);
   view.setUint16(0x8000,0x50aa,true); view.setUint32(0x8004,0x10000,true); view.setUint32(0x8008,0x1000,true);
   return data.buffer;
 }
 const profile = getBrowserProfile('m5papers3');
 assert.equal(profile.board,'papers3');
 assert.equal(getBrowserProfile('stopwatch').jit,false);
-assert.equal(getBrowserProfile('cores3'),null);
+assert.equal(getBrowserProfile('cores3').board,'m5stack-cores3');
+assert.equal(getBrowserProfile('cardputer-adv').flashMb,8);
+assert.equal(getBrowserProfile('cardputer-adv').psramMb,0);
+assert.equal(getBrowserProfile('constructor'),null);
 profile.display.width=1;
 assert.equal(getBrowserProfile('papers3').display.width,540);
 assert.equal(validateBrowserFirmware(firmware(),getBrowserProfile('papers3')),true);
 assert.throws(()=>validateBrowserFirmware(new ArrayBuffer(10),getBrowserProfile('papers3')),{code:'merged_firmware_required'});
 const mismatch = firmware(); new DataView(mismatch).setUint16(12,13,true);
 assert.throws(()=>validateBrowserFirmware(mismatch,getBrowserProfile('papers3')),{code:'firmware_chip_mismatch'});
+const larger = firmware(); new Uint8Array(larger)[3] = 0x40;
+assert.throws(()=>validateBrowserFirmware(larger,getBrowserProfile('cardputer-adv')),{code:'flash_size_mismatch'});
+const overlap = firmware();
+new Uint8Array(overlap).copyWithin(0x8020,0x8000,0x8020);
+assert.throws(()=>validateBrowserFirmware(overlap,getBrowserProfile('cores3')),{code:'invalid_partition'});
 const corrupt = firmware(); new DataView(corrupt).setUint32(0x10000+28,0xfffffff,true);
 assert.throws(()=>validateBrowserFirmware(corrupt,getBrowserProfile('papers3')),{code:'truncated_firmware'});
 assert.throws(()=>decodeBrowserFrame(new Uint8Array([1,1,0,1,0,0]).buffer,1),{code:'invalid_frame'});
@@ -45,7 +54,7 @@ function options(overrides={}) {
     downloadImpl:async(url,{expectedSha256})=>({bytes:new ArrayBuffer(8),sha256:expectedSha256}),...overrides};
 }
 const worker = new WorkerFixture(), states=[],serial=[],frames=[];
-const runtime = new PublicBrowserRuntime(options({workerFactory:url=>{assert.equal(url,'https://example.test/repo/platform/web/vendor/esp32sim/worker.js');return worker;},onState:state=>states.push(state.status),onSerial:data=>serial.push(data),onFrame:frame=>frames.push(frame)}));
+const runtime = new PublicBrowserRuntime(options({workerFactory:url=>{assert.equal(url,'https://example.test/repo/platform/web/vendor/esp32sim/legacy/worker.js');return worker;},onState:state=>states.push(state.status),onSerial:data=>serial.push(data),onFrame:frame=>frames.push(frame)}));
 await runtime.start({device:'papers3',firmware:firmware()});
 assert.equal(runtime.observe().status,'running');
 assert.deepEqual(worker.calls.slice(0,5).map(call=>call.op),['init','create','load','load','start']);
@@ -92,4 +101,35 @@ assert.equal(pending.observe().status,'stopped');
 const missing = new PublicBrowserRuntime(options({fetchImpl:async()=>new Response('',{status:404})}));
 await assert.rejects(missing.start({device:'stopwatch',firmware:firmware()}),{code:'browser_runtime_missing'});
 assert.equal(missing.observe().status,'error');
+const currentManifest = {...manifest,source:{commit:ESP32SIM_SOURCE_COMMIT},profiles:['m5stack-cores3','m5stack-cardputer-adv']};
+const newLane = (worker) => options({workerFactory:()=>worker,fetchImpl:async url=>{
+  assert.match(url,/runtime\/esp32sim\/runtime.json$/);
+  return new Response(JSON.stringify(currentManifest));
+}});
+const c3Worker = new WorkerFixture(), pcm = [];
+const c3 = new PublicBrowserRuntime({...newLane(c3Worker)});
+const player = {push:packet=>pcm.push(packet),close:()=>pcm.push('closed')};
+await c3.start({device:'cores3',firmware:firmware(),audio:{player}});
+await c3.input({type:'button',id:'p',down:true});
+assert.deepEqual(JSON.parse(c3Worker.calls.at(-1).data),{t:'power-key'});
+await c3.input({type:'button',id:'p',down:false});
+const audio = new Uint8Array([2,0x80,0xbb,0,0,0x12,0]).buffer;
+c3Worker.emit({bin:audio});
+assert.deepEqual(pcm,[audio]);
+assert.equal(c3.receipt.normalization.runtimeBytes,16*1024*1024);
+c3.stop();
+assert.deepEqual(pcm,[audio,'closed']);
+
+const advWorker = new WorkerFixture(), adv = new PublicBrowserRuntime(newLane(advWorker));
+await adv.start({device:'cardputer-adv',firmware:firmware()});
+await assert.rejects(adv.input({type:'touch',x:1,y:1,down:true}),{code:'unsupported_control'});
+const key = (id,down)=>adv.input({type:'button',id,down});
+await Promise.all([key('up',true),key('compose',true),key('up',false),key('compose',false)]);
+await key('boot',true); await key('boot',false);
+assert.deepEqual(advWorker.calls.filter(m=>m.op==='text').map(m=>JSON.parse(m.data)),[
+  {t:'matrix-key',key:'fn',down:1},{t:'matrix-key',key:';',down:1},
+  {t:'matrix-key',key:';',down:0},{t:'matrix-key',key:'fn',down:0},
+  {t:'btn',pin:0,v:1},{t:'btn',pin:0,v:0},
+]);
+adv.stop();
 console.log('browser adapter image admission, worker lifecycle, native-frame, input and cancellation contracts passed');

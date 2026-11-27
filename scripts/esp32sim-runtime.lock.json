@@ -1,0 +1,37 @@
+{
+  "repository": "https://github.com/m5agent/esp32sim.git",
+  "ref": "refs/tags/m5-device-service-20261127",
+  "commit": "3e90d09bd31b5658d8dd2b6fc5d820da5f293489",
+  "roms": {
+    "esp32s3_rev0_rom.elf": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
+    "esp32p4_rev0_rom.elf": "948f2c7d108d04a9c3a982f9c1c498fb17f2c4a68abc51f87782592034d7ce44",
+    "esp32p4_rev300_rom.elf": "90e723f71fe4701adee7e40bfab6971d8ecf5e356f4d5a81e77743248abc3a97",
+    "esp32c6_rev0_rom.elf": "788e1d38724aeb8fd974fa10c4a7b089c02627d35342ce84b9e0b12b239f3551"
+  },
+  "tab5_c6": {
+    "version": "2.0.13",
+    "bb_init": "0x4208084c",
+    "files": {
+      "bootloader": {
+        "path": "bootloader/bootloader.bin",
+        "sha256": "f15f13d257f14c8c132a116bb65a52ab5c149082d0d53c92684850129008e425"
+      },
+      "ptable": {
+        "path": "partition_table/partition-table.bin",
+        "sha256": "0241fa0d2e573dee86756e39fb4181e61ff7218087619cab565b602df55954d6"
+      },
+      "otadata": {
+        "path": "ota_data_initial.bin",
+        "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+      },
+      "app": {
+        "path": "network_adapter.bin",
+        "sha256": "33d0e47ad5b8802e4f3c0c2feed5a7445e2553b5789b3770153e55fbe2f90a8b"
+      }
+    },
+    "archive": {
+      "url": "https://github.com/m5agent/esp32sim/releases/download/m5-device-service-20261127/tab5-esp-hosted-2.0.13-c6.zip",
+      "sha256": "73fba21169b8a518b7cc9f46681446f8a1e1b769a9084301d7501a2347b487c2"
+    }
+  }
+}

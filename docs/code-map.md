@@ -98,6 +98,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_namespace_recovery.py` | 读取 Linux 开机与启动身份，按会话配置验证并协作停止命名空间 supervisor | `device_service.py` 重启清理与 `network_sandbox.py` 启动回执；`test_device_service_namespace_recovery.py` |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_input.py` | 原生语义化按键、键盘、组合键和触摸的校验与 QMP 提交 | Device Service session input |
+| `platform/tools/device_service_esp32sim.py` | CoreS3、Cardputer-ADV 与 Tab5 的原生运行时 pin、ROM/C6 资产、启动命令、控制协议与板级输入 | `Esp32SimDeviceSession`、`scripts/bootstrap-esp32sim-runtime.py` |
 | `platform/tools/device_service_encoder.py` | Dial 正交控制器目标与物理边沿读回 | Device Service session input、`test_device_service_encoder.py` |
 | `platform/tools/device_service_fs_fixture.py` | 绑定镜像身份和可写数据分区的 LittleFS/SPIFFS 夹具校验 | Device Service session storage、`test_device_service_fs_fixture.py` |
 | `platform/tools/device_service_identity.py` | 持久虚拟设备身份、显式 MAC 解析和私有原子存储；不修改固件或替云端注册 | `test_device_service_identity.py`；Device Service admission / eFuse / NIC |
@@ -198,7 +199,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tests/public_qemu_pixel_observer.mjs` | 显式 await 实际 canvas 观察；先取单份完整 RGBA，再异步计算两个 ROI SHA，并核对输入后的序号与时间边界 | `test_public_qemu_pixel_observer.mjs` 与 `test_public_qemu_pixel_observer_browser.mjs` 只验证 host oracle；真实固件画面由 `test_public_qemu_guest.mjs` 独立验证 |
 | `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径；浏览器方向更新按 owner 重绘保留的真实帧，不生成新帧或序号 | `test_public_config.mjs`、`test_public_workbench_browser.mjs`、`test_public_qemu_entry.mjs` |
 | `platform/web/public-coi-serviceworker.js` | 项目作用域隔离 Worker；保留第三方原始来源，重建 204/205/304 时使用空正文 | `test_public_coi.mjs` 为无浏览器合同；单独运行 `node platform/tests/test_public_coi_worker_browser.mjs` 验证真实浏览器条件响应与已有注册更新，只使用 HTTP fixture、不启动 guest。默认使用 Playwright Chromium，可通过 `PLAYWRIGHT_CHROMIUM_EXECUTABLE` 指定浏览器；不并入普通 contracts |
-| `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
+| `platform/web/public-browser-runtime.js`、`public-browser-audio.js`、`vendor/esp32sim/source.json` | esp32sim 独立 Worker/WASM、板级 RGB565 与 PCM、串口及机身输入；PaperS3/StopWatch 使用独立旧版 | `test_public_browser_runtime.mjs`；opt-in `test_public_esp32sim_guest.mjs` 运行跨源工作台，`test_public_browser_guest.mjs` 回归旧板 |
 | `platform/web/public-service.js`、`public-session-controller.js`、`serial-channel-state.js` | 可选服务桥接、owned session 输入/帧/独立串口通道与迟到响应隔离、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 | `platform/web/public-service-program.js`、`public-unit-assembly.js` | 首页原生 Preview 编程、既有会话接入与非拥有视图清理；每设备 Unit 草稿、主机装配与运行拓扑锁定 | `test_public_service_program.mjs`、`test_public_unit_assembly.mjs`；opt-in 新首页实际验收 `test_public_unified_service_browser.mjs` |
 | `platform/web/observatory*.js`、`observatory.html`、`observatory.css` | 无输入的本地共享 3D 实验室、自动巡展与日志跟随、同型号阵列、短任务痕迹和有限并发观察 | `test_observatory_state.mjs`、`test_observatory_tour.mjs`、`test_observatory_scene.mjs`；opt-in `test_observatory_browser.mjs` |

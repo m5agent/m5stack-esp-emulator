@@ -181,6 +181,9 @@ try{
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));url=`http://127.0.0.1:${server.address().port}${base}`;
   }
+  const entry=new URL(url);
+  entry.searchParams.set('engine','qemu-wasm');
+  url=entry.href;
   report.url=url;report.deployment=process.env.M5_PUBLIC_URL?'remote-static-host':'local-static-project-prefix';
   browser=await chromium.launch({headless:true,...(chromeExecutable?{executablePath:chromeExecutable}:{}),
     args:['--enable-webgl','--use-gl=angle',...(hardwareGPU?['--use-angle=metal','--ignore-gpu-blocklist']:['--use-angle=swiftshader'])]});

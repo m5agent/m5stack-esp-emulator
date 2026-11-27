@@ -11,11 +11,12 @@
     }
   },
   "runtime": {
-    "backend": "qemu-esp32s3",
+    "backend": "esp32sim-esp32s3",
+    "legacy_backend": "qemu-esp32s3",
     "chip": "esp32s3",
     "status": "reference-ready",
     "display_protocol": "spi-ili9342",
-    "execution": "native-qemu",
+    "execution": "native-esp32sim",
     "validation": {
       "date": "2026-10-25",
       "status": "display-touch-peripherals-wifi-ble-pass",

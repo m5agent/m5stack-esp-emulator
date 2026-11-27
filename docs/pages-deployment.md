@@ -44,6 +44,44 @@ Dial 仍为 `candidate`，不会随 machine 编译结果进入默认网页入口
 也不用宿主输入猜测 LED。经典 ESP32 使用固定 icount；启动可能需要数分钟，
 已有通过不代表实时性能或稳定启动保证。
 
+## CoreS3 与 Cardputer-ADV 的 esp32sim 浏览器运行
+
+含 `--browser-runtime` 的工作台默认以 esp32sim 运行 CoreS3（16 MiB Flash、
+8 MiB PSRAM）和 Cardputer-ADV（8 MiB Flash），设备详情页使用同一浏览器适配器。
+普通 module Worker 即可运行，文档预览可从不同源的无隔离页面嵌入。
+两款板使用其模型输出的 320 × 240 和 240 × 135 RGB565；ADV 竖屏应用会根据
+面板 MADCTL 状态旋转展示。CoreS3 的触点由模型屏幕投影转换到来宾坐标，
+PWR 触发 PMIC 短按。ADV 键盘使用 TCA8418 键位，方向键映射到 Fn 组合键，
+F12 对应 G0。工作台显示串口，可选择开启来宾扬声器 PCM 播放。
+
+```sh
+python3 platform/tools/bootstrap_browser_runtime.py --fetch-rom
+python3 platform/tools/build_public_site.py --output .work/browser-site \
+  --browser-runtime .work/browser-runtime
+```
+
+导出可同时附加 `--qemu-runtime` 和对应的 LittleFS 产物。打开运行选项中的
+「浏览器内核」选择 QEMU-WASM，或添加 `engine=qemu-wasm`。QEMU-WASM 继续
+使用下述隔离流程。可另用 `--legacy-browser-runtime` 装载 PaperS3 和
+StopWatch 的独立版本。源码、固定工具链与旧板保留策略见
+[esp32sim 来源](../platform/web/vendor/esp32sim/UPSTREAM.md)。
+
+参考固件绑定 UIFlow2 v2.5.3 的原版 SHA-256。ADV 使用原浏览器配置记录的官方
+CDN 镜像，设备目录中的旧 URL 返回 404。CoreS3 与 ADV 的原版参考界面已在当前 pin 验证。较早 pin 的 ADV 黑屏保留于台账。文档 Arduino 示例接受本地合并
+`.bin` 或指定 HTTPS 固件 URL。镜像需通过 ESP32-S3、Flash 和分区表准入。
+启用此内核的页面运行原版 UIFlow2，网页 MicroPython 编程环境仍由 QEMU-WASM
+提供。浏览器 Unit 装配、联网和持久 Flash 不在本次接入范围。
+
+用独立 HTTP 端口提供导出目录后，可复跑跨域验收。外部固件文件的准确身份见
+[验证台账](validation-ledger.md#2026-11-26esp32sim-浏览器工作台)。
+
+```sh
+M5_BROWSER_SITE="http://127.0.0.1:$TEST_PORT/" \
+M5_DOCS_FIRMWARE="$DOCS_FIRMWARE_DIR" \
+M5_UIFLOW_FIRMWARE="$CORES3_UIFLOW253_BIN" \
+node platform/tests/test_public_esp32sim_guest.mjs
+```
+
 ## 本机 Device Service 的浏览器运行
 
 可用同一批已验证的 Xtensa、C61 和 LittleFS 资产导出根路径工作台，在本机
@@ -83,6 +121,9 @@ python3 platform/tools/serve.py --browser-site .work/browser-site \
    选择已准入设备，点击“开始运行”，等待示例画面，再测试相应按键或触摸。
    CoreS3 可选择原始固定示例或独立的 LVGL 调度候选；两者的精确 Flash SHA
    分别绑定正常时钟配置，未知固件保留基础慢放配置。
+
+公开混合导出使用固定 Rust 1.99.1 构建 esp32sim，保留 QEMU 和 LittleFS。
+工作流先用固定 Arduino 与 UIFlow2 镜像验证两款 S3 的 esp32sim 工作台。
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
 公开板型的真实客体验收成功。当前[聚合门禁](../platform/tests/test_public_qemu_admitted_boards.mjs)
