@@ -7,7 +7,7 @@ export const ESP32SIM_SOURCE_COMMIT = '3e90d09bd31b5658d8dd2b6fc5d820da5f293489'
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
 const LEGACY_PROFILES = new Set(['papers3', 'stopwatch']);
 const ESP32S3_CHIP_ID = 9;
-const ADV_REFERENCE_LIMIT = 'ADV 的 UIFlow2 v2.5.3 在此内核启动后屏幕保持黑色。可载入文档中的兼容 Arduino 示例。';
+const ADV_REFERENCE_LIMIT = 'ADV 的 UIFlow2 v2.5.3 支持离线首页。浏览器运行尚未开放联网与云端绑定。';
 const PROFILES = {
   cores3: {deviceId:'cores3',board:'m5stack-cores3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,
     display:{width:320,height:240}, inputs:{touch:true}, execution:'browser-wasm',
