@@ -205,6 +205,7 @@ jobs:
           M5_DOCS_FIRMWARE: .work/esp32sim-docs-firmware
           M5_UIFLOW_FIRMWARE: .work/esp32sim-cores3-stock.bin
           M5_ADV_UIFLOW_FIRMWARE: .work/esp32sim-cardputer-adv-stock.bin
+          M5_CARDPUTER_STOCK_FIRMWARE: .work/esp32sim-cardputer-stock.bin
           PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
           FIRMWARE_ARCHIVE: https://media.githubusercontent.com/media/m5agent/m5stack-firmware-archive/829cfe6bc14cbdff40b1f4980a5e1ea4f130f66c/devices
         run: |
@@ -233,6 +234,7 @@ jobs:
           }
           fetch_reference cores3 "$M5_UIFLOW_FIRMWARE"
           fetch_reference cardputer-adv "$M5_ADV_UIFLOW_FIRMWARE"
+          fetch_reference cardputer "$M5_CARDPUTER_STOCK_FIRMWARE"
           web_root="$PWD/.work/public-site"
           if [[ "$PUBLIC_BASE_PATH" != / ]]; then
             mount="$PWD/.work/esp32sim-www${PUBLIC_BASE_PATH%/}"

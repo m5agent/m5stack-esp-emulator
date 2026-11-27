@@ -3,7 +3,7 @@ import { downloadFirmware } from './public-firmware.js';
 import { sha256Bytes } from './sha256.js';
 import { cardputerAdvBoardKey } from './cardputer-adv-keymap.js';
 
-export const ESP32SIM_SOURCE_COMMIT = '3e90d09bd31b5658d8dd2b6fc5d820da5f293489';
+export const ESP32SIM_SOURCE_COMMIT = '4e257b6be8ee0ed706c2e509d8f31ef7472a424b';
 export const ESP32SIM_LEGACY_COMMIT = '3cd3db3b7202e9fc559328c7247c11134c0437f9';
 const LEGACY_PROFILES = new Set(['papers3', 'stopwatch']);
 const ESP32S3_CHIP_ID = 9;
@@ -19,6 +19,9 @@ const PROFILES = {
     referenceLimit:ADV_REFERENCE_LIMIT,
     referenceSha256:'38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631',
     limitations:['点击模型后使用电脑键盘，方向键通过 Fn 层映射；F12 对应 G0。']},
+  cardputer: {deviceId:'cardputer',board:'m5stack-cardputer',chip:'esp32s3',flashMb:8,psramMb:0,jit:true,
+    display:{width:240,height:135}, inputs:{touch:false}, execution:'browser-wasm', preferQemu:true,
+    limitations:['支持 GPIO0 和物理键盘矩阵。']},
 
   papers3: {deviceId:'papers3',board:'papers3',chip:'esp32s3',flashMb:16,psramMb:8,jit:true,
     display:{width:540,height:960}, execution:'browser-wasm',
@@ -277,8 +280,8 @@ export class PublicBrowserRuntime {
       if (this.profile.deviceId === 'cores3' && ['power','p'].includes(event.id)) {
         if (!down) return {accepted:true,delivery:'timed'};
         message = {t:'power-key'};
-      } else if (this.profile.deviceId === 'cardputer-adv') {
-        if (['boot','g0'].includes(event.id)) message = {t:'btn',pin:0,v:down ? 1 : 0};
+      } else if (['cardputer', 'cardputer-adv'].includes(this.profile.deviceId)) {
+        if (['boot','g0','f12'].includes(event.id)) message = {t:'btn',pin:0,v:down ? 1 : 0};
         else {
           const key = cardputerAdvBoardKey(event.id);
           requireValue(key, 'unsupported_control', '该浏览器板型不支持此按键。');

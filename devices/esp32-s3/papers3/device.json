@@ -75,7 +75,17 @@
       "The GPIO3 battery-divider ADC data path and voltage injection are not modeled.",
       "C139 PMS150G power-button, latch and wake behavior are not modeled.",
       "The factory touch toggles its icon; GPIO21 electrical buzzer drive and audio capture are not modeled."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-papers3",
+      "flash_bytes": 16777216,
+      "psram_bytes": 8388608,
+      "frame_size": [
+        540,
+        960
+      ],
+      "touch": true
+    }
   },
   "uiflow2": {
     "supported": true,

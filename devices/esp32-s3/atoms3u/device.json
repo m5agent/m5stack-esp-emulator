@@ -52,7 +52,12 @@
     },
     "blockers": [
       "IR GPIO12、SPM1423 PDM 麦克风和 Grove Unit 数据面没有同 guest 验证；USB CDC 控制台与物理光学/声学行为未覆盖。"
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atoms3u",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0
+    }
   },
   "uiflow2": {
     "supported": true,

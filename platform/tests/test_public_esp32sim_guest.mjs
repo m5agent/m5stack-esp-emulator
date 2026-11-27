@@ -21,6 +21,10 @@ const cases = [
 ];
 const advUiflow = process.env.M5_ADV_UIFLOW_FIRMWARE;
 if (advUiflow) cases.push(['cardputer-adv','stock-uiflow']);
+const cardputerKeyboard = process.env.M5_CARDPUTER_KEYBOARD_FIRMWARE;
+if (cardputerKeyboard) cases.push(['cardputer','keyboard']);
+const cardputerStock = process.env.M5_CARDPUTER_STOCK_FIRMWARE;
+if (cardputerStock) cases.push(['cardputer','stock-uiflow']);
 if (process.env.M5_LEGACY_FIRMWARE_DIR) cases.push(['papers3','legacy'],['stopwatch','legacy']);
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const runtimeUrl = new URL('platform/runtime/esp32sim/runtime.json',site);
@@ -92,7 +96,7 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
       },{jit});
       try {
         const childUrl = new URL(site);
-        childUrl.search = new URLSearchParams({device,mode:'browser',autostart:'0'});
+        childUrl.search = new URLSearchParams({device,mode:'browser',autostart:'0',engine:'esp32sim'});
         const parentUrl = new URL(`http://127.0.0.1:${parent.address().port}/`);
         assert.notEqual(parentUrl.origin,childUrl.origin);
         parentUrl.searchParams.set('child',childUrl.href);
@@ -107,7 +111,8 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         assert(frame);
         row.context = await frame.evaluate(() => ({isolated:crossOriginIsolated,sab:typeof SharedArrayBuffer,embedded:parent!==window}));
         assert.deepEqual(row.context,{isolated:false,sab:'undefined',embedded:true});
-        const file = example === 'uiflow' ? uiflow : example === 'stock-uiflow' ? advUiflow : example === 'legacy'
+        const file = device === 'cardputer' ? (example === 'keyboard' ? cardputerKeyboard : cardputerStock)
+          : example === 'uiflow' ? uiflow : example === 'stock-uiflow' ? advUiflow : example === 'legacy'
           ? path.join(process.env.M5_LEGACY_FIRMWARE_DIR,`${device}.bin`) : path.join(firmware,device,example,`${example}.ino.merged.bin`);
         row.firmwareSha256 = sha(fs.readFileSync(file));
         await frame.locator('#startBtn').waitFor();
@@ -119,7 +124,7 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         await frame.waitForFunction(serialOnly => (serialOnly ? probe.frames > 0 : probe.nonblack > 0) &&
           document.querySelector('#runtimeStatus').dataset.status==='running', example==='button',{timeout:90000});
         row.firstFrame = await frame.evaluate(()=>probe.last);
-        const dimensions = {cores3:[320,240],'cardputer-adv':[240,135],papers3:[540,960],stopwatch:[468,466]};
+        const dimensions = {cores3:[320,240],'cardputer-adv':[240,135],cardputer:[240,135],papers3:[540,960],stopwatch:[468,466]};
         if (example!=='button') assert.deepEqual([row.firstFrame.width,row.firstFrame.height],dimensions[device]);
         assert.equal(await frame.locator('#firmwareInputSha256').textContent(),row.firmwareSha256);
         row.runtimeFlashSha256 = await frame.locator('#firmwareRuntimeSha256').textContent();
@@ -193,13 +198,28 @@ await new Promise(resolve=>parent.listen(0,'127.0.0.1',resolve));
         if (example === 'keyboard') {
           const before = await frameToken();
           await frame.locator('#deviceMount canvas').first().focus();
-          for (const key of ['a','b','Enter','ArrowUp','F12']) await page.keyboard.press(key,{delay:220});
+          const inputs = device === 'cardputer' ? ['a','b','Enter','F12'] : ['a','b','Enter','ArrowUp','F12'];
+          for (const key of inputs) await page.keyboard.press(key,{delay:220});
           await settle();
           row.changed = (await frameToken())!==before;
           assert(row.changed);
-          const keys = await frame.evaluate(() => probe.sent.filter(event=>event.t==='matrix-key'));
-          assert(keys.some(event=>event.key==='fn' && event.down===1));
-          assert(keys.some(event=>event.key==='fn' && event.down===0));
+          const inputsSent = await frame.evaluate(() => probe.sent);
+          const key = device === 'cardputer' ? 'enter' : 'fn';
+          assert(inputsSent.some(event=>event.t==='matrix-key' && event.key===key && event.down===1));
+          assert(inputsSent.some(event=>event.t==='matrix-key' && event.key===key && event.down===0));
+          if (device === 'cardputer') {
+            assert(inputsSent.some(event=>event.t==='btn' && event.pin===0 && event.v===1));
+            assert(inputsSent.some(event=>event.t==='btn' && event.pin===0 && event.v===0));
+          }
+        }
+        if (device === 'cardputer' && example === 'stock-uiflow') {
+          const before = await frameToken();
+          await frame.locator('#deviceMount canvas').first().focus();
+          await page.keyboard.press('F12',{delay:450});
+          await settle();
+          row.changed = (await frameToken()) !== before;
+          assert(row.changed,'stock launcher must redraw after GPIO0 input');
+          assert(await frame.evaluate(() => probe.sent.some(event => event.t === 'btn' && event.pin === 0 && event.v === 1)));
         }
         if (example === 'touch' || example === 'legacy') {
           await frame.locator('#pauseBtn').click();

@@ -75,7 +75,8 @@ curl -fsS http://127.0.0.1:8787/api/v1/devices
 python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir "$ESP32SIM_ROM_DIR"
 ```
 
-CoreS3 与 Cardputer-ADV 使用 ESP32-S3 ROM。Tab5 还需要
+S3 板型使用 ESP32-S3 ROM。为经典 ESP32 加上 `--with-classic`，
+为 NanoC6 和 Nesso N1 加上 `--with-c6`。Tab5 还需要
 `esp32p4_rev0_rom.elf`、`esp32p4_rev300_rom.elf` 和 `esp32c6_rev0_rom.elf`，
 以及 [ESP-Hosted 2.0.13 SDIO 从机](https://components.espressif.com/components/espressif/esp_hosted/versions/2.0.13)
 的固定构建。该构建使用 ESP-IDF 5.4.2 并禁用 C6 Bluetooth。使用
@@ -92,7 +93,7 @@ python3 scripts/bootstrap-esp32sim-runtime.py --rom-dir "$ESP32SIM_ROM_DIR" --wi
 
 [运行资产锁](../scripts/esp32sim-runtime.lock.json)校验此版本使用的精确 ELF 和
 C6 构建文件。ESP-IDF 构建时间会改变二进制摘要，因此资产目录必须匹配锁内
-SHA-256。脚本在本地构建并记录 Rust 可执行文件的 SHA-256。资源安装在
+SHA-256。脚本校验并应用固定的原生 service 控制补丁，再构建并记录 Rust 可执行文件的 SHA-256。资源安装在
 `.work/esp32sim-runtime`，可通过 `--output-dir` 安装到独立目录并以
 `M5_ESP32SIM_RUNTIME_DIR` 指向它。启动前运行 `./start.sh` 的常规依赖检查，
 再查询 `/api/v1/devices/{device_id}` 的分运行时就绪状态。

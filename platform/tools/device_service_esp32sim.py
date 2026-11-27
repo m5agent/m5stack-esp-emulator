@@ -1,7 +1,7 @@
 """Pinned esp32sim native runtime and its private single-owner control stream."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 import hashlib
 import json
@@ -16,6 +16,9 @@ import time
 from device_service_errors import ServiceError
 from device_service_network import parse_network_policy
 from device_service_input import action_seconds, control_name
+from device_service_encoder import (
+    DEFAULT_EDGE_PERIOD_MS, validate_encoder_delta, validate_encoder_edge_period_ms,
+)
 from firmware_analysis import find_flash_bootloader, parse_partition_table
 
 RUNTIME = "esp32sim"
@@ -23,6 +26,7 @@ BACKEND = "esp32sim-esp32s3"
 ROOT = Path(__file__).resolve().parents[2]
 LOCK = ROOT / "scripts/esp32sim-runtime.lock.json"
 ROM_NAME = "esp32s3_rev0_rom.elf"
+CLASSIC_ROM_NAME = "esp32_rev300_rom.elf"
 P4_ROM_NAME = "esp32p4_rev0_rom.elf"
 P4_REV3_ROM_NAME = "esp32p4_rev300_rom.elf"
 C6_ROM_NAME = "esp32c6_rev0_rom.elf"
@@ -34,23 +38,53 @@ class Board:
     name: str
     flash: int
     psram: int
-    size: tuple[int, int]
+    size: tuple[int, int] | None
     chip_id: int = 9
+    touch: bool = False
 
     @property
     def is_tab5(self):
         return self.chip_id == 0x12
 
+    @property
+    def rom_name(self):
+        return {0: CLASSIC_ROM_NAME, 13: C6_ROM_NAME}.get(self.chip_id, ROM_NAME)
 
-BOARDS = {
-    "cores3": Board("m5stack-cores3", 16 << 20, 8 << 20, (320, 240)),
-    "cardputer-adv": Board("m5stack-cardputer-adv", 8 << 20, 0, (240, 135)),
-    "tab5": Board("m5stack-tab5", 16 << 20, 32 << 20, (720, 1280), 0x12),
-}
+
+def _load_boards():
+    groups = {"esp32-lx6": 0, "esp32-s3": 9, "esp32-c6": 13, "esp32-p4": 0x12}
+    catalog = json.loads((ROOT / "devices/catalog.source.json").read_text())
+    boards, variants = {}, {}
+    for device in catalog["devices"]:
+        native = device["runtime"].get(RUNTIME)
+        if native is None:
+            continue
+        device_id = device["id"]
+        board = Board(
+            native["board"], native["flash_bytes"], native["psram_bytes"],
+            tuple(native["frame_size"]) if "frame_size" in native else None,
+            groups[device["group"]], native.get("touch", False),
+        )
+        boards[device_id] = board
+        if native.get("variants"):
+            variants[device_id] = {
+                name: replace(board, name=values.get("board", board.name),
+                              flash=values.get("flash_bytes", board.flash))
+                for name, values in native["variants"].items()
+            }
+    return boards, variants
+
+
+BOARDS, BOARD_VARIANTS = _load_boards()
 TAB5_PANELS = {
     "gt911-ili9881c": BOARDS["tab5"],
-    "st7123": Board("m5stack-tab5-st7123", 16 << 20, 32 << 20, (720, 1280), 0x12),
+    **BOARD_VARIANTS["tab5"],
 }
+SD_DEVICES = frozenset({
+    "cores3", "stackchan", "cardputer", "cardputer-adv", "tab5", "basic-v27",
+    "core2", "paperdiy", "papers3", "papercolor", "stamplc",
+})
+CAMERA_DEVICES = frozenset({"cores3", "stackchan", "atoms3r-cam", "atoms3r-m12"})
 # Normalized Flash digests with same-firmware HTTP session comparison.
 # Keep unspecified images and legacy-only feature requests on esp-emu.
 TAB5_DEFAULT_FIRMWARE = {
@@ -87,12 +121,15 @@ class Installation:
 
     def runtime_paths(self, board, lock):
         if not board.is_tab5:
-            return [self.binary, self.rom]
+            return [self.binary, self.board_rom(board)]
         return [
             self.binary_for(board),
             *(self.rom.with_name(name) for name in (P4_ROM_NAME, P4_REV3_ROM_NAME, C6_ROM_NAME)),
             *(self.manifest.parent / "tab5-c6" / item["path"] for item in lock["tab5_c6"]["files"].values()),
         ]
+
+    def board_rom(self, board):
+        return self.rom if board.rom_name == ROM_NAME else self.rom.with_name(board.rom_name)
 
     def missing(self, board):
         lock = json.loads(LOCK.read_text())
@@ -106,6 +143,7 @@ class Installation:
             digest = asset_sha(binary)
             expected_binary = manifest["p4_binary_sha256" if board.is_tab5 else "binary_sha256"]
             if (manifest["commit"] != lock["commit"] or expected_binary != digest
+                    or manifest["service_patch_sha256"] != lock["service_patch_sha256"]
                     or not os.access(binary, os.X_OK)):
                 raise ValueError("esp32sim executable differs from runtime manifest")
             rom = p4_rom_name(flash) if board.is_tab5 and flash is not None else assets[0].name
@@ -124,6 +162,7 @@ class Installation:
         return {
             "runtime": RUNTIME, "commit": lock["commit"], "binary_sha256": digest,
             "rom_sha256": observed[rom], "board": board.name, "control_protocol": 1,
+            "service_patch_sha256": lock["service_patch_sha256"],
             "flash_bytes": board.flash, "psram_bytes": board.psram,
             **({"rom": rom, "coprocessor": {"esp_hosted_version": lock["tab5_c6"]["version"],
                  "rom_sha256": observed[C6_ROM_NAME],
@@ -186,12 +225,15 @@ def parse_network(value):
 
 
 def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None, network=None, pcap=None):
-    rom = installation.rom.with_name(p4_rom_name(flash)) if board.is_tab5 else installation.rom
+    rom = installation.rom.with_name(p4_rom_name(flash)) if board.is_tab5 else installation.board_rom(board)
     command = [
         str(installation.binary_for(board)), "--board", board.name, "--rom", str(rom),
         "--boot", "rom", "--flash-image", str(flash), "--console", "none",
         "--service-fd", str(fd),
     ]
+    if board.chip_id in {0, 13}:
+        command += ["--chip", "esp32" if board.chip_id == 0 else "c6",
+                    "--flash-mb", str(board.flash >> 20)]
     if board.is_tab5:
         lock = json.loads(LOCK.read_text())["tab5_c6"]
         paths = {"rom": installation.rom.with_name(C6_ROM_NAME)}
@@ -229,7 +271,7 @@ KEY_ALIASES = {
 }
 
 
-def input_command(device, payload):
+def input_command(device, payload, *, board=None):
     if not isinstance(payload, dict) or not isinstance(payload.get("kind"), str):
         raise ServiceError("invalid_input", "input kind is required", 400)
     kind = payload["kind"]
@@ -238,8 +280,9 @@ def input_command(device, payload):
         raise ServiceError("invalid_input", "action must be a string", 400)
     action = action.lower()
     settle = action_seconds(payload, "settle_seconds", 0.3, minimum=0)
-    if kind in {"touch", "longpress"} and device in {"cores3", "tab5"}:
-        width, height = BOARDS[device].size
+    board = board or BOARDS[device]
+    if kind in {"touch", "longpress"} and board.touch:
+        width, height = board.size
         x = bounded_int(payload.get("x"), "x", width - 1)
         y = bounded_int(payload.get("y"), "y", height - 1)
         if action not in ("tap", "click", "hold", "down", "up"):
@@ -249,6 +292,14 @@ def input_command(device, payload):
         seconds = action_seconds(payload, "seconds", 1) if action == "hold" else (
             action_seconds(payload, "hold_seconds", 0.5) if kind == "longpress" else 0.12)
         return "touch", (x, y, 1, math.ceil(seconds * 1000)), settle
+    if kind == "encoder" and device in {"dial", "stickt2"}:
+        delta = validate_encoder_delta(payload.get("delta"))
+        if device == "stickt2":
+            if "edge_period_ms" in payload:
+                raise ServiceError("not_supported_on_runtime", "StickT2's I2C encoder accepts a detent delta", 409)
+            return "encoder-step", (delta,), settle
+        period = validate_encoder_edge_period_ms(payload.get("edge_period_ms", DEFAULT_EDGE_PERIOD_MS))
+        return "encoder", (delta, period), settle
     if device == "tab5" and kind == "touch-contact":
         width, height = BOARDS[device].size
         contact = bounded_int(payload.get("contact_id"), "contact_id", 4)
@@ -272,21 +323,40 @@ def input_command(device, payload):
         name = control_name(payload.get(field), field)
         if kind == "button" and device == "cardputer-adv" and name in {"boot", "g0", "btn", "gpio0"} and action in ("down", "up"):
             return "gpio", (int(action == "up"),), settle
-        if device == "cardputer-adv" and kind in {"keyboard", "key"} and action in ("down", "up"):
+        if device in {"cardputer", "cardputer-adv"} and kind in {"keyboard", "key"} and action in ("down", "up"):
             key = KEY_ALIASES.get(name, name)
             if key in KEYS:
                 return "key-edge", (key, int(action == "down")), settle
+        mapped = gpio_button(device, name) if kind in {"button", "key"} else None
+        if mapped and action in {"down", "up"}:
+            return "button", (mapped, int(action == "up"), 0), settle
+        if kind in {"button", "key"} and device == "nesso-n1" and action in {"down", "up"}:
+            key = {"key1": "A", "key2": "B", "a": "A", "b": "B"}.get(name)
+            if key:
+                return "key", (key, action), settle
         if action not in ("tap", "click", "hold"):
             raise ServiceError("invalid_input", "Expected tap, click or hold", 400)
         duration = action_seconds(payload, "seconds", 1, maximum=10 if kind == "button" else 5) if action == "hold" else (
             action_seconds(payload, "hold_seconds", 0.12) if kind == "key" else 0.12)
         hold = math.ceil(duration * 1000)
-        if kind == "button":
-            if device == "cores3" and name == "power":
+        if mapped:
+            return "button", (mapped, 0, hold), settle
+        if kind in {"button", "key"}:
+            if device in {"cores3", "stackchan"} and name == "power":
                 return "pwrkey", (hold,), settle
-            if device == "cardputer-adv" and name in {"boot", "g0", "btn", "gpio0"}:
+            if device in {"sticks3", "stopwatch"} and name in {"power", "pwr"}:
+                if action == "hold":
+                    raise ServiceError("not_supported_on_runtime", "This PM1 model exposes a power-key pulse", 409)
+                return "pwrkey", (), settle
+            if device in {"cardputer", "cardputer-adv"} and name in {"boot", "g0", "btn", "gpio0"}:
                 return "press", (hold,), settle
-        elif device == "cardputer-adv":
+            if device == "stamplc":
+                key = {"key1": "a", "key2": "b", "key3": "c", "a": "a", "b": "b", "c": "c"}.get(name)
+                if key:
+                    return "plc-key", (key, hold), settle
+            if device in {"stickc", "stickc-plus", "stickc-plus-se", "stickt2"} and name in {"power", "pwr"}:
+                return "pmic-key", ("long" if action == "hold" else "short",), settle
+        if kind != "button" and device in {"cardputer", "cardputer-adv"}:
             key = KEY_ALIASES.get(name, name)
             if key in KEYS:
                 return "key", (key, hold), settle
@@ -294,14 +364,16 @@ def input_command(device, payload):
         accel = vector(payload, "accel", 32)
         gyro = vector(payload, "gyro", 4000)
         if "mag" in payload:
-            if device != "cores3":
-                raise ServiceError("not_supported_on_runtime", "Only CoreS3 exposes magnetometer injection", 409)
+            if device not in {"cores3", "stackchan"}:
+                raise ServiceError("not_supported_on_runtime", "Use a separate mag sample on boards with a separate magnetometer command", 409)
             return kind, (*accel, *gyro, *vector(payload, "mag", 2000)), settle
         return kind, (*accel, *gyro), settle
-    if kind == "als" and device == "cores3":
+    if kind == "mag" and device in {"atoms3r", "atoms3r-cam", "atoms3r-m12", "m5stick"}:
+        return kind, tuple(vector(payload, "mag", 2000)), settle
+    if kind == "als" and device in {"cores3", "stackchan"}:
         return kind, tuple(bounded_int(payload.get(key), key, limit)
                            for key, limit in (("ch0", 65535), ("ch1", 65535), ("proximity", 2047))), settle
-    if kind == "battery" and device == "cores3":
+    if kind == "battery" and device in {"cores3", "stackchan"}:
         charging = payload.get("charging")
         if type(charging) is not bool or ("vbus" in payload and type(payload["vbus"]) is not bool):
             raise ServiceError("invalid_input", "battery charging and optional vbus must be boolean", 400)
@@ -315,13 +387,108 @@ def input_command(device, payload):
         return kind, (bounded_int(payload.get("mv"), "mv", 16000),
                       bounded_int(payload.get("ma"), "ma", 32767, minimum=-32768),
                       int(charging)), settle
-    if kind == "adc" and device != "tab5":
+    if kind == "battery":
+        return (*battery_command(device, board, payload), settle)
+    if kind in {"rfid", "nfc-tag"}:
+        op = {("dial", "rfid"): "rfid", ("papermono", "nfc-tag"): "paper-tag",
+              ("stackchan", "nfc-tag"): "nfc-tag"}.get((device, kind))
+        if op:
+            uid = payload.get("uid")
+            allowed = (8,) if op == "rfid" else (8, 14)
+            if uid is None:
+                return op, ("none",), settle
+            if (not isinstance(uid, str) or len(uid) not in allowed
+                    or any(c not in "0123456789abcdefABCDEF" for c in uid)):
+                raise ServiceError("invalid_input", "Provide a hexadecimal tag UID or null", 400)
+            return op, (uid.lower(),), settle
+    if kind == "ir-nec" and device == "sticks3":
+        address = bounded_int(payload.get("address"), "address", 65535)
+        command = bounded_int(payload.get("command"), "command", 255)
+        return kind, (f"{address:04x}", f"{command:02x}"), settle
+    if (kind == "sht40" and device == "papercolor" or
+            kind == "enviii" and board.name == "m5stack-nanoc6-enviii"):
+        return kind, (bounded_number(payload, "temperature_c", -40, 125),
+                      bounded_number(payload, "humidity_pct", 0, 100)), settle
+    if kind == "head-touch" and device == "stackchan":
+        return kind, (bounded_int(payload.get("pad"), "pad", 2),
+                      bounded_int(payload.get("strength"), "strength", 3)), settle
+    if kind == "plc-temperature" and device == "stamplc":
+        return kind, (round(bounded_number(payload, "temperature_c", -55, 125) * 1000),), settle
+    if (kind == "plc-input" and device == "stamplc" or
+            kind == "pm1-gpio" and device in {"sticks3", "stopwatch"}):
+        level = payload.get("high")
+        if type(level) is not bool:
+            raise ServiceError("invalid_input", "high must be boolean", 400)
+        return kind, (bounded_int(payload.get("channel"), "channel", 7 if kind == "plc-input" else 4),
+                      int(level)), settle
+    if kind == "adc" and board.chip_id == 9:
         pin = bounded_int(payload.get("gpio"), "gpio", 20, minimum=1)
         volts = payload.get("volts")
         if type(volts) not in (int, float) or not 0 <= volts <= 3.3:
             raise ServiceError("invalid_input", "volts must be between 0 and 3.3", 400)
         return kind, (pin, volts), settle
     raise ServiceError("not_supported_on_runtime", "Input has no esp32sim board mapping", 409)
+
+
+def gpio_button(device, name):
+    if device in {"atom-lite", "atom-matrix", "atom-matrix-v11", "atomu", "atom-echo"}:
+        return "a" if name in {"a", "user", "button", "btn", "btn1"} else None
+    if device.startswith("atoms3") or device == "atom-echos3r":
+        return {"a": "button", "user": "button", "button": "button", "boot": "boot"}.get(name)
+    if device == "nanoc6":
+        return "boot" if name in {"a", "button", "boot"} else None
+    if device == "dial":
+        return {"a": "a", "button": "a", "boot": "boot"}.get(name)
+    if device == "cardputer":
+        return "g0" if name in {"g0", "boot", "btn", "gpio0"} else None
+    if device == "m5stick":
+        return "a" if name == "a" else None
+    if device == "stickc-plus2" and name in {"c", "pwr", "power"}:
+        return "pwr"
+    if device == "basic-v27":
+        return name if name in {"a", "b", "c"} else None
+    if device in {"papermono", "papercolor"}:
+        return {"key1": "a", "key2": "b", **({"key3": "c"} if device == "papercolor" else {})}.get(name)
+    if device in {"paperdiy", "stickc", "stickc-plus", "stickc-plus-se", "stickc-plus2", "stickt2",
+                  "sticks3", "stopwatch"}:
+        return name if name in {"a", "b"} else None
+    return None
+
+
+def battery_command(device, board, payload):
+    def number(field, maximum, minimum=0):
+        return bounded_int(payload.get(field), field, maximum, minimum=minimum)
+
+    def flag(field):
+        value = payload.get(field)
+        if type(value) is not bool:
+            raise ServiceError("invalid_input", f"{field} must be boolean", 400)
+        return int(value)
+
+    if device in {"sticks3", "stopwatch"}:
+        return "battery", (number("mv", 65535), flag("charging"))
+    if device in {"papermono", "papercolor"}:
+        args = (number("mv", 4500, 2500), flag("charging"))
+        return "paper-battery", (*args, number("vbus_mv", 5500)) if "vbus_mv" in payload else args
+    if device == "core2":
+        if board.name == "m5stack-core2-axp192":
+            return "battery", (number("mv", 65535), number("ma", 32767, -32768))
+        return "battery", (number("mv", 16383), number("percent", 100), flag("charging"))
+    if device == "basic-v27":
+        return "battery", (number("bars", 4), flag("charging"), flag("full"))
+    if device == "nesso-n1":
+        return "battery", (number("mv", 65535), number("ma", 32767, -32768),
+                           number("percent", 100), flag("vbus"))
+    if device in {"stickc", "stickc-plus", "stickc-plus-se", "m5stick"}:
+        return "battery-mv", (number("mv", 65535),)
+    raise ServiceError("not_supported_on_runtime", "Battery has no esp32sim board mapping", 409)
+
+
+def bounded_number(payload, field, minimum, maximum):
+    value = payload.get(field)
+    if type(value) not in (int, float) or not minimum <= value <= maximum:
+        raise ServiceError("invalid_input", f"{field} must be between {minimum} and {maximum}", 400)
+    return value
 
 
 def bounded_int(value, field, maximum, *, minimum=0):

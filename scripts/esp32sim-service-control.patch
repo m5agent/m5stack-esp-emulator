@@ -1,0 +1,114 @@
+--- a/esp-soc/src/machine/web.rs
++++ b/esp-soc/src/machine/web.rs
+@@ -153,14 +153,7 @@
+                 "knob" => {
+                     // Bound each browser message to about one second of encoder motion.
+                     let d = field("d").and_then(|x| x.parse::<i32>().ok()).unwrap_or(1).clamp(-64, 64);
+-                    let Some((clk, dt)) = self.bus.board_ref().encoder() else { continue };
+-                    let step = S::CPU_HZ / 500;   // 2 ms per phase
+-                    let mut tc = (self.bus.cycles() + step).max(self.script.knob_next);   // queue detents back to back, never overlapping
+-                    for _ in 0..d.unsigned_abs() { for (pn, l) in Self::quadrature(clk, dt, d > 0) { self.script.events.push((tc, ScriptAction::Gpio(pn, l))); tc += step; } tc += step * 4; }
+-                    self.script.knob_next = tc;
+-                    // Keep already consumed events before the cursor; pending events at the
+-                    // current horizon have not necessarily run when input arrives at run entry.
+-                    self.script.events[self.script.pos..].sort_by_key(|e| e.0);
++                    self.schedule_encoder(d, S::CPU_HZ / 500);
+                 }
+                 // a line with its newline, or `key`: bytes exactly as typed (a terminal on the console)
+                 "serial" | "key" => {
+@@ -206,6 +199,30 @@
+         let args: Vec<_> = args.split_ascii_whitespace().collect();
+         let op = field("op").unwrap_or_default();
+         let ok = match (op.as_str(), args.as_slice()) {
++            ("encoder", [delta, period]) => {
++                match (delta.parse::<i32>(), period.parse::<u64>()) {
++                    (Ok(delta @ -128..=128), Ok(period @ 5..=100)) if delta != 0 && self.script.knob_next <= self.bus.cycles() => {
++                        self.schedule_encoder(delta, S::CPU_HZ / 1000 * period)
++                    }
++                    _ => false,
++                }
++            }
++            ("servo-state", []) => {
++                if let Some([yaw, pitch]) = self.bus.board_ref().servo_angles() {
++                    w.send_text(&format!(r#"{{"t":"service","id":{id},"ok":true,"yaw":{yaw},"pitch":{pitch}}}"#));
++                    return;
++                }
++                false
++            }
++            ("button", [name, level, hold]) if matches!(*level, "0" | "1") => {
++                if let (Some(pin), Ok(hold @ 0..=10_000)) =
++                    (self.bus.board_ref().named_pin(name), hold.parse::<u32>())
++                {
++                    self.bus.gpio_set_input(pin, *level == "1");
++                    if hold > 0 { self.service_schedule(hold, ScriptAction::Gpio(pin, true)); }
++                    true
++                } else { false }
++            }
+             ("hello", []) => {
+                 let board = self.bus.board_ref().name();
+                 w.send_text(&format!(r#"{{"t":"service","id":{id},"ok":true,"board":"{board}","protocol":1}}"#));
+@@ -256,12 +273,32 @@
+             ("usb-report", bytes) if matches!(bytes.len(), 3 | 8) => self.bus.board_command(&op, &args),
+             ("pwrkey" | "battery" | "imu" | "als" | "key" | "key-edge" |
+              "contact" | "usb-hid" | "usb-unplug", _) => self.bus.board_command(&op, &args),
++            ("mag" | "rfid" | "paper-tag" | "paper-battery" | "sht40" | "head-touch" |
++             "nfc-tag" | "plc-key" | "plc-input" | "plc-temperature" | "plc-supply" |
++             "pm1-gpio" | "ir-nec" | "enviii" | "battery-mv" | "vbus-mv" |
++             "pmic-key" | "encoder-step" | "encoder-button", _)
++                if self.bus.board_ref().accepts_command(&op) => self.bus.board_command(&op, &args),
+             _ => false,
+         };
+         *self.bus.irq_dirty() = true;
+         w.send_text(&format!(r#"{{"t":"service","id":{id},"ok":{ok}}}"#));
+     }
+ 
++    fn schedule_encoder(&mut self, delta: i32, step: u64) -> bool {
++        let Some((clk, dt)) = self.bus.board_ref().encoder() else { return false };
++        let mut cycle = (self.bus.cycles() + step).max(self.script.knob_next);
++        for _ in 0..delta.unsigned_abs() {
++            for (pin, level) in Self::quadrature(clk, dt, delta > 0) {
++                self.script.events.push((cycle, ScriptAction::Gpio(pin, level)));
++                cycle += step;
++            }
++            cycle += step * 4;
++        }
++        self.script.knob_next = cycle;
++        self.script.events[self.script.pos..].sort_by_key(|event| event.0);
++        true
++    }
++
+     fn service_schedule(&mut self, hold_ms: u32, action: ScriptAction) {
+         let until = self.bus.cycles().saturating_add(u64::from(hold_ms) * (S::CPU_HZ / 1000));
+         self.script.events.push((until, action));
+--- a/esp-soc/src/board.rs
++++ b/esp-soc/src/board.rs
+@@ -220,6 +220,8 @@
+     /// parse time so an unknown verb stays a script error.
+     fn board_command(&mut self, _cycle: VirtualCycle, _verb: &str, _args: &[&str]) -> bool { false }
+     fn accepts_command(&self, _verb: &str) -> bool { false }
++    /// Modeled yaw and pitch in degrees, sampled at the current board horizon.
++    fn servo_angles(&self) -> Option<[f64; 2]> { None }
+     /// SoC supply from an external PMIC. None for boards without a switched supply.
+     fn soc_powered(&self) -> Option<bool> { None }
+     /// Observe software pad routing without requesting instruction-sized GPIO timing.
+--- a/esp32s3/src/board/stackchan.rs
++++ b/esp32s3/src/board/stackchan.rs
+@@ -252,7 +252,7 @@
+         }
+         true
+     }
+-    fn angles(&self) -> [f64; 2] {
++    pub(super) fn angles(&self) -> [f64; 2] {
+         let positions = self.servo.positions();
+         std::array::from_fn(|i| (f64::from(positions[i]) - f64::from(SERVO_ZERO[i])) * 0.3125)
+     }
+--- a/esp32s3/src/board/cores3.rs
++++ b/esp32s3/src/board/cores3.rs
+@@ -243,6 +243,7 @@
+     fn name(&self) -> &'static str {
+         if self.stackchan.is_some() { "m5stack-stackchan" } else { "m5stack-cores3" }
+     }
++    fn servo_angles(&self) -> Option<[f64; 2]> { self.stackchan.as_ref().map(StackChan::angles) }
+     fn uses_uart_pins(&self) -> bool { self.stackchan.is_some() }
+     fn uart_tx(&mut self, cycle: u64, route: esp_soc::uart::UartRoute, byte: u8) {
+         if let Some(base) = &mut self.stackchan { base.uart_tx(cycle, route, byte); }

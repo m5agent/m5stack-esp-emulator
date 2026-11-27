@@ -26,7 +26,12 @@
     },
     "blockers": [
       "Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atoms3-lite",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0
+    }
   },
   "cache_path": "platform/.cache/firmware/atoms3-lite/uiflow2.bin"
 }

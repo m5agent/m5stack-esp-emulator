@@ -26,7 +26,12 @@
     },
     "blockers": [
       "NS4150B 放大器使能 GPIO18 与 Voice Base IR GPIO47 没有板级模型；麦克风采集、Grove Unit 数据面、USB CDC 控制台、任意第三方固件和物理声学/光学/电气行为未验证。"
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atom-echos3r",
+      "flash_bytes": 8388608,
+      "psram_bytes": 8388608
+    }
   },
   "cache_path": "platform/.cache/firmware/atom-echos3r/uiflow2.bin"
 }

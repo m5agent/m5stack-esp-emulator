@@ -26,7 +26,12 @@
     },
     "blockers": [
       "Camera virtual-device path passed for QQVGA, 240x240, QVGA, CIF and VGA geometry and five-frame streaming. Dynamic framesize changes while frames are streaming, IR GPIO47, Grove Units, USB CDC and physical optics/electrics remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atoms3r-cam",
+      "flash_bytes": 8388608,
+      "psram_bytes": 8388608
+    }
   },
   "cache_path": "platform/.cache/firmware/atoms3r-cam/uiflow2.bin"
 }

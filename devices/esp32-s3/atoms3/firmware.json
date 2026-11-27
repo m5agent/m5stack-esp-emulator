@@ -26,7 +26,22 @@
     },
     "blockers": [
       "Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atoms3",
+      "flash_bytes": 8388608,
+      "psram_bytes": 0,
+      "frame_size": [
+        128,
+        128
+      ],
+      "variants": {
+        "gc9107": {
+          "board": "m5stack-atoms3-gc9107"
+        },
+        "st7735s": {}
+      }
+    }
   },
   "cache_path": "platform/.cache/firmware/atoms3/uiflow2.bin"
 }

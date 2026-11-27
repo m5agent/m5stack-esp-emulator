@@ -20,6 +20,16 @@
       "date": "2026-10-23",
       "status": "display-touch-peripherals-wifi-ble-pass",
       "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 480x800 四阶灰度 UI、BMI270、M5PM1/IP2315、RX8130、触摸/按键、SDMMC、扬声器、NFC、LoRa、RGB、WiFi DHCP/HTTP 和 UART1 HCI BLE。"
+    },
+    "esp32sim": {
+      "board": "m5stack-papermono",
+      "flash_bytes": 16777216,
+      "psram_bytes": 8388608,
+      "frame_size": [
+        480,
+        800
+      ],
+      "touch": true
     }
   },
   "cache_path": "platform/.cache/firmware/papermono/uiflow2.bin"

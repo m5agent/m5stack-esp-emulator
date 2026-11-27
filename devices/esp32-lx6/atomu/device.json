@@ -57,6 +57,15 @@
       "detail": "官方 UIFlow2 v2.5.4 AtomU 4MB 镜像在同一 m5atomu guest 内完成 ROM/二级 bootloader、M5.begin()、M5.getBoard()=130、GPIO27 SK6812 的 RMT 输出（QOM 解码 0x204060，5 帧）、QMP key:a 驱动 GPIO39 的按下/释放回读，以及 G26/G32 上 guest I2C 控制器扫描。无屏/无 PSRAM；SPM1423 PDM 麦克风、IR、Grove Unit 与物理行为未验证。三次矩阵运行 PASS。",
       "evidence": "docs/evidence/2026-11-02-atomu-host/summary.json",
       "category": "virtual-device"
+    },
+    "esp32sim": {
+      "board": "m5stack-atomu",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        1,
+        1
+      ]
     }
   },
   "uiflow2": {

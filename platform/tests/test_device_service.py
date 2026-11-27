@@ -444,7 +444,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             [row["device_id"] for row in supported],
             [device_id for device_id, row in rows.items() if row["supported"]],
         )
-        self.assertTrue(all(row["creatable"] for row in supported))
+        self.assertEqual({row["device_id"] for row in supported if not row["creatable"]}, {"m5stick", "stickt2"})
+        for device_id in ("m5stick", "stickt2"):
+            self.assertIn("esp32sim", rows[device_id]["runtimes"])
+            self.assertFalse(rows[device_id]["runtimes"]["qemu"]["backend_ready"])
         self.assertNotIn("cardputer-zero", {row["device_id"] for row in supported})
         original = rows["cardputer"]
         self.assertEqual((original["sku"], original["machine"]), ("K132", "m5cardputer"))
@@ -938,6 +941,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.service.firmware.path(firmware["firmware_id"]).stat().st_size,
             8 << 20,
         )
+
+    def test_same_merged_bytes_keep_independent_board_bindings(self):
+        artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
+        request = {"kind": "merged", "artifact_id": artifact["artifact_id"]}
+        original = self.service.create_firmware(dict(request, device_id="atom-matrix"))
+        variant = self.service.create_firmware(dict(request, device_id="atom-matrix-v11"))
+        self.assertEqual(original["sha256"], variant["sha256"])
+        self.assertNotEqual(original["firmware_id"], variant["firmware_id"])
+        for image in original, variant:
+            self.assertEqual(self.service.firmware.get(image["firmware_id"])["device_id"], image["device_id"])
+        repeated = self.service.create_firmware(dict(request, device_id="atom-matrix-v11"))
+        self.assertEqual(repeated["firmware_id"], variant["firmware_id"])
 
     def test_merged_firmware_rejects_partition_table_beyond_bootloader_declared_flash(self):
         artifact = self.service.upload_artifact(

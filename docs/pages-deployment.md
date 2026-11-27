@@ -130,7 +130,7 @@ python3 platform/tools/serve.py --browser-site .work/browser-site \
    分别绑定正常时钟配置，未知固件保留基础慢放配置。
 
 公开混合导出使用固定 Rust 1.99.1 构建 esp32sim，保留 QEMU 和 LittleFS。
-工作流先用固定 Arduino 与 UIFlow2 镜像验证两款 S3 的 esp32sim 工作台。
+工作流用固定 Arduino 与 UIFlow2 镜像验证 CoreS3、Cardputer-ADV 和 Cardputer 的 esp32sim 工作台。Cardputer 保留 QEMU-WASM 默认，可用 `engine=esp32sim` 切换。
 
 工作流只接受手动触发。部署要求 `main`、显式 `publish=true`、构建和每个
 公开板型的真实客体验收成功。当前[聚合门禁](../platform/tests/test_public_qemu_admitted_boards.mjs)

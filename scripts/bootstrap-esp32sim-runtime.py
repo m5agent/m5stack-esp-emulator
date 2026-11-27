@@ -14,6 +14,8 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 S3_ROM = "esp32s3_rev0_rom.elf"
+CLASSIC_ROM = "esp32_rev300_rom.elf"
+C6_ROM = "esp32c6_rev0_rom.elf"
 
 
 def sha256(path):
@@ -62,6 +64,8 @@ def main():
     parser.add_argument("--source", help="Git URL or local repository containing the pinned commit")
     parser.add_argument("--rom-dir", type=Path, default=os.environ.get("ESP32SIM_ROM_DIR"),
                         help="directory containing the pinned Espressif mask ROM ELFs")
+    parser.add_argument("--with-classic", action="store_true", help="stage the classic ESP32 ROM")
+    parser.add_argument("--with-c6", action="store_true", help="stage the ESP32-C6 ROM")
     tab5 = parser.add_mutually_exclusive_group()
     tab5.add_argument("--with-tab5", action="store_true", help="fetch the pinned Tab5 C6 asset archive")
     tab5.add_argument("--tab5-c6-build", type=Path,
@@ -76,9 +80,15 @@ def main():
         work = Path(directory)
         staged = work / "install"
         with_tab5 = args.with_tab5 or args.tab5_c6_build is not None
-        roms = lock["roms"] if with_tab5 else {S3_ROM: lock["roms"][S3_ROM]}
-        for name, digest in roms.items():
-            stage_asset(args.rom_dir / name, staged / "roms" / name, digest)
+        roms = [S3_ROM]
+        if with_tab5:
+            roms += ["esp32p4_rev0_rom.elf", "esp32p4_rev300_rom.elf"]
+        if with_tab5 or args.with_c6:
+            roms.append(C6_ROM)
+        if args.with_classic:
+            roms.append(CLASSIC_ROM)
+        for name in roms:
+            stage_asset(args.rom_dir / name, staged / "roms" / name, lock["roms"][name])
         if with_tab5:
             stage_tab5_c6(lock["tab5_c6"], staged / "tab5-c6", args.tab5_c6_build)
         git = ["git", "-C", directory]
@@ -87,6 +97,10 @@ def main():
         subprocess.run([*git, "checkout", "--quiet", "--detach", "FETCH_HEAD"], check=True)
         if subprocess.check_output([*git, "rev-parse", "HEAD"], text=True).strip() != lock["commit"]:
             raise RuntimeError("esp32sim source does not match the pinned commit")
+        patch = ROOT / "scripts/esp32sim-service-control.patch"
+        if sha256(patch) != lock["service_patch_sha256"]:
+            raise ValueError("esp32sim service patch SHA-256 mismatch")
+        subprocess.run([*git, "apply", "--index", str(patch)], check=True)
         target = work / "target"
         binaries = {"esp32sim": "binary_sha256"}
         if with_tab5:

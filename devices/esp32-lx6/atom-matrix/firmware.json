@@ -26,7 +26,16 @@
     },
     "blockers": [
       "Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-atom-matrix",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        5,
+        5
+      ]
+    }
   },
   "cache_path": "platform/.cache/firmware/atom-matrix/uiflow2.bin"
 }

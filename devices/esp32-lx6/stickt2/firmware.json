@@ -33,7 +33,16 @@
     },
     "blockers": [
       "Thermal virtual-device data plane passed with the committed bare-metal probe: Lepton CCI commands/PID-free register path, deterministic VoSPI frames matching the host fixture oracle, ST7789 panel screenshot and encoder QOM injection. The official M5Burner StickT2 User Demo (SHA-256 bb33ffd4…) reaches its app boot marker under deterministic icount but its thermal/UI path is not reached and cannot be probe-injected; physical LWIR optics/thermal measurement, Grove Units, PDM microphone, encoder hardware and full factory UI remain open."
-    ]
+    ],
+    "esp32sim": {
+      "board": "m5stack-stickt2",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "frame_size": [
+        135,
+        240
+      ]
+    }
   },
   "cache_path": "platform/.cache/firmware/stickt2/uiflow2.bin"
 }
