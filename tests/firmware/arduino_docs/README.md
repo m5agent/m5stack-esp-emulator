@@ -27,15 +27,18 @@ must be new so that repeated runs preserve earlier receipts.
 The runner covers selected display and quick-start cases for CoreS3,
 Cardputer, Dial, StickS3, StopWatch, Basic, Core2, PaperColor, PaperDIY,
 PaperMono, AtomS3, AtomS3R, StackChan, StamPLC and the StickC family.
-It also checks the CoreS3 power-button and battery readback examples and the
-Dial encoder example. It ports predicates
+It also checks the CoreS3 power button, battery readback, IMU vectors and
+ambient light/proximity examples and the Dial encoder example. It ports predicates
 from the [CoreS3 checker](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check_cores3.py)
 and [S3-B checker](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check-s3b-docs.py),
 plus the fork's [classic](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check-lx6-cores.py)
 and [e-paper](https://github.com/m5agent/esp32sim/blob/4e257b6be8ee0ed706c2e509d8f31ef7472a424b/tools/check-paper-docs.py)
 checkers.
 The runner compares the panel-native API geometry and samples against a bounded
-wall-time window. A matching frame result is `PARTIAL` until the service can
-also verify the controller and guest-time checks. A missing image is `NOT RUN`.
+wall-time window. `PASS` covers the service oracle recorded in that trial.
+The standalone suite separately checks controller counters and exact guest-time
+checkpoints. QEMU represents the CoreS3 ALS channels with one raw value, so the
+shared LTR553 oracle checks the resulting displayed average and proximity.
+A missing image is `NOT RUN`.
 Use the [pinned defect list](../../../docs/arduino-docs-defects-2026-11-27.md)
 for cases whose source or library builds have known defects.

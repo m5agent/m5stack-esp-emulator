@@ -185,7 +185,8 @@ PAPER = {
     ("papermono", "display-1"): (480, 800),
 }
 CASES = ANIMATION.keys() | STATIC.keys() | PAPER.keys() | {
-    ("cores3", "button"), ("cores3", "power"), ("dial", "encoder"),
+    ("cores3", "button"), ("cores3", "power"), ("cores3", "imu"), ("cores3", "ltr553"),
+    ("dial", "encoder"),
 }
 
 
@@ -314,6 +315,13 @@ def observe_dial_encoder(service, route, out, deadline):
     return {"frame_predicates_pass": frame is not None, "idle_screen": True, "steps": observations}
 
 
+def set_properties(service, route, path, properties):
+    for prop, value in properties.items():
+        service.json(route + "/qom", method="POST", payload={
+            "path": path, "property": prop, "value": value,
+        })
+
+
 def observe_cores3_power(service, route, out, deadline, runtime):
     digests = (
         ("f83e71bb2ade05b54cb74d90", "93d433c5af778794b4162220", "bb3d061653d6a42cb33e8ddc", "ce2226aaf0b274dfd02ccadb"),
@@ -327,11 +335,9 @@ def observe_cores3_power(service, route, out, deadline, runtime):
                 "kind": "battery", "mv": mv, "percent": percent, "charging": charging, "vbus": bool(vbus_mv),
             })
         else:
-            for prop, value in (("vbat-mv", mv), ("battery-level", percent),
-                                ("vin-mv", vbus_mv), ("charging", charging)):
-                service.json(route + "/qom", method="POST", payload={
-                    "path": "/machine/axp2101", "property": prop, "value": value,
-                })
+            set_properties(service, route, "/machine/axp2101", {
+                "vbat-mv": mv, "battery-level": percent, "vin-mv": vbus_mv, "charging": charging,
+            })
         observed = ()
         for frame in frames(service, route, out, deadline, (320, 240), f"battery-{index}"):
             observed = tuple(sha256(frame.crop((10, y, 260, y + 20)).tobytes()).hexdigest()[:24]
@@ -342,6 +348,54 @@ def observe_cores3_power(service, route, out, deadline, runtime):
         if not steps[-1]["matched"]:
             break
     return {"frame_predicates_pass": len(steps) == 2 and all(step["matched"] for step in steps), "steps": steps}
+
+
+def observe_cores3_sensor(service, route, out, deadline, case, runtime):
+    if case == "imu":
+        box = (0, 20, 170, 198)
+        variants = (
+            ({"accel": [0.5, -0.25, 0.75], "gyro": [125, -250, 62.5], "mag": [20, -10, 30]},
+             "99ee1de8968435d2c82d0617"),
+            ({"accel": [-0.375, 0.625, -1], "gyro": [-375, 500, -125], "mag": [-12.5, 33, -15]},
+             "2d18f7a0bc9baa5f29142146"),
+        )
+        initialized = any(
+            frame.crop((0, 182, 160, 198)).getbbox() is not None
+            for frame in frames(service, route, out, deadline, (320, 240), "imu-initialized")
+        )
+        if not initialized:
+            raise OracleFailure("the sketch did not finish its first nine-axis screen")
+    else:
+        box = (25, 106, 290, 133)
+        variants = (
+            ({"ch0": 400, "ch1": 120, "proximity": 321}, "d81b684af029a96628ec684a"),
+            ({"ch0": 2000, "ch1": 880, "proximity": 1456}, "96a270409805a3f5c5097c32"),
+        )
+    steps = []
+    for index, (sample, expected) in enumerate(variants):
+        applied = sample
+        if runtime == "esp32sim":
+            service.json(route + "/input", method="POST", payload={
+                "kind": "imu" if case == "imu" else "als", **sample,
+            })
+        elif case == "imu":
+            props = {f"{group}-{axis}": value for group in ("accel", "gyro")
+                     for axis, value in zip("xyz", sample[group])}
+            set_properties(service, route, "/machine/bmi270", props)
+            set_properties(service, route, "/machine/bmm150", dict(zip(("mag-x", "mag-y", "mag-z"), sample["mag"])))
+        else:
+            # QEMU returns the same raw sample for both ALS channels.
+            applied = {"light-level": (sample["ch0"] + sample["ch1"]) // 2,
+                       "proximity-level": sample["proximity"]}
+            set_properties(service, route, "/machine/ltr553", applied)
+        observed = None
+        for frame in frames(service, route, out, min(deadline, time.monotonic() + 22), (320, 240), f"{case}-{index}"):
+            observed = sha256(frame.crop(box).tobytes()).hexdigest()[:24]
+            if observed == expected:
+                break
+        steps.append({"sample": sample, "applied": applied, "region_digest": observed,
+                      "expected_region_digest": expected, "matched": observed == expected})
+    return {"frame_predicates_pass": all(step["matched"] for step in steps), "steps": steps}
 
 
 def observe_case(service, route, out, deadline, case, runtime):
@@ -356,6 +410,8 @@ def observe_case(service, route, out, deadline, case, runtime):
         return observe_dial_encoder(service, route, out, deadline)
     if case == ("cores3", "power"):
         return observe_cores3_power(service, route, out, deadline, runtime)
+    if case in {("cores3", "imu"), ("cores3", "ltr553")}:
+        return observe_cores3_sensor(service, route, out, deadline, case[1], runtime)
     return observe_cores3_button(service, route, out, deadline)
 
 
@@ -423,8 +479,8 @@ def run_trial(service, out, device, case, firmware_id, digest, runtime, trial, t
         )
         result["no_fatal_marker"] = collect_serial(service, route, out)
         if result["no_fatal_marker"] and result["observations"]["frame_predicates_pass"]:
-            result["status"] = "PARTIAL"
-            result["reason"] = "Frame predicates passed. Controller and guest-time checks remain unverified."
+            result["status"] = "PASS"
+            result["scope"] = "Service oracle, including recorded observations. Standalone fork checks are separate."
         else:
             result["status"] = "FAIL"
     except OracleFailure as error:

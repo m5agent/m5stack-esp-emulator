@@ -476,7 +476,7 @@ def gpio_button(device, name):
     if device == "dial":
         return {"a": "a", "button": "a", "boot": "boot"}.get(name)
     if device == "cardputer":
-        return "g0" if name in {"g0", "boot", "btn", "gpio0"} else None
+        return "g0" if name in {"g0", "boot", "btn", "gpio0", "f12"} else None
     if device == "m5stick":
         return "a" if name == "a" else None
     if device == "stickc-plus2" and name in {"c", "pwr", "power"}:

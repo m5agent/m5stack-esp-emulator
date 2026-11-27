@@ -183,6 +183,8 @@ class Esp32SimTests(unittest.TestCase):
             ("core2", {"kind": "key", "key": "c", "action": "up"}, ("touch", (258, 260, 0, 0), .3)),
             ("cardputer-adv", {"kind": "button", "control": "G0"}, ("press", (120,), .3)),
             ("cardputer-adv", {"kind": "button", "control": "boot", "action": "up"}, ("gpio", (1,), .3)),
+            ("cardputer", {"kind": "key", "key": "f12"}, ("button", ("g0", 0, 120), .3)),
+            ("cardputer", {"kind": "key", "key": "f12", "action": "up"}, ("button", ("g0", 1, 0), .3)),
             ("cores3", {"kind": "battery", "mv": 3900, "percent": 70, "charging": False},
              ("battery", (3900, 70, 0), .3)),
             ("cores3", {"kind": "als", "ch0": 1500, "ch1": 300, "proximity": 250},

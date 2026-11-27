@@ -56,6 +56,18 @@ Dial 控制器记录三个完成的机械步进与十二条 GPIO 边沿。所有
 完整目录迁移、常驻发布及真机未在本轮取证。
 [固定证据和可复核的运行时哈希](https://github.com/m5agent/agent-work-logs/blob/9526ccddd4fc24aa0a8c44eb7bf197eee213c1d1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/follow-up-milestone.md)。
 
+## 2026-11-27：AtomU 与 Atom Echo 默认路由候选
+
+Virtual-device validation。原版镜像在两个后端各两次通过 UART REPL、
+GPIO39 按下/释放、RGB 0x204060、固定三种 PDM 捕获和标准 HTTP 证据路径。
+Atom Echo 两后端均回放 440.042 Hz PCM，原版 GitHub 镜像均缺少启动模块
+`M5Things`。其三个 Arduino 原示例的编译缺陷保持原分类。
+AtomU 的 M5Burner 目录镜像包含该模块，同版两轮从请求到 MicroPython 提示
+为 esp32sim 1.640–1.746 秒、QEMU 12.101–12.968 秒。
+候选 20 个租约验证省略 runtime、显式 QEMU 及旧版环境、身份、NVS 路由。
+PaperColor 的两后端各两次在来宾完成绘图后按 A 键，`(270,160)` 由白转黑。
+[固定固件、后端哈希和逐轮证据](https://github.com/m5agent/agent-work-logs/blob/399ada2d86222d3d4220c2cb5f78096cdee43dd1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/classic-defaults-and-panel-readiness.md)。
+
 ## 2026-11-27：esp32sim 与封存后端同固件基准
 
 - Native Device Service virtual-device validation。基线源码
