@@ -69,7 +69,9 @@ short input pulse or performance.
 
 Export with `platform/tools/build_public_site.py` and follow the documented
 admission/publication gate. Verify project-relative URLs, the asset closed set,
-hashes, corresponding source/licenses and the absence of firmware/ROM, credentials
-or private service endpoints. HTTP byte checks prove deployment integrity, not a
+hashes and corresponding source/licenses. Allow only the pinned, licensed
+esp32sim ROM assets documented in the Pages guide. Verify that the export has
+no firmware, unlisted ROMs, credentials or private service endpoints. HTTP byte
+checks prove deployment integrity, not a
 new guest run. Screenshot updates must show an actual identified UI/run and must
 not imply wider firmware or hardware coverage.
