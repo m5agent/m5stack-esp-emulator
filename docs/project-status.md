@@ -360,9 +360,9 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、lease-bound central evidence store、fencing、local QEMU | 物理跨主机 executor/reattach、queue/session/evidence 的跨主机复制、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；单 control-plane evidence store 不等于对象存储复制；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop；当前 `origin/main` 工具 hash 的双实例回归已重绑；九实例两次通过、一次失败 | 当前高负载宿主下的八实例 cold-start tool-hash 重绑、持续吞吐和其他更复杂 teardown；物理 controller/PSRAM/cache 只在明确要求物理属性时另立验证 | `CORE2-02` 仍为 P0；九实例出现 NimBLE ACK panic，默认继续为 8；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能。精确轮次、哈希和边界见[容量边界](evidence/2026-10-30-core2-concurrent-capacity-boundary/README.md)和[当前工具 hash 重绑](evidence/2026-10-30-core2-toolhash-rebind/README.md) |
 | `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析；Device Service API `1.51.0` 的外部 runtime ACL/执行策略 | Guest filesystem 自身 ACL、完整许可/法律审批、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、service runtime ACL、签名数学和包内摘要自洽分别成立，均不等于 guest 文件权限、设备 trust root 或生产沙箱 |
-| `RUNTIME-02` 模型缺口 | C6 Zigbee 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP、`RUNTIME-04` ATECC608 初始化和 `RUNTIME-05` WPA2 已关闭 | commissioning/join | 观察到帧或读取地址不等于完整生命周期 |
+| `RUNTIME-02` 模型缺口 | esp32sim 的原 NanoC6 light 已完成 Zigbee join、On/Off 及灯色回读。旧后端的 `RUNTIME-01` Flash/PMP、`RUNTIME-04` ATECC608 初始化和 `RUNTIME-05` WPA2 已关闭 | 同原版离网、共存与双租约复验 | 冻结 QEMU/esp-emu 的 Zigbee 条件和完整生命周期仍开放 |
 | `SVC-01`、`SVC-02`、`SVC-03` | durable queue、HMAC、TLS/mTLS、rotation、trusted-host restart/reattach、companion recovery；`SVC-03` 已拆出 `ServiceError`、首批 parser、QEMU/runtime 内存策略、私有 env 脱敏、network policy/CNAME parsing、设备规格/profile 加载、storage/NVS、esp-emu network execution 和 QEMU WiFi security/env 语义，并保持 re-export | namespace-managed/Tab5/cross-host companion、warm pool、其余请求解析/runtime/evidence/session 拆分 | 单机恢复不能继承为跨主机迁移或生产调度 |
-| `TAB5-01` / `UI-01` / `CZ-01` | Tab5 与 Linux ARM64 有可用子集；StopWatch 为参考外壳 | 等待兼容上游 P4 后端、逐设备视觉回归、CardputerZero 收尾 | `partial` 是可运行子集，不是完整设备或全固件兼容 |
+| `TAB5-01` / `UI-01` / `CZ-01` | Tab5 esp32sim 有原版显示、触摸和 HID 子集，Linux ARM64 有独立子集，StopWatch 为参考外壳 | 同原版 DSI 回读、逐设备视觉回归、CardputerZero 收尾 | 按固件、板型和控制器验收 |
 
 ## 能力状态
 

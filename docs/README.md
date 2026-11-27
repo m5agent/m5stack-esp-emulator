@@ -22,6 +22,7 @@
 | 创建会话、输入、取帧和取证 | [Device Service API](device-service-api.md) · [OpenAPI](device-service.openapi.yaml) · [后端迁移](esp32sim-migration.md) · [Arduino 文档和库缺陷](arduino-docs-defects-2026-11-27.md) · [虚拟设备功能测试](device-functional-test-workflow.md) |
 | 审核原版或应用分段 BIN | [固件审查工作流](firmware-review-and-simulation-workflow.md) · [FirmwareManifest](firmware-manifest.md) |
 | 确认模型、内存和控制器能力 | [设备适配矩阵](qemu-device-adaptation-matrix.md) · [运行时模型缺口](runtime-model-gap-register.md) · [统一设备运行时](unified-device-runtime.md) |
+| 对照 esp32sim 和封存后端 | [2026-11-27 同固件基准与缺口复验](esp32sim-backend-benchmark-2026-11-27.md) |
 | 查 PSRAM、Wi-Fi、BLE 与 Worker 边界 | [Core2 native HCI](core2-native-hci-backend.md) · [网络模拟方案](network-simulation-plan.md) · [网络诊断](network-lane.md) |
 | 在 macOS 上做无命名空间的同 guest 网络审查 | [控制固件与运行方法](../tests/network/review_sta_controls/README.md) · [证据](evidence/2026-11-24-review-sta-portable/README.md) · [驱动初始化与条件步骤](evidence/2026-11-25-review-sta-activity/README.md) |
 | 验证 S3-watch 原版的 WPA2 热点和 HTTP | [执行用例](../tests/network/native_s3_watch_wpa2/README.md) · [原生对端设计](plans/2026-11-23-s3-watch-native-wpa2-design.md) |

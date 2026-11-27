@@ -29,8 +29,11 @@
 
 恢复执行后先按下列 P0 的最小交付推进，再处理 P1、P2；依赖未满足时保持阻塞，不宣称已开始。
 `NET-04`、`SVC-01/02` 的跨主机验收需要可独立失联和 drain 的节点；
-`RUNTIME-02`、`TAB5-01` 需要相应后端或权威固件资料；`FW-02` 的 live eFuse/生产 key 需要明确授权。
-浏览器保留已准入的 C/QEMU 路径，CoreS3 与 Cardputer-ADV 另有 esp32sim；Pages 不自动跟随 main。
+`RUNTIME-02`、`TAB5-01` 按已通过的 esp32sim 子路径推进剩余控制器验收；
+`FW-02` 的 live eFuse/生产 key 需要明确授权。
+浏览器保留已准入的 C/QEMU 路径，esp32sim 的逐板通过项见[当前状态](project-status.md)。
+Pages 不自动跟随 main。[同固件基准与旧缺口复验](esp32sim-backend-benchmark-2026-11-27.md)
+记录两条后端的实测范围。待办使用下列逐项关闭条件。
 
 PaperDIY 的原版 CrossPoint 仍需按原 BIN、实际配置输入和同会话应用输出验证网络。
 已具备的原生 STA 板级准入仅关闭关联/DHCP 资格前置，不能替代其 TCP/UDP、
@@ -62,7 +65,7 @@ Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外
 | `FW-01` | 进行中 | guest filesystem 运行态 ACL、完整源码/依赖许可和法律审批 | 镜像属性、service ACL、guest 强制执行分开；不支持配置 INVALID，unknown 不升 PASS |
 | `FW-02` | 进行中 | 公钥权威性、live eFuse、bootloader anti-rollback、真机加密与生产 key 流程 | 镜像、运行态和硬件分层；生产敏感值不入库，缺权威输入保持 unknown |
 | `FW-03` | 进行中 | 原始私有 Core2 业务复跑、真实 key/云端/音频与更多 firmware family、SD/NVS/网络 fixture | 按实际 BIN 与 fixture 绑定；模型缺口、fixture 缺口、环境故障与固件 FAIL 分开 |
-| `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK、commissioning、join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持 runtime_model_gap，不承诺所有 C6 固件兼容 |
+| `RUNTIME-02` | 进行中 | esp32sim 已用原 NanoC6 light 完成 join/On-Off，剩余离网、共存与原版双租约复验 | 按真实 guest 驱动与控制器收发闭环验收，冻结 QEMU 的模型缺口另行保留 |
 | `RUNTIME-07` | 进行中 | 定位 StamPLC 原多指令 TB 策略硬复位后 SYSTIMER PIF | 同固件采集 MMIO/region/TLB/TB 与 CPU1 reset/IRQ；修复原路径并回归，oneInsn 规避不关闭缺口 |
 | `RUNTIME-08` | 进行中 | 捕获 Cardputer-ADV 原工作台复位后的 WASM OOB trap 与恢复状态 | 同二进制符号、复位/负载对照及同异常路径修复；保留首次失败和 fallback 清理 |
 | `RUNTIME-09` | 进行中 | 定位 AtomS3 Lite 工作台首次启动及 oneInsn 硬 reset PIF | 取得 MMIO/region/TLB/TB/IRQ 证据；修复后通过启动、代码、reset、输入和清场 |
@@ -70,7 +73,7 @@ Linux/浏览器及其它安全模式仍需各自证据，不能从 HTTP PASS 外
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 与跨主机 session/evidence 连续性 | ownership 完全匹配才 adopt；重启后接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列/配额、对象存储、审计、多租户隔离和容量指标 | 资源及 GC 可观测；不可信固件使用 disposable VM/copy-on-write，namespace 不是恶意代码沙箱 |
 | `SVC-03` | 进行中 | 继续提取请求解析/运行参数，再拆 store、runtime adapter、evidence collector 与生命周期/HTTP 编排 | 每步只移动一个可回滚边界，保持 API、错误码、参数、历史恢复和 evidence 契约 |
-| `TAB5-01` | 阻塞 | 等待上游 P4 兼容与控制器支持 | 同原版越过 CSR/DSI 阻断后，以公开接口验证板级器件和数据面 |
+| `TAB5-01` | 进行中 | 复验 DSI RX FIFO、USB MSC 和其它原版控制器 | 同原版经对应控制器和 guest 应用完成验收；冻结 esp-emu 关闭条件独立保留 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值；host 接入战役不重开 | 逐设备视觉回归；仅视觉/组合件不继承独立 host 或硬件结果 |
 | `UI-02` | 进行中 | 更多固定固件、浏览器性能/长期稳定性及逐固件 CPU、输入、存储与复位缺口 | 同 Flash/runtime/profile/input/frame 绑定；native 或 compiled_profiles 不授浏览器 PASS |
 | `UI-03` | 进行中 | 正式托管同版本完整串行门禁、独立 HTTPS 编辑器/输入与偶发启动/复位故障 | 保留真实输入、输出、清场和历次失败；局部 HTTPS 例不覆盖全设备 |
@@ -197,8 +200,11 @@ bit-exact Espressif controller/baseband、物理板载 8 MiB PSRAM/cache timing 
 
 ### RUNTIME-02 C6 Zigbee/802.15.4
 
-补可重建的 MAC ACK/commissioning，或取得公开固件 matching ELF，以真实 guest 驱动验证 join、收发和离网；
-另一个后端仅双向帧不算完整生命周期。否则保持 runtime_model_gap，不承诺所有 C6 固件兼容。
+原 NanoC6 light 在 esp32sim Cooja 对端完成 join、五次 On/Off 和蓝灯变化。
+剩余在同一原版证明离网、共存及新版双租约 API 结果。
+冻结 QEMU 无相应控制器，原 esp-emu 的双向帧证据保持 PARTIAL。
+同原版的限定结果不承诺所有 C6 固件兼容。
+[同固件复验](esp32sim-backend-benchmark-2026-11-27.md#旧问题复验)
 
 ### RUNTIME-09 AtomS3 Lite 工作台首次启动及硬复位 PIF
 
@@ -248,9 +254,11 @@ API、错误码、运行参数、历史和 evidence 不回归，按受影响工�
 
 ### TAB5-01
 
-等待兼容旧 P4 CSR/DSI 且公开相应控制器扩展的上游后端；同原版先验启动，再逐项验动态 I2C/RTC/IMU/
-INA226/PI4IOE/IP2326、I2S/PCM、CSI、USB Host、SDIO、controller-level touch 及 P4↔C6 ESP-Hosted 端到端网络。
-已验证的板型/专用 Part 不转授其它配置；不支持时保留静态/串口证据，画面和数据面按实际标注。
+esp32sim 已通过原版 v2.5.4 GT911/ILI9881C 离线主页和 ADC 触摸，以及原版
+Maker Fighter HID 枚举、报告与菜单。继续同原版验收 DSI RX FIFO 回读、
+动态 I2C/RTC/IMU/INA226/PI4IOE/IP2326、I2S/PCM、CSI、USB MSC、
+SDIO 与 P4↔C6 ESP-Hosted 网络。其余原版及冻结 esp-emu 路径独立保留。
+[同固件复验](esp32sim-backend-benchmark-2026-11-27.md#旧问题复验)
 
 ### 音频与其它外设
 
@@ -280,7 +288,7 @@ AtomS3R-Ext、StickV 为 boundary-only；AtomS3R-AI Chatbot、AtomS3R-CAM AI Cha
 
 ### UI-02/03 文档例程 WASM 试点
 
-- 在文档预览单独验证能开启跨源隔离的托管方式，再接入 CoreS3 和 Cardputer-Adv 的已验例程。验收包括同页运行、首个可操作画面、实际交互输出、跳转或停止后回收及其他文档资源加载。[正式文档嵌入阻塞](https://github.com/m5agent/m5stack-esp-emulator/issues/242)
+- 在文档可部署预览按实际 CSP 和跨源资源策略验收 CoreS3 与 Cardputer-ADV 的预设例程、输入、导航或停止回收。esp32sim 的[本地无隔离跨站复验](esp32sim-backend-benchmark-2026-11-27.md#文档-iframe-242)已有实际来宾输入和画面。保留 QEMU-WASM 的隔离或独立打开路径。[#242](https://github.com/m5agent/m5stack-esp-emulator/issues/242) · [QEMU-WASM 候选 #277](https://github.com/m5agent/m5stack-esp-emulator/pull/277)
 - 保持原始 Arduino、UIFlow2 和 ESP-IDF 例程的源版本与镜像哈希。Cardputer-Adv 正式托管需回归相同的原显示、键盘和参考镜像。[ADV 板型探测](https://github.com/m5agent/m5stack-esp-emulator/issues/245)
 
 - 按例程加入可控网络及其他 Unit。固件固定、真实帧、控制器和资源生命周期一起验收。CoreS3 UIFlow2 Speaker 仍需明确原始 WAV 的授权来源和工作台装配路径，再验证真实播放。[例程预置 #255](https://github.com/m5agent/m5stack-esp-emulator/issues/255) · [Speaker 素材 #271](https://github.com/m5agent/m5stack-esp-emulator/issues/271)
