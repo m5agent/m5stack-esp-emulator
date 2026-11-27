@@ -137,6 +137,12 @@ Restricted mode disables host NAT and accepts no host policy. Namespace and
 QEMU-specific network fixtures require their advertised runtime. Use trusted
 firmware when enabling NAT. Verify association and traffic through the guest.
 
+NanoC6 and Nesso N1 also accept `network={"profile":"esp32sim-softap",
+"mode":"restricted","ssid":"guest-ap","psk":"example-pass"}` on the
+same pinned runtimes. The emulator station joins the guest's access point.
+The guest provides its own DHCP service and the Device Service retains the
+virtual station's Ethernet PCAP.
+
 CoreS3 `program_mode="uiflow-live"` uses the existing UART0 bootstrap and
 same-guest source/package routes. The runtime sends and receives bytes through
 the guest UART model. Cloud startup and managed Preview continue to select

@@ -89,6 +89,21 @@ class Esp32SimTests(unittest.TestCase):
         self.assertEqual(command[command.index("--net") + 1], "restricted")
         self.assertEqual(network["policy"]["isolation"], "emulator")
 
+    def test_softap_uses_the_virtual_station_without_host_networking(self):
+        request = {"profile": "esp32sim-softap", "mode": "restricted", "ssid": "guest"}
+        with self.assertRaises(ServiceError):
+            runtime.parse_network(request, restricted_supported=True)
+        for overrides in ({"mode": "nat"}, {"policy": {"isolation": "trusted-host"}}):
+            with self.subTest(overrides=overrides), self.assertRaises(ServiceError):
+                runtime.parse_network(request | overrides, restricted_supported=True, softap_supported=True)
+        network = runtime.parse_network(request, restricted_supported=True, softap_supported=True)
+        installation = runtime.Installation(Path("/asset/esp32sim"), Path("/asset/rom"), Path("/asset/manifest"))
+        command = runtime.spawn_command(installation, runtime.BOARDS["nanoc6"], 12,
+                                        Path("/session/flash"), network=network, pcap=Path("/session/net.pcap"))
+        self.assertEqual(command[-4:], ["--wifi-sta", "ssid=guest", "--pcap", "/session/net.pcap"])
+        self.assertNotIn("--net", command)
+        self.assertEqual(network["policy"], {"isolation": "emulator", "egress": "deny-all", "dns": "guest"})
+
     def test_qom_snapshot_is_bounded_and_uses_one_sample(self):
         session = Esp32SimDeviceSession.__new__(Esp32SimDeviceSession)
         session._lock = threading.RLock()

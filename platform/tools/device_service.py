@@ -11467,7 +11467,7 @@ class Esp32SimDeviceSession(DeviceSession):
             return {"status": "DISABLED", "runtime": esp32sim.RUNTIME}
         return {
             "status": "CONFIGURED", "runtime": esp32sim.RUNTIME,
-            "profile": "esp32sim-sta", "policy": self.network_config["policy"],
+            "profile": self.network_config["profile"], "policy": self.network_config["policy"],
             "mode": self.network_config.get("mode", "nat"),
             "pcap_available": self.network_pcap.is_file(),
         }
@@ -13821,9 +13821,11 @@ class DeviceService:
                 and any(key in requested_network for key in STA_STREAM_PORTS)):
             raise ServiceError("invalid_network", "local STA stream fixtures require runtime=qemu-wifi", 400)
         if use_esp32sim:
+            restricted_supported = "net-restricted" in native_identity.get("service_features", ())
             network_config = esp32sim.parse_network(
                 requested_network,
-                restricted_supported="net-restricted" in native_identity.get("service_features", ()),
+                restricted_supported=restricted_supported,
+                softap_supported=restricted_supported and spec.id in {"nanoc6", "nesso-n1"},
             )
         elif runtime == "network":
             network_config = parse_network_execution(

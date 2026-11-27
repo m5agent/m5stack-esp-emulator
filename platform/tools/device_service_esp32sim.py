@@ -252,19 +252,24 @@ def validate_memory(board, data, psram):
         raise ServiceError("firmware_flash_mismatch", "Firmware flash layout exceeds the esp32sim board capacity", 422)
 
 
-def parse_network(value, *, restricted_supported=False):
+def parse_network(value, *, restricted_supported=False, softap_supported=False):
     if value is None:
         return {}
     if not isinstance(value, dict) or set(value) - {"profile", "ssid", "psk", "policy", "mode"}:
         raise ServiceError("invalid_network", "esp32sim accepts profile, ssid, psk, policy and mode", 400)
-    if value.get("profile", "esp32sim-sta") != "esp32sim-sta":
-        raise ServiceError("not_supported_on_runtime", "esp32sim supports the esp32sim-sta profile", 409)
+    profile = value.get("profile", "esp32sim-sta")
+    if profile == "esp32sim-softap":
+        if not softap_supported or value.get("mode") != "restricted" or "policy" in value:
+            raise ServiceError("not_supported_on_runtime", "esp32sim-softap requires a supported board, restricted mode and no host policy", 409)
+    elif profile != "esp32sim-sta":
+        raise ServiceError("not_supported_on_runtime", "Unsupported esp32sim network profile", 409)
     request_policy = value.get("policy")
     mode = value.get("mode", "nat")
     if mode == "restricted":
         if not restricted_supported or "policy" in value:
             raise ServiceError("not_supported_on_runtime", "Restricted esp32sim mode requires a pinned runtime and no host policy", 409)
-        policy_evidence = {"isolation": "emulator", "egress": "deny-all", "dns": "emulated"}
+        dns = "guest" if profile == "esp32sim-softap" else "emulated"
+        policy_evidence = {"isolation": "emulator", "egress": "deny-all", "dns": dns}
     elif mode == "nat":
         policy = parse_network_policy(request_policy)
         if (not isinstance(request_policy, dict)
@@ -282,7 +287,7 @@ def parse_network(value, *, restricted_supported=False):
                 or (text and not text.isprintable())
                 or (name == "ssid" or text) and not minimum <= len(text) <= maximum):
             raise ServiceError("invalid_network", f"Invalid esp32sim Wi-Fi {name}", 400)
-    return {"profile": "esp32sim-sta", "ssid": ssid, "psk": psk, "mode": mode, "policy": policy_evidence}
+    return {"profile": profile, "ssid": ssid, "psk": psk, "mode": mode, "policy": policy_evidence}
 
 
 def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None, network=None,
@@ -321,7 +326,10 @@ def spawn_command(installation, board, fd, flash, *, sd=None, cam=None, mic=None
         settings = f"ssid={network['ssid']}"
         if network["psk"]:
             settings += f",psk={network['psk']}"
-        command += ["--wifi", settings, "--net", network.get("mode", "nat")]
+        if network.get("profile") == "esp32sim-softap":
+            command += ["--wifi-sta", settings]
+        else:
+            command += ["--wifi", settings, "--net", network.get("mode", "nat")]
         if pcap is not None:
             command += ["--pcap", str(pcap)]
     return command

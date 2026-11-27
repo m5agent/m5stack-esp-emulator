@@ -6022,17 +6022,21 @@ components:
         - required: [policy]
           properties:
             mode: {const: nat}
+            profile: {const: esp32sim-sta}
         - required: [mode]
           properties:
             mode: {const: restricted}
           not:
             required: [policy]
       properties:
-        profile: {const: esp32sim-sta}
+        profile:
+          enum: [esp32sim-sta, esp32sim-softap]
+          default: esp32sim-sta
+          description: esp32sim-softap joins the guest access point on NanoC6 and Nesso N1 in restricted mode.
         mode:
           enum: [nat, restricted]
           default: nat
-          description: Restricted mode uses the virtual AP without host NAT. Requires net-restricted support.
+          description: Restricted mode uses a virtual AP or station without host NAT. Requires net-restricted support.
         ssid: {type: string, minLength: 1, maxLength: 32}
         psk: {type: string, maxLength: 63, writeOnly: true}
         policy:
