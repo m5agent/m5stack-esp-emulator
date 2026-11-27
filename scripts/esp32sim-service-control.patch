@@ -1,8 +1,8 @@
 diff --git a/esp-soc/src/board.rs b/esp-soc/src/board.rs
-index edc79a3..00e1a8b 100644
+index 97e6cbcd..7d65c2a9 100644
 --- a/esp-soc/src/board.rs
 +++ b/esp-soc/src/board.rs
-@@ -220,6 +220,8 @@ pub trait BoardModel {
+@@ -227,6 +227,8 @@ pub trait BoardModel {
      /// parse time so an unknown verb stays a script error.
      fn board_command(&mut self, _cycle: VirtualCycle, _verb: &str, _args: &[&str]) -> bool { false }
      fn accepts_command(&self, _verb: &str) -> bool { false }
@@ -12,10 +12,37 @@ index edc79a3..00e1a8b 100644
      fn soc_powered(&self) -> Option<bool> { None }
      /// Observe software pad routing without requesting instruction-sized GPIO timing.
 diff --git a/esp-soc/src/machine.rs b/esp-soc/src/machine.rs
-index 7efd22a..9d623bd 100644
+index a10fc0f0..eb618344 100644
 --- a/esp-soc/src/machine.rs
 +++ b/esp-soc/src/machine.rs
-@@ -79,7 +79,7 @@ pub struct Realtime {
+@@ -16,6 +16,7 @@ mod service;
+ 
+ #[derive(Clone, Debug)]
+ pub enum ScriptAction { Gpio(u8, bool), Serial(String), Uart(usize, String), Stop, Touch(u16, u16, bool), Poke(u32, u32), TouchPad(u8, bool), Ble(String), Analog(u8, esp_periph::AnalogSource),
++    EncoderEdge { pin: u8, level: bool, phase: usize, direction: i64 },
+     /// `waituart0 <timeout_s> <text>`: hold the rest of the script until UART0 prints `text` (or the
+     /// timeout passes), then shift every later action by the time actually waited. Fields: text,
+     /// timeout in cycles, the cycle the script placed it at.
+@@ -41,9 +42,18 @@ pub struct Console {
+ 
+ /// Host actions scheduled at emulated times (`--script`, and the UI's encoder detents).
+ pub struct Script { pub events: Vec<(u64, ScriptAction)>, pub pos: usize, pub log: bool, knob_next: u64,
++                   encoder: EncoderDelivery,
+                    /// UART0 text seen so far (capped) and where the pending wait started looking
+                    uart0_seen: Vec<u8>, wait_mark: Option<usize> }
+ 
++#[derive(Default)]
++struct EncoderDelivery {
++    target: i64,
++    delivered: i64,
++    gpio_edges: u64,
++    detent_edges: u8,
++}
++
+ /// Host conditions and links around a run (`--exit-on`, `--timeout`, `--uart-tcp`, `--uart1-tcp`). The stop
+ /// conditions are tested where the console is drained, the sockets polled from the real-time pacing step: a run
+ /// without them pays an `is_some`/`is_empty` test per drain and nothing per round.
+@@ -82,7 +92,7 @@ pub struct Realtime {
  }
  
  struct WebState { last_push_cycles: u64, /// EX170: `CPU_HZ / display_push_hz()` as of the last evaluation (0 = not evaluated yet); boards are fixed once booted.
@@ -24,16 +51,19 @@ index 7efd22a..9d623bd 100644
  
  pub struct Machine<S: Soc> {
      pub mac: [u8; 6],
-@@ -181,7 +181,7 @@ impl<S: Soc> Machine<S> {
+@@ -182,9 +192,9 @@ impl<S: Soc> Machine<S> {
+             dbg: Debug { stop_on_unimplemented: true, stop_after_exceptions: u64::MAX },
+             observers: Vec::new(), probes: Wants::NONE, prev_irq: vec![0; S::CORES],
              exceptions: 0, interrupts: 0, irq_hist: vec![[0; 32]; S::CORES],
-             script: Script { events: Vec::new(), pos: 0, log: true, knob_next: 0, uart0_seen: Vec::new(), wait_mark: None }, max_cycles: u64::MAX,
+-            script: Script { events: Vec::new(), pos: 0, log: true, knob_next: 0, uart0_seen: Vec::new(), wait_mark: None }, max_cycles: u64::MAX,
++            script: Script { events: Vec::new(), pos: 0, log: true, knob_next: 0, encoder: EncoderDelivery::default(), uart0_seen: Vec::new(), wait_mark: None }, max_cycles: u64::MAX,
              console: Console { all: Vec::new(), usb: Vec::new(), uart0: Vec::new(), mask: 3, prefix: false, capture: false },
 -            camera_input: None, net_tap: None, web: None, host: HostIo::default(), ws: WebState { last_push_cycles: 0, push_interval: 0, audio_sent: 0, ring_updates: 0, grid_updates: Vec::new(), px_pending: 0, px_sent: 0, px_deferred: false, cam_pushed: u64::MAX, cam_sent: false },
 +            camera_input: None, net_tap: None, web: None, host: HostIo::default(), ws: WebState { last_push_cycles: 0, push_interval: 0, audio_sent: 0, ring_updates: 0, grid_updates: Vec::new(), px_pending: 0, px_sent: 0, px_deferred: false, cam_pushed: u64::MAX, cam_sent: false, poweroff_sent: false },
              rt: Realtime { enabled: false, wall_start: None, last_check: 0, behind: 0.0, resyncs: 0, speed: None, speed_mark: None, log: false, log_last: None, log_insns: (0, 0) },
              debug_rom: false, cost: None, model_accesses: Vec::new(), approximate_jit_timing: None, approximate_jit_frontiers: false, model_ready_at: vec![0; S::CORES], model_stop: None, model_attach_error: None,
          }
-@@ -648,6 +648,7 @@ impl<S: Soc> Machine<S> {
+@@ -652,6 +662,7 @@ impl<S: Soc> Machine<S> {
              if self.bus.sw_reset() { self.drain_console(); return Stop::SwReset; }
              if self.bus.cycles() >= self.max_cycles { self.drain_console(); return Stop::Halted; }
              if BOARD_POWER && self.bus.soc_power_off() {
@@ -41,8 +71,48 @@ index 7efd22a..9d623bd 100644
                  let chunk = self.idle_budget((max_insns - n).min(self.max_cycles - self.bus.cycles()), &[]);
                  n += chunk;
                  self.run_steps += chunk;
+@@ -1139,6 +1150,19 @@ impl<S: Soc> Machine<S> {
+             if self.script.log { eprintln!("[script] t={:.3}s {:?}", t as f64 / S::CPU_HZ as f64, a); }
+             match a {
+                 ScriptAction::Gpio(pin, level) => { self.bus.gpio_set_input(pin, level); *self.bus.irq_dirty() = true; }
++                ScriptAction::EncoderEdge { pin, level, phase, direction } => {
++                    let mask = 1u64 << pin;
++                    let before = self.bus.gpio_input() & mask;
++                    self.bus.gpio_set_input(pin, level);
++                    *self.bus.irq_dirty() = true;
++                    let encoder = &mut self.script.encoder;
++                    if phase == 0 { encoder.detent_edges = 0; }
++                    if self.bus.gpio_input() & mask != before {
++                        encoder.gpio_edges += 1;
++                        encoder.detent_edges += 1;
++                    }
++                    if phase == 3 && encoder.detent_edges == 4 { encoder.delivered += direction; }
++                }
+                 ScriptAction::Serial(text) => self.bus.serial_input(text.as_bytes()),
+                 ScriptAction::Uart(n, text) => self.bus.uart_input(n, text.as_bytes()),
+                 ScriptAction::Stop => { self.max_cycles = 0; stopped = true; }
+diff --git a/esp-soc/src/machine/service.rs b/esp-soc/src/machine/service.rs
+index 3cc7c7a6..1a420f1b 100644
+--- a/esp-soc/src/machine/service.rs
++++ b/esp-soc/src/machine/service.rs
+@@ -133,6 +133,15 @@ impl<S: Soc> Machine<S> {
+         ];
+         if let Some(net) = self.service_network_state() { nodes.push(("/soc/wifi".into(), net)); }
+         if let Some(sd) = self.service_sd_state() { nodes.push(("/board/sd".into(), sd)); }
++        if board.encoder().is_some() {
++            let encoder = &self.script.encoder;
++            nodes.push(("/board/encoder".into(), Json::object([
++                ("detents", Json::Int(encoder.target)),
++                ("delivered-detents", Json::Int(encoder.delivered)),
++                ("gpio-edges", Json::counter(encoder.gpio_edges)),
++                ("busy", Json::Bool(self.script.knob_next > self.bus.cycles())),
++            ])));
++        }
+         if let Some((leds, updates)) = board.leds() { nodes.push(("/board/leds".into(), led_state(leds, updates))); }
+         for (name, leds, updates) in board.led_grids() {
+             nodes.push((format!("/board/leds/{name}"), led_state(leds, updates)));
 diff --git a/esp-soc/src/machine/web.rs b/esp-soc/src/machine/web.rs
-index b46d21f..ce725db 100644
+index 3fc0d355..9f54e0a5 100644
 --- a/esp-soc/src/machine/web.rs
 +++ b/esp-soc/src/machine/web.rs
 @@ -105,6 +105,19 @@ impl<S: Soc> Machine<S> {
@@ -65,7 +135,7 @@ index b46d21f..ce725db 100644
      pub(super) fn poll_camera_input(&mut self) {
          if let Some(input) = &self.camera_input {
              let picture = input.lock().unwrap().take();
-@@ -153,14 +166,7 @@ impl<S: Soc> Machine<S> {
+@@ -158,14 +171,7 @@ impl<S: Soc> Machine<S> {
                  "knob" => {
                      // Bound each browser message to about one second of encoder motion.
                      let d = field("d").and_then(|x| x.parse::<i32>().ok()).unwrap_or(1).clamp(-64, 64);
@@ -81,7 +151,7 @@ index b46d21f..ce725db 100644
                  }
                  // a line with its newline, or `key`: bytes exactly as typed (a terminal on the console)
                  "serial" | "key" => {
-@@ -206,6 +212,30 @@ impl<S: Soc> Machine<S> {
+@@ -211,6 +217,30 @@ impl<S: Soc> Machine<S> {
          let args: Vec<_> = args.split_ascii_whitespace().collect();
          let op = field("op").unwrap_or_default();
          let ok = match (op.as_str(), args.as_slice()) {
@@ -112,7 +182,30 @@ index b46d21f..ce725db 100644
              ("hello", []) => {
                  let board = self.bus.board_ref().name();
                  w.send_text(&format!(r#"{{"t":"service","id":{id},"ok":true,"board":"{board}","protocol":1}}"#));
-@@ -256,12 +286,32 @@ impl<S: Soc> Machine<S> {
+@@ -246,6 +276,22 @@ impl<S: Soc> Machine<S> {
+                     true
+                 } else { false }
+             }
++            ("drag", [x1, y1, x2, y2]) => {
++                if let (Ok(x1), Ok(y1), Ok(x2), Ok(y2)) =
++                    (x1.parse::<u16>(), y1.parse::<u16>(), x2.parse::<u16>(), y2.parse::<u16>())
++                {
++                    self.bus.touch_input(x1, y1, true);
++                    let (x, y) = (i32::from(x1), i32::from(y1));
++                    for step in 1..=6 {
++                        let next_x = x + ((i32::from(x2) - x) * step).div_euclid(6);
++                        let next_y = y + ((i32::from(y2) - y) * step).div_euclid(6);
++                        self.service_schedule((150 + (step - 1) * 80) as u32,
++                            ScriptAction::Touch(next_x as u16, next_y as u16, true));
++                    }
++                    self.service_schedule(630, ScriptAction::Touch(x2, y2, false));
++                    true
++                } else { false }
++            }
+             ("gpio", [level]) if matches!(*level, "0" | "1") => {
+                 if let Some(pin) = self.bus.board_ref().named_pin("g0") {
+                     self.bus.gpio_set_input(pin, *level == "1");
+@@ -261,12 +307,35 @@ impl<S: Soc> Machine<S> {
              ("usb-report", bytes) if matches!(bytes.len(), 3 | 8) => self.bus.board_command(&op, &args),
              ("pwrkey" | "battery" | "imu" | "als" | "key" | "key-edge" |
               "contact" | "usb-hid" | "usb-unplug", _) => self.bus.board_command(&op, &args),
@@ -131,13 +224,16 @@ index b46d21f..ce725db 100644
 +        let Some((clk, dt)) = self.bus.board_ref().encoder() else { return false };
 +        let mut cycle = (self.bus.cycles() + step).max(self.script.knob_next);
 +        for _ in 0..delta.unsigned_abs() {
-+            for (pin, level) in Self::quadrature(clk, dt, delta > 0) {
-+                self.script.events.push((cycle, ScriptAction::Gpio(pin, level)));
++            for (phase, (pin, level)) in Self::quadrature(clk, dt, delta > 0).into_iter().enumerate() {
++                self.script.events.push((cycle, ScriptAction::EncoderEdge {
++                    pin, level, phase, direction: i64::from(delta.signum()),
++                }));
 +                cycle += step;
 +            }
 +            cycle += step * 4;
 +        }
 +        self.script.knob_next = cycle;
++        self.script.encoder.target += i64::from(delta);
 +        self.script.events[self.script.pos..].sort_by_key(|event| event.0);
 +        true
 +    }
@@ -146,7 +242,7 @@ index b46d21f..ce725db 100644
          let until = self.bus.cycles().saturating_add(u64::from(hold_ms) * (S::CPU_HZ / 1000));
          self.script.events.push((until, action));
 diff --git a/esp32s3/src/board/cores3.rs b/esp32s3/src/board/cores3.rs
-index 90d1a4a..8506a95 100644
+index 47f44ee6..d243e12a 100644
 --- a/esp32s3/src/board/cores3.rs
 +++ b/esp32s3/src/board/cores3.rs
 @@ -243,6 +243,7 @@ impl BoardModel for Cores3 {
@@ -158,7 +254,7 @@ index 90d1a4a..8506a95 100644
      fn uart_tx(&mut self, cycle: u64, route: esp_soc::uart::UartRoute, byte: u8) {
          if let Some(base) = &mut self.stackchan { base.uart_tx(cycle, route, byte); }
 diff --git a/esp32s3/src/board/stackchan.rs b/esp32s3/src/board/stackchan.rs
-index 3084c9a..1f11eb0 100644
+index 3084c9af..1f11eb04 100644
 --- a/esp32s3/src/board/stackchan.rs
 +++ b/esp32s3/src/board/stackchan.rs
 @@ -252,7 +252,7 @@ impl StackChan {

@@ -14,6 +14,48 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim Device Service 控制候选验证
+
+Virtual-device validation。独立 Device Service 使用同一 Flash 输入逐次创建租约。
+候选 esp32sim 源码 `a6216b68abda3af76f6f491f940fbf0e4e8a42f7`，
+原生可执行文件 SHA-256
+`cb839f1baaf5d0165cbcf765db04499a051acc9dc032e408a19d747f308066d1`。
+CoreS3 在 UART REPL 中写入来宾文件，前后 Flash 快照出现可验证字节差异，
+停止回执保留 16 MiB。QOM 来宾周期递增，Flash、QOM 和控制器遥测 ZIP 成员
+与清单哈希相符。restricted STA 来宾连接成功，控制器记录 DHCP ACK，
+会话导出 Ethernet PCAP。
+
+Cardputer / ADV 的原版 SD 示例分别取得 6 / 41 个完整 SPI 响应块。
+拔卡后两板计数归零并增加复位代次，重新插入后媒体标识更新。
+PaperDIY 使用 `sd_initially_ejected` 启动，旧 API 属性可插拔同一张卡，
+拔出时写时间戳接口返回 `sd_media_ejected`。
+
+StopWatch 在首个 fork 候选上返回 466×466，触摸夹具两轮均在两后端将
+`(233,233)` 由蓝变绿。PaperMono 等待初始界面完成再按住 `(240,650)`
+1 秒，候选上两后端各两轮将 `(440,30)` 由白变黑。
+较早的 PaperMono 等待窗口不足和 CoreS3 文件系统自启动失败保留为独立记录。
+CoreS3 通过同一 UIFlow2 v2.5.3 的 UART REPL 执行原夹具，两个后端各两轮
+观察到触摸标记与绿色像素。
+
+这批结果限定于测试镜像和实际执行的接口。逐设备完整 Arduino、stock、
+审查任务兼容和常驻发布仍待验收。
+
+## 2026-11-27：esp32sim 合并控制版本和审查复核
+
+Virtual-device validation。固定 fork `1bde80f2472c4b4763a66fde63fad9fb4906a7ae`。
+AtomS3R-CAM 与 AtomS3R-M12 在 GPIO18 供电后读回传感器 ID，经旧 API 属性启用
+来宾采样变化，两后端在每板各两次得到五个不同帧。Atom Echo 的音频与 RGB 夹具和
+Basic v2.7 的 GPIO、Grove TMP105 与无电池读回在两后端各两次通过。
+Core2 原版 v2.5.3 Home / Settings 和同一基底的 UART-REPL A/B/C 逐键按下、
+释放各两次通过。StopWatch 原生目录几何改为 466×466。
+
+隔离审核中，Dial 旋钮与 Cardputer SPI SD 读任务在关闭选项时选择 QEMU，
+开启逐设备、逐任务映射时选择 esp32sim，同固件四次均为 `SIM_VERIFIED`。
+Dial 控制器记录三个完成的机械步进与十二条 GPIO 边沿。所有任务保留本地，
+其中 Dial 首次带额外原始键探针的 `SIM_PARTIAL` 结果保留。
+完整目录迁移、常驻发布及真机未在本轮取证。
+[固定证据和可复核的运行时哈希](https://github.com/m5agent/agent-work-logs/blob/9526ccddd4fc24aa0a8c44eb7bf197eee213c1d1/records/m5stack-esp-emulator/2026-11-27-device-service-control-parity/follow-up-milestone.md)。
+
 ## 2026-11-27：esp32sim 与封存后端同固件基准
 
 - Native Device Service virtual-device validation。基线源码

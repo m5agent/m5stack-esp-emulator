@@ -31,8 +31,14 @@ display.print("AtomS3R-M12 probe")
 status = "blocked"
 try:
     from machine import I2C, Pin
+
+    # GPIO18 is the active-low camera power enable.
+    Pin(18, Pin.OUT, value=0)
+    time.sleep_ms(10)
     bus = I2C(0, scl=Pin(9), sda=Pin(12), freq=100000)
-    print("M12_I2C_SCAN", [hex(a) for a in bus.scan()])
+    addresses = bus.scan()
+    print("M12_I2C_SCAN", [hex(address) for address in addresses])
+    print("M12_CAMERA_ACK", 0x3C in addresses)
     bus.writeto(0x3C, bytes([0x30, 0x0A]))
     pid_high = bus.readfrom(0x3C, 1)[0]
     bus.writeto(0x3C, bytes([0x30, 0x0B]))

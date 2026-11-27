@@ -13,7 +13,7 @@ Tab5 支持原生 esp32sim 的 GT911/ILI9881C
 之外提供 S3、经典 ESP32、C6 和 Tab5 的逐板 esp32sim WASM 配置。
 Cardputer K132、StickS3、Core2、StamPLC 和两版 Atom Matrix 的[双内核来宾对照](validation-ledger.md#2026-11-27esp32sim-wasm-第二轮)
 输出一致且 esp32sim 更快，默认选择 esp32sim。网页 MicroPython 编程使用 QEMU-WASM。
-安装、输入、媒体、网络和证据边界见[后端迁移指南](esp32sim-migration.md)及
+[Device Service 候选取证](validation-ledger.md#2026-11-27esp32sim-device-service-控制候选验证)记录来宾 Flash、状态快照、SD 热插拔与 restricted STA。安装、输入、媒体、网络和证据边界见[后端迁移指南](esp32sim-migration.md)及
 [验证台账](validation-ledger.md#2026-11-27esp32sim-三板原生与浏览器回归)。
 
 本页维护当前能力和风险。[项目待办](project-backlog.md)保留未完成需求，

@@ -11,7 +11,10 @@ import re
 
 from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 
-LIVE_PROGRAM_DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2", "atoms3", "stickc-plus2")
+LIVE_PROGRAM_DEVICES = (
+    "cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2", "atoms3", "stickc-plus2",
+    "atom-echo", "atomu",
+)
 LIVE_READY_MARKER = "M5EMU_UART_REPL_READY"
 
 

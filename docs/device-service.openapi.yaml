@@ -2228,6 +2228,9 @@ paths:
         - $ref: "#/components/parameters/SessionId"
         - name: include
           in: query
+          description: >
+            Comma-separated evidence selections. For supported esp32sim sessions,
+            telemetry adds controller diagnostics and flash adds a live Flash export.
           schema:
             type: string
             default: manifest,serial,frames,logs,qom
@@ -2293,6 +2296,9 @@ paths:
   /sessions/{session_id}/qom-snapshot:
     post:
       summary: Store a recursive QOM snapshot
+      description: >
+        On esp32sim with state-snapshot support, samples modeled paths under
+        /machine/board and /machine/soc at one scheduler boundary.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -2386,7 +2392,8 @@ paths:
         Requires storage.read when a runtime ACL is active. Returns metadata
         for an attached session-owned SD image when fixtures.sd.write_stamp
         is true. This covers supported native QEMU SPI fixtures and admitted
-        Tab5 esp-emu SDMMC fixtures. PaperDIY returns sd_media_ejected while the
+        Tab5 esp-emu SDMMC fixtures, as well as esp32sim slots with sd-media.
+        PaperDIY returns sd_media_ejected while the
         slot is empty. A PaperDIY presence command or a Tab5 API reset
         invalidates the prior media identity. Compare stamps around an
         accepted action with the same media identity and a quiet pre-action
@@ -2429,7 +2436,8 @@ paths:
       summary: Sample the native Cardputer or Cardputer ADV SPI SD read counters
       description: >-
         Requires storage.read when a runtime ACL is active. Samples one native
-        SPI controller on a running plain qemu session. Counts accepted CMD17
+        SPI controller on a running plain qemu or spi-sd-read-stats esp32sim
+        session. Counts accepted CMD17
         and CMD18 reads and fully transmitted read blocks. Compare samples
         with matching process, media, attachment and reset generations. An
         observed empty slot has null source/media IDs and zero read counters.
@@ -2477,7 +2485,7 @@ paths:
                     pattern: "^[0-9a-f]{64}$"
                   runtime:
                     type: string
-                    const: qemu
+                    enum: [qemu, esp32sim]
                   runtime_generation:
                     type: string
                     pattern: "^[0-9a-f]{64}$"
@@ -4126,6 +4134,9 @@ components:
                 maxItems: 2
                 items: {type: integer, minimum: 1}
               variants:
+                type: array
+                items: {type: string}
+              service_features:
                 type: array
                 items: {type: string}
               radio_pair_modes:
@@ -5864,7 +5875,8 @@ components:
           default: false
           description: >-
             Prepare the session-owned image with the PaperDIY slot initially empty.
-            True requires an SD artifact and the plain native QEMU hot-plug model.
+            True requires an SD artifact and either native QEMU hot-plug or
+            esp32sim with sd-initially-ejected support.
         filesystem:
           $ref: "#/components/schemas/FilesystemFixture"
     FilesystemFixture:
@@ -5998,9 +6010,21 @@ components:
     Esp32SimNetworkExecution:
       type: object
       additionalProperties: false
-      required: [policy]
+      oneOf:
+        - required: [policy]
+          properties:
+            mode: {const: nat}
+        - required: [mode]
+          properties:
+            mode: {const: restricted}
+          not:
+            required: [policy]
       properties:
         profile: {const: esp32sim-sta}
+        mode:
+          enum: [nat, restricted]
+          default: nat
+          description: Restricted mode uses the virtual AP without host NAT. Requires net-restricted support.
         ssid: {type: string, minLength: 1, maxLength: 32}
         psk: {type: string, maxLength: 63, writeOnly: true}
         policy:
@@ -6653,6 +6677,9 @@ components:
             rom_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
             board: {type: string}
             control_protocol: {const: 1}
+            service_features:
+              type: array
+              items: {type: string}
             flash_bytes: {type: integer}
             psram_bytes: {type: integer}
             rom: {type: string, description: ESP32-P4 ROM filename selected from the bootloader revision.}
