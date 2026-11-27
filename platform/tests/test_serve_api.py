@@ -311,6 +311,21 @@ class ServePeripheralApiTests(unittest.TestCase):
             row["runtime_cases"]["matrix"],
         )
 
+    def test_radio_pair_advertises_modes_and_rejects_untyped_requests(self):
+        device = self.get_json("/api/v1/devices/nanoc6")
+        self.assertEqual(device["runtimes"]["esp32sim"]["radio_pair_modes"],
+                         ["nanoc6-thread", "nanoc6-zigbee"])
+        request = Request(
+            self.base + "/api/v1/radio-pairs",
+            method="POST",
+            data=b'{"mode":"nanoc6-thread","firmware_ids":["id"],"peer_port":8080}',
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as rejected:
+            urlopen(request, timeout=5)
+        self.assertEqual(rejected.exception.code, 400)
+        self.assertEqual(json.load(rejected.exception)["error"]["code"], "invalid_radio_pair")
+
     def test_filesystem_source_query_requires_one_explicit_flag(self):
         route = "/api/v1/sessions/missing/storage/filesystem"
         for query in ("?include_source=", "?include_source=1&include_source=", "?include_source=2"):

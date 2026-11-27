@@ -1,6 +1,71 @@
+diff --git a/esp-soc/src/board.rs b/esp-soc/src/board.rs
+index edc79a3..00e1a8b 100644
+--- a/esp-soc/src/board.rs
++++ b/esp-soc/src/board.rs
+@@ -220,6 +220,8 @@ pub trait BoardModel {
+     /// parse time so an unknown verb stays a script error.
+     fn board_command(&mut self, _cycle: VirtualCycle, _verb: &str, _args: &[&str]) -> bool { false }
+     fn accepts_command(&self, _verb: &str) -> bool { false }
++    /// Modeled yaw and pitch in degrees, sampled at the current board horizon.
++    fn servo_angles(&self) -> Option<[f64; 2]> { None }
+     /// SoC supply from an external PMIC. None for boards without a switched supply.
+     fn soc_powered(&self) -> Option<bool> { None }
+     /// Observe software pad routing without requesting instruction-sized GPIO timing.
+diff --git a/esp-soc/src/machine.rs b/esp-soc/src/machine.rs
+index 7efd22a..9d623bd 100644
+--- a/esp-soc/src/machine.rs
++++ b/esp-soc/src/machine.rs
+@@ -79,7 +79,7 @@ pub struct Realtime {
+ }
+ 
+ struct WebState { last_push_cycles: u64, /// EX170: `CPU_HZ / display_push_hz()` as of the last evaluation (0 = not evaluated yet); boards are fixed once booted.
+-    push_interval: u64, audio_sent: usize, ring_updates: u64, grid_updates: Vec<u64>, px_pending: u64, px_sent: u64, px_deferred: bool, cam_pushed: u64, cam_sent: bool }
++    push_interval: u64, audio_sent: usize, ring_updates: u64, grid_updates: Vec<u64>, px_pending: u64, px_sent: u64, px_deferred: bool, cam_pushed: u64, cam_sent: bool, poweroff_sent: bool }
+ 
+ pub struct Machine<S: Soc> {
+     pub mac: [u8; 6],
+@@ -181,7 +181,7 @@ impl<S: Soc> Machine<S> {
+             exceptions: 0, interrupts: 0, irq_hist: vec![[0; 32]; S::CORES],
+             script: Script { events: Vec::new(), pos: 0, log: true, knob_next: 0, uart0_seen: Vec::new(), wait_mark: None }, max_cycles: u64::MAX,
+             console: Console { all: Vec::new(), usb: Vec::new(), uart0: Vec::new(), mask: 3, prefix: false, capture: false },
+-            camera_input: None, net_tap: None, web: None, host: HostIo::default(), ws: WebState { last_push_cycles: 0, push_interval: 0, audio_sent: 0, ring_updates: 0, grid_updates: Vec::new(), px_pending: 0, px_sent: 0, px_deferred: false, cam_pushed: u64::MAX, cam_sent: false },
++            camera_input: None, net_tap: None, web: None, host: HostIo::default(), ws: WebState { last_push_cycles: 0, push_interval: 0, audio_sent: 0, ring_updates: 0, grid_updates: Vec::new(), px_pending: 0, px_sent: 0, px_deferred: false, cam_pushed: u64::MAX, cam_sent: false, poweroff_sent: false },
+             rt: Realtime { enabled: false, wall_start: None, last_check: 0, behind: 0.0, resyncs: 0, speed: None, speed_mark: None, log: false, log_last: None, log_insns: (0, 0) },
+             debug_rom: false, cost: None, model_accesses: Vec::new(), approximate_jit_timing: None, approximate_jit_frontiers: false, model_ready_at: vec![0; S::CORES], model_stop: None, model_attach_error: None,
+         }
+@@ -648,6 +648,7 @@ impl<S: Soc> Machine<S> {
+             if self.bus.sw_reset() { self.drain_console(); return Stop::SwReset; }
+             if self.bus.cycles() >= self.max_cycles { self.drain_console(); return Stop::Halted; }
+             if BOARD_POWER && self.bus.soc_power_off() {
++                self.service_poweroff();
+                 let chunk = self.idle_budget((max_insns - n).min(self.max_cycles - self.bus.cycles()), &[]);
+                 n += chunk;
+                 self.run_steps += chunk;
+diff --git a/esp-soc/src/machine/web.rs b/esp-soc/src/machine/web.rs
+index b46d21f..ce725db 100644
 --- a/esp-soc/src/machine/web.rs
 +++ b/esp-soc/src/machine/web.rs
-@@ -153,14 +153,7 @@
+@@ -105,6 +105,19 @@ impl<S: Soc> Machine<S> {
+         w.send_text(&format!("{{\"t\":\"stat\",\"time\":{:.2},\"insns\":{},\"frames\":{},\"display_rotation\":{},\"behind\":{:.2},\"resyncs\":{},\"speed\":{},\"cam\":{},\"gpio_in\":\"{:x}\"}}", self.seconds(), self.insns(), board.display_frames(), board.display_rotation(), self.rt.behind, self.rt.resyncs, self.rt.speed.map_or_else(|| "null".to_string(), |s| format!("{:.3}", s)), self.bus.camera_frames(), self.bus.gpio_input()));
+     }
+ 
++    /// Report a modeled supply cut with the panel at the same scheduler boundary.
++    pub(super) fn service_poweroff(&mut self) {
++        let Some(w) = self.web.clone().filter(|w| w.is_service()) else { return };
++        if self.ws.poweroff_sent { return; }
++        self.drain_console();
++        let mut receipt = vec![7];
++        if let Some((width, height, pixels, _)) = self.bus.board_ref().display() {
++            receipt.extend(display_message(width, height, &pixels));
++        }
++        w.send_binary(&receipt);
++        self.ws.poweroff_sent = true;
++    }
++
+     pub(super) fn poll_camera_input(&mut self) {
+         if let Some(input) = &self.camera_input {
+             let picture = input.lock().unwrap().take();
+@@ -153,14 +166,7 @@ impl<S: Soc> Machine<S> {
                  "knob" => {
                      // Bound each browser message to about one second of encoder motion.
                      let d = field("d").and_then(|x| x.parse::<i32>().ok()).unwrap_or(1).clamp(-64, 64);
@@ -16,7 +81,7 @@
                  }
                  // a line with its newline, or `key`: bytes exactly as typed (a terminal on the console)
                  "serial" | "key" => {
-@@ -206,6 +199,30 @@
+@@ -206,6 +212,30 @@ impl<S: Soc> Machine<S> {
          let args: Vec<_> = args.split_ascii_whitespace().collect();
          let op = field("op").unwrap_or_default();
          let ok = match (op.as_str(), args.as_slice()) {
@@ -47,7 +112,7 @@
              ("hello", []) => {
                  let board = self.bus.board_ref().name();
                  w.send_text(&format!(r#"{{"t":"service","id":{id},"ok":true,"board":"{board}","protocol":1}}"#));
-@@ -256,12 +273,32 @@
+@@ -256,12 +286,32 @@ impl<S: Soc> Machine<S> {
              ("usb-report", bytes) if matches!(bytes.len(), 3 | 8) => self.bus.board_command(&op, &args),
              ("pwrkey" | "battery" | "imu" | "als" | "key" | "key-edge" |
               "contact" | "usb-hid" | "usb-unplug", _) => self.bus.board_command(&op, &args),
@@ -80,20 +145,23 @@
      fn service_schedule(&mut self, hold_ms: u32, action: ScriptAction) {
          let until = self.bus.cycles().saturating_add(u64::from(hold_ms) * (S::CPU_HZ / 1000));
          self.script.events.push((until, action));
---- a/esp-soc/src/board.rs
-+++ b/esp-soc/src/board.rs
-@@ -220,6 +220,8 @@
-     /// parse time so an unknown verb stays a script error.
-     fn board_command(&mut self, _cycle: VirtualCycle, _verb: &str, _args: &[&str]) -> bool { false }
-     fn accepts_command(&self, _verb: &str) -> bool { false }
-+    /// Modeled yaw and pitch in degrees, sampled at the current board horizon.
-+    fn servo_angles(&self) -> Option<[f64; 2]> { None }
-     /// SoC supply from an external PMIC. None for boards without a switched supply.
-     fn soc_powered(&self) -> Option<bool> { None }
-     /// Observe software pad routing without requesting instruction-sized GPIO timing.
+diff --git a/esp32s3/src/board/cores3.rs b/esp32s3/src/board/cores3.rs
+index 90d1a4a..8506a95 100644
+--- a/esp32s3/src/board/cores3.rs
++++ b/esp32s3/src/board/cores3.rs
+@@ -243,6 +243,7 @@ impl BoardModel for Cores3 {
+     fn name(&self) -> &'static str {
+         if self.stackchan.is_some() { "m5stack-stackchan" } else { "m5stack-cores3" }
+     }
++    fn servo_angles(&self) -> Option<[f64; 2]> { self.stackchan.as_ref().map(StackChan::angles) }
+     fn uses_uart_pins(&self) -> bool { self.stackchan.is_some() }
+     fn uart_tx(&mut self, cycle: u64, route: esp_soc::uart::UartRoute, byte: u8) {
+         if let Some(base) = &mut self.stackchan { base.uart_tx(cycle, route, byte); }
+diff --git a/esp32s3/src/board/stackchan.rs b/esp32s3/src/board/stackchan.rs
+index 3084c9a..1f11eb0 100644
 --- a/esp32s3/src/board/stackchan.rs
 +++ b/esp32s3/src/board/stackchan.rs
-@@ -252,7 +252,7 @@
+@@ -252,7 +252,7 @@ impl StackChan {
          }
          true
      }
@@ -102,13 +170,3 @@
          let positions = self.servo.positions();
          std::array::from_fn(|i| (f64::from(positions[i]) - f64::from(SERVO_ZERO[i])) * 0.3125)
      }
---- a/esp32s3/src/board/cores3.rs
-+++ b/esp32s3/src/board/cores3.rs
-@@ -243,6 +243,7 @@
-     fn name(&self) -> &'static str {
-         if self.stackchan.is_some() { "m5stack-stackchan" } else { "m5stack-cores3" }
-     }
-+    fn servo_angles(&self) -> Option<[f64; 2]> { self.stackchan.as_ref().map(StackChan::angles) }
-     fn uses_uart_pins(&self) -> bool { self.stackchan.is_some() }
-     fn uart_tx(&mut self, cycle: u64, route: esp_soc::uart::UartRoute, byte: u8) {
-         if let Some(base) = &mut self.stackchan { base.uart_tx(cycle, route, byte); }

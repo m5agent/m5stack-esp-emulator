@@ -527,6 +527,7 @@ class Control:
         self.pending = {}
         self.sequence = 0
         self.closed = False
+        self.poweroff_frame = None
         self.reader = threading.Thread(target=self._read, name="esp32sim-control", daemon=True)
         self.reader.start()
 
@@ -554,6 +555,9 @@ class Control:
                         self._reply(struct.unpack_from("<I", data, 1)[0], data[5:])
                     elif opcode == 0x82 and data[0] == 2:
                         self.on_audio(struct.unpack_from("<I", data, 1)[0], data[5:])
+                    elif opcode == 0x82 and data[0] == 7:
+                        with self.condition:
+                            self.poweroff_frame = data[1:]
         except (OSError, ValueError, EOFError, struct.error):
             pass
         finally:

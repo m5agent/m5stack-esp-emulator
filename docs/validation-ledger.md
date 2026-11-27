@@ -14,6 +14,25 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-11-27：esp32sim 双租约、断电证据与默认后端对照
+
+- 原生 virtual-device validation。固定 fork `4e257b6be8ee0ed706c2e509d8f31ef7472a424b`，
+  service overlay 的 esp32sim executable SHA-256 为
+  `e2982f3c99bfedfbde9f70c402f6bb41c34e66f06ac6dd97ef85d722b2b4fa2c`。
+  StickC `axp192_m5stickc-3` 与 StickC Plus `power-3` 在旧 overlay 上各两次
+  重现 `failed`。新 overlay 从板级电源状态采集断电收据，在两例各两次得到
+  `stopped/guest_poweroff`、全黑终止帧及可下载证据。
+- 原生 virtual-device validation。双租约 API 在两次独立执行中复现对应来宾
+  payload。ADV 三种 CAP 收到 `wasm` 或 CC1101 序列号 0。PaperMono、Nesso
+  收到顺序 LoRa payload。NanoC6 Thread 接收 UDP `Hello,M5Stack`，Zigbee
+  经类型化按键触发接收端蓝灯开关。各租约保留联合证据后清理。
+- 默认值对照 PARTIAL。M5Stick 和 StickT2 的原版镜像各两次使用省略 runtime
+  的会话，分别达到 MPU9250 ID `0x71`、`M5StickC initializing...OK`。完整原厂
+  UI 未复现。PaperMono 的 UIFlow2 fixture 在 QEMU 两次触控后更新画面，esp32sim
+  两次保持原帧。StopWatch 两次命中触控测试像素，esp32sim 帧为 468×466，
+  QEMU 为 fixture 要求的 466×466。目录的完整应用行为和重复性仍待补齐。
+
+
 ## 2026-11-27：esp32sim WASM 逐板验收
 
 Browser-WASM virtual-device validation。esp32sim 源码

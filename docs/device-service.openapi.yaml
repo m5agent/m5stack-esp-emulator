@@ -1845,6 +1845,87 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+  /radio-pairs:
+    post:
+      summary: Create two linked native esp32sim radio leases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [mode, firmware_ids]
+              properties:
+                mode:
+                  $ref: "#/components/schemas/RadioPairMode"
+                firmware_ids:
+                  type: array
+                  items: {type: string, pattern: "^[0-9a-f]{64}$"}
+                  minItems: 2
+                  maxItems: 2
+                ttl_seconds: {type: integer, minimum: 30}
+      responses:
+        "202":
+          description: Both leases accepted for provisioning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadioPair"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /radio-pairs/{pair_id}:
+    parameters:
+      - name: pair_id
+        in: path
+        required: true
+        schema: {type: string, pattern: "^[0-9a-f]{32}$"}
+    get:
+      summary: Read both session states for a radio pair
+      responses:
+        "200":
+          description: Paired lease state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadioPair"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Stop both members and retain session evidence
+      responses:
+        "200":
+          description: Paired lease state after requesting teardown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadioPair"
+        "404":
+          $ref: "#/components/responses/Error"
+  /radio-pairs/{pair_id}/evidence:
+    get:
+      summary: Download evidence from both radio pair members
+      parameters:
+        - name: pair_id
+          in: path
+          required: true
+          schema: {type: string, pattern: "^[0-9a-f]{32}$"}
+      responses:
+        "200":
+          description: ZIP with pair.json, both member archives and the available Cooja timing trace
+          content:
+            application/zip:
+              schema: {type: string, format: binary}
+        "404":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
   /sessions:
     get:
       summary: List leases and retained session history
@@ -3290,6 +3371,27 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    RadioPairMode:
+      type: string
+      enum: [cap-lora1262, cap-lora868, cap-cc1101, papermono-lora, nesso-lora, nanoc6-thread, nanoc6-zigbee]
+    RadioPair:
+      type: object
+      required: [pair_id, mode, session_ids, sessions]
+      properties:
+        pair_id: {type: string, pattern: "^[0-9a-f]{32}$"}
+        mode:
+          $ref: "#/components/schemas/RadioPairMode"
+        session_ids:
+          type: array
+          items: {type: string, pattern: "^[0-9a-f]{32}$"}
+          minItems: 2
+          maxItems: 2
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+          minItems: 2
+          maxItems: 2
     ObservationStatus:
       type: object
       required: [state, available, gap_possible]
@@ -4026,6 +4128,10 @@ components:
               variants:
                 type: array
                 items: {type: string}
+              radio_pair_modes:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RadioPairMode"
               default_firmware_sha256s:
                 type: array
                 description: Normalized Tab5 Flash digests selected for esp32sim on this operator panel configuration.
